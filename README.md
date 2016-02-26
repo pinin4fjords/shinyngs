@@ -1,8 +1,8 @@
 ## Synopsis
 
-This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications, as and when I require them or someone chooses to contribute them. Imporantly this will use the module functionality of Shiny (http://shiny.rstudio.com/articles/modules.html) to make components re-usable and simplify constrution of a variety of applications. 
+This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder as a toy example. 
 
-As a toy example of Shiny modules, this currently just makes a heatmap builder. But I'm modularising a somewhat large RNA-seq application, with others to follow.
+The app uses Shiny modules (http://shiny.rstudio.com/articles/modules.html), the learning of which was one of the motivations of producing this package. The provision of modules as reusable components should enable the simple production of a variety of applications in future.  
 
 For the heat map and future applications, data must be in the SummarisedExperiment structure of the GenomicRanges package. This allows multiple expression matrices to be stored, alongside experimental variables and annotation.
 
