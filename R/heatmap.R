@@ -24,7 +24,7 @@ heatmapInput <- function(id, se, group_vars, default_groupvar) {
         c(Row = "row", Column = "column", None = "none")), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), conditionalPanel(condition = paste0("input['", 
         ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)), conditionalPanel(condition = paste0("input['", 
         ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Selects samples by group defined by:", group_vars, selected = default_groupvar), uiOutput(ns("groupSamples"))), 
-        checkboxGroupInput(ns("groupVars"), "Variables:", group_vars, selected = group_vars, inline = TRUE), uiOutput(ns("geneSelect")), downloadButton("downloadHeatMap", "Download Plot")  #,
+        checkboxGroupInput(ns("groupVars"), "Variables:", group_vars, selected = group_vars, inline = TRUE), uiOutput(ns("geneSelect")), downloadButton(ns("downloadHeatMap"), "Download Plot")  #,
 )
     
 }
