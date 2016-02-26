@@ -55,6 +55,7 @@ Shiny apps are great for NGS and bioinformatics applications in general. But app
 ## Installation
 
 ```{r, eval=FALSE}
+library(devtools)
 install_github('pinin4fjords/shinyngs')
 ```
 
