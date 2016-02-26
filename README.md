@@ -1,8 +1,14 @@
 ## Synopsis
 
-Shiny layouts for next-generation sequencing applications. Will provide Shiny applications for various array and NGS applications. Currently very RNA-seq centric, in fact since I'm currently migrating from a monster RNA-seq Shiny script for demonstration purposes this just makes heat maps. But I have plans....
+This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications, as and when I require them or someone chooses to contribute them. Imporantly this will use the module functionality of Shiny (http://shiny.rstudio.com/articles/modules.html) to make components re-usable and simplify constrution of a variety of applications. 
+
+As a toy example of Shiny modules, this currently just makes a heatmap builder. But I'm modularising a somewhat large RNA-seq application, with others to follow.
+
+For the heat map and future applications, data must be in the SummarisedExperiment structure of the GenomicRanges package. This allows multiple expression matrices to be stored, alongside experimental variables and annotation.
 
 ## Code Example
+
+### A basic heatmap builder
 
 To produce a simple heat map using some example data you'd do the following:
 
@@ -48,9 +54,64 @@ app <- prepareApp("heatmap", se, params)
 shinyApp(app$ui, app$server)
 ```
 
+#### Adding a gene set filter
+
+It's quite handy to see heat maps based on known gene sets. Assuming you have a bunch of .gmt format gene set files from MSigDB keyed by Entrez ID, you can add a gene set filter to the heatmap controls like:
+
+```{r, eval=FALSE}
+gene_sets = list(
+  'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
+  'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
+  'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
+  'GO cellular component' = "/path/to/MSigDB/c5.cc.v5.0.entrez.gmt",
+  'GO molecular function' = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
+  'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
+)
+
+params <- list(
+  transcriptfield = "ensembl_gene_id", 
+  entrezgenefield = "entrezgene",
+  genefield = "external_gene_name", 
+  group_vars = c('cell', 'dex', 'albut'), 
+  default_groupvar = 'albut',
+  geneset_files = gene_sets
+)
+
+app <- prepareApp("heatmap", se, params)
+shinyApp(app$ui, app$server)
+```
+
+This will read in the gene sets (which will take a while first time), and use them to add a filter which will allow users to make heat maps based on known sets of genes. Of course you could make your own .gmt files with custom gene sets.
+
+### To make your own Summarized experiment objects
+
+Assuming you have: 
+
+* an expression matrix
+* a data frame of experimental variables with rows matching the columns of the expression matrix 
+* a data frame containing annotation, one row for each of the expression matrix
+
+... you can make a StructuredExperiment like:
+
+```{r, eval=FALSE}
+se <- SummarizedExperiment(
+  assays=SimpleList(expression=expression),
+  colData=DataFrame(experiment)
+)
+mcols(se) <- annotation
+```
+
+### Running on a shiny server
+
+Just use the commands sets above with shinyApp() in a file called app.R in a directory of its own on your Shiny server.
+
 ## Motivation
 
 Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it's not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.
+
+For example this package currently contains two Shiny modules: 'heatmap' and 'genesets'. 'heatmap' provides controls and a plot for a heatmap while 'genesets' provides the re-usable component of a gene set filter and is currently only called from the heatmap module. Providing the gene sets filter as a module, however, will allow it to be used in multiple places in a Shiny application, each getting its own namespace. Having the same component (i.e. produced from the same code for maintainability) on say multiple sidbarLayout() elements within different tabPanels() is difficult without this mechanism.
+
+I intend to provide modules for a number of things I currently use (boxplots, PCA, scatterplots), which can then be simply plugged into many different applications.
 
 ## Installation
 
@@ -61,7 +122,7 @@ install_github('pinin4fjords/shinyngs')
 
 ## Contributors
 
-This is an experimental embryonic project, but I can be reached on @pinin4fjords with any queries.
+This is an experimental embryonic project, but I can be reached on @pinin4fjords with any queries. Other contributors welcome.
 
 ## License
 
