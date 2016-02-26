@@ -10,11 +10,11 @@ License: MIT
 LazyData: true
 Imports:
     DT,
+    GenomicRanges,
     pheatmap,
     plotly,
     RColorBrewer,
     shiny,
     shinyBS,
-    shinyjs,
-    SummarizedExperiment
+    shinyjs
 RoxygenNote: 5.0.1

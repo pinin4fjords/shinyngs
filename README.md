@@ -1,6 +1,6 @@
 ## Synopsis
 
-Shiny layouts for next-generation sequencing applications. Provides Shiny applications for various array and NGS applications. Currently very RNA-seq centric, with plans for expansion.
+Shiny layouts for next-generation sequencing applications. Will provide Shiny applications for various array and NGS applications. Currently very RNA-seq centric, in fact since I'm currently migrating from a monster RNA-seq Shiny script for demonstration purposes this just makes heat maps. But I have plans....
 
 ## Code Example
 
@@ -54,19 +54,13 @@ Shiny apps are great for NGS and bioinformatics applications in general. But app
 
 ## Installation
 
-TODO: Provide code examples and explanations of how to get the project.
-
-## API Reference
-
-TODO: Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
-
-## Tests
-
-TODO: Describe and show how to run the tests with code examples.
+```{r, eval=FALSE}
+install_github('pinin4fjords/shinyngs')
+```
 
 ## Contributors
 
-TODO: Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
+This is an experimental embryonic project, but I can be reached on @pinin4fjords with any queries.
 
 ## License
 
