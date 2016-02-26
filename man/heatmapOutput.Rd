@@ -17,7 +17,7 @@ as.character()
 This provides actual heatmap element for display by applications
 }
 \examples{
-heatmapOutput("heatmap")
+heatmapOutput('heatmap')
 }
 \keyword{shiny}
 

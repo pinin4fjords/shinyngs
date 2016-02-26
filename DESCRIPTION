@@ -1,8 +1,20 @@
 Package: shinyngs
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.2.2)
-License: What license is it under?
+Title: Shiny apps for NGS data
+Version: 0.0.1
+Authors@R: person("Jonathan", "Manning", email = "Jonathan.Manning@ed.ac.uk", role = c("aut", "cre"))
+Description: Provides Shiny applications for various array and NGS applications.
+    Currently very RNA-seq centric, with plans for expansion.
+Depends:
+    R (>= 3.2.2)
+License: MIT
 LazyData: true
+Imports:
+    DT,
+    pheatmap,
+    plotly,
+    RColorBrewer,
+    shiny,
+    shinyBS,
+    shinyjs,
+    SummarizedExperiment
+RoxygenNote: 5.0.1

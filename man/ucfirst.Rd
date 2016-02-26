@@ -17,6 +17,6 @@ Capitalise the first letter of a string
 }
 \examples{
 > ucfirst('Example')
-[1] "Example"
+[1] 'Example'
 }
 

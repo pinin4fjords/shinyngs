@@ -38,7 +38,7 @@ which need to be converted to another (e.g. Symbol, Ensembl gene ID).
 This would be common when dealign with MSigDB gene sets, for example.
 }
 \examples{
-geneset_functions <- callModule(geneset, "heatmap", annotation, entrezgenefield, genefield, geneset_files)
+geneset_functions <- callModule(geneset, 'heatmap', annotation, entrezgenefield, genefield, geneset_files)
 }
 \keyword{shiny}
 

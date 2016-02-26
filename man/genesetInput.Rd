@@ -18,7 +18,7 @@ The gene set module is for adding a gene set filter to shiny UI elements.
 This will generally not be called directly, but by other modules
 }
 \examples{
-genesetInput(ns("heatmap"))
+genesetInput(ns('heatmap'))
 }
 \keyword{shiny}
 

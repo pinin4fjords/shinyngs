@@ -22,8 +22,41 @@ Draws on various components (heatmaps, tables etc) to produce the UI and server
 components of a variety of shiny apps, based on the type and data specified.
 }
 \examples{
-app <- prepareApp("heatmap", se, params)
-shinyApp(app$ui, app$server)
+library(shinyngs)
+library(shiny)
+
+# Get some example data in the form of a StructuredExperiment object
+data(airway, package="airway")
+se <- airway
+
+# Use Biomart to retrieve some annotation, and add it to the object
+library(biomaRt)
+attributes <- c(
+  "ensembl_gene_id", # The sort of ID your results are keyed by
+  "entrezgene", # Will be used mostly for gene set based stuff
+  "external_gene_name" # Used to annotate gene names on the plot
+)
+
+mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
+annotation <- getBM(attributes = attributes, mart = mart)
+annotation <- annotation[order(annotation$entrezgene),]
+
+mcols(se) <- annotation[match(rownames(se), annotation$ensembl_gene_id),]
+
+# Specify some display parameters
+params <- list(
+ transcriptfield = "ensembl_gene_id", 
+ entrezgenefield = "entrezgene",
+ genefield = "external_gene_name", 
+ group_vars = c('cell', 'dex', 'albut'), 
+ default_groupvar = 'albut'
+)
+ 
+ # Prepare the UI and server parts of the Shiny app
+ app <- prepareApp("heatmap", se, params)
+ 
+ # Run the Shiny app
+ shinyApp(app$ui, app$server)
 }
 \keyword{shiny}
 

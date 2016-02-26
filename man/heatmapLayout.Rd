@@ -13,7 +13,7 @@ heatmapLayout(se, params)
 Just an abstraction to make prepareApp more concise
 }
 \examples{
-tabPanel("Home", heatmapLayout(params))))
+tabPanel('Home', heatmapLayout(params))))
 }
 \keyword{shiny}
 

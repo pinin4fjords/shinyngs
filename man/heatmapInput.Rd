@@ -24,7 +24,7 @@ as.character()
 This provides the form elements to control the heatmap display
 }
 \examples{
-heatmapInput("heatmap", se, group_vars, default_groupvar
+heatmapInput('heatmap', se, group_vars, default_groupvar
 }
 \keyword{shiny}
 

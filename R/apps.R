@@ -5,46 +5,93 @@
 #'
 #'
 #' @param type A string specifying the type of shiny app required (options: heatmap)
+#' @param se A SummarizedExperiment object containing assay data (expression, 
+#' counts...), sample data and annotation data for the rows.
 #' @param params A list containing data and display options for the Shiny app
 #'
 #' @return output A list of length 2 containing: the UI and server components
 #'
 #' @keywords shiny
 #'
+#' @import shiny
 #' @export
 #'
 #' @examples
-#' app <- prepareApp("heatmap", params)
-#' shinyApp(app$ui, app$server)
+#' library(shinyngs)
+#' library(shiny)
+#' 
+#' # Get some example data in the form of a StructuredExperiment object
+#' data(airway, package="airway")
+#' se <- airway
+#' 
+#' # Use Biomart to retrieve some annotation, and add it to the object
+#' library(biomaRt)
+#' attributes <- c(
+#'   "ensembl_gene_id", # The sort of ID your results are keyed by
+#'   "entrezgene", # Will be used mostly for gene set based stuff
+#'   "external_gene_name" # Used to annotate gene names on the plot
+#')
+#'
+#'mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
+#'annotation <- getBM(attributes = attributes, mart = mart)
+#'annotation <- annotation[order(annotation$entrezgene),]
+#'
+#'mcols(se) <- annotation[match(rownames(se), annotation$ensembl_gene_id),]
+#'
+#'# Specify some display parameters
+#'params <- list(
+#'  transcriptfield = "ensembl_gene_id", 
+#'  entrezgenefield = "entrezgene",
+#'  genefield = "external_gene_name", 
+#'  group_vars = c('cell', 'dex', 'albut'), 
+#'  default_groupvar = 'albut'
+#')
+#'  
+#'  # Prepare the UI and server parts of the Shiny app
+#'  app <- prepareApp("heatmap", se, params)
+#'  
+#'  # Run the Shiny app
+#'  shinyApp(app$ui, app$server)
 
-
-prepareApp <- function(type, params = list()) {
-
+prepareApp <- function(type, se, params = list()) {
+    
     if (type == "heatmap") {
-
-        source("heatmap.R")
-
-        ui <- fluidPage(useShinyjs(), navbarPage(id = "pages", title = "Heatmap builder:",
-            tabPanel("Home", heatmapLayout(params))))
-
+        
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Heatmap builder:", tabPanel("Home", heatmapLayout(se, params))))
+        
         server <- function(input, output, session) {
-            heatmapModuleCall()
+            heatmapModuleCall(se, params)
         }
-
+        
     }
-
+    
     return(list(ui = ui, server = server))
-
+    
 }
 
-heatmapLayout <- function(params) {
-    sidebarLayout(sidebarPanel(heatmapInput("heatmap", params$experiment, params$group_vars,
-        params$default_groupvar, params$gene_set_dir, params$gene_set_type_names)),
-        mainPanel(heatmapOutput("heatmap")))
+#' Produce the controls and output for a heatmap using the heatmap module
+#' 
+#' Just an abstraction to make prepareApp more concise 
+#'
+#' @param params A list object of parameters
+#'
+#' @keywords shiny
+#'
+#' @examples
+#' tabPanel('Home', heatmapLayout(params))))
+
+heatmapLayout <- function(se, params) {
+    sidebarLayout(sidebarPanel(heatmapInput("heatmap", se, params$group_vars, params$default_groupvar)), mainPanel(heatmapOutput("heatmap")))
 }
 
-heatmapModuleCall <- function(params) {
-    callModule(heatmap, "heatmap", params$experiment, params$expression, params$annotation,
-        params$transcriptfield, params$entrezgenefield, params$genefield, params$gene_set_dir,
-        params$gene_set_type_names)
-}
+#' Run the call to the heatmap module's server function
+#' 
+#' Just an abstraction to make prepareApp more concise 
+#'
+#' @param params A list object of parameters
+#'
+#' @keywords shiny
+
+heatmapModuleCall <- function(se, params) {
+    callModule(heatmap, "heatmap", se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
+} 
