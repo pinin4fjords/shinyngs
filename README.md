@@ -109,7 +109,13 @@ Just use the commands sets above with shinyApp() in a file called app.R in a dir
 
 Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it's not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.
 
-For example this package currently contains two Shiny modules: 'heatmap' and 'genesets'. 'heatmap' provides controls and a plot for a heatmap while 'genesets' provides the re-usable component of a gene set filter and is currently only called from the heatmap module. Providing the gene sets filter as a module, however, will allow it to be used in multiple places in a Shiny application, each getting its own namespace. Having the same component (i.e. produced from the same code for maintainability) on say multiple sidbarLayout() elements within different tabPanels() is difficult without this mechanism.
+For example this package currently contains three Shiny modules: 
+
+* heatmap - provides controls and a display for making heat maps based on user criteria
+* geneselect - provides a UI element for selecing the rows of a matrix based on criteria such as variance. Called by the heatmap module
+* genesets - provides UI element for selecting gene sets. Called by the geneselect module when a user chooses to filter by gene set.
+
+Providing the gene sets filter as a module, for example, will allow it to be used in multiple places in a Shiny application, each getting its own namespace. Having the same component (i.e. produced from the same code for maintainability) on say multiple sidbarLayout() elements within different tabPanels() is difficult without this mechanism.
 
 I intend to provide modules for a number of things I currently use (boxplots, PCA, scatterplots), which can then be simply plugged into many different applications.
 

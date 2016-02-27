@@ -31,4 +31,20 @@ prettifyVariablename <- function(vn) {
 
 ucfirst <- function(string) {
     paste0(toupper(substr(string, 1, 1)), substr(string, 2, nchar(string)))
+}
+
+#' Count the number of lines in a string
+#'
+#' @param string A string
+#'
+#' @return output Integer supplying the number of lines in a string
+#'
+#' @export
+#' 
+#' @examples
+#' > nlines('foo\nbar')
+#' [1] 2
+
+nlines <- function(string) {
+    length(unlist(strsplit(string, "\n")))
 } 

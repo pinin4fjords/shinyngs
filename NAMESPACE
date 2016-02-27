@@ -2,6 +2,7 @@
 
 export(annotatedHeatmap)
 export(makeAnnotationColors)
+export(nlines)
 export(prepareApp)
 export(prettifyVariablename)
 export(ucfirst)

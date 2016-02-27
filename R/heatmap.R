@@ -20,12 +20,12 @@ heatmapInput <- function(id, se, group_vars, default_groupvar) {
     
     ns <- NS(id)
     
-    tagList(div(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), "Scale by:", 
-        c(Row = "row", Column = "column", None = "none")), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), conditionalPanel(condition = paste0("input['", 
+    tagList(div(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), 
+        "Scale by:", c(Row = "row", Column = "column", None = "none")), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), conditionalPanel(condition = paste0("input['", 
         ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)), conditionalPanel(condition = paste0("input['", 
         ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Selects samples by group defined by:", group_vars, selected = default_groupvar), uiOutput(ns("groupSamples"))), 
-        checkboxGroupInput(ns("groupVars"), "Variables:", group_vars, selected = group_vars, inline = TRUE), uiOutput(ns("geneSelect")), downloadButton(ns("downloadHeatMap"), "Download Plot")  #,
-)
+        checkboxGroupInput(ns("groupVars"), "Variables:", group_vars, selected = group_vars, inline = TRUE), geneselectInput(ns("heatmap")), downloadButton(ns("downloadHeatMap"), 
+            "Download Plot"))
     
 }
 
@@ -83,66 +83,23 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values)
     })
     
-    # Render the geneSelect() element. Will include a gene set selection, where gene sets have been provided
+    # Select the specified columns
     
-    output$geneSelect <- renderUI({
+    selectColumns <- reactive({
         
-        ns <- session$ns
+        validate(need(!is.null(input$samples), "Waiting for form to provide samples"), need(!is.null(input$sampleGroupVal), "Waiting for form to provide sampleGroupVal"))
         
-        gene_select_methods <- c("variance", "list")
-        if (!is.null(geneset_files)) {
-            gene_select_methods <- c(gene_select_methods, "gene set")
-        }
-        
-        gene_select <- list(h5("Select genes"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), conditionalPanel(condition = paste0("input['", 
-            ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = 500, value = 50)), conditionalPanel(condition = paste0("input['", 
-            ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
-        
-        if (!is.null(geneset_files)) {
-            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("heatmap")))
-        }
-        
-        gene_select
-    })
-    
-    # Run the server function of the gene set module to provide that functionality (where gene sets are provided)
-    
-    if (!is.null(geneset_files)) {
-        geneset_functions <- callModule(geneset, "heatmap", annotation, entrezgenefield, genefield, geneset_files)
-    }
-    
-    # Extract the annotation from the StructuredExperiment object for ease of use
-    
-    annotation <- data.frame(mcols(se))
-    
-    # Calculate the plot height based on the inputs
-    
-    heatmapPlotheight <- reactive({
-        
-        validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
-        
-        nrows <- 0
-        titleheight = 25
-        labelsheight = 80
-        
-        if (input$geneSelect == "variance") {
-            nrows <- input$obs
+        if (input$sampleSelect == "name") {
+            heatmap_expression <- se[, input$samples]
         } else {
-            if (input$geneSelect == "gene set") {
-                
-                heatmap_genes <- geneset_functions$getPathwayGenes()
-                titleheight <- (length(geneset_functions$getPathwayNames()) + 1) * titleheight
-            } else {
-                heatmap_genes <- unlist(strsplit(input$geneList, "\\n"))
-            }
-            nrows <- length(heatmap_genes)
+            heatmap_expression <- se[, se[[isolate(input$sampleGroupVar)]] %in% input$sampleGroupVal]
         }
-        
-        return(titleheight + (length(input$groupVars) * 14) + (nrows * 12) + labelsheight)
     })
-    plotwidth <- reactive({
-        return(400 + (18 * ncol(se)))
-    })
+    
+    # Call the geneselect module's server function. This will return accessors for the gene sets (if appropriate).  Takes selectColumns() reactive as an argument. This is because
+    # we might need to calculate the variance of rows after column selection.
+    
+    geneselect_functions <- callModule(geneselect, "heatmap", se, transcriptfield, entrezgenefield, genefield, geneset_files, getMatrix = selectColumns)
     
     # Select out the expression values we need for a heatmap
     
@@ -150,36 +107,13 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         
         withProgress(message = "Getting values for heatmap", value = 0, {
             
-            validate(need(!is.null(input$samples), "Waiting for form to provide samples"), need(!is.null(input$sampleGroupVal), "Waiting for form to provide sampleGroupVal"), need(!is.null(input$geneSelect), 
-                "Waiting for form to provide geneSelect"))
-            
-            # Select the specified columns
-            
-            if (input$sampleSelect == "name") {
-                heatmap_expression <- se[, input$samples]
-            } else {
-                heatmap_expression <- se[, se[[isolate(input$sampleGroupVar)]] %in% input$sampleGroupVal]
-            }
-            
-            # Select the specified rows
-            
-            if (input$geneSelect == "variance") {
-                heatmap_expression <- heatmap_expression[order(apply(assays(heatmap_expression)[[1]], 1, var), decreasing = TRUE)[1:input$obs], ]
-            } else {
-                if (input$geneSelect == "gene set") {
-                  heatmap_genes <- geneset_functions$getPathwayGenes()
-                } else {
-                  heatmap_genes <- unlist(strsplit(input$geneList, "\\n"))
-                }
-                
-                heatmap_rows <- as.character(annotation[which(tolower(annotation[[genefield]]) %in% tolower(heatmap_genes)), transcriptfield])
-                heatmap_expression <- heatmap_expression[rownames(heatmap_expression) %in% heatmap_rows, ]
-                
-            }
+            heatmap_expression <- geneselect_functions$selectRows()
             
             # Name the rows
             
             if (nrow(heatmap_expression) > 0) {
+                
+                annotation <- data.frame(mcols(se))
                 display_genes <- annotation[match(rownames(heatmap_expression), annotation[[transcriptfield]]), genefield]
                 hasgenes <- !is.na(display_genes)
                 
@@ -192,18 +126,20 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         })
     })
     
-    # Make a title
+    # Calculate the plot height based on the inputs
     
-    title <- reactive({
-        title <- ""
-        if (input$geneSelect == "variance") {
-            title <- paste(paste("Top", input$obs, "rows"), "by variance")
-        } else if (input$geneSelect == "gene set") {
-            title <- paste0("Genes in sets:\n", paste(geneset_functions$getPathwayNames(), collapse = "\n"))
-        } else if (input$geneSelect == "list") {
-            title <- "Rows for specifified gene list"
-        }
-        title
+    heatmapPlotheight <- reactive({
+        
+        # validate(need(!is.null(input$geneSelect), 'Waiting for form to provide geneSelect'))
+        
+        nrows <- 0
+        titleheight = 25
+        labelsheight = 80
+        
+        return((titleheight * nlines(geneselect_functions$title())) + (length(input$groupVars) * 14) + (geneselect_functions$numberRows() * 12) + labelsheight)
+    })
+    plotwidth <- reactive({
+        return(400 + (18 * ncol(se)))
     })
     
     # Supply a rendered heatmap for display
@@ -212,13 +148,13 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         validate(need(input$sampleGroupVal, FALSE))
         expression <- getHeatmapExpression()
         
-        makeHeatmap(input, expression, main = title())
+        makeHeatmap(input, expression, main = geneselect_functions$title())
     }, height = heatmapPlotheight)
     
     # Provide the heatmap for download using the following two functions
     
     plotInput <- reactive({
-        makeHeatmap(input, getHeatmapExpression(), main = title())
+        makeHeatmap(input, getHeatmapExpression(), main = geneselect_functions$title())
     })
     
     output$downloadHeatMap <- downloadHandler(filename = "heatmap.png", content = function(file) {
@@ -249,8 +185,18 @@ makeHeatmap <- function(input, se, assay = 1, ...) {
     
     if (!is.null(se)) {
         
-        annotatedHeatmap(log2(assays(se)[[assay]] + 1), data.frame(colData(se)), group_vars = input$groupVars, cluster_rows = input$cluster_rows, cluster_cols = input$cluster_cols, scale = input$scale, 
-            ...)
+        # We can't do clustering with anything with the same value in all columns. So take these out.
+        
+        if (input$cluster_rows) {
+            se <- se[apply(assays(se)[[assay]], 1, function(x) length(unique(x)) > 1), ]
+        }
+        
+        # If the above 'if' reduced the frame to 1 row we can't do clustering anyway
+        
+        if (nrow(se) > 1) {
+            annotatedHeatmap(log2(assays(se)[[assay]] + 1), data.frame(colData(se)), group_vars = input$groupVars, cluster_rows = input$cluster_rows, cluster_cols = input$cluster_cols, 
+                scale = input$scale, ...)
+        }
     }
 }
 
