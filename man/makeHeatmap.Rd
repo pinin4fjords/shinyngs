@@ -4,17 +4,17 @@
 \alias{makeHeatmap}
 \title{Make the heatmap}
 \usage{
-makeHeatmap(input, se, assay = 1, ...)
+makeHeatmap(input, exprmatrix, experiment, ...)
 }
 \arguments{
 \item{input}{Input object}
 
+\item{...}{Arguments that should be passed through \code{annotatedHeatmap()}
+to \code{pheatmap()}}
+
 \item{se}{StructuredExperiment object with assay and experimental data}
 
 \item{assay}{The name or index of the assay in \code{se} that should be used}
-
-\item{...}{Arguments that should be passed through \code{annotatedHeatmap()}
-to \code{pheatmap()}}
 }
 \value{
 output Heatmap plot

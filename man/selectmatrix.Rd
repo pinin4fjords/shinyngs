@@ -5,7 +5,7 @@
 \title{The server function of the selectmatrix module}
 \usage{
 selectmatrix(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files)
+  genefield, geneset_files, var_n = 50)
 }
 \arguments{
 \item{input}{Input object}
@@ -25,6 +25,8 @@ This could be transcript ID, but also probe etc.}
 
 \item{geneset_files}{A named list of .gmt gene set files as might be 
 derived from MSigDB}
+
+\item{var_n}{The number of rows to select when doing so by variance. Default = 50}
 }
 \value{
 output A list of reactive functions for fetching the derived matrix 
@@ -39,7 +41,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, "selectmatrix", se)
+selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 }
 \keyword{shiny}
 

@@ -17,7 +17,7 @@
 #' @keywords shiny
 #' 
 #' @examples
-#' selectmatrixInput(ns("heatmap"), se, group_vars, default_groupvar)
+#' selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
 
 selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
     
@@ -44,6 +44,7 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
 #' @param genefield The gene ID type in annotation by which results are keyed
 #' @param geneset_files A named list of .gmt gene set files as might be 
 #' derived from MSigDB
+#' @param var_n The number of rows to select when doing so by variance. Default = 50
 #'
 #' @return output A list of reactive functions for fetching the derived matrix 
 #' and making a title based on its properties.
@@ -51,16 +52,23 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
 #' @keywords shiny
 #' 
 #' @examples
-#' selectSamples <- callModule(sampleselect, "selectmatrix", se)
+#' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files) {
+selectmatrix <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 50) {
     
     selectSamples <- callModule(sampleselect, "selectmatrix", se)
     
-    geneselect_functions <- callModule(geneselect, "selectmatrix", se, transcriptfield, entrezgenefield, genefield, geneset_files, selectSamples = selectSamples)
+    geneselect_functions <- callModule(geneselect, "selectmatrix", se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = var_n, 
+        selectSamples = selectSamples, assay = reactive({
+            input$assay
+        }))
     selectRows <- geneselect_functions$selectRows
     
     list(selectMatrix = reactive({
-        se[selectRows(), selectSamples()]
-    }), title = geneselect_functions$title)
+        withProgress(message = "Getting expression data subset", value = 0, {
+            assays(se)[[input$assay]][selectRows(), selectSamples()]
+        })
+    }), title = geneselect_functions$title, selectColData = reactive({
+        data.frame(colData(se)[selectSamples(), ])
+    }))
 } 

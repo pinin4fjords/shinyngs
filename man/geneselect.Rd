@@ -5,7 +5,7 @@
 \title{The server function of the geneselect module}
 \usage{
 geneselect(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files = NULL, selectSamples)
+  genefield, geneset_files = NULL, var_n = 50, selectSamples, assay)
 }
 \arguments{
 \item{input}{Input object}
@@ -15,7 +15,7 @@ geneselect(input, output, session, se, transcriptfield, entrezgenefield,
 \item{session}{Session object}
 
 \item{transcriptfield}{The main identifier for the rows in the assay data.
-This could be transcript ID, but also probe etc.}
+This could be transcript ID, but also probe etc}
 
 \item{entrezgenefield}{The column of annotation containing Entrez gene IDs}
 
@@ -24,9 +24,10 @@ This could be transcript ID, but also probe etc.}
 \item{geneset_files}{(optional) A named list of .gmt gene set files as might be 
 derived from MSigDB}
 
-\item{getMatrix}{A reactive expression that provides a matrix of values.
-This will be used to calculate variance, for example, where that is used 
-as a row-filtering criterion.}
+\item{var_n}{The number of rows to select when doing so by variance. Default = 50}
+
+\item{selectSamples}{A reactive expression that provides a vector of samples
+to use, e.g. in row-wise variance calculation}
 }
 \value{
 output A list of reactive functions for interrogating the selected

@@ -27,7 +27,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, "selectmatrix", se)
+selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 }
 \keyword{shiny}
 

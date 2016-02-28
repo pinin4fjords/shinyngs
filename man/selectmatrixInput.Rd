@@ -26,7 +26,7 @@ This will generally not be called directly, but by other modules such as the
 heatmap module.
 }
 \examples{
-selectmatrixInput(ns("heatmap"), se, group_vars, default_groupvar)
+selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
 }
 \keyword{shiny}
 

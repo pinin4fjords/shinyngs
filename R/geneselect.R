@@ -31,14 +31,14 @@ geneselectInput <- function(id) {
 #' @param output Output object
 #' @param session Session object
 #' @param transcriptfield The main identifier for the rows in the assay data.
-#' This could be transcript ID, but also probe etc.
+#' This could be transcript ID, but also probe etc
 #' @param entrezgenefield The column of annotation containing Entrez gene IDs
 #' @param genefield The gene ID type in annotation by which results are keyed
 #' @param geneset_files (optional) A named list of .gmt gene set files as might be 
 #' derived from MSigDB
-#' @param getMatrix A reactive expression that provides a matrix of values.
-#' This will be used to calculate variance, for example, where that is used 
-#' as a row-filtering criterion.
+#' @param var_n The number of rows to select when doing so by variance. Default = 50
+#' @param selectSamples A reactive expression that provides a vector of samples
+#' to use, e.g. in row-wise variance calculation
 #'
 #' @return output A list of reactive functions for interrogating the selected
 #' rows.
@@ -48,7 +48,8 @@ geneselectInput <- function(id) {
 #' @examples
 #' geneselect_functions <- callModule(geneselect, 'heatmap', se, transcriptfield, entrezgenefield, genefield, geneset_files, getMatrix=selectColumns)
 
-geneselect <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL, selectSamples) {
+geneselect <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL, var_n = 50, selectSamples, 
+    assay) {
     
     # Render the geneSelect UI element
     
@@ -61,9 +62,10 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
             gene_select_methods <- c(gene_select_methods, "gene set")
         }
         
-        gene_select <- list(h4("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), conditionalPanel(condition = paste0("input['", 
-            ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = 500, value = 50)), conditionalPanel(condition = paste0("input['", 
-            ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
+        gene_select <- list(h4("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), 
+            conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", 
+                min = 10, max = nrow(se), value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), 
+                rows = 3, cols = 30, "Paste gene list here, one per line")))
         
         # If gene sets have been provided, then make a gene sets filter
         
@@ -80,6 +82,14 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
         geneset_functions <- callModule(geneset, "heatmap", data.frame(mcols(se)), entrezgenefield, genefield, geneset_files)
     }
     
+    # Reactive function to calculate variances only when required
+    
+    rowVariances <- reactive({
+        withProgress(message = "Calculating row variances", value = 0, {
+            apply(assays(se)[[assay()]][, selectSamples()], 1, var)
+        })
+    })
+    
     # Make all the reactive expressions that will be needed by calling modules.
     
     geneselect_functions <- list()
@@ -90,10 +100,8 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
         
         validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
         
-        # heatmap_expression <- getMatrix()
-        
         if (input$geneSelect == "variance") {
-            return(rownames(se)[order(apply(assays(se)[[1]][, selectSamples()], 1, var), decreasing = TRUE)[1:input$obs]])
+            return(rownames(se)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
         } else {
             if (input$geneSelect == "gene set") {
                 selected_genes <- geneset_functions$getPathwayGenes()

@@ -14,6 +14,7 @@
 #' @keywords shiny
 #'
 #' @import shiny
+#' @import plotly
 #' @export
 #'
 #' @examples
@@ -63,13 +64,20 @@ prepareApp <- function(type, se, params = list()) {
             heatmapModuleCall(se, params)
         }
         
+    } else if (type == "pca") {
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Interactive PCA plot:", tabPanel("Home", pcaLayout(se, params))))
+        
+        server <- function(input, output, session) {
+            pcaModuleCall(se, params)
+        }
     }
     
     return(list(ui = ui, server = server))
     
 }
 
-#' Produce the controls and output for a heatmap using the heatmap module
+#' Produce the controls and output for a heatmap using the heatmap module, in a
+#' shiny \code{sideBarLayout()}.
 #' 
 #' Just an abstraction to make prepareApp more concise 
 #'
@@ -78,7 +86,7 @@ prepareApp <- function(type, se, params = list()) {
 #' @keywords shiny
 #'
 #' @examples
-#' tabPanel('Home', heatmapLayout(params))))
+#' tabPanel('Home', pcaLayout(se, params))))
 
 heatmapLayout <- function(se, params) {
     sidebarLayout(sidebarPanel(heatmapInput("heatmap", se, params$group_vars, params$default_groupvar)), mainPanel(heatmapOutput("heatmap")))
@@ -88,10 +96,42 @@ heatmapLayout <- function(se, params) {
 #' 
 #' Just an abstraction to make prepareApp more concise 
 #'
+#' @param se A SummarizedExperiment object containing assay data (expression, 
+#' counts...), sample data and annotation data for the rows.
 #' @param params A list object of parameters
 #'
 #' @keywords shiny
 
 heatmapModuleCall <- function(se, params) {
     callModule(heatmap, "heatmap", se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
+}
+
+#' Produce the controls and output for a 3D PCA plot using the pca module, in a
+#' shiny \code{sideBarLayout()}.
+#' 
+#' Just an abstraction to make prepareApp more concise 
+#'
+#' @param params A list object of parameters
+#'
+#' @keywords shiny
+#'
+#' @examples
+#' tabPanel('Home', pcaLayout(se, params))))
+
+pcaLayout <- function(se, params) {
+    sidebarLayout(sidebarPanel(pcaInput("pca", se, params$group_vars, params$default_groupvar)), mainPanel(pcaOutput("pca")))
+}
+
+#' Run the call to the pca module's server function
+#' 
+#' Just an abstraction to make prepareApp more concise 
+#'
+#' @param se A SummarizedExperiment object containing assay data (expression, 
+#' counts...), sample data and annotation data for the rows.
+#' @param params A list object of parameters
+#'
+#' @keywords shiny
+
+pcaModuleCall <- function(se, params) {
+    callModule(pca, "pca", se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
 } 

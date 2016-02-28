@@ -1,10 +1,10 @@
 ## Synopsis
 
-This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder as a toy example. 
+This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder or a 3D PCA plot as toy examples. 
 
 The app uses Shiny modules (http://shiny.rstudio.com/articles/modules.html), the learning of which was one of the motivations of producing this package. The provision of modules as reusable components should enable the simple production of a variety of applications in future.  
 
-For the heat map and future applications, data must be in the SummarisedExperiment structure of the GenomicRanges package. This allows multiple expression matrices to be stored, alongside experimental variables and annotation.
+For the heatmap and future applications, data must be in the SummarisedExperiment structure of the GenomicRanges package. This allows multiple expression matrices to be stored, alongside experimental variables and annotation.
 
 ## Code Example
 
@@ -48,6 +48,21 @@ params <- list(
 # Prepare the UI and server parts of the Shiny app
 
 app <- prepareApp("heatmap", se, params)
+
+# Run the Shiny app
+
+shinyApp(app$ui, app$server)
+```
+
+### An interactive 3D PCA plot
+
+Using the same input data a PCA plot can be produced as follows:
+
+```{r, eval=FALSE}
+
+# Prepare the UI and server parts of the Shiny app
+
+app <- prepareApp("pca", se, params)
 
 # Run the Shiny app
 
@@ -103,7 +118,7 @@ mcols(se) <- annotation
 
 ### Running on a shiny server
 
-Just use the commands sets above with shinyApp() in a file called app.R in a directory of its own on your Shiny server.
+Just use the commands sets above with `shinyApp()` in a file called app.R in a directory of its own on your Shiny server.
 
 ## Motivation
 
@@ -111,13 +126,14 @@ Shiny apps are great for NGS and bioinformatics applications in general. But app
 
 For example this package currently contains five Shiny modules: 
 
-* heatmap - provides controls and a display for making heat maps based on user criteria
-* selectmatrix - provides controls and output for subsetting the profided assay data prior to plotting. Called by the heatmap module.
-* sampleselect - provides a UI element for selecting the columns of the matrix based on sample name or group. Called by the selectmatrix module.
-* geneselect - provides a UI element for selecing the rows of a matrix based on criteria such as variance. Called by the selectmatrix module.
-* genesets - provides UI element for selecting gene sets. Called by the geneselect module when a user chooses to filter by gene set.
+* `heatmap` - provides controls and a display for making heat maps based on user criteria.
+* `pca` - provides controls and display for an interactive PCA plot.
+* `selectmatrix` - provides controls and output for subsetting the profided assay data prior to plotting. Called by the `heatmap` and `pca` modules.
+* `sampleselect` - provides a UI element for selecting the columns of the matrix based on sample name or group. Called by the `selectmatrix` module.
+* `geneselect` - provides a UI element for selecing the rows of a matrix based on criteria such as variance. Called by the `selectmatrix` module.
+* `genesets` - provides UI element for selecting gene sets. Called by the `geneselect` module when a user chooses to filter by gene set. 
 
-The selectmatrix module does the work of deriving a matrix to plot, and does that by selecting columns and rows with the help of other modules. But sampleselect, for example, could be used independently of selectmatrix in other panels where a column selection is required without row selection. Having the same component (i.e. produced from the same code for maintainability) on say multiple sidbarLayout() elements within different tabPanels() is difficult without this mechanism.
+So `heatmap` and `pca` both use `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise. 
 
 I intend to provide modules for a number of things I currently use (boxplots, PCA, scatterplots), which can then be simply plugged into many different applications.
 

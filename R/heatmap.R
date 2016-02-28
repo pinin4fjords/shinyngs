@@ -20,9 +20,10 @@ heatmapInput <- function(id, se, group_vars, default_groupvar) {
     
     ns <- NS(id)
     
-    tagList(selectmatrixInput(ns("heatmap"), se, group_vars, default_groupvar), h4("Set plotting parameters"), div(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", 
-        TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")), 
-        checkboxGroupInput(ns("groupVars"), "Annotate with variables:", group_vars, selected = group_vars, inline = TRUE), downloadButton(ns("downloadHeatMap"), "Download Plot"))
+    tagList(selectmatrixInput(ns("heatmap"), se, group_vars, default_groupvar), h4("Set plotting parameters"), div(h5("Clustering"), checkboxInput(ns("cluster_rows"), 
+        "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), "Scale by:", c(Row = "row", 
+        Column = "column", None = "none")), checkboxGroupInput(ns("groupVars"), "Annotate with variables:", group_vars, selected = group_vars, 
+        inline = TRUE), downloadButton(ns("downloadHeatMap"), "Download Plot"))
     
 }
 
@@ -62,7 +63,7 @@ heatmapOutput <- function(id) {
 #' This could be transcript ID, but also probe etc.
 #' @param entrezgenefield The column of annotation containing Entrez gene IDs
 #' @param genefield The gene ID type in annotation by which results are keyed
-#' @param geneset_files A named list of .gmt gene set files as might be 
+#' @param geneset_files (optional) A named list of .gmt gene set files as might be 
 #' derived from MSigDB
 #'
 #' @keywords shiny
@@ -72,17 +73,10 @@ heatmapOutput <- function(id) {
 
 heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL) {
     
-    # selectSamples <- callModule(sampleselect, 'heatmap', se)
-    
-    # Call the geneselect module's server function. This will return accessors for the gene sets (if appropriate).  Takes selectColumns() reactive as an argument. This is
-    # because we might need to calculate the variance of rows after column selection.
-    
-    # geneselect_functions <- callModule(geneselect, 'heatmap', se, transcriptfield, entrezgenefield, genefield, geneset_files, selectSamples=selectSamples) selectRows <-
-    # geneselect_functions$selectRows
-    
     selectmatrix_functions <- callModule(selectmatrix, "heatmap", se, transcriptfield, entrezgenefield, genefield, geneset_files)
     selectMatrix <- selectmatrix_functions$selectMatrix
     matrixTitle <- selectmatrix_functions$title
+    selectColData <- selectmatrix_functions$selectColData
     
     # Select out the expression values we need for a heatmap
     
@@ -131,15 +125,13 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
     # Supply a rendered heatmap for display
     
     output$heatMap <- renderPlot({
-        expression <- getHeatmapExpression()
-        
-        makeHeatmap(input, expression, main = matrixTitle())
+        makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
     }, height = heatmapPlotheight)
     
     # Provide the heatmap for download using the following two functions
     
     plotInput <- reactive({
-        makeHeatmap(input, getHeatmapExpression(), main = matrixTitle())
+        makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
     })
     
     output$downloadHeatMap <- downloadHandler(filename = "heatmap.png", content = function(file) {
@@ -166,20 +158,20 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
 #' @examples
 #' makeHeatmap(input, se, main = 'title')
 
-makeHeatmap <- function(input, se, assay = 1, ...) {
+makeHeatmap <- function(input, exprmatrix, experiment, ...) {
     
-    if (!is.null(se)) {
+    if (!is.null(exprmatrix)) {
         
         # We can't do clustering with anything with the same value in all columns. So take these out.
         
         if (input$cluster_rows) {
-            se <- se[apply(assays(se)[[assay]], 1, function(x) length(unique(x)) > 1), ]
+            exprmatrix <- exprmatrix[apply(exprmatrix, 1, function(x) length(unique(x)) > 1), ]
         }
         
         # If the above 'if' reduced the frame to 1 row we can't do clustering anyway
         
         if (nrow(se) > 1) {
-            annotatedHeatmap(log2(assays(se)[[assay]] + 1), data.frame(colData(se)), group_vars = input$groupVars, cluster_rows = input$cluster_rows, cluster_cols = input$cluster_cols, 
+            annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = input$groupVars, cluster_rows = input$cluster_rows, cluster_cols = input$cluster_cols, 
                 scale = input$scale, ...)
         }
     }
@@ -252,7 +244,8 @@ makeAnnotationColors <- function(sample_annotation) {
         if (RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"] >= length(categories) && length(categories) > 2) {
             colcolors <- RColorBrewer::brewer.pal(length(categories), palettes[i])
         } else {
-            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), length(categories))
+            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), 
+                length(categories))
         }
         
         names(colcolors) <- levels(sample_annotation[, i])
