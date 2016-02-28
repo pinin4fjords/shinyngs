@@ -5,7 +5,7 @@
 \title{The server function of the selectmatrix module}
 \usage{
 selectmatrix(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files, var_n = 50)
+  genefield, geneset_files, var_n = 50, var_max = 500)
 }
 \arguments{
 \item{input}{Input object}
@@ -27,6 +27,9 @@ This could be transcript ID, but also probe etc.}
 derived from MSigDB}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default = 50}
+
+\item{var_max}{The maximum umber of rows to select when doing so by variance. 
+Default = 500}
 }
 \value{
 output A list of reactive functions for fetching the derived matrix 

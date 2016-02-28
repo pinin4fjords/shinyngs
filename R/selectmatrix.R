@@ -23,7 +23,8 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
     
     ns <- NS(id)
     
-    tagList(selectInput(ns("assay"), "Matrix", names(assays(se))), sampleselectInput(ns("selectmatrix"), group_vars, default_groupvar), geneselectInput(ns("selectmatrix")))
+    tagList(selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se))), sampleselectInput(ns("selectmatrix"), group_vars, default_groupvar), 
+        geneselectInput(ns("selectmatrix")))
 }
 
 #' The server function of the selectmatrix module
@@ -45,6 +46,8 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
 #' @param geneset_files A named list of .gmt gene set files as might be 
 #' derived from MSigDB
 #' @param var_n The number of rows to select when doing so by variance. Default = 50
+#' @param var_max The maximum umber of rows to select when doing so by variance. 
+#' Default = 500
 #'
 #' @return output A list of reactive functions for fetching the derived matrix 
 #' and making a title based on its properties.
@@ -54,19 +57,19 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 50) {
+selectmatrix <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 50, var_max = 500) {
     
     selectSamples <- callModule(sampleselect, "selectmatrix", se)
     
     geneselect_functions <- callModule(geneselect, "selectmatrix", se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = var_n, 
-        selectSamples = selectSamples, assay = reactive({
+        var_max = var_max, selectSamples = selectSamples, assay = reactive({
             input$assay
         }))
     selectRows <- geneselect_functions$selectRows
     
     list(selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            assays(se)[[input$assay]][selectRows(), selectSamples()]
+            GenomicRanges::assays(se)[[input$assay]][selectRows(), selectSamples()]
         })
     }), title = geneselect_functions$title, selectColData = reactive({
         data.frame(colData(se)[selectSamples(), ])

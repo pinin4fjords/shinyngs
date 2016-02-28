@@ -37,6 +37,8 @@ geneselectInput <- function(id) {
 #' @param geneset_files (optional) A named list of .gmt gene set files as might be 
 #' derived from MSigDB
 #' @param var_n The number of rows to select when doing so by variance. Default = 50
+#' @param var_max The maximum umber of rows to select when doing so by variance. 
+#' Default = 500
 #' @param selectSamples A reactive expression that provides a vector of samples
 #' to use, e.g. in row-wise variance calculation
 #'
@@ -48,8 +50,8 @@ geneselectInput <- function(id) {
 #' @examples
 #' geneselect_functions <- callModule(geneselect, 'heatmap', se, transcriptfield, entrezgenefield, genefield, geneset_files, getMatrix=selectColumns)
 
-geneselect <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL, var_n = 50, selectSamples, 
-    assay) {
+geneselect <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL, var_n = 50, var_max = 500, 
+    selectSamples, assay) {
     
     # Render the geneSelect UI element
     
@@ -64,13 +66,14 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
         
         gene_select <- list(h4("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), 
             conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", 
-                min = 10, max = nrow(se), value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), 
-                rows = 3, cols = 30, "Paste gene list here, one per line")))
+                min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), 
+                tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
         
         # If gene sets have been provided, then make a gene sets filter
         
         if (!is.null(geneset_files)) {
-            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("heatmap")))
+            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), 
+                genesetInput(ns("heatmap")))
         }
         
         gene_select
@@ -86,7 +89,7 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
     
     rowVariances <- reactive({
         withProgress(message = "Calculating row variances", value = 0, {
-            apply(assays(se)[[assay()]][, selectSamples()], 1, var)
+            apply(GenomicRanges::assays(se)[[assay()]][, selectSamples()], 1, var)
         })
     })
     

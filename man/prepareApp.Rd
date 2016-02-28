@@ -22,8 +22,10 @@ Draws on various components (heatmaps, tables etc) to produce the UI and server
 components of a variety of shiny apps, based on the type and data specified.
 }
 \examples{
+require(airway)
 library(shinyngs)
 library(shiny)
+library(GenomicRanges)
 
 # Get some example data in the form of a StructuredExperiment object
 data(airway, package='airway')

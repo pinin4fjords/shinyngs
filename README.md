@@ -13,8 +13,10 @@ For the heatmap and future applications, data must be in the SummarisedExperimen
 To produce a simple heat map using some example data you'd do the following:
 
 ```{r, eval=FALSE}
+require(airway)
 library(shinyngs)
 library(shiny)
+library(GenomicRanges)
 
 # Get some example data in the form of a StructuredExperiment object
 

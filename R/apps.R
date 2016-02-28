@@ -18,8 +18,10 @@
 #' @export
 #'
 #' @examples
+#' require(airway)
 #' library(shinyngs)
 #' library(shiny)
+#' library(GenomicRanges)
 #' 
 #' # Get some example data in the form of a StructuredExperiment object
 #' data(airway, package='airway')
@@ -65,7 +67,8 @@ prepareApp <- function(type, se, params = list()) {
         }
         
     } else if (type == "pca") {
-        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Interactive PCA plot:", tabPanel("Home", pcaLayout(se, params))))
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Interactive PCA plot:", tabPanel("Home", pcaLayout(se, 
+            params))))
         
         server <- function(input, output, session) {
             pcaModuleCall(se, params)

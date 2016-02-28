@@ -23,8 +23,8 @@ pcaInput <- function(id, se, group_vars, default_groupvar, principal_components 
     
     tagList(h3("Principal component analysis"), selectmatrixInput(ns("pca"), se, group_vars, default_groupvar), h4("Set plotting parameters"), 
         selectInput(ns("xAxisComponent"), "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), "y axis component", 
-            principal_components, selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3), selectInput(ns("samplePCAColorBy"), 
-            "Color by", group_vars, selected = default_groupvar))
+            principal_components, selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3), 
+        selectInput(ns("samplePCAColorBy"), "Color by", group_vars, selected = default_groupvar))
 }
 
 #' The output function of the pca module
@@ -71,7 +71,8 @@ pcaOutput <- function(id) {
 
 pca <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "pca", se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 1000)
+    selectmatrix_functions <- callModule(selectmatrix, "pca", se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 1000, 
+        var_max = nrow(se))
     selectMatrix <- selectmatrix_functions$selectMatrix
     matrixTitle <- selectmatrix_functions$title
     selectColData <- selectmatrix_functions$selectColData

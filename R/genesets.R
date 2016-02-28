@@ -54,8 +54,9 @@ geneset <- function(input, output, session, annotation, entrezgenefield, genefie
     output$geneSets <- renderUI({
         
         gene_sets <- getGeneSets()
-        gene_set_names <- structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]])), " (", settype, ")"))))
+        gene_set_names <- structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), 
+            names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]])), " (", settype, 
+                ")"))))
         
         ns <- session$ns
         selectizeInput(ns("geneSets"), "Gene sets:", choices = gene_set_names, multiple = TRUE, options = list(placeholder = "select one or more gene sets"))

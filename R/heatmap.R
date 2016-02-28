@@ -206,8 +206,8 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
         
         colors <- makeAnnotationColors(sample_annotation)
         
-        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = sample_annotation, annotation_colors = colors, 
-            border_color = NA, legend = FALSE, ...)
+        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = sample_annotation, 
+            annotation_colors = colors, border_color = NA, legend = FALSE, ...)
     }
 }
 

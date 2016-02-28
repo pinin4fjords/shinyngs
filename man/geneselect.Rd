@@ -5,7 +5,8 @@
 \title{The server function of the geneselect module}
 \usage{
 geneselect(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files = NULL, var_n = 50, selectSamples, assay)
+  genefield, geneset_files = NULL, var_n = 50, var_max = 500,
+  selectSamples, assay)
 }
 \arguments{
 \item{input}{Input object}
@@ -25,6 +26,9 @@ This could be transcript ID, but also probe etc}
 derived from MSigDB}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default = 50}
+
+\item{var_max}{The maximum umber of rows to select when doing so by variance. 
+Default = 500}
 
 \item{selectSamples}{A reactive expression that provides a vector of samples
 to use, e.g. in row-wise variance calculation}

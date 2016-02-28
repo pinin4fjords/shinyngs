@@ -23,10 +23,10 @@ sampleselectInput <- function(id, group_vars, default_groupvar) {
     
     ns <- NS(id)
     
-    tagList(h4("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), conditionalPanel(condition = paste0("input['", 
-        ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)), 
-        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", 
-            group_vars, selected = default_groupvar), uiOutput(ns("groupSamples"))))
+    tagList(h4("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), 
+        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", 
+            colnames(se), selected = colnames(se), inline = TRUE)), conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), 
+            selectInput(ns("sampleGroupVar"), "Define groups by:", group_vars, selected = default_groupvar), uiOutput(ns("groupSamples"))))
 }
 
 #' The server function of the sampleselect module
