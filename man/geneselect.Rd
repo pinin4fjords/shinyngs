@@ -5,7 +5,7 @@
 \title{The server function of the geneselect module}
 \usage{
 geneselect(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files = NULL, getMatrix)
+  genefield, geneset_files = NULL, selectSamples)
 }
 \arguments{
 \item{input}{Input object}

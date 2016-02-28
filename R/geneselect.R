@@ -48,7 +48,7 @@ geneselectInput <- function(id) {
 #' @examples
 #' geneselect_functions <- callModule(geneselect, 'heatmap', se, transcriptfield, entrezgenefield, genefield, geneset_files, getMatrix=selectColumns)
 
-geneselect <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL, getMatrix) {
+geneselect <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL, selectSamples) {
     
     # Render the geneSelect UI element
     
@@ -61,7 +61,7 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
             gene_select_methods <- c(gene_select_methods, "gene set")
         }
         
-        gene_select <- list(h5("Select genes"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), conditionalPanel(condition = paste0("input['", 
+        gene_select <- list(h4("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), conditionalPanel(condition = paste0("input['", 
             ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = 500, value = 50)), conditionalPanel(condition = paste0("input['", 
             ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
         
@@ -84,45 +84,26 @@ geneselect <- function(input, output, session, se, transcriptfield, entrezgenefi
     
     geneselect_functions <- list()
     
-    # Number of rows. Useful in calculating the height of a heatmap, for example.
-    
-    geneselect_functions$numberRows <- reactive({
-        nrows <- 0
-        
-        if (input$geneSelect == "variance") {
-            nrows <- input$obs
-        } else {
-            if (input$geneSelect == "gene set") {
-                pathway_genes <- geneset_functions$getPathwayGenes()
-            } else {
-                pathway_genes <- unlist(strsplit(input$geneList, "\\n"))
-            }
-            nrows <- length(pathway_genes)
-        }
-        nrows
-    })
-    
     # Main output. Derive the expression matrix according to row-based criteria
     
     geneselect_functions$selectRows <- reactive({
         
         validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
         
-        heatmap_expression <- getMatrix()
+        # heatmap_expression <- getMatrix()
         
         if (input$geneSelect == "variance") {
-            heatmap_expression <- heatmap_expression[order(apply(assays(heatmap_expression)[[1]], 1, var), decreasing = TRUE)[1:input$obs], ]
+            return(rownames(se)[order(apply(assays(se)[[1]][, selectSamples()], 1, var), decreasing = TRUE)[1:input$obs]])
         } else {
             if (input$geneSelect == "gene set") {
-                heatmap_genes <- geneset_functions$getPathwayGenes()
+                selected_genes <- geneset_functions$getPathwayGenes()
             } else {
-                heatmap_genes <- unlist(strsplit(input$geneList, "\\n"))
+                selected_genes <- unlist(strsplit(input$geneList, "\\n"))
             }
             
-            heatmap_rows <- as.character(annotation[which(tolower(annotation[[genefield]]) %in% tolower(heatmap_genes)), transcriptfield])
-            heatmap_expression <- heatmap_expression[rownames(heatmap_expression) %in% heatmap_rows, ]
+            selected_rows <- as.character(annotation[which(tolower(annotation[[genefield]]) %in% tolower(selected_genes)), transcriptfield])
+            return(rownames(se)[rownames(se) %in% selected_rows])
         }
-        heatmap_expression
     })
     
     # Make a title

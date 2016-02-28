@@ -20,12 +20,9 @@ heatmapInput <- function(id, se, group_vars, default_groupvar) {
     
     ns <- NS(id)
     
-    tagList(div(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), 
-        "Scale by:", c(Row = "row", Column = "column", None = "none")), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), conditionalPanel(condition = paste0("input['", 
-        ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)), conditionalPanel(condition = paste0("input['", 
-        ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Selects samples by group defined by:", group_vars, selected = default_groupvar), uiOutput(ns("groupSamples"))), 
-        checkboxGroupInput(ns("groupVars"), "Variables:", group_vars, selected = group_vars, inline = TRUE), geneselectInput(ns("heatmap")), downloadButton(ns("downloadHeatMap"), 
-            "Download Plot"))
+    tagList(selectmatrixInput(ns("heatmap"), se, group_vars, default_groupvar), h4("Set plotting parameters"), div(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", 
+        TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")), 
+        checkboxGroupInput(ns("groupVars"), "Annotate with variables:", group_vars, selected = group_vars, inline = TRUE), downloadButton(ns("downloadHeatMap"), "Download Plot"))
     
 }
 
@@ -75,31 +72,17 @@ heatmapOutput <- function(id) {
 
 heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL) {
     
-    # Render the sampleGroupVal() element based on sampleGroupVar
+    # selectSamples <- callModule(sampleselect, 'heatmap', se)
     
-    output$groupSamples <- renderUI({
-        group_values <- as.character(unique(se[[input$sampleGroupVar]]))
-        ns <- session$ns
-        checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values)
-    })
+    # Call the geneselect module's server function. This will return accessors for the gene sets (if appropriate).  Takes selectColumns() reactive as an argument. This is
+    # because we might need to calculate the variance of rows after column selection.
     
-    # Select the specified columns
+    # geneselect_functions <- callModule(geneselect, 'heatmap', se, transcriptfield, entrezgenefield, genefield, geneset_files, selectSamples=selectSamples) selectRows <-
+    # geneselect_functions$selectRows
     
-    selectColumns <- reactive({
-        
-        validate(need(!is.null(input$samples), "Waiting for form to provide samples"), need(!is.null(input$sampleGroupVal), "Waiting for form to provide sampleGroupVal"))
-        
-        if (input$sampleSelect == "name") {
-            heatmap_expression <- se[, input$samples]
-        } else {
-            heatmap_expression <- se[, se[[isolate(input$sampleGroupVar)]] %in% input$sampleGroupVal]
-        }
-    })
-    
-    # Call the geneselect module's server function. This will return accessors for the gene sets (if appropriate).  Takes selectColumns() reactive as an argument. This is because
-    # we might need to calculate the variance of rows after column selection.
-    
-    geneselect_functions <- callModule(geneselect, "heatmap", se, transcriptfield, entrezgenefield, genefield, geneset_files, getMatrix = selectColumns)
+    selectmatrix_functions <- callModule(selectmatrix, "heatmap", se, transcriptfield, entrezgenefield, genefield, geneset_files)
+    selectMatrix <- selectmatrix_functions$selectMatrix
+    matrixTitle <- selectmatrix_functions$title
     
     # Select out the expression values we need for a heatmap
     
@@ -107,7 +90,9 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         
         withProgress(message = "Getting values for heatmap", value = 0, {
             
-            heatmap_expression <- geneselect_functions$selectRows()
+            # heatmap_expression <- se[selectRows(),selectSamples()]
+            
+            heatmap_expression <- selectMatrix()
             
             # Name the rows
             
@@ -136,8 +121,9 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         titleheight = 25
         labelsheight = 80
         
-        return((titleheight * nlines(geneselect_functions$title())) + (length(input$groupVars) * 14) + (geneselect_functions$numberRows() * 12) + labelsheight)
+        return((titleheight * nlines(matrixTitle())) + (length(input$groupVars) * 14) + (nrow(selectMatrix()) * 12) + labelsheight)
     })
+    
     plotwidth <- reactive({
         return(400 + (18 * ncol(se)))
     })
@@ -145,16 +131,15 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
     # Supply a rendered heatmap for display
     
     output$heatMap <- renderPlot({
-        validate(need(input$sampleGroupVal, FALSE))
         expression <- getHeatmapExpression()
         
-        makeHeatmap(input, expression, main = geneselect_functions$title())
+        makeHeatmap(input, expression, main = matrixTitle())
     }, height = heatmapPlotheight)
     
     # Provide the heatmap for download using the following two functions
     
     plotInput <- reactive({
-        makeHeatmap(input, getHeatmapExpression(), main = geneselect_functions$title())
+        makeHeatmap(input, getHeatmapExpression(), main = matrixTitle())
     })
     
     output$downloadHeatMap <- downloadHandler(filename = "heatmap.png", content = function(file) {
@@ -229,8 +214,8 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
         
         colors <- makeAnnotationColors(sample_annotation)
         
-        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = sample_annotation, annotation_colors = colors, border_color = NA, 
-            legend = FALSE, ...)
+        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = sample_annotation, annotation_colors = colors, 
+            border_color = NA, legend = FALSE, ...)
     }
 }
 
