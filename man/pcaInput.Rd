@@ -4,20 +4,16 @@
 \alias{pcaInput}
 \title{The input function of the pca module}
 \usage{
-pcaInput(id, se, group_vars, default_groupvar,
-  principal_components = structure(1:10, names = paste0("PC", 1:10)))
+pcaInput(id, se, principal_components = structure(1:10, names = paste0("PC",
+  1:10)))
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{se}{StructuredExperiment object with assay and experimental data}
-
-\item{group_vars}{The variables from the structured experiment that should
-be used to control sample grouping in the plot}
+\item{se}{StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 
 \item{principal_components}{A named vector of princpal components to provide. Default = c('PC1' = 1 ... 'PC10' = 10).}
-
-\item{The}{default grouping variable to use}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

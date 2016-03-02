@@ -4,7 +4,7 @@
 \alias{plotlyPCA}
 \title{Make the PCA plot using plotly}
 \usage{
-plotlyPCA(pcavals, pcX, pcY, pcZ, pcameta, colorby, title = "foo")
+plotlyPCA(pcavals, pcX, pcY, pcZ, pcameta, colorby = NULL, title = "foo")
 }
 \arguments{
 \item{pcavals}{Matrix of values}

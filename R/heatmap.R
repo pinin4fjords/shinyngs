@@ -3,10 +3,8 @@
 #' This provides the form elements to control the heatmap display
 #'
 #' @param id Submodule namespace
-#' @param se StructuredExperiment object with assay and experimental data
-#' @param group_vars The variables from the structured experiment that should
-#' be used to control sample grouping in the plot
-#' @param The default grouping variable to use
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -16,14 +14,21 @@
 #' @examples
 #' heatmapInput('heatmap', se, group_vars, default_groupvar
 
-heatmapInput <- function(id, se, group_vars, default_groupvar) {
+heatmapInput <- function(id, se) {
     
     ns <- NS(id)
     
-    tagList(selectmatrixInput(ns("heatmap"), se, group_vars, default_groupvar), h4("Set plotting parameters"), div(h5("Clustering"), checkboxInput(ns("cluster_rows"), 
-        "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), "Scale by:", c(Row = "row", 
-        Column = "column", None = "none")), checkboxGroupInput(ns("groupVars"), "Annotate with variables:", group_vars, selected = group_vars, 
-        inline = TRUE), downloadButton(ns("downloadHeatMap"), "Download Plot"))
+    inputs <- list(selectmatrixInput(ns("heatmap"), se), h4("Set plotting parameters"), div(h5("Clustering"), checkboxInput(ns("cluster_rows"), 
+        "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE)), radioButtons(ns("scale"), "Scale by:", 
+        c(Row = "row", Column = "column", None = "none")))
+    
+    if ("group_vars" %in% names(metadata(se))) {
+        inputs[[length(inputs) + 1]] <- checkboxGroupInput(ns("groupVars"), "Annotate with variables:", metadata(se)$group_vars, 
+            selected = metadata(se)$group_vars, inline = TRUE)
+    }
+    inputs[[length(inputs) + 1]] <- downloadButton(ns("downloadHeatMap"), "Download Plot")
+    
+    tagList(inputs)
     
 }
 
@@ -58,22 +63,17 @@ heatmapOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data
-#' @param transcriptfield The main identifier for the rows in the assay data.
-#' This could be transcript ID, but also probe etc.
-#' @param entrezgenefield The column of annotation containing Entrez gene IDs
-#' @param genefield The gene ID type in annotation by which results are keyed
-#' @param geneset_files (optional) A named list of .gmt gene set files as might be 
-#' derived from MSigDB
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #'
 #' @keywords shiny
 #' 
 #' @examples
 #' callModule(heatmap, 'heatmap', se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files=params$geneset_files)
 
-heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL) {
+heatmap <- function(input, output, session, se) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "heatmap", se, transcriptfield, entrezgenefield, genefield, geneset_files)
+    selectmatrix_functions <- callModule(selectmatrix, "heatmap", se)
     selectMatrix <- selectmatrix_functions$selectMatrix
     matrixTitle <- selectmatrix_functions$title
     selectColData <- selectmatrix_functions$selectColData
@@ -84,20 +84,21 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
         
         withProgress(message = "Getting values for heatmap", value = 0, {
             
-            # heatmap_expression <- se[selectRows(),selectSamples()]
-            
             heatmap_expression <- selectMatrix()
-            
-            # Name the rows
+            write.table(heatmap_expression, file = "~/shinytests/heatmap_expression.txt")
             
             if (nrow(heatmap_expression) > 0) {
                 
-                annotation <- data.frame(mcols(se))
-                display_genes <- annotation[match(rownames(heatmap_expression), annotation[[transcriptfield]]), genefield]
-                hasgenes <- !is.na(display_genes)
+                # Name the rows by gene if we know what the necessary annotation fields are
                 
-                rownames(heatmap_expression)[hasgenes] <- paste(display_genes[hasgenes], rownames(heatmap_expression)[hasgenes], sep = " / ")
-                
+                if (all(c("transcriptfield", "genefield") %in% names(metadata(se))) && nrow(mcols(se)) > 0) {
+                  annotation <- data.frame(mcols(se))
+                  display_genes <- annotation[match(rownames(heatmap_expression), annotation[[transcriptfield]]), genefield]
+                  hasgenes <- !is.na(display_genes)
+                  
+                  rownames(heatmap_expression)[hasgenes] <- paste(display_genes[hasgenes], rownames(heatmap_expression)[hasgenes], 
+                    sep = " / ")
+                }
                 return(heatmap_expression)
             } else {
                 return(NULL)
@@ -148,15 +149,15 @@ heatmap <- function(input, output, session, se, transcriptfield, entrezgenefield
 #' useful
 #'
 #' @param input Input object
-#' @param se StructuredExperiment object with assay and experimental data
-#' @param assay The name or index of the assay in \code{se} that should be used
+#' @param exprmatrix An expression matrix
+#' @param experiment A data frame containing experimental variables
 #' @param ... Arguments that should be passed through \code{annotatedHeatmap()}
 #' to \code{pheatmap()}
 #'
 #' @return output Heatmap plot 
 #' 
 #' @examples
-#' makeHeatmap(input, se, main = 'title')
+#' makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
 
 makeHeatmap <- function(input, exprmatrix, experiment, ...) {
     
@@ -171,7 +172,13 @@ makeHeatmap <- function(input, exprmatrix, experiment, ...) {
         # If the above 'if' reduced the frame to 1 row we can't do clustering anyway
         
         if (nrow(se) > 1) {
-            annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = input$groupVars, cluster_rows = input$cluster_rows, cluster_cols = input$cluster_cols, 
+            
+            groupVars <- NULL
+            if ("groupVars" %in% names(input)) {
+                groupVars <- input$groupVars
+            }
+            
+            annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = groupVars, cluster_rows = input$cluster_rows, cluster_cols = input$cluster_cols, 
                 scale = input$scale, ...)
         }
     }
@@ -202,12 +209,15 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
     
     if (!is.null(plotmatrix)) {
         
-        sample_annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor))
+        annotation <- annotation_colors <- NA
         
-        colors <- makeAnnotationColors(sample_annotation)
+        if (!is.null(group_vars)) {
+            annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor))
+            annotation_colors <- makeAnnotationColors(sample_annotation)
+        }
         
-        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = sample_annotation, 
-            annotation_colors = colors, border_color = NA, legend = FALSE, ...)
+        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = annotation, 
+            annotation_colors = annotation_colors, border_color = NA, legend = FALSE, ...)
     }
 }
 
@@ -244,8 +254,8 @@ makeAnnotationColors <- function(sample_annotation) {
         if (RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"] >= length(categories) && length(categories) > 2) {
             colcolors <- RColorBrewer::brewer.pal(length(categories), palettes[i])
         } else {
-            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), 
-                length(categories))
+            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], 
+                palettes[i]))(length(categories)), length(categories))
         }
         
         names(colcolors) <- levels(sample_annotation[, i])

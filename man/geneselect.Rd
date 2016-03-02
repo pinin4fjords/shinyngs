@@ -4,8 +4,7 @@
 \alias{geneselect}
 \title{The server function of the geneselect module}
 \usage{
-geneselect(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files = NULL, var_n = 50, var_max = 500,
+geneselect(input, output, session, se, var_n = 50, var_max = 500,
   selectSamples, assay)
 }
 \arguments{
@@ -15,15 +14,8 @@ geneselect(input, output, session, se, transcriptfield, entrezgenefield,
 
 \item{session}{Session object}
 
-\item{transcriptfield}{The main identifier for the rows in the assay data.
-This could be transcript ID, but also probe etc}
-
-\item{entrezgenefield}{The column of annotation containing Entrez gene IDs}
-
-\item{genefield}{The gene ID type in annotation by which results are keyed}
-
-\item{geneset_files}{(optional) A named list of .gmt gene set files as might be 
-derived from MSigDB}
+\item{se}{StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default = 50}
 
@@ -42,7 +34,7 @@ This module provides controls for selecting genes (matrix rows) by various
 criteria such as variance and gene set.
 }
 \examples{
-geneselect_functions <- callModule(geneselect, 'heatmap', se, transcriptfield, entrezgenefield, genefield, geneset_files, getMatrix=selectColumns)
+geneselect_functions <- callModule(geneselect, 'heatmap', se, getMatrix=selectColumns)
 }
 \keyword{shiny}
 

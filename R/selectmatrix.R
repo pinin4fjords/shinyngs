@@ -7,9 +7,8 @@
 #' heatmap module.
 #'
 #' @param id Submodule namespace
-#' @param group_vars The variables from the structured experiment that should
-#' be used to control sample grouping in the plot
-#' @param The default grouping variable to use
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -19,12 +18,11 @@
 #' @examples
 #' selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
 
-selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
+selectmatrixInput <- function(id, se) {
     
     ns <- NS(id)
     
-    tagList(selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se))), sampleselectInput(ns("selectmatrix"), group_vars, default_groupvar), 
-        geneselectInput(ns("selectmatrix")))
+    tagList(selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se))), sampleselectInput(ns("selectmatrix"), se), geneselectInput(ns("selectmatrix")))
 }
 
 #' The server function of the selectmatrix module
@@ -38,13 +36,8 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data
-#' @param transcriptfield The main identifier for the rows in the assay data.
-#' This could be transcript ID, but also probe etc.
-#' @param entrezgenefield The column of annotation containing Entrez gene IDs
-#' @param genefield The gene ID type in annotation by which results are keyed
-#' @param geneset_files A named list of .gmt gene set files as might be 
-#' derived from MSigDB
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #' @param var_n The number of rows to select when doing so by variance. Default = 50
 #' @param var_max The maximum umber of rows to select when doing so by variance. 
 #' Default = 500
@@ -57,12 +50,12 @@ selectmatrixInput <- function(id, se, group_vars, default_groupvar) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 50, var_max = 500) {
+selectmatrix <- function(input, output, session, se, var_n = 50, var_max = 500) {
     
     selectSamples <- callModule(sampleselect, "selectmatrix", se)
     
-    geneselect_functions <- callModule(geneselect, "selectmatrix", se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = var_n, 
-        var_max = var_max, selectSamples = selectSamples, assay = reactive({
+    geneselect_functions <- callModule(geneselect, "selectmatrix", se, var_n = var_n, var_max = var_max, selectSamples = selectSamples, 
+        assay = reactive({
             input$assay
         }))
     selectRows <- geneselect_functions$selectRows

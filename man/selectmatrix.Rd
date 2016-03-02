@@ -4,8 +4,7 @@
 \alias{selectmatrix}
 \title{The server function of the selectmatrix module}
 \usage{
-selectmatrix(input, output, session, se, transcriptfield, entrezgenefield,
-  genefield, geneset_files, var_n = 50, var_max = 500)
+selectmatrix(input, output, session, se, var_n = 50, var_max = 500)
 }
 \arguments{
 \item{input}{Input object}
@@ -14,17 +13,8 @@ selectmatrix(input, output, session, se, transcriptfield, entrezgenefield,
 
 \item{session}{Session object}
 
-\item{se}{StructuredExperiment object with assay and experimental data}
-
-\item{transcriptfield}{The main identifier for the rows in the assay data.
-This could be transcript ID, but also probe etc.}
-
-\item{entrezgenefield}{The column of annotation containing Entrez gene IDs}
-
-\item{genefield}{The gene ID type in annotation by which results are keyed}
-
-\item{geneset_files}{A named list of .gmt gene set files as might be 
-derived from MSigDB}
+\item{se}{StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default = 50}
 

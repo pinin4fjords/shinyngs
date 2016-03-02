@@ -9,12 +9,12 @@ makeHeatmap(input, exprmatrix, experiment, ...)
 \arguments{
 \item{input}{Input object}
 
+\item{exprmatrix}{An expression matrix}
+
+\item{experiment}{A data frame containing experimental variables}
+
 \item{...}{Arguments that should be passed through \code{annotatedHeatmap()}
 to \code{pheatmap()}}
-
-\item{se}{StructuredExperiment object with assay and experimental data}
-
-\item{assay}{The name or index of the assay in \code{se} that should be used}
 }
 \value{
 output Heatmap plot
@@ -24,6 +24,6 @@ Just an adapter to annotatedHeatmap(), which is designed to be generically
 useful
 }
 \examples{
-makeHeatmap(input, se, main = 'title')
+makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
 }
 

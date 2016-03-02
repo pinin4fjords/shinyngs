@@ -7,9 +7,8 @@
 #' selectmatrix module.
 #'
 #' @param id Submodule namespace
-#' @param group_vars The variables from the structured experiment that should
-#' be used to control sample grouping in the plot
-#' @param The default grouping variable to use
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -19,14 +18,35 @@
 #' @examples
 #' sampleselectInput(ns('heatmap'))
 
-sampleselectInput <- function(id, group_vars, default_groupvar) {
+sampleselectInput <- function(id, se) {
     
     ns <- NS(id)
     
-    tagList(h4("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", c("name", "group"), selected = "group"), 
-        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", 
-            colnames(se), selected = colnames(se), inline = TRUE)), conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), 
-            selectInput(ns("sampleGroupVar"), "Define groups by:", group_vars, selected = default_groupvar), uiOutput(ns("groupSamples"))))
+    # If grouping variables have been supplied we can use them to define sample selection
+    
+    selectby <- "name"
+    if ("group_vars" %in% names(metadata(se))) {
+        selectby <- c(selectby, "group")
+        default_groupvar <- se$group_vars[1]
+        if ("default_groupvar" %in% names(metadata(se))) {
+            default_groupvar <- metadata(se)$default_groupvar
+        }
+    }
+    
+    # We can select by sample in any case
+    
+    inputs <- list(h4("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
+        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), 
+            "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
+    
+    # Add in group selection if relevant
+    
+    if ("group_vars" %in% names(metadata(se))) {
+        inputs[[length(inputs) + 1]] <- conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
+            "Define groups by:", metadata(se)$group_vars, selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples")))
+    }
+    
+    tagList(inputs)
 }
 
 #' The server function of the sampleselect module
@@ -52,20 +72,27 @@ sampleselectInput <- function(id, group_vars, default_groupvar) {
 
 sampleselect <- function(input, output, session, se) {
     
-    # Render the sampleGroupVal() element based on sampleGroupVar
-    
-    output$groupSamples <- renderUI({
-        validate(need(input$sampleGroupVar, FALSE))
-        group_values <- as.character(unique(se[[isolate(input$sampleGroupVar)]]))
-        ns <- session$ns
-        checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values)
-    })
+    if ("group_vars" %in% names(metadata(se))) {
+        
+        # Render the sampleGroupVal() element based on sampleGroupVar
+        
+        output$groupSamples <- renderUI({
+            validate(need(input$sampleGroupVar, FALSE))
+            group_values <- as.character(unique(se[[isolate(input$sampleGroupVar)]]))
+            ns <- session$ns
+            checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values)
+        })
+    }
     
     # Reactive expression for selecting the specified columns
     
     reactive({
         
-        validate(need(!is.null(input$samples), "Waiting for form to provide samples"), need(!is.null(input$sampleGroupVal), "Waiting in sampleselect for form to provide sampleGroupVal"))
+        validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
+        
+        if ("group_vars" %in% names(metadata(se))) {
+            validate(need(!is.null(input$sampleGroupVal), "Waiting in sampleselect for form to provide sampleGroupVal"))
+        }
         
         if (input$sampleSelect == "name") {
             return(input$samples)

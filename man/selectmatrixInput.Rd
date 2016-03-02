@@ -7,15 +7,13 @@
 This module uses the geneselect and sampleselect modules to parse controls
 defining matrix, row and column and return a matrix.}
 \usage{
-selectmatrixInput(id, se, group_vars, default_groupvar)
+selectmatrixInput(id, se)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{group_vars}{The variables from the structured experiment that should
-be used to control sample grouping in the plot}
-
-\item{The}{default grouping variable to use}
+\item{se}{StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

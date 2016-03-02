@@ -7,15 +7,13 @@
 This module provides controls for selecting matrix columns by sample or 
 group name.}
 \usage{
-sampleselectInput(id, group_vars, default_groupvar)
+sampleselectInput(id, se)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{group_vars}{The variables from the structured experiment that should
-be used to control sample grouping in the plot}
-
-\item{The}{default grouping variable to use}
+\item{se}{StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

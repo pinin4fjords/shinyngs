@@ -4,8 +4,7 @@
 \alias{pca}
 \title{The server function of the pca module}
 \usage{
-pca(input, output, session, se, transcriptfield, entrezgenefield, genefield,
-  geneset_files = NULL)
+pca(input, output, session, se)
 }
 \arguments{
 \item{input}{Input object}
@@ -14,17 +13,8 @@ pca(input, output, session, se, transcriptfield, entrezgenefield, genefield,
 
 \item{session}{Session object}
 
-\item{se}{StructuredExperiment object with assay and experimental data}
-
-\item{transcriptfield}{The main identifier for the rows in the assay data.
-This could be transcript ID, but also probe etc.}
-
-\item{entrezgenefield}{The column of annotation containing Entrez gene IDs}
-
-\item{genefield}{The gene ID type in annotation by which results are keyed}
-
-\item{geneset_files}{(optional) A named list of .gmt gene set files as might be 
-derived from MSigDB}
+\item{se}{StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

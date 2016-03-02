@@ -3,10 +3,8 @@
 #' This provides the form elements to control the pca display
 #'
 #' @param id Submodule namespace
-#' @param se StructuredExperiment object with assay and experimental data
-#' @param group_vars The variables from the structured experiment that should
-#' be used to control sample grouping in the plot
-#' @param The default grouping variable to use
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #' @param principal_components A named vector of princpal components to provide. Default = c('PC1' = 1 ... 'PC10' = 10).
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
@@ -17,14 +15,19 @@
 #' @examples
 #' pcaInput('pca', se, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
 
-pcaInput <- function(id, se, group_vars, default_groupvar, principal_components = structure(1:10, names = paste0("PC", 1:10))) {
+pcaInput <- function(id, se, principal_components = structure(1:10, names = paste0("PC", 1:10))) {
     
     ns <- NS(id)
     
-    tagList(h3("Principal component analysis"), selectmatrixInput(ns("pca"), se, group_vars, default_groupvar), h4("Set plotting parameters"), 
-        selectInput(ns("xAxisComponent"), "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), "y axis component", 
-            principal_components, selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3), 
-        selectInput(ns("samplePCAColorBy"), "Color by", group_vars, selected = default_groupvar))
+    inputs <- list(h3("Principal component analysis"), selectmatrixInput(ns("pca"), se), h4("Set plotting parameters"), selectInput(ns("xAxisComponent"), 
+        "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), "y axis component", principal_components, 
+        selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3))
+    
+    if ("group_vars" %in% names(metadata(se))) {
+        inputs[[length(inputs) + 1]] <- selectInput(ns("samplePCAColorBy"), "Color by", metadata(se)$group_vars, selected = metadata(se)$default_groupvar)
+    }
+    
+    tagList(inputs)
 }
 
 #' The output function of the pca module
@@ -56,33 +59,35 @@ pcaOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data
-#' @param transcriptfield The main identifier for the rows in the assay data.
-#' This could be transcript ID, but also probe etc.
-#' @param entrezgenefield The column of annotation containing Entrez gene IDs
-#' @param genefield The gene ID type in annotation by which results are keyed
-#' @param geneset_files (optional) A named list of .gmt gene set files as might be 
-#' derived from MSigDB
+#' @param se StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #'
 #' @keywords shiny
 #' 
 #' @examples
 #' callModule(pca, 'pca', se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
 
-pca <- function(input, output, session, se, transcriptfield, entrezgenefield, genefield, geneset_files = NULL) {
+pca <- function(input, output, session, se) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "pca", se, transcriptfield, entrezgenefield, genefield, geneset_files, var_n = 1000, 
-        var_max = nrow(se))
+    selectmatrix_functions <- callModule(selectmatrix, "pca", se, var_n = 1000, var_max = nrow(se))
     selectMatrix <- selectmatrix_functions$selectMatrix
     matrixTitle <- selectmatrix_functions$title
     selectColData <- selectmatrix_functions$selectColData
+    
+    colorby <- reactive({
+        if ("samplePCAColorBy" %in% names(input)) {
+            return(input$samplePCAColorBy)
+        } else {
+            return(NULL)
+        }
+    })
     
     output$samplePCAPlot <- renderPlotly({
         withProgress(message = "Making interactive 3D PCA plot", value = 0, {
             
             if (nrow(selectMatrix()) > 0) {
                 plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), 
-                  selectColData(), input$samplePCAColorBy, matrixTitle())
+                  selectColData(), colorby(), matrixTitle())
             }
         })
     })
@@ -114,7 +119,7 @@ pca <- function(input, output, session, se, transcriptfield, entrezgenefield, ge
 #'   title='My title'
 #' ) 
 
-plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby, title = "foo") {
+plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby = NULL, title = "foo") {
     
     if (min(pcavals) == 0) {
         pcavals <- pcavals + 1
@@ -131,11 +136,16 @@ plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby, title = "foo") {
     plotdata <- data.frame(pca$x)
     colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
     
-    plotdata$color <- factor(pcameta[match(rownames(plotdata), rownames(pcameta)), colorby], levels = unique(pcameta[, colorby]))
     plotdata$name <- rownames(plotdata)
     
-    p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", color = color, 
-        text = plotdata$name, hoverinfo = "text")
+    if (!is.null(colorby)) {
+        plotdata$color <- factor(pcameta[match(rownames(plotdata), rownames(pcameta)), colorby], levels = unique(pcameta[, colorby]))
+        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", 
+            color = color, text = plotdata$name, hoverinfo = "text")
+    } else {
+        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", 
+            text = plotdata$name, hoverinfo = "text")
+    }
     
     p <- layout(p, xaxis = list(title = colnames(plotdata)[pcX]), yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ]), 
         scene = list(xaxis = list(title = colnames(plotdata)[pcX]), yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ])), 

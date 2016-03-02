@@ -56,14 +56,20 @@
 #'  # Run the Shiny app
 #'  shinyApp(app$ui, app$server)
 
-prepareApp <- function(type, se, params = list()) {
+prepareApp <- function(type, se) {
+    
+    # Group by any factor variable by default
+    
+    # if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
+    # colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (!
+    # 'default_groupvar' %in% colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] }
     
     if (type == "heatmap") {
         
-        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Heatmap builder:", tabPanel("Home", heatmapLayout(se, params))))
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = se$title, tabPanel("Home", heatmapLayout(se))))
         
         server <- function(input, output, session) {
-            heatmapModuleCall(se, params)
+            heatmapModuleCall(se)
         }
         
     } else if (type == "pca") {
@@ -72,6 +78,13 @@ prepareApp <- function(type, se, params = list()) {
         
         server <- function(input, output, session) {
             pcaModuleCall(se, params)
+        }
+    } else if (type == "simpletable") {
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "A simple table page:", tabPanel("Home", simpletableLayout(se, 
+            params))))
+        
+        server <- function(input, output, session) {
+            simpletableModuleCall(se, params)
         }
     }
     
@@ -91,8 +104,8 @@ prepareApp <- function(type, se, params = list()) {
 #' @examples
 #' tabPanel('Home', pcaLayout(se, params))))
 
-heatmapLayout <- function(se, params) {
-    sidebarLayout(sidebarPanel(heatmapInput("heatmap", se, params$group_vars, params$default_groupvar)), mainPanel(heatmapOutput("heatmap")))
+heatmapLayout <- function(se) {
+    sidebarLayout(sidebarPanel(heatmapInput("heatmap", se)), mainPanel(heatmapOutput("heatmap")))
 }
 
 #' Run the call to the heatmap module's server function
@@ -105,8 +118,8 @@ heatmapLayout <- function(se, params) {
 #'
 #' @keywords shiny
 
-heatmapModuleCall <- function(se, params) {
-    callModule(heatmap, "heatmap", se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
+heatmapModuleCall <- function(se) {
+    callModule(heatmap, "heatmap", se)
 }
 
 #' Produce the controls and output for a 3D PCA plot using the pca module, in a
@@ -122,7 +135,7 @@ heatmapModuleCall <- function(se, params) {
 #' tabPanel('Home', pcaLayout(se, params))))
 
 pcaLayout <- function(se, params) {
-    sidebarLayout(sidebarPanel(pcaInput("pca", se, params$group_vars, params$default_groupvar)), mainPanel(pcaOutput("pca")))
+    sidebarLayout(sidebarPanel(pcaInput("pca", se)), mainPanel(pcaOutput("pca")))
 }
 
 #' Run the call to the pca module's server function
@@ -136,5 +149,36 @@ pcaLayout <- function(se, params) {
 #' @keywords shiny
 
 pcaModuleCall <- function(se, params) {
-    callModule(pca, "pca", se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
+    callModule(pca, "pca", se)
+}
+
+#' Produce the controls and output for a datatable, in a shiny
+#' \code{sideBarLayout()}.
+#' 
+#' Just an abstraction to make prepareApp more concise 
+#'
+#' @param params A list object of parameters
+#'
+#' @keywords shiny
+#'
+#' @examples
+#' tabPanel('Home', simpletableLayout(se, params))))
+
+simpletableLayout <- function(se, params) {
+    sidebarLayout(sidebarPanel(simpletableInput("simpletable", description = "These are the samples involved in this study, and their associated variables. Contrasts for differential expression are built from these variables"), 
+        width = 3), mainPanel(simpletableOutput("simpletable", tabletitle = "Experimental variables"), width = 9))
+}
+
+#' Run the call to the simpletable module's server function
+#' 
+#' Just an abstraction to make prepareApp more concise 
+#'
+#' @param se A SummarizedExperiment object containing assay data (expression, 
+#' counts...), sample data and annotation data for the rows.
+#' @param params A list object of parameters
+#'
+#' @keywords shiny
+
+simpletableModuleCall <- function(se, params) {
+    callModule(simpletable, "simpletable", data.frame(colData(se)))
 } 
