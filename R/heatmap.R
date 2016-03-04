@@ -85,7 +85,6 @@ heatmap <- function(input, output, session, se) {
         withProgress(message = "Getting values for heatmap", value = 0, {
             
             heatmap_expression <- selectMatrix()
-            write.table(heatmap_expression, file = "~/shinytests/heatmap_expression.txt")
             
             if (nrow(heatmap_expression) > 0) {
                 
@@ -93,7 +92,7 @@ heatmap <- function(input, output, session, se) {
                 
                 if (all(c("transcriptfield", "genefield") %in% names(metadata(se))) && nrow(mcols(se)) > 0) {
                   annotation <- data.frame(mcols(se))
-                  display_genes <- annotation[match(rownames(heatmap_expression), annotation[[transcriptfield]]), genefield]
+                  display_genes <- annotation[match(rownames(heatmap_expression), annotation[[ metadata(se)$transcriptfield]]), metadata(se)$genefield]
                   hasgenes <- !is.na(display_genes)
                   
                   rownames(heatmap_expression)[hasgenes] <- paste(display_genes[hasgenes], rownames(heatmap_expression)[hasgenes], 

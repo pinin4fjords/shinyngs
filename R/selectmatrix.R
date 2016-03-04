@@ -22,7 +22,20 @@ selectmatrixInput <- function(id, se) {
     
     ns <- NS(id)
     
-    tagList(selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se))), sampleselectInput(ns("selectmatrix"), se), geneselectInput(ns("selectmatrix")))
+    inputs <- list(
+      selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se))), 
+      sampleselectInput(ns("selectmatrix"), se), 
+      geneselectInput(ns("selectmatrix"))
+    )
+    
+    # Replace matrix with a hidden input if we've got just the one
+    
+    if (length(GenomicRanges::assays(se)) == 1){
+      #inputs[[1]] <- HTML(paste0("<input type='text' id='", ns('assay'), "', value='",names(GenomicRanges::assays(se))[1],"', style='display: none;'>")) 
+      inputs[[1]] <- hiddenInput(ns('assay'), names(GenomicRanges::assays(se))[1])
+    }
+    
+    tagList(inputs)    
 }
 
 #' The server function of the selectmatrix module

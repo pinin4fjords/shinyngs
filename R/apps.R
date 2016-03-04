@@ -60,9 +60,9 @@ prepareApp <- function(type, se) {
     
     # Group by any factor variable by default
     
-    # if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
-    # colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (!
-    # 'default_groupvar' %in% colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] }
+    if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
+    colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (!
+    'default_groupvar' %in% colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] }
     
     if (type == "heatmap") {
         

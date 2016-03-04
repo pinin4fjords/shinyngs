@@ -48,3 +48,20 @@ ucfirst <- function(string) {
 nlines <- function(string) {
     length(unlist(strsplit(string, "\n")))
 } 
+
+#' Make a hidden input field. Handy for replacing superfluous single-value 
+#' selects etc
+#'
+#' @param string An HTML id
+#' @param value The value the input should return
+#'
+#' @return output HTML as output by Shiny's \code{HTML()}
+#'
+#' @export
+#' 
+#' @examples
+#' hiddenInput('myid', 'iamavalue')
+
+hiddenInput <- function(id, value){
+  HTML(paste0("<input type='text' id='", id, "', value='",value,"', style='display: none;'>")) 
+}
