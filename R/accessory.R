@@ -47,7 +47,7 @@ ucfirst <- function(string) {
 
 nlines <- function(string) {
     length(unlist(strsplit(string, "\n")))
-} 
+}
 
 #' Make a hidden input field. Handy for replacing superfluous single-value 
 #' selects etc
@@ -62,6 +62,67 @@ nlines <- function(string) {
 #' @examples
 #' hiddenInput('myid', 'iamavalue')
 
-hiddenInput <- function(id, value){
-  HTML(paste0("<input type='text' id='", id, "', value='",value,"', style='display: none;'>")) 
+hiddenInput <- function(id, value) {
+    HTML(paste0("<input type='text' id='", id, "' value='", value, "' style='display: none;'>"))
 }
+
+#' Simple list push 
+#'
+#' @param list A list to push to
+#' @param element The element to push
+#'
+#' @return list with element pushed
+#'
+#' @export
+#' 
+#' @examples
+#' mylist <- pushToList(mylist, 'new element')
+
+pushToList <- function(input_list, element) {
+    input_list[[length(input_list) + 1]] <- element
+    input_list
+}
+
+#' Create sets of fields for display
+#' 
+#' Shiny apps can get cluttered with many inputs. This method wraps sets of
+#' fields in either a \code{bsCollapse} from \code{shinyBS} (if installed) or
+#' a simple div element with a title and class 'shinyngsFieldset' (which can 
+#' then be used for styling) 
+#'
+#' @param id ID field to apply to the overall container
+#' @param fieldset_list A named list, each element containing one or more 
+#' fields.
+#' @param open Only applicable for output with shinyBS, controls which panels
+#' are open by default. In most cases all should be left open (the default),
+#' since shiny doesn't receive the inputs of fields in collapsed elements.
+#' @param use_shinybs Use collapsible panels from shinyBS if installed
+#' 
+#' @export
+#'
+#' @return list
+
+fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
+    
+    if (is.null(open)) {
+        open = names(fieldset_list)
+    }
+    
+    if (requireNamespace("shinyBS", quietly = TRUE) && use_shinybs) {
+        
+        collapse_panels <- lapply(names(fieldset_list), function(listname) {
+            shinyBS::bsCollapsePanel(prettifyVariablename(listname), value = listname, fieldset_list[[listname]])
+        })
+        
+        collapse_panels$id = id
+        collapse_panels$multiple = TRUE
+        collapse_panels$open = open
+        
+        do.call(shinyBS::bsCollapse, collapse_panels)
+        
+    } else {
+        lapply(names(fieldset_list), function(listname) {
+            div(id = id, class = "shinyngsFieldset", h4(prettifyVariablename(listname)), fieldset_list[[listname]])
+        })
+    }
+} 

@@ -7,7 +7,7 @@
 This module provides controls for selecting matrix columns by sample or 
 group name.}
 \usage{
-sampleselect(input, output, session, se)
+sampleselect(input, output, session, getExperiment)
 }
 \arguments{
 \item{input}{Input object}
@@ -16,7 +16,9 @@ sampleselect(input, output, session, se)
 
 \item{session}{Session object}
 
-\item{se}{StructuredExperiment object with assay and experimental data}
+\item{getExperiment}{Reactive expression which returns a
+StructuredExperiment object with assay and experimental data, with
+additional information in the metadata() slot}
 }
 \value{
 output A list of reactive functions for interrogating the selected
@@ -27,7 +29,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, 'selectmatrix', se)
+selectSamples <- callModule(sampleselect, 'selectmatrix', getExperiment)
 }
 \keyword{shiny}
 

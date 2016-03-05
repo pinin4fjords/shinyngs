@@ -56,32 +56,36 @@
 #'  # Run the Shiny app
 #'  shinyApp(app$ui, app$server)
 
-prepareApp <- function(type, se) {
+prepareApp <- function(type, ses) {
+    
+    # Convert to a list if a SummarizedExperiment supplied
+    
+    if (!is.list(ses)) {
+        ses <- list(expression = ses)
+    }
     
     # Group by any factor variable by default
     
-    if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
-    colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (!
-    'default_groupvar' %in% colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] }
+    # ses <- lapply(ses, function(se){ if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
+    # colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (! 'default_groupvar' %in%
+    # colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] } se })
     
     if (type == "heatmap") {
         
-        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = se$title, tabPanel("Home", heatmapLayout(se))))
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = se$title, tabPanel("Home", heatmapLayout(ses))))
         
         server <- function(input, output, session) {
-            heatmapModuleCall(se)
+            heatmapModuleCall(ses)
         }
         
     } else if (type == "pca") {
-        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Interactive PCA plot:", tabPanel("Home", pcaLayout(se, 
-            params))))
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "Interactive PCA plot:", tabPanel("Home", pcaLayout(ses, params))))
         
         server <- function(input, output, session) {
-            pcaModuleCall(se, params)
+            pcaModuleCall(ses, params)
         }
     } else if (type == "simpletable") {
-        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "A simple table page:", tabPanel("Home", simpletableLayout(se, 
-            params))))
+        ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = "pages", title = "A simple table page:", tabPanel("Home", simpletableLayout(se, params))))
         
         server <- function(input, output, session) {
             simpletableModuleCall(se, params)
@@ -118,8 +122,8 @@ heatmapLayout <- function(se) {
 #'
 #' @keywords shiny
 
-heatmapModuleCall <- function(se) {
-    callModule(heatmap, "heatmap", se)
+heatmapModuleCall <- function(ses) {
+    callModule(heatmap, "heatmap", ses)
 }
 
 #' Produce the controls and output for a 3D PCA plot using the pca module, in a

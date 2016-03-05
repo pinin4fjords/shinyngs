@@ -4,7 +4,7 @@
 \alias{heatmapModuleCall}
 \title{Run the call to the heatmap module's server function}
 \usage{
-heatmapModuleCall(se)
+heatmapModuleCall(ses)
 }
 \arguments{
 \item{se}{A SummarizedExperiment object containing assay data (expression, 

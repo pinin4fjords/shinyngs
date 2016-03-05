@@ -35,9 +35,9 @@ sampleselectInput <- function(id, se) {
     
     # We can select by sample in any case
     
-    inputs <- list(h4("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
-        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), 
-            "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
+    inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
+        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), 
+            selected = colnames(se), inline = TRUE)))
     
     # Add in group selection if relevant
     
@@ -60,7 +60,9 @@ sampleselectInput <- function(id, se) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data
+#' @param getExperiment Reactive expression which returns a
+#' StructuredExperiment object with assay and experimental data, with
+#' additional information in the metadata() slot
 #'
 #' @return output A list of reactive functions for interrogating the selected
 #' samples/ columns.
@@ -68,9 +70,13 @@ sampleselectInput <- function(id, se) {
 #' @keywords shiny
 #' 
 #' @examples
-#' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
+#' selectSamples <- callModule(sampleselect, 'selectmatrix', getExperiment)
 
-sampleselect <- function(input, output, session, se) {
+sampleselect <- function(input, output, session, getExperiment) {
+    
+    observe({
+        se <- getExperiment()
+    })
     
     if ("group_vars" %in% names(metadata(se))) {
         
@@ -83,6 +89,7 @@ sampleselect <- function(input, output, session, se) {
             checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values)
         })
     }
+    
     
     # Reactive expression for selecting the specified columns
     

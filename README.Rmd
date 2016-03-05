@@ -16,11 +16,18 @@ knitr::opts_chunk$set(
 
 # Synopsis
 
-This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder or a 3D PCA plot as toy examples. 
+This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder or a 3D PCA plot as toy examples.   
 
-The app uses Shiny modules (http://shiny.rstudio.com/articles/modules.html), the learning of which was one of the motivations of producing this package. The provision of modules as reusable components should enable the simple production of a variety of applications in future.  
+## Features
 
-For the heatmap and future applications, data must be in the SummarisedExperiment structure of the GenomicRanges package. This allows multiple expression matrices to be stored, alongside experimental variables and annotation.
+* A variety of single and multiple-panel Shiny applications- currently heatmap, pca and a simple table with an RNA-seq app currently being ported from non-modularised code.
+* Leveraging of libraries such as [DataTables](https://rstudio.github.io/DT/) and [Plotly](https://plot.ly/) for rich interactivity.
+* Takes input in the commonly used `SummarizedExperiment` format. 
+* Interface kept simple where possible, with complexity automatically added where required:
+    * Input field clutter reduced with the use of collapses from [shinyBS](https://ebailey78.github.io/shinyBS/index.html) (when installed).
+    * If a list of `SummarizedExperiment`s is supplied (useful in situiations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.
+    * If a selected experiment contains more than one assay, a selector will again be provided.
+* For me: leveraging of [Shiny modules](http://shiny.rstudio.com/articles/modules.html). This makes re-using complex UI components much easier, and maintaining application code is orders of magnitude simpler as a result.
 
 # Code Example
 
@@ -143,6 +150,7 @@ For example this package currently contains five Shiny modules:
 * `sampleselect` - provides a UI element for selecting the columns of the matrix based on sample name or group. Called by the `selectmatrix` module.
 * `geneselect` - provides a UI element for selecing the rows of a matrix based on criteria such as variance. Called by the `selectmatrix` module.
 * `genesets` - provides UI element for selecting gene sets. Called by the `geneselect` module when a user chooses to filter by gene set. 
+* `plotdownload` - provides download button to non-Plotly plots (Plotly-driven plots have their own export button)
 
 So `heatmap` and `pca` both use `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise. 
 

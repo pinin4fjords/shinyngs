@@ -4,7 +4,7 @@
 \alias{geneselect}
 \title{The server function of the geneselect module}
 \usage{
-geneselect(input, output, session, se, var_n = 50, var_max = 500,
+geneselect(input, output, session, getExperiment, var_n = 50, var_max = 500,
   selectSamples, assay)
 }
 \arguments{
@@ -14,7 +14,8 @@ geneselect(input, output, session, se, var_n = 50, var_max = 500,
 
 \item{session}{Session object}
 
-\item{se}{StructuredExperiment object with assay and experimental data, with
+\item{getExperiment}{Reactive expression which returns a
+StructuredExperiment object with assay and experimental data, with
 additional information in the metadata() slot}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default = 50}
@@ -34,7 +35,7 @@ This module provides controls for selecting genes (matrix rows) by various
 criteria such as variance and gene set.
 }
 \examples{
-geneselect_functions <- callModule(geneselect, 'heatmap', se, getMatrix=selectColumns)
+geneselect_functions <- callModule(geneselect, 'heatmap', getExperiment, getMatrix=selectColumns)
 }
 \keyword{shiny}
 

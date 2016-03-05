@@ -4,7 +4,7 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(input, output, session, se)
+heatmap(input, output, session, ses)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ heatmap(input, output, session, se)
 
 \item{session}{Session object}
 
-\item{se}{StructuredExperiment object with assay and experimental data, with
-additional information in the metadata() slot}
+\item{ses}{List of structuredExperiment objects with assay and experimental
+data, with additional information in the metadata() slot}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

@@ -3,8 +3,8 @@
 #' This provides the form elements to control the pca display
 #'
 #' @param id Submodule namespace
-#' @param se StructuredExperiment object with assay and experimental data, with
-#' additional information in the metadata() slot
+#' @param ses List of structuredExperiment objects with assay and experimental
+#' data, with additional information in the metadata() slot
 #' @param principal_components A named vector of princpal components to provide. Default = c('PC1' = 1 ... 'PC10' = 10).
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
@@ -15,19 +15,19 @@
 #' @examples
 #' pcaInput('pca', se, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
 
-pcaInput <- function(id, se, principal_components = structure(1:10, names = paste0("PC", 1:10))) {
+pcaInput <- function(id, ses, principal_components = structure(1:10, names = paste0("PC", 1:10))) {
     
     ns <- NS(id)
     
-    inputs <- list(h3("Principal component analysis"), selectmatrixInput(ns("pca"), se), h4("Set plotting parameters"), selectInput(ns("xAxisComponent"), 
-        "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), "y axis component", principal_components, 
-        selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3))
+    expression_filters <- selectmatrixInput(ns("pca"), ses)
+    pca_filters <- list(selectInput(ns("xAxisComponent"), "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), 
+        "y axis component", principal_components, selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3), 
+        uiOutput(ns("samplePCAColorBy")))
     
-    if ("group_vars" %in% names(metadata(se))) {
-        inputs[[length(inputs) + 1]] <- selectInput(ns("samplePCAColorBy"), "Color by", metadata(se)$group_vars, selected = metadata(se)$default_groupvar)
-    }
+    # Output sets of fields in their own containers
     
-    tagList(inputs)
+    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, expression = expression_filters))
+    
 }
 
 #' The output function of the pca module
@@ -59,20 +59,29 @@ pcaOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data, with
-#' additional information in the metadata() slot
+#' @param ses List of structuredExperiment objects with assay and experimental
+#' data, with additional information in the metadata() slot
 #'
 #' @keywords shiny
 #' 
 #' @examples
 #' callModule(pca, 'pca', se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
 
-pca <- function(input, output, session, se) {
+pca <- function(input, output, session, ses) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "pca", se, var_n = 1000, var_max = nrow(se))
+    selectmatrix_functions <- callModule(selectmatrix, "pca", ses, var_n = 1000, var_max = nrow(se))
     selectMatrix <- selectmatrix_functions$selectMatrix
     matrixTitle <- selectmatrix_functions$title
     selectColData <- selectmatrix_functions$selectColData
+    getExperiment <- selectmatrix_functions$getExperiment
+    
+    output$samplePCAColorBy <- renderUI({
+        ns <- session$ns
+        se <- getExperiment()
+        if ("group_vars" %in% names(metadata(se))) {
+            selectInput(ns("samplePCAColorBy"), "Color by", metadata(se)$group_vars, selected = metadata(se)$default_groupvar)
+        }
+    })
     
     colorby <- reactive({
         if ("samplePCAColorBy" %in% names(input)) {
@@ -86,8 +95,8 @@ pca <- function(input, output, session, se) {
         withProgress(message = "Making interactive 3D PCA plot", value = 0, {
             
             if (nrow(selectMatrix()) > 0) {
-                plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), 
-                  selectColData(), colorby(), matrixTitle())
+                plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), selectColData(), 
+                  colorby(), matrixTitle())
             }
         })
     })
@@ -140,11 +149,11 @@ plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby = NULL, title = "
     
     if (!is.null(colorby)) {
         plotdata$color <- factor(pcameta[match(rownames(plotdata), rownames(pcameta)), colorby], levels = unique(pcameta[, colorby]))
-        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", 
-            color = color, text = plotdata$name, hoverinfo = "text")
-    } else {
-        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", 
+        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", color = color, 
             text = plotdata$name, hoverinfo = "text")
+    } else {
+        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", text = plotdata$name, 
+            hoverinfo = "text")
     }
     
     p <- layout(p, xaxis = list(title = colnames(plotdata)[pcX]), yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ]), 

@@ -30,7 +30,8 @@ geneselectInput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data, with
+#' @param getExperiment Reactive expression which returns a
+#' StructuredExperiment object with assay and experimental data, with
 #' additional information in the metadata() slot
 #' @param var_n The number of rows to select when doing so by variance. Default = 50
 #' @param var_max The maximum umber of rows to select when doing so by variance. 
@@ -44,9 +45,13 @@ geneselectInput <- function(id) {
 #' @keywords shiny
 #' 
 #' @examples
-#' geneselect_functions <- callModule(geneselect, 'heatmap', se, getMatrix=selectColumns)
+#' geneselect_functions <- callModule(geneselect, 'heatmap', getExperiment, getMatrix=selectColumns)
 
-geneselect <- function(input, output, session, se, var_n = 50, var_max = 500, selectSamples, assay) {
+geneselect <- function(input, output, session, getExperiment, var_n = 50, var_max = 500, selectSamples, assay) {
+    
+    observe({
+        se <- getExperiment()
+    })
     
     # Check if we're using annotation
     
@@ -67,23 +72,21 @@ geneselect <- function(input, output, session, se, var_n = 50, var_max = 500, se
             gene_select_methods <- c(gene_select_methods, "gene set")
         }
         
-        gene_select <- list(h4("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), 
+        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), 
             conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", 
-                min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), 
-                tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
+                min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), 
+                rows = 3, cols = 30, "Paste gene list here, one per line")))
         
         # If gene sets have been provided, then make a gene sets filter
         
         if (use_genesets) {
-            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), 
-                genesetInput(ns("heatmap")))
+            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("heatmap")))
         }
         
         gene_select
     })
     
-    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our
-    # results
+    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
     if (use_genesets) {
         geneset_functions <- callModule(geneset, "heatmap", data.frame(mcols(se)), se$entrezgenefield, se$genefield, se$geneset_files)
@@ -119,12 +122,12 @@ geneselect <- function(input, output, session, se, var_n = 50, var_max = 500, se
             # Use annotation for gene names if specified, otherwise use matrix rows
             
             if ("genefield" %in% names(metadata(se))) {
-                annotation <- annotation <- data.frame(mcols(se))
-                selected_rows <- as.character(annotation[which(tolower(annotation[[genefield]]) %in% tolower(selected_genes)), 
-                  transcriptfield])
+                annotation <- data.frame(mcols(se))
+                selected_rows <- as.character(annotation[which(tolower(annotation[[metadata(se)$genefield]]) %in% tolower(selected_genes)), metadata(se)$transcriptfield])
             } else {
                 selected_rows <- rownames(se)[which(tolower(rownames(se))) %in% tolower(selected_genes)]
             }
+            
             return(rownames(se)[rownames(se) %in% selected_rows])
         }
     })

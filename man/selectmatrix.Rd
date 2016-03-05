@@ -4,7 +4,7 @@
 \alias{selectmatrix}
 \title{The server function of the selectmatrix module}
 \usage{
-selectmatrix(input, output, session, se, var_n = 50, var_max = 500)
+selectmatrix(input, output, session, ses, var_n = 50, var_max = 500)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ selectmatrix(input, output, session, se, var_n = 50, var_max = 500)
 
 \item{session}{Session object}
 
-\item{se}{StructuredExperiment object with assay and experimental data, with
-additional information in the metadata() slot}
+\item{ses}{List of StructuredExperiment objects with assay and experimental
+data, with additional information in the metadata() slot}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default = 50}
 

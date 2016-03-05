@@ -7,8 +7,8 @@
 #' heatmap module.
 #'
 #' @param id Submodule namespace
-#' @param se StructuredExperiment object with assay and experimental data, with
-#' additional information in the metadata() slot
+#' @param ses List of structuredExperiment objects with assay and experimental
+#' data, with additional information in the metadata() slot
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -18,24 +18,24 @@
 #' @examples
 #' selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
 
-selectmatrixInput <- function(id, se) {
+selectmatrixInput <- function(id, ses) {
     
     ns <- NS(id)
     
-    inputs <- list(
-      selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se))), 
-      sampleselectInput(ns("selectmatrix"), se), 
-      geneselectInput(ns("selectmatrix"))
-    )
+    inputs <- list(selectInput(ns("experiment"), "Experiment", names(ses)), uiOutput(ns("assay")))
     
-    # Replace matrix with a hidden input if we've got just the one
+    # Replace experiment with a hidden input if we've got just the one
     
-    if (length(GenomicRanges::assays(se)) == 1){
-      #inputs[[1]] <- HTML(paste0("<input type='text' id='", ns('assay'), "', value='",names(GenomicRanges::assays(se))[1],"', style='display: none;'>")) 
-      inputs[[1]] <- hiddenInput(ns('assay'), names(GenomicRanges::assays(se))[1])
+    if (length(ses) == 1) {
+        inputs[[1]] <- hiddenInput(ns("experiment"), names(ses)[1])
     }
     
-    tagList(inputs)    
+    # If shinyBS is installed, we can make this set of fields collapsible
+    
+    # if (requireNamespace('shinyBS', quietly = TRUE)) { return(lshinyBS::bsCollapse(id = ns('expressionCollapse'), open = NULL,
+    # shinyBS::bsCollapsePanel('Expression filters', value='expression', 'Fetch expression data with the following settings: ', inputs))) } else {
+    # return(tagList(h4('Expression filters'), inputs)) }
+    return(tagList(inputs))
 }
 
 #' The server function of the selectmatrix module
@@ -49,8 +49,8 @@ selectmatrixInput <- function(id, se) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param se StructuredExperiment object with assay and experimental data, with
-#' additional information in the metadata() slot
+#' @param ses List of StructuredExperiment objects with assay and experimental
+#' data, with additional information in the metadata() slot
 #' @param var_n The number of rows to select when doing so by variance. Default = 50
 #' @param var_max The maximum umber of rows to select when doing so by variance. 
 #' Default = 500
@@ -63,21 +63,58 @@ selectmatrixInput <- function(id, se) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, se, var_n = 50, var_max = 500) {
+selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500) {
     
-    selectSamples <- callModule(sampleselect, "selectmatrix", se)
+    output$assay <- renderUI({
+        
+        validate(need(!is.null(input$experiment), "Waiting for form to provide experiment"))
+        
+        ns <- session$ns
+        
+        se <- ses[[input$experiment]]
+        
+        if (length(GenomicRanges::assays(se)) > 1) {
+            assayselect <- selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se)))
+        } else {
+            assayselect <- hiddenInput(ns("assay"), names(GenomicRanges::assays(se))[1])
+        }
+        list(assayselect, sampleselectInput(ns("selectmatrix"), ses[[input$experiment]]), geneselectInput(ns("selectmatrix")))
+    })
     
-    geneselect_functions <- callModule(geneselect, "selectmatrix", se, var_n = var_n, var_max = var_max, selectSamples = selectSamples, 
-        assay = reactive({
-            input$assay
-        }))
+    # Reactive for getting the right SummarizedExperiment and passing it on to sample and gene selection
+    
+    getExperiment <- reactive({
+        ses[[input$experiment]]
+    })
+    
+    getAssay <- reactive({
+        input$assay
+    })
+    
+    # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
+    
+    selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
+    
+    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = var_max, selectSamples = selectSamples, 
+        assay = getAssay)
     selectRows <- geneselect_functions$selectRows
     
-    list(selectMatrix = reactive({
+    # Generate an expression matrix given the selected experiment, assay, rows and columns
+    
+    selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            GenomicRanges::assays(se)[[input$assay]][selectRows(), selectSamples()]
+            validate(need(!is.null(input$assay), "Waiting for form to provide assay"))
+            GenomicRanges::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
         })
-    }), title = geneselect_functions$title, selectColData = reactive({
-        data.frame(colData(se)[selectSamples(), ])
-    }))
+    })
+    
+    # Extract experimental variables given selection parameters
+    
+    selectColData = reactive({
+        data.frame(colData(getExperiment())[selectSamples(), ])
+    })
+    
+    # Return the list of reactive expressions we'll need to access the data
+    
+    list(getExperiment = getExperiment, selectMatrix = selectMatrix, title = geneselect_functions$title, selectColData = selectColData)
 } 

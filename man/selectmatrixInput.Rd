@@ -7,13 +7,13 @@
 This module uses the geneselect and sampleselect modules to parse controls
 defining matrix, row and column and return a matrix.}
 \usage{
-selectmatrixInput(id, se)
+selectmatrixInput(id, ses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{se}{StructuredExperiment object with assay and experimental data, with
-additional information in the metadata() slot}
+\item{ses}{List of structuredExperiment objects with assay and experimental
+data, with additional information in the metadata() slot}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

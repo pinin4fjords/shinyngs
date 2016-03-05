@@ -4,14 +4,14 @@
 \alias{pcaInput}
 \title{The input function of the pca module}
 \usage{
-pcaInput(id, se, principal_components = structure(1:10, names = paste0("PC",
+pcaInput(id, ses, principal_components = structure(1:10, names = paste0("PC",
   1:10)))
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{se}{StructuredExperiment object with assay and experimental data, with
-additional information in the metadata() slot}
+\item{ses}{List of structuredExperiment objects with assay and experimental
+data, with additional information in the metadata() slot}
 
 \item{principal_components}{A named vector of princpal components to provide. Default = c('PC1' = 1 ... 'PC10' = 10).}
 }
