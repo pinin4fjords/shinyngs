@@ -20,8 +20,9 @@ pcaInput <- function(id, ses, principal_components = structure(1:10, names = pas
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("pca"), ses)
-    pca_filters <- list(selectInput(ns("xAxisComponent"), "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), "y axis component", principal_components, selected = 2), 
-        selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3), uiOutput(ns("samplePCAColorBy")))
+    pca_filters <- list(selectInput(ns("xAxisComponent"), "x axis component", principal_components, selected = 1), selectInput(ns("yAxisComponent"), 
+        "y axis component", principal_components, selected = 2), selectInput(ns("zAxisComponent"), "z axis component", principal_components, selected = 3), 
+        uiOutput(ns("samplePCAColorBy")))
     
     # Output sets of fields in their own containers
     
@@ -68,7 +69,7 @@ pcaOutput <- function(id) {
 
 pca <- function(input, output, session, ses) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "pca", ses, var_n = 1000, var_max = nrow(se), select_genes = TRUE)
+    selectmatrix_functions <- callModule(selectmatrix, "pca", ses, var_n = 1000, select_genes = TRUE)
     selectMatrix <- selectmatrix_functions$selectMatrix
     matrixTitle <- selectmatrix_functions$title
     selectColData <- selectmatrix_functions$selectColData
@@ -94,7 +95,8 @@ pca <- function(input, output, session, ses) {
         withProgress(message = "Making interactive 3D PCA plot", value = 0, {
             
             if (nrow(selectMatrix()) > 0) {
-                plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), selectColData(), colorby(), matrixTitle())
+                plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), 
+                  selectColData(), colorby(), matrixTitle())
             }
         })
     })
@@ -147,13 +149,16 @@ plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby = NULL, title = "
     
     if (!is.null(colorby)) {
         plotdata$color <- factor(pcameta[match(rownames(plotdata), rownames(pcameta)), colorby], levels = unique(pcameta[, colorby]))
-        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", color = color, text = plotdata$name, hoverinfo = "text")
+        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", color = color, 
+            text = plotdata$name, hoverinfo = "text")
     } else {
-        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", text = plotdata$name, hoverinfo = "text")
+        p <- plot_ly(plotdata, x = plotdata[, pcX], y = plotdata[, pcY], z = plotdata[, pcZ], type = "scatter3d", mode = "markers", text = plotdata$name, 
+            hoverinfo = "text")
     }
     
-    p <- layout(p, xaxis = list(title = colnames(plotdata)[pcX]), yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ]), scene = list(xaxis = list(title = colnames(plotdata)[pcX]), 
-        yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ])), margin = list(l = 0, r = 0, t = 50, b = 0), legend = list(y = 0.8), title = title)
+    p <- layout(p, xaxis = list(title = colnames(plotdata)[pcX]), yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ]), 
+        scene = list(xaxis = list(title = colnames(plotdata)[pcX]), yaxis = list(title = colnames(plotdata)[pcY]), zaxis = list(title = colnames(plotdata)[pcZ])), 
+        margin = list(l = 0, r = 0, t = 50, b = 0), legend = list(y = 0.8), title = title)
     
     p
     

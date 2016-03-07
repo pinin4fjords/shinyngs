@@ -35,14 +35,15 @@ sampleselectInput <- function(id, se) {
     
     # We can select by sample in any case
     
-    inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", 
-        ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
+    inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
+        conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), 
+            selected = colnames(se), inline = TRUE)))
     
     # Add in group selection if relevant
     
     if ("group_vars" %in% names(metadata(se))) {
-        inputs[[length(inputs) + 1]] <- conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", metadata(se)$group_vars, 
-            selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples")))
+        inputs[[length(inputs) + 1]] <- conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
+            "Define groups by:", metadata(se)$group_vars, selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples")))
     }
     
     tagList(inputs)

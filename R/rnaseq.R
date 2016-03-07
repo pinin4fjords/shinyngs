@@ -21,9 +21,11 @@
 rnaseqInput <- function(id, ses, title = "") {
     ns <- NS(id)
     
-    fluidPage(navbarPage(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", title), windowTitle = title, tabPanel("Home", sidebarLayout(sidebarPanel(), mainPanel())), navbarMenu("QC/ exploratory", 
-        tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), ses)), mainPanel(boxplotOutput(ns("boxplot"))))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), 
-            ses)), mainPanel(pcaOutput(ns("pca")))))), navbarMenu("Expression", tabPanel("Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap"), ses)), mainPanel(heatmapOutput(ns("heatmap"))))))))
+    fluidPage(navbarPage(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", title), windowTitle = title, tabPanel("Home", sidebarLayout(sidebarPanel(), 
+        mainPanel())), navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), ses)), mainPanel(boxplotOutput(ns("boxplot"))))), 
+        tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), ses)), mainPanel(pcaOutput(ns("pca"))))), tabPanel("Clustering dendrogram", 
+            sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), ses)), mainPanel(dendroOutput(ns("dendro")))))), navbarMenu("Expression", tabPanel("Heatmap", 
+        sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap"), ses)), mainPanel(heatmapOutput(ns("heatmap"))))))))
 }
 
 #' The server function of the rnaseq module
@@ -47,4 +49,5 @@ rnaseq <- function(input, output, session, ses) {
     callModule(heatmap, "heatmap", ses)
     callModule(pca, "pca", ses)
     callModule(boxplot, "boxplot", ses)
+    callModule(dendro, "dendro", ses)
 } 

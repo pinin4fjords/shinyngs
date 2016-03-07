@@ -2,7 +2,7 @@
 Synopsis
 ========
 
-This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder or a 3D PCA plot as toy examples.
+This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder, 3D PCA plot, boxplot or dendrogram, as toy examples.
 
 Features
 --------
@@ -83,6 +83,8 @@ app <- prepareApp("pca", se)
 shinyApp(app$ui, app$server)
 ```
 
+... and so on for other plotting modules.
+
 A multi-panel RNA-seq app
 -------------------------
 
@@ -149,14 +151,15 @@ For example this package currently contains five Shiny modules:
 -   `heatmap` - provides controls and a display for making heat maps based on user criteria.
 -   `pca` - provides controls and display for an interactive PCA plot.
 -   `boxplot` - provides controls and display for an interactive boxplot.
+-   `dendro` - a clustering of samples in dendrogram plotted with .
 -   `simpletable` - a simple display using datatables (via the `DT` package) to show a table and a download button. More complex table displays (with further controls, for example) can build on this module.
--   `selectmatrix` - provides controls and output for subsetting the profided assay data prior to plotting. Called by the `heatmap` and `pca` modules.
+-   `selectmatrix` - provides controls and output for subsetting the profided assay data prior to plotting. Called by many of the plotting modules.
 -   `sampleselect` - provides a UI element for selecting the columns of the matrix based on sample name or group. Called by the `selectmatrix` module.
 -   `geneselect` - provides a UI element for selecing the rows of a matrix based on criteria such as variance. Called by the `selectmatrix` module.
 -   `genesets` - provides UI element for selecting gene sets. Called by the `geneselect` module when a user chooses to filter by gene set.
 -   `plotdownload` - provides download button to non-Plotly plots (Plotly-driven plots have their own export button)
 
-So `heatmap` and `pca` both use `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise.
+So for example `heatmap` uses `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise.
 
 I intend to provide modules for a number of things I currently use (boxplots, PCA, scatterplots), which can then be simply plugged into many different applications.
 

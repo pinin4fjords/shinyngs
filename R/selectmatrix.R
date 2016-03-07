@@ -58,7 +58,7 @@ selectmatrixInput <- function(id, ses) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500, select_genes = TRUE) {
+selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_genes = TRUE) {
     
     output$assay <- renderUI({
         
@@ -86,11 +86,20 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500,
         input$assay
     })
     
+    varMax <- reactive({
+        if (is.null(var_max)) {
+            nrow(getExperiment())
+        } else {
+            var_max
+        }
+    })
+    
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
     
-    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = var_max, selectSamples = selectSamples, assay = getAssay)
+    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, 
+        assay = getAssay)
     selectRows <- geneselect_functions$selectRows
     
     # Generate an expression matrix given the selected experiment, assay, rows and columns
