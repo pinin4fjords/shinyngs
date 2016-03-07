@@ -30,11 +30,6 @@ selectmatrixInput <- function(id, ses) {
         inputs[[1]] <- hiddenInput(ns("experiment"), names(ses)[1])
     }
     
-    # If shinyBS is installed, we can make this set of fields collapsible
-    
-    # if (requireNamespace('shinyBS', quietly = TRUE)) { return(lshinyBS::bsCollapse(id = ns('expressionCollapse'), open = NULL,
-    # shinyBS::bsCollapsePanel('Expression filters', value='expression', 'Fetch expression data with the following settings: ', inputs))) } else {
-    # return(tagList(h4('Expression filters'), inputs)) }
     return(tagList(inputs))
 }
 
@@ -63,7 +58,7 @@ selectmatrixInput <- function(id, ses) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500) {
+selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500, select_genes = TRUE) {
     
     output$assay <- renderUI({
         
@@ -78,7 +73,7 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500)
         } else {
             assayselect <- hiddenInput(ns("assay"), names(GenomicRanges::assays(se))[1])
         }
-        list(assayselect, sampleselectInput(ns("selectmatrix"), ses[[input$experiment]]), geneselectInput(ns("selectmatrix")))
+        list(assayselect, sampleselectInput(ns("selectmatrix"), ses[[input$experiment]]), geneselectInput(ns("selectmatrix"), select_genes = select_genes))
     })
     
     # Reactive for getting the right SummarizedExperiment and passing it on to sample and gene selection
@@ -95,15 +90,14 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500)
     
     selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
     
-    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = var_max, selectSamples = selectSamples, 
-        assay = getAssay)
+    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = var_max, selectSamples = selectSamples, assay = getAssay)
     selectRows <- geneselect_functions$selectRows
     
     # Generate an expression matrix given the selected experiment, assay, rows and columns
     
     selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            validate(need(!is.null(input$assay), "Waiting for form to provide assay"))
+            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"))
             GenomicRanges::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
         })
     })
@@ -111,6 +105,7 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = 500)
     # Extract experimental variables given selection parameters
     
     selectColData = reactive({
+        validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
         data.frame(colData(getExperiment())[selectSamples(), ])
     })
     

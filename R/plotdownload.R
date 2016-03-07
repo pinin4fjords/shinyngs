@@ -31,8 +31,8 @@ plotdownloadInput <- function(id) {
 #' @param session Session object
 #' @param makePlot A reactive for generating the plot
 #' @param filename A filename (default = 'plot.png')
-#' @param plotHeight A reactive for calculating the height of the plot
-#' @param plotWidth A reactive for calculating the width of the plot
+#' @param plotHeight A number or reactive for calculating the height of the plot
+#' @param plotWidth A number or reactive for calculating the width of the plot
 #'
 #' @keywords shiny
 #' 
@@ -41,8 +41,18 @@ plotdownloadInput <- function(id) {
 
 plotdownload <- function(input, output, session, makePlot, filename = "plot.png", plotHeight, plotWidth) {
     
+    observe({
+        if (is.reactive(plotHeight)) {
+            plotHeight <- plotHeight()
+        }
+        
+        if (is.reactive(plotWidth)) {
+            plotWidth = plotWidth()
+        }
+    })
+    
     output$plotdownload <- downloadHandler(filename = filename, content = function(file) {
-        png(file, height = plotHeight(), width = plotWidth(), units = "px")
+        png(file, height = plotHeight, width = plotWidth, units = "px")
         print(makePlot())
         dev.off()
     })

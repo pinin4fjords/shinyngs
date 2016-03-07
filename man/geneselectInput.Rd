@@ -4,10 +4,12 @@
 \alias{geneselectInput}
 \title{The UI input function of the geneselect module}
 \usage{
-geneselectInput(id)
+geneselectInput(id, select_genes = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{select_genes}{Disable gene (row) - wise selection if set to FALSE}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

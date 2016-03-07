@@ -7,6 +7,7 @@
 #' heatmap module.
 #'
 #' @param id Submodule namespace
+#' @param select_genes Disable gene (row) - wise selection if set to FALSE
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -16,10 +17,14 @@
 #' @examples
 #' geneselectInput(ns('heatmap'))
 
-geneselectInput <- function(id) {
+geneselectInput <- function(id, select_genes = TRUE) {
     ns <- NS(id)
     
-    uiOutput(ns("geneSelect"))
+    if (select_genes) {
+        uiOutput(ns("geneSelect"))
+    } else {
+        hiddenInput(ns("geneSelect"), "all")
+    }
 }
 
 #' The server function of the geneselect module
@@ -72,10 +77,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             gene_select_methods <- c(gene_select_methods, "gene set")
         }
         
-        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), 
-            conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", 
-                min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), 
-                rows = 3, cols = 30, "Paste gene list here, one per line")))
+        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), conditionalPanel(condition = paste0("input['", 
+            ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
+            ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
         
         # If gene sets have been provided, then make a gene sets filter
         
@@ -110,7 +114,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
         
         validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
         
-        if (input$geneSelect == "variance") {
+        if (input$geneSelect == "all") {
+            return(rownames(se))
+        } else if (input$geneSelect == "variance") {
             return(rownames(se)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
         } else {
             if (input$geneSelect == "gene set") {
@@ -139,7 +145,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
         validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
         
         title <- ""
-        if (input$geneSelect == "variance") {
+        if (input$geneSelect == "all") {
+            title <- "All rows"
+        } else if (input$geneSelect == "variance") {
             title <- paste(paste("Top", input$obs, "rows"), "by variance")
         } else if (input$geneSelect == "gene set") {
             title <- paste0("Genes in sets:\n", paste(geneset_functions$getPathwayNames(), collapse = "\n"))

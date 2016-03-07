@@ -4,7 +4,8 @@
 \alias{selectmatrix}
 \title{The server function of the selectmatrix module}
 \usage{
-selectmatrix(input, output, session, ses, var_n = 50, var_max = 500)
+selectmatrix(input, output, session, ses, var_n = 50, var_max = 500,
+  select_genes = TRUE)
 }
 \arguments{
 \item{input}{Input object}

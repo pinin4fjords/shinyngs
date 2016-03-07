@@ -97,8 +97,6 @@ pushToList <- function(input_list, element) {
 #' are open by default. In most cases all should be left open (the default),
 #' since shiny doesn't receive the inputs of fields in collapsed elements.
 #' @param use_shinybs Use collapsible panels from shinyBS if installed
-#' 
-#' @export
 #'
 #' @return list
 
@@ -125,4 +123,66 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
             div(id = id, class = "shinyngsFieldset", h4(prettifyVariablename(listname)), fieldset_list[[listname]])
         })
     }
+}
+
+#' Reshape data to the way \code{ggplot2} likes it 
+#'
+#' @param matrix A matrix of values, e.g. expression data
+#' @param experiment A data frame with rows matching the columns of 
+#' \code{matrix}
+#' @param colorby An optional string specifying a column from \code{experiment}
+#' that will be used to set a color column in the reshaped output.
+#'
+#' @return A reshaped data frame
+#' 
+#' @examples
+#' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
+
+ggplotify <- function(matrix, experiment, colorby = NULL) {
+    
+    plotdata <- reshape2::melt(matrix)
+    plotdata <- plotdata[which(plotdata$value > 0), ]
+    if (max(plotdata$value) > 20) {
+        plotdata$value <- log2(plotdata$value)
+    }
+    
+    colnames(plotdata) <- c("gene", "name", "log2_count")
+    
+    if (!is.null(colorby)) {
+        plotdata$colorby <- factor(experiment[[colorby]][match(plotdata$name, rownames(experiment))], levels = unique(experiment[[colorby]]))
+    }
+    plotdata
+}
+
+#' Given a string with spaces, try to split into multiple lines of < 
+#' \code{linewidth} characters
+#'
+#' @param string A string with spaces
+#' @param width The maximum line length in characters (default: 20)
+#'
+#' @return A string with newline characters added where appropriate
+#'
+#' @export
+#' 
+#' @examples
+#' > splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
+#' [1] 'once upon a time there\nwas a giant and a beanstalk\nand a pot of gold and\nsome beans'
+
+splitStringToFixedwidthLines <- function(string, linewidth = 20) {
+    words <- unlist(strsplit(string, " "))
+    
+    strings <- list()
+    string <- words[1]
+    
+    for (word in words[-1]) {
+        if (nchar(string) >= linewidth) {
+            strings[[length(strings) + 1]] <- string
+            string <- word
+        } else {
+            string <- paste(string, word)
+        }
+    }
+    
+    strings[[length(strings) + 1]] <- string
+    paste(unlist(strings), collapse = "\n")
 } 

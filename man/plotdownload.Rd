@@ -18,9 +18,9 @@ plotdownload(input, output, session, makePlot, filename = "plot.png",
 
 \item{filename}{A filename (default = 'plot.png')}
 
-\item{plotHeight}{A reactive for calculating the height of the plot}
+\item{plotHeight}{A number or reactive for calculating the height of the plot}
 
-\item{plotWidth}{A reactive for calculating the width of the plot}
+\item{plotWidth}{A number or reactive for calculating the width of the plot}
 }
 \description{
 The plotdownload module provides export functionality for panels with plots.
