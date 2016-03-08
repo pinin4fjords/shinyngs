@@ -58,7 +58,13 @@ selectmatrixInput <- function(id, ses) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_genes = TRUE) {
+selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE) {
+    
+    # Reactive for getting the right SummarizedExperiment and passing it on to sample and gene selection
+    
+    getExperiment <- reactive({
+        ses[[input$experiment]]
+    })
     
     output$assay <- renderUI({
         
@@ -66,21 +72,17 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
         
         ns <- session$ns
         
-        se <- ses[[input$experiment]]
+        se <- getExperiment()
         
         if (length(GenomicRanges::assays(se)) > 1) {
             assayselect <- selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se)))
         } else {
             assayselect <- hiddenInput(ns("assay"), names(GenomicRanges::assays(se))[1])
         }
-        list(assayselect, sampleselectInput(ns("selectmatrix"), ses[[input$experiment]]), geneselectInput(ns("selectmatrix"), select_genes = select_genes))
+        list(assayselect, sampleselectInput(ns("selectmatrix"), getExperiment(), select_samples = select_samples), geneselectInput(ns("selectmatrix"), select_genes = select_genes))
     })
     
-    # Reactive for getting the right SummarizedExperiment and passing it on to sample and gene selection
     
-    getExperiment <- reactive({
-        ses[[input$experiment]]
-    })
     
     getAssay <- reactive({
         input$assay
@@ -98,8 +100,7 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
     
-    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, 
-        assay = getAssay)
+    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay)
     selectRows <- geneselect_functions$selectRows
     
     # Generate an expression matrix given the selected experiment, assay, rows and columns

@@ -7,7 +7,7 @@
 This module provides controls for selecting matrix columns by sample or 
 group name.}
 \usage{
-sampleselectInput(id, se)
+sampleselectInput(id, se, select_samples = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}

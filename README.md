@@ -151,7 +151,7 @@ For example this package currently contains five Shiny modules:
 -   `heatmap` - provides controls and a display for making heat maps based on user criteria.
 -   `pca` - provides controls and display for an interactive PCA plot.
 -   `boxplot` - provides controls and display for an interactive boxplot.
--   `dendro` - a clustering of samples in dendrogram plotted with .
+-   `dendro` - a clustering of samples in dendrogram plotted with `ggdendro`}.
 -   `simpletable` - a simple display using datatables (via the `DT` package) to show a table and a download button. More complex table displays (with further controls, for example) can build on this module.
 -   `selectmatrix` - provides controls and output for subsetting the profided assay data prior to plotting. Called by many of the plotting modules.
 -   `sampleselect` - provides a UI element for selecting the columns of the matrix based on sample name or group. Called by the `selectmatrix` module.

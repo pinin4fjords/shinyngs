@@ -11,17 +11,17 @@
 #' @keywords shiny
 #' 
 #' @examples
-#' selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
+#' simpletableInput('mytable', 'this is a table')
 
 simpletableInput <- function(id, description = NULL) {
     ns <- NS(id)
     
     inputs <- list()
     if (!is.null(description)) {
-        inputs[[1]] <- p(description)
+        pushToList(inputs, p(description))
     }
     
-    inputs[[length(inputs) + 1]] <- downloadButton(ns("downloadTable"), "Download table")
+    inputs <- pushToList(inputs, downloadButton(ns("downloadTable"), "Download table"))
     
     tagList(inputs)
 }
@@ -46,10 +46,10 @@ simpletableOutput <- function(id, tabletitle = NULL) {
     
     outputs <- list()
     if (!is.null(tabletitle)) {
-        outputs[[1]] <- h4(tabletitle)
+        outputs <- pushToList(outputs, h4(tabletitle))
     }
     
-    outputs[[length(outputs) + 1]] <- DT::dataTableOutput(ns("datatable"))
+    outputs <- pushToList(outputs, DT::dataTableOutput(ns("datatable")))
     
     tagList(outputs)
 }
@@ -58,30 +58,27 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
-#' 
-#' This function assumes that the gene sets have one gene ID (e.g. Entrez)
-#' which need to be converted to another (e.g. Symbol, Ensembl gene ID).
-#' This would be common when dealign with MSigDB gene sets, for example.
 #'
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
 #' @param datatable Data frame with a table of data
 #' @param pageLength Number of items per page
+#' @param filename A string to use in the name of the table download
 #'
 #' @keywords shiny
 #' 
 #' @examples
 #' callModule(simpletable, 'simpletable', my_data_frame)
 
-simpletable <- function(input, output, session, datatable, pageLength = 25) {
-    
+simpletable <- function(input, output, session, getDatatable, pageLength = 25, filename='datatable') {
+  
     output$datatable = DT::renderDataTable({
-        datatable
+        getDatatable()
     }, options = list(pageLength = pageLength, escape = F), rownames = FALSE)
     
-    output$downloadTable <- downloadHandler(filename = "datatable.csv", content = function(file) {
-        write.csv(datatable, file = file)
+    output$downloadTable <- downloadHandler(filename = paste0(filename, ".csv"), content = function(file) {
+        write.csv(getDatatable(), file = file)
     })
     
 } 

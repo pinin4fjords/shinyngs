@@ -4,7 +4,8 @@
 \alias{simpletable}
 \title{The server function of the simpletable module}
 \usage{
-simpletable(input, output, session, datatable, pageLength = 25)
+simpletable(input, output, session, getDatatable, pageLength = 25,
+  filename = "datatable")
 }
 \arguments{
 \item{input}{Input object}
@@ -13,18 +14,15 @@ simpletable(input, output, session, datatable, pageLength = 25)
 
 \item{session}{Session object}
 
-\item{datatable}{Data frame with a table of data}
-
 \item{pageLength}{Number of items per page}
+
+\item{filename}{A string to use in the name of the table download}
+
+\item{datatable}{Data frame with a table of data}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
 example).
-}
-\details{
-This function assumes that the gene sets have one gene ID (e.g. Entrez)
-which need to be converted to another (e.g. Symbol, Ensembl gene ID).
-This would be common when dealign with MSigDB gene sets, for example.
 }
 \examples{
 callModule(simpletable, 'simpletable', my_data_frame)

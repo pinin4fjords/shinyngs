@@ -5,7 +5,7 @@
 \title{The server function of the selectmatrix module}
 \usage{
 selectmatrix(input, output, session, ses, var_n = 50, var_max = NULL,
-  select_genes = TRUE)
+  select_samples = TRUE, select_genes = TRUE)
 }
 \arguments{
 \item{input}{Input object}

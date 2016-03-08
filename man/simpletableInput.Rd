@@ -23,7 +23,7 @@ The UI input function of the simpletable module
 This module produces a simple datatable output with a download button.
 }
 \examples{
-selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
+simpletableInput('mytable', 'this is a table')
 }
 \keyword{shiny}
 

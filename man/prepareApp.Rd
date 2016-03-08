@@ -4,7 +4,7 @@
 \alias{prepareApp}
 \title{Make UI and server functions for apps based on supplied data}
 \usage{
-prepareApp(type, ses, title = "ShinyNGS application", ...)
+prepareApp(type, ses, title = "ShinyNGS application", ui_only = FALSE, ...)
 }
 \arguments{
 \item{type}{A string specifying the type of shiny app required (options: heatmap)}
