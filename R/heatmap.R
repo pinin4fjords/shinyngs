@@ -64,15 +64,13 @@ heatmapOutput <- function(id) {
 #' @keywords shiny
 #' 
 #' @examples
-#' callModule(heatmap, 'heatmap', se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files=params$geneset_files)
+#' callModule(heatmap, 'heatmap', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files=params$geneset_files)
 
 heatmap <- function(input, output, session, ses) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "heatmap", ses, var_max = 500)
-    selectMatrix <- selectmatrix_functions$selectMatrix
-    matrixTitle <- selectmatrix_functions$title
-    selectColData <- selectmatrix_functions$selectColData
-    getExperiment <- selectmatrix_functions$getExperiment
+    # Call the selectmatrix module and unpack the reactives it sends back
+    
+    unpack.list(callModule(selectmatrix, "heatmap", ses, var_max = 500))
     
     # Populate the groupVars UI element if applicable
     
@@ -99,9 +97,9 @@ heatmap <- function(input, output, session, ses) {
                 
                 # Name the rows by gene if we know what the necessary annotation fields are
                 
-                if (all(c("transcriptfield", "genefield") %in% names(metadata(se))) && nrow(mcols(se)) > 0) {
+                if (all(c("idfield", "labelfield") %in% names(metadata(se))) && nrow(mcols(se)) > 0) {
                   annotation <- data.frame(mcols(se))
-                  display_genes <- annotation[match(rownames(heatmap_expression), annotation[[metadata(se)$transcriptfield]]), metadata(se)$genefield]
+                  display_genes <- annotation[match(rownames(heatmap_expression), annotation[[metadata(se)$idfield]]), metadata(se)$labelfield]
                   hasgenes <- !is.na(display_genes)
                   
                   rownames(heatmap_expression)[hasgenes] <- paste(display_genes[hasgenes], rownames(heatmap_expression)[hasgenes], sep = " / ")
@@ -126,20 +124,32 @@ heatmap <- function(input, output, session, ses) {
         return((titleheight * nlines(matrixTitle())) + (length(input$groupVars) * 14) + (nrow(selectMatrix()) * 12) + labelsheight)
     })
     
+    # Calculate the plot width based on the inputs
+    
     plotWidth <- reactive({
-        return(400 + (18 * ncol(getExperiment())))
+        return(400 + (18 * ncol(getHeatmapExpression())))
+    })
+    
+    # Want heatmap to know if the data is summarised so it doesn't try to annotate the plot
+    
+    experimentData <- reactive({
+        if (isSummarised()) {
+            NULL
+        } else {
+            selectColData()
+        }
     })
     
     # Supply a rendered heatmap for display
     
     output$heatMap <- renderPlot({
-        makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
+        makeHeatmap(input, getHeatmapExpression(), experimentData(), main = matrixTitle())
     }, height = plotHeight)
     
     # Provide the heatmap for download with the plotdownload module
     
     plotHeatmap <- reactive({
-        makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
+        makeHeatmap(input, getHeatmapExpression(), experimentData(), main = matrixTitle())
     })
     
     # Call to plotdownload module
@@ -220,7 +230,7 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
         
         annotation <- annotation_colors <- NA
         
-        if (!is.null(group_vars)) {
+        if ((!is.null(group_vars)) && !is.null(sample_annotation)) {
             annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor))
             annotation_colors <- makeAnnotationColors(sample_annotation)
         }

@@ -23,7 +23,7 @@ applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(experimenttable, "experimenttable", ses)
+callModule(experimenttable, 'experimenttable', ses)
 }
 \keyword{shiny}
 

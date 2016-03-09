@@ -64,15 +64,13 @@ pcaOutput <- function(id) {
 #' @keywords shiny
 #' 
 #' @examples
-#' callModule(pca, 'pca', se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files = params$geneset_files)
+#' callModule(pca, 'pca', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files = params$geneset_files)
 
 pca <- function(input, output, session, ses) {
     
-    selectmatrix_functions <- callModule(selectmatrix, "pca", ses, var_n = 1000, select_genes = TRUE)
-    selectMatrix <- selectmatrix_functions$selectMatrix
-    matrixTitle <- selectmatrix_functions$title
-    selectColData <- selectmatrix_functions$selectColData
-    getExperiment <- selectmatrix_functions$getExperiment
+    unpack.list(callModule(selectmatrix, "pca", ses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+    
+    # Render the coloring control depending on the variable the user selects
     
     output$samplePCAColorBy <- renderUI({
         ns <- session$ns
@@ -82,6 +80,8 @@ pca <- function(input, output, session, ses) {
         }
     })
     
+    # Retrieve the coloring value selection
+    
     colorby <- reactive({
         if ("samplePCAColorBy" %in% names(input)) {
             return(input$samplePCAColorBy)
@@ -89,6 +89,8 @@ pca <- function(input, output, session, ses) {
             return(NULL)
         }
     })
+    
+    # Render the output using plotly
     
     output$samplePCAPlot <- renderPlotly({
         withProgress(message = "Making interactive 3D PCA plot", value = 0, {

@@ -37,8 +37,8 @@ sampleselectInput <- function(id, se, select_samples = TRUE) {
         
         # We can select by sample in any case
         
-        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), 
-            checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
+        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", ns("sampleSelect"), 
+            "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
         
         # Add in group selection if relevant
         
@@ -90,13 +90,26 @@ sampleselect <- function(input, output, session, getExperiment) {
             validate(need(input$sampleGroupVar, FALSE))
             group_values <- as.character(unique(se[[isolate(input$sampleGroupVar)]]))
             ns <- session$ns
-            checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values)
+            
+            list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values), selectInput(ns("summaryType"), "Summary type", c(None = "none", Mean = "colMeans", `Geometric mean` = "colGeomMeans", 
+                Median = "colMedians"), selected = "none"))
         }
     })
     
+    # Return summary type
+    
+    getSummaryType <- reactive({
+        input$summaryType
+    })
+    
+    getSampleGroupVar <- reactive({
+        input$sampleGroupVar
+    })
+    
+    
     # Reactive expression for selecting the specified columns
     
-    reactive({
+    selectSamples <- reactive({
         
         se <- getExperiment()
         
@@ -120,4 +133,6 @@ sampleselect <- function(input, output, session, getExperiment) {
             
         }
     })
+    
+    list(selectSamples = selectSamples, getSummaryType = getSummaryType, getSampleGroupVar = getSampleGroupVar)
 } 

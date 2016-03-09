@@ -66,12 +66,7 @@ dendro <- function(input, output, session, ses) {
     
     # Get the expression matrix - no need for a gene selection
     
-    selectmatrix_functions <- callModule(selectmatrix, "dendro", ses, select_genes = TRUE, var_n = 1000)
-    
-    selectMatrix <- selectmatrix_functions$selectMatrix
-    matrixTitle <- selectmatrix_functions$title
-    selectColData <- selectmatrix_functions$selectColData
-    getExperiment <- selectmatrix_functions$getExperiment
+    unpack.list(callModule(selectmatrix, "dendro", ses, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
     
     # Call to plotdownload module
     

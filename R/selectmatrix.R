@@ -49,6 +49,14 @@ selectmatrixInput <- function(id, ses) {
 #' @param var_n The number of rows to select when doing so by variance. Default = 50
 #' @param var_max The maximum umber of rows to select when doing so by variance. 
 #' Default = 500
+#' @param select_samples Provide UI and functions for sample selection? (Default: 
+#' TRUE)
+#' @param select_genes Provide UI and functions for gene (row) selection? 
+#' (Default: TRUE)
+#' @param provide_all_genes Allow the 'all rows' selection in the UI? Means we
+#' don't have to calculate variance so the display is quicker, but it's a bad
+#' idea for e.g. heatmaps where the visual scales by the numbre of rows.
+#' @param rounding Number of decimal places to show in results (Default 2)
 #'
 #' @return output A list of reactive functions for fetching the derived matrix 
 #' and making a title based on its properties.
@@ -58,13 +66,9 @@ selectmatrixInput <- function(id, ses) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE) {
+selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, rounding = 2) {
     
-    # Reactive for getting the right SummarizedExperiment and passing it on to sample and gene selection
-    
-    getExperiment <- reactive({
-        ses[[input$experiment]]
-    })
+    # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
     output$assay <- renderUI({
         
@@ -83,6 +87,11 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     })
     
     
+    # Reactive for getting the right SummarizedExperiment and passing it on to sample and gene selection
+    
+    getExperiment <- reactive({
+        ses[[input$experiment]]
+    })
     
     getAssay <- reactive({
         input$assay
@@ -98,17 +107,21 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
-    selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
-    
-    geneselect_functions <- callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay)
-    selectRows <- geneselect_functions$selectRows
+    unpack.list(callModule(sampleselect, "selectmatrix", getExperiment))
+    unpack.list(callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, provide_all = provide_all_genes))
     
     # Generate an expression matrix given the selected experiment, assay, rows and columns
     
     selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
             validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"))
-            GenomicRanges::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
+            selected_matrix <- GenomicRanges::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
+            
+            if (getSummaryType() != "none") {
+                selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
+            }
+            
+            apply(selected_matrix, 2, round, rounding)
         })
     })
     
@@ -116,10 +129,74 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     selectColData = reactive({
         validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
-        data.frame(colData(getExperiment())[selectSamples(), ])
+        droplevels(data.frame(colData(getExperiment())[selectSamples(), ]))
+    })
+    
+    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices
+    
+    isSummarised <- reactive({
+        getSummaryType() != "none"
+    })
+    
+    # Extract the annotation from the SummarizedExperiment
+    
+    getAnnotation = reactive({
+        data.frame(mcols(getExperiment()))
+    })
+    
+    # Use selectMatrix() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
+    
+    selectLabelledMatrix <- reactive({
+        
+        selected_matrix <- data.frame(selectMatrix())
+        se <- getExperiment()
+        datacolnames <- colnames(selected_matrix)
+        
+        idfield <- metadata(se)$idfield
+        selected_matrix[[idfield]] <- rownames(se)
+        
+        if ("labelfield" %in% names(metadata(se))) {
+            annotation <- getAnnotation()
+            labelfield <- metadata(se)$labelfield
+            
+            selected_matrix[[labelfield]] <- annotation[match(rownames(selected_matrix), annotation[[idfield]]), labelfield]
+            selected_matrix <- selected_matrix[, c(metadata(se)$idfield, metadata(se)$labelfield, datacolnames)]
+            
+            colnames(selected_matrix)[colnames(selected_matrix) == labelfield] <- prettifyVariablename(labelfield)
+        } else {
+            selected_matrix <- selected_matrix[, c(metadata(se)$idfield, datacolnames)]
+        }
+        
+        # Make the field identifiers nicer
+        
+        colnames(selected_matrix)[colnames(selected_matrix) == idfield] <- prettifyVariablename(idfield)
+        
+        selected_matrix
+    })
+    
+    # Use selectLabelledMatrix to get the labelled matrix and add some links. 
+    
+    selectLabelledLinkedMatrix <- reactive({
+        selected_matrix <- selectLabelledMatrix()
+        se <- getExperiment()
+        idfield <- metadata(se)$idfield
+        
+        if ("url_roots" %in% names(metadata(se))) {
+            url_roots <- metadata(se)$url_roots
+            
+            if (idfield %in% names(url_roots)) {
+              
+                # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+              
+                p_idfield <- prettifyVariablename(idfield)              
+                selected_matrix[[p_idfield]] <- paste0("<a href='", url_roots[idfield], selected_matrix[[p_idfield]], "'>", selected_matrix[[p_idfield]], "</a>")
+            }
+            
+        }
+        selected_matrix
     })
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, selectMatrix = selectMatrix, title = geneselect_functions$title, selectColData = selectColData)
+    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
 } 

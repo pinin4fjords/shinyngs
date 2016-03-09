@@ -47,9 +47,9 @@ mcols(se) <- annotation[match(rownames(se), annotation$ensembl_gene_id),]
 
 # Specify some display parameters
 params <- list(
- transcriptfield = 'ensembl_gene_id', 
+ idfield = 'ensembl_gene_id', 
  entrezgenefield = 'entrezgene',
- genefield = 'external_gene_name', 
+ labelfield = 'external_gene_name', 
  group_vars = c('cell', 'dex', 'albut'), 
  default_groupvar = 'albut'
 )

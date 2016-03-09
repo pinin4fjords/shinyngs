@@ -18,7 +18,7 @@ simpletableInput <- function(id, description = NULL) {
     
     inputs <- list()
     if (!is.null(description)) {
-        pushToList(inputs, p(description))
+        inputs <- pushToList(inputs, p(description))
     }
     
     inputs <- pushToList(inputs, downloadButton(ns("downloadTable"), "Download table"))
@@ -62,7 +62,9 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param datatable Data frame with a table of data
+#' @param downloadMatrix Reactive expression for retrieving the plot to supply
+#' for download
+#' @param displayMatrix Reactive expression for retrieving the plot for display
 #' @param pageLength Number of items per page
 #' @param filename A string to use in the name of the table download
 #'
@@ -71,14 +73,14 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @examples
 #' callModule(simpletable, 'simpletable', my_data_frame)
 
-simpletable <- function(input, output, session, getDatatable, pageLength = 25, filename='datatable') {
-  
+simpletable <- function(input, output, session, downloadMatrix, displayMatrix, pageLength = 25, filename = "datatable", rownames = FALSE) {
+    
     output$datatable = DT::renderDataTable({
-        getDatatable()
-    }, options = list(pageLength = pageLength, escape = F), rownames = FALSE)
+        displayMatrix()
+    }, options = list(pageLength = pageLength), rownames = rownames, escape = FALSE)
     
     output$downloadTable <- downloadHandler(filename = paste0(filename, ".csv"), content = function(file) {
-        write.csv(getDatatable(), file = file)
+        write.csv(downloadMatrix(), file = file)
     })
     
 } 

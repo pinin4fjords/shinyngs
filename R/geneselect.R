@@ -43,6 +43,9 @@ geneselectInput <- function(id, select_genes = TRUE) {
 #' Default = 500
 #' @param selectSamples A reactive expression that provides a vector of samples
 #' to use, e.g. in row-wise variance calculation
+#' @param provide_all Allow the 'all rows' selection in the UI? Means we
+#' don't have to calculate variance so the display is quicker, but it's a bad
+#' idea for e.g. heatmaps where the visual scales by the numbre of rows.
 #'
 #' @return output A list of reactive functions for interrogating the selected
 #' rows.
@@ -52,7 +55,7 @@ geneselectInput <- function(id, select_genes = TRUE) {
 #' @examples
 #' geneselect_functions <- callModule(geneselect, 'heatmap', getExperiment, getMatrix=selectColumns)
 
-geneselect <- function(input, output, session, getExperiment, var_n = 50, var_max = 500, selectSamples, assay) {
+geneselect <- function(input, output, session, getExperiment, var_n = 50, var_max = 500, selectSamples, assay, provide_all = TRUE) {
     
     observe({
         se <- getExperiment()
@@ -60,11 +63,11 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     
     # Check if we're using annotation
     
-    use_annotation <- all(c(nrow(mcols(se)) > 0, c("transcriptfield", "genefield") %in% names(metadata(se))))
+    use_annotation <- all(c(nrow(mcols(se)) > 0, c("idfield", "labelfield") %in% names(metadata(se))))
     
     # Check if we have the nessary component for gene sets
     
-    use_genesets <- all(c("geneset_files", "entrezgenefield", "genefield") %in% names(metadata(se)))
+    use_genesets <- all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
     
     # Render the geneSelect UI element
     
@@ -72,14 +75,21 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
         
         ns <- session$ns
         
-        gene_select_methods <- c("variance", "list")
+        gene_select_methods <- c()
+        if (provide_all) {
+            gene_select_methods <- c("all")
+        }
+        
+        gene_select_methods <- c(gene_select_methods, c("variance", "list"))
+        
+        
         if (use_genesets) {
             gene_select_methods <- c(gene_select_methods, "gene set")
         }
         
-        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = "variance"), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), 
-            sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, 
-            cols = 30, "Paste gene list here, one per line")))
+        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), 
+            "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 30, 
+            "Paste gene list here, one per line")))
         
         # If gene sets have been provided, then make a gene sets filter
         
@@ -93,14 +103,14 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
     if (use_genesets) {
-        geneset_functions <- callModule(geneset, "heatmap", data.frame(mcols(se)), se$entrezgenefield, se$genefield, se$geneset_files)
+        geneset_functions <- callModule(geneset, "heatmap", data.frame(mcols(se)), se$entrezgenefield, se$labelfield, se$geneset_files)
     }
     
     # Reactive function to calculate variances only when required
     
     rowVariances <- reactive({
         withProgress(message = "Calculating row variances", value = 0, {
-            apply(GenomicRanges::assays(se)[[assay()]][, selectSamples()], 1, var)
+            apply(GenomicRanges::assays(getExperiment())[[assay()]][, selectSamples()], 1, var)
         })
     })
     
@@ -127,9 +137,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             
             # Use annotation for gene names if specified, otherwise use matrix rows
             
-            if ("genefield" %in% names(metadata(se))) {
+            if ("labelfield" %in% names(metadata(se))) {
                 annotation <- data.frame(mcols(se))
-                selected_rows <- as.character(annotation[which(tolower(annotation[[metadata(se)$genefield]]) %in% tolower(selected_genes)), metadata(se)$transcriptfield])
+                selected_rows <- as.character(annotation[which(tolower(annotation[[metadata(se)$labelfield]]) %in% tolower(selected_genes)), metadata(se)$idfield])
             } else {
                 selected_rows <- rownames(se)[which(tolower(rownames(se))) %in% tolower(selected_genes)]
             }

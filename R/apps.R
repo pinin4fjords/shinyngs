@@ -43,9 +43,9 @@
 #'
 #'# Specify some display parameters
 #'params <- list(
-#'  transcriptfield = 'ensembl_gene_id', 
+#'  idfield = 'ensembl_gene_id', 
 #'  entrezgenefield = 'entrezgene',
-#'  genefield = 'external_gene_name', 
+#'  labelfield = 'external_gene_name', 
 #'  group_vars = c('cell', 'dex', 'albut'), 
 #'  default_groupvar = 'albut'
 #')
@@ -147,5 +147,5 @@ simpleApp <- function(ses, module = NULL, title = NULL, ui_only = FALSE) {
 #' @examples
 #' tabPanel('Home', simpletableLayout(se, params))))
 
-# simpletableLayout <- function(se, params) { sidebarLayout(sidebarPanel(simpletableInput('simpletable', description = 'These are the samples involved in this study, and their associated variables. Contrasts for differential expression
-# are built from these variables'), width = 3), mainPanel(simpletableOutput('simpletable', tabletitle = 'Experimental variables'), width = 9)) } 
+# simpletableLayout <- function(se, params) { sidebarLayout(sidebarPanel(simpletableInput('simpletable', description = 'These are the samples involved in this study, and their associated variables. Contrasts for
+# differential expression are built from these variables'), width = 3), mainPanel(simpletableOutput('simpletable', tabletitle = 'Experimental variables'), width = 9)) } 

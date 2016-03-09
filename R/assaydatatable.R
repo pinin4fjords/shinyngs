@@ -1,4 +1,4 @@
-#' The UI input function of the experimenttable module
+#' The UI input function of the assaydatatable module
 #'  
 #' This module produces a simple table of the \code{colData()} in a
 #' SummarizedExperiment object. If more than one of these objects were 
@@ -16,22 +16,17 @@
 #' @keywords shiny
 #' 
 #' @examples
-#' experimentableInput('experiment', ses)
+#' assaydatatableInput('experiment', ses)
 
-experimenttableInput <- function(id, ses) {
+assaydatatableInput <- function(id, ses) {
     
     ns <- NS(id)
     
-    description = "This is the metadata associated with the experimental samples of this study."
-    
-    if (length(ses) == 1) {
-        tagList(hiddenInput(ns("experiment"), names(ses)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), description))))
-    } else {
-        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(ses)), export = simpletableInput(ns("experimenttable"), description)))
-    }
+    expression_filters <- selectmatrixInput(ns("expression"), ses)
+    fieldSets(ns("fieldset"), list(select_assay_data = expression_filters, export = simpletableInput(ns("assaydatatable"))))
 }
 
-#' The output function of the experimenttable module
+#' The output function of the assaydatatable module
 #' 
 #' This module produces a simple table of the \code{colData()} in a
 #' SummarizedExperiment object. If more than one of these objects were 
@@ -47,14 +42,17 @@ experimenttableInput <- function(id, ses) {
 #' @keywords shiny
 #' 
 #' @examples
-#' experimenttableOutput('experiment')
+#' assaydatatableOutput('experiment')
 
-experimenttableOutput <- function(id) {
+assaydatatableOutput <- function(id) {
     ns <- NS(id)
-    simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data")
+    
+    htmlOutput(ns("assaydatatable"))
+    
+    # simpletableOutput(ns('assaydatatable'), tabletitle = 'Expression data')
 }
 
-#' The server function of the experimenttable module
+#' The server function of the assaydatatable module
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example). Essentially this just passes the results of \code{colData()} 
@@ -70,13 +68,23 @@ experimenttableOutput <- function(id) {
 #' @keywords shiny
 #' 
 #' @examples
-#' callModule(experimenttable, 'experimenttable', ses)
+#' callModule(assaydatatable, 'assaydatatable', ses)
 
-experimenttable <- function(input, output, session, ses) {
+assaydatatable <- function(input, output, session, ses) {
     
-    getExperiment <- reactive({
-        data.frame(colData(ses[[input$experiment]]))
+    # Render the output area - and provide an input-dependent title
+    
+    output$assaydatatable <- renderUI({
+        ns <- session$ns
+        
+        simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
     })
     
-    callModule(simpletable, "experimenttable", getExperiment, filename = "experiment")
+    # Call the selectmatrix module and unpack the reactives it sends back
+    
+    unpack.list(callModule(selectmatrix, "expression", ses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+    
+    # Pass the matrix to the simpletable module for display
+    
+    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
 } 

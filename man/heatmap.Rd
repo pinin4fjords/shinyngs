@@ -26,7 +26,7 @@ which need to be converted to another (e.g. Symbol, Ensembl gene ID).
 This would be common when dealign with MSigDB gene sets, for example.
 }
 \examples{
-callModule(heatmap, 'heatmap', se, params$transcriptfield, params$entrezgenefield, params$genefield, geneset_files=params$geneset_files)
+callModule(heatmap, 'heatmap', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files=params$geneset_files)
 }
 \keyword{shiny}
 

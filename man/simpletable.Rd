@@ -4,8 +4,8 @@
 \alias{simpletable}
 \title{The server function of the simpletable module}
 \usage{
-simpletable(input, output, session, getDatatable, pageLength = 25,
-  filename = "datatable")
+simpletable(input, output, session, downloadMatrix, displayMatrix,
+  pageLength = 25, filename = "datatable", rownames = FALSE)
 }
 \arguments{
 \item{input}{Input object}
@@ -14,11 +14,14 @@ simpletable(input, output, session, getDatatable, pageLength = 25,
 
 \item{session}{Session object}
 
+\item{downloadMatrix}{Reactive expression for retrieving the plot to supply
+for download}
+
+\item{displayMatrix}{Reactive expression for retrieving the plot for display}
+
 \item{pageLength}{Number of items per page}
 
 \item{filename}{A string to use in the name of the table download}
-
-\item{datatable}{Data frame with a table of data}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

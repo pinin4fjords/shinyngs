@@ -65,16 +65,9 @@ boxplot <- function(input, output, session, ses) {
     
     # Get the expression matrix - no need for a gene selection
     
-    selectmatrix_functions <- callModule(selectmatrix, "sampleBoxplot", ses, select_genes = FALSE)
+    unpack.list(callModule(selectmatrix, "sampleBoxplot", ses, select_genes = FALSE))
     
-    selectMatrix <- selectmatrix_functions$selectMatrix
-    matrixTitle <- selectmatrix_functions$title
-    selectColData <- selectmatrix_functions$selectColData
-    getExperiment <- selectmatrix_functions$getExperiment
-    
-    # Call to plotdownload module
-    
-    callModule(plotdownload, "boxplot", makePlot = makeSampleBoxPlot, filename = "boxplot.png", plotHeight = 400, plotWidth = 600)
+    # Render the coloring control depending on the variable the user selects
     
     output$colorBy <- renderUI({
         ns <- session$ns
@@ -83,6 +76,8 @@ boxplot <- function(input, output, session, ses) {
             selectInput(ns("colorBy"), "Color by", metadata(se)$group_vars, selected = metadata(se)$default_groupvar)
         }
     })
+    
+    # Retrieve the coloring value selection
     
     colorBy <- reactive({
         if ("colorBy" %in% names(input)) {
@@ -103,6 +98,11 @@ boxplot <- function(input, output, session, ses) {
             makeSampleBoxPlot()
         })
     }, height = 500)
+    
+    
+    # Call to plotdownload module
+    
+    callModule(plotdownload, "boxplot", makePlot = makeSampleBoxPlot, filename = "boxplot.png", plotHeight = 400, plotWidth = 600)
 }
 
 #' Make a boxplot with coloring by experimental variable
