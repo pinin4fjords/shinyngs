@@ -1,8 +1,7 @@
 #' The UI input function of the assaydatatable module
-#'  
-#' This module produces a simple table of the \code{colData()} in a
-#' SummarizedExperiment object. If more than one of these objects were 
-#' specified, a select box should appear to pick the desired one for display.
+#'
+#' This module displays the content of the currently selected experiment and 
+#' assay, also allowing grouping by mean etc.  
 #' 
 #' Leverages the \code{simpletable} module
 #'
@@ -28,9 +27,8 @@ assaydatatableInput <- function(id, ses) {
 
 #' The output function of the assaydatatable module
 #' 
-#' This module produces a simple table of the \code{colData()} in a
-#' SummarizedExperiment object. If more than one of these objects were 
-#' specified, a select box should appear to pick the desired one for display.
+#' This module displays the content of the currently selected experiment and 
+#' assay, also allowing grouping by mean etc.  
 #' 
 #' Leverages the \code{simpletable} module
 #'
@@ -48,8 +46,6 @@ assaydatatableOutput <- function(id) {
     ns <- NS(id)
     
     htmlOutput(ns("assaydatatable"))
-    
-    # simpletableOutput(ns('assaydatatable'), tabletitle = 'Expression data')
 }
 
 #' The server function of the assaydatatable module

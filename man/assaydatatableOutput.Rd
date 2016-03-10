@@ -14,9 +14,8 @@ output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module produces a simple table of the \code{colData()} in a
-SummarizedExperiment object. If more than one of these objects were 
-specified, a select box should appear to pick the desired one for display.
+This module displays the content of the currently selected experiment and 
+assay, also allowing grouping by mean etc.
 }
 \details{
 Leverages the \code{simpletable} module

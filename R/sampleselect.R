@@ -79,6 +79,8 @@ sampleselectInput <- function(id, se, select_samples = TRUE) {
 
 sampleselect <- function(input, output, session, getExperiment) {
     
+  getSummaryType <- callModule(summarisematrix, 'summarise')
+  
     observe({
         se <- getExperiment()
     })
@@ -86,22 +88,23 @@ sampleselect <- function(input, output, session, getExperiment) {
     # Render the sampleGroupVal() element based on sampleGroupVar
     
     output$groupSamples <- renderUI({
-        if (input$sampleSelect != "all" && "group_vars" %in% names(metadata(getExperiment()))) {
+        if (input$sampleSelect == "group" && "group_vars" %in% names(metadata(getExperiment()))) {
             validate(need(input$sampleGroupVar, FALSE))
             group_values <- as.character(unique(se[[isolate(input$sampleGroupVar)]]))
             ns <- session$ns
             
-            list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values), selectInput(ns("summaryType"), "Summary type", c(None = "none", Mean = "colMeans", `Geometric mean` = "colGeomMeans", 
-                Median = "colMedians"), selected = "none"))
+            list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values), summarisematrixInput(ns('summarise')))
         }
     })
     
-    # Return summary type
+    # Output a reactive so that other modules know whether we've selected by sample or group
     
-    getSummaryType <- reactive({
-        input$summaryType
+    getSampleSelect <- reactive({
+      input$sampleSelect
     })
     
+    # Return summary type
+
     getSampleGroupVar <- reactive({
         input$sampleGroupVar
     })
@@ -128,11 +131,17 @@ sampleselect <- function(input, output, session, getExperiment) {
             if (input$sampleSelect == "name") {
                 return(input$samples)
             } else {
-                return(colnames(se)[se[[isolate(input$sampleGroupVar)]] %in% input$sampleGroupVal])
+              
+                # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching 
+              
+                samplegroups <- as.character(se[[isolate(input$sampleGroupVar)]])
+                samplegroups[is.na(samplegroups)] <- ''
+                
+                return(colnames(se)[samplegroups %in% input$sampleGroupVal])
             }
             
         }
     })
     
-    list(selectSamples = selectSamples, getSummaryType = getSummaryType, getSampleGroupVar = getSampleGroupVar)
+    list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSummaryType = getSummaryType, getSampleSelect = getSampleSelect)
 } 

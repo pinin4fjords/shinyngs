@@ -187,64 +187,7 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
     paste(unlist(strings), collapse = "\n")
 }
 
-#' Summarise the rows of a matrix, applying a function to groups of cells 
-#' defined by a factor
-#'
-#' Note that the specified function will be applied to a tranformed version
-#' of the matrix, so \code{colMeans()}, for example, is appropriate.
-#'
-#' @param matrix Numeric matrix
-#' @param treatment_factor a factor defining column groups
-#' @param summaryFunc A Function to apply to a transformed version of 
-#' \code{matrix} (default: colMeans)
-#'
-#' @return Summarized matrix, with e.g. means in columns
-#'
-#' @export
-#' 
-#' @examples
-#' summarizeMatrix(mymatrix, myfactor)
 
-summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
-    summaryFunc <- get(summaryFunc)
-    do.call(cbind, lapply(split(data.frame(t(matrix), check.names = F), treatment_factor), summaryFunc))
-}
-
-#' Geometric means by matrix column 
-#'
-#' @param x A matrix
-#'
-#' @return Vector with column geometric means
-#'
-#' @export
-
-colGeomMeans <- function(x) {
-    apply(x, 2, geom_mean)
-}
-
-#' Geometric mean 
-#'
-#' @param x A vector
-#'
-#' @return A numeric value
-#'
-#' @export
-
-geom_mean <- function(x, na.rm = TRUE) {
-    exp(sum(log(x[x > 0]), na.rm = na.rm)/length(x))
-}
-
-#' Medians by matrix column 
-#'
-#' @param x A matrix
-#'
-#' @return Vector with column medians
-#'
-#' @export
-
-colMedians <- function(x) {
-    apply(x, 2, median)
-}
 
 #' Unpack a list to the environment. Handy when many reactive functions are 
 #' returned by a call to a module's server function
@@ -258,3 +201,4 @@ unpack.list <- function(object) {
         assign(value = object[[.x]], x = .x, envir = parent.frame())
     }
 } 
+

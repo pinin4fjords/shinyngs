@@ -231,7 +231,16 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
         annotation <- annotation_colors <- NA
         
         if ((!is.null(group_vars)) && !is.null(sample_annotation)) {
+          
+            # Make factors from the specified grouping variables
+            
             annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor))
+            
+            # Order by the group variables for display purposes
+            
+            annotation <- annotation[do.call(order, as.list(annotation[,group_vars])), ]
+            plotmatrix <- plotmatrix[, rownames(annotation)]
+            
             annotation_colors <- makeAnnotationColors(sample_annotation)
         }
         

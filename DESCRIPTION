@@ -15,7 +15,8 @@ Imports:
     pheatmap,
     plotly,
     RColorBrewer,
-    shiny
+    shiny,
+    shinythemes
 Suggests:
     shinyBS,
 RoxygenNote: 5.0.1

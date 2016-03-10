@@ -93,6 +93,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
         ses[[input$experiment]]
     })
     
+    # Allow calling modules to retrieve the current assay
+    
     getAssay <- reactive({
         input$assay
     })
@@ -117,7 +119,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
             validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"))
             selected_matrix <- GenomicRanges::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
             
-            if (getSummaryType() != "none") {
+            if (getSampleSelect() == 'group' && getSummaryType() != "none") {
+                saveRDS(selected_matrix, file= "~/shinytests/selected_matrix.rds")
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
             
@@ -150,28 +153,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
         
         selected_matrix <- data.frame(selectMatrix())
         se <- getExperiment()
-        datacolnames <- colnames(selected_matrix)
         
-        idfield <- metadata(se)$idfield
-        selected_matrix[[idfield]] <- rownames(se)
-        
-        if ("labelfield" %in% names(metadata(se))) {
-            annotation <- getAnnotation()
-            labelfield <- metadata(se)$labelfield
-            
-            selected_matrix[[labelfield]] <- annotation[match(rownames(selected_matrix), annotation[[idfield]]), labelfield]
-            selected_matrix <- selected_matrix[, c(metadata(se)$idfield, metadata(se)$labelfield, datacolnames)]
-            
-            colnames(selected_matrix)[colnames(selected_matrix) == labelfield] <- prettifyVariablename(labelfield)
-        } else {
-            selected_matrix <- selected_matrix[, c(metadata(se)$idfield, datacolnames)]
-        }
-        
-        # Make the field identifiers nicer
-        
-        colnames(selected_matrix)[colnames(selected_matrix) == idfield] <- prettifyVariablename(idfield)
-        
-        selected_matrix
+        labelMatrix(selected_matrix, se)
     })
     
     # Use selectLabelledMatrix to get the labelled matrix and add some links. 
@@ -179,24 +162,73 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     selectLabelledLinkedMatrix <- reactive({
         selected_matrix <- selectLabelledMatrix()
         se <- getExperiment()
-        idfield <- metadata(se)$idfield
         
-        if ("url_roots" %in% names(metadata(se))) {
-            url_roots <- metadata(se)$url_roots
-            
-            if (idfield %in% names(url_roots)) {
-              
-                # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
-              
-                p_idfield <- prettifyVariablename(idfield)              
-                selected_matrix[[p_idfield]] <- paste0("<a href='", url_roots[idfield], selected_matrix[[p_idfield]], "'>", selected_matrix[[p_idfield]], "</a>")
-            }
-            
-        }
-        selected_matrix
+        linkMatrix(selected_matrix, se)
     })
     
     # Return the list of reactive expressions we'll need to access the data
     
     list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
 } 
+
+#' Add columns to display ID and label in a table
+#'
+#' Labels only added if \code{labelfield} is specified in \code{se}
+#'
+#' @param matrix The input table
+#' @param se A SummarizedExperiment object
+#'
+#' @return output Table with columns added
+
+labelMatrix <- function(matrix, se){
+  datacolnames <- colnames(matrix)
+  
+  idfield <- metadata(se)$idfield
+  matrix[[idfield]] <- rownames(se)
+  
+  if ("labelfield" %in% names(metadata(se))) {
+    annotation <- data.frame(mcols(se))
+    labelfield <- metadata(se)$labelfield
+    
+    matrix[[labelfield]] <- annotation[match(rownames(matrix), annotation[[idfield]]), labelfield]
+    matrix <- matrix[, c(metadata(se)$idfield, metadata(se)$labelfield, datacolnames)]
+    
+    colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
+  } else {
+    matrix <- matrix[, c(metadata(se)$idfield, datacolnames)]
+  }
+  
+  # Make the field identifiers nicer
+  
+  colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
+  
+  matrix
+}
+
+#' Add links to a table
+#'
+#' Root URLs must be present in the \code{url_roots} slot of \code{se}
+#'
+#' @param matrix The input table
+#' @param se A SummarizedExperiment object
+#'
+#' @return output Table with links added
+
+linkMatrix <- function(matrix, se){
+
+  idfield <- metadata(se)$idfield
+  
+  if ("url_roots" %in% names(metadata(se))) {
+    url_roots <- metadata(se)$url_roots
+    
+    if (idfield %in% names(url_roots)) {
+      
+      # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+      
+      p_idfield <- prettifyVariablename(idfield)              
+      matrix[[p_idfield]] <- paste0("<a href='", url_roots[idfield], matrix[[p_idfield]], "'>", matrix[[p_idfield]], "</a>")
+    }
+    
+  }
+  matrix
+}
