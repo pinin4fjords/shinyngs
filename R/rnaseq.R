@@ -44,7 +44,7 @@ rnaseqInput <- function(id, ses, title = "") {
     
     # Add the final wrappers
     
-    fluidPage(tags$head(tags$style(HTML(".navbar-brand{height: auto;}"))), theme = shinythemes::shinytheme("cosmo"), do.call(navbarPage, navbar_menus))
+    fluidPage(tags$head(tags$style(HTML(".navbar-brand{height: auto;}"))), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), do.call(navbarPage, navbar_menus))
 }
 
 #' The server function of the rnaseq module
