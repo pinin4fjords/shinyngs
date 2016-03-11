@@ -4,6 +4,11 @@ Synopsis
 
 This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so features are incomplete.
 
+Screenshot
+==========
+
+![Example: the gene page](screenshots/gene_page.png)
+
 Objectives
 ----------
 
