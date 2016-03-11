@@ -63,7 +63,8 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @param output Output object
 #' @param session Session object
 #' @param downloadMatrix Reactive expression for retrieving the plot to supply
-#' for download
+#' for download (default: NULL, in which case \code{displayMatrix()} will be 
+#' used)
 #' @param displayMatrix Reactive expression for retrieving the plot for display
 #' @param pageLength Number of items per page
 #' @param filename A string to use in the name of the table download
@@ -73,11 +74,15 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @examples
 #' callModule(simpletable, 'simpletable', my_data_frame)
 
-simpletable <- function(input, output, session, downloadMatrix, displayMatrix, pageLength = 15, filename = "datatable", rownames = FALSE) {
+simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename = "datatable", rownames = FALSE) {
+    
+    if (is.null(downloadMatrix)) {
+        downloadMatrix <- displayMatrix
+    }
     
     output$datatable = DT::renderDataTable({
         displayMatrix()
-    }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 15, 25, 50, 100), c('5', '15', '25', '50', '100'))), rownames = rownames, escape = FALSE)
+    }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 15, 25, 50, 100), c("5", "15", "25", "50", "100"))), rownames = rownames, escape = FALSE)
     
     output$downloadTable <- downloadHandler(filename = paste0(filename, ".csv"), content = function(file) {
         write.csv(downloadMatrix(), file = file)

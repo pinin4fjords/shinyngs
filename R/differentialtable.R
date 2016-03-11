@@ -20,9 +20,9 @@
 differentialtableInput <- function(id, ses) {
     
     ns <- NS(id)
-
+    
     expression_filters <- selectmatrixInput(ns("expression"), ses)
-    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns('differential'))), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
+    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
 }
 
 #' The output function of the differentialtable module
@@ -67,7 +67,7 @@ differentialtableOutput <- function(id) {
 #' callModule(differentialtable, 'differentialtable', ses)
 
 differentialtable <- function(input, output, session, ses) {
-      
+    
     # Render the output area - and provide an input-dependent title
     
     output$differentialtable <- renderUI({
@@ -79,12 +79,13 @@ differentialtable <- function(input, output, session, ses) {
     # Call the selectmatrix module and unpack the reactives it sends back
     
     unpack.list(callModule(selectmatrix, "expression", ses, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE))
-  
+    
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE))
+    unpack.list(callModule(contrasts, "differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE))
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = 'differential', rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", 
+        rownames = FALSE)
 } 

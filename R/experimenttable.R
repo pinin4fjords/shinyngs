@@ -75,8 +75,10 @@ experimenttableOutput <- function(id) {
 experimenttable <- function(input, output, session, ses) {
     
     getExperiment <- reactive({
-        data.frame(colData(ses[[input$experiment]]))
+        experiment <- data.frame(colData(ses[[input$experiment]]))
+        colnames(experiment) <- prettifyVariablename(colnames(experiment))
+        experiment
     })
     
-    callModule(simpletable, "experimenttable", getExperiment, filename = "experiment")
+    callModule(simpletable, "experimenttable", displayMatrix = getExperiment, filename = "experiment")
 } 

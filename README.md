@@ -2,12 +2,18 @@
 Synopsis
 ========
 
-This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so for now all it does is produce a heatmap builder, 3D PCA plot, boxplot or dendrogram, as toy examples.
+This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so features are incomplete.
+
+Objectives
+----------
+
+-   Allow rapid exploration of data output more or less straight from RNA-seq piplelines etc.
+-   Where more parameters are provided, extend the exploratory tools available - e.g. for differential expression.
 
 Features
 --------
 
--   A variety of single and multiple-panel Shiny applications- currently heatmap, pca, boxplot, a simple table and an RNA-seq app currently being ported from non-modularised code.
+-   A variety of single and multiple-panel Shiny applications- currently heatmap, pca, boxplot, dendrogram, gene-wise barplot, various tables and an RNA-seq app currently being ported from non-modularised code.
 -   Leveraging of libraries such as [DataTables](https://rstudio.github.io/DT/) and [Plotly](https://plot.ly/) for rich interactivity.
 -   Takes input in the commonly used `SummarizedExperiment` format.
 -   Interface kept simple where possible, with complexity automatically added where required:
@@ -146,18 +152,21 @@ Motivation
 
 Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it's not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.
 
-For example this package currently contains five Shiny modules:
+This package now contains a large number of Shiny modules:
 
 -   `heatmap` - provides controls and a display for making heat maps based on user criteria.
 -   `pca` - provides controls and display for an interactive PCA plot.
 -   `boxplot` - provides controls and display for an interactive boxplot.
 -   `dendro` - a clustering of samples in dendrogram plotted with `ggdendro`}.
+-   `gene` - a bar plot showing gene expression and a table with fold changes etc (where appropriate)
 -   `simpletable` - a simple display using datatables (via the `DT` package) to show a table and a download button. More complex table displays (with further controls, for example) can build on this module.
+-   `assaydatatable` - shows the `assaydata()` content of the selected experiment.
 -   `selectmatrix` - provides controls and output for subsetting the profided assay data prior to plotting. Called by many of the plotting modules.
 -   `sampleselect` - provides a UI element for selecting the columns of the matrix based on sample name or group. Called by the `selectmatrix` module.
 -   `geneselect` - provides a UI element for selecing the rows of a matrix based on criteria such as variance. Called by the `selectmatrix` module.
 -   `genesets` - provides UI element for selecting gene sets. Called by the `geneselect` module when a user chooses to filter by gene set.
 -   `plotdownload` - provides download button to non-Plotly plots (Plotly-driven plots have their own export button)
+-   ... and other smaller modules used for utility functions such as a drop-down specifying how various plots should color based on sample group.
 
 So for example `heatmap` uses `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise.
 

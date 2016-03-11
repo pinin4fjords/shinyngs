@@ -21,12 +21,30 @@
 rnaseqInput <- function(id, ses, title = "") {
     ns <- NS(id)
     
-    fluidPage(tags$head(tags$style(HTML(".navbar-brand{height: auto;}"))), navbarPage(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", title), windowTitle = title, tabPanel("Home", sidebarLayout(sidebarPanel(width = 3), 
-        mainPanel(width = 9))), navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), ses), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), 
-        width = 9)))), navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), ses), width = 3), mainPanel(boxplotOutput(ns("boxplot")), width = 9))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), 
-        ses), width = 3), mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), ses), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)))), 
-        navbarMenu("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), ses), width = 3), mainPanel(assaydatatableOutput(ns("expression")), width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap"), 
-            ses), width = 3), mainPanel(heatmapOutput(ns("heatmap")), width = 9))))))
+    
+    navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", title), windowTitle = title, tabPanel("Home", sidebarLayout(sidebarPanel(width = 3), 
+        mainPanel(width = 9))), navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), ses), width = 3), 
+        mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)))), navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), 
+        ses), width = 3), mainPanel(boxplotOutput(ns("boxplot")), width = 9))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), ses), width = 3), 
+        mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), ses), width = 3), mainPanel(dendroOutput(ns("dendro")), 
+        width = 9)))), navbarMenu("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), ses), width = 3), mainPanel(assaydatatableOutput(ns("expression")), 
+        width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap"), ses), width = 3), mainPanel(heatmapOutput(ns("heatmap")), width = 9)))))
+    
+    # If there are contrasts present, add the differential tab
+    
+    if (any(unlist(lapply(ses, function(se) "contrasts" %in% names(metadata(se)))))) {
+        navbar_menus <- pushToList(navbar_menus, navbarMenu("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), 
+            ses), width = 3), mainPanel(differentialtableOutput(ns("differential")), width = 9)))))
+    }
+    
+    # Add the gene info plots
+    
+    navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", sidebarLayout(sidebarPanel(geneInput(ns("gene"), ses), width = 3), mainPanel(geneOutput(ns("gene")), 
+        width = 9))))
+    
+    # Add the final wrappers
+    
+    fluidPage(tags$head(tags$style(HTML(".navbar-brand{height: auto;}"))), theme = shinythemes::shinytheme("cosmo"), do.call(navbarPage, navbar_menus))
 }
 
 #' The server function of the rnaseq module
@@ -53,5 +71,7 @@ rnaseq <- function(input, output, session, ses) {
     callModule(boxplot, "boxplot", ses)
     callModule(dendro, "dendro", ses)
     callModule(assaydatatable, "expression", ses)
+    callModule(differentialtable, "differential", ses)
+    callModule(gene, "gene", ses)
     
 } 

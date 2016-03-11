@@ -20,7 +20,7 @@ boxplotInput <- function(id, ses) {
     
     expression_filters <- selectmatrixInput(ns("sampleBoxplot"), ses)
     
-    boxplot_filters <- uiOutput(ns("colorBy"))
+    boxplot_filters <- groupbyInput(ns("boxplot"))
     
     fieldSets(ns("fieldset"), list(boxplot = boxplot_filters, expression = expression_filters, export = plotdownloadInput(ns("boxplot"))))
     
@@ -66,43 +66,25 @@ boxplot <- function(input, output, session, ses) {
     # Get the expression matrix - no need for a gene selection
     
     unpack.list(callModule(selectmatrix, "sampleBoxplot", ses, select_genes = FALSE))
+    colorBy <- callModule(groupby, "boxplot", getExperiment = getExperiment, group_label = "Color by")
     
-    # Render the coloring control depending on the variable the user selects
-    
-    output$colorBy <- renderUI({
-        ns <- session$ns
-        se <- getExperiment()
-        if ("group_vars" %in% names(metadata(se))) {
-            selectInput(ns("colorBy"), "Color by", metadata(se)$group_vars, selected = metadata(se)$default_groupvar)
-        }
-    })
-    
-    # Retrieve the coloring value selection
-    
-    colorBy <- reactive({
-        if ("colorBy" %in% names(input)) {
-            return(input$colorBy)
-        } else {
-            return(NULL)
-        }
-    })
-    
-    makeSampleBoxPlot <- reactive({
-        validate(need(!is.null(input$colorBy), "Waiting for form to provide colorBy"))
-        ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
-    })
+    # Render the plot
     
     output$sampleBoxplot <- renderPlot({
         withProgress(message = "Making sample boxplot", value = 0, {
-            
-            makeSampleBoxPlot()
+            ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
         })
-    }, height = 500)
+    }, height = 800)
     
+    # Provide the plot for download
+    
+    plotSampleBoxplot <- reactive({
+        ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+    })
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "boxplot", makePlot = makeSampleBoxPlot, filename = "boxplot.png", plotHeight = 400, plotWidth = 600)
+    callModule(plotdownload, "boxplot", makePlot = plotSampleBoxplot, filename = "boxplot.png", plotHeight = 600, plotWidth = 800)
 }
 
 #' Make a boxplot with coloring by experimental variable
@@ -129,7 +111,11 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
     
     if (!is.null(colorby)) {
+        colnames(experiment)[colnames(experiment) == colorby] <- prettifyVariablename(colorby)
+        colorby <- prettifyVariablename(colorby)
+        
         experiment <- experiment[order(experiment[[colorby]]), ]
+        experiment[[colorby]] <- na.replace(experiment[[colorby]], "N/A")
         plotmatrix <- plotmatrix[, rownames(experiment)]
     }
     
@@ -138,13 +124,14 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
     
     if (!is.null(colorby)) {
-        p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot() + scale_fill_discrete(name = colorby) + guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/3)))
+        p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot() + scale_fill_discrete(name = colorby) + guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     } else {
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }
     
-    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.8)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8)), 
-        title = element_text(size = rel(2))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
+    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
+        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
+        expressiontype, ")"), 15))
     
     print(p)
 }

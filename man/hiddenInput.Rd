@@ -5,12 +5,12 @@
 \title{Make a hidden input field. Handy for replacing superfluous single-value 
 selects etc}
 \usage{
-hiddenInput(id, value)
+hiddenInput(id, values)
 }
 \arguments{
-\item{value}{The value the input should return}
-
 \item{string}{An HTML id}
+
+\item{value}{The value the input should return}
 }
 \value{
 output HTML as output by Shiny's \code{HTML()}

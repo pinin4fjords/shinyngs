@@ -5,7 +5,7 @@
 \title{The server function of the contrasts module}
 \usage{
 contrasts(input, output, session, getExperiment, selectMatrix, getAssay,
-  multiple = TRUE)
+  multiple = FALSE, show_controls = TRUE)
 }
 \arguments{
 \item{input}{Input object}
@@ -22,6 +22,8 @@ get this from the \code{selectmatrix} module}
 \item{getAssay}{Reactive for fetching the current assay.}
 
 \item{multiple}{Allow selection of multiple contrasts?}
+
+\item{show_controls}{Show the controls for contrast selection?}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

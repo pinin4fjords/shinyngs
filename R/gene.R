@@ -119,7 +119,7 @@ gene <- function(input, output, session, ses) {
                 rownames(barplot_expression) <- paste(getRows(), input$gene_label, sep = " / ")
             }
             
-            p <- gene_bar_plotly(barplot_expression, selectColData(), colorBy(), "expression")
+            p <- geneBarplot(barplot_expression, selectColData(), colorBy(), "expression")
             
         })
     })
@@ -170,7 +170,7 @@ gene <- function(input, output, session, ses) {
 #' @examples
 #' callModule(gene, 'gene', ses)
 
-gene_bar_plotly <- function(expression, experiment, colorby, expressionmeasure = "Expression") {
+geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Expression") {
     
     groups <- as.character(experiment[colnames(expression), colorby])
     groups[is.na(groups)] <- "N/A"

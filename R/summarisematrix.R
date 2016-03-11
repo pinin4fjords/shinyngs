@@ -13,17 +13,16 @@
 #' @examples
 #' contrastsInput('test')
 
-summarisematrixInput <- function(id, allow_none = TRUE){
-  
-  ns <- NS(id)
-  
-  summaryoptions <- c()
-  if (allow_none){
-    summaryoptions <- c(None = 'none') 
-  }
-  
-  selectInput(ns("summaryType"), "Summary type", c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", 
-                                                   Median = "colMedians"), selected = "none")
+summarisematrixInput <- function(id, allow_none = TRUE) {
+    
+    ns <- NS(id)
+    
+    summaryoptions <- c()
+    if (allow_none) {
+        summaryoptions <- c(None = "none")
+    }
+    
+    selectInput(ns("summaryType"), "Average type", c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), selected = "none")
 }
 
 #' The server function of the summarisematrix module
@@ -40,12 +39,12 @@ summarisematrixInput <- function(id, allow_none = TRUE){
 #' @examples
 #' callModule(summarisematrix)
 
-summarisematrix <- function(input, output, session){
-  
-  getSummaryType <- reactive({
-      input$summaryType
-  })
-  
+summarisematrix <- function(input, output, session) {
+    
+    getSummaryType <- reactive({
+        input$summaryType
+    })
+    
 }
 
 #' Summarise the rows of a matrix, applying a function to groups of cells 
@@ -67,26 +66,26 @@ summarisematrix <- function(input, output, session){
 #' summarizeMatrix(mymatrix, myfactor)
 
 summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
-  
-  # We need a factor
-  
-  if (! is.factor(treatment_factor)){
-    treatment_factor = factor(treatment_factor) 
-  }
-  
-  # Deal with missing values
-  
-  treatment_factor <- na.replace(treatment_factor)
-  
-  summaryFunc <- get(summaryFunc)
-  t_matrix <- t(matrix)
-  
-  treatments <- levels(treatment_factor)
-  sm <- do.call(cbind, lapply(treatments, function(lev){
-    summaryFunc(t_matrix[treatment_factor == lev,])
-  }))
-  colnames(sm) <- treatments
-  sm
+    
+    # We need a factor
+    
+    if (!is.factor(treatment_factor)) {
+        treatment_factor = factor(treatment_factor)
+    }
+    
+    # Deal with missing values
+    
+    treatment_factor <- na.replace(treatment_factor)
+    
+    summaryFunc <- get(summaryFunc)
+    t_matrix <- t(matrix)
+    
+    treatments <- levels(treatment_factor)
+    sm <- do.call(cbind, lapply(treatments, function(lev) {
+        summaryFunc(t_matrix[treatment_factor == lev, ])
+    }))
+    colnames(sm) <- treatments
+    sm
 }
 
 #' Geometric means by matrix column 
@@ -98,7 +97,7 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
 #' @export
 
 colGeomMeans <- function(x) {
-  apply(x, 2, geom_mean)
+    apply(x, 2, geom_mean)
 }
 
 #' Geometric mean 
@@ -110,7 +109,7 @@ colGeomMeans <- function(x) {
 #' @export
 
 geom_mean <- function(x, na.rm = TRUE) {
-  exp(sum(log(x[x > 0]), na.rm = na.rm)/length(x))
+    exp(sum(log(x[x > 0]), na.rm = na.rm)/length(x))
 }
 
 #' Medians by matrix column 
@@ -122,7 +121,7 @@ geom_mean <- function(x, na.rm = TRUE) {
 #' @export
 
 colMedians <- function(x) {
-  apply(x, 2, median)
+    apply(x, 2, median)
 }
 
 #' Replace NAs with a string for convenience
@@ -134,20 +133,20 @@ colMedians <- function(x) {
 #'
 #' @export
 
-na.replace <- function(vec, replacement = 'NA'){
-  
-  isfactor <- is.factor(vec)
-  if (isfactor){
-    vec <- as.character(vec) 
-  }
-  
-  vec[is.na(vec)] <- replacement 
-  
-  # Turn it back into a vector if that's what we were passed
-  
-  if (isfactor){
-    vec <- factor(vec) 
-  }
-  
-  vec
-}
+na.replace <- function(vec, replacement = "NA") {
+    
+    isfactor <- is.factor(vec)
+    if (isfactor) {
+        vec <- as.character(vec)
+    }
+    
+    vec[is.na(vec)] <- replacement
+    
+    # Turn it back into a vector if that's what we were passed
+    
+    if (isfactor) {
+        vec <- factor(vec)
+    }
+    
+    vec
+} 

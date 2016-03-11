@@ -14,7 +14,7 @@
 #' [1] 'Ugly name of thing'
 
 prettifyVariablename <- function(vn) {
-    gsub("_", " ", ucfirst(tolower(vn)))
+    gsub("_", " ", ucfirst(vn))
 }
 
 #' Capitalise the first letter of a string
@@ -62,8 +62,11 @@ nlines <- function(string) {
 #' @examples
 #' hiddenInput('myid', 'iamavalue')
 
-hiddenInput <- function(id, value) {
-    HTML(paste0("<input type='text' id='", id, "' value='", value, "' style='display: none;'>"))
+hiddenInput <- function(id, values) {
+    
+    HTML(paste0(unlist(lapply(values, function(value) paste0("<input type='text' id='", id, "' value='", value, "' style='display: none;'>")))))
+    
+    # HTML(paste0('<input type='text' id='', id, '' value='', value, '' style='display: none;'>'))
 }
 
 #' Simple list push 
@@ -200,5 +203,5 @@ unpack.list <- function(object) {
     for (.x in names(object)) {
         assign(value = object[[.x]], x = .x, envir = parent.frame())
     }
-} 
-
+}
+ 

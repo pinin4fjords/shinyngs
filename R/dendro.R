@@ -20,8 +20,9 @@ dendroInput <- function(id, ses) {
     
     expression_filters <- selectmatrixInput(ns("dendro"), ses)
     
-    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", 
-        `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), uiOutput(ns("colorBy")))
+    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), 
+        "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", 
+            WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -67,30 +68,11 @@ dendro <- function(input, output, session, ses) {
     # Get the expression matrix - no need for a gene selection
     
     unpack.list(callModule(selectmatrix, "dendro", ses, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
+    colorBy <- callModule(groupby, "dendro", getExperiment = getExperiment, group_label = "Color by")
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "dendro", makePlot = plotSampleDendroPlot, filename = "dendrogram.png", plotHeight = 600, plotWidth = 600)
-    
-    # Make the color selection UI element
-    
-    output$colorBy <- renderUI({
-        ns <- session$ns
-        se <- getExperiment()
-        if ("group_vars" %in% names(metadata(se))) {
-            selectInput(ns("colorBy"), "Color by", metadata(se)$group_vars, selected = metadata(se)$default_groupvar)
-        }
-    })
-    
-    # Reactive to get the color setting
-    
-    colorBy <- reactive({
-        if ("colorBy" %in% names(input)) {
-            return(input$colorBy)
-        } else {
-            return(NULL)
-        }
-    })
+    callModule(plotdownload, "dendro", makePlot = plotSampleDendroPlot, filename = "dendrogram.png", plotHeight = 600, plotWidth = 800)
     
     # Reactive for making a plot for download
     
@@ -107,7 +89,7 @@ dendro <- function(input, output, session, ses) {
             clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), corMethod = input$corMethod, clusterMethod = input$clusterMethod, matrixTitle())
             
         })
-    }, height = 500)
+    }, height = 600)
 }
 
 #' Make a clustering dendrogram with coloring by experimental variable
@@ -159,18 +141,18 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, corMet
         
     } else {
         
-        experiment[[colorby]][is.na(experiment[[colorby]])] <- "N/A"
         labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
         shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), show_guide = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), show_guide = F)
         
-        p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/3), ymax) + scale_color_discrete(name = colorby)
+        p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_discrete(name = prettifyVariablename(colorby))
         
-        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes) + theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + 
-            ggtitle(plot_title)
+        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + 
+            theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
         
     }
     
-    print(p3 + theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title))
+    p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
+    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
 } 

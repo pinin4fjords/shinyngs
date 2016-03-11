@@ -37,14 +37,14 @@ sampleselectInput <- function(id, se, select_samples = TRUE) {
         
         # We can select by sample in any case
         
-        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", ns("sampleSelect"), 
-            "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
+        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", 
+            ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
         
         # Add in group selection if relevant
         
         if ("group_vars" %in% names(metadata(se))) {
-            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", metadata(se)$group_vars, selected = metadata(se)$default_groupvar), 
-                uiOutput(ns("groupSamples"))))
+            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
+                "Define groups by:", metadata(se)$group_vars, selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples"))))
         }
         
     } else {
@@ -79,8 +79,8 @@ sampleselectInput <- function(id, se, select_samples = TRUE) {
 
 sampleselect <- function(input, output, session, getExperiment) {
     
-  getSummaryType <- callModule(summarisematrix, 'summarise')
-  
+    getSummaryType <- callModule(summarisematrix, "summarise")
+    
     observe({
         se <- getExperiment()
     })
@@ -93,18 +93,18 @@ sampleselect <- function(input, output, session, getExperiment) {
             group_values <- as.character(unique(se[[isolate(input$sampleGroupVar)]]))
             ns <- session$ns
             
-            list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values), summarisematrixInput(ns('summarise')))
+            list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values), summarisematrixInput(ns("summarise")))
         }
     })
     
     # Output a reactive so that other modules know whether we've selected by sample or group
     
     getSampleSelect <- reactive({
-      input$sampleSelect
+        input$sampleSelect
     })
     
     # Return summary type
-
+    
     getSampleGroupVar <- reactive({
         input$sampleGroupVar
     })
@@ -131,11 +131,11 @@ sampleselect <- function(input, output, session, getExperiment) {
             if (input$sampleSelect == "name") {
                 return(input$samples)
             } else {
-              
-                # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching 
-              
+                
+                # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
+                
                 samplegroups <- as.character(se[[isolate(input$sampleGroupVar)]])
-                samplegroups[is.na(samplegroups)] <- ''
+                samplegroups[is.na(samplegroups)] <- ""
                 
                 return(colnames(se)[samplegroups %in% input$sampleGroupVal])
             }

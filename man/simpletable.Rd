@@ -4,7 +4,7 @@
 \alias{simpletable}
 \title{The server function of the simpletable module}
 \usage{
-simpletable(input, output, session, downloadMatrix, displayMatrix,
+simpletable(input, output, session, downloadMatrix = NULL, displayMatrix,
   pageLength = 15, filename = "datatable", rownames = FALSE)
 }
 \arguments{
@@ -15,7 +15,8 @@ simpletable(input, output, session, downloadMatrix, displayMatrix,
 \item{session}{Session object}
 
 \item{downloadMatrix}{Reactive expression for retrieving the plot to supply
-for download}
+for download (default: NULL, in which case \code{displayMatrix()} will be 
+used)}
 
 \item{displayMatrix}{Reactive expression for retrieving the plot for display}
 

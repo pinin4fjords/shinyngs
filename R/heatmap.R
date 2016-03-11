@@ -19,8 +19,8 @@ heatmapInput <- function(id, ses) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("heatmap"), ses)
-    heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", 
-        None = "none")), uiOutput(ns("groupVars")))
+    heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE), 
+        radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")), uiOutput(ns("groupVars")))
     
     # Output sets of fields in their own containers
     
@@ -198,7 +198,8 @@ makeHeatmap <- function(input, exprmatrix, experiment, ...) {
                 groupVars <- input$groupVars
             }
             
-            annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = groupVars, cluster_rows = cluster_rows, cluster_cols = input$cluster_cols, scale = input$scale, ...)
+            annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = groupVars, cluster_rows = cluster_rows, cluster_cols = input$cluster_cols, scale = input$scale, 
+                ...)
         }
     }
 }
@@ -231,20 +232,21 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
         annotation <- annotation_colors <- NA
         
         if ((!is.null(group_vars)) && !is.null(sample_annotation)) {
-          
+            
             # Make factors from the specified grouping variables
             
             annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor))
             
             # Order by the group variables for display purposes
             
-            annotation <- annotation[do.call(order, as.list(annotation[,group_vars])), ]
+            annotation <- annotation[do.call(order, as.list(annotation[, group_vars])), ]
             plotmatrix <- plotmatrix[, rownames(annotation)]
             
             annotation_colors <- makeAnnotationColors(sample_annotation)
         }
         
-        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = annotation, annotation_colors = annotation_colors, border_color = NA, legend = FALSE, ...)
+        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = annotation, annotation_colors = annotation_colors, 
+            border_color = NA, legend = FALSE, ...)
     }
 }
 
@@ -281,7 +283,8 @@ makeAnnotationColors <- function(sample_annotation) {
         if (RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"] >= length(categories) && length(categories) > 2) {
             colcolors <- RColorBrewer::brewer.pal(length(categories), palettes[i])
         } else {
-            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), length(categories))
+            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), 
+                length(categories))
         }
         
         names(colcolors) <- levels(sample_annotation[, i])
