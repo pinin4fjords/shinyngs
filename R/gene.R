@@ -71,7 +71,7 @@ geneOutput <- function(id, ses) {
 #' @examples
 #' callModule(gene, 'gene', ses)
 
-gene <- function(input, output, session, ses) {
+gene <- function(input, output, session, ses) { 
   
     # Call all the required modules and unpack their reactives
   
@@ -138,8 +138,10 @@ gene <- function(input, output, session, ses) {
     # Retrieve the contrasts table
     
     getGeneContrastsTable <- reactive({
-        contrasts_table <- linkedLabelledContrastsTable()
-        contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, ]
+        #contrasts_table <- linkedLabelledContrastsTable()
+        #saveRDS(contrasts_table, file="~/shinytests/gene_contrasts_table.rds")
+        contrasts_table <- labelledContrastsTable()
+        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop=FALSE ], getExperiment())
     })
     
     # Render the contrasts table- when a valid label is supplied
@@ -149,6 +151,13 @@ gene <- function(input, output, session, ses) {
         
         getGeneContrastsTable()
     }, rownames = FALSE, escape = FALSE)
+    
+    # Supply a reactive for updating the gene input field
+    
+    reactive({
+      query <- parseQueryString(session$clientData$url_search)
+      updateSelectizeInput(session, 'gene_label', selected=query$gene, choices = getGeneNames(), server = TRUE)
+    })
     
 }
 

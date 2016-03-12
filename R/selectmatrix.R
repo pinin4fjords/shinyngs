@@ -218,19 +218,24 @@ labelMatrix <- function(matrix, se) {
 
 linkMatrix <- function(matrix, se) {
     
-    idfield <- metadata(se)$idfield
-    
     if ("url_roots" %in% names(metadata(se))) {
         url_roots <- metadata(se)$url_roots
         
-        if (idfield %in% names(url_roots)) {
-            
-            # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
-            
-            p_idfield <- prettifyVariablename(idfield)
-            matrix[[p_idfield]] <- paste0("<a href='", url_roots[idfield], matrix[[p_idfield]], "'>", matrix[[p_idfield]], "</a>")
-        }
+        for (fieldtype in c('idfield', 'labelfield')){
         
+          if (fieldtype %in% names(metadata(se))){
+          
+            fieldname <- metadata(se)[[fieldtype]]
+            
+            if (fieldname %in% names(url_roots)) {
+                
+                # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+                
+                p_fieldname <- prettifyVariablename(fieldname)
+                matrix[[p_fieldname]] <- paste0("<a href='", url_roots[fieldname], matrix[[p_fieldname]], "'>", matrix[[p_fieldname]], "</a>")
+            }
+          }
+        }
     }
     matrix
 } 

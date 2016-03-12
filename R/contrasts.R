@@ -153,9 +153,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # Use contrastsTable() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
     
     labelledContrastsTable <- reactive({
-        write(paste(input$contrasts), file = "~/shinytests/contrasts.txt")
+        
         cts <- contrastsTables()
-        write(paste(length(cts), "contrasts back"), file = "~/shinytests/contrastsback.txt")
         
         # If we're going to tabulate results from more than one contrast, the tables will need info on the contrasts
         
@@ -176,10 +175,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         
         do.call(rbind, lapply(cts, function(ct) {
             labelMatrix(ct, getExperiment())
-        }))
-        
-        
-        
+        }))  
     })
     
     # Use labelledContrastsTable to get the labelled matrix and add some links.
