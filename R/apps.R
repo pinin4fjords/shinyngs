@@ -119,11 +119,12 @@ simpleApp <- function(ses, module = NULL, title = NULL, ui_only = FALSE) {
         title <- moduletitle
     }
     
+    cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
+    
     if (!is.null(module)) {
         
-        ui <- fluidPage(tags$head(tags$style(HTML(".navbar-brand{height: auto;}"))), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", 
-            title = title, windowTitle = title, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, ses), width = 3), mainPanel(outputFunc(module), 
-                width = 9)))))
+        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = title, windowTitle = title, 
+            tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, ses), width = 3), mainPanel(outputFunc(module), width = 9)))))
         
         if (ui_only) {
             server <- function(input, output, session) {

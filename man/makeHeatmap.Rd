@@ -4,7 +4,7 @@
 \alias{makeHeatmap}
 \title{Make the heatmap}
 \usage{
-makeHeatmap(input, exprmatrix, experiment, ...)
+makeHeatmap(input, exprmatrix, experiment, interactive = FALSE, ...)
 }
 \arguments{
 \item{input}{Input object}

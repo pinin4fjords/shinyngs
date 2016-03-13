@@ -4,7 +4,8 @@
 \alias{annotatedHeatmap}
 \title{Make a heatmap with annotations by experimental variable}
 \usage{
-annotatedHeatmap(plotmatrix, sample_annotation, group_vars = NULL, ...)
+annotatedHeatmap(plotmatrix, sample_annotation, group_vars = NULL,
+  interactive = FALSE, ...)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
@@ -14,6 +15,9 @@ annotatedHeatmap(plotmatrix, sample_annotation, group_vars = NULL, ...)
 \item{group_vars}{Grouping variables to be used from 
 sample_annotation}
 
+\item{interactive}{Make an interactive plot with \code{d3heatmap()} instead
+of using \code{pheatmap()}? (Default: FALSE)}
+
 \item{...}{Other arguments to pass to \code{pheatmap()}}
 }
 \value{
@@ -22,7 +26,12 @@ output A plot as produced by pheatmap()
 \description{
 This is a generic function which may be useful outside of this package. It
 produces a heatmap based on an expression matrix and accompanying 
-experiment data in the form of a frame, using pheatmap().
+experiment data in the form of a frame, using \code{pheatmap()} or 
+\code{d3heatmap()}.
+}
+\details{
+The clustering parameters for \code{pheatmap()} and \code{d3heatmap()} are 
+set to be consistent with one another.
 }
 \examples{
 R code here showing how your function works

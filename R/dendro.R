@@ -77,7 +77,7 @@ dendro <- function(input, output, session, ses) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), corMethod = input$corMethod, clusterMethod = input$clusterMethod, matrixTitle())
+        clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
         
     })
     
@@ -86,7 +86,7 @@ dendro <- function(input, output, session, ses) {
     output$sampleDendroPlot <- renderPlot({
         withProgress(message = "Making sample dendrogram", value = 0, {
             
-            clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), corMethod = input$corMethod, clusterMethod = input$clusterMethod, matrixTitle())
+            clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
             
         })
     }, height = 600)
@@ -112,15 +112,18 @@ dendro <- function(input, output, session, ses) {
 #' @examples
 #' ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
 
-clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, corMethod = "pearson", clusterMethod = "ward.D", plot_title = "") {
+clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "") {
     
     plotmatrix <- log2(plotmatrix + 1)
     
-    dd <- as.dist(1 - cor(plotmatrix, method = corMethod))
+    # dd <- as.dist(1 - cor(plotmatrix, method = cor_method))
     
-    hc <- hclust(dd, method = clusterMethod)
+    # hc <- hclust(dd, method = cluster_method)
     
-    hcd <- as.dendrogram(hc)
+    # hcd <- as.dendrogram(hc)
+    
+    hcd <- calculateDendrogram(plotmatrix, cor_method, cluster_method)
+    
     ddata_x <- ggdendro::dendro_data(hcd)
     
     p2 <- ggplot(ggdendro::segment(ddata_x)) + geom_segment(aes(x = x, y = y, xend = xend, yend = yend))
@@ -155,4 +158,46 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, corMet
     
     p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
+}
+
+#' Calculate a distance matrix based on correlation
+#'
+#' @param plotmatrix Expression/ other data matrix
+#' @param cor_method 'spearman' or 'perason'
+#'
+#' @return output Object of class 'dist'
+#'
+#' @keywords keywords
+#'
+#' @export
+#' 
+#' @examples
+#' calculateDist(mymatrix)
+
+calculateDist <- function(plotmatrix, cor_method = "spearman") {
+    as.dist(1 - cor(plotmatrix, method = cor_method))
+}
+
+#' Calculate a clustering dendgrogram based on correlation
+#'
+#' @param plotmatrix Expression/ other data matrix
+#' @param cor_method 'spearman' or 'perason'
+#' @param cluster_method Clustering method to pass to hclust (Default: 'ward.D2')
+#'
+#' @return output Object of class 'dist'
+#'
+#' @keywords keywords
+#'
+#' @export
+#' 
+#' @examples
+#' calculateDist(mymatrix)
+
+calculateDendrogram <- function(plotmatrix, cor_method = "spearman", cluster_method = "ward.D2") {
+    
+    dd <- calculateDist(plotmatrix, cor_method = cor_method)
+    
+    hc <- hclust(dd, method = cluster_method)
+    
+    as.dendrogram(hc)
 } 

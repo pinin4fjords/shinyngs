@@ -5,7 +5,7 @@
 \title{Make a clustering dendrogram with coloring by experimental variable}
 \usage{
 clustering_dendrogram(plotmatrix, experiment, colorby = NULL,
-  corMethod = "pearson", clusterMethod = "ward.D", plot_title = "")
+  cor_method = "pearson", cluster_method = "ward.D", plot_title = "")
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}

@@ -175,7 +175,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         
         do.call(rbind, lapply(cts, function(ct) {
             labelMatrix(ct, getExperiment())
-        }))  
+        }))
     })
     
     # Use labelledContrastsTable to get the labelled matrix and add some links.

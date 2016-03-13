@@ -133,7 +133,7 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     selectColData = reactive({
         validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
-        droplevels(data.frame(colData(getExperiment())[selectSamples(), ]))
+        droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE]))
     })
     
     # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices
@@ -221,20 +221,20 @@ linkMatrix <- function(matrix, se) {
     if ("url_roots" %in% names(metadata(se))) {
         url_roots <- metadata(se)$url_roots
         
-        for (fieldtype in c('idfield', 'labelfield')){
-        
-          if (fieldtype %in% names(metadata(se))){
-          
-            fieldname <- metadata(se)[[fieldtype]]
+        for (fieldtype in c("idfield", "labelfield")) {
             
-            if (fieldname %in% names(url_roots)) {
+            if (fieldtype %in% names(metadata(se))) {
                 
-                # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+                fieldname <- metadata(se)[[fieldtype]]
                 
-                p_fieldname <- prettifyVariablename(fieldname)
-                matrix[[p_fieldname]] <- paste0("<a href='", url_roots[fieldname], matrix[[p_fieldname]], "'>", matrix[[p_fieldname]], "</a>")
+                if (fieldname %in% names(url_roots)) {
+                  
+                  # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+                  
+                  p_fieldname <- prettifyVariablename(fieldname)
+                  matrix[[p_fieldname]] <- paste0("<a href='", url_roots[fieldname], matrix[[p_fieldname]], "'>", matrix[[p_fieldname]], "</a>")
+                }
             }
-          }
         }
     }
     matrix

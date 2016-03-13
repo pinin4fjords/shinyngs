@@ -9,6 +9,7 @@ Depends:
 License: MIT
 LazyData: true
 Imports:
+    d3heatmap,
     DT,
     GenomicRanges,
     ggdendro,

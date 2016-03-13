@@ -71,10 +71,10 @@ geneOutput <- function(id, ses) {
 #' @examples
 #' callModule(gene, 'gene', ses)
 
-gene <- function(input, output, session, ses) { 
-  
+gene <- function(input, output, session, ses) {
+    
     # Call all the required modules and unpack their reactives
-  
+    
     unpack.list(callModule(selectmatrix, "gene", ses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
     unpack.list(callModule(contrasts, "gene", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", getExperiment = getExperiment, group_label = "Color by")
@@ -90,8 +90,7 @@ gene <- function(input, output, session, ses) {
         }
     })
     
-    # Server-side function for populating the selectize input. Client-side takes
-    # too long with the likely size of the list
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
     
     observe({
         updateSelectizeInput(session, "gene_label", choices = getGeneNames(), server = TRUE)
@@ -138,10 +137,9 @@ gene <- function(input, output, session, ses) {
     # Retrieve the contrasts table
     
     getGeneContrastsTable <- reactive({
-        #contrasts_table <- linkedLabelledContrastsTable()
-        #saveRDS(contrasts_table, file="~/shinytests/gene_contrasts_table.rds")
+        # contrasts_table <- linkedLabelledContrastsTable() saveRDS(contrasts_table, file='~/shinytests/gene_contrasts_table.rds')
         contrasts_table <- labelledContrastsTable()
-        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop=FALSE ], getExperiment())
+        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment())
     })
     
     # Render the contrasts table- when a valid label is supplied
@@ -155,8 +153,8 @@ gene <- function(input, output, session, ses) {
     # Supply a reactive for updating the gene input field
     
     reactive({
-      query <- parseQueryString(session$clientData$url_search)
-      updateSelectizeInput(session, 'gene_label', selected=query$gene, choices = getGeneNames(), server = TRUE)
+        query <- parseQueryString(session$clientData$url_search)
+        updateSelectizeInput(session, "gene_label", selected = query$gene, choices = getGeneNames(), server = TRUE)
     })
     
 }

@@ -43,7 +43,8 @@ heatmapInput <- function(id, ses) {
 
 heatmapOutput <- function(id) {
     ns <- NS(id)
-    plotOutput(ns("heatMap"))
+    
+    tabsetPanel(tabPanel("Static (with column annotation)", plotOutput(ns("heatMap"))), tabPanel("Interactive (but no column annotation)", uiOutput(ns("interactiveHeatmap_ui"))))
 }
 
 #' The server function of the heatmap module
@@ -68,6 +69,10 @@ heatmapOutput <- function(id) {
 
 heatmap <- function(input, output, session, ses) {
     
+    vals <- reactiveValues(hmfield = 0)
+    
+    ns <- session$ns
+    
     # Call the selectmatrix module and unpack the reactives it sends back
     
     unpack.list(callModule(selectmatrix, "heatmap", ses, var_max = 500))
@@ -75,7 +80,6 @@ heatmap <- function(input, output, session, ses) {
     # Populate the groupVars UI element if applicable
     
     output$groupVars <- renderUI({
-        ns <- session$ns
         se <- getExperiment()
         
         if ("group_vars" %in% names(metadata(se))) {
@@ -120,8 +124,31 @@ heatmap <- function(input, output, session, ses) {
         nrows <- 0
         titleheight = 25
         labelsheight = 80
+        dendro_height = 0
         
-        return((titleheight * nlines(matrixTitle())) + (length(input$groupVars) * 14) + (nrow(selectMatrix()) * 12) + labelsheight)
+        # It's not actually possible to set the dendrogram height in d3heatmap, so we're just adding an aribrary value
+        
+        if (input$cluster_cols) {
+            dendro_height = 150
+        }
+        
+        return((titleheight * nlines(matrixTitle())) + (length(input$groupVars) * 14) + (nrow(selectMatrix()) * 12) + labelsheight + dendro_height)
+    })
+    
+    # Calculate the height for the interactive heatmap
+    
+    interactiveHeight <- reactive({
+        xaxis_height = 300
+        rowheight = 12
+        dendro_height = 0
+        
+        # It's not actually possible to set the dendrogram height in d3heatmap, so we're just adding an aribrary value
+        
+        if (input$cluster_cols) {
+            dendro_height = 150
+        }
+        
+        return(dendro_height + (nrow(selectMatrix()) * rowheight) + xaxis_height)
     })
     
     # Calculate the plot width based on the inputs
@@ -146,6 +173,7 @@ heatmap <- function(input, output, session, ses) {
         makeHeatmap(input, getHeatmapExpression(), experimentData(), main = matrixTitle())
     }, height = plotHeight)
     
+    
     # Provide the heatmap for download with the plotdownload module
     
     plotHeatmap <- reactive({
@@ -155,6 +183,20 @@ heatmap <- function(input, output, session, ses) {
     # Call to plotdownload module
     
     callModule(plotdownload, "heatmap", makePlot = plotHeatmap, filename = "heatmap.png", plotHeight = plotHeight, plotWidth = plotWidth)
+    
+    # Add an interactive version of the heatmap
+    
+    output$interactiveHeatmap_ui <- renderUI({
+      withProgress(message = "Building interactive heatmap", value = 0, {
+        list(h4(matrixTitle()), d3heatmapOutput(ns("interactiveHeatmap"), height = interactiveHeight()))
+      })
+    })
+    
+    # Make an interactive heatmap version
+    
+    output$interactiveHeatmap <- renderD3heatmap({
+        makeHeatmap(input, getHeatmapExpression(), experimentData(), main = matrixTitle(), interactive = TRUE)
+    })
     
 }
 
@@ -174,7 +216,7 @@ heatmap <- function(input, output, session, ses) {
 #' @examples
 #' makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
 
-makeHeatmap <- function(input, exprmatrix, experiment, ...) {
+makeHeatmap <- function(input, exprmatrix, experiment, interactive = FALSE, ...) {
     
     if (!is.null(exprmatrix)) {
         
@@ -199,7 +241,8 @@ makeHeatmap <- function(input, exprmatrix, experiment, ...) {
             }
             
             annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = groupVars, cluster_rows = cluster_rows, cluster_cols = input$cluster_cols, scale = input$scale, 
-                ...)
+                interactive = interactive, ...)
+            
         }
     }
 }
@@ -208,12 +251,18 @@ makeHeatmap <- function(input, exprmatrix, experiment, ...) {
 #' 
 #' This is a generic function which may be useful outside of this package. It
 #' produces a heatmap based on an expression matrix and accompanying 
-#' experiment data in the form of a frame, using pheatmap().
+#' experiment data in the form of a frame, using \code{pheatmap()} or 
+#' \code{d3heatmap()}.
+#' 
+#' The clustering parameters for \code{pheatmap()} and \code{d3heatmap()} are 
+#' set to be consistent with one another.
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param sample_annotation Annotation for the columns of plotmatrix
 #' @param group_vars Grouping variables to be used from 
 #' sample_annotation
+#' @param interactive Make an interactive plot with \code{d3heatmap()} instead
+#'of using \code{pheatmap()}? (Default: FALSE)
 #' @param ... Other arguments to pass to \code{pheatmap()}
 #'
 #' @return output A plot as produced by pheatmap() 
@@ -225,7 +274,7 @@ makeHeatmap <- function(input, exprmatrix, experiment, ...) {
 #' @examples
 #' R code here showing how your function works
 
-annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, ...) {
+annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, interactive = FALSE, ...) {
     
     if (!is.null(plotmatrix)) {
         
@@ -233,21 +282,86 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, .
         
         if ((!is.null(group_vars)) && !is.null(sample_annotation)) {
             
+            # Prettify the factor levels for display
+            
+            colnames(sample_annotation)[colnames(sample_annotation) %in% group_vars] <- prettifyVariablename(colnames(sample_annotation)[colnames(sample_annotation) %in% 
+                group_vars])
+            group_vars <- prettifyVariablename(group_vars)
+            
             # Make factors from the specified grouping variables
             
-            annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor))
+            annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor), check.names = FALSE)
             
             # Order by the group variables for display purposes
             
-            annotation <- annotation[do.call(order, as.list(annotation[, group_vars])), ]
+            annotation <- annotation[do.call(order, as.list(annotation[, group_vars, drop = FALSE])), , drop = FALSE]
             plotmatrix <- plotmatrix[, rownames(annotation)]
             
-            annotation_colors <- makeAnnotationColors(sample_annotation)
+            annotation_colors <- makeAnnotationColors(annotation)
         }
         
-        pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = annotation, annotation_colors = annotation_colors, 
-            border_color = NA, legend = FALSE, ...)
+        if (interactive) {
+            interactiveHeatmap(plotmatrix, annotation, group_vars = group_vars, ...)
+            
+        } else {
+            pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = annotation, annotation_colors = annotation_colors, 
+                border_color = NA, legend = FALSE, clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), 
+                clustering_method = "ward.D2", treeheight_col = 150, ...)
+        }
     }
+}
+
+#' Make a ineractive heatmap with d3heatmap
+#' 
+#' This is a generic function which may be useful outside of this package. It
+#' produces a heatmap based on an expression matrix and accompanying 
+#' experiment data in the form of a frame, \code{d3heatmap()}.
+#'
+#' @param plotmatrix Expression/ other data matrix
+#' @param sample_annotation Annotation for the columns of plotmatrix
+#' @param group_vars Grouping variables to be used from 
+#' sample_annotation
+#' @param cluster_rows Make row-wise dendrogram?
+#' @param cluster_cols Make column-wise dendrogram?
+#' @param scale row, column or none
+#'
+#' @return output A plot as produced by pheatmap() 
+#'
+#' @keywords keywords
+#'
+#' @export
+#' 
+#' @examples
+#' R code here showing how your function works
+
+interactiveHeatmap <- function(plotmatrix, sample_annotation, group_vars, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", ...) {
+    
+    dendrogram <- "none"
+    Rowv <- FALSE
+    Colv <- FALSE
+    
+    # Specify how the dendrogram should be created
+    
+    if (all(cluster_rows, cluster_cols)) {
+        dendrogram <- "both"
+        Rowv <- calculateDendrogram(t(plotmatrix))
+        Colv <- calculateDendrogram(plotmatrix)
+    } else if (cluster_rows) {
+        dendrogram <- "row"
+        Rowv <- calculateDendrogram(t(plotmatrix))
+    } else if (cluster_cols) {
+        dendrogram <- "col"
+        Colv <- calculateDendrogram(plotmatrix)
+    }
+    
+    colnames(plotmatrix) <- paste0(colnames(plotmatrix), " (", sample_annotation[colnames(plotmatrix), group_vars[1]], ")")
+    
+    yaxis_width = max(unlist(lapply(rownames(plotmatrix), function(x) nchar(x)))) * 8
+    # xaxis_height = max(unlist(lapply(colnames(plotmatrix), function(x) nchar(x)))) * 10
+    xaxis_height = 300
+    
+    d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, yaxis_width = yaxis_width, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
+        name = "RdYlBu")))(100), cexCol = 0.8, cexRow = 0.7)
 }
 
 #' Make color sets to use in heatmap annotation

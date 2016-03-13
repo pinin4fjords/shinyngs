@@ -1,0 +1,11 @@
+.tab-pane .tab-pane{
+  margin-top:1em; 
+}
+
+.tab-pane .tab-pane h4{
+  text-align:center; 
+}
+
+.navbar-brand{
+  height: auto;
+}
