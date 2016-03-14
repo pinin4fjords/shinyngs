@@ -90,8 +90,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         metadata(se)$contrasts[as.numeric(input$contrasts)]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and
-    # calculate fold changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold changes etc.
     
     getSummaries <- reactive({
         
@@ -107,8 +106,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         summaries
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the
-    # metadata.
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the metadata.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()

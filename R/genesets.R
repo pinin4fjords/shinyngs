@@ -16,8 +16,7 @@
 genesetInput <- function(id) {
     ns <- NS(id)
     
-    tagList(uiOutput(ns("geneSets")), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
-    
+    tagList(selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5)), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
 }
 
 #' The server function of the gene set module
@@ -49,17 +48,21 @@ genesetInput <- function(id) {
 
 geneset <- function(input, output, session, annotation, entrezgenefield, genefield, geneset_files) {
     
-    # Generate the UI part
+    # Get a list of names to show for the gene sets
     
-    output$geneSets <- renderUI({
-        
+    getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
-        gene_set_names <- structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]])), " (", settype, ")"))))
-        
-        ns <- session$ns
-        selectizeInput(ns("geneSets"), "Gene sets:", choices = gene_set_names, multiple = TRUE, options = list(placeholder = "select one or more gene sets"))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), 
+            tolower = TRUE), " (", settype, ")"))))
     })
+    
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the calling module.
+    
+    updateGeneSetsList <- reactive({
+        updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
+    })
+    
+    # Pull in the gene sets from file. These will be cached as an R object for Quicker retrieval next time the app is run.
     
     getGeneSets <- reactive({
         
@@ -93,13 +96,16 @@ geneset <- function(input, output, session, annotation, entrezgenefield, genefie
     
     # Return list of reactive expressions
     
-    list(getPathwayNames = reactive({
+    list(updateGeneSetsList = updateGeneSetsList, getPathwayNames = reactive({
+        validate(need(input$geneSets, "Waiting for gene set input"))
         gene_sets <- getGeneSets()
         lapply(input$geneSets, function(pathcode) {
             pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
             names(gene_sets[[pathparts[1]]])[pathparts[2]]
         })
     }), getPathwayGenes = reactive({
+        validate(need(input$geneSets, "Waiting for gene set input"))
+        
         gene_sets <- getGeneSets()
         path_gene_sets <- lapply(input$geneSets, function(pathcode) {
             pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))

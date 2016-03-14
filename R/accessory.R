@@ -3,6 +3,7 @@
 #' Just split out words using '_' and capitalise first letter
 #'
 #' @param vn A string to be prettified
+#' @param tolower Convert to lower case first? (Default: FALSE)
 #'
 #' @return output Prettified string
 #'
@@ -13,7 +14,10 @@
 #' > prettyifyVariablename(vn)
 #' [1] 'Ugly name of thing'
 
-prettifyVariablename <- function(vn) {
+prettifyVariablename <- function(vn, tolower = FALSE) {
+    if (tolower) {
+        vn <- tolower(vn)
+    }
     gsub("_", " ", ucfirst(vn))
 }
 

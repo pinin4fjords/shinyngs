@@ -20,9 +20,8 @@ dendroInput <- function(id, ses) {
     
     expression_filters <- selectmatrixInput(ns("dendro"), ses)
     
-    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), 
-        "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", 
-            WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
+    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", 
+        `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -151,8 +150,8 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_me
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_discrete(name = prettifyVariablename(colorby))
         
-        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + 
-            theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
+        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + theme(title = element_text(size = rel(1.8)), 
+            legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
         
     }
     

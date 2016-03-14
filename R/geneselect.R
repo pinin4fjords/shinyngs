@@ -69,6 +69,18 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     
     use_genesets <- all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
     
+    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
+    
+    if (use_genesets) {
+        unpack.list(callModule(geneset, "geneset", data.frame(mcols(se)), metadata(se)$entrezgenefield, metadata(se)$labelfield, metadata(se)$geneset_files))
+    }
+    
+    observeEvent(input$geneSelect, {
+        if (input$geneSelect == "gene set") {
+            updateGeneSetsList()
+        }
+    })
+    
     # Render the geneSelect UI element
     
     output$geneSelect <- renderUI({
@@ -87,24 +99,18 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             gene_select_methods <- c(gene_select_methods, "gene set")
         }
         
-        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", 
-            ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
-            ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 30, "Paste gene list here, one per line")))
+        gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), 
+            sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), 
+            rows = 3, cols = 30, "Paste gene list here, one per line")))
         
         # If gene sets have been provided, then make a gene sets filter
         
         if (use_genesets) {
-            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("heatmap")))
+            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("geneset")))
         }
         
         gene_select
     })
-    
-    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
-    
-    if (use_genesets) {
-        geneset_functions <- callModule(geneset, "heatmap", data.frame(mcols(se)), se$entrezgenefield, se$labelfield, se$geneset_files)
-    }
     
     # Reactive function to calculate variances only when required
     
@@ -130,7 +136,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             return(rownames(se)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
         } else {
             if (input$geneSelect == "gene set") {
-                selected_genes <- geneset_functions$getPathwayGenes()
+                selected_genes <- getPathwayGenes()
             } else {
                 selected_genes <- unlist(strsplit(input$geneList, "\\n"))
             }
@@ -160,7 +166,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
         } else if (input$geneSelect == "variance") {
             title <- paste(paste("Top", input$obs, "rows"), "by variance")
         } else if (input$geneSelect == "gene set") {
-            title <- paste0("Genes in sets:\n", paste(geneset_functions$getPathwayNames(), collapse = "\n"))
+            title <- paste0("Genes in sets:\n", paste(getPathwayNames(), collapse = "\n"))
         } else if (input$geneSelect == "list") {
             title <- "Rows for specifified gene list"
         }

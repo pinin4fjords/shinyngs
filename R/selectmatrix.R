@@ -121,10 +121,9 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
             selected_matrix <- GenomicRanges::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
             
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
-                saveRDS(selected_matrix, file = "~/shinytests/selected_matrix.rds")
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
-            
+            saveRDS(selected_matrix, file = "~/shinytests/selected_matrix.rds")
             apply(selected_matrix, 2, round, rounding)
         })
     })
@@ -169,8 +168,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, 
-        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
+    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, 
+        selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
 }
 
 #' Add columns to display ID and label in a table

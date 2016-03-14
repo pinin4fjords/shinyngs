@@ -41,17 +41,16 @@ plotdownloadInput <- function(id) {
 
 plotdownload <- function(input, output, session, makePlot, filename = "plot.png", plotHeight, plotWidth) {
     
-    observe({
-        if (is.reactive(plotHeight)) {
-            plotHeight <- plotHeight()
-        }
-        
-        if (is.reactive(plotWidth)) {
-            plotWidth = plotWidth()
-        }
-    })
+    if (is.reactive(plotHeight)) {
+        plotHeight <- as.numeric(plotHeight())
+    }
+    
+    if (is.reactive(plotWidth)) {
+        plotWidth = as.numeric(plotWidth())
+    }
     
     output$plotdownload <- downloadHandler(filename = filename, content = function(file) {
+        print(paste0("Making output file of dimension ", plotWidth, "x", plotHeight))
         png(file, height = plotHeight, width = plotWidth, units = "px")
         print(makePlot())
         dev.off()

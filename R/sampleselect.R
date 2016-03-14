@@ -43,8 +43,8 @@ sampleselectInput <- function(id, se, select_samples = TRUE) {
         # Add in group selection if relevant
         
         if ("group_vars" %in% names(metadata(se))) {
-            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
-                "Define groups by:", metadata(se)$group_vars, selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples"))))
+            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", structure(metadata(se)$group_vars, 
+                names = prettifyVariablename(metadata(se)$group_vars)), selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples"))))
         }
         
     } else {

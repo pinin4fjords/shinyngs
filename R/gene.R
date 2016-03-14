@@ -195,8 +195,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             yaxis = ax
         }
         
-        plot_ly(x = names(row), y = as.numeric(row), type = "bar", color = groups, showlegend = (rowno == 1)) %>% layout(xaxis = list(title = rownames(expression)[rowno]), 
-            yaxis = yaxis, margin = list(b = 100))
+        plot_ly(x = names(row), y = as.numeric(row), type = "bar", color = groups, showlegend = (rowno == 1)) %>% layout(xaxis = list(title = rownames(expression)[rowno]), yaxis = yaxis, margin = list(b = 100))
     })
     
     do.call(function(...) subplot(...), plots)

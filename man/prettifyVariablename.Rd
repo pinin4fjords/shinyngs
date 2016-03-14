@@ -4,10 +4,12 @@
 \alias{prettifyVariablename}
 \title{Make machine variable names pretty for display}
 \usage{
-prettifyVariablename(vn)
+prettifyVariablename(vn, tolower = FALSE)
 }
 \arguments{
 \item{vn}{A string to be prettified}
+
+\item{tolower}{Convert to lower case first? (Default: FALSE)}
 }
 \value{
 output Prettified string
