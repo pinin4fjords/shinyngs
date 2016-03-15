@@ -5,6 +5,8 @@
 #' @param id Submodule namespace
 #' @param ses List of structuredExperiment objects with assay and experimental
 #' data, with additional information in the metadata() slot
+#' @param type The type of heatmap that will be made. 'expression', 'samples'
+#' or 'pca'
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -14,13 +16,22 @@
 #' @examples
 #' heatmapInput('heatmap', se, group_vars, default_groupvar
 
-heatmapInput <- function(id, ses) {
+heatmapInput <- function(id, ses, type = "expression") {
     
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("heatmap"), ses)
-    heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE), radioButtons(ns("scale"), "Scale by:", 
-        c(Row = "row", Column = "column", None = "none")), groupbyInput(ns("heatmap")), radioButtons(ns("interactive"), "Interactivity", c(interactive = TRUE, annotated = FALSE)))
+    
+    # Only provide controls for clustering etc for the expression heat maps
+    
+    if (type == "expression") {
+        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", 
+            FALSE), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")))
+    } else {
+        heatmap_filters <- list(hiddenInput(ns("cluster_rows"), TRUE), hiddenInput(ns("cluster_cols"), TRUE), hiddenInput(ns("scale"), "none"))
+    }
+    
+    heatmap_filters <- list(heatmap_filters, groupbyInput(ns("heatmap")), radioButtons(ns("interactive"), "Interactivity", c(interactive = TRUE, annotated = FALSE)))
     
     # Output sets of fields in their own containers
     
@@ -46,7 +57,8 @@ heatmapOutput <- function(id) {
     
     uiOutput(ns("heatmap_ui"))
     
-    # tabsetPanel(tabPanel('Static (with column annotation)', plotOutput(ns('heatMap'))), tabPanel('Interactive (but no column annotation)', uiOutput(ns('interactiveHeatmap_ui'))))
+    # tabsetPanel(tabPanel('Static (with column annotation)', plotOutput(ns('heatMap'))), tabPanel('Interactive (but no column annotation)',
+    # uiOutput(ns('interactiveHeatmap_ui'))))
 }
 
 #' The server function of the heatmap module
@@ -63,113 +75,194 @@ heatmapOutput <- function(id) {
 #' @param session Session object
 #' @param ses List of structuredExperiment objects with assay and experimental
 #' data, with additional information in the metadata() slot
-#'
+#' @param type The type of heatmap that will be made. 'expression', 'samples'
+#' or 'pca'
+#' 
 #' @keywords shiny
 #' 
 #' @examples
 #' callModule(heatmap, 'heatmap', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files=params$geneset_files)
 
-heatmap <- function(input, output, session, ses) {
+heatmap <- function(input, output, session, ses, type = "expression") {
     
     ns <- session$ns
-    
-    # Call the selectmatrix module and unpack the reactives it sends back
-    
-    unpack.list(callModule(selectmatrix, "heatmap", ses, var_max = 500))
     
     # Make the groupby UI element
     
     groupBy <- callModule(groupby, "heatmap", getExperiment = getExperiment, group_label = "Annotate with variables:", multiple = TRUE)
     
-    # Select out the expression values we need for a heatmap
+    # Call the selectmatrix module and unpack the reactives it sends back
     
-    getHeatmapExpression <- reactive({
-        
-        se <- getExperiment()
-        
-        withProgress(message = "Getting values for heatmap", value = 0, {
-            
-            heatmap_expression <- selectMatrix()
-            
-            if (nrow(heatmap_expression) > 0) {
-                
-                # Name the rows by gene if we know what the necessary annotation fields are
-                
-                if (all(c("idfield", "labelfield") %in% names(metadata(se))) && nrow(mcols(se)) > 0) {
-                  annotation <- data.frame(mcols(se))
-                  display_genes <- annotation[match(rownames(heatmap_expression), annotation[[metadata(se)$idfield]]), metadata(se)$labelfield]
-                  hasgenes <- !is.na(display_genes)
-                  
-                  rownames(heatmap_expression)[hasgenes] <- paste(display_genes[hasgenes], rownames(heatmap_expression)[hasgenes], sep = " / ")
-                }
-                return(heatmap_expression)
-            } else {
-                return(NULL)
-            }
-        })
-    })
-    
-    # Calculate the plot height based on the inputs
-    
-    plotHeight <- reactive({
-        
-        # validate(need(!is.null(input$geneSelect), 'Waiting for form to provide geneSelect'))
-        
-        nrows <- 0
-        titleheight = 25
-        labelsheight = 80
-        dendro_height = 0
-        
-        # It's not actually possible to set the dendrogram height in d3heatmap, so we're just adding an aribrary value
-        
-        if (input$cluster_cols) {
-            dendro_height = 150
-        }
-        
-        return((titleheight * nlines(matrixTitle())) + (length(groupBy()) * 14) + (nrow(selectMatrix()) * 12) + labelsheight + dendro_height)
-    })
-    
-    # Calculate the height for the interactive heatmap
-    
-    interactiveHeight <- reactive({
-        xaxis_height = 300
-        rowheight = 12
-        dendro_height = 0
-        
-        # It's not actually possible to set the dendrogram height in d3heatmap, so we're just adding an aribrary value
-        
-        if (input$cluster_cols) {
-            dendro_height = 150
-        }
-        
-        return(dendro_height + (nrow(selectMatrix()) * rowheight) + xaxis_height)
-    })
-    
-    # Calculate the plot width based on the inputs
-    
-    plotWidth <- reactive({
-        return(400 + (18 * ncol(getHeatmapExpression())))
-    })
-    
-    # Want heatmap to know if the data is summarised so it doesn't try to annotate the plot
-    
-    experimentData <- reactive({
-        if (isSummarised()) {
-            NULL
-        } else {
-            selectColData()
-        }
-    })
+    if (type == "expression") {
+        unpack.list(callModule(selectmatrix, "heatmap", ses, var_max = 500))
+    } else {
+        unpack.list(callModule(selectmatrix, "heatmap", ses, var_max = 10000, var_n = 1000))
+    }
     
     # Plot interactive / non-interactive version of heatmap dependent on input
     
     output$heatmap_ui <- renderUI({
         if (input$interactive) {
             withProgress(message = "Preparing heatmap container", value = 0, {
-                list(h4(matrixTitle()), d3heatmap::d3heatmapOutput(ns("interactiveHeatmap"), height = interactiveHeight()))
+                list(h4(matrixTitle()), d3heatmap::d3heatmapOutput(ns("interactiveHeatmap"), height = plotHeight()))
             })
         } else {
-            list(h4(matrixTitle()), plotOutput(ns("heatMap")))
+            list(h4(matrixTitle()), plotOutput(ns("annotatedHeatmap")))
+        }
+    })
+    
+    # Get the experiment data and tidy up as appropriate
+    
+    experimentData <- reactive({
+        if (isSummarised()) {
+            NULL
+        } else {
+            ed <- selectColData()
+            
+            if (!is.null(groupBy())) {
+                
+                # Prettify the factor levels for display
+                
+                colnames(ed)[match(groupBy(), colnames(ed))] <- prettifyVariablename(groupBy())
+                group_vars <- prettifyVariablename(groupBy())
+                
+                # Make factors from the specified grouping variables
+                
+                ed <- data.frame(apply(ed[colnames(selectMatrix()), group_vars, drop = F], 2, as.factor), check.names = FALSE)
+                
+                # Order by the group variables for display purposes
+                
+                ed[do.call(order, as.list(ed[, group_vars, drop = FALSE])), , drop = FALSE]
+            }
+        }
+    })
+    
+    # Get a a matrix of the values we actually want the user to see in mouseovers etc.
+    
+    getDisplayMatrix <- reactive({
+        pm <- selectMatrix()
+        
+        if (type == "samples") {
+            pm <- cor(pm, use = "complete.obs", method = "spearman")
+        } else if (type == "pca") {
+            pm <- getPCAMatrix()
+        }
+        
+        # We can't do clustering with anything with the same value in all columns. So take these out.
+        
+        if (as.logical(input$cluster_rows) && !is.null(experimentData())) {
+            pm <- pm[apply(pm, 1, function(x) length(unique(x)) > 1), , drop = FALSE]
+        }
+        
+        # For expression, re-order by the experiment
+        
+        if (type == "expression") {
+            pm <- pm[, rownames(experimentData())]
+        }
+        
+        pm
+    })
+    
+    # Create of values to use in plotting, i.e. to define the colors
+    
+    getPlotMatrix <- reactive({
+        pm <- getDisplayMatrix()
+        
+        if (type == "expression") {
+            pm <- log2(pm + 1)
+        } else if (type == "pca") {
+            pm[pm < 0.001] <- 0.001
+            log10(pvals[apply(pm, 1, function(x) !all(is.na(x))), ])
+        }
+        pm
+    })
+    
+    # Run a PCA with the currently selected matrix
+    
+    getPCAMatrix <- reactive({
+        pcavals <- log2(selectMatrix() + 1)
+        
+        pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
+        
+        pca <- prcomp(as.matrix(t(pcavals), scale = T))
+        fraction_explained <- round((pca$sdev)^2/sum(pca$sdev^2), 3) * 100
+        
+        pvals <- matrix(data = NA, nrow = ncol(experiment), ncol = 10, dimnames = list(colnames(experiment), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], 
+            "%)", sep = "")))
+        
+        for (i in 1:ncol(experiment)) {
+            for (j in 1:10) {
+                fit <- aov(pca$x[, j] ~ factor(experiment[, i]))
+                pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]
+            }
+        }
+        
+        pvals
+    })
+    
+    # Calculate heights for the the various types of heatmap
+    
+    plotHeight <- reactive({
+        (nrow(getDisplayMatrix()) * rowHeight()) + dendroHeight() + annotationsHeight() + xAxisLabelsHeight()
+    })
+    
+    # Add an allowance for the axis labels. Interactive view doesn't have annotations, so we use the labels, so need more space
+    
+    xAxisLabelsHeight <- reactive({
+        if (input$interactive) {
+            300
+        } else {
+            100
+        }
+    })
+    
+    # Add a chunk for the dendrogram at the top
+    
+    dendroHeight <- reactive({
+        if (as.logical(input$cluster_cols)) {
+            150
+        } else {
+            0
+        }
+    })
+    
+    # Small row height for expression heat map (probably lots of rows)
+    
+    rowHeight <- reactive({
+        if (type == "expression") {
+            12
+        } else {
+            20
+        }
+    })
+    
+    # Annotations allowance for pheatmap
+    
+    annotationsHeight <- reactive({
+        if (input$interactive) {
+            0
+        } else {
+            (length(groupBy()) * 14)
+        }
+    })
+    
+    # Calculate the plot width based on the inputs
+    
+    plotWidth <- reactive({
+        return(400 + (18 * ncol(getDisplayMatrix())))
+    })
+    
+    # Make row labels
+    
+    rowLabels <- reactive({
+        if ("labelfield" %in% names(metadata(se)) && type == "expression") {
+            annotation <- as.data.frame(mcols(se))
+            labels <- annotation[match(rownames(getPlotMatrix()), annotation[[metadata(se)$idfield]]), metadata(se)$labelfield]
+            labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(getPlotMatrix())[!is.na(labels)], sep = " / ")
+            labels[is.na(labels)] <- rownames(getPlotMatrix())[is.na(labels)]
+            labels
+        } else {
+            rownames(getPlotMatrix())
         }
     })
     
@@ -177,20 +270,25 @@ heatmap <- function(input, output, session, ses) {
     
     output$interactiveHeatmap <- d3heatmap::renderD3heatmap({
         withProgress(message = "Building interactive heatmap", value = 0, {
-            makeHeatmap(input, getHeatmapExpression(), experimentData(), group_vars = groupBy(), interactive = TRUE)
+            interactiveHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), experimentData(), cluster_cols = as.logical(input$cluster_cols), 
+                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels())
         })
     })
     
-    # Supply a rendered heatmap for display
+    # Make a static heatmap version - with the benefit of column annotations in pheatmap
     
-    output$heatMap <- renderPlot({
-        makeHeatmap(input, getHeatmapExpression(), experimentData(), group_vars = groupBy())
+    output$annotatedHeatmap <- renderPlot({
+        withProgress(message = "Building static heatmap", value = 0, {
+            annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), experimentData(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
+                scale = input$scale, row_labels = rowLabels(), row_height = rowHeight())
+        })
     }, height = plotHeight)
     
-    # Provide the heatmap for download with the plotdownload module
+    # The same function call as static for providing the download
     
     plotHeatmap <- reactive({
-        makeHeatmap(input, getHeatmapExpression(), experimentData(), group_vars = groupBy(), main = matrixTitle())
+        annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), experimentData(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
+            scale = input$scale, row_labels = rowLabels(), row_height = rowHeight())
     })
     
     # Call to plotdownload module
@@ -199,47 +297,6 @@ heatmap <- function(input, output, session, ses) {
         callModule(plotdownload, "heatmap", makePlot = plotHeatmap, filename = "heatmap.png", plotHeight = plotHeight, plotWidth = plotWidth)
     })
     
-}
-
-#' Make the heatmap
-#' 
-#' Just an adapter to annotatedHeatmap(), which is designed to be generically
-#' useful
-#'
-#' @param input Input object
-#' @param exprmatrix An expression matrix
-#' @param experiment A data frame containing experimental variables
-#' @param ... Arguments that should be passed through \code{annotatedHeatmap()}
-#' to \code{pheatmap()}
-#'
-#' @return output Heatmap plot 
-#' 
-#' @examples
-#' makeHeatmap(input, getHeatmapExpression(), selectColData(), main = matrixTitle())
-
-makeHeatmap <- function(input, exprmatrix, experiment, group_vars = NULL, interactive = FALSE, ...) {
-    
-    if (!is.null(exprmatrix)) {
-        
-        # We can't do clustering with anything with the same value in all columns. So take these out.
-        
-        if (input$cluster_rows) {
-            exprmatrix <- exprmatrix[apply(exprmatrix, 1, function(x) length(unique(x)) > 1), , drop = FALSE]
-        }
-        
-        if (nrow(exprmatrix) > 0) {
-            
-            # If the above 'if' reduced the frame to 1 row we can't do clustering anyway
-            
-            cluster_rows <- input$cluster_rows
-            if (nrow(exprmatrix) == 1) {
-                cluster_rows = FALSE
-            }
-            
-            annotatedHeatmap(log2(exprmatrix + 1), experiment, group_vars = group_vars, cluster_rows = cluster_rows, cluster_cols = input$cluster_cols, scale = input$scale, interactive = interactive, ...)
-            
-        }
-    }
 }
 
 #' Make a heatmap with annotations by experimental variable
@@ -253,12 +310,12 @@ makeHeatmap <- function(input, exprmatrix, experiment, group_vars = NULL, intera
 #' set to be consistent with one another.
 #'
 #' @param plotmatrix Expression/ other data matrix
-#' @param sample_annotation Annotation for the columns of plotmatrix
-#' @param group_vars Grouping variables to be used from 
-#' sample_annotation
-#' @param interactive Make an interactive plot with \code{d3heatmap()} instead
-#'of using \code{pheatmap()}? (Default: FALSE)
-#' @param ... Other arguments to pass to \code{pheatmap()}
+#' @param displaymatrix A matrix of values that might be displayed in cells
+#' @param cluster_cols Cluster columns?
+#' @param cluster_rows Cluster rows?
+#' @param scale 'row', 'column' or none 
+#' @param row_labels Vector labels to use for rows
+#' @param row_height The height to use for each row
 #'
 #' @return output A plot as produced by pheatmap() 
 #'
@@ -269,39 +326,19 @@ makeHeatmap <- function(input, exprmatrix, experiment, group_vars = NULL, intera
 #' @examples
 #' R code here showing how your function works
 
-annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, interactive = FALSE, ...) {
+annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12) {
     
-    if (!is.null(plotmatrix)) {
-        
-        annotation <- annotation_colors <- NA
-        
-        if ((!is.null(group_vars)) && !is.null(sample_annotation)) {
-            
-            # Prettify the factor levels for display
-            
-            colnames(sample_annotation)[colnames(sample_annotation) %in% group_vars] <- prettifyVariablename(colnames(sample_annotation)[colnames(sample_annotation) %in% group_vars])
-            group_vars <- prettifyVariablename(group_vars)
-            
-            # Make factors from the specified grouping variables
-            
-            annotation <- data.frame(apply(sample_annotation[colnames(plotmatrix), rev(group_vars), drop = F], 2, as.factor), check.names = FALSE)
-            
-            # Order by the group variables for display purposes
-            
-            annotation <- annotation[do.call(order, as.list(annotation[, group_vars, drop = FALSE])), , drop = FALSE]
-            plotmatrix <- plotmatrix[, rownames(annotation)]
-            
-            annotation_colors <- makeAnnotationColors(annotation)
-        }
-        
-        if (interactive) {
-            interactiveHeatmap(plotmatrix, annotation, group_vars = group_vars, ...)
-            
-        } else {
-            pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = 12, annotation = annotation, annotation_colors = annotation_colors, border_color = NA, legend = FALSE, 
-                clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", treeheight_col = 150, ...)
-        }
+    rownames(plotmatrix) <- row_labels
+    
+    annotation <- annotation_colors <- NA
+    if (!is.na(sample_annotation)) {
+        annotation <- sample_annotation
+        annotation_colors <- makeAnnotationColors(annotation)
     }
+    
+    pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, 
+        border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), 
+        clustering_method = "ward.D2", treeheight_col = 150, scale = scale)
 }
 
 #' Make a ineractive heatmap with d3heatmap
@@ -311,12 +348,12 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, i
 #' experiment data in the form of a frame, \code{d3heatmap()}.
 #'
 #' @param plotmatrix Expression/ other data matrix
-#' @param sample_annotation Annotation for the columns of plotmatrix
-#' @param group_vars Grouping variables to be used from 
-#' sample_annotation
-#' @param cluster_rows Make row-wise dendrogram?
-#' @param cluster_cols Make column-wise dendrogram?
-#' @param scale row, column or none
+#' @param displaymatrix A matrix of values that might be displayed in cells
+#' @param cluster_cols Cluster columns?
+#' @param cluster_rows Cluster rows?
+#' @param scale 'row', 'column' or none 
+#' @param row_labels Vector labels to use for rows
+#' @param row_height The height to use for each row
 #'
 #' @return output A plot as produced by pheatmap() 
 #'
@@ -327,11 +364,19 @@ annotatedHeatmap <- function(plotmatrix, sample_annotation, group_vars = NULL, i
 #' @examples
 #' R code here showing how your function works
 
-interactiveHeatmap <- function(plotmatrix, sample_annotation, group_vars, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", ...) {
+interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, ...) {
+    
+    # should be possible to specify this in the labRow parameter- but the clustering messes it up
+    
+    rownames(plotmatrix) <- row_labels
     
     dendrogram <- "none"
     Rowv <- FALSE
     Colv <- FALSE
+    
+    if ((!is.null(sample_annotation)) && ncol(sample_annotation) > 0) {
+        colnames(plotmatrix) <- paste0(colnames(plotmatrix), " (", sample_annotation[colnames(plotmatrix), colnames(sample_annotation)[1]], ")")
+    }
     
     # Specify how the dendrogram should be created
     
@@ -347,16 +392,20 @@ interactiveHeatmap <- function(plotmatrix, sample_annotation, group_vars, cluste
         Colv <- calculateDendrogram(plotmatrix)
     }
     
-    if (!is.null(group_vars)) {
-        colnames(plotmatrix) <- paste0(colnames(plotmatrix), " (", sample_annotation[colnames(plotmatrix), group_vars[1]], ")")
+    # This next is to match with pheatmap
+    
+    if (class(Rowv) == "dendrogram") {
+        Rowv <- rev(Rowv)
     }
+    
+    # If this is a samples/samples heatmap, reverse the dendrograms to match with pheatmap behaviour
     
     yaxis_width = max(unlist(lapply(rownames(plotmatrix), function(x) nchar(x)))) * 8
     # xaxis_height = max(unlist(lapply(colnames(plotmatrix), function(x) nchar(x)))) * 10
     xaxis_height = 300
     
-    d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, yaxis_width = yaxis_width, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
-        name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7)
+    d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, cellnote = displaymatrix, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, yaxis_width = yaxis_width, 
+        colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, revC = FALSE, labRow = row_labels, ...)
 }
 
 #' Make color sets to use in heatmap annotation
@@ -392,7 +441,8 @@ makeAnnotationColors <- function(sample_annotation) {
         if (RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"] >= length(categories) && length(categories) > 2) {
             colcolors <- RColorBrewer::brewer.pal(length(categories), palettes[i])
         } else {
-            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), length(categories))
+            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), 
+                length(categories))
         }
         
         names(colcolors) <- levels(sample_annotation[, i])

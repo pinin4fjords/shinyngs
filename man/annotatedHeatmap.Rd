@@ -4,21 +4,23 @@
 \alias{annotatedHeatmap}
 \title{Make a heatmap with annotations by experimental variable}
 \usage{
-annotatedHeatmap(plotmatrix, sample_annotation, group_vars = NULL,
-  interactive = FALSE, ...)
+annotatedHeatmap(plotmatrix, displaymatrix, sample_annotation, cluster_cols,
+  cluster_rows, scale, row_labels, row_height = 12)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
 
-\item{sample_annotation}{Annotation for the columns of plotmatrix}
+\item{displaymatrix}{A matrix of values that might be displayed in cells}
 
-\item{group_vars}{Grouping variables to be used from 
-sample_annotation}
+\item{cluster_cols}{Cluster columns?}
 
-\item{interactive}{Make an interactive plot with \code{d3heatmap()} instead
-of using \code{pheatmap()}? (Default: FALSE)}
+\item{cluster_rows}{Cluster rows?}
 
-\item{...}{Other arguments to pass to \code{pheatmap()}}
+\item{scale}{'row', 'column' or none}
+
+\item{row_labels}{Vector labels to use for rows}
+
+\item{row_height}{The height to use for each row}
 }
 \value{
 output A plot as produced by pheatmap()

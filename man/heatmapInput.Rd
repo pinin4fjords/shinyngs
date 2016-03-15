@@ -4,13 +4,16 @@
 \alias{heatmapInput}
 \title{The input function of the heatmap module}
 \usage{
-heatmapInput(id, ses)
+heatmapInput(id, ses, type = "expression")
 }
 \arguments{
 \item{id}{Submodule namespace}
 
 \item{ses}{List of structuredExperiment objects with assay and experimental
 data, with additional information in the metadata() slot}
+
+\item{type}{The type of heatmap that will be made. 'expression', 'samples'
+or 'pca'}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

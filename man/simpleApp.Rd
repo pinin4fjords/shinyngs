@@ -5,7 +5,7 @@
 \title{Produce a simple app with controls and layout for a single module, in a
 shiny \code{sideBarLayout()}.}
 \usage{
-simpleApp(ses, module = NULL, title = NULL, ui_only = FALSE)
+simpleApp(ses, module = NULL, title = NULL, ui_only = FALSE, ...)
 }
 \arguments{
 \item{ses}{List of structuredExperiment objects with assay and experimental

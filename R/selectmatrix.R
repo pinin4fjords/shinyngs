@@ -168,8 +168,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, 
-        selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
+    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, 
+        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
 }
 
 #' Add columns to display ID and label in a table

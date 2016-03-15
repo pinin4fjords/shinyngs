@@ -4,7 +4,7 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(input, output, session, ses)
+heatmap(input, output, session, ses, type = "expression")
 }
 \arguments{
 \item{input}{Input object}
@@ -15,6 +15,9 @@ heatmap(input, output, session, ses)
 
 \item{ses}{List of structuredExperiment objects with assay and experimental
 data, with additional information in the metadata() slot}
+
+\item{type}{The type of heatmap that will be made. 'expression', 'samples'
+or 'pca'}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

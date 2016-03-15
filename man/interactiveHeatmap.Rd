@@ -4,22 +4,24 @@
 \alias{interactiveHeatmap}
 \title{Make a ineractive heatmap with d3heatmap}
 \usage{
-interactiveHeatmap(plotmatrix, sample_annotation, group_vars,
-  cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", ...)
+interactiveHeatmap(plotmatrix, displaymatrix, sample_annotation,
+  cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels,
+  ...)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
 
-\item{sample_annotation}{Annotation for the columns of plotmatrix}
+\item{displaymatrix}{A matrix of values that might be displayed in cells}
 
-\item{group_vars}{Grouping variables to be used from 
-sample_annotation}
+\item{cluster_rows}{Cluster rows?}
 
-\item{cluster_rows}{Make row-wise dendrogram?}
+\item{cluster_cols}{Cluster columns?}
 
-\item{cluster_cols}{Make column-wise dendrogram?}
+\item{scale}{'row', 'column' or none}
 
-\item{scale}{row, column or none}
+\item{row_labels}{Vector labels to use for rows}
+
+\item{row_height}{The height to use for each row}
 }
 \value{
 output A plot as produced by pheatmap()
