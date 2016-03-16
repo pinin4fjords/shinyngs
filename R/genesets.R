@@ -53,12 +53,12 @@ geneset <- function(input, output, session, annotation, entrezgenefield, genefie
     
     getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), tolower = TRUE), " (", settype, ")"))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), 
+            tolower = TRUE), " (", settype, ")"))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the
-    # calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the calling
+    # module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)

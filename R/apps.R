@@ -66,9 +66,9 @@ prepareApp <- function(type, ses, title = "ShinyNGS application", ui_only = FALS
     
     # Group by any factor variable by default
     
-    # ses <- lapply(ses, function(se){ if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
-    # colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (!  'default_groupvar' %in%
-    # colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] } se })
+    # ses <- lapply(ses, function(se){ if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <- colnames(colData(se))[unlist(lapply(names(colData(se)),
+    # function(var) is.factor(colData(se)[[var]])))] } if (!  'default_groupvar' %in% colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1]
+    # } se })
     
     args <- list(...)
     
@@ -82,8 +82,8 @@ prepareApp <- function(type, ses, title = "ShinyNGS application", ui_only = FALS
         app <- simpleApp(ses, type, title, ui_only = ui_only, ...)
     }
     
-    # if (type == 'simpletable') { ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = 'pages', title = 'A simple table page:', tabPanel('Home',
-    # simpletableLayout(se, params)))) server <- function(input, output, session) { callModule(simpletable, 'simpletable', data.frame(colData(se))) } }
+    # if (type == 'simpletable') { ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = 'pages', title = 'A simple table page:', tabPanel('Home', simpletableLayout(se,
+    # params)))) server <- function(input, output, session) { callModule(simpletable, 'simpletable', data.frame(colData(se))) } }
     
     # return(list(ui = ui, server = server))
     
@@ -150,6 +150,6 @@ simpleApp <- function(ses, module = NULL, title = NULL, ui_only = FALSE, ...) {
 #' @examples
 #' tabPanel('Home', simpletableLayout(se, params))))
 
-# simpletableLayout <- function(se, params) { sidebarLayout(sidebarPanel(simpletableInput('simpletable', description = 'These are the samples involved in this
-# study, and their associated variables.  Contrasts for differential expression are built from these variables'), width = 3),
-# mainPanel(simpletableOutput('simpletable', tabletitle = 'Experimental variables'), width = 9)) } 
+# simpletableLayout <- function(se, params) { sidebarLayout(sidebarPanel(simpletableInput('simpletable', description = 'These are the samples involved in this study,
+# and their associated variables.  Contrasts for differential expression are built from these variables'), width = 3), mainPanel(simpletableOutput('simpletable',
+# tabletitle = 'Experimental variables'), width = 9)) } 

@@ -4,7 +4,7 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(input, output, session, ses, type = "expression")
+heatmap(input, output, session, ses, type = "pca")
 }
 \arguments{
 \item{input}{Input object}

@@ -90,8 +90,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         metadata(se)$contrasts[as.numeric(input$contrasts)]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and
-    # calculate fold changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate
+    # fold changes etc.
     
     getSummaries <- reactive({
         

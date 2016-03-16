@@ -77,8 +77,8 @@ pca <- function(input, output, session, ses) {
         withProgress(message = "Making interactive 3D PCA plot", value = 0, {
             
             if (nrow(selectMatrix()) > 0) {
-                plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), selectColData(), 
-                  colorBy(), matrixTitle())
+                plotlyPCA(selectMatrix(), as.numeric(input$xAxisComponent), as.numeric(input$yAxisComponent), as.numeric(input$zAxisComponent), selectColData(), colorBy(), 
+                  paste("Principal component analysis based on expression matrix:", matrixTitle()))
             }
         })
     })
@@ -112,17 +112,8 @@ pca <- function(input, output, session, ses) {
 
 plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby = NULL, title = "foo") {
     
-    if (min(pcavals) == 0) {
-        pcavals <- pcavals + 1
-    }
-    
-    vars <- apply(pcavals, 1, var)
-    pcavals <- pcavals[vars > 0, ]
-    pcavals <- log2(pcavals)
-    
-    pca <- prcomp(t(pcavals), scale = T)
-    
-    fraction_explained <- round((pca$sdev)^2/sum(pca$sdev^2), 3) * 100
+    pca <- runPCA(pcavals)
+    fraction_explained <- calculatePCAFractionExplained(pca)
     
     plotdata <- data.frame(pca$x)
     colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
@@ -144,4 +135,40 @@ plotlyPCA <- function(pcavals, pcX, pcY, pcZ, pcameta, colorby = NULL, title = "
     
     p
     
+}
+
+#' Run a simple PCA analysis
+#' 
+#' Common function for PCA-using parts of the app
+#'
+#' @param matrix Matrix (not logged)
+#'
+#' @return pca Output of the prcomp function 
+#'
+#' @keywords shiny
+#' 
+#' @examples
+#' runPCA(mymatrix)
+
+runPCA <- function(matrix) {
+    pcavals <- log2(matrix + 1)
+    
+    pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
+    
+    prcomp(as.matrix(t(pcavals), scale = T))
+}
+
+#' Extract the percent variance from a PCA analysis
+#'
+#' @param pca An output from \code{prcomp}
+#'
+#' @return output vector of percentages
+#'
+#' @keywords shiny
+#' 
+#' @examples
+#' calculatePCAFractionExplained(pca)
+
+calculatePCAFractionExplained <- function(pca) {
+    round((pca$sdev)^2/sum(pca$sdev^2), 3) * 100
 } 

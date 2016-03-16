@@ -4,7 +4,7 @@
 \alias{heatmapInput}
 \title{The input function of the heatmap module}
 \usage{
-heatmapInput(id, ses, type = "expression")
+heatmapInput(id, ses, type = "pca")
 }
 \arguments{
 \item{id}{Submodule namespace}
