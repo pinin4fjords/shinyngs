@@ -210,4 +210,7 @@ unpack.list <- function(object) {
 }
 
 
- 
+interleaveColumns <- function(mat1, mat2) {
+    out <- cbind(mat1, mat2)
+    out[, unlist(lapply(1:ncol(mat1), function(n) c(n, n + ncol(mat1))))]
+} 

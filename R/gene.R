@@ -137,7 +137,6 @@ gene <- function(input, output, session, ses) {
     # Retrieve the contrasts table
     
     getGeneContrastsTable <- reactive({
-        # contrasts_table <- linkedLabelledContrastsTable() saveRDS(contrasts_table, file='~/shinytests/gene_contrasts_table.rds')
         contrasts_table <- labelledContrastsTable()
         linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment())
     })

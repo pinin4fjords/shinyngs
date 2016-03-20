@@ -94,6 +94,17 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
         ses[[input$experiment]]
     })
     
+    # Get the row labels where available
+    
+    getRowLabels <- reactive({
+        se <- getExperiment()
+        if ("labelfield" %in% names(metadata(se))) {
+            idToLabel(rownames(se), se)
+        } else {
+            rownames(se)
+        }
+    })
+    
     # Allow calling modules to retrieve the current assay
     
     getAssay <- reactive({
@@ -123,7 +134,6 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
-            saveRDS(selected_matrix, file = "~/shinytests/selected_matrix.rds")
             apply(selected_matrix, 2, round, rounding)
         })
     })
@@ -169,7 +179,7 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     # Return the list of reactive expressions we'll need to access the data
     
     list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, 
-        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix)
+        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
 }
 
 #' Add columns to display ID and label in a table
@@ -185,7 +195,7 @@ labelMatrix <- function(matrix, se) {
     datacolnames <- colnames(matrix)
     
     idfield <- metadata(se)$idfield
-    matrix[[idfield]] <- rownames(se)
+    matrix[[idfield]] <- rownames(matrix)
     
     if ("labelfield" %in% names(metadata(se))) {
         annotation <- data.frame(mcols(se))
@@ -237,4 +247,25 @@ linkMatrix <- function(matrix, se) {
         }
     }
     matrix
+}
+
+#' Create row labels based on the settings of \code{labelfield} in the 
+#' SummarizedExperiment object and the annotation data in \code{mcols}
+#'
+#' @param list of ids
+#' @param se A SummarizedExperiment
+#'
+#' @return String vector of same length as \code{ids}
+#' @export
+
+idToLabel <- function(ids, se) {
+    if ("labelfield" %in% names(metadata(se))) {
+        annotation <- as.data.frame(mcols(se))
+        labels <- annotation[match(ids, annotation[[metadata(se)$idfield]]), metadata(se)$labelfield]
+        labels[!is.na(labels)] <- paste(labels[!is.na(labels)], ids[!is.na(labels)], sep = " / ")
+        labels[is.na(labels)] <- ids[is.na(labels)]
+        labels
+    } else {
+        ids
+    }
 } 

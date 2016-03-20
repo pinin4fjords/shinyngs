@@ -17,14 +17,19 @@ pca(input, output, session, ses)
 data, with additional information in the metadata() slot}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
-example).
+This module calculates a PCA and formats components and loadings for
+display. It uses a common set of controls, generated with the 
+\code{scatterplotcontrols} module, to power scatter plots for both 
+components and loadings produced by the \code{scatterplots} module.
 }
 \details{
+This function is not called directly, but rather via callModule() (see 
+example).
+
 Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
-callModule(pca, 'pca', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files = params$geneset_files)
+callModule(pca, 'pca', ses)
 }
 \keyword{shiny}
 

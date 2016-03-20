@@ -13,7 +13,7 @@
 #' @examples
 #' simpletableInput('mytable', 'this is a table')
 
-simpletableInput <- function(id, description = NULL) {
+simpletableInput <- function(id, tabletitle = "", description = NULL) {
     ns <- NS(id)
     
     inputs <- list()
@@ -21,7 +21,7 @@ simpletableInput <- function(id, description = NULL) {
         inputs <- pushToList(inputs, p(description))
     }
     
-    inputs <- pushToList(inputs, downloadButton(ns("downloadTable"), "Download table"))
+    inputs <- pushToList(inputs, downloadButton(ns("downloadTable"), paste(tabletitle, "table")))
     
     tagList(inputs)
 }
@@ -85,7 +85,7 @@ simpletable <- function(input, output, session, downloadMatrix = NULL, displayMa
     }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 15, 25, 50, 100), c("5", "15", "25", "50", "100"))), rownames = rownames, escape = FALSE)
     
     output$downloadTable <- downloadHandler(filename = paste0(filename, ".csv"), content = function(file) {
-        write.csv(downloadMatrix(), file = file)
+        write.csv(downloadMatrix(), file = file, row.names = rownames)
     })
     
 } 

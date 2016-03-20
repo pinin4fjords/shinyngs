@@ -6,7 +6,7 @@
  
 This module produces a simple datatable output with a download button.}
 \usage{
-simpletableInput(id, description = NULL)
+simpletableInput(id, tabletitle = "", description = NULL)
 }
 \arguments{
 \item{id}{Submodule namespace}

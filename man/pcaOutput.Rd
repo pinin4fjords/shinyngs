@@ -14,7 +14,8 @@ output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This provides actual pca element for display by applications
+This provides a shiny \code{tabsetPanel} with \code{tabPanel}s for both 
+components and loading plots.
 }
 \examples{
 pcaOutput('pca')

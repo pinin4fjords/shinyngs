@@ -125,7 +125,7 @@ sampleselect <- function(input, output, session, getExperiment) {
             validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
             
             if ("group_vars" %in% names(metadata(se))) {
-                validate(need(!is.null(input$sampleGroupVal), "Waiting in sampleselect for form to provide sampleGroupVal"))
+                validate(need(!is.null(input$sampleGroupVal), FALSE))
             }
             
             if (input$sampleSelect == "name") {

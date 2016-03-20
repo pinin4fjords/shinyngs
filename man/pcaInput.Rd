@@ -4,23 +4,22 @@
 \alias{pcaInput}
 \title{The input function of the pca module}
 \usage{
-pcaInput(id, ses, principal_components = structure(1:10, names = paste0("PC",
-  1:10)))
+pcaInput(id, ses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
 \item{ses}{List of structuredExperiment objects with assay and experimental
 data, with additional information in the metadata() slot}
-
-\item{principal_components}{A named vector of princpal components to provide. Default = c('PC1' = 1 ... 'PC10' = 10).}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
 as.character()
 }
 \description{
-This provides the form elements to control the pca display
+This provides the form elements to control the pca display, derived from the
+\code{selectmatrix}, \code{scatterplotcontrols}, and \code{scatterplot} 
+modules.
 }
 \examples{
 pcaInput('pca', se, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
