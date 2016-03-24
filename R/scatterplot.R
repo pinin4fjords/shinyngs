@@ -72,8 +72,19 @@ scatterplotOutput <- function(id) {
 #' @param title A plot title
 #' @param labels An optional list of labels to use instead of row names from
 #' \code{getDatamatrix()}.
-#' @param colorby A factor definining the groups in which points should be 
-#' colored.
+#' @param colorby A reactive returning a factor definining the groups in which 
+#' points should be colored.
+#' @param allow_3d For case where controls are generated, passed to  
+#' \code{scatterplotcontrols}.
+#' @param x For case where controls are generated, passed to  
+#' \code{scatterplotcontrols}.
+#' @param y For case where controls are generated, passed to  
+#' \code{scatterplotcontrols}.
+#' @param z For case where controls are generated, passed to  
+#' \code{scatterplotcontrols}.
+#' @param getLines Reactive returning a data frame defining lines to be drawn.
+#' Three columns required: name, x and y, with two rows for every value of
+#' name. These two rows represent the start and end of a line.
 #'
 #' @export
 #'
@@ -83,16 +94,16 @@ scatterplotOutput <- function(id) {
 scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, 
     title = "", getLabels = reactive({
         rownames(getDatamatrix())
-    }), colorby = NULL) {
+    }), colorby = NULL, size = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
     
     # If inputs are not provided, render controls to provide them
     
     if (is.null(getThreedee)) {
         output$controls <- renderUI({
             ns <- session$ns
-            scatterplotcontrolsInput(ns("scatter"))
+            scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d)
         })
-        unpack.list(callModule(scatterplotcontrols, "scatter", getDatamatrix))
+        unpack.list(callModule(scatterplotcontrols, "scatter", getDatamatrix, x = x, y = y, z = z))
     }
     
     # Axis data accessors
@@ -113,6 +124,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         }
     })
     
+    
     # Slight offset for labels on the y axis
     
     yLabData <- reactive({
@@ -122,12 +134,6 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         } else {
             ydata()
         }
-    })
-    
-    # Make the marker object
-    
-    marker <- reactive({
-        list(size = getPointSize())
     })
     
     # Choose the right plot type
@@ -150,50 +156,113 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         }
     })
     
-    # Down to business: plot the scatter plot
+    # Unlabelled points will be plotted without hovers etc.
+    
+    unlabelled <- reactive(is.na(getLabels()))
+    
+    addUnlabelledPoints <- function(p) {
+        if (any(unlabelled())) {
+            withProgress(message = "Adding unlabelled points", value = 0, {
+                
+                plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", type = plotType(), showlegend = showLegend(), 
+                  name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"))
+                
+                p <- do.call(plotly::add_trace, plotargs)
+                
+            })
+        }
+        p
+    }
+    
+    makeColorScale <- reactive({
+        ncolors <- nlevels(factor(colorby()))
+        
+        rev(RColorBrewer::brewer.pal(ncolors, "Set1"))
+    })
+    
+    # Labelled points plotted with hovers, colors as specified in groupings
+    
+    addLabelledPoints <- function(p) {
+        if (any(!unlabelled())) {
+            withProgress(message = "Adding labelled points", value = 0, {
+                plotargs <- list(p, x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", hoverinfo = "text", text = getLabels()[!unlabelled()], 
+                  type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()))
+                
+                if (!is.null(colorby)) {
+                  plotargs$color <- colorby()[!unlabelled()]
+                  plotargs$colors = makeColorScale()
+                }
+                
+                p <- do.call(plotly::add_trace, plotargs)
+            })
+        }
+        p
+    }
+    
+    # Show actual text labels if specified
+    
+    addTextLabels <- function(p) {
+        # Show specified labels
+        
+        if (getShowLabels()) {
+            labelargs <- list(p, x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", text = getLabels()[!unlabelled()], type = plotType(), 
+                hoverinfo = "none", showlegend = FALSE)
+            
+            if (!is.null(colorby)) {
+                labelargs$color <- colorby()[!unlabelled()]
+                labelargs$colors = makeColorScale()
+            }
+            
+            p <- do.call(add_trace, labelargs)
+        }
+        p
+    }
+    
+    # Do the layout
+    
+    adjustLayout <- function(p) {
+        
+        withProgress(message = "Adjusting axis display", value = 0, {
+            
+            axis_layouts <- list(xaxis = list(title = colnames(getDatamatrix())[getXAxis()]), yaxis = list(title = colnames(getDatamatrix())[getYAxis()]), zaxis = list(title = colnames(getDatamatrix())[getZAxis()]), 
+                legend = list(y = 0.8))
+            
+            layoutArgs <- reactive({
+                la <- c(list(p, hovermode = "closest", title = title), axis_layouts)
+                
+                if (getThreedee()) {
+                  la$scene <- axis_layouts
+                }
+                la
+            })
+            
+            p <- do.call(plotly::layout, layoutArgs())
+            
+        })
+        p
+    }
+    
+    # Draw any speicfied lines on the plot
+    
+    drawLines <- function(p) {
+        
+        if (!is.null(getLines)) {
+            withProgress(message = "Drawing lines", value = 0, {
+                lines <- getLines()
+                
+                p <- plotly::add_trace(lines, x = lines$x, y = lines$y, group = lines$name, mode = "lines", line = list(color = "black", dash = 6, width = 1), showlegend = FALSE, 
+                  name = i)
+            })
+            
+        }
+        p
+    }
+    
+    # Chain the various steps together
     
     output$scatter <- renderPlotly({
         
-        withProgress(message = "Rendering scatter plot", value = 0, {
-            
-            # Wait for the controls to render before we proceed
-            
-            validate(need(getXAxis(), FALSE))
-            
-            # Basic plot setup
-            
-            plotly_args <- list(x = xdata(), y = ydata(), z = zdata(), mode = "markers", text = getLabels(), hoverinfo = "text", marker = marker(), type = plotType(), 
-                showlegend = showLegend(), color = colorby)
-            p <- do.call(plotly::plot_ly, plotly_args)
-            
-            # Show specified labels
-            
-            if (getShowLabels()) {
-                label_args <- list(x = xdata(), y = yLabData(), z = zdata(), mode = "text", text = getLabels(), type = plotType(), color = colorby, hoverinfo = "none", 
-                  showlegend = FALSE)
-                p <- do.call(add_trace, label_args)
-            }
-            
-            # Apply the layout parameters
-            
-            withProgress(message = "Adjusting axis display", value = 0, {
-                
-                axis_layouts <- list(xaxis = list(title = colnames(getDatamatrix())[getXAxis()]), yaxis = list(title = colnames(getDatamatrix())[getYAxis()]), zaxis = list(title = colnames(getDatamatrix())[getZAxis()]))
-                
-                layoutArgs <- reactive({
-                  la <- c(list(p, hovermode = "closest", title = title), axis_layouts)
-                  
-                  if (getThreedee()) {
-                    la$scene <- axis_layouts
-                    la$legend = list(y = 0.8)
-                  }
-                  la
-                })
-                
-                do.call(plotly::layout, layoutArgs())
-                
-            })
-        })
+        plot_ly(type = plotType()) %>% addLabelledPoints() %>% addUnlabelledPoints() %>% adjustLayout() %>% addTextLabels() %>% drawLines()
+        
     })
-    
 } 

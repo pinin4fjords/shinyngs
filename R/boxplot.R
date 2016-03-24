@@ -130,8 +130,7 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     }
     
     p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), 
-        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 
-        15))
+        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
     
     print(p)
 }

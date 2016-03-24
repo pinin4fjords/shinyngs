@@ -108,6 +108,7 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
     })
     
     getThreedee <- reactive({
+        validate(need(input$threedee, FALSE))
         as.logical(input$threedee)
     })
     

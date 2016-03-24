@@ -7,7 +7,9 @@
 scatterplot(input, output, session, getDatamatrix, getThreedee = NULL,
   getXAxis = NULL, getYAxis = NULL, getZAxis = NULL,
   getShowLabels = NULL, getPointSize = NULL, title = "",
-  getLabels = reactive({     rownames(getDatamatrix()) }), colorby = NULL)
+  getLabels = reactive({     rownames(getDatamatrix()) }), colorby = NULL,
+  size = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA,
+  getLines = NULL)
 }
 \arguments{
 \item{input}{}
@@ -44,8 +46,24 @@ reactive supplying an integer point size to pass to plotly.}
 
 \item{title}{A plot title}
 
-\item{colorby}{A factor definining the groups in which points should be 
-colored.}
+\item{colorby}{A reactive returning a factor definining the groups in which 
+points should be colored.}
+
+\item{allow_3d}{For case where controls are generated, passed to
+\code{scatterplotcontrols}.}
+
+\item{x}{For case where controls are generated, passed to
+\code{scatterplotcontrols}.}
+
+\item{y}{For case where controls are generated, passed to
+\code{scatterplotcontrols}.}
+
+\item{z}{For case where controls are generated, passed to
+\code{scatterplotcontrols}.}
+
+\item{getLines}{Reactive returning a data frame defining lines to be drawn.
+Three columns required: name, x and y, with two rows for every value of
+name. These two rows represent the start and end of a line.}
 
 \item{labels}{An optional list of labels to use instead of row names from
 \code{getDatamatrix()}.}
@@ -60,6 +78,6 @@ multiple scatter plots.
 Plots are powered by plotly
 }
 \examples{
-callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, title = "PCA plot", colorby = na.replace(selectColData()[[colorBy()]], "N/A"))
+callModule(scatterplot, 'pca', getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, title = 'PCA plot', colorby = na.replace(selectColData()[[colorBy()]], 'N/A'))
 }
 

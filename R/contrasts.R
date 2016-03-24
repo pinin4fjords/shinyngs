@@ -13,11 +13,12 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id) {
+contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1) {
     
     ns <- NS(id)
     
-    list(uiOutput(ns("contrasts")), summarisematrixInput(ns("contrasts"), allow_none = FALSE))
+    list(uiOutput(ns("contrasts")), numericInput(ns("fcMin"), "Minimum absolute fold change", value = default_min_foldchange), numericInput(ns("qvalMax"), "Maximum false discovery rate", 
+        value = default_max_q), summarisematrixInput(ns("contrasts"), allow_none = FALSE))
 }
 
 #' The server function of the contrasts module
@@ -90,8 +91,16 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         metadata(se)$contrasts[as.numeric(input$contrasts)]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and
-    # calculate fold changes etc.
+    getSelectedContrasts <- reactive({
+        as.numeric(input$contrasts)
+    })
+    
+    getSelectedContrastNames <- reactive({
+        names(getAllContrasts())[getSelectedContrasts()]
+    })
+    
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold
+    # changes etc.
     
     getSummaries <- reactive({
         
@@ -107,8 +116,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         summaries
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the
-    # metadata.
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the metadata.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()
@@ -150,11 +158,27 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         contrast_tables
     })
     
+    # Filter the contrasts table by the fold change and q value filters
+    
+    fcMin <- reactive({
+        validate(need(input$fcMin, FALSE))
+        input$fcMin
+    })
+    
+    qvalMax <- reactive({
+        validate(need(input$qvalMax, FALSE))
+        input$qvalMax
+    })
+    
+    filteredContrastsTables <- reactive({
+        lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
+    })
+    
     # Use contrastsTable() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
     
     labelledContrastsTable <- reactive({
         
-        cts <- contrastsTables()
+        cts <- filteredContrastsTables()
         
         # If we're going to tabulate results from more than one contrast, the tables will need info on the contrasts
         
@@ -184,7 +208,11 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         linkMatrix(labelledContrastsTable(), getExperiment())
     })
     
-    list(contrastsTables = contrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
+    # Basic accessors for parameters
+    
+    
+    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, contrastsTables = contrastsTables, 
+        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }
 
 #' Fold change between two vectors

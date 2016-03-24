@@ -49,8 +49,7 @@ pcaInput <- function(id, ses) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), 
-        tabletitle = "Loadings"))))
+    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings"))))
 }
 
 #' The server function of the pca module
@@ -88,7 +87,7 @@ pca <- function(input, output, session, ses) {
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
     
     callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = na.replace(selectColData()[[colorBy()]], "N/A"))
+        getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
     callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
         getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
     
@@ -99,6 +98,10 @@ pca <- function(input, output, session, ses) {
         plotdata <- data.frame(pca()$x)
         colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
         plotdata
+    })
+    
+    pcaColorBy <- reactive({
+        na.replace(selectColData()[[colorBy()]], "N/A")
     })
     
     # Run the PCA
