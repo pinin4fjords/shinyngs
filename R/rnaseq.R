@@ -36,7 +36,10 @@ rnaseqInput <- function(id, ses, title = "") {
     if (any(unlist(lapply(ses, function(se) "contrasts" %in% names(metadata(se)))))) {
         navbar_menus <- pushToList(navbar_menus, navbarMenu("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), ses), width = 3), 
             mainPanel(differentialtableOutput(ns("differential")), width = 9))), tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), ses), width = 3), 
-            mainPanel(volcanoplotOutput(ns("volcano")), width = 9)))))
+            mainPanel(volcanoplotOutput(ns("volcano")), width = 9))), tabPanel("Scatter plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), ses), width = 3), 
+                                                                                                              mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9))) 
+            
+            ))
     }
     
     # Add the gene info plots
@@ -91,6 +94,7 @@ rnaseq <- function(input, output, session, ses) {
     if (any(unlist(lapply(ses, function(se) "contrasts" %in% names(metadata(se)))))) {
         callModule(differentialtable, "differential", ses)
         callModule(volcanoplot, "volcano", ses)
+        callModule(foldchangeplot, "foldchange", ses)
     }
     
     updateGeneLabel <- callModule(gene, "gene", ses)

@@ -4,6 +4,10 @@
 #' differential expression panels.
 #'
 #' @param id Submodule namespace
+#' @param default_min_foldchange default value for the fold change filter
+#' @param default_max_q default value for the q value filter
+#' @param allow_filtering Provide the filtering fields? Can be disabled to
+#' produce unfiltered contrasts tables.
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -13,12 +17,25 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1) {
+contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1, allow_filtering = TRUE) {
     
     ns <- NS(id)
     
-    list(uiOutput(ns("contrasts")), numericInput(ns("fcMin"), "Minimum absolute fold change", value = default_min_foldchange), numericInput(ns("qvalMax"), "Maximum false discovery rate", 
-        value = default_max_q), summarisematrixInput(ns("contrasts"), allow_none = FALSE))
+    inputs <- list(uiOutput(ns("contrasts")))
+
+    if (allow_filtering){
+
+      inputs <- pushToList(inputs, checkboxInput(ns('filterRows'), 'Filter rows', TRUE))
+      inputs <- pushToList(inputs, conditionalPanel(
+           condition = paste0("input['", ns("filterRows"), "'] == true"),
+           numericInput(ns("fcMin"), "Minimum absolute fold change", value = default_min_foldchange),
+           numericInput(ns("qvalMax"), "Maximum false discovery rate", value = default_max_q)
+        ))
+    }else{
+      inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns('filterRows'), 'Filter rows', FALSE)))
+    }
+
+    pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE))
 }
 
 #' The server function of the contrasts module
@@ -170,8 +187,16 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         input$qvalMax
     })
     
+    getFilterRows <- reactive({
+        as.logical(input$filterRows)
+    })
+    
     filteredContrastsTables <- reactive({
+      if (getFilterRows()){
         lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
+      }else{
+        contrastsTables() 
+      }
     })
     
     # Use contrastsTable() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
