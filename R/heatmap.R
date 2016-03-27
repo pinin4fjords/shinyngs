@@ -296,6 +296,7 @@ heatmap <- function(input, output, session, ses, type = "pca") {
     # Make row labels
     
     rowLabels <- reactive({
+        se <- getExperiment()
         if ("labelfield" %in% names(metadata(se)) && type == "expression") {
             annotation <- as.data.frame(mcols(se))
             labels <- annotation[match(rownames(getPlotMatrix()), annotation[[metadata(se)$idfield]]), metadata(se)$labelfield]

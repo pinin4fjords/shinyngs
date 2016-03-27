@@ -25,10 +25,10 @@ experimenttableInput <- function(id, ses) {
     description = "This is the metadata associated with the experimental samples of this study."
     
     if (length(ses) == 1) {
-        tagList(hiddenInput(ns("experiment"), names(ses)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), description))))
+        tagList(hiddenInput(ns("experiment"), names(ses)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), 'experiment', description))))
     } else {
         fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(ses)), export = simpletableInput(ns("experimenttable"), 
-            description)))
+            'experiment', description)))
     }
 }
 
