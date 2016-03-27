@@ -65,7 +65,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     
     # Check if we're using annotation
     
-    use_annotation <- all(c(nrow(mcols(se)) > 0, c("idfield", "labelfield") %in% names(metadata(se))))
+    #use_annotation <- all(c(nrow(mcols(se)) > 0, c("idfield", "labelfield") %in% names(metadata(se))))
     
     # Check if we have the nessary component for gene sets
     
