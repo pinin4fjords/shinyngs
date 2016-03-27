@@ -33,6 +33,9 @@ genesetInput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
+#' @param getExperiment Accessor for returning a SummarizedExpeirment object,
+#' with 'entrezgenefield', 'labelfield' and 'geneset_files' set in its
+#' metadata.
 #' @param annotation Dataframe containing gene annotation
 #' @param entrezgenefield The column of annotation containing Entrez gene IDs
 #' @param genefield The gene ID type in annotation by which results are keyed
@@ -45,19 +48,20 @@ genesetInput <- function(id) {
 #' @keywords shiny
 #' 
 #' @examples
-#' geneset_functions <- callModule(geneset, 'heatmap', annotation, entrezgenefield, genefield, geneset_files)
+#' geneset_functions <- callModule(geneset, 'heatmap', getExperiment())
 
-geneset <- function(input, output, session, annotation, entrezgenefield, genefield, geneset_files) {
+geneset <- function(input, output, session, getExperiment) {
     
     # Get a list of names to show for the gene sets
     
     getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), 
-            tolower = TRUE), " (", settype, ")"))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
+            function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), tolower = TRUE), " (", settype, ")"))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be
+    # called by the calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
@@ -66,6 +70,14 @@ geneset <- function(input, output, session, annotation, entrezgenefield, genefie
     # Pull in the gene sets from file. These will be cached as an R object for Quicker retrieval next time the app is run.
     
     getGeneSets <- reactive({
+        
+        # Derive the necessary information from the experiment object
+        
+        se <- getExperiment()
+        annotation <- data.frame(mcols(se))
+        entrezgenefield <- metadata(se)$entrezgenefield
+        genefield <- metadata(se)$labelfield
+        geneset_files <- metadata(se)$geneset_files
         
         withProgress(message = "reading gene set info", value = 0, {
             

@@ -89,40 +89,41 @@ volcanoplot <- function(input, output, session, ses) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, title = paste("Volcano plot for contrast", getSelectedContrastNames(), sep = "<br />"), allow_3d = FALSE, 
-        getLabels = volcanoLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
+    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, title = paste("Volcano plot for contrast", getSelectedContrastNames(), sep = "<br />"), 
+        allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
     plotLines <- reactive({
-      withProgress(message = "Calculating lines", value = 0, {
-        
-        vt <- volcanoTable()
-        
-        fclim <- log2(fcMin())
-        qvallim <- -log10(qvalMax())
-        
-        normal_y <- !is.infinite(vt[, 2])
-        normal_x <- !is.infinite(vt[, 1])
-        
-        ymax <- max(vt[normal_y, 2])
-        ymin <- min(vt[normal_y, 2])
-        
-        xmax <- max(vt[normal_x, 1])
-        xmin <- min(vt[normal_x, 1])
-        
-        data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 2)))
-      })
+        withProgress(message = "Calculating lines", value = 0, {
+            
+            vt <- volcanoTable()
+            
+            fclim <- log2(fcMin())
+            qvallim <- -log10(qvalMax())
+            
+            normal_y <- !is.infinite(vt[, 2])
+            normal_x <- !is.infinite(vt[, 1])
+            
+            ymax <- max(vt[normal_y, 2])
+            ymin <- min(vt[normal_y, 2])
+            
+            xmax <- max(vt[normal_x, 1])
+            xmin <- min(vt[normal_x, 1])
+            
+            data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, 
+                ymin, ymax, rep(qvallim, 2)))
+        })
         
     })
     
     # Extract labels from the volcano table
     
     volcanoLabels <- reactive({
-      withProgress(message = "Making labels", value = 0, {
-        vt <- volcanoTable()
-        vt$label
-      })
+        withProgress(message = "Making labels", value = 0, {
+            vt <- volcanoTable()
+            vt$label
+        })
     })
     
     # Extract a vector use to make colors by group
@@ -158,6 +159,7 @@ volcanoplot <- function(input, output, session, ses) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", 
+        rownames = FALSE, pageLength = 10)
     
 } 

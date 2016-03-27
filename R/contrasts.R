@@ -22,19 +22,16 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1, 
     ns <- NS(id)
     
     inputs <- list(uiOutput(ns("contrasts")))
-
-    if (allow_filtering){
-
-      inputs <- pushToList(inputs, checkboxInput(ns('filterRows'), 'Filter rows', TRUE))
-      inputs <- pushToList(inputs, conditionalPanel(
-           condition = paste0("input['", ns("filterRows"), "'] == true"),
-           numericInput(ns("fcMin"), "Minimum absolute fold change", value = default_min_foldchange),
-           numericInput(ns("qvalMax"), "Maximum false discovery rate", value = default_max_q)
-        ))
-    }else{
-      inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns('filterRows'), 'Filter rows', FALSE)))
+    
+    if (allow_filtering) {
+        
+        inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
+        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), "Minimum absolute fold change", 
+            value = default_min_foldchange), numericInput(ns("qvalMax"), "Maximum false discovery rate", value = default_max_q)))
+    } else {
+        inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
-
+    
     pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE))
 }
 
@@ -95,7 +92,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         if ("contrasts" %in% names(metadata(se))) {
             contrasts <- metadata(se)$contrasts
             
-            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), sep = ": ")))
+            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), 
+                sep = ": ")))
         } else {
             NULL
         }
@@ -109,7 +107,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     })
     
     getSelectedContrasts <- reactive({
-      validate(need(input$contrasts, 'Waiting for contrasts'))
+        validate(need(input$contrasts, "Waiting for contrasts"))
         as.numeric(input$contrasts)
     })
     
@@ -117,8 +115,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         names(getAllContrasts())[getSelectedContrasts()]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold
-    # changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this
+    # output and calculate fold changes etc.
     
     getSummaries <- reactive({
         
@@ -134,7 +132,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         summaries
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the metadata.
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a
+    # 'tests' slot of the metadata.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()
@@ -193,11 +192,11 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     })
     
     filteredContrastsTables <- reactive({
-      if (getFilterRows()){
-        lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
-      }else{
-        contrastsTables() 
-      }
+        if (getFilterRows()) {
+            lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
+        } else {
+            contrastsTables()
+        }
     })
     
     # Use contrastsTable() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
@@ -237,8 +236,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # Basic accessors for parameters
     
     
-    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, contrastsTables = contrastsTables, 
-        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
+    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, 
+        contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }
 
 #' Fold change between two vectors

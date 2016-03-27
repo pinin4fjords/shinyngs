@@ -21,7 +21,8 @@ geneInput <- function(id, ses) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("gene"), ses)
-    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), groupbyInput(ns("gene")))
+    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
+        groupbyInput(ns("gene")))
     
     list(expression_filters, fieldSets(ns("fieldset"), list(gene = gene_filters, table_options = contrastsInput(ns("gene"), allow_filtering = FALSE))))
     
@@ -138,7 +139,7 @@ gene <- function(input, output, session, ses) {
     
     getGeneContrastsTable <- reactive({
         contrasts_table <- labelledContrastsTable()
-        saveRDS(contrasts_table, file='~/shinytests/contrasts_table.rds')
+        saveRDS(contrasts_table, file = "~/shinytests/contrasts_table.rds")
         linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment())
     })
     
@@ -195,8 +196,8 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             yaxis = ax
         }
         
-        plot_ly(x = names(row), y = as.numeric(row), type = "bar", color = groups, showlegend = (rowno == 1)) %>% layout(xaxis = list(title = rownames(expression)[rowno]), yaxis = yaxis, 
-            margin = list(b = 100))
+        plot_ly(x = names(row), y = as.numeric(row), type = "bar", color = groups, showlegend = (rowno == 1)) %>% layout(xaxis = list(title = rownames(expression)[rowno]), 
+            yaxis = yaxis, margin = list(b = 100))
     })
     
     do.call(function(...) subplot(...), plots)

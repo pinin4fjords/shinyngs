@@ -90,8 +90,8 @@ foldchangeplot <- function(input, output, session, ses) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = paste("Fold change plot for contrast", getSelectedContrastNames(), sep = "<br />"), allow_3d = FALSE, 
-        getLabels = foldchangeLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = paste("Fold change plot for contrast", getSelectedContrastNames(), 
+        sep = "<br />"), allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -113,11 +113,8 @@ foldchangeplot <- function(input, output, session, ses) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        data.frame(
-          name = c(rep('diagonal', 2), rep('lower', 2), rep('upper', 2)), 
-          x = c(min, max, min, max, min, max),
-          y = c(c(min, max), (min - log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin())))
-        )
+        data.frame(name = c(rep("diagonal", 2), rep("lower", 2), rep("upper", 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(fcMin())), 
+            (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))))
     })
     
     # Extract labels from the volcano table
@@ -144,8 +141,8 @@ foldchangeplot <- function(input, output, session, ses) {
             ct <- round(log2(ct[, 1:2]), 3)
             
             cont <- getContrasts()[[1]]
-            colnames(ct) <- c(paste0('log2(', cont[2], ')'), paste0('log2(', cont[3], ')'))
-
+            colnames(ct) <- c(paste0("log2(", cont[2], ")"), paste0("log2(", cont[3], ")"))
+            
             fct <- filteredContrastsTables()[[1]]
             ct$colorby <- "hidden"
             ct[rownames(fct), "colorby"] <- "match contrast filters"
@@ -159,6 +156,7 @@ foldchangeplot <- function(input, output, session, ses) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", 
+        rownames = FALSE, pageLength = 10)
     
 } 

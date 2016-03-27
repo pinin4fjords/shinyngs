@@ -4,8 +4,7 @@
 \alias{geneset}
 \title{The server function of the gene set module}
 \usage{
-geneset(input, output, session, annotation, entrezgenefield, genefield,
-  geneset_files)
+geneset(input, output, session, getExperiment)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,6 +12,10 @@ geneset(input, output, session, annotation, entrezgenefield, genefield,
 \item{output}{Output object}
 
 \item{session}{Session object}
+
+\item{getExperiment}{Accessor for returning a SummarizedExpeirment object,
+with 'entrezgenefield', 'labelfield' and 'geneset_files' set in its
+metadata.}
 
 \item{annotation}{Dataframe containing gene annotation}
 
@@ -38,7 +41,7 @@ which need to be converted to another (e.g. Symbol, Ensembl gene ID).
 This would be common when dealign with MSigDB gene sets, for example.
 }
 \examples{
-geneset_functions <- callModule(geneset, 'heatmap', annotation, entrezgenefield, genefield, geneset_files)
+geneset_functions <- callModule(geneset, 'heatmap', getExperiment())
 }
 \keyword{shiny}
 

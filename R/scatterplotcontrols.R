@@ -22,7 +22,8 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
         inputs <- list(hiddenInput(ns("threedee"), FALSE))
     }
     
-    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", min = 1, max = 20, value = 7)))
+    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", min = 1, 
+        max = 20, value = 7)))
 }
 
 #' Server function for scatterplotcontrols module
@@ -72,7 +73,7 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
             
             axis_filters <- lapply(1:length(axes), function(n) {
                 ax <- names(axes)[n]
-
+                
                 if (is.na(axes[n])) {
                   selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = n)
                 } else {
@@ -82,7 +83,7 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
             })
             
         })
-      axis_filters
+        axis_filters
     })
     
     # Provide accessor methods for inputs
@@ -108,16 +109,16 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
     
     getThreedee <- reactive({
         validate(need(input$threedee, FALSE))
-            as.logical(input$threedee)
+        as.logical(input$threedee)
     })
     
     getShowLabels <- reactive({
-      validate(need(input$threedee, 'Waiting for showLabels'))
+        validate(need(input$threedee, "Waiting for showLabels"))
         as.logical(input$showLabels)
     })
     
     getPointSize <- reactive({
-      validate(need(input$threedee, 'Waiting for pointsize'))
+        validate(need(input$threedee, "Waiting for pointsize"))
         input$pointSize
     })
     

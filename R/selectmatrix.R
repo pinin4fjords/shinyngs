@@ -66,32 +66,35 @@ selectmatrixInput <- function(id, ses) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', se)
 
-selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, rounding = 2) {
+selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
+    rounding = 2) {
     
-  # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
-  unpack.list(callModule(sampleselect, "selectmatrix", getExperiment))
-  unpack.list(callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, provide_all = provide_all_genes))
-
-      # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
+    # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
+    unpack.list(callModule(sampleselect, "selectmatrix", getExperiment))
+    unpack.list(callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, 
+        provide_all = provide_all_genes))
+    
+    # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
     output$assay <- renderUI({
         
-      withProgress(message = "Rendering assay drop-down", value = 0, {
-      
-        validate(need(!is.null(input$experiment), "Waiting for form to provide experiment"))
-        
-        ns <- session$ns
-        
-        se <- getExperiment()
-        
-        if (length(GenomicRanges::assays(se)) > 1) {
-            assayselect <- selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se)))
-        } else {
-            assayselect <- hiddenInput(ns("assay"), names(GenomicRanges::assays(se))[1])
-        }
-        list(assayselect, sampleselectInput(ns("selectmatrix"), getExperiment(), select_samples = select_samples), geneselectInput(ns("selectmatrix"), select_genes = select_genes))
-
-      })        
+        withProgress(message = "Rendering assay drop-down", value = 0, {
+            
+            validate(need(!is.null(input$experiment), "Waiting for form to provide experiment"))
+            
+            ns <- session$ns
+            
+            se <- getExperiment()
+            
+            if (length(GenomicRanges::assays(se)) > 1) {
+                assayselect <- selectInput(ns("assay"), "Matrix", names(GenomicRanges::assays(se)))
+            } else {
+                assayselect <- hiddenInput(ns("assay"), names(GenomicRanges::assays(se))[1])
+            }
+            list(assayselect, sampleselectInput(ns("selectmatrix"), getExperiment(), select_samples = select_samples), geneselectInput(ns("selectmatrix"), 
+                select_genes = select_genes))
+            
+        })
     })
     
     
@@ -105,14 +108,14 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     # Get the row labels where available
     
     getRowLabels <- reactive({
-      withProgress(message = "Deriving row labels", value = 0, {
-        se <- getExperiment()
-        if ("labelfield" %in% names(metadata(se))) {
-            idToLabel(rownames(se), se)
-        } else {
-            rownames(se)
-        }
-      })
+        withProgress(message = "Deriving row labels", value = 0, {
+            se <- getExperiment()
+            if ("labelfield" %in% names(metadata(se))) {
+                idToLabel(rownames(se), se)
+            } else {
+                rownames(se)
+            }
+        })
     })
     
     # Allow calling modules to retrieve the current assay
@@ -147,9 +150,9 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     selectColData = reactive({
         validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
-      withProgress(message = "Extracting experiment metadata", value = 0, {
-        droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE]))
-      })
+        withProgress(message = "Extracting experiment metadata", value = 0, {
+            droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE]))
+        })
     })
     
     # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices
@@ -185,8 +188,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, 
-        getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
+    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, 
+        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
 }
 
 #' Add columns to display ID and label in a table
@@ -199,30 +202,30 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
 #' @return output Table with columns added
 
 labelMatrix <- function(matrix, se) {
-  
-  withProgress(message = "Adding labels to matrix", value = 0, {
-  
-    datacolnames <- colnames(matrix)
     
-    idfield <- metadata(se)$idfield
-    matrix[[idfield]] <- rownames(matrix)
-    
-    if ("labelfield" %in% names(metadata(se))) {
-        annotation <- data.frame(mcols(se))
-        labelfield <- metadata(se)$labelfield
+    withProgress(message = "Adding labels to matrix", value = 0, {
         
-        matrix[[labelfield]] <- annotation[match(rownames(matrix), annotation[[idfield]]), labelfield]
-        matrix <- matrix[, c(metadata(se)$idfield, metadata(se)$labelfield, datacolnames)]
+        datacolnames <- colnames(matrix)
         
-        colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
-    } else {
-        matrix <- matrix[, c(metadata(se)$idfield, datacolnames)]
-    }
-    
-    # Make the field identifiers nicer
-    
-    colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
-  })
+        idfield <- metadata(se)$idfield
+        matrix[[idfield]] <- rownames(matrix)
+        
+        if ("labelfield" %in% names(metadata(se))) {
+            annotation <- data.frame(mcols(se))
+            labelfield <- metadata(se)$labelfield
+            
+            matrix[[labelfield]] <- annotation[match(rownames(matrix), annotation[[idfield]]), labelfield]
+            matrix <- matrix[, c(metadata(se)$idfield, metadata(se)$labelfield, datacolnames)]
+            
+            colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
+        } else {
+            matrix <- matrix[, c(metadata(se)$idfield, datacolnames)]
+        }
+        
+        # Make the field identifiers nicer
+        
+        colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
+    })
     matrix
 }
 
@@ -237,28 +240,28 @@ labelMatrix <- function(matrix, se) {
 
 linkMatrix <- function(matrix, se) {
     
-  withProgress(message = "Adding links to matrix", value = 0, {
-  
-    if ("url_roots" %in% names(metadata(se))) {
-        url_roots <- metadata(se)$url_roots
+    withProgress(message = "Adding links to matrix", value = 0, {
         
-        for (fieldtype in c("idfield", "labelfield")) {
+        if ("url_roots" %in% names(metadata(se))) {
+            url_roots <- metadata(se)$url_roots
             
-            if (fieldtype %in% names(metadata(se))) {
+            for (fieldtype in c("idfield", "labelfield")) {
                 
-                fieldname <- metadata(se)[[fieldtype]]
-                
-                if (fieldname %in% names(url_roots)) {
+                if (fieldtype %in% names(metadata(se))) {
                   
-                  # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+                  fieldname <- metadata(se)[[fieldtype]]
                   
-                  p_fieldname <- prettifyVariablename(fieldname)
-                  matrix[[p_fieldname]] <- paste0("<a href='", url_roots[fieldname], matrix[[p_fieldname]], "'>", matrix[[p_fieldname]], "</a>")
+                  if (fieldname %in% names(url_roots)) {
+                    
+                    # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
+                    
+                    p_fieldname <- prettifyVariablename(fieldname)
+                    matrix[[p_fieldname]] <- paste0("<a href='", url_roots[fieldname], matrix[[p_fieldname]], "'>", matrix[[p_fieldname]], "</a>")
+                  }
                 }
             }
         }
-    }
-  })
+    })
     matrix
 }
 

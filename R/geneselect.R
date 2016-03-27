@@ -59,13 +59,11 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     colnames(getExperiment())
 }), assay, provide_all = TRUE, provide_none = FALSE) {
     
-    observe({
-        se <- getExperiment()
-    })
+    # observe({ se <- getExperiment() })
     
     # Check if we're using annotation
     
-    #use_annotation <- all(c(nrow(mcols(se)) > 0, c("idfield", "labelfield") %in% names(metadata(se))))
+    # use_annotation <- all(c(nrow(mcols(se)) > 0, c('idfield', 'labelfield') %in% names(metadata(se))))
     
     # Check if we have the nessary component for gene sets
     
@@ -74,7 +72,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
     if (use_genesets) {
-        unpack.list(callModule(geneset, "geneset", data.frame(mcols(se)), metadata(se)$entrezgenefield, metadata(se)$labelfield, metadata(se)$geneset_files))
+        unpack.list(callModule(geneset, "geneset", getExperiment = getExperiment))
     }
     
     observeEvent(input$geneSelect, {
@@ -86,45 +84,37 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Render the geneSelect UI element
     
     output$geneSelect <- renderUI({
-      withProgress(message = "Rendering row selection", value = 0, {
-        
-        ns <- session$ns
-        
-        gene_select_methods <- c()
-        if (provide_none) {
-            gene_select_methods <- c("none")
-        }
-        if (provide_all) {
-            gene_select_methods <- c(gene_select_methods, "all")
-        }
-        
-        gene_select_methods <- c(gene_select_methods, c("variance", "list"))
-        
-        
-        if (use_genesets) {
-            gene_select_methods <- c(gene_select_methods, "gene set")
-        }
-        
-        gene_select <- list(
-          h5("Select genes/ rows"), 
-          selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), 
-          conditionalPanel(
-            condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), 
-            sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)
-          ), 
-          conditionalPanel(
-            condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), 
-            tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")
-          )
-        )
-        
-        # If gene sets have been provided, then make a gene sets filter
-        
-        if (use_genesets) {
-            gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("geneset")))
-        }
-        
-      })
+        withProgress(message = "Rendering row selection", value = 0, {
+            
+            ns <- session$ns
+            
+            gene_select_methods <- c()
+            if (provide_none) {
+                gene_select_methods <- c("none")
+            }
+            if (provide_all) {
+                gene_select_methods <- c(gene_select_methods, "all")
+            }
+            
+            gene_select_methods <- c(gene_select_methods, c("variance", "list"))
+            
+            
+            if (use_genesets) {
+                gene_select_methods <- c(gene_select_methods, "gene set")
+            }
+            
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), 
+                conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, 
+                  "Paste gene list here, one per line")))
+            
+            # If gene sets have been provided, then make a gene sets filter
+            
+            if (use_genesets) {
+                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("geneset")))
+            }
+            
+        })
         
         gene_select
     })
@@ -144,34 +134,34 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Main output. Derive the expression matrix according to row-based criteria
     
     geneselect_functions$selectRows <- reactive({
-      withProgress(message = "Selecting rows", value = 0, {
-        validate(need(!is.null(input$geneSelect), 'Waiting for geneSelect'))
-        
-        if (input$geneSelect == "none") {
-            return(c())
-        } else if (input$geneSelect == "all") {
-            return(rownames(se))
-        } else if (input$geneSelect == "variance") {
-            return(rownames(se)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
-        } else {
-            if (input$geneSelect == "gene set") {
-                selected_genes <- getPathwayGenes()
+        withProgress(message = "Selecting rows", value = 0, {
+            validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
+            
+            if (input$geneSelect == "none") {
+                return(c())
+            } else if (input$geneSelect == "all") {
+                return(rownames(se))
+            } else if (input$geneSelect == "variance") {
+                return(rownames(se)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
             } else {
-                selected_genes <- unlist(strsplit(input$geneList, "\\n"))
+                if (input$geneSelect == "gene set") {
+                  selected_genes <- getPathwayGenes()
+                } else {
+                  selected_genes <- unlist(strsplit(input$geneList, "\\n"))
+                }
+                
+                # Use annotation for gene names if specified, otherwise use matrix rows
+                
+                if ("labelfield" %in% names(metadata(se))) {
+                  annotation <- data.frame(mcols(se))
+                  selected_rows <- as.character(annotation[which(tolower(annotation[[metadata(se)$labelfield]]) %in% tolower(selected_genes)), metadata(se)$idfield])
+                } else {
+                  selected_rows <- rownames(se)[which(tolower(rownames(se))) %in% tolower(selected_genes)]
+                }
+                
+                return(rownames(se)[rownames(se) %in% selected_rows])
             }
-            
-            # Use annotation for gene names if specified, otherwise use matrix rows
-            
-            if ("labelfield" %in% names(metadata(se))) {
-                annotation <- data.frame(mcols(se))
-                selected_rows <- as.character(annotation[which(tolower(annotation[[metadata(se)$labelfield]]) %in% tolower(selected_genes)), metadata(se)$idfield])
-            } else {
-                selected_rows <- rownames(se)[which(tolower(rownames(se))) %in% tolower(selected_genes)]
-            }
-            
-            return(rownames(se)[rownames(se) %in% selected_rows])
-        }
-      })
+        })
     })
     
     # Make a title

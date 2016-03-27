@@ -37,14 +37,16 @@ sampleselectInput <- function(id, se, select_samples = TRUE) {
         
         # We can select by sample in any case
         
-        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", 
-            ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), selected = colnames(se), inline = TRUE)))
+        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
+            conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(se), 
+                selected = colnames(se), inline = TRUE)))
         
         # Add in group selection if relevant
         
         if ("group_vars" %in% names(metadata(se))) {
-            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", 
-                structure(metadata(se)$group_vars, names = prettifyVariablename(metadata(se)$group_vars)), selected = metadata(se)$default_groupvar), uiOutput(ns("groupSamples"))))
+            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
+                "Define groups by:", structure(metadata(se)$group_vars, names = prettifyVariablename(metadata(se)$group_vars)), selected = metadata(se)$default_groupvar), 
+                uiOutput(ns("groupSamples"))))
         }
         
     } else {
@@ -113,35 +115,35 @@ sampleselect <- function(input, output, session, getExperiment) {
     # Reactive expression for selecting the specified columns
     
     selectSamples <- reactive({
-      withProgress(message = "Selecting samples", value = 0, {
-        se <- getExperiment()
-        
-        validate(need(!is.null(input$sampleSelect), "Waiting for form to provide sampleSelect"))
-        
-        if (input$sampleSelect == "all") {
-            return(colnames(se))
-        } else {
+        withProgress(message = "Selecting samples", value = 0, {
+            se <- getExperiment()
             
-            validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
+            validate(need(!is.null(input$sampleSelect), "Waiting for form to provide sampleSelect"))
             
-            if ("group_vars" %in% names(metadata(se))) {
-                validate(need(!is.null(input$sampleGroupVal), FALSE))
-            }
-            
-            if (input$sampleSelect == "name") {
-                return(input$samples)
+            if (input$sampleSelect == "all") {
+                return(colnames(se))
             } else {
                 
-                # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
+                validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
                 
-                samplegroups <- as.character(se[[isolate(input$sampleGroupVar)]])
-                samplegroups[is.na(samplegroups)] <- ""
+                if ("group_vars" %in% names(metadata(se))) {
+                  validate(need(!is.null(input$sampleGroupVal), FALSE))
+                }
                 
-                return(colnames(se)[samplegroups %in% input$sampleGroupVal])
+                if (input$sampleSelect == "name") {
+                  return(input$samples)
+                } else {
+                  
+                  # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
+                  
+                  samplegroups <- as.character(se[[isolate(input$sampleGroupVar)]])
+                  samplegroups[is.na(samplegroups)] <- ""
+                  
+                  return(colnames(se)[samplegroups %in% input$sampleGroupVal])
+                }
+                
             }
-            
-        }
-      })
+        })
     })
     
     list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSummaryType = getSummaryType, getSampleSelect = getSampleSelect)

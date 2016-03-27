@@ -56,27 +56,27 @@ groupby <- function(input, output, session, getExperiment, group_label = "Group 
     # Render function for the field
     
     output$groupby <- renderUI({
-      
-      withProgress(message = "Rendering group by", value = 0, {
-        ns <- session$ns
-        se <- getExperiment()
-        if ("group_vars" %in% names(metadata(se))) {
-            
-            group_options <- structure(metadata(se)$group_vars, names = prettifyVariablename(metadata(se)$group_vars))
-            
-            if (multiple) {
-                checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
-            } else {
-                selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
+        
+        withProgress(message = "Rendering group by", value = 0, {
+            ns <- session$ns
+            se <- getExperiment()
+            if ("group_vars" %in% names(metadata(se))) {
+                
+                group_options <- structure(metadata(se)$group_vars, names = prettifyVariablename(metadata(se)$group_vars))
+                
+                if (multiple) {
+                  checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
+                } else {
+                  selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
+                }
             }
-        }
-      })
+        })
     })
     
     # Return a reactive that retrieves the field value
     
     reactive({
-      validate(need(input$groupby, 'waiting for form to provide groupby'))
+        validate(need(input$groupby, "waiting for form to provide groupby"))
         input$groupby
     })
 } 

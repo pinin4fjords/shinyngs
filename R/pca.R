@@ -26,8 +26,8 @@ pcaInput <- function(id, ses) {
     
     # Output sets of fields in their own containers
     
-    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))), 
-        expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
+    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), 
+        groupbyInput(ns("pca"))), expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
     
 }
 
@@ -49,7 +49,8 @@ pcaInput <- function(id, ses) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings"))))
+    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), 
+        tabletitle = "Loadings"))))
 }
 
 #' The server function of the pca module
@@ -86,21 +87,21 @@ pca <- function(input, output, session, ses) {
     
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
     
-    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
+    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
+        getShowLabels = getShowLabels, getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
+        getShowLabels = getShowLabels, getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
     
     # Make a matrix of values to the PCA
     
     pcaMatrix <- reactive({
-      print ("Calling PCA matrix")
-      withProgress(message = "Making PCA matrix", value = 0, {
-        fraction_explained <- calculatePCAFractionExplained()
-        plotdata <- data.frame(pca()$x)
-        colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
-        plotdata
-      })
+        print("Calling PCA matrix")
+        withProgress(message = "Making PCA matrix", value = 0, {
+            fraction_explained <- calculatePCAFractionExplained()
+            plotdata <- data.frame(pca()$x)
+            colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
+            plotdata
+        })
     })
     
     pcaColorBy <- reactive({
@@ -134,20 +135,20 @@ pca <- function(input, output, session, ses) {
     # Fetch the loadings
     
     getLoadings <- reactive({
-      withProgress(message = "Fetching loadings", value = 0, {
-        rot <- pca()$rotation
-        fraction_explained <- calculatePCAFractionExplained()
-        colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
-        
-        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
-        
-        # Also return a table with the loadings converted to fractions
-        
-        aload <- abs(rot)
-        fractions <- sweep(aload, 2, colSums(aload), "/")
-        
-        list(load = rot[loaded_rows, ], fraction = fractions[loaded_rows, ])
-      })
+        withProgress(message = "Fetching loadings", value = 0, {
+            rot <- pca()$rotation
+            fraction_explained <- calculatePCAFractionExplained()
+            colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
+            
+            loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
+            
+            # Also return a table with the loadings converted to fractions
+            
+            aload <- abs(rot)
+            fractions <- sweep(aload, 2, colSums(aload), "/")
+            
+            list(load = rot[loaded_rows, ], fraction = fractions[loaded_rows, ])
+        })
     })
     
     # Take the loadings and format them for display
@@ -186,7 +187,8 @@ pca <- function(input, output, session, ses) {
         loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
     
-    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
+    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", 
+        rownames = FALSE)
     
 }
 
@@ -204,16 +206,16 @@ pca <- function(input, output, session, ses) {
 #' runPCA(mymatrix)
 
 runPCA <- function(matrix) {
-  
-  withProgress(message = "Running principal component analysis", value = 0, {
-  
-    pcavals <- log2(matrix + 1)
     
-    pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
-    
-    prcomp(as.matrix(t(pcavals), scale = T))
-    
-  })
+    withProgress(message = "Running principal component analysis", value = 0, {
+        
+        pcavals <- log2(matrix + 1)
+        
+        pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
+        
+        prcomp(as.matrix(t(pcavals), scale = T))
+        
+    })
 }
 
 #' Extract the percent variance from a PCA analysis
