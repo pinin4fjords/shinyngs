@@ -253,7 +253,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                 lines <- getLines()
                 
                 p <- plotly::add_trace(lines, x = lines$x, y = lines$y, group = lines$name, mode = "lines", line = list(color = "black", dash = 6, 
-                  width = 1), showlegend = FALSE, name = i, evaluate = TRUE)
+                  width = 1), showlegend = FALSE, evaluate = TRUE)
             })
             
         }
