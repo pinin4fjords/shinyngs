@@ -57,33 +57,32 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
     output$plotColumns <- renderUI({
         withProgress(message = "Making scatter plot controls", value = 0, {
             
-            validate(need(input$threedee, "Waiting for threedee"))
-            
             ns <- session$ns
-            vars <- structure(1:ncol(getDatamatrix()), names = colnames(getDatamatrix()))
+            datamatrix <- getDatamatrix()
+            vars <- structure(1:ncol(datamatrix), names = colnames(datamatrix))
             
             # Work out how many axes we need
             
             axes <- c(x = x, y = y)
-            if (as.logical(input$threedee)) {
+            if (getThreedee()) {
                 axes$z <- z
             }
             
             # Make a select for each axis
             
-            lapply(1:length(axes), function(n) {
+            axis_filters <- lapply(1:length(axes), function(n) {
                 ax <- names(axes)[n]
-                select <- selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = ifelse(is.na(axes[n]), n, axes[n]))
-                
+
                 if (is.na(axes[n])) {
-                  select
+                  selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = n)
                 } else {
-                  shinyjs::hidden(select)
+                  hiddenInput(ns(paste0(ax, "Axis")), axes[n])
                 }
                 
             })
             
         })
+      axis_filters
     })
     
     # Provide accessor methods for inputs
@@ -109,14 +108,16 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
     
     getThreedee <- reactive({
         validate(need(input$threedee, FALSE))
-        as.logical(input$threedee)
+            as.logical(input$threedee)
     })
     
     getShowLabels <- reactive({
+      validate(need(input$threedee, 'Waiting for showLabels'))
         as.logical(input$showLabels)
     })
     
     getPointSize <- reactive({
+      validate(need(input$threedee, 'Waiting for pointsize'))
         input$pointSize
     })
     

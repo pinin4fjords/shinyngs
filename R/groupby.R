@@ -56,6 +56,8 @@ groupby <- function(input, output, session, getExperiment, group_label = "Group 
     # Render function for the field
     
     output$groupby <- renderUI({
+      
+      withProgress(message = "Rendering group by", value = 0, {
         ns <- session$ns
         se <- getExperiment()
         if ("group_vars" %in% names(metadata(se))) {
@@ -68,11 +70,13 @@ groupby <- function(input, output, session, getExperiment, group_label = "Group 
                 selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
             }
         }
+      })
     })
     
     # Return a reactive that retrieves the field value
     
     reactive({
+      validate(need(input$groupby, 'waiting for form to provide groupby'))
         input$groupby
     })
 } 

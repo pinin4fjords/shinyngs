@@ -94,10 +94,13 @@ pca <- function(input, output, session, ses) {
     # Make a matrix of values to the PCA
     
     pcaMatrix <- reactive({
+      print ("Calling PCA matrix")
+      withProgress(message = "Making PCA matrix", value = 0, {
         fraction_explained <- calculatePCAFractionExplained()
         plotdata <- data.frame(pca()$x)
         colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
         plotdata
+      })
     })
     
     pcaColorBy <- reactive({
@@ -131,6 +134,7 @@ pca <- function(input, output, session, ses) {
     # Fetch the loadings
     
     getLoadings <- reactive({
+      withProgress(message = "Fetching loadings", value = 0, {
         rot <- pca()$rotation
         fraction_explained <- calculatePCAFractionExplained()
         colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
@@ -143,6 +147,7 @@ pca <- function(input, output, session, ses) {
         fractions <- sweep(aload, 2, colSums(aload), "/")
         
         list(load = rot[loaded_rows, ], fraction = fractions[loaded_rows, ])
+      })
     })
     
     # Take the loadings and format them for display
@@ -199,11 +204,16 @@ pca <- function(input, output, session, ses) {
 #' runPCA(mymatrix)
 
 runPCA <- function(matrix) {
+  
+  withProgress(message = "Running principal component analysis", value = 0, {
+  
     pcavals <- log2(matrix + 1)
     
     pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
     
     prcomp(as.matrix(t(pcavals), scale = T))
+    
+  })
 }
 
 #' Extract the percent variance from a PCA analysis

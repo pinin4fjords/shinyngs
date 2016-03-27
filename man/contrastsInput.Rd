@@ -4,10 +4,18 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(id, default_min_foldchange = 2, default_max_q = 0.1)
+contrastsInput(id, default_min_foldchange = 2, default_max_q = 0.1,
+  allow_filtering = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{default_min_foldchange}{default value for the fold change filter}
+
+\item{default_max_q}{default value for the q value filter}
+
+\item{allow_filtering}{Provide the filtering fields? Can be disabled to
+produce unfiltered contrasts tables.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

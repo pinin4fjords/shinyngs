@@ -95,6 +95,7 @@ volcanoplot <- function(input, output, session, ses) {
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
     plotLines <- reactive({
+      withProgress(message = "Calculating lines", value = 0, {
         
         vt <- volcanoTable()
         
@@ -111,14 +112,17 @@ volcanoplot <- function(input, output, session, ses) {
         xmin <- min(vt[normal_x, 1])
         
         data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 2)))
+      })
         
     })
     
     # Extract labels from the volcano table
     
     volcanoLabels <- reactive({
+      withProgress(message = "Making labels", value = 0, {
         vt <- volcanoTable()
         vt$label
+      })
     })
     
     # Extract a vector use to make colors by group
@@ -131,7 +135,6 @@ volcanoplot <- function(input, output, session, ses) {
     # Make a table of values to use in the volcano plot. Round the values to save space in the JSON
     
     volcanoTable <- reactive({
-        
         withProgress(message = "Compiling volcano plot data", value = 0, {
             
             ct <- contrastsTables()[[1]]

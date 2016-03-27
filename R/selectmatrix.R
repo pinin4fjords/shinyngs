@@ -68,10 +68,16 @@ selectmatrixInput <- function(id, ses) {
 
 selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, rounding = 2) {
     
-    # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
+  # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
+  unpack.list(callModule(sampleselect, "selectmatrix", getExperiment))
+  unpack.list(callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, provide_all = provide_all_genes))
+
+      # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
     output$assay <- renderUI({
         
+      withProgress(message = "Rendering assay drop-down", value = 0, {
+      
         validate(need(!is.null(input$experiment), "Waiting for form to provide experiment"))
         
         ns <- session$ns
@@ -84,6 +90,8 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
             assayselect <- hiddenInput(ns("assay"), names(GenomicRanges::assays(se))[1])
         }
         list(assayselect, sampleselectInput(ns("selectmatrix"), getExperiment(), select_samples = select_samples), geneselectInput(ns("selectmatrix"), select_genes = select_genes))
+
+      })        
     })
     
     
@@ -97,12 +105,14 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     # Get the row labels where available
     
     getRowLabels <- reactive({
+      withProgress(message = "Deriving row labels", value = 0, {
         se <- getExperiment()
         if ("labelfield" %in% names(metadata(se))) {
             idToLabel(rownames(se), se)
         } else {
             rownames(se)
         }
+      })
     })
     
     # Allow calling modules to retrieve the current assay
@@ -118,11 +128,6 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
             var_max
         }
     })
-    
-    # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
-    
-    unpack.list(callModule(sampleselect, "selectmatrix", getExperiment))
-    unpack.list(callModule(geneselect, "selectmatrix", getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, provide_all = provide_all_genes))
     
     # Generate an expression matrix given the selected experiment, assay, rows and columns
     
@@ -142,7 +147,9 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
     
     selectColData = reactive({
         validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
+      withProgress(message = "Extracting experiment metadata", value = 0, {
         droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE]))
+      })
     })
     
     # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices
@@ -192,6 +199,9 @@ selectmatrix <- function(input, output, session, ses, var_n = 50, var_max = NULL
 #' @return output Table with columns added
 
 labelMatrix <- function(matrix, se) {
+  
+  withProgress(message = "Adding labels to matrix", value = 0, {
+  
     datacolnames <- colnames(matrix)
     
     idfield <- metadata(se)$idfield
@@ -212,7 +222,7 @@ labelMatrix <- function(matrix, se) {
     # Make the field identifiers nicer
     
     colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
-    
+  })
     matrix
 }
 
@@ -227,6 +237,8 @@ labelMatrix <- function(matrix, se) {
 
 linkMatrix <- function(matrix, se) {
     
+  withProgress(message = "Adding links to matrix", value = 0, {
+  
     if ("url_roots" %in% names(metadata(se))) {
         url_roots <- metadata(se)$url_roots
         
@@ -246,6 +258,7 @@ linkMatrix <- function(matrix, se) {
             }
         }
     }
+  })
     matrix
 }
 

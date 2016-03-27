@@ -113,7 +113,7 @@ sampleselect <- function(input, output, session, getExperiment) {
     # Reactive expression for selecting the specified columns
     
     selectSamples <- reactive({
-        
+      withProgress(message = "Selecting samples", value = 0, {
         se <- getExperiment()
         
         validate(need(!is.null(input$sampleSelect), "Waiting for form to provide sampleSelect"))
@@ -141,6 +141,7 @@ sampleselect <- function(input, output, session, getExperiment) {
             }
             
         }
+      })
     })
     
     list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSummaryType = getSummaryType, getSampleSelect = getSampleSelect)

@@ -98,9 +98,10 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     # If inputs are not provided, render controls to provide them
     
+  ns <- session$ns  
+  
     if (is.null(getThreedee)) {
         output$controls <- renderUI({
-            ns <- session$ns
             scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d)
         })
         unpack.list(callModule(scatterplotcontrols, "scatter", getDatamatrix, x = x, y = y, z = z))
@@ -165,7 +166,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             withProgress(message = "Adding unlabelled points", value = 0, {
                 
                 plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", type = plotType(), showlegend = showLegend(), 
-                  name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"))
+                  name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"), evaluate = TRUE)
                 
                 p <- do.call(plotly::add_trace, plotargs)
                 
@@ -186,7 +187,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         if (any(!unlabelled())) {
             withProgress(message = "Adding labelled points", value = 0, {
                 plotargs <- list(p, x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", hoverinfo = "text", text = getLabels()[!unlabelled()], 
-                  type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()))
+                  type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()), evaluate = TRUE)
                 
                 if (!is.null(colorby)) {
                   plotargs$color <- colorby()[!unlabelled()]
@@ -206,7 +207,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         
         if (getShowLabels()) {
             labelargs <- list(p, x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", text = getLabels()[!unlabelled()], type = plotType(), 
-                hoverinfo = "none", showlegend = FALSE)
+                hoverinfo = "none", showlegend = FALSE, evaluate = TRUE)
             
             if (!is.null(colorby)) {
                 labelargs$color <- colorby()[!unlabelled()]
@@ -251,18 +252,20 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                 lines <- getLines()
                 
                 p <- plotly::add_trace(lines, x = lines$x, y = lines$y, group = lines$name, mode = "lines", line = list(color = "black", dash = 6, width = 1), showlegend = FALSE, 
-                  name = i)
+                  name = i, evaluate = TRUE)
             })
             
         }
         p
     }
     
-    # Chain the various steps together
+    # Chain the various steps together. Note the use of 'evaluate' in this 
+    # and other plotly commands. For reasons I'm still not clear about this
+    # speeds things up substantially, particularly in multi-panel apps.
     
     output$scatter <- renderPlotly({
-        
-        plot_ly(type = plotType()) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% adjustLayout() %>% addTextLabels() %>% drawLines()
-        
+      withProgress(message = "Drawing scatter plot", value = 0, {
+        plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% adjustLayout() %>% addTextLabels() %>% drawLines()
+      })  
     })
 } 

@@ -101,14 +101,15 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         }
     })
     
-    # Get the contrasts selected in the interface
+    # Get the actual contrasts to which the numbers from the interface pertain
     
     getContrasts <- reactive({
         se <- getExperiment()
-        metadata(se)$contrasts[as.numeric(input$contrasts)]
+        metadata(se)$contrasts[getSelectedContrasts()]
     })
     
     getSelectedContrasts <- reactive({
+      validate(need(input$contrasts, 'Waiting for contrasts'))
         as.numeric(input$contrasts)
     })
     
@@ -143,7 +144,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         
         withProgress(message = "Calculating summary data", value = 0, {
             
-            contrast_tables <- lapply(as.numeric(input$contrasts), function(c) {
+            contrast_tables <- lapply(getSelectedContrasts(), function(c) {
                 
                 cont <- metadata(se)$contrasts[[c]]
                 
@@ -170,7 +171,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
             })
         })
         
-        names(contrast_tables) <- input$contrasts
+        names(contrast_tables) <- getSelectedContrasts()
         
         contrast_tables
     })

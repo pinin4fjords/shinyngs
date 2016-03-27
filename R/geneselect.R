@@ -86,6 +86,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Render the geneSelect UI element
     
     output$geneSelect <- renderUI({
+      withProgress(message = "Rendering row selection", value = 0, {
         
         ns <- session$ns
         
@@ -123,6 +124,8 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("geneset")))
         }
         
+      })
+        
         gene_select
     })
     
@@ -141,8 +144,8 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Main output. Derive the expression matrix according to row-based criteria
     
     geneselect_functions$selectRows <- reactive({
-        
-        validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
+      withProgress(message = "Selecting rows", value = 0, {
+        validate(need(!is.null(input$geneSelect), 'Waiting for geneSelect'))
         
         if (input$geneSelect == "none") {
             return(c())
@@ -168,6 +171,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             
             return(rownames(se)[rownames(se) %in% selected_rows])
         }
+      })
     })
     
     # Make a title
