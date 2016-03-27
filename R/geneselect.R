@@ -59,24 +59,22 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     colnames(getExperiment())
 }), assay, provide_all = TRUE, provide_none = FALSE) {
     
-    # observe({ se <- getExperiment() })
-    
-    # Check if we're using annotation
-    
-    # use_annotation <- all(c(nrow(mcols(se)) > 0, c('idfield', 'labelfield') %in% names(metadata(se))))
-    
     # Check if we have the nessary component for gene sets
     
     useGenesets <- reactive({
-      se <- getExperiment()
-      all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
+        se <- getExperiment()
+        all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
     })
     
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
-    if (useGenesets()) {
-        unpack.list(callModule(geneset, "geneset", getExperiment = getExperiment))
-    }
+    observe({
+        if (useGenesets()) {
+            unpack.list(callModule(geneset, "geneset", getExperiment = getExperiment))
+        }
+    })
+    
+    # Add the gene sets to the drop-down if required
     
     observeEvent(input$geneSelect, {
         if (input$geneSelect == "gene set") {
@@ -101,10 +99,11 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             
             gene_select_methods <- c(gene_select_methods, c("variance", "list"))
             
-            
-            if (useGenesets()) {
-                gene_select_methods <- c(gene_select_methods, "gene set")
-            }
+            observe({
+                if (useGenesets()) {
+                  gene_select_methods <- c(gene_select_methods, "gene set")
+                }
+            })
             
             gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", 
                 ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), 
@@ -137,9 +136,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Main output. Derive the expression matrix according to row-based criteria
     
     geneselect_functions$selectRows <- reactive({
-      
+        
         se <- getExperiment()
-      
+        
         withProgress(message = "Selecting rows", value = 0, {
             validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
             

@@ -119,7 +119,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # output and calculate fold changes etc.
     
     getSummaries <- reactive({
-      se <- getExperiment()
+        se <- getExperiment()
         contrasts <- metadata(se)$contrasts[getAllContrasts()]
         
         contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
