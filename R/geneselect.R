@@ -67,11 +67,14 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     
     # Check if we have the nessary component for gene sets
     
-    use_genesets <- all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
+    useGenesets <- reactive({
+      se <- getExperiment()
+      all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
+    })
     
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
-    if (use_genesets) {
+    if (useGenesets()) {
         unpack.list(callModule(geneset, "geneset", getExperiment = getExperiment))
     }
     
@@ -99,7 +102,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             gene_select_methods <- c(gene_select_methods, c("variance", "list"))
             
             
-            if (use_genesets) {
+            if (useGenesets()) {
                 gene_select_methods <- c(gene_select_methods, "gene set")
             }
             
@@ -110,7 +113,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             
             # If gene sets have been provided, then make a gene sets filter
             
-            if (use_genesets) {
+            if (useGenesets()) {
                 gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("geneset")))
             }
             
@@ -134,6 +137,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Main output. Derive the expression matrix according to row-based criteria
     
     geneselect_functions$selectRows <- reactive({
+      
+        se <- getExperiment()
+      
         withProgress(message = "Selecting rows", value = 0, {
             validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
             
