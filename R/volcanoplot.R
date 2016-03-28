@@ -1,35 +1,65 @@
 #' The UI input function of the volcanoplot module
-#'  
+#' 
 #' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' Leverages the \code{scatterplot} module
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' differentialtableInput('experiment', ses)
+#' differentialtableInput('experiment', eselist)
 
-volcanoplotInput <- function(id, ses) {
-    
-    ns <- NS(id)
-    
-    expression_filters <- selectmatrixInput(ns("expression"), ses)
-    list(fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("volcano")), highlight_points = geneselectInput(ns("volcano")), 
-        export = simpletableInput(ns("differentialtable")))), expression_filters)
+volcanoplotInput <- function(id, eselist) {
+  ns <- NS(id)
+
+  # Only consider experiments that actually have p-values to use in a volcano plot
+  
+  eselist <- eselist[which(unlist(lapply(eselist, function(ese){length(ese@tests) > 0})))]
+  expression_filters <- selectmatrixInput(ns("expression"), eselist, require_tests = TRUE)
+  
+  # If there's only one experiment with tests, then the expression filters will
+  # just be hidden fields, and there's no point in creating an empty fieldset 
+  # for them
+  
+  fieldsets <- list()
+  if (length(eselist) > 1){
+    fieldsets$expression_matrix <- expression_filters
+  }
+  
+  fieldsets <- c(
+    fieldsets,
+    list(
+      contrasts = list(contrastsInput(ns("differential"))),
+      scatter_plot = scatterplotInput(ns("volcano")),
+      highlight_points = geneselectInput(ns("volcano")),
+      export = simpletableInput(ns("differentialtable"))
+    )
+  )
+  
+  inputs <- list(fieldSets(
+    ns("fieldset"),
+    fieldsets
+  ))
+  
+  if (length(eselist) == 1){
+    inputs <- pushToList(inputs, expression_filters) 
+  }
+  
+  inputs
 }
 
 #' The output function of the differentialtable module
 #' 
 #' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' Leverages the \code{scatterplot} module
 #'
@@ -59,15 +89,15 @@ volcanoplotOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #' 
 #' @examples
-#' callModule(differentialtable, 'differentialtable', ses)
+#' callModule(differentialtable, 'differentialtable', eselist)
 
-volcanoplot <- function(input, output, session, ses) {
+volcanoplot <- function(input, output, session, eselist) {
     
     output$volcanotable <- renderUI({
         ns <- session$ns
@@ -77,7 +107,7 @@ volcanoplot <- function(input, output, session, ses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", ses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE, require_tests = TRUE))
     
     # Pass the matrix to the contrasts module for processing
     

@@ -16,9 +16,8 @@ sampleselect(input, output, session, getExperiment)
 
 \item{session}{Session object}
 
-\item{getExperiment}{Reactive expression which returns a
-StructuredExperiment object with assay and experimental data, with
-additional information in the metadata() slot}
+\item{getExperiment}{Reactive expression which returns an
+ExploratorySummarizedExperiment object with assay and experimental data}
 }
 \value{
 output A list of reactive functions for interrogating the selected

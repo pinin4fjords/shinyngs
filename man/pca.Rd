@@ -4,7 +4,7 @@
 \alias{pca}
 \title{The server function of the pca module}
 \usage{
-pca(input, output, session, ses)
+pca(input, output, session, eses)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,14 +13,14 @@ pca(input, output, session, ses)
 
 \item{session}{Session object}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of structuredExperiment objects with assay and experimental 
+data}
 }
 \description{
-This module calculates a PCA and formats components and loadings for
-display. It uses a common set of controls, generated with the 
-\code{scatterplotcontrols} module, to power scatter plots for both 
-components and loadings produced by the \code{scatterplots} module.
+This module calculates a PCA and formats components and loadings for display.
+It uses a common set of controls, generated with the 
+\code{scatterplotcontrols} module, to power scatter plots for both components
+and loadings produced by the \code{scatterplots} module.
 }
 \details{
 This function is not called directly, but rather via callModule() (see 
@@ -29,7 +29,7 @@ example).
 Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
-callModule(pca, 'pca', ses)
+callModule(pca, 'pca', eses)
 }
 \keyword{shiny}
 

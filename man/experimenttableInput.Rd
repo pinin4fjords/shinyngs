@@ -2,29 +2,30 @@
 % Please edit documentation in R/experimenttable.R
 \name{experimenttableInput}
 \alias{experimenttableInput}
-\title{The UI input function of the experimenttable module
- 
-This module produces a simple table of the \code{colData()} in a
-SummarizedExperiment object. If more than one of these objects were 
-specified, a select box should appear to pick the desired one for display.}
+\title{The UI input function of the experimenttable module}
 \usage{
-experimenttableInput(id, ses)
+experimenttableInput(id, eses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
+This module produces a simple table of the \code{colData()} in a 
+SummarizedExperiment object. If more than one of these objects were 
+specified, a select box should appear to pick the desired one for display.
+}
+\details{
 Leverages the \code{simpletable} module
 }
 \examples{
-experimentableInput('experiment', ses)
+experimentableInput('experiment', eses)
 }
 \keyword{shiny}
 

@@ -1,26 +1,26 @@
 #' The input function of the gene module
 #' 
-#' The gene module picks specified rows out the assay data, either simply by 
-#' id or label. This is used to create a gene-centric info page.
+#' The gene module picks specified rows out the assay data, either simply by id
+#' or label. This is used to create a gene-centric info page.
 #' 
 #' Inputs are a gene label and a variable to color by (where available)
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' geneInput(ns('gene'), ses)
+#' geneInput(ns('gene'), eses)
 
-geneInput <- function(id, ses) {
+geneInput <- function(id, eses) {
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("gene"), ses)
+    expression_filters <- selectmatrixInput(ns("gene"), eses)
     gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
         groupbyInput(ns("gene")))
     
@@ -30,24 +30,24 @@ geneInput <- function(id, ses) {
 
 #' The input function of the gene module
 #' 
-#' The gene module picks specified rows out the assay data, either simply by 
-#' id or label. This is used to create a gene-centric info page.
+#' The gene module picks specified rows out the assay data, either simply by id
+#' or label. This is used to create a gene-centric info page.
 #' 
 #' Outputs are a bar plot and a table contrast data for this gene
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param dses List of structuredExperiment objects with assay and experimental 
+#'   data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' geneOutput(ns('gene'), ses)
+#' geneOutput(ns('gene'), eses)
 
-geneOutput <- function(id, ses) {
+geneOutput <- function(id, eses) {
     ns <- NS(id)
     
     list(h4("Barplot"), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), DT::dataTableOutput(ns("contrastTable")))
@@ -55,39 +55,39 @@ geneOutput <- function(id, ses) {
 
 #' The server function of the gene module
 #' 
-#' The gene module picks specified rows out the assay data, either simply by 
-#' id or label. This is used to create a gene-centric info page.
+#' The gene module picks specified rows out the assay data, either simply by id
+#' or label. This is used to create a gene-centric info page.
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
-#'
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(gene, 'gene', ses)
+#' callModule(gene, 'gene', eses)
 
-gene <- function(input, output, session, ses) {
+gene <- function(input, output, session, eses) {
     
     # Call all the required modules and unpack their reactives
     
-    unpack.list(callModule(selectmatrix, "gene", ses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
+    unpack.list(callModule(selectmatrix, "gene", eses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
     unpack.list(callModule(contrasts, "gene", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", getExperiment = getExperiment, group_label = "Color by")
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
     
     getGeneNames <- reactive({
-        se <- getExperiment()
+        ese <- getExperiment()
         
-        gene_names <- rownames(se)
-        if ("labelfield" %in% names(metadata(se))) {
-            gene_names <- sort(mcols(se)[[metadata(se)$labelfield]])
+        gene_names <- rownames(ese)
+        if (length(ese@labelfield) > 0){
+            gene_names <- sort(mcols(ese)[[ese@labelfield]])
         }
     })
     
@@ -101,8 +101,10 @@ gene <- function(input, output, session, ses) {
     
     getRows <- reactive({
         rowids <- input$gene_label
-        if ("labelfield" %in% names(metadata(se))) {
-            rowids <- rownames(se)[mcols(se)[[metadata(se)$labelfield]] == input$gene_label]
+        ese <- getExperiment()
+        
+        if (length(ese@labelfield) > 0){
+            rowids <- rownames(ese)[mcols(ese)[[ese@labelfield]] == input$gene_label]
         }
     })
     
@@ -112,10 +114,10 @@ gene <- function(input, output, session, ses) {
         validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
         
         withProgress(message = "Making bar plot", value = 0, {
-            se <- getExperiment()
+            ese <- getExperiment()
             barplot_expression <- selectMatrix()[getRows(), , drop = FALSE]
             
-            if ("labelfield" %in% names(metadata(se))) {
+            if (length(ese@labelfield) > 0){
                 rownames(barplot_expression) <- paste(getRows(), input$gene_label, sep = " / ")
             }
             
@@ -127,11 +129,11 @@ gene <- function(input, output, session, ses) {
     # Convenience function for deciding whether to use ID or symbol
     
     getLabelField <- reactive({
-        se <- getExperiment()
-        if ("labelfield" %in% names(metadata(se))) {
-            metadata(se)$labelfield
+        ese <- getExperiment()
+        if (length(ese@labelfield) > 0){
+            ese@labelfield
         } else {
-            metadata(se)$idfield
+            ese@idfield
         }
     })
     
@@ -139,7 +141,6 @@ gene <- function(input, output, session, ses) {
     
     getGeneContrastsTable <- reactive({
         contrasts_table <- labelledContrastsTable()
-        saveRDS(contrasts_table, file = "~/shinytests/contrasts_table.rds")
         linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment())
     })
     
@@ -196,8 +197,19 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             yaxis = ax
         }
         
-        plot_ly(x = names(row), y = as.numeric(row), type = "bar", color = groups, showlegend = (rowno == 1)) %>% layout(xaxis = list(title = rownames(expression)[rowno]), 
-            yaxis = yaxis, margin = list(b = 100))
+        plot_ly(
+          x = names(row),
+          y = as.numeric(row),
+          type = "bar",
+          color = groups,
+          showlegend = (rowno == 1),
+          evaluate = TRUE
+        ) %>% layout(
+          xaxis = list(title = rownames(expression)[rowno]),
+          yaxis = yaxis,
+          margin = list(b = 100),
+          evaluate = TRUE
+        )
     })
     
     do.call(function(...) subplot(...), plots)

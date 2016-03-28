@@ -4,27 +4,27 @@
 \alias{geneInput}
 \title{The input function of the gene module}
 \usage{
-geneInput(id, ses)
+geneInput(id, eses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
-The gene module picks specified rows out the assay data, either simply by 
-id or label. This is used to create a gene-centric info page.
+The gene module picks specified rows out the assay data, either simply by id
+or label. This is used to create a gene-centric info page.
 }
 \details{
 Inputs are a gene label and a variable to color by (where available)
 }
 \examples{
-geneInput(ns('gene'), ses)
+geneInput(ns('gene'), eses)
 }
 \keyword{shiny}
 

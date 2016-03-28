@@ -4,26 +4,26 @@
 \alias{heatmapInput}
 \title{The input function of the heatmap module}
 \usage{
-heatmapInput(id, ses, type = "pca")
+heatmapInput(id, eses, type = "expression")
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 
-\item{type}{The type of heatmap that will be made. 'expression', 'samples'
-or 'pca'}
+\item{type}{The type of heatmap that will be made. 'expression', 'samples' or
+'pca'}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
 This provides the form elements to control the heatmap display
 }
 \examples{
-heatmapInput('heatmap', se, group_vars, default_groupvar
+heatmapInput('heatmap', ese, group_vars, default_groupvar)
 }
 \keyword{shiny}
 

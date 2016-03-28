@@ -4,12 +4,12 @@
 \alias{labelMatrix}
 \title{Add columns to display ID and label in a table}
 \usage{
-labelMatrix(matrix, se)
+labelMatrix(matrix, ese)
 }
 \arguments{
 \item{matrix}{The input table}
 
-\item{se}{A SummarizedExperiment object}
+\item{ese}{An ExploratorySummarizedExperiment object}
 }
 \value{
 output Table with columns added

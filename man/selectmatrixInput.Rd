@@ -2,29 +2,30 @@
 % Please edit documentation in R/selectmatrix.R
 \name{selectmatrixInput}
 \alias{selectmatrixInput}
-\title{The UI input function of the selectmarix module
- 
-This module uses the geneselect and sampleselect modules to parse controls
-defining matrix, row and column and return a matrix.}
+\title{The UI input function of the selectmarix module}
 \usage{
-selectmatrixInput(id, ses)
+selectmatrixInput(id, eses, require_tests = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and 
+experimental data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
-This will generally not be called directly, but by other modules such as the
+This module uses the geneselect and sampleselect modules to parse controls 
+defining matrix, row and column and return a matrix.
+}
+\details{
+This will generally not be called directly, but by other modules such as the 
 heatmap module.
 }
 \examples{
-selectmatrixInput(ns('heatmap'), se, group_vars, default_groupvar)
+selectmatrixInput(ns('heatmap'), eses)
 }
 \keyword{shiny}
 

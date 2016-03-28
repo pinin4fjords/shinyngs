@@ -29,29 +29,29 @@ geneselectInput <- function(id, select_genes = TRUE) {
 
 #' The server function of the geneselect module
 #' 
-#' This module provides controls for selecting genes (matrix rows) by various
-#' criteria such as variance and gene set. 
-#'
+#' This module provides controls for selecting genes (matrix rows) by various 
+#' criteria such as variance and gene set.
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param getExperiment Reactive expression which returns a
-#' StructuredExperiment object with assay and experimental data, with
-#' additional information in the metadata() slot
-#' @param var_n The number of rows to select when doing so by variance. Default = 50
-#' @param var_max The maximum umber of rows to select when doing so by variance. 
-#' Default = 500
-#' @param selectSamples A reactive expression that provides a vector of samples
-#' to use, e.g. in row-wise variance calculation
-#' @param provide_all Allow the 'all rows' selection in the UI? Means we
-#' don't have to calculate variance so the display is quicker, but it's a bad
-#' idea for e.g. heatmaps where the visual scales by the numbre of rows.
-#'
-#' @return output A list of reactive functions for interrogating the selected
-#' rows.
-#'
+#' @param getExperiment Reactive expression which returns a 
+#'   ExploratorySummarizedExperiment object with assay and experimental data
+#' @param var_n The number of rows to select when doing so by variance. Default
+#'   = 50
+#' @param var_max The maximum umber of rows to select when doing so by variance.
+#'   Default = 500
+#' @param selectSamples A reactive expression that provides a vector of samples 
+#'   to use, e.g. in row-wise variance calculation
+#' @param provide_all Allow the 'all rows' selection in the UI? Means we don't
+#'   have to calculate variance so the display is quicker, but it's a bad idea
+#'   for e.g. heatmaps where the visual scales by the numbre of rows.
+#'   
+#' @return output A list of reactive functions for interrogating the selected 
+#'   rows.
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
 #' geneselect_functions <- callModule(geneselect, 'heatmap', getExperiment, getMatrix=selectColumns)
 
@@ -62,8 +62,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     # Check if we have the nessary component for gene sets
     
     useGenesets <- reactive({
-        se <- getExperiment()
-        all(c("geneset_files", "entrezgenefield", "labelfield") %in% names(metadata(se)))
+        ese <- getExperiment()
+        
+        all(unlist(lapply(c("geneset_files", "entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 0)))
     })
     
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
@@ -137,7 +138,7 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
     
     geneselect_functions$selectRows <- reactive({
         
-        se <- getExperiment()
+        ese <- getExperiment()
         
         withProgress(message = "Selecting rows", value = 0, {
             validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
@@ -145,9 +146,9 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
             if (input$geneSelect == "none") {
                 return(c())
             } else if (input$geneSelect == "all") {
-                return(rownames(se))
+                return(rownames(ese))
             } else if (input$geneSelect == "variance") {
-                return(rownames(se)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
+                return(rownames(ese)[order(rowVariances(), decreasing = TRUE)[1:input$obs]])
             } else {
                 if (input$geneSelect == "gene set") {
                   selected_genes <- getPathwayGenes()
@@ -157,14 +158,14 @@ geneselect <- function(input, output, session, getExperiment, var_n = 50, var_ma
                 
                 # Use annotation for gene names if specified, otherwise use matrix rows
                 
-                if ("labelfield" %in% names(metadata(se))) {
+                if (length(ese@labelfield) > 0){
                   annotation <- data.frame(mcols(se))
-                  selected_rows <- as.character(annotation[which(tolower(annotation[[metadata(se)$labelfield]]) %in% tolower(selected_genes)), metadata(se)$idfield])
+                  selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), ese@idfield])
                 } else {
-                  selected_rows <- rownames(se)[which(tolower(rownames(se))) %in% tolower(selected_genes)]
+                  selected_rows <- rownames(ese)[which(tolower(rownames(ese))) %in% tolower(selected_genes)]
                 }
                 
-                return(rownames(se)[rownames(se) %in% selected_rows])
+                return(rownames(ese)[rownames(ese) %in% selected_rows])
             }
         })
     })

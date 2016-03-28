@@ -1,33 +1,43 @@
 #' The input function of the pca module
 #' 
-#' This provides the form elements to control the pca display, derived from the
+#' This provides the form elements to control the pca display, derived from the 
 #' \code{selectmatrix}, \code{scatterplotcontrols}, and \code{scatterplot} 
 #' modules.
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' pcaInput('pca', se, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
+#' pcaInput('pca', ese, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
 
-pcaInput <- function(id, ses) {
+pcaInput <- function(id, eses) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("pca"), ses)
+    expression_filters <- selectmatrixInput(ns("pca"), eses)
     
     pca_filters <- list(sliderInput(ns("n_loadings"), "Number of loadings to examine", min = 2, max = 100, value = 10))
     
     # Output sets of fields in their own containers
     
-    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), 
-        groupbyInput(ns("pca"))), expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
+    fieldSets(
+      ns("fieldset"),
+      list(
+        principal_component_analysis = pca_filters,
+        scatter_plot = list(
+          scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE),
+          groupbyInput(ns("pca"))
+        ),
+        expression = expression_filters,
+        export = simpletableInput(ns("loading"), tabletitle = "Loading")
+      )
+    )
     
 }
 
@@ -49,36 +59,40 @@ pcaInput <- function(id, ses) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), 
-        tabletitle = "Loadings"))))
+    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))),
+                tabPanel("Loadings", list(
+                  scatterplotOutput(ns("loading")),
+                  simpletableOutput(ns("loading"),
+                                    tabletitle = "Loadings")
+                )))
 }
 
 #' The server function of the pca module
 #' 
-#' This module calculates a PCA and formats components and loadings for
-#' display. It uses a common set of controls, generated with the 
-#' \code{scatterplotcontrols} module, to power scatter plots for both 
-#' components and loadings produced by the \code{scatterplots} module.
+#' This module calculates a PCA and formats components and loadings for display.
+#' It uses a common set of controls, generated with the 
+#' \code{scatterplotcontrols} module, to power scatter plots for both components
+#' and loadings produced by the \code{scatterplots} module.
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
 #' 
 #' Matrix and UI selection elements provided by the selectmatrix module
-#'
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of structuredExperiment objects with assay and experimental 
+#'   data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(pca, 'pca', ses)
+#' callModule(pca, 'pca', eses)
 
-pca <- function(input, output, session, ses) {
+pca <- function(input, output, session, eses) {
     
-    unpack.list(callModule(selectmatrix, "pca", ses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "pca", eses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
     colorBy <- callModule(groupby, "pca", getExperiment = getExperiment, group_label = "Color by")
     
     # Make a common set of controls to be used for components and loadings plots
@@ -95,7 +109,6 @@ pca <- function(input, output, session, ses) {
     # Make a matrix of values to the PCA
     
     pcaMatrix <- reactive({
-        print("Calling PCA matrix")
         withProgress(message = "Making PCA matrix", value = 0, {
             fraction_explained <- calculatePCAFractionExplained()
             plotdata <- data.frame(pca()$x)

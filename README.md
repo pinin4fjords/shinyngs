@@ -2,7 +2,7 @@
 Synopsis
 ========
 
-This package will construct Shiny dashboards for a variety of next-generation sequencing and other applications. But I'm currently porting a large script for RNA-seq type downstream analyses, so features are incomplete.
+This is a package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots. This is a work in progress, with new features added on a regular basis.
 
 Screenshot
 ==========
@@ -18,17 +18,55 @@ Objectives
 Features
 --------
 
--   A variety of single and multiple-panel Shiny applications- currently heatmap, pca, boxplot, dendrogram, gene-wise barplot, various tables and an RNA-seq app currently being ported from non-modularised code.
+-   A variety of single and multiple-panel Shiny applications- currently heatmap, pca, boxplot, dendrogram, gene-wise barplot, various tables and an RNA-seq app combining all of these.
 -   Leveraging of libraries such as [DataTables](https://rstudio.github.io/DT/) and [Plotly](https://plot.ly/) for rich interactivity.
--   Takes input in the commonly used `SummarizedExperiment` format.
+-   Takes input in an extension of the commonly used `SummarizedExperiment` format, called `ExploratorySummarizedExperiment`
 -   Interface kept simple where possible, with complexity automatically added where required:
     -   Input field clutter reduced with the use of collapses from [shinyBS](https://ebailey78.github.io/shinyBS/index.html) (when installed).
-    -   If a list of `SummarizedExperiment`s is supplied (useful in situiations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.
+    -   If a list of `ExploratorySummarizedExperiment`s is supplied (useful in situiations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.
     -   If a selected experiment contains more than one assay, a selector will again be provided.
 -   For me: leveraging of [Shiny modules](http://shiny.rstudio.com/articles/modules.html). This makes re-using complex UI components much easier, and maintaining application code is orders of magnitude simpler as a result.
 
+Installation
+============
+
+Prerequisites
+-------------
+
+`shinyngs` relies heavily on `SumamrizedExperiment`. Formerly found in the `GenomicRanges` package, it now has its own package on Bioconductor: <http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html>. This requires a recent version of R.
+
+Graphical enhancements are provided by `shinyBS` and `shinyjs`
+
+Install with devtools
+---------------------
+
+``` r
+library(devtools)
+install_github('pinin4fjords/shinyngs')
+```
+
+Data structure
+==============
+
+TODO
+
 Code Example
 ============
+
+`ExploratorySummarizedExperiment`
+---------------------------------
+
+Shinyngs requires data in the form of an `ExploratorySummarizedExperiment' object.`ExploratorySummarizedExperiment`is derived from`SummarizedExperiment\`, with additional slots for defining annotation, contrasts for differential expression, p values etc. See below and the vignette (TODO) for examples of how to create these objects.
+
+An example `ExploratorySummarizedExperimentList` based on the Zhang et al study of neurons and glia (<http://www.jneurosci.org/content/34/36/11929.long>) is included in the package, and this can be used to demonstrate available features.
+
+``` r
+library(shinyngs)
+data("zhangneurons")
+
+app <- prepareApp("heatmap", zhangneurons, title = 'An example application')
+shiny::shinyApp(app$ui, app$server)
+```
 
 A basic heatmap builder
 -----------------------
@@ -176,14 +214,6 @@ This package now contains a large number of Shiny modules:
 So for example `heatmap` uses `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise.
 
 I intend to provide modules for a number of things I currently use (boxplots, PCA, scatterplots), which can then be simply plugged into many different applications.
-
-Installation
-============
-
-``` r
-library(devtools)
-install_github('pinin4fjords/shinyngs')
-```
 
 Contributors
 ============

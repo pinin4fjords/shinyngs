@@ -1,27 +1,27 @@
 #' The UI input function of the assaydatatable module
-#'
+#' 
 #' This module displays the content of the currently selected experiment and 
-#' assay, also allowing grouping by mean etc.  
+#' assay, also allowing grouping by mean etc.
 #' 
 #' Leverages the \code{simpletable} module
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' assaydatatableInput('experiment', ses)
+#' assaydatatableInput('experiment', eses)
 
-assaydatatableInput <- function(id, ses) {
+assaydatatableInput <- function(id, eses) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("expression"), ses)
+    expression_filters <- selectmatrixInput(ns("expression"), eses)
     fieldSets(ns("fieldset"), list(select_assay_data = expression_filters, export = simpletableInput(ns("assaydatatable"))))
 }
 
@@ -58,15 +58,15 @@ assaydatatableOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
+#' @param eses List of structuredExperiment objects with assay and experimental
+#' data
 #'
 #' @keywords shiny
 #' 
 #' @examples
-#' callModule(assaydatatable, 'assaydatatable', ses)
+#' callModule(assaydatatable, 'assaydatatable', eses)
 
-assaydatatable <- function(input, output, session, ses) {
+assaydatatable <- function(input, output, session, eses) {
     
     # Render the output area - and provide an input-dependent title
     
@@ -78,7 +78,7 @@ assaydatatable <- function(input, output, session, ses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", ses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
     
     # Pass the matrix to the simpletable module for display
     

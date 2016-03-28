@@ -4,25 +4,25 @@
 \alias{pcaInput}
 \title{The input function of the pca module}
 \usage{
-pcaInput(id, ses)
+pcaInput(id, eses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
-This provides the form elements to control the pca display, derived from the
+This provides the form elements to control the pca display, derived from the 
 \code{selectmatrix}, \code{scatterplotcontrols}, and \code{scatterplot} 
 modules.
 }
 \examples{
-pcaInput('pca', se, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
+pcaInput('pca', ese, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
 }
 \keyword{shiny}
 

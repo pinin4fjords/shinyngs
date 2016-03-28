@@ -4,7 +4,7 @@
 \alias{boxplot}
 \title{The server function of the boxplot module}
 \usage{
-boxplot(input, output, session, ses)
+boxplot(input, output, session, eses)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,15 +13,15 @@ boxplot(input, output, session, ses)
 
 \item{session}{Session object}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
 example).
 }
 \examples{
-callModule(boxplot, 'boxplot', ses)
+callModule(boxplot, 'boxplot', eses)
 }
 \keyword{shiny}
 

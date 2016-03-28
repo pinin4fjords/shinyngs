@@ -87,10 +87,10 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
     getAllContrasts <- reactive({
-        se <- getExperiment()
+        ese <- getExperiment()
         
-        if ("contrasts" %in% names(metadata(se))) {
-            contrasts <- metadata(se)$contrasts
+        if (length(ese@contrasts) > 0){
+            contrasts <- ese@contrasts
             
             structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), 
                 sep = ": ")))
@@ -102,8 +102,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # Get the actual contrasts to which the numbers from the interface pertain
     
     getContrasts <- reactive({
-        se <- getExperiment()
-        metadata(se)$contrasts[getSelectedContrasts()]
+        ese <- getExperiment()
+        ese@contrasts[getSelectedContrasts()]
     })
     
     getSelectedContrasts <- reactive({
@@ -119,8 +119,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # output and calculate fold changes etc.
     
     getSummaries <- reactive({
-        se <- getExperiment()
-        contrasts <- metadata(se)$contrasts[getAllContrasts()]
+        ese <- getExperiment()
+        contrasts <- ese@contrasts[getAllContrasts()]
         
         contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
         names(contrast_variables) <- contrast_variables
@@ -133,11 +133,12 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     })
     
     # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a
-    # 'tests' slot of the metadata.
+    # 'tests' slot of the ExploratorySummarizedExperiment.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()
-        se <- getExperiment()
+        
+        ese <- getExperiment()
         
         summaries <- getSummaries()
         
@@ -145,7 +146,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
             
             contrast_tables <- lapply(getSelectedContrasts(), function(c) {
                 
-                cont <- metadata(se)$contrasts[[c]]
+                cont <- ese@contrasts[[c]]
                 
                 smry1 <- summaries[[cont[1]]][, cont[2]]
                 smry2 <- summaries[[cont[1]]][, cont[3]]
@@ -153,10 +154,12 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
                 ct <- data.frame(round(smry1, 2), round(smry2, 2), round(foldChange(smry1, smry2), 2))
                 names(ct) <- c(cont[2], cont[3], "Fold change")
                 
+                saveRDS(ese, file = '~/shinytests/ese.rds')
+                saveRDS(getAssay(), file = '~/shinytests/ga.rds')
                 
-                if ("tests" %in% names(metadata(se)) && getAssay() %in% names(metadata(se)$tests)) {
-                  pvals <- metadata(se)$tests[[getAssay()]]$pval
-                  qvals <- metadata(se)$tests[[getAssay()]]$qval
+                if (length(ese@tests) > 0 && getAssay() %in% names(ese@tests)) {
+                  pvals <- ese@tests[[getAssay()]]$pvals
+                  qvals <- ese@tests[[getAssay()]]$qvals
                   
                   ct[["p value"]] <- round(pvals[match(rownames(ct), rownames(pvals)), c], 5)
                   ct[["q value"]] <- round(qvals[match(rownames(ct), rownames(qvals)), c], 5)
@@ -192,8 +195,14 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     })
     
     filteredContrastsTables <- reactive({
+        ese <- getExperiment()
+
         if (getFilterRows()) {
+          if (length(ese@tests) == 0 || ! getAssay() %in% names(ese@tests)) {
+            lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), ])
+          }else{
             lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
+          }
         } else {
             contrastsTables()
         }
@@ -212,8 +221,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
             cts <- lapply(names(cts), function(ctn) {
                 ct <- cts[[ctn]]
                 
-                se <- getExperiment()
-                contrast <- metadata(se)$contrasts[[as.numeric(ctn)]]
+                ese <- getExperiment()
+                contrast <- ese@contrasts[[as.numeric(ctn)]]
                 colnames(ct)[1:2] <- c("Average 1", "Average 2")
                 ct$Variable <- prettifyVariablename(contrast[1])
                 ct[["Condition 1"]] <- contrast[2]

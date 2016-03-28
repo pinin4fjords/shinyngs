@@ -4,12 +4,12 @@
 \alias{linkMatrix}
 \title{Add links to a table}
 \usage{
-linkMatrix(matrix, se)
+linkMatrix(matrix, ese)
 }
 \arguments{
 \item{matrix}{The input table}
 
-\item{se}{A SummarizedExperiment object}
+\item{ese}{An ExploratorySummarizedExperiment object}
 }
 \value{
 output Table with links added

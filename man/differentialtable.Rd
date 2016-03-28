@@ -4,7 +4,7 @@
 \alias{differentialtable}
 \title{The server function of the differentialtable module}
 \usage{
-differentialtable(input, output, session, ses)
+differentialtable(input, output, session, eses)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ differentialtable(input, output, session, ses)
 
 \item{session}{Session object}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
@@ -23,7 +23,7 @@ applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(differentialtable, 'differentialtable', ses)
+callModule(differentialtable, 'differentialtable', eses)
 }
 \keyword{shiny}
 

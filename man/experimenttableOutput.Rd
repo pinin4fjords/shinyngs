@@ -11,12 +11,13 @@ experimenttableOutput(id)
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
-This module produces a simple table of the \code{colData()} in a
-SummarizedExperiment object. If more than one of these objects were 
-specified, a select box should appear to pick the desired one for display.
+This module produces a simple table of the \code{colData()} in an 
+ExploratorySummarizedExperiment object. If more than one of these objects
+were specified, a select box should appear to pick the desired one for
+display.
 }
 \details{
 Leverages the \code{simpletable} module

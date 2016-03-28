@@ -15,7 +15,7 @@ as.character()
 }
 \description{
 This module is for making scatter plots comparing pairs of groups 
-defined in a 'tests' slot of the SummarizedExperiment metadata.
+defined in a 'tests' slot of the ExploratorySummarizedExperiment
 }
 \details{
 Leverages the \code{scatterplot} module

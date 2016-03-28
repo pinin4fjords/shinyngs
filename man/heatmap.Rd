@@ -4,7 +4,7 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(input, output, session, ses, type = "pca")
+heatmap(input, output, session, eses, type = "expression")
 }
 \arguments{
 \item{input}{Input object}
@@ -13,23 +13,23 @@ heatmap(input, output, session, ses, type = "pca")
 
 \item{session}{Session object}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummmarizedExperiment objects with assay and
+experimental data}
 
-\item{type}{The type of heatmap that will be made. 'expression', 'samples'
-or 'pca'}
+\item{type}{The type of heatmap that will be made. 'expression', 'samples' or
+'pca'}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
 example).
 }
 \details{
-This function assumes that the gene sets have one gene ID (e.g. Entrez)
-which need to be converted to another (e.g. Symbol, Ensembl gene ID).
-This would be common when dealign with MSigDB gene sets, for example.
+This function assumes that the gene sets have one gene ID (e.g. Entrez) which
+need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
+common when dealign with MSigDB gene sets, for example.
 }
 \examples{
-callModule(heatmap, 'heatmap', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files=params$geneset_files)
+callModule(heatmap, 'heatmap', eses, type = "pca")
 }
 \keyword{shiny}
 

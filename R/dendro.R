@@ -1,28 +1,50 @@
 #' The input function of the dendrogram module
 #' 
 #' This provides the form elements to control the pca display
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' dendroInput(ns('boxplot'), ses)
+#' dendroInput(ns('boxplot'), eses)
 
-dendroInput <- function(id, ses) {
+dendroInput <- function(id, eses) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("dendro"), ses)
+    expression_filters <- selectmatrixInput(ns("dendro"), eses)
     
-    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), 
-        selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", 
-            `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
+    dendro_filters <-
+      list(
+        selectInput(
+          ns("corMethod"),
+          "Correlation method",
+          c(
+            Pearson = "pearson",
+            Spearman = "spearman",
+            Kendall = "kendall"
+          )
+        ),
+        selectInput(
+          ns("clusterMethod"),
+          "Clustering method",
+          c(
+            `Ward minimum variance clustering` = "ward.D2",
+            `Single linkage` = "single",
+            `Complete linkage` = "complete",
+            `Average linkage` = "average",
+            WPGMA = "mcquittye",
+            UPGMC = "centroid"
+          )
+        ),
+        groupbyInput(ns("dendro"))
+      )
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -51,23 +73,23 @@ dendroOutput <- function(id) {
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
-#'
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(dendro, 'dendro', ses)
+#' callModule(dendro, 'dendro', eses)
 
-dendro <- function(input, output, session, ses) {
+dendro <- function(input, output, session, eses) {
     
     # Get the expression matrix - no need for a gene selection
     
-    unpack.list(callModule(selectmatrix, "dendro", ses, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "dendro", eses, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
     colorBy <- callModule(groupby, "dendro", getExperiment = getExperiment, group_label = "Color by")
     
     # Call to plotdownload module
@@ -115,12 +137,6 @@ dendro <- function(input, output, session, ses) {
 clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "") {
     
     plotmatrix <- log2(plotmatrix + 1)
-    
-    # dd <- as.dist(1 - cor(plotmatrix, method = cor_method))
-    
-    # hc <- hclust(dd, method = cluster_method)
-    
-    # hcd <- as.dendrogram(hc)
     
     hcd <- calculateDendrogram(plotmatrix, cor_method, cluster_method)
     

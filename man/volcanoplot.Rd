@@ -4,7 +4,7 @@
 \alias{volcanoplot}
 \title{The server function of the differentialtable module}
 \usage{
-volcanoplot(input, output, session, ses)
+volcanoplot(input, output, session, eses)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ volcanoplot(input, output, session, ses)
 
 \item{session}{Session object}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{ses}{List of ExploratorySummarizedExperiment objects with assay and 
+experimental data.}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
@@ -23,7 +23,7 @@ applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(differentialtable, 'differentialtable', ses)
+callModule(differentialtable, 'differentialtable', eses)
 }
 \keyword{shiny}
 

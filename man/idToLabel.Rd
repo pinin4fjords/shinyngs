@@ -5,10 +5,10 @@
 \title{Create row labels based on the settings of \code{labelfield} in the 
 SummarizedExperiment object and the annotation data in \code{mcols}}
 \usage{
-idToLabel(ids, se)
+idToLabel(ids, ese)
 }
 \arguments{
-\item{se}{A SummarizedExperiment}
+\item{ese}{An ExploratorySummarizedExperiment}
 
 \item{list}{of ids}
 }

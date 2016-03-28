@@ -13,9 +13,9 @@ geneset(input, output, session, getExperiment)
 
 \item{session}{Session object}
 
-\item{getExperiment}{Accessor for returning a SummarizedExpeirment object,
-with 'entrezgenefield', 'labelfield' and 'geneset_files' set in its
-metadata.}
+\item{getExperiment}{Accessor for returning an
+ExploratorySummarizedExperiment object, with 'entrezgenefield',
+'labelfield' and 'geneset_files' set in its slots}
 
 \item{annotation}{Dataframe containing gene annotation}
 
@@ -23,22 +23,22 @@ metadata.}
 
 \item{genefield}{The gene ID type in annotation by which results are keyed}
 
-\item{geneset_files}{A named list of .gmt gene set files as might be 
-derived from MSigDB}
+\item{geneset_files}{A named list of .gmt gene set files as might be derived
+from MSigDB}
 }
 \value{
 output A list of two reactive functions: getPathwayNames() and 
-getPathwayGenes() which will be used by other modules.
+  getPathwayGenes() which will be used by other modules.
 }
 \description{
-The gene set module is for adding a gene set filter to shiny UI elements.
+The gene set module is for adding a gene set filter to shiny UI elements. 
 This function is not called directly, but rather via callModule() (see 
 example).
 }
 \details{
-This function assumes that the gene sets have one gene ID (e.g. Entrez)
-which need to be converted to another (e.g. Symbol, Ensembl gene ID).
-This would be common when dealign with MSigDB gene sets, for example.
+This function assumes that the gene sets have one gene ID (e.g. Entrez) which
+need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
+common when dealign with MSigDB gene sets, for example.
 }
 \examples{
 geneset_functions <- callModule(geneset, 'heatmap', getExperiment())

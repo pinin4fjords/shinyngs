@@ -4,9 +4,9 @@
 \alias{selectmatrix}
 \title{The server function of the selectmatrix module}
 \usage{
-selectmatrix(input, output, session, ses, var_n = 50, var_max = NULL,
+selectmatrix(input, output, session, eses, var_n = 50, var_max = NULL,
   select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE,
-  rounding = 2)
+  require_tests = FALSE, rounding = 2)
 }
 \arguments{
 \item{input}{Input object}
@@ -15,32 +15,33 @@ selectmatrix(input, output, session, ses, var_n = 50, var_max = NULL,
 
 \item{session}{Session object}
 
-\item{ses}{List of StructuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and 
+experimental data}
 
-\item{var_n}{The number of rows to select when doing so by variance. Default = 50}
+\item{var_n}{The number of rows to select when doing so by variance. Default
+= 50}
 
-\item{var_max}{The maximum umber of rows to select when doing so by variance. 
+\item{var_max}{The maximum umber of rows to select when doing so by variance.
 Default = 500}
 
-\item{select_samples}{Provide UI and functions for sample selection? (Default: 
-TRUE)}
+\item{select_samples}{Provide UI and functions for sample selection?
+(Default: TRUE)}
 
 \item{select_genes}{Provide UI and functions for gene (row) selection? 
 (Default: TRUE)}
 
-\item{provide_all_genes}{Allow the 'all rows' selection in the UI? Means we
-don't have to calculate variance so the display is quicker, but it's a bad
+\item{provide_all_genes}{Allow the 'all rows' selection in the UI? Means we 
+don't have to calculate variance so the display is quicker, but it's a bad 
 idea for e.g. heatmaps where the visual scales by the numbre of rows.}
 
 \item{rounding}{Number of decimal places to show in results (Default 2)}
 }
 \value{
 output A list of reactive functions for fetching the derived matrix 
-and making a title based on its properties.
+  and making a title based on its properties.
 }
 \description{
-This module uses the geneselect and sampleselect modules to parse controls
+This module uses the geneselect and sampleselect modules to parse controls 
 defining matrix, row and column and return a subsetted matrix.
 }
 \details{
@@ -48,7 +49,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, 'selectmatrix', se)
+selectSamples <- callModule(sampleselect, 'selectmatrix', eses)
 }
 \keyword{shiny}
 

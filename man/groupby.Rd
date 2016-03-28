@@ -14,7 +14,8 @@ groupby(input, output, session, getExperiment, group_label = "Group by",
 
 \item{session}{Session object}
 
-\item{getExperiment}{A reactive that returns a SummarizedExperiment}
+\item{getExperiment}{A reactive that returns an
+ExploratorySummarizedExperiment}
 
 \item{group_label}{A label for the grouping field}
 
@@ -22,11 +23,11 @@ groupby(input, output, session, getExperiment, group_label = "Group by",
 }
 \value{
 output A list of two reactive functions: getPathwayNames() and 
-getPathwayGenes() which will be used by other modules.
+  getPathwayGenes() which will be used by other modules.
 }
 \description{
-The groupby module provides a UI element to choose from the group_vars in
-a SummarizedExperment. Useful for coloring in a PCA etc
+The groupby module provides a UI element to choose from the group_vars in a
+SummarizedExperment. Useful for coloring in a PCA etc
 }
 \examples{
 geneset_functions <- callModule(groupby, 'heatmap', getExperiment)

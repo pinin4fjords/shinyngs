@@ -5,15 +5,15 @@
 \title{Produce a simple app with controls and layout for a single module, in a
 shiny \code{sideBarLayout()}.}
 \usage{
-simpleApp(ses, module = NULL, title = NULL, ui_only = FALSE, ...)
+simpleApp(eses, module = NULL, title = NULL, ui_only = FALSE, ...)
 }
 \arguments{
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
-
 \item{module}{Character string specifying the module to use}
 
 \item{title}{An optional title string to use with the module name}
+
+\item{ses}{List of ExploratorySummarizedExperiment objects with assay and experimental
+data}
 }
 \description{
 Internal function called by prepareApp() to make simple single-function 

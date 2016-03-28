@@ -22,31 +22,31 @@ genesetInput <- function(id) {
 
 #' The server function of the gene set module
 #' 
-#' The gene set module is for adding a gene set filter to shiny UI elements.
+#' The gene set module is for adding a gene set filter to shiny UI elements. 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
 #' 
-#' This function assumes that the gene sets have one gene ID (e.g. Entrez)
-#' which need to be converted to another (e.g. Symbol, Ensembl gene ID).
-#' This would be common when dealign with MSigDB gene sets, for example.
-#'
+#' This function assumes that the gene sets have one gene ID (e.g. Entrez) which
+#' need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
+#' common when dealign with MSigDB gene sets, for example.
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param getExperiment Accessor for returning a SummarizedExpeirment object,
-#' with 'entrezgenefield', 'labelfield' and 'geneset_files' set in its
-#' metadata.
+#' @param getExperiment Accessor for returning an
+#'   ExploratorySummarizedExperiment object, with 'entrezgenefield',
+#'   'labelfield' and 'geneset_files' set in its slots
 #' @param annotation Dataframe containing gene annotation
 #' @param entrezgenefield The column of annotation containing Entrez gene IDs
 #' @param genefield The gene ID type in annotation by which results are keyed
-#' @param geneset_files A named list of .gmt gene set files as might be 
-#' derived from MSigDB
-#'
+#' @param geneset_files A named list of .gmt gene set files as might be derived
+#'   from MSigDB
+#'   
 #' @return output A list of two reactive functions: getPathwayNames() and 
-#' getPathwayGenes() which will be used by other modules. 
-#'
+#'   getPathwayGenes() which will be used by other modules.
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
 #' geneset_functions <- callModule(geneset, 'heatmap', getExperiment())
 
@@ -73,11 +73,11 @@ geneset <- function(input, output, session, getExperiment) {
         
         # Derive the necessary information from the experiment object
         
-        se <- getExperiment()
+        ese <- getExperiment()
         annotation <- data.frame(mcols(se))
-        entrezgenefield <- metadata(se)$entrezgenefield
-        genefield <- metadata(se)$labelfield
-        geneset_files <- metadata(se)$geneset_files
+        entrezgenefield <- ese@entrezgenefield
+        genefield <- ese@labelfield
+        geneset_files <- ese@geneset_files
         
         withProgress(message = "reading gene set info", value = 0, {
             

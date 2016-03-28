@@ -1,32 +1,42 @@
 #' The input function of the heatmap module
 #' 
 #' This provides the form elements to control the heatmap display
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#' @param type The type of heatmap that will be made. 'expression', 'samples'
-#' or 'pca'
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#' @param type The type of heatmap that will be made. 'expression', 'samples' or
+#'   'pca'
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' heatmapInput('heatmap', se, group_vars, default_groupvar
+#' heatmapInput('heatmap', ese, group_vars, default_groupvar)
 
-heatmapInput <- function(id, ses, type = "pca") {
+heatmapInput <- function(id, eses, type = "expression") {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("heatmap"), ses)
+    expression_filters <- selectmatrixInput(ns("heatmap"), eses)
     
     # Only provide controls for clustering etc for the expression heat maps
     
     if (type == "expression") {
-        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", 
-            FALSE), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")))
+      heatmap_filters <-
+        list(
+          h5("Clustering"),
+          checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE),
+          checkboxInput(ns("cluster_cols"), "Cluster columns?",
+                        FALSE),
+          radioButtons(
+            ns("scale"),
+            "Scale by:",
+            c(Row = "row", Column = "column", None = "none")
+          )
+        )
     } else {
         if (type == "pca") {
             cluster_rows <- TRUE
@@ -35,8 +45,13 @@ heatmapInput <- function(id, ses, type = "pca") {
             cluster_rows <- TRUE
             cluster_cols <- TRUE
         }
-        heatmap_filters <- list(hiddenInput(ns("cluster_rows"), cluster_rows), hiddenInput(ns("cluster_cols"), cluster_cols), hiddenInput(ns("scale"), 
-            "none"))
+      heatmap_filters <-
+        list(
+          hiddenInput(ns("cluster_rows"), cluster_rows),
+          hiddenInput(ns("cluster_cols"), cluster_cols),
+          hiddenInput(ns("scale"),
+                      "none")
+        )
     }
     
     heatmap_filters <- list(heatmap_filters, groupbyInput(ns("heatmap")))
@@ -72,9 +87,6 @@ heatmapOutput <- function(id) {
     ns <- NS(id)
     
     uiOutput(ns("heatmap_ui"))
-    
-    # tabsetPanel(tabPanel('Static (with column annotation)', plotOutput(ns('heatMap'))), tabPanel('Interactive (but no column annotation)',
-    # uiOutput(ns('interactiveHeatmap_ui'))))
 }
 
 #' The server function of the heatmap module
@@ -82,24 +94,24 @@ heatmapOutput <- function(id) {
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
 #' 
-#' This function assumes that the gene sets have one gene ID (e.g. Entrez)
-#' which need to be converted to another (e.g. Symbol, Ensembl gene ID).
-#' This would be common when dealign with MSigDB gene sets, for example.
-#'
+#' This function assumes that the gene sets have one gene ID (e.g. Entrez) which
+#' need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
+#' common when dealign with MSigDB gene sets, for example.
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#' @param type The type of heatmap that will be made. 'expression', 'samples'
-#' or 'pca'
-#' 
+#' @param eses List of ExploratorySummmarizedExperiment objects with assay and
+#'   experimental data
+#' @param type The type of heatmap that will be made. 'expression', 'samples' or
+#'   'pca'
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(heatmap, 'heatmap', se, params$idfield, params$entrezgenefield, params$labelfield, geneset_files=params$geneset_files)
+#' callModule(heatmap, 'heatmap', eses, type = "pca")
 
-heatmap <- function(input, output, session, ses, type = "pca") {
+heatmap <- function(input, output, session, eses, type = "expression") {
     
     ns <- session$ns
     
@@ -110,9 +122,9 @@ heatmap <- function(input, output, session, ses, type = "pca") {
     # Call the selectmatrix module and unpack the reactives it sends back
     
     if (type == "expression") {
-        unpack.list(callModule(selectmatrix, "heatmap", ses, var_max = 500))
+        unpack.list(callModule(selectmatrix, "heatmap", eses, var_max = 500))
     } else {
-        unpack.list(callModule(selectmatrix, "heatmap", ses, var_n = 1000))
+        unpack.list(callModule(selectmatrix, "heatmap", eses, var_n = 1000))
     }
     
     # Plot interactive / non-interactive version of heatmap dependent on input
@@ -211,7 +223,7 @@ heatmap <- function(input, output, session, ses, type = "pca") {
             pm <- log2(pm + 1)
         } else if (type == "pca") {
             pm[pm < 0.001] <- 0.001
-            log10(pvals[apply(pm, 1, function(x) !all(is.na(x))), ])
+            log10(pm[apply(pm, 1, function(x) !all(is.na(x))), ])
         }
         pm
     })
@@ -296,10 +308,10 @@ heatmap <- function(input, output, session, ses, type = "pca") {
     # Make row labels
     
     rowLabels <- reactive({
-        se <- getExperiment()
-        if ("labelfield" %in% names(metadata(se)) && type == "expression") {
-            annotation <- as.data.frame(mcols(se))
-            labels <- annotation[match(rownames(getPlotMatrix()), annotation[[metadata(se)$idfield]]), metadata(se)$labelfield]
+        ese <- getExperiment()
+        if (length(ese@labelfield) > 0 && type == "expression") {
+            annotation <- as.data.frame(mcols(ese))
+            labels <- annotation[match(rownames(getPlotMatrix()), annotation[[ese@idfield]]), ese@labelfield]
             labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(getPlotMatrix())[!is.na(labels)], sep = " / ")
             labels[is.na(labels)] <- rownames(getPlotMatrix())[is.na(labels)]
             labels

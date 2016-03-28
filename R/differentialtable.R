@@ -1,34 +1,41 @@
 #' The UI input function of the differentialtable module
-#'  
+#' 
 #' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' Leverages the \code{simpletable} module
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' differentialtableInput('experiment', ses)
+#' differentialtableInput('experiment', eses)
 
-differentialtableInput <- function(id, ses) {
+differentialtableInput <- function(id, eses) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("expression"), ses)
-    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
+    expression_filters <- selectmatrixInput(ns("expression"), eses)
+    fieldSets(
+      ns("fieldset"),
+      list(
+        contrasts = list(contrastsInput(ns("differential"))),
+        select_assay_data = expression_filters,
+        export = simpletableInput(ns("differentialtable"))
+      )
+    )
 }
 
 #' The output function of the differentialtable module
 #' 
 #' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' Leverages the \code{simpletable} module
 #'
@@ -54,19 +61,19 @@ differentialtableOutput <- function(id) {
 #' example). Essentially this just passes the results of \code{colData()} 
 #' applied to the specified SummarizedExperiment object to the 
 #' \code{simpletable} module
-#'
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(differentialtable, 'differentialtable', ses)
+#' callModule(differentialtable, 'differentialtable', eses)
 
-differentialtable <- function(input, output, session, ses) {
+differentialtable <- function(input, output, session, eses) {
     
     # Render the output area - and provide an input-dependent title
     
@@ -78,7 +85,7 @@ differentialtable <- function(input, output, session, ses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", ses, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eses, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE))
     
     # Pass the matrix to the contrasts module for processing
     

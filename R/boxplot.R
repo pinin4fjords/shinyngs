@@ -1,29 +1,36 @@
 #' The input function of the boxplot module
 #' 
 #' This provides the form elements to control the pca display
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' boxplotInput(ns('boxplot'), ses)
+#' boxplotInput(ns('boxplot'), eses)
 
-boxplotInput <- function(id, ses) {
-    
-    ns <- NS(id)
-    
-    expression_filters <- selectmatrixInput(ns("sampleBoxplot"), ses)
-    
-    boxplot_filters <- groupbyInput(ns("boxplot"))
-    
-    fieldSets(ns("fieldset"), list(boxplot = boxplot_filters, expression = expression_filters, export = plotdownloadInput(ns("boxplot"))))
-    
+boxplotInput <- function(id, eses) {
+  ns <- NS(id)
+  
+  expression_filters <-
+    selectmatrixInput(ns("sampleBoxplot"), eses)
+  
+  boxplot_filters <- groupbyInput(ns("boxplot"))
+  
+  fieldSets(
+    ns("fieldset"),
+    list(
+      boxplot = boxplot_filters,
+      expression = expression_filters,
+      export = plotdownloadInput(ns("boxplot"))
+    )
+  )
+  
 }
 
 #' The output function of the boxplot module
@@ -49,23 +56,23 @@ boxplotOutput <- function(id) {
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
-#'
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(boxplot, 'boxplot', ses)
+#' callModule(boxplot, 'boxplot', eses)
 
-boxplot <- function(input, output, session, ses) {
+boxplot <- function(input, output, session, eses) {
     
     # Get the expression matrix - no need for a gene selection
     
-    unpack.list(callModule(selectmatrix, "sampleBoxplot", ses, select_genes = FALSE))
+    unpack.list(callModule(selectmatrix, "sampleBoxplot", eses, select_genes = FALSE))
     colorBy <- callModule(groupby, "boxplot", getExperiment = getExperiment, group_label = "Color by")
     
     # Render the plot

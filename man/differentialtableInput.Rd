@@ -2,28 +2,29 @@
 % Please edit documentation in R/differentialtable.R
 \name{differentialtableInput}
 \alias{differentialtableInput}
-\title{The UI input function of the differentialtable module
- 
-This module provides information on the comparison betwen pairs of groups 
-defined in a 'tests' slot of the SummarizedExperiment metadata.}
+\title{The UI input function of the differentialtable module}
 \usage{
-differentialtableInput(id, ses)
+differentialtableInput(id, eses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
+experimental data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
+This module provides information on the comparison betwen pairs of groups 
+defined in a 'tests' slot of the ExploratorySummarizedExperiment
+}
+\details{
 Leverages the \code{simpletable} module
 }
 \examples{
-differentialtableInput('experiment', ses)
+differentialtableInput('experiment', eses)
 }
 \keyword{shiny}
 

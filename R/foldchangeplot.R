@@ -1,35 +1,42 @@
 #' The UI input function of the \code{foldchangeplot} module
-#'  
-#' This module is for making scatter plots comparing pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' 
+#' This module is for making scatter plots comparing pairs of groups defined in
+#' a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' Leverages the \code{scatterplot} module
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' differentialtableInput('experiment', ses)
+#' differentialtableInput('experiment', eses)
 
-foldchangeplotInput <- function(id, ses) {
+foldchangeplotInput <- function(id, eses) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("expression"), ses)
-    list(fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")), 
-        export = simpletableInput(ns("differentialtable")))), expression_filters)
+    expression_filters <- selectmatrixInput(ns("expression"), eses)
+    list(fieldSets(
+      ns("fieldset"),
+      list(
+        contrasts = list(contrastsInput(ns("differential"))),
+        scatter_plot = scatterplotInput(ns("foldchange")),
+        highlight_points = geneselectInput(ns("foldchange")),
+        export = simpletableInput(ns("differentialtable"))
+      )
+    ), expression_filters)
 }
 
 #' The output function of the \code{foldchangeplot} module
 #' 
 #' This module is for making scatter plots comparing pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' Leverages the \code{scatterplot} module
 #'
@@ -51,24 +58,24 @@ foldchangeplotOutput <- function(id) {
 
 #' The server function of the \code{foldchangeplot} module
 #' 
-#' This module is for making scatter plots comparing pairs of groups 
-#' defined in a 'tests' slot of the SummarizedExperiment metadata.
+#' This module is for making scatter plots comparing pairs of groups defined in
+#' a 'tests' slot of the ExploratorySummarizedExperiment
 #' 
 #' This function is not called directly, but rather via callModule() (see 
-#' example). 
-#'
+#' example).
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(foldchangeplot, 'foldchangeplot', ses)
+#' callModule(foldchangeplot, 'foldchangeplot', eses)
 
-foldchangeplot <- function(input, output, session, ses) {
+foldchangeplot <- function(input, output, session, eses) {
     
     output$foldchangetable <- renderUI({
         ns <- session$ns
@@ -78,7 +85,7 @@ foldchangeplot <- function(input, output, session, ses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", ses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
     
     # Pass the matrix to the contrasts module for processing
     

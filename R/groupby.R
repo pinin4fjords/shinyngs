@@ -21,21 +21,22 @@ groupbyInput <- function(id) {
 
 #' The server function of the groupby module
 #' 
-#' The groupby module provides a UI element to choose from the group_vars in
-#' a SummarizedExperment. Useful for coloring in a PCA etc
-#'
+#' The groupby module provides a UI element to choose from the group_vars in a
+#' SummarizedExperment. Useful for coloring in a PCA etc
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param getExperiment A reactive that returns a SummarizedExperiment
+#' @param getExperiment A reactive that returns an
+#'   ExploratorySummarizedExperiment
 #' @param group_label A label for the grouping field
 #' @param multiple Produces a checkbox group if true, a select box if false
-#'
+#'   
 #' @return output A list of two reactive functions: getPathwayNames() and 
-#' getPathwayGenes() which will be used by other modules. 
-#'
+#'   getPathwayGenes() which will be used by other modules.
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
 #' geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
 
@@ -44,12 +45,12 @@ groupby <- function(input, output, session, getExperiment, group_label = "Group 
     # Choose a default grouping variable, either the one specified or the first
     
     getDefaultGroupby <- reactive({
-        se <- getExperiment()
+        ese <- getExperiment()
         
-        if ("default_groupvar" %in% names(metadata(se))) {
-            metadata(se)$default_groupvar
+        if (length(ese@default_groupvar) > 0){
+            ese@default_groupvar
         } else {
-            metadata(se)$group_vars[1]
+            ese@group_vars[1]
         }
     })
     
@@ -59,10 +60,11 @@ groupby <- function(input, output, session, getExperiment, group_label = "Group 
         
         withProgress(message = "Rendering group by", value = 0, {
             ns <- session$ns
-            se <- getExperiment()
-            if ("group_vars" %in% names(metadata(se))) {
+            ese <- getExperiment()
+            
+            if (length(ese@group_vars) > 0){
                 
-                group_options <- structure(metadata(se)$group_vars, names = prettifyVariablename(metadata(se)$group_vars))
+                group_options <- structure(ese@group_vars, names = prettifyVariablename(ese@group_vars))
                 
                 if (multiple) {
                   checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)

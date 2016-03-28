@@ -4,27 +4,27 @@
 \alias{geneOutput}
 \title{The input function of the gene module}
 \usage{
-geneOutput(id, ses)
+geneOutput(id, eses)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ses}{List of structuredExperiment objects with assay and experimental
-data, with additional information in the metadata() slot}
+\item{dses}{List of structuredExperiment objects with assay and experimental 
+data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
-The gene module picks specified rows out the assay data, either simply by 
-id or label. This is used to create a gene-centric info page.
+The gene module picks specified rows out the assay data, either simply by id
+or label. This is used to create a gene-centric info page.
 }
 \details{
 Outputs are a bar plot and a table contrast data for this gene
 }
 \examples{
-geneOutput(ns('gene'), ses)
+geneOutput(ns('gene'), eses)
 }
 \keyword{shiny}
 

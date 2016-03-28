@@ -230,7 +230,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                 zaxis = list(title = colnames(getDatamatrix())[getZAxis()]), legend = list(y = 0.8))
             
             layoutArgs <- reactive({
-                la <- c(list(p, hovermode = "closest", title = title), axis_layouts)
+                la <- c(list(p, hovermode = "closest", evaluate = TRUE, title = title), axis_layouts)
                 
                 if (getThreedee()) {
                   la$scene <- axis_layouts
@@ -265,8 +265,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% adjustLayout() %>% addTextLabels() %>% 
-                drawLines()
+            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% 
+                drawLines() %>% adjustLayout()
         })
     })
 } 

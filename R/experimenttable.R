@@ -1,52 +1,54 @@
 #' The UI input function of the experimenttable module
-#'  
-#' This module produces a simple table of the \code{colData()} in a
+#' 
+#' This module produces a simple table of the \code{colData()} in a 
 #' SummarizedExperiment object. If more than one of these objects were 
 #' specified, a select box should appear to pick the desired one for display.
 #' 
 #' Leverages the \code{simpletable} module
-#'
-#' @param id Submodule namespace
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Submodule namespace
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
-#' experimentableInput('experiment', ses)
+#' experimentableInput('experiment', eses)
 
-experimenttableInput <- function(id, ses) {
+experimenttableInput <- function(id, eses) {
     
     ns <- NS(id)
     
     description = "This is the metadata associated with the experimental samples of this study."
     
-    if (length(ses) == 1) {
-        tagList(hiddenInput(ns("experiment"), names(ses)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), 'experiment', description))))
+    if (length(eses) == 1) {
+        tagList(hiddenInput(ns("experiment"), names(eses)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), "experiment", 
+            description))))
     } else {
-        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(ses)), export = simpletableInput(ns("experimenttable"), 
-            'experiment', description)))
+        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eses)), export = simpletableInput(ns("experimenttable"), 
+            "experiment", description)))
     }
 }
 
 #' The output function of the experimenttable module
 #' 
-#' This module produces a simple table of the \code{colData()} in a
-#' SummarizedExperiment object. If more than one of these objects were 
-#' specified, a select box should appear to pick the desired one for display.
+#' This module produces a simple table of the \code{colData()} in an 
+#' ExploratorySummarizedExperiment object. If more than one of these objects
+#' were specified, a select box should appear to pick the desired one for
+#' display.
 #' 
 #' Leverages the \code{simpletable} module
-#'
-#' @param id Module namespace
-#'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
-#'
-#' @keywords shiny
 #' 
+#' @param id Module namespace
+#'   
+#' @return output An HTML tag object that can be rendered as HTML using 
+#'   as.character()
+#'   
+#' @keywords shiny
+#'   
 #' @examples
 #' experimenttableOutput('experiment')
 
@@ -61,22 +63,22 @@ experimenttableOutput <- function(id) {
 #' example). Essentially this just passes the results of \code{colData()} 
 #' applied to the specified SummarizedExperiment object to the 
 #' \code{simpletable} module
-#'
+#' 
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
-#'
+#' @param eses List of ExploratorySummarizedExperiment objects with assay and
+#'   experimental data
+#'   
 #' @keywords shiny
-#' 
+#'   
 #' @examples
-#' callModule(experimenttable, 'experimenttable', ses)
+#' callModule(experimenttable, 'experimenttable', eses)
 
-experimenttable <- function(input, output, session, ses) {
+experimenttable <- function(input, output, session, eses) {
     
     getExperiment <- reactive({
-        experiment <- data.frame(colData(ses[[input$experiment]]))
+        experiment <- data.frame(colData(eses[[input$experiment]]))
         colnames(experiment) <- prettifyVariablename(colnames(experiment))
         experiment
     })

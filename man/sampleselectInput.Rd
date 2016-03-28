@@ -2,25 +2,26 @@
 % Please edit documentation in R/sampleselect.R
 \name{sampleselectInput}
 \alias{sampleselectInput}
-\title{The UI input function of the sampleselect module
- 
-This module provides controls for selecting matrix columns by sample or 
-group name.}
+\title{The UI input function of the sampleselect module}
 \usage{
-sampleselectInput(id, se, select_samples = TRUE)
+sampleselectInput(id, ese, select_samples = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{se}{StructuredExperiment object with assay and experimental data, with
-additional information in the metadata() slot}
+\item{ese}{ExploratorySummarizedExperiment object with assay and experimental
+data}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
-as.character()
+  as.character()
 }
 \description{
-This will generally not be called directly, but by other modules such as the
+This module provides controls for selecting matrix columns by sample or group
+name.
+}
+\details{
+This will generally not be called directly, but by other modules such as the 
 selectmatrix module.
 }
 \examples{

@@ -4,9 +4,10 @@
 #' components of a variety of shiny apps, based on the type and data specified.
 #'
 #'
-#' @param type A string specifying the type of shiny app required (options: heatmap)
-#' @param se A SummarizedExperiment object containing assay data (expression, 
-#' counts...), sample data and annotation data for the rows.
+#' @param type A string specifying the type of shiny app required (options:
+#'   heatmap)
+#' @param eselist An ExploratorySummarizedExperimentList object containing assay
+#'   data (expression, counts...), sample data and annotation data for the rows.
 #' @param params A list containing data and display options for the Shiny app
 #'
 #' @return output A list of length 2 containing: the UI and server components
@@ -56,36 +57,17 @@
 #'  # Run the Shiny app
 #'  shinyApp(app$ui, app$server)
 
-prepareApp <- function(type, ses, title = "ShinyNGS application", ui_only = FALSE, ...) {
-    
-    # Convert to a list if a SummarizedExperiment supplied
-    
-    if (!is.list(ses)) {
-        ses <- list(expression = ses)
-    }
-    
-    # Group by any factor variable by default
-    
-    # ses <- lapply(ses, function(se){ if (! 'group_vars' %in% colnames(metadata(se))){ metadata(se)$group_vars <-
-    # colnames(colData(se))[unlist(lapply(names(colData(se)), function(var) is.factor(colData(se)[[var]])))] } if (!  'default_groupvar' %in%
-    # colnames(metadata(se))){ metadata(se)$default_groupvar <- metadata(se)$group_vars[1] } se })
-    
-    args <- list(...)
+prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
     
     if (type == "rnaseq") {
         
-        app <- list(ui = rnaseqInput("rnaseq", ses, title), server = function(input, output, session) {
-            callModule(rnaseq, "rnaseq", ses)
+        app <- list(ui = rnaseqInput("rnaseq", eselist), server = function(input, output, session) {
+            callModule(rnaseq, "rnaseq", eselist)
         })
         
     } else {
-        app <- simpleApp(ses, type, title, ui_only = ui_only, ...)
+        app <- simpleApp(eselist, type, ui_only = ui_only, ...)
     }
-    
-    # if (type == 'simpletable') { ui <- fluidPage(shinyjs::useShinyjs(), navbarPage(id = 'pages', title = 'A simple table page:', tabPanel('Home',
-    # simpletableLayout(se, params)))) server <- function(input, output, session) { callModule(simpletable, 'simpletable', data.frame(colData(se))) } }
-    
-    # return(list(ui = ui, server = server))
     
     app
 }
@@ -96,35 +78,28 @@ prepareApp <- function(type, ses, title = "ShinyNGS application", ui_only = FALS
 #' Internal function called by prepareApp() to make simple single-function 
 #' apps.
 #'
-#' @param ses List of structuredExperiment objects with assay and experimental
-#' data, with additional information in the metadata() slot
+#' @param ses List of ExploratorySummarizedExperiment objects with assay and experimental
+#' data
 #' @param module Character string specifying the module to use
-#' @param title An optional title string to use with the module name
 #'
 #' @keywords shiny
 #'
 #' @examples
 #' simpleApp(ses, 'heatmap', 'My study name')
 
-simpleApp <- function(ses, module = NULL, title = NULL, ui_only = FALSE, ...) {
+simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     
     inputFunc <- get(paste0(module, "Input"))
     outputFunc <- get(paste0(module, "Output"))
     
     moduletitle <- prettifyVariablename(module)
     
-    if (!is.null(title)) {
-        title <- paste(title, moduletitle, sep = ": ")
-    } else {
-        title <- moduletitle
-    }
-    
     cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
     
     if (!is.null(module)) {
         
-        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = title, 
-            windowTitle = title, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, ses, ...), width = 3), mainPanel(outputFunc(module, 
+        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, 
+            windowTitle = moduletitle, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(module, 
                 ...), width = 9)))))
         
         if (ui_only) {
@@ -132,25 +107,9 @@ simpleApp <- function(ses, module = NULL, title = NULL, ui_only = FALSE, ...) {
             }
         } else {
             server = function(input, output, session) {
-                callModule(get(module), module, ses, ...)
+                callModule(get(module), module, eselist, ...)
             }
         }
         list(ui = ui, server = server)
     }
 }
-
-#' Produce the controls and output for a datatable, in a shiny
-#' \code{sideBarLayout()}.
-#' 
-#' Just an abstraction to make prepareApp more concise 
-#'
-#' @param params A list object of parameters
-#'
-#' @keywords shiny
-#'
-#' @examples
-#' tabPanel('Home', simpletableLayout(se, params))))
-
-# simpletableLayout <- function(se, params) { sidebarLayout(sidebarPanel(simpletableInput('simpletable', description = 'These are the samples
-# involved in this study, and their associated variables.  Contrasts for differential expression are built from these variables'), width = 3),
-# mainPanel(simpletableOutput('simpletable', tabletitle = 'Experimental variables'), width = 9)) } 
