@@ -37,12 +37,16 @@ Prerequisites
 
 Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
+### Browser
+
+**Strong recommendation for Chrome over Firefox** - everything renders much more nicely.
+
 Install with devtools
 ---------------------
 
 ``` r
 library(devtools)
-install_github('pinin4fjords/shinyngs')
+install_github('pinin4fjords/shinyngs', ref='v0.1-alpha')
 ```
 
 Example
