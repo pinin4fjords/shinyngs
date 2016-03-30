@@ -58,7 +58,7 @@ An example `ExploratorySummarizedExperimentList` based on the Zhang et al study 
 library(shinyngs)
 data("zhangneurons")
 
-app <- prepareApp("heatmap", zhangneurons)
+app <- prepareApp("rnaseq", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 
