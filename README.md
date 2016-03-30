@@ -58,7 +58,7 @@ app <- prepareApp("heatmap", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 
-There's lots more information and examples of how to build your own apps in the [vignette](inst/doc/shinyngs.html),
+There's lots more information and examples of how to build your own apps in the [vignette](http://htmlpreview.github.io/?inst/doc/shinyngs.html),
 
 TODO
 ====
