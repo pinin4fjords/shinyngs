@@ -7,7 +7,7 @@
 This module provides controls for selecting matrix columns by sample or 
 group name.}
 \usage{
-sampleselect(input, output, session, getExperiment)
+sampleselect(input, output, session, eselist, getExperiment)
 }
 \arguments{
 \item{input}{Input object}

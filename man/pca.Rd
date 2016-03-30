@@ -4,7 +4,7 @@
 \alias{pca}
 \title{The server function of the pca module}
 \usage{
-pca(input, output, session, eses)
+pca(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ pca(input, output, session, eses)
 
 \item{session}{Session object}
 
-\item{eses}{List of structuredExperiment objects with assay and experimental 
-data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \description{
 This module calculates a PCA and formats components and loadings for display.
@@ -29,7 +29,7 @@ example).
 Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
-callModule(pca, 'pca', eses)
+callModule(pca, 'pca', eselist)
 }
 \keyword{shiny}
 

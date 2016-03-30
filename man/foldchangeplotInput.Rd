@@ -4,13 +4,13 @@
 \alias{foldchangeplotInput}
 \title{The UI input function of the \code{foldchangeplot} module}
 \usage{
-foldchangeplotInput(id, eses)
+foldchangeplotInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -24,7 +24,7 @@ a 'tests' slot of the ExploratorySummarizedExperiment
 Leverages the \code{scatterplot} module
 }
 \examples{
-differentialtableInput('experiment', eses)
+differentialtableInput('experiment', eselist)
 }
 \keyword{shiny}
 

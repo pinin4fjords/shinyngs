@@ -4,13 +4,13 @@
 \alias{dendroInput}
 \title{The input function of the dendrogram module}
 \usage{
-dendroInput(id, eses)
+dendroInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -20,7 +20,7 @@ output An HTML tag object that can be rendered as HTML using
 This provides the form elements to control the pca display
 }
 \examples{
-dendroInput(ns('boxplot'), eses)
+dendroInput(ns('boxplot'), eselist)
 }
 \keyword{shiny}
 

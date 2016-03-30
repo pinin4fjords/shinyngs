@@ -7,16 +7,8 @@
 #' 
 #' @export
 
-setClass(
-  "ExploratorySummarizedExperiment",
-  contains = "SummarizedExperiment0",
-  representation = representation(
-    idfield = "character",
-    entrezgenefield = "character",
-    labelfield = "character",
-    tests = "list"
-  )
-)
+setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", 
+    tests = "list"))
 
 #' Title
 #'
@@ -39,18 +31,8 @@ setClass(
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list()) {
     
-    sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(experiment))
+    sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
-    new(
-      "ExploratorySummarizedExperiment", 
-      sumexp,
-      idfield = idfield,
-      labelfield = labelfield,
-      entrezgenefield = entrezgenefield,
-      tests = tests
-    )
+    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, tests = tests)
 } 
-
-
-

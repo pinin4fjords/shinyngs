@@ -6,8 +6,8 @@
 #' Leverages the \code{simpletable} module
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -15,13 +15,13 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' assaydatatableInput('experiment', eses)
+#' assaydatatableInput('experiment', eselist)
 
-assaydatatableInput <- function(id, eses) {
+assaydatatableInput <- function(id, eselist) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("expression"), eses)
+    expression_filters <- selectmatrixInput(ns("expression"), eselist)
     fieldSets(ns("fieldset"), list(select_assay_data = expression_filters, export = simpletableInput(ns("assaydatatable"))))
 }
 
@@ -58,15 +58,15 @@ assaydatatableOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of structuredExperiment objects with assay and experimental
-#' data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #' 
 #' @examples
-#' callModule(assaydatatable, 'assaydatatable', eses)
+#' callModule(assaydatatable, 'assaydatatable', eselist)
 
-assaydatatable <- function(input, output, session, eses) {
+assaydatatable <- function(input, output, session, eselist) {
     
     # Render the output area - and provide an input-dependent title
     
@@ -78,10 +78,9 @@ assaydatatable <- function(input, output, session, eses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), 
-        rownames = FALSE)
+    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
 } 

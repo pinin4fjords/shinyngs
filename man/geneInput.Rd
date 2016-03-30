@@ -4,13 +4,13 @@
 \alias{geneInput}
 \title{The input function of the gene module}
 \usage{
-geneInput(id, eses)
+geneInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -24,7 +24,7 @@ or label. This is used to create a gene-centric info page.
 Inputs are a gene label and a variable to color by (where available)
 }
 \examples{
-geneInput(ns('gene'), eses)
+geneInput(ns('gene'), eselist)
 }
 \keyword{shiny}
 

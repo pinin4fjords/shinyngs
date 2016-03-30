@@ -12,21 +12,8 @@
 #'
 #' @export
 
-setClass(
-  "ExploratorySummarizedExperimentList",
-  contains = "list",
-  representation = representation(
-    ese = "list",
-    title = "character",
-    author = "character",
-    description = "character",
-    group_vars = "character",
-    default_groupvar = "character",
-    contrasts = "list",
-    url_roots = "list",
-    geneset_files = "list"
-  )
-)
+setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(ese = "list", title = "character", author = "character", description = "character", 
+    group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", geneset_files = "list"))
 
 
 #' Title
@@ -44,18 +31,9 @@ setClass(
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
 
-ExploratorySummarizedExperimentList <- function(eses, title = '', author = '', description = '', group_vars = character(), default_groupvar = character(), contrasts = list(), url_roots = list(), geneset_files = list()){ 
+ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), contrasts = list(), 
+    url_roots = list(), geneset_files = list()) {
     
-    new(
-      "ExploratorySummarizedExperimentList",
-      eses,
-      title = title,
-      author = author,
-      description = description,
-      group_vars = group_vars,
-      default_groupvar = default_groupvar,
-      contrasts = contrasts,
-      url_roots = url_roots,
-      geneset_files = geneset_files
-    )
-  } 
+    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, default_groupvar = default_groupvar, 
+        contrasts = contrasts, url_roots = url_roots, geneset_files = geneset_files)
+} 

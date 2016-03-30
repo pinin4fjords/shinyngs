@@ -4,13 +4,13 @@
 \alias{assaydatatableInput}
 \title{The UI input function of the assaydatatable module}
 \usage{
-assaydatatableInput(id, eses)
+assaydatatableInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -24,7 +24,7 @@ assay, also allowing grouping by mean etc.
 Leverages the \code{simpletable} module
 }
 \examples{
-assaydatatableInput('experiment', eses)
+assaydatatableInput('experiment', eselist)
 }
 \keyword{shiny}
 

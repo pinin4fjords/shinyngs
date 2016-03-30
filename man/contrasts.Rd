@@ -4,8 +4,8 @@
 \alias{contrasts}
 \title{The server function of the contrasts module}
 \usage{
-contrasts(input, output, session, getExperiment, selectMatrix, getAssay,
-  multiple = FALSE, show_controls = TRUE)
+contrasts(input, output, session, eselist, getExperiment, selectMatrix,
+  getAssay, multiple = FALSE, show_controls = TRUE)
 }
 \arguments{
 \item{input}{Input object}

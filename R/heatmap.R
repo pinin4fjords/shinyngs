@@ -3,8 +3,8 @@
 #' This provides the form elements to control the heatmap display
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
 #'   'pca'
 #'   
@@ -16,27 +16,17 @@
 #' @examples
 #' heatmapInput('heatmap', ese, group_vars, default_groupvar)
 
-heatmapInput <- function(id, eses, type = "expression") {
+heatmapInput <- function(id, eselist, type = "expression") {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("heatmap"), eses)
+    expression_filters <- selectmatrixInput(ns("heatmap"), eselist)
     
     # Only provide controls for clustering etc for the expression heat maps
     
     if (type == "expression") {
-      heatmap_filters <-
-        list(
-          h5("Clustering"),
-          checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE),
-          checkboxInput(ns("cluster_cols"), "Cluster columns?",
-                        FALSE),
-          radioButtons(
-            ns("scale"),
-            "Scale by:",
-            c(Row = "row", Column = "column", None = "none")
-          )
-        )
+        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE), radioButtons(ns("scale"), 
+            "Scale by:", c(Row = "row", Column = "column", None = "none")))
     } else {
         if (type == "pca") {
             cluster_rows <- TRUE
@@ -45,13 +35,7 @@ heatmapInput <- function(id, eses, type = "expression") {
             cluster_rows <- TRUE
             cluster_cols <- TRUE
         }
-      heatmap_filters <-
-        list(
-          hiddenInput(ns("cluster_rows"), cluster_rows),
-          hiddenInput(ns("cluster_cols"), cluster_cols),
-          hiddenInput(ns("scale"),
-                      "none")
-        )
+        heatmap_filters <- list(hiddenInput(ns("cluster_rows"), cluster_rows), hiddenInput(ns("cluster_cols"), cluster_cols), hiddenInput(ns("scale"), "none"))
     }
     
     heatmap_filters <- list(heatmap_filters, groupbyInput(ns("heatmap")))
@@ -66,7 +50,12 @@ heatmapInput <- function(id, eses, type = "expression") {
     
     # Output sets of fields in their own containers
     
-    fieldSets(ns("fieldset"), list(heatmap = list(heatmap_filters, interactivity_filter), expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
+    if (type == "pca" && length(eselist@group_vars) == 0) {
+        list(heatmap_filters, interactivity_filter, fieldSets(ns("fieldset"), list(expression = expression_filters, export = plotdownloadInput(ns("heatmap")))))
+    } else {
+        fieldSets(ns("fieldset"), list(heatmap = list(heatmap_filters, interactivity_filter), expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
+    }
+    
 }
 
 #' The output function of the heatmap module
@@ -101,30 +90,30 @@ heatmapOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummmarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
 #'   'pca'
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(heatmap, 'heatmap', eses, type = "pca")
+#' callModule(heatmap, 'heatmap', eselist, type = 'pca')
 
-heatmap <- function(input, output, session, eses, type = "expression") {
+heatmap <- function(input, output, session, eselist, type = "expression") {
     
     ns <- session$ns
     
     # Make the groupby UI element
     
-    groupBy <- callModule(groupby, "heatmap", getExperiment = getExperiment, group_label = "Annotate with variables:", multiple = TRUE)
+    groupBy <- callModule(groupby, "heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE)
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
     if (type == "expression") {
-        unpack.list(callModule(selectmatrix, "heatmap", eses, var_max = 500))
+        unpack.list(callModule(selectmatrix, "heatmap", eselist, var_max = 500))
     } else {
-        unpack.list(callModule(selectmatrix, "heatmap", eses, var_n = 1000))
+        unpack.list(callModule(selectmatrix, "heatmap", eselist, var_n = 1000))
     }
     
     # Plot interactive / non-interactive version of heatmap dependent on input
@@ -161,6 +150,8 @@ heatmap <- function(input, output, session, eses, type = "expression") {
             
             if (!is.null(groupBy())) {
                 
+                print("Grouping active")
+                
                 # Prettify the factor levels for display
                 
                 colnames(ed)[match(groupBy(), colnames(ed))] <- prettifyVariablename(groupBy())
@@ -173,6 +164,8 @@ heatmap <- function(input, output, session, eses, type = "expression") {
                 # Order by the group variables for display purposes
                 
                 ed[do.call(order, as.list(ed[, group_vars, drop = FALSE])), , drop = FALSE]
+            } else {
+                ed
             }
         }
     })
@@ -233,13 +226,18 @@ heatmap <- function(input, output, session, eses, type = "expression") {
     getPCAMatrix <- reactive({
         
         pcameta <- getExperimentData()
+        
+        # Take out anything with less than 2 unique values or the below won't work
+        
+        pcameta <- pcameta[, apply(pcameta, 2, function(x) length(unique(x[!is.na(x)]))) > 1]
+        
         pcavals <- selectMatrix()[, rownames(pcameta)]
         
         pca <- runPCA(pcavals)
         fraction_explained <- calculatePCAFractionExplained(pca)
         
-        pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = 10, dimnames = list(colnames(pcameta), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], 
-            "%)", sep = "")))
+        pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = 10, dimnames = list(colnames(pcameta), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], "%)", 
+            sep = "")))
         
         for (i in 1:ncol(pcameta)) {
             for (j in 1:10) {
@@ -354,9 +352,8 @@ heatmap <- function(input, output, session, eses, type = "expression") {
     
     output$interactiveHeatmap <- d3heatmap::renderD3heatmap({
         withProgress(message = "Building interactive heatmap", value = 0, {
-            interactiveHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), 
-                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = cexCol(), 
-                cexRow = cexRow())
+            interactiveHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
+                scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = cexCol(), cexRow = cexRow())
         })
     })
     
@@ -364,16 +361,16 @@ heatmap <- function(input, output, session, eses, type = "expression") {
     
     output$annotatedHeatmap <- renderPlot({
         withProgress(message = "Building static heatmap", value = 0, {
-            annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), 
-                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
+            annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
+                scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
         })
     }, height = plotHeight)
     
     # The same function call as static for providing the download
     
     plotHeatmap <- reactive({
-        annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getExperimentData(), cluster_cols = as.logical(input$cluster_cols), 
-            cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
+        annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getExperimentData(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
+            scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
     })
     
     # Call to plotdownload module
@@ -423,8 +420,8 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
     }
     
     pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, 
-        border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), 
-        clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors)
+        border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), 
+        clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors)
 }
 
 #' Make a ineractive heatmap with d3heatmap
@@ -450,8 +447,8 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 #' @examples
 #' R code here showing how your function works
 
-interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, 
-    colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...) {
+interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
+    name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...) {
     
     # should be possible to specify this in the labRow parameter- but the clustering messes it up
     
@@ -491,8 +488,8 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
     # xaxis_height = max(unlist(lapply(colnames(plotmatrix), function(x) nchar(x)))) * 10
     xaxis_height = 300
     
-    d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, cellnote = displaymatrix, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, 
-        yaxis_width = yaxis_width, colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = row_labels, ...)
+    d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, cellnote = displaymatrix, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, yaxis_width = yaxis_width, 
+        colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = row_labels, ...)
 }
 
 #' Make color sets to use in heatmap annotation
@@ -528,8 +525,7 @@ makeAnnotationColors <- function(sample_annotation) {
         if (RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"] >= length(categories) && length(categories) > 2) {
             colcolors <- RColorBrewer::brewer.pal(length(categories), palettes[i])
         } else {
-            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), 
-                length(categories))
+            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), length(categories))
         }
         
         names(colcolors) <- levels(sample_annotation[, i])

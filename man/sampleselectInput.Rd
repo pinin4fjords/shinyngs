@@ -4,7 +4,7 @@
 \alias{sampleselectInput}
 \title{The UI input function of the sampleselect module}
 \usage{
-sampleselectInput(id, ese, select_samples = TRUE)
+sampleselectInput(id, eselist, getExperiment, select_samples = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}

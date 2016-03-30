@@ -6,8 +6,8 @@
 #' Inputs are a gene label and a variable to color by (where available)
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -15,14 +15,13 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' geneInput(ns('gene'), eses)
+#' geneInput(ns('gene'), eselist)
 
-geneInput <- function(id, eses) {
+geneInput <- function(id, eselist) {
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("gene"), eses)
-    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
-        groupbyInput(ns("gene")))
+    expression_filters <- selectmatrixInput(ns("gene"), eselist)
+    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), groupbyInput(ns("gene")))
     
     list(expression_filters, fieldSets(ns("fieldset"), list(gene = gene_filters, table_options = contrastsInput(ns("gene"), allow_filtering = FALSE))))
     
@@ -45,9 +44,9 @@ geneInput <- function(id, eses) {
 #' @keywords shiny
 #'   
 #' @examples
-#' geneOutput(ns('gene'), eses)
+#' geneOutput(ns('gene'), eselist)
 
-geneOutput <- function(id, eses) {
+geneOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(h4("Barplot"), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), DT::dataTableOutput(ns("contrastTable")))
@@ -64,21 +63,21 @@ geneOutput <- function(id, eses) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(gene, 'gene', eses)
+#' callModule(gene, 'gene', eselist)
 
-gene <- function(input, output, session, eses) {
+gene <- function(input, output, session, eselist) {
     
     # Call all the required modules and unpack their reactives
     
-    unpack.list(callModule(selectmatrix, "gene", eses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
-    unpack.list(callModule(contrasts, "gene", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
-    colorBy <- callModule(groupby, "gene", getExperiment = getExperiment, group_label = "Color by")
+    unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
+    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
+    colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
     
@@ -86,7 +85,7 @@ gene <- function(input, output, session, eses) {
         ese <- getExperiment()
         
         gene_names <- rownames(ese)
-        if (length(ese@labelfield) > 0){
+        if (length(ese@labelfield) > 0) {
             gene_names <- sort(mcols(ese)[[ese@labelfield]])
         }
     })
@@ -103,7 +102,7 @@ gene <- function(input, output, session, eses) {
         rowids <- input$gene_label
         ese <- getExperiment()
         
-        if (length(ese@labelfield) > 0){
+        if (length(ese@labelfield) > 0) {
             rowids <- rownames(ese)[mcols(ese)[[ese@labelfield]] == input$gene_label]
         }
     })
@@ -117,7 +116,7 @@ gene <- function(input, output, session, eses) {
             ese <- getExperiment()
             barplot_expression <- selectMatrix()[getRows(), , drop = FALSE]
             
-            if (length(ese@labelfield) > 0){
+            if (length(ese@labelfield) > 0) {
                 rownames(barplot_expression) <- paste(getRows(), input$gene_label, sep = " / ")
             }
             
@@ -130,7 +129,7 @@ gene <- function(input, output, session, eses) {
     
     getLabelField <- reactive({
         ese <- getExperiment()
-        if (length(ese@labelfield) > 0){
+        if (length(ese@labelfield) > 0) {
             ese@labelfield
         } else {
             ese@idfield
@@ -141,16 +140,18 @@ gene <- function(input, output, session, eses) {
     
     getGeneContrastsTable <- reactive({
         contrasts_table <- labelledContrastsTable()
-        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment())
+        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment(), url_roots = eselist@url_roots)
     })
     
     # Render the contrasts table- when a valid label is supplied
     
-    output$contrastTable <- DT::renderDataTable({
-        validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
-        
-        getGeneContrastsTable()
-    }, rownames = FALSE, escape = FALSE)
+    if (length(eselist@contrasts) > 0) {
+        output$contrastTable <- DT::renderDataTable({
+            validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
+            
+            getGeneContrastsTable()
+        }, rownames = FALSE, escape = FALSE)
+    }
     
     # Supply a reactive for updating the gene input field
     
@@ -181,8 +182,10 @@ gene <- function(input, output, session, eses) {
 
 geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Expression") {
     
-    groups <- as.character(experiment[colnames(expression), colorby])
-    groups[is.na(groups)] <- "N/A"
+    if (!is.null(colorby)) {
+        groups <- as.character(experiment[colnames(expression), colorby])
+        groups[is.na(groups)] <- "N/A"
+    }
     
     # A hidden axis
     
@@ -197,21 +200,18 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             yaxis = ax
         }
         
-        plot_ly(
-          x = names(row),
-          y = as.numeric(row),
-          type = "bar",
-          color = groups,
-          showlegend = (rowno == 1),
-          evaluate = TRUE
-        ) %>% layout(
-          xaxis = list(title = rownames(expression)[rowno]),
-          yaxis = yaxis,
-          margin = list(b = 100),
-          evaluate = TRUE
-        )
+        plotargs <- list(x = names(row), y = as.numeric(row), type = "bar", showlegend = (rowno == 1), evaluate = TRUE)
+        
+        if (!is.null(colorby)) {
+            plotargs$color <- groups
+        }
+        
+        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno]), yaxis = yaxis, margin = list(b = 100), evaluate = TRUE)
     })
     
-    do.call(function(...) subplot(...), plots)
-    
+    if (length(plots) > 1) {
+        do.call(function(...) subplot(...), plots)
+    } else {
+        plots[[1]]
+    }
 } 

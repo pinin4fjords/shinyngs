@@ -4,7 +4,7 @@
 \alias{dendro}
 \title{The server function of the dendrogram module}
 \usage{
-dendro(input, output, session, eses)
+dendro(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,15 +13,15 @@ dendro(input, output, session, eses)
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
 example).
 }
 \examples{
-callModule(dendro, 'dendro', eses)
+callModule(dendro, 'dendro', eselist)
 }
 \keyword{shiny}
 

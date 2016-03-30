@@ -4,7 +4,7 @@
 \alias{foldchangeplot}
 \title{The server function of the \code{foldchangeplot} module}
 \usage{
-foldchangeplot(input, output, session, eses)
+foldchangeplot(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ foldchangeplot(input, output, session, eses)
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \description{
 This module is for making scatter plots comparing pairs of groups defined in
@@ -25,7 +25,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(foldchangeplot, 'foldchangeplot', eses)
+callModule(foldchangeplot, 'foldchangeplot', eselist)
 }
 \keyword{shiny}
 

@@ -4,13 +4,13 @@
 \alias{boxplotInput}
 \title{The input function of the boxplot module}
 \usage{
-boxplotInput(id, eses)
+boxplotInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -20,7 +20,7 @@ output An HTML tag object that can be rendered as HTML using
 This provides the form elements to control the pca display
 }
 \examples{
-boxplotInput(ns('boxplot'), eses)
+boxplotInput(ns('boxplot'), eselist)
 }
 \keyword{shiny}
 

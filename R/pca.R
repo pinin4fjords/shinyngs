@@ -5,8 +5,8 @@
 #' modules.
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -16,29 +16,18 @@
 #' @examples
 #' pcaInput('pca', ese, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
 
-pcaInput <- function(id, eses) {
+pcaInput <- function(id, eselist) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("pca"), eses)
+    expression_filters <- selectmatrixInput(ns("pca"), eselist)
     
     pca_filters <- list(sliderInput(ns("n_loadings"), "Number of loadings to examine", min = 2, max = 100, value = 10))
     
     # Output sets of fields in their own containers
     
-    fieldSets(
-      ns("fieldset"),
-      list(
-        principal_component_analysis = pca_filters,
-        scatter_plot = list(
-          scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE),
-          groupbyInput(ns("pca"))
-        ),
-        expression = expression_filters,
-        export = simpletableInput(ns("loading"), tabletitle = "Loading")
-      )
-    )
-    
+    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))), 
+        expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
 }
 
 #' The output function of the pca module
@@ -59,12 +48,8 @@ pcaInput <- function(id, eses) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))),
-                tabPanel("Loadings", list(
-                  scatterplotOutput(ns("loading")),
-                  simpletableOutput(ns("loading"),
-                                    tabletitle = "Loadings")
-                )))
+    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), 
+        tabletitle = "Loadings"))))
 }
 
 #' The server function of the pca module
@@ -82,18 +67,19 @@ pcaOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of structuredExperiment objects with assay and experimental 
-#'   data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(pca, 'pca', eses)
+#' callModule(pca, 'pca', eselist)
 
-pca <- function(input, output, session, eses) {
+pca <- function(input, output, session, eselist) {
     
-    unpack.list(callModule(selectmatrix, "pca", eses, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
-    colorBy <- callModule(groupby, "pca", getExperiment = getExperiment, group_label = "Color by")
+    unpack.list(callModule(selectmatrix, "pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+    
+    colorBy <- callModule(groupby, "pca", eselist = eselist, group_label = "Color by")
     
     # Make a common set of controls to be used for components and loadings plots
     
@@ -101,10 +87,10 @@ pca <- function(input, output, session, eses) {
     
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
     
-    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
-        getShowLabels = getShowLabels, getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
-        getShowLabels = getShowLabels, getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
+    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
+        getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
+        getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
     
     # Make a matrix of values to the PCA
     
@@ -118,7 +104,12 @@ pca <- function(input, output, session, eses) {
     })
     
     pcaColorBy <- reactive({
-        na.replace(selectColData()[[colorBy()]], "N/A")
+        
+        if (is.null(colorBy())) {
+            
+        } else {
+            na.replace(selectColData()[[colorBy()]], "N/A")
+        }
     })
     
     # Run the PCA
@@ -180,7 +171,7 @@ pca <- function(input, output, session, eses) {
     # Make a version of the loading table for display with rounded values and links
     
     makeDisplayLoadingTable <- reactive({
-        linkMatrix(labelMatrix(data.frame(signif(makeLoadingTable(), 5), check.names = FALSE), getExperiment()), getExperiment())
+        linkMatrix(labelMatrix(data.frame(signif(makeLoadingTable(), 5), check.names = FALSE), getExperiment()), getExperiment(), url_roots = eselist@url_roots)
     })
     
     makeDownloadLoadingTable <- reactive({
@@ -200,8 +191,7 @@ pca <- function(input, output, session, eses) {
         loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
     
-    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", 
-        rownames = FALSE)
+    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
     
 }
 

@@ -3,8 +3,8 @@
 #' This provides the form elements to control the pca display
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -12,25 +12,29 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' boxplotInput(ns('boxplot'), eses)
+#' boxplotInput(ns('boxplot'), eselist)
 
-boxplotInput <- function(id, eses) {
-  ns <- NS(id)
-  
-  expression_filters <-
-    selectmatrixInput(ns("sampleBoxplot"), eses)
-  
-  boxplot_filters <- groupbyInput(ns("boxplot"))
-  
-  fieldSets(
-    ns("fieldset"),
-    list(
-      boxplot = boxplot_filters,
-      expression = expression_filters,
-      export = plotdownloadInput(ns("boxplot"))
-    )
-  )
-  
+boxplotInput <- function(id, eselist) {
+    ns <- NS(id)
+    
+    expression_filters <- selectmatrixInput(ns("sampleBoxplot"), eselist)
+    boxplot_filters <- groupbyInput(ns("boxplot"))
+    
+    field_sets = list()
+    naked_fields = list()  # Things we don't want to wrap in a field set - probably hidden stuff
+    
+    # Don't create an empty field set if we're not grouping
+    
+    if (length(eselist@group_vars) > 0) {
+        field_sets$boxplot_filters <- boxplot_filters
+    } else {
+        naked_fields[[1]] <- boxplot_filters
+    }
+    
+    field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns("boxplot"))))
+    
+    list(naked_fields, fieldSets(ns("fieldset"), field_sets))
+    
 }
 
 #' The output function of the boxplot module
@@ -60,20 +64,21 @@ boxplotOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(boxplot, 'boxplot', eses)
+#' callModule(boxplot, 'boxplot', eselist)
 
-boxplot <- function(input, output, session, eses) {
+boxplot <- function(input, output, session, eselist) {
     
     # Get the expression matrix - no need for a gene selection
     
-    unpack.list(callModule(selectmatrix, "sampleBoxplot", eses, select_genes = FALSE))
-    colorBy <- callModule(groupby, "boxplot", getExperiment = getExperiment, group_label = "Color by")
+    unpack.list(callModule(selectmatrix, "sampleBoxplot", eselist, select_genes = FALSE))
+    
+    colorBy <- callModule(groupby, "boxplot", eselist = eselist, group_label = "Color by")
     
     # Render the plot
     
@@ -136,9 +141,8 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }
     
-    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
-        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
-        expressiontype, ")"), 15))
+    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), 
+        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
     
     print(p)
 }

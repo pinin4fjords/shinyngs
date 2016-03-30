@@ -4,13 +4,13 @@
 \alias{selectmatrixInput}
 \title{The UI input function of the selectmarix module}
 \usage{
-selectmatrixInput(id, eses, require_tests = FALSE)
+selectmatrixInput(id, eselist, require_tests = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and 
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -25,7 +25,7 @@ This will generally not be called directly, but by other modules such as the
 heatmap module.
 }
 \examples{
-selectmatrixInput(ns('heatmap'), eses)
+selectmatrixInput(ns('heatmap'), eselist)
 }
 \keyword{shiny}
 

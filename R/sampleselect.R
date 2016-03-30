@@ -18,35 +18,35 @@
 #' @examples
 #' sampleselectInput(ns('heatmap'))
 
-sampleselectInput <- function(id, ese, select_samples = TRUE) {
+sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE) {
     
     ns <- NS(id)
+    
+    ese <- getExperiment()
     
     if (select_samples) {
         
         # If grouping variables have been supplied we can use them to define sample selection
         
         selectby <- "name"
-        if (length(ese@group_vars) > 0){
+        if (length(eselist@group_vars) > 0) {
             selectby <- c(selectby, "group")
             default_groupvar <- ese$group_vars[1]
-            if (length(ese@group_vars) > 0){
-                default_groupvar <- ese@default_groupvar
+            if (length(eselist@group_vars) > 0) {
+                default_groupvar <- eselist@default_groupvar
             }
         }
         
         # We can select by sample in any case
         
-        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
-            conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(ese), 
-                selected = colnames(ese), inline = TRUE)))
+        inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), conditionalPanel(condition = paste0("input['", 
+            ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", colnames(ese), selected = colnames(ese), inline = TRUE)))
         
         # Add in group selection if relevant
         
-        if (length(ese@group_vars) > 0){
-            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
-                "Define groups by:", structure(ese@group_vars, names = prettifyVariablename(ese@group_vars)), selected = ese@default_groupvar), 
-                uiOutput(ns("groupSamples"))))
+        if (length(eselist@group_vars) > 0) {
+            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", 
+                structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars)), selected = eselist@default_groupvar), uiOutput(ns("groupSamples"))))
         }
         
     } else {
@@ -78,7 +78,7 @@ sampleselectInput <- function(id, ese, select_samples = TRUE) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', getExperiment)
 
-sampleselect <- function(input, output, session, getExperiment) {
+sampleselect <- function(input, output, session, eselist, getExperiment) {
     
     getSummaryType <- callModule(summarisematrix, "summarise")
     
@@ -88,7 +88,7 @@ sampleselect <- function(input, output, session, getExperiment) {
         
         ese <- getExperiment()
         
-        if (input$sampleSelect == "group" && length(ese@group_vars) > 0){
+        if (input$sampleSelect == "group" && length(eselist@group_vars) > 0) {
             validate(need(input$sampleGroupVar, FALSE))
             group_values <- as.character(unique(ese[[isolate(input$sampleGroupVar)]]))
             ns <- session$ns
@@ -124,7 +124,7 @@ sampleselect <- function(input, output, session, getExperiment) {
                 
                 validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
                 
-                if (length(ese@group_vars) > 0){
+                if (length(eselist@group_vars) > 0) {
                   validate(need(!is.null(input$sampleGroupVal), FALSE))
                 }
                 

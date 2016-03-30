@@ -55,7 +55,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1, 
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, getExperiment, selectMatrix, getAssay, multiple = FALSE, show_controls = TRUE) {
+contrasts <- function(input, output, session, eselist, getExperiment, selectMatrix, getAssay, multiple = FALSE, show_controls = TRUE) {
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
@@ -89,11 +89,10 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     getAllContrasts <- reactive({
         ese <- getExperiment()
         
-        if (length(ese@contrasts) > 0){
-            contrasts <- ese@contrasts
+        if (length(eselist@contrasts) > 0) {
+            contrasts <- eselist@contrasts
             
-            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), 
-                sep = ": ")))
+            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), sep = ": ")))
         } else {
             NULL
         }
@@ -103,7 +102,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     
     getContrasts <- reactive({
         ese <- getExperiment()
-        ese@contrasts[getSelectedContrasts()]
+        eselist@contrasts[getSelectedContrasts()]
     })
     
     getSelectedContrasts <- reactive({
@@ -115,12 +114,12 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         names(getAllContrasts())[getSelectedContrasts()]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this
-    # output and calculate fold changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold
+    # changes etc.
     
     getSummaries <- reactive({
         ese <- getExperiment()
-        contrasts <- ese@contrasts[getAllContrasts()]
+        contrasts <- eselist@contrasts[getAllContrasts()]
         
         contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
         names(contrast_variables) <- contrast_variables
@@ -132,8 +131,8 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
         summaries
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a
-    # 'tests' slot of the ExploratorySummarizedExperiment.
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the
+    # ExploratorySummarizedExperiment.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()
@@ -146,16 +145,13 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
             
             contrast_tables <- lapply(getSelectedContrasts(), function(c) {
                 
-                cont <- ese@contrasts[[c]]
+                cont <- eselist@contrasts[[c]]
                 
                 smry1 <- summaries[[cont[1]]][, cont[2]]
                 smry2 <- summaries[[cont[1]]][, cont[3]]
                 
                 ct <- data.frame(round(smry1, 2), round(smry2, 2), round(foldChange(smry1, smry2), 2))
                 names(ct) <- c(cont[2], cont[3], "Fold change")
-                
-                saveRDS(ese, file = '~/shinytests/ese.rds')
-                saveRDS(getAssay(), file = '~/shinytests/ga.rds')
                 
                 if (length(ese@tests) > 0 && getAssay() %in% names(ese@tests)) {
                   pvals <- ese@tests[[getAssay()]]$pvals
@@ -196,13 +192,13 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     
     filteredContrastsTables <- reactive({
         ese <- getExperiment()
-
+        
         if (getFilterRows()) {
-          if (length(ese@tests) == 0 || ! getAssay() %in% names(ese@tests)) {
-            lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), ])
-          }else{
-            lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
-          }
+            if (length(ese@tests) == 0 || !getAssay() %in% names(ese@tests)) {
+                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), ])
+            } else {
+                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
+            }
         } else {
             contrastsTables()
         }
@@ -222,7 +218,7 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
                 ct <- cts[[ctn]]
                 
                 ese <- getExperiment()
-                contrast <- ese@contrasts[[as.numeric(ctn)]]
+                contrast <- eselist@contrasts[[as.numeric(ctn)]]
                 colnames(ct)[1:2] <- c("Average 1", "Average 2")
                 ct$Variable <- prettifyVariablename(contrast[1])
                 ct[["Condition 1"]] <- contrast[2]
@@ -239,14 +235,18 @@ contrasts <- function(input, output, session, getExperiment, selectMatrix, getAs
     # Use labelledContrastsTable to get the labelled matrix and add some links.
     
     linkedLabelledContrastsTable <- reactive({
-        linkMatrix(labelledContrastsTable(), getExperiment())
+        if (length(eselist@url_roots) > 0) {
+            linkMatrix(labelledContrastsTable(), getExperiment(), eselist@url_roots)
+        } else {
+            labelledContrastsTable()
+        }
     })
     
     # Basic accessors for parameters
     
     
-    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, 
-        contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
+    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, contrastsTables = contrastsTables, 
+        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }
 
 #' Fold change between two vectors

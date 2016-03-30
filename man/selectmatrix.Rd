@@ -4,7 +4,7 @@
 \alias{selectmatrix}
 \title{The server function of the selectmatrix module}
 \usage{
-selectmatrix(input, output, session, eses, var_n = 50, var_max = NULL,
+selectmatrix(input, output, session, eselist, var_n = 50, var_max = NULL,
   select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE,
   require_tests = FALSE, rounding = 2)
 }
@@ -15,8 +15,8 @@ selectmatrix(input, output, session, eses, var_n = 50, var_max = NULL,
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and 
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default
 = 50}
@@ -49,7 +49,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, 'selectmatrix', eses)
+selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 }
 \keyword{shiny}
 

@@ -3,8 +3,8 @@
 #' This provides the form elements to control the pca display
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -12,39 +12,17 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' dendroInput(ns('boxplot'), eses)
+#' dendroInput(ns('boxplot'), eselist)
 
-dendroInput <- function(id, eses) {
+dendroInput <- function(id, eselist) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("dendro"), eses)
+    expression_filters <- selectmatrixInput(ns("dendro"), eselist)
     
-    dendro_filters <-
-      list(
-        selectInput(
-          ns("corMethod"),
-          "Correlation method",
-          c(
-            Pearson = "pearson",
-            Spearman = "spearman",
-            Kendall = "kendall"
-          )
-        ),
-        selectInput(
-          ns("clusterMethod"),
-          "Clustering method",
-          c(
-            `Ward minimum variance clustering` = "ward.D2",
-            `Single linkage` = "single",
-            `Complete linkage` = "complete",
-            `Average linkage` = "average",
-            WPGMA = "mcquittye",
-            UPGMC = "centroid"
-          )
-        ),
-        groupbyInput(ns("dendro"))
-      )
+    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), 
+        "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", 
+            WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -77,20 +55,20 @@ dendroOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(dendro, 'dendro', eses)
+#' callModule(dendro, 'dendro', eselist)
 
-dendro <- function(input, output, session, eses) {
+dendro <- function(input, output, session, eselist) {
     
     # Get the expression matrix - no need for a gene selection
     
-    unpack.list(callModule(selectmatrix, "dendro", eses, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
-    colorBy <- callModule(groupby, "dendro", getExperiment = getExperiment, group_label = "Color by")
+    unpack.list(callModule(selectmatrix, "dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
+    colorBy <- callModule(groupby, "dendro", eselist = eselist, group_label = "Color by")
     
     # Call to plotdownload module
     
@@ -163,17 +141,18 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_me
         labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
         shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), 
-            show_guide = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), show_guide = F)
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_discrete(name = prettifyVariablename(colorby))
         
-        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, 
-            name = prettifyVariablename(colorby)) + theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
+        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + 
+            theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
         
     }
     
-    p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
+    if (!is.null(colorby)) {
+        p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
+    }
     print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
 }
 

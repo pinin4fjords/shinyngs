@@ -4,13 +4,13 @@
 \alias{pcaInput}
 \title{The input function of the pca module}
 \usage{
-pcaInput(id, eses)
+pcaInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

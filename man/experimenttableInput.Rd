@@ -4,13 +4,13 @@
 \alias{experimenttableInput}
 \title{The UI input function of the experimenttable module}
 \usage{
-experimenttableInput(id, eses)
+experimenttableInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -25,7 +25,7 @@ specified, a select box should appear to pick the desired one for display.
 Leverages the \code{simpletable} module
 }
 \examples{
-experimentableInput('experiment', eses)
+experimentableInput('experiment', eselist)
 }
 \keyword{shiny}
 

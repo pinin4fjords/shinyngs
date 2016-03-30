@@ -6,8 +6,8 @@
 #' Leverages the \code{scatterplot} module
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -15,22 +15,33 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' differentialtableInput('experiment', eses)
+#' differentialtableInput('experiment', eselist)
 
-foldchangeplotInput <- function(id, eses) {
+foldchangeplotInput <- function(id, eselist) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("expression"), eses)
-    list(fieldSets(
-      ns("fieldset"),
-      list(
-        contrasts = list(contrastsInput(ns("differential"))),
-        scatter_plot = scatterplotInput(ns("foldchange")),
-        highlight_points = geneselectInput(ns("foldchange")),
-        export = simpletableInput(ns("differentialtable"))
-      )
-    ), expression_filters)
+    # Only consider experiments that actually have p-values to use in a volcano plot
+    
+    expression_filters <- selectmatrixInput(ns("expression"), eselist)
+    
+    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
+    
+    fieldsets <- list()
+    if (length(eselist) > 1) {
+        fieldsets$expression_matrix <- expression_filters
+    }
+    
+    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")), 
+        export = simpletableInput(ns("differentialtable"))))
+    
+    inputs <- list(fieldSets(ns("fieldset"), fieldsets))
+    
+    if (length(eselist) == 1) {
+        inputs <- pushToList(inputs, expression_filters)
+    }
+    
+    inputs
 }
 
 #' The output function of the \code{foldchangeplot} module
@@ -67,15 +78,15 @@ foldchangeplotOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(foldchangeplot, 'foldchangeplot', eses)
+#' callModule(foldchangeplot, 'foldchangeplot', eselist)
 
-foldchangeplot <- function(input, output, session, eses) {
+foldchangeplot <- function(input, output, session, eselist) {
     
     output$foldchangetable <- renderUI({
         ns <- session$ns
@@ -85,20 +96,20 @@ foldchangeplot <- function(input, output, session, eses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eses, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
-    unpack.list(callModule(geneselect, "foldchange", getExperiment = getExperiment, assay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    unpack.list(callModule(geneselect, "foldchange", eselist = eselist, getExperiment = getExperiment, assay = getAssay, provide_all = FALSE, provide_none = TRUE))
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = paste("Fold change plot for contrast", getSelectedContrastNames(), 
-        sep = "<br />"), allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = paste("Fold change plot for contrast", getSelectedContrastNames(), sep = "<br />"), allow_3d = FALSE, 
+        getLabels = foldchangeLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -120,8 +131,8 @@ foldchangeplot <- function(input, output, session, eses) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        data.frame(name = c(rep("diagonal", 2), rep("lower", 2), rep("upper", 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(fcMin())), 
-            (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))))
+        data.frame(name = c(rep("diagonal", 2), rep("lower", 2), rep("upper", 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(fcMin())), (max - log2(fcMin())), 
+            (min + log2(fcMin())), (max + log2(fcMin()))))
     })
     
     # Extract labels from the volcano table
@@ -163,7 +174,7 @@ foldchangeplot <- function(input, output, session, eses) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", 
-        rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", rownames = FALSE, 
+        pageLength = 10)
     
 } 

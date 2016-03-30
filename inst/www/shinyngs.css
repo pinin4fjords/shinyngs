@@ -9,3 +9,7 @@
 .navbar-brand{
   height: auto;
 }
+
+.well{
+  overflow: auto;
+}

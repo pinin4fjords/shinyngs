@@ -4,7 +4,7 @@
 \alias{groupby}
 \title{The server function of the groupby module}
 \usage{
-groupby(input, output, session, getExperiment, group_label = "Group by",
+groupby(input, output, session, eselist, group_label = "Group by",
   multiple = FALSE)
 }
 \arguments{
@@ -14,8 +14,8 @@ groupby(input, output, session, getExperiment, group_label = "Group by",
 
 \item{session}{Session object}
 
-\item{getExperiment}{A reactive that returns an
-ExploratorySummarizedExperiment}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 
 \item{group_label}{A label for the grouping field}
 

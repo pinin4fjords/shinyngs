@@ -4,7 +4,7 @@
 \alias{linkMatrix}
 \title{Add links to a table}
 \usage{
-linkMatrix(matrix, ese)
+linkMatrix(matrix, ese, url_roots)
 }
 \arguments{
 \item{matrix}{The input table}

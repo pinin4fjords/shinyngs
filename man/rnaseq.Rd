@@ -4,7 +4,7 @@
 \alias{rnaseq}
 \title{The server function of the rnaseq module}
 \usage{
-rnaseq(input, output, session, eses)
+rnaseq(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,15 +13,15 @@ rnaseq(input, output, session, eses)
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratroySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
 example).
 }
 \examples{
-callModule(rnaseq, 'rnaseq', eses)
+callModule(rnaseq, 'rnaseq', eselist)
 }
 \keyword{shiny}
 

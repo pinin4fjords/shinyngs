@@ -4,13 +4,13 @@
 \alias{heatmapInput}
 \title{The input function of the heatmap module}
 \usage{
-heatmapInput(id, eses, type = "expression")
+heatmapInput(id, eselist, type = "expression")
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 
 \item{type}{The type of heatmap that will be made. 'expression', 'samples' or
 'pca'}

@@ -6,8 +6,8 @@
 #' Leverages the \code{simpletable} module
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -15,21 +15,14 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' differentialtableInput('experiment', eses)
+#' differentialtableInput('experiment', eselist)
 
-differentialtableInput <- function(id, eses) {
+differentialtableInput <- function(id, eselist) {
     
     ns <- NS(id)
     
-    expression_filters <- selectmatrixInput(ns("expression"), eses)
-    fieldSets(
-      ns("fieldset"),
-      list(
-        contrasts = list(contrastsInput(ns("differential"))),
-        select_assay_data = expression_filters,
-        export = simpletableInput(ns("differentialtable"))
-      )
-    )
+    expression_filters <- selectmatrixInput(ns("expression"), eselist)
+    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
 }
 
 #' The output function of the differentialtable module
@@ -65,15 +58,15 @@ differentialtableOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(differentialtable, 'differentialtable', eses)
+#' callModule(differentialtable, 'differentialtable', eselist)
 
-differentialtable <- function(input, output, session, eses) {
+differentialtable <- function(input, output, session, eselist) {
     
     # Render the output area - and provide an input-dependent title
     
@@ -85,14 +78,13 @@ differentialtable <- function(input, output, session, eses) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eses, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE))
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE))
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", 
-        rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
 } 

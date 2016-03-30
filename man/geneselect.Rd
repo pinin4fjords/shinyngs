@@ -4,9 +4,9 @@
 \alias{geneselect}
 \title{The server function of the geneselect module}
 \usage{
-geneselect(input, output, session, getExperiment, var_n = 50, var_max = 500,
-  selectSamples = reactive({     colnames(getExperiment()) }), assay,
-  provide_all = TRUE, provide_none = FALSE)
+geneselect(input, output, session, eselist, getExperiment, var_n = 50,
+  var_max = 500, selectSamples = reactive({     colnames(getExperiment())
+  }), assay, provide_all = TRUE, provide_none = FALSE)
 }
 \arguments{
 \item{input}{Input object}

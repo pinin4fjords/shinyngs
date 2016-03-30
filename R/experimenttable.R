@@ -7,8 +7,8 @@
 #' Leverages the \code{simpletable} module
 #' 
 #' @param id Submodule namespace
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -16,20 +16,20 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' experimentableInput('experiment', eses)
+#' experimentableInput('experiment', eselist)
 
-experimenttableInput <- function(id, eses) {
+experimenttableInput <- function(id, eselist) {
     
     ns <- NS(id)
     
     description = "This is the metadata associated with the experimental samples of this study."
     
-    if (length(eses) == 1) {
-        tagList(hiddenInput(ns("experiment"), names(eses)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), "experiment", 
+    if (length(eselist) == 1) {
+        tagList(h3("hidden!"), hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), "experiment", 
             description))))
     } else {
-        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eses)), export = simpletableInput(ns("experimenttable"), 
-            "experiment", description)))
+        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist)), export = simpletableInput(ns("experimenttable"), "experiment", 
+            description)))
     }
 }
 
@@ -67,18 +67,18 @@ experimenttableOutput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param eses List of ExploratorySummarizedExperiment objects with assay and
-#'   experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'   
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(experimenttable, 'experimenttable', eses)
+#' callModule(experimenttable, 'experimenttable', eselist)
 
-experimenttable <- function(input, output, session, eses) {
+experimenttable <- function(input, output, session, eselist) {
     
     getExperiment <- reactive({
-        experiment <- data.frame(colData(eses[[input$experiment]]))
+        experiment <- data.frame(colData(eselist[[input$experiment]]))
         colnames(experiment) <- prettifyVariablename(colnames(experiment))
         experiment
     })

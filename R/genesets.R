@@ -50,18 +50,17 @@ genesetInput <- function(id) {
 #' @examples
 #' geneset_functions <- callModule(geneset, 'heatmap', getExperiment())
 
-geneset <- function(input, output, session, getExperiment) {
+geneset <- function(input, output, session, eselist, getExperiment) {
     
     # Get a list of names to show for the gene sets
     
     getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), tolower = TRUE), " (", settype, ")"))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyVariablename(names(gene_sets[[settype]]), 
+            tolower = TRUE), " (", settype, ")"))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be
-    # called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
@@ -74,10 +73,10 @@ geneset <- function(input, output, session, getExperiment) {
         # Derive the necessary information from the experiment object
         
         ese <- getExperiment()
-        annotation <- data.frame(mcols(se))
+        annotation <- data.frame(mcols(ese))
         entrezgenefield <- ese@entrezgenefield
         genefield <- ese@labelfield
-        geneset_files <- ese@geneset_files
+        geneset_files <- eselist@geneset_files
         
         withProgress(message = "reading gene set info", value = 0, {
             

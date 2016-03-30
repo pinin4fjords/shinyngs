@@ -4,7 +4,7 @@
 \alias{gene}
 \title{The server function of the gene module}
 \usage{
-gene(input, output, session, eses)
+gene(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ gene(input, output, session, eses)
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \description{
 The gene module picks specified rows out the assay data, either simply by id
@@ -25,7 +25,7 @@ This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(gene, 'gene', eses)
+callModule(gene, 'gene', eselist)
 }
 \keyword{shiny}
 

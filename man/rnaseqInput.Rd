@@ -4,15 +4,13 @@
 \alias{rnaseqInput}
 \title{The input function of the rnaseq module}
 \usage{
-rnaseqInput(id, eses, title = "")
+rnaseqInput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eses}{List of ExploratoryStructuredExperiment objects with assay and
-experimental data}
-
-\item{title}{An optional title to display on the app}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
@@ -26,7 +24,7 @@ The rnaseq module is a combination of output from many modules (pca, boxplot
 etc) to form a comprehensive analysis application.
 }
 \examples{
-rnaseqInput('rnaseq', eses)
+rnaseqInput('rnaseq', eselist)
 }
 \keyword{shiny}
 

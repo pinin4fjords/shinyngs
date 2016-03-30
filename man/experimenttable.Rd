@@ -4,7 +4,7 @@
 \alias{experimenttable}
 \title{The server function of the experimenttable module}
 \usage{
-experimenttable(input, output, session, eses)
+experimenttable(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ experimenttable(input, output, session, eses)
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratorySummarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
@@ -23,7 +23,7 @@ applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(experimenttable, 'experimenttable', eses)
+callModule(experimenttable, 'experimenttable', eselist)
 }
 \keyword{shiny}
 

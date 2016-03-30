@@ -4,13 +4,14 @@
 \alias{prepareApp}
 \title{Make UI and server functions for apps based on supplied data}
 \usage{
-prepareApp(type, eses, title = "ShinyNGS application", ui_only = FALSE, ...)
+prepareApp(type, eselist, ui_only = FALSE, ...)
 }
 \arguments{
-\item{type}{A string specifying the type of shiny app required (options: heatmap)}
+\item{type}{A string specifying the type of shiny app required (options:
+heatmap)}
 
-\item{se}{A SummarizedExperiment object containing assay data (expression, 
-counts...), sample data and annotation data for the rows.}
+\item{eselist}{An ExploratorySummarizedExperimentList object containing assay
+data (expression, counts...), sample data and annotation data for the rows.}
 
 \item{params}{A list containing data and display options for the Shiny app}
 }

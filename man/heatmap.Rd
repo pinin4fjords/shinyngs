@@ -4,7 +4,7 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(input, output, session, eses, type = "expression")
+heatmap(input, output, session, eselist, type = "expression")
 }
 \arguments{
 \item{input}{Input object}
@@ -13,8 +13,8 @@ heatmap(input, output, session, eses, type = "expression")
 
 \item{session}{Session object}
 
-\item{eses}{List of ExploratorySummmarizedExperiment objects with assay and
-experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 
 \item{type}{The type of heatmap that will be made. 'expression', 'samples' or
 'pca'}
@@ -29,7 +29,7 @@ need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
 common when dealign with MSigDB gene sets, for example.
 }
 \examples{
-callModule(heatmap, 'heatmap', eses, type = "pca")
+callModule(heatmap, 'heatmap', eselist, type = 'pca')
 }
 \keyword{shiny}
 

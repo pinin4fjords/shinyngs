@@ -4,7 +4,7 @@
 \alias{geneOutput}
 \title{The input function of the gene module}
 \usage{
-geneOutput(id, eses)
+geneOutput(id, eselist)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -24,7 +24,7 @@ or label. This is used to create a gene-centric info page.
 Outputs are a bar plot and a table contrast data for this gene
 }
 \examples{
-geneOutput(ns('gene'), eses)
+geneOutput(ns('gene'), eselist)
 }
 \keyword{shiny}
 

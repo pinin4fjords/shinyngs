@@ -5,12 +5,10 @@
 \title{Produce a simple app with controls and layout for a single module, in a
 shiny \code{sideBarLayout()}.}
 \usage{
-simpleApp(eses, module = NULL, title = NULL, ui_only = FALSE, ...)
+simpleApp(eselist, module = NULL, ui_only = FALSE, ...)
 }
 \arguments{
 \item{module}{Character string specifying the module to use}
-
-\item{title}{An optional title string to use with the module name}
 
 \item{ses}{List of ExploratorySummarizedExperiment objects with assay and experimental
 data}

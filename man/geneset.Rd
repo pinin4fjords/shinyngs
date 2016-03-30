@@ -4,7 +4,7 @@
 \alias{geneset}
 \title{The server function of the gene set module}
 \usage{
-geneset(input, output, session, getExperiment)
+geneset(input, output, session, eselist, getExperiment)
 }
 \arguments{
 \item{input}{Input object}
