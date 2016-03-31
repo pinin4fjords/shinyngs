@@ -22,7 +22,7 @@ rnaseqInput <- function(id, eselist) {
     
     navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, 
         offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
-        p(HTML("Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>"))), width = 3), mainPanel(fluidRow(column(12, 
+        p(HTML("Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>")), p('This app is best viewed with the Chrome browser.')), width = 3), mainPanel(fluidRow(column(12, 
         offset = 0, h2(eselist@title), h3(eselist@author), div(h4("Description")), HTML(eselist@description))), width = 9))), navbarMenu("Sample data", tabPanel("Experiment", 
         sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)))), 
         navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
