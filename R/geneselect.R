@@ -125,7 +125,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     rowVariances <- reactive({
         withProgress(message = "Calculating row variances", value = 0, {
-            apply(GenomicRanges::assays(getExperiment())[[assay()]][, selectSamples()], 1, var)
+            apply(SummarizedExperiment::assays(getExperiment())[[assay()]][, selectSamples()], 1, var)
         })
     })
     

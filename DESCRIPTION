@@ -11,7 +11,7 @@ LazyData: true
 Imports:
     d3heatmap,
     DT,
-    GenomicRanges,
+    SummarizedExperiment,
     ggdendro,
     pheatmap,
     plotly,
