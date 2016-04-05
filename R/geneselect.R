@@ -64,17 +64,13 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     useGenesets <- reactive({
         ese <- getExperiment()
         
-        length(eselist@geneset_files) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 0)))
+        length(eselist@gene_sets) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 0)))
     })
     
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
-    observe({
-        if (useGenesets()) {
-            unpack.list(callModule(geneset, "geneset", eselist = eselist, getExperiment = getExperiment))
-        }
-    })
-    
+    unpack.list(callModule(geneset, "geneset", eselist = eselist, getExperiment = getExperiment))
+
     # Add the gene sets to the drop-down if required
     
     observeEvent(input$geneSelect, {
@@ -100,12 +96,14 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             
             gene_select_methods <- c(gene_select_methods, c("variance", "list"))
             
-            observe({
-                if (useGenesets()) {
-                  gene_select_methods <- c(gene_select_methods, "gene set")
-                }
-            })
-            
+
+            if (useGenesets()) {
+              gene_select_methods <- c(gene_select_methods, "gene set")
+              print("Using gene sets")
+            }else{
+              print("Not using gene sets") 
+            }
+
             gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", 
                 ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
                 ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")))
@@ -158,7 +156,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 # Use annotation for gene names if specified, otherwise use matrix rows
                 
                 if (length(ese@labelfield) > 0) {
-                  annotation <- data.frame(mcols(se))
+                  annotation <- data.frame(mcols(ese))
                   selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), ese@idfield])
                 } else {
                   selected_rows <- rownames(ese)[which(tolower(rownames(ese))) %in% tolower(selected_genes)]

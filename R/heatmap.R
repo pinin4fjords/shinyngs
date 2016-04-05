@@ -150,8 +150,6 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
             
             if (!is.null(groupBy())) {
                 
-                print("Grouping active")
-                
                 # Prettify the factor levels for display
                 
                 colnames(ed)[match(groupBy(), colnames(ed))] <- prettifyVariablename(groupBy())

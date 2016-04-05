@@ -18,11 +18,6 @@ setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", 
 #' @param idfield 
 #' @param labelfield 
 #' @param entrezgenefield 
-#' @param group_vars 
-#' @param default_groupvar 
-#' @param contrasts 
-#' @param url_roots 
-#' @param geneset_files 
 #' @param tests 
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object

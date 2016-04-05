@@ -239,8 +239,8 @@ The data structures used by Shinyngs build on `SummarizedExperiment`. On `Summar
 
 It's quite handy to see heat maps etc based on known gene sets. Assuming you have a bunch of .gmt format gene set files from MSigDB keyed by Entrez ID, continuing from the example above you can supply gene sets like:
 
-```{r, eval=FALSE}
-myesel@genesets_files = list(
+```{r}
+genesets_files = list(
   'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
   'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
   'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
@@ -248,6 +248,8 @@ myesel@genesets_files = list(
   'GO molecular function' = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
   'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
 )
+
+myesel@gene_sets <- lapply(genesets_files, GSEABase::getGmt)
 ```
 
 This will read in the gene sets (which will take a while first time), and use them to add a filter which will allow users to make heat maps based on known sets of genes. Of course you could make your own .gmt files with custom gene sets.

@@ -11,13 +11,15 @@ LazyData: true
 Imports:
     d3heatmap,
     DT,
-    SummarizedExperiment,
     ggdendro,
+    GSEABase,
     pheatmap,
     plotly,
     RColorBrewer,
     shiny,
-    shinythemes
+    shinyjs,
+    shinythemes,
+    SummarizedExperiment
 Suggests:
     shinyBS,
     knitr,

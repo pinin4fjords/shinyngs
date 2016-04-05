@@ -46,7 +46,7 @@ Install with devtools
 
 ``` r
 library(devtools)
-install_github('pinin4fjords/shinyngs', ref='v0.1-alpha')
+install_github('pinin4fjords/shinyngs', ref='v0.1.2-alpha')
 ```
 
 Example

@@ -33,15 +33,12 @@ genesetInput <- function(id) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
+#' @param eselist An ExploratorySummarizedExperimentList with its gene_sets
+#' slot set
 #' @param getExperiment Accessor for returning an
-#'   ExploratorySummarizedExperiment object, with 'entrezgenefield',
-#'   'labelfield' and 'geneset_files' set in its slots
-#' @param annotation Dataframe containing gene annotation
-#' @param entrezgenefield The column of annotation containing Entrez gene IDs
-#' @param genefield The gene ID type in annotation by which results are keyed
-#' @param geneset_files A named list of .gmt gene set files as might be derived
-#'   from MSigDB
-#'   
+#'   ExploratorySummarizedExperiment object, with 'entrezgenefield', 
+#'   'labelfield' set in its slots
+#'
 #' @return output A list of two reactive functions: getPathwayNames() and 
 #'   getPathwayGenes() which will be used by other modules.
 #'   
@@ -76,9 +73,9 @@ geneset <- function(input, output, session, eselist, getExperiment) {
         annotation <- data.frame(mcols(ese))
         entrezgenefield <- ese@entrezgenefield
         genefield <- ese@labelfield
-        geneset_files <- eselist@geneset_files
+        gene_sets <- eselist@gene_sets
         
-        withProgress(message = "reading gene set info", value = 0, {
+        withProgress(message = "processing gene sets", value = 0, {
             
             derived_gene_sets <- file.path("calculated", "gene_sets.rds")
             
@@ -87,8 +84,7 @@ geneset <- function(input, output, session, eselist, getExperiment) {
                   gene_sets <- readRDS(derived_gene_sets)
                 })
             } else {
-                gene_sets <- lapply(geneset_files, GSEABase::getGmt)
-                
+               
                 # Convert gene IDs in the gene sets (but leave them keyed by entrez id)
                 
                 gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
