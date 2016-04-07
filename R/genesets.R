@@ -105,14 +105,14 @@ geneset <- function(input, output, session, eselist, getExperiment) {
     # Return list of reactive expressions
     
     list(updateGeneSetsList = updateGeneSetsList, getPathwayNames = reactive({
-        validate(need(input$geneSets, "Waiting for gene set input"))
+        validate(need(input$geneSets, "Waiting for gene set input for names"))
         gene_sets <- getGeneSets()
         lapply(input$geneSets, function(pathcode) {
             pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
             names(gene_sets[[pathparts[1]]])[pathparts[2]]
         })
     }), getPathwayGenes = reactive({
-        validate(need(input$geneSets, "Waiting for gene set input"))
+        validate(need(input$geneSets, "Waiting for gene set input for genes"))
         
         gene_sets <- getGeneSets()
         path_gene_sets <- lapply(input$geneSets, function(pathcode) {

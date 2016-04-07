@@ -152,7 +152,11 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"))
+            validate(
+              need(!is.null(input$assay), "Waiting for form to provide assay"), 
+              need(length(selectSamples()) > 0, "Waiting for sample selection"),
+              need(length(selectRows()) > 0, "No matching rows in selected matrix")
+            )
             selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
             selected_matrix <- selected_matrix[complete.cases(selected_matrix), ]
             
