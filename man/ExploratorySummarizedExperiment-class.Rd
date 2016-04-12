@@ -3,9 +3,9 @@
 \docType{class}
 \name{ExploratorySummarizedExperiment-class}
 \alias{ExploratorySummarizedExperiment-class}
-\title{Title}
+\title{The ExploratorySummarizedExperiment class}
 \description{
-Title
+The ExploratorySummarizedExperiment class
 }
 \section{Slots}{
 

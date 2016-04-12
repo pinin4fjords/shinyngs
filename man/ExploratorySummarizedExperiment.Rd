@@ -2,40 +2,51 @@
 % Please edit documentation in R/ExploratorySummarizedExperiment-class.R
 \name{ExploratorySummarizedExperiment}
 \alias{ExploratorySummarizedExperiment}
-\title{Title}
+\title{ExploratorySummarizedExperiments}
 \usage{
 ExploratorySummarizedExperiment(assays, colData, annotation, idfield,
   labelfield = character(), entrezgenefield = character(), tests = list())
 }
 \arguments{
-\item{assays}{}
+\item{assays}{An object of class SimpleList as would be supplied to the 
+SummarizedExperiment constructor}
 
-\item{colData}{}
+\item{colData}{An object of class DataFrame as would be supplied to the
+SummarizedExperimentConstructor. Row names could correspond to column names
+in the matrices in \code{assays}}
 
-\item{annotation}{}
+\item{annotation}{A data frame with annotation for the features (rows) of
+the \code{assays} matrices. Rows must correspond to to those matrices.}
 
-\item{idfield}{}
+\item{idfield}{To which of the \code{annotation} columns do row names
+correspond?}
 
-\item{labelfield}{}
+\item{labelfield}{Which column from \code{annotation} should be used to
+label features (e.g. a gene name field)?}
 
-\item{entrezgenefield}{}
+\item{entrezgenefield}{Which column from \code{annotation} is the Entrez 
+gene ID? Important mostly for gene sets where members are commonly indicated
+by that identifier type.}
 
-\item{tests}{}
-
-\item{group_vars}{}
-
-\item{default_groupvar}{}
-
-\item{contrasts}{}
-
-\item{url_roots}{}
-
-\item{geneset_files}{}
+\item{tests}{List of matrices keyed by 'pvals' and 'qvals', with columns
+corresponding to 'contrasts' set in the containing SummarizedExperimentList}
 }
 \value{
 output An ExploratoryRangedSummarizedExperient object
 }
 \description{
-Title
+This function creates objects of the ExploratorySummarizedExperiment class,
+an extension of SummarizedExperiment designed to hold additional information
+about the features present - for example differential expression values
+and the type of identifiers used in rows.
+}
+\details{
+It is intended that one or more ExploratorySummarizedExperiments with the
+same samples (columns) are contained within an 
+ExploratorySumarizedExperimentList, which will contain information relevant
+to all experiments such as gene sets and contrasts.
+
+It's clear that the structure of this class and that of SummarizedExperimentList
+will need to be refined in future.
 }
 

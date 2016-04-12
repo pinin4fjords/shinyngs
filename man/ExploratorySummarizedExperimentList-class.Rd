@@ -3,9 +3,9 @@
 \docType{class}
 \name{ExploratorySummarizedExperimentList-class}
 \alias{ExploratorySummarizedExperimentList-class}
-\title{Title}
+\title{The ExploratorySummaizedExperimentList class}
 \description{
-Title
+The ExploratorySummaizedExperimentList class
 }
 \section{Slots}{
 
@@ -26,6 +26,6 @@ Title
 
 \item{\code{url_roots}}{list.}
 
-\item{\code{geneset_files}}{list.}
+\item{\code{gene_sets}}{list.}
 }}
 

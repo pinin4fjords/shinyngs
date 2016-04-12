@@ -13,18 +13,12 @@ geneset(input, output, session, eselist, getExperiment)
 
 \item{session}{Session object}
 
+\item{eselist}{An ExploratorySummarizedExperimentList with its gene_sets
+slot set}
+
 \item{getExperiment}{Accessor for returning an
-ExploratorySummarizedExperiment object, with 'entrezgenefield',
-'labelfield' and 'geneset_files' set in its slots}
-
-\item{annotation}{Dataframe containing gene annotation}
-
-\item{entrezgenefield}{The column of annotation containing Entrez gene IDs}
-
-\item{genefield}{The gene ID type in annotation by which results are keyed}
-
-\item{geneset_files}{A named list of .gmt gene set files as might be derived
-from MSigDB}
+ExploratorySummarizedExperiment object, with 'entrezgenefield', 
+'labelfield' set in its slots}
 }
 \value{
 output A list of two reactive functions: getPathwayNames() and 

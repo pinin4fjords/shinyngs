@@ -1,4 +1,4 @@
-#' Title
+#' The ExploratorySummaizedExperimentList class
 #'
 #' @slot ese list. 
 #' @slot title character. 
@@ -16,17 +16,38 @@ setClass("ExploratorySummarizedExperimentList", contains = "list", representatio
     group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list"))
 
 
-#' Title
+#' ExploratorySummarizedExperimentLists, containers for
+#' ExploratorySummarizedExperiments
+#' 
+#' ExploratorySummarizedExperiment lists are intented to contain one or more 
+#' ExploratorysummarizedExperiments with the same sets of samples/columns 
+#' but different feature sets. The motivating use case was the desire to 
+#' examine expression at both transcript and gene levels in RNA-seq experiments
+#' explorted via \code{Shinyngs}
+#' 
+#' As a the containing object for experiments, this class is intented to 
+#' contain various variables relevant across a whole study, which will be 
+#' displayed in an exploratory interface generated in \code{shinyngs}. This 
+#' includes the study title, author etc as well as definitions of the contrasts 
+#' used in differential analysis and the gene sets relevant to all experiments
 #'
-#' @param eses 
-#' @param title 
-#' @param author 
-#' @param description 
-#' @param group_vars 
-#' @param default_groupvar 
-#' @param contrasts 
-#' @param url_roots 
-#' @param gene_sets 
+#' @param eses List of ExploratorySummarizedExperiments
+#' @param title Study title 
+#' @param author Study authors
+#' @param description Study summary to displayed on front page
+#' @param group_vars Variables by which a user will be allowed to group the 
+#' samples of individual experiments, must correspond to their \code{colData}
+#' @param default_groupvar Default \code{group_var}
+#' @param contrasts List of length-3 vectors containing 1) the
+#' \code{group_var}, 2) the \code{group_var} value corresponding to the
+#' 'control' side and 3) the value corresponding to the 'treatment' side
+#' @param url_roots A list of URL roots, with list names corresponding to 
+#' metadata column names of the experiments. Exploratory tools displayed via
+#' \code{shinyngs} can use these roots to construct URLs to 'link out'.
+#' @param gene_sets A named list of GeneSetCollections as might be produced by
+#' reading .gmt format gene sets (for example from MSigDB) using 
+#' GSEABase::getGmt(). \code{shinyngs} modules currently assume genes
+#' represented by Entrez ID (not symbol). 
 #'
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
