@@ -5,7 +5,8 @@
 \title{ExploratorySummarizedExperiments}
 \usage{
 ExploratorySummarizedExperiment(assays, colData, annotation, idfield,
-  labelfield = character(), entrezgenefield = character(), tests = list())
+  labelfield = character(), entrezgenefield = character(), tests = list(),
+  gene_set_analyses = list())
 }
 \arguments{
 \item{assays}{An object of class SimpleList as would be supplied to the 
@@ -30,6 +31,9 @@ by that identifier type.}
 
 \item{tests}{List of matrices keyed by 'pvals' and 'qvals', with columns
 corresponding to 'contrasts' set in the containing SummarizedExperimentList}
+
+\item{gene_set_analyses}{List of lists of gene set tables keyed first by gene set
+type and secondly by contrast}
 }
 \value{
 output An ExploratoryRangedSummarizedExperient object

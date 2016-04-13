@@ -17,7 +17,7 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1, allow_filtering = TRUE) {
+contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05, default_max_q = 0.1, allow_filtering = TRUE, summarise = TRUE) {
     
     ns <- NS(id)
     
@@ -26,13 +26,16 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1, 
     if (allow_filtering) {
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
-        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), "Minimum absolute fold change", 
-            value = default_min_foldchange), numericInput(ns("qvalMax"), "Maximum false discovery rate", value = default_max_q)))
+        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), "Minimum absolute fold change", value = default_min_foldchange), 
+            numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), numericInput(ns("qvalMax"), "Maximum q value", value = default_max_q)))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
     
-    pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE))
+    if (summarise) {
+        inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE))
+    }
+    inputs
 }
 
 #' The server function of the contrasts module
@@ -55,7 +58,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_q = 0.1, 
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment, selectMatrix, getAssay, multiple = FALSE, show_controls = TRUE) {
+contrasts <- function(input, output, session, eselist, getExperiment, selectMatrix = NULL, getAssay = NULL, multiple = FALSE, show_controls = TRUE, summarise = TRUE) {
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
@@ -114,8 +117,7 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
         names(getAllContrasts())[getSelectedContrasts()]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold
-    # changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold changes etc.
     
     getSummaries <- reactive({
         ese <- getExperiment()
@@ -186,6 +188,11 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
         input$qvalMax
     })
     
+    pvalMax <- reactive({
+        validate(need(input$pvalMax, FALSE))
+        input$pvalMax
+    })
+    
     getFilterRows <- reactive({
         as.logical(input$filterRows)
     })
@@ -197,7 +204,7 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
             if (length(ese@tests) == 0 || !getAssay() %in% names(ese@tests)) {
                 lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), ])
             } else {
-                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["q value"]] <= qvalMax(), ])
+                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["p value"]] <= pvalMax() & ct[["q value"]] <= qvalMax(), ])
             }
         } else {
             contrastsTables()
@@ -236,7 +243,7 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
     
     linkedLabelledContrastsTable <- reactive({
         if (length(eselist@url_roots) > 0) {
-            linkMatrix(labelledContrastsTable(), getExperiment(), eselist@url_roots)
+            linkMatrix(labelledContrastsTable(), eselist@url_roots)
         } else {
             labelledContrastsTable()
         }

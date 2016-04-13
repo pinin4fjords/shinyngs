@@ -70,7 +70,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
     unpack.list(callModule(geneset, "geneset", eselist = eselist, getExperiment = getExperiment))
-
+    
     # Add the gene sets to the drop-down if required
     
     observeEvent(input$geneSelect, {
@@ -96,14 +96,14 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             
             gene_select_methods <- c(gene_select_methods, c("variance", "list"))
             
-
+            
             if (useGenesets()) {
-              gene_select_methods <- c(gene_select_methods, "gene set")
+                gene_select_methods <- c(gene_select_methods, "gene set")
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")))
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", ns("geneSelect"), 
+                "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), 
+                "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")))
             
             # If gene sets have been provided, then make a gene sets filter
             

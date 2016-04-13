@@ -4,12 +4,13 @@
 \alias{linkMatrix}
 \title{Add links to a table}
 \usage{
-linkMatrix(matrix, ese, url_roots)
+linkMatrix(matrix, url_roots)
 }
 \arguments{
 \item{matrix}{The input table}
 
-\item{ese}{An ExploratorySummarizedExperiment object}
+\item{url_roots}{A list with URL roots, with names matching columns of 
+\code{matrix}}
 }
 \value{
 output Table with links added

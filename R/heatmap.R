@@ -234,8 +234,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         pca <- runPCA(pcavals)
         fraction_explained <- calculatePCAFractionExplained(pca)
         
-        pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = 10, dimnames = list(colnames(pcameta), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], "%)", 
-            sep = "")))
+        pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = 10, dimnames = list(colnames(pcameta), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], "%)", sep = "")))
         
         for (i in 1:ncol(pcameta)) {
             for (j in 1:10) {
@@ -417,8 +416,8 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
         annotation_colors <- makeAnnotationColors(annotation)
     }
     
-    pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, 
-        border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), 
+    pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, border_color = NA, 
+        legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), 
         clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors)
 }
 

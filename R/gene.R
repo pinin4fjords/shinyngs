@@ -140,7 +140,7 @@ gene <- function(input, output, session, eselist) {
     
     getGeneContrastsTable <- reactive({
         contrasts_table <- labelledContrastsTable()
-        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], getExperiment(), url_roots = eselist@url_roots)
+        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], url_roots = eselist@url_roots)
     })
     
     # Render the contrasts table- when a valid label is supplied

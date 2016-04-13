@@ -8,7 +8,7 @@
 #' @export
 
 setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", 
-    tests = "list"))
+    tests = "list", gene_set_analyses = "list"))
 
 #' ExploratorySummarizedExperiments
 #' 
@@ -41,15 +41,17 @@ setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", 
 #' by that identifier type.
 #' @param tests List of matrices keyed by 'pvals' and 'qvals', with columns
 #' corresponding to 'contrasts' set in the containing SummarizedExperimentList
+#' @param gene_set_analyses List of lists of gene set tables keyed first by gene set
+#' type and secondly by contrast
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
 #' @import SummarizedExperiment
 #' @export
 
-ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list()) {
+ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), gene_set_analyses = list()) {
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
-    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, tests = tests)
+    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, tests = tests, gene_set_analyses = gene_set_analyses)
 } 

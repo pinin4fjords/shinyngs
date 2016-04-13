@@ -10,8 +10,6 @@ The ExploratorySummaizedExperimentList class
 \section{Slots}{
 
 \describe{
-\item{\code{ese}}{list.}
-
 \item{\code{title}}{character.}
 
 \item{\code{author}}{character.}

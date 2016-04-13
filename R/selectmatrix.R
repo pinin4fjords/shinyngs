@@ -72,14 +72,12 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
-selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, require_tests = FALSE, 
-    rounding = 2) {
+selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, require_tests = FALSE, rounding = 2) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
-    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, 
-        provide_all = provide_all_genes))
+    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, provide_all = provide_all_genes))
     
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
@@ -152,11 +150,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            validate(
-              need(!is.null(input$assay), "Waiting for form to provide assay"), 
-              need(length(selectSamples()) > 0, "Waiting for sample selection"),
-              need(length(selectRows()) > 0, "No matching rows in selected matrix")
-            )
+            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"), need(length(selectRows()) > 0, 
+                "No matching rows in selected matrix"))
             selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
             selected_matrix <- selected_matrix[complete.cases(selected_matrix), ]
             
@@ -176,8 +171,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         })
     })
     
-    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be summarised if
-    # grouping variables were supplied!
+    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be summarised if grouping variables
+    # were supplied!
     
     isSummarised <- reactive({
         length(eselist@group_vars) > 0 && getSummaryType() != "none"
@@ -206,7 +201,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         se <- getExperiment()
         
         if (length(eselist@url_roots) > 0) {
-            linkMatrix(selected_matrix, se, eselist@url_roots)
+            linkMatrix(selected_matrix, eselist@url_roots)
         } else {
             selected_matrix
         }
@@ -260,31 +255,28 @@ labelMatrix <- function(matrix, ese) {
 #' Root URLs must be present in the \code{url_roots} slot of \code{se}
 #'
 #' @param matrix The input table
-#' @param ese An ExploratorySummarizedExperiment object
+#' @param url_roots A list with URL roots, with names matching columns of 
+#' \code{matrix}
 #'
 #' @return output Table with links added
 
-linkMatrix <- function(matrix, ese, url_roots) {
+linkMatrix <- function(matrix, url_roots) {
     
-    withProgress(message = "Adding links to matrix", value = 0, {
-        
-        for (fieldtype in c("idfield", "labelfield")) {
+    # Add prettified version of each field in URL roots in case matrix column names are prettified
+    
+    for (fieldname in names(url_roots)) {
+        url_roots[[prettifyVariablename(fieldname)]] <- url_roots[[fieldname]]
+    }
+    
+    for (fieldname in names(url_roots)) {
+        if (fieldname %in% colnames(matrix)) {
             
-            fieldname <- slot(ese, fieldtype)
-            
-            if (length(fieldname) > 0) {
-                
-                if (fieldname %in% names(url_roots)) {
-                  
-                  # Field name was prettified in selectLabelledMatrix(), so we have to use the prettified version to access the column
-                  
-                  p_fieldname <- prettifyVariablename(fieldname)
-                  matrix[[p_fieldname]] <- paste0("<a href='", url_roots[fieldname], matrix[[p_fieldname]], "'>", matrix[[p_fieldname]], "</a>")
-                }
-            }
+            matrix[[fieldname]] <- unlist(lapply(matrix[[fieldname]], function(x) {
+                fvs <- unlist(strsplit(x, " "))
+                paste(paste0("<a href='", url_roots[fieldname], fvs, "'>", fvs, "</a>"), collapse = " ")
+            }))
         }
-        
-    })
+    }
     matrix
 }
 
@@ -301,10 +293,31 @@ idToLabel <- function(ids, ese) {
     if (length(ese@labelfield) == 0) {
         ids
     } else {
-        annotation <- data.frame(mcols(ese))
-        labels <- annotation[match(ids, annotation[[ese@idfield]]), ese@labelfield]
+        labels <- convertIds(ids, ese, ese@labelfield)
         labels[!is.na(labels)] <- paste(labels[!is.na(labels)], ids[!is.na(labels)], sep = " / ")
         labels[is.na(labels)] <- ids[is.na(labels)]
         labels
     }
-} 
+}
+
+#' Convert row names to metadata identifiers
+#'
+#' @param ids IDs found as row names in the 
+#' \code{ExploratorySummarizedExperiment}
+#' @param ese The \code{ExploratorySummarizedExperiment}
+#' @param to The metadata column (via \code{mcols}) to use
+#' @param remove_na Take out NAs? Not done by default to preserve vector length
+#'
+#' @return output Vector of converted ids
+#' @export
+
+convertIds <- function(ids, ese, to, remove_na = FALSE) {
+    annotation <- data.frame(mcols(ese))
+    
+    converted <- annotation[match(ids, annotation[[ese@idfield]]), to]
+    if (remove_na) {
+        converted <- converted[!is.na(converted)]
+    }
+    converted
+}
+ 

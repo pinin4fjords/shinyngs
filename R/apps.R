@@ -98,8 +98,8 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     
     if (!is.null(module)) {
         
-        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, windowTitle = moduletitle, 
-            tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(module, ...), width = 9)))))
+        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, windowTitle = moduletitle, tabPanel(prettifyVariablename(module), 
+            sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(module, ...), width = 9)))))
         
         if (ui_only) {
             server <- function(input, output, session) {

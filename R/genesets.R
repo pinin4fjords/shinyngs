@@ -16,8 +16,8 @@
 genesetInput <- function(id) {
     ns <- NS(id)
     
-    tagList(selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5)), radioButtons(ns("overlapType"), 
-        "Overlap type", c("union", "intersect")))
+    tagList(selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5)), radioButtons(ns("overlapType"), "Overlap type", 
+        c("union", "intersect")))
 }
 
 #' The server function of the gene set module
@@ -84,7 +84,7 @@ geneset <- function(input, output, session, eselist, getExperiment) {
                   gene_sets <- readRDS(derived_gene_sets)
                 })
             } else {
-               
+                
                 # Convert gene IDs in the gene sets (but leave them keyed by entrez id)
                 
                 gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
@@ -104,7 +104,7 @@ geneset <- function(input, output, session, eselist, getExperiment) {
     
     # Return list of reactive expressions
     
-    list(updateGeneSetsList = updateGeneSetsList, getPathwayNames = reactive({
+    list(getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getPathwayNames = reactive({
         validate(need(input$geneSets, "Waiting for gene set input for names"))
         gene_sets <- getGeneSets()
         lapply(input$geneSets, function(pathcode) {

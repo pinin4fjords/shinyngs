@@ -45,8 +45,8 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
         # Add in group selection if relevant
         
         if (length(eselist@group_vars) > 0) {
-            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", 
-                structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars)), selected = eselist@default_groupvar), uiOutput(ns("groupSamples"))))
+            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), "Define groups by:", structure(eselist@group_vars, 
+                names = prettifyVariablename(eselist@group_vars)), selected = eselist@default_groupvar), uiOutput(ns("groupSamples"))))
         }
         
     } else {

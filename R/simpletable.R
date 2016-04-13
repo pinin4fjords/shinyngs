@@ -74,7 +74,7 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @examples
 #' callModule(simpletable, 'simpletable', my_data_frame)
 
-simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename = "datatable", rownames = FALSE) {
+simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE) {
     
     if (is.null(downloadMatrix)) {
         downloadMatrix <- displayMatrix
@@ -84,7 +84,14 @@ simpletable <- function(input, output, session, downloadMatrix = NULL, displayMa
         displayMatrix()
     }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100"))), rownames = rownames, escape = FALSE)
     
-    output$downloadTable <- downloadHandler(filename = paste0(filename, ".csv"), content = function(file) {
+    output$downloadTable <- downloadHandler(
+      filename = function(){
+        if (is.reactive(filename)){
+          filename <- filename() 
+        }
+        paste0(filename, ".csv") 
+      },
+      content = function(file) {
         write.csv(downloadMatrix(), file = file, row.names = rownames)
     })
     

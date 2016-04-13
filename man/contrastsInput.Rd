@@ -4,8 +4,8 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(id, default_min_foldchange = 2, default_max_q = 0.1,
-  allow_filtering = TRUE)
+contrastsInput(id, default_min_foldchange = 2, default_max_p = 0.05,
+  default_max_q = 0.1, allow_filtering = TRUE, summarise = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}

@@ -20,16 +20,16 @@
 rnaseqInput <- function(id, eselist) {
     ns <- NS(id)
     
-    navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, 
-        offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
-        p(HTML("Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>")), p('This app is best viewed with the Chrome browser.')), width = 3), mainPanel(fluidRow(column(12, 
-        offset = 0, h2(eselist@title), h3(eselist@author), div(h4("Description")), HTML(eselist@description))), width = 9))), navbarMenu("Sample data", tabPanel("Experiment", 
-        sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)))), 
-        navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
-            width = 9))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("PCA vs Experiment", 
-            sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), mainPanel(heatmapOutput(ns("heatmap-pca")), width = 9))), tabPanel("Clustering dendrogram", 
-            sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9))), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
-            eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), width = 9)))), navbarMenu("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), 
+    navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, offset = 0, 
+        p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
+        p(HTML("Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>")), p("This app is best viewed with the Chrome browser.")), 
+        width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), h3(eselist@author), div(h4("Description")), HTML(eselist@description))), width = 9))), navbarMenu("Sample data", 
+        tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)))), 
+        navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), width = 9))), 
+            tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), 
+                eselist, type = "pca"), width = 3), mainPanel(heatmapOutput(ns("heatmap-pca")), width = 9))), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
+                eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9))), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
+                eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), width = 9)))), navbarMenu("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), 
             eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")), width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), 
             eselist, type = "expression"), width = 3), mainPanel(heatmapOutput(ns("heatmap-expression")), width = 9)))))
     
@@ -48,6 +48,20 @@ rnaseqInput <- function(id, eselist) {
         })))) {
             differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), width = 3), mainPanel(volcanoplotOutput(ns("volcano")), 
                 width = 9))))
+        }
+        
+        # If any of the experiments have gene set analyses, add this table to the menu
+        
+        if (any(unlist(lapply(eselist, function(ese) {
+          length(ese@gene_set_analyses) > 0
+        })))) {
+          differential_menu <-
+            pushToList(differential_menu,
+                       tabPanel("Gene set analyses", sidebarLayout(
+                         sidebarPanel(genesetanalysistableInput(ns("genesetanalysis"), eselist), width = 3),
+                         mainPanel(genesetanalysistableOutput(ns("genesetanalysis")),
+                                   width = 9)
+                       )))
         }
         
         navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", differential_menu))
@@ -90,6 +104,7 @@ rnaseq <- function(input, output, session, eselist) {
         
         if (length(ese@labelfield) > 0) {
             eselist@url_roots[[ese@labelfield]] <- "?gene="
+            eselist@url_roots$significant_genes <- "?gene="
         }
     }
     
@@ -106,6 +121,7 @@ rnaseq <- function(input, output, session, eselist) {
         callModule(differentialtable, "differential", eselist)
         callModule(volcanoplot, "volcano", eselist)
         callModule(foldchangeplot, "foldchange", eselist)
+        callModule(genesetanalysistable, "genesetanalysis", eselist)
     }
     
     updateGeneLabel <- callModule(gene, "gene", eselist)
