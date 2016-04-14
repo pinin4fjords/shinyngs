@@ -263,7 +263,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout()
+            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout() %>% config(showLink = TRUE)
         })
     })
 } 

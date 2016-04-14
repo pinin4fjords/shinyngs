@@ -103,7 +103,7 @@ gene <- function(input, output, session, eselist) {
         ese <- getExperiment()
         
         if (length(ese@labelfield) > 0) {
-            rowids <- rownames(ese)[mcols(ese)[[ese@labelfield]] == input$gene_label]
+            rowids <- rownames(ese)[which(mcols(ese)[[ese@labelfield]] == input$gene_label)]
         }
     })
     
@@ -140,7 +140,7 @@ gene <- function(input, output, session, eselist) {
     
     getGeneContrastsTable <- reactive({
         contrasts_table <- labelledContrastsTable()
-        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label, , drop = FALSE], url_roots = eselist@url_roots)
+        linkMatrix(contrasts_table[which(contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label), , drop = FALSE], url_roots = eselist@url_roots)
     })
     
     # Render the contrasts table- when a valid label is supplied
@@ -210,8 +210,9 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
     })
     
     if (length(plots) > 1) {
-        do.call(function(...) subplot(...), plots)
+        p <- do.call(function(...) subplot(...), plots)
     } else {
-        plots[[1]]
+        p <- plots[[1]]
     }
+    p %>% config(showLink = TRUE)
 } 

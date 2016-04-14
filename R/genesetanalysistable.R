@@ -127,30 +127,42 @@ genesetanalysistable <- function(input, output, session, eselist) {
         ese <- getExperiment()
         gst <- ese@gene_set_analyses[[input$geneSetTypes]][[getSelectedContrasts()]]
         
+        # Rename p value if we have PValue from mroast etc()
+        
+        colnames(gst) <- sub('PValue', 'p value', colnames(gst))
+        
+        # Move the row naes to an actual column
+        
         gst <- data.frame(gst, check.names = FALSE, stringsAsFactors = FALSE)
         gst$gene_set_id <- rownames(gst)
         gst <- gst[, c("gene_set_id", colnames(gst)[colnames(gst) != "gene_set_id"])]
         
-        gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, ]
+        # Apply the user's filters
         
-        # Add in the differential genes
+        gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, , drop = FALSE]
         
-        ct <- filteredContrastsTables()[[1]]
-        up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
-        down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
+        if (nrow(gst) > 0){
         
-        gene_sets <- getGeneSets()
-        
-        gst$significant_genes <- apply(gst, 1, function(row) {
-            if (row["Direction"] == "Up") {
-                siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], up)
-            } else {
-                siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], down)
-            }
-            paste(siggenes, collapse = " ")
-        })
-        
-        gst
+          # Add in the differential genes
+          
+          ct <- filteredContrastsTables()[[1]]
+          
+          up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
+          down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
+          
+          gene_sets <- getGeneSets()
+          
+          gst$significant_genes <- apply(gst, 1, function(row) {
+              if (row["Direction"] == "Up") {
+                  siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], up)
+              } else {
+                  siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], down)
+              }
+              paste(siggenes, collapse = " ")
+          })
+          
+          gst
+        }
     })
     
     # Take the table and add links etc
