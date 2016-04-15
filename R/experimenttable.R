@@ -81,5 +81,5 @@ experimenttable <- function(input, output, session, eselist) {
         experiment
     })
     
-    callModule(simpletable, "experimenttable", displayMatrix = getExperiment, filename = "experiment")
+    callModule(simpletable, "experimenttable", displayMatrix = getExperiment, filename = "experiment", rownames = TRUE)
 } 
