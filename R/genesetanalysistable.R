@@ -141,15 +141,11 @@ genesetanalysistable <- function(input, output, session, eselist) {
         
         gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, , drop = FALSE]
         
-        saveRDS(gst, "~/shinytests/gst.rds")
-        
         if (nrow(gst) > 0){
         
           # Add in the differential genes
           
           ct <- filteredContrastsTables()[[1]]
-          saveRDS(ct, "~/shinytests/ct.rds")
-          
           up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
           down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
           
