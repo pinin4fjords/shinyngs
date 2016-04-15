@@ -53,5 +53,5 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
-    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures(), tests = tests, gene_set_analyses = gene_set_analyses)
+    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, tests = tests, gene_set_analyses = gene_set_analyses)
 } 
