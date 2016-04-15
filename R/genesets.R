@@ -43,6 +43,8 @@ genesetInput <- function(id) {
 #'   getPathwayGenes() which will be used by other modules.
 #'   
 #' @keywords shiny
+#' @import GSEABase
+#' @impot SummarizedExperiment
 #'   
 #' @examples
 #' geneset_functions <- callModule(geneset, 'heatmap', getExperiment())
@@ -70,22 +72,19 @@ geneset <- function(input, output, session, eselist, getExperiment) {
         # Derive the necessary information from the experiment object
         
         ese <- getExperiment()
-        annotation <- data.frame(mcols(ese))
+        annotation <- data.frame(SummarizedExperiment::mcols(ese))
         entrezgenefield <- ese@entrezgenefield
         genefield <- ese@labelfield
         gene_sets <- eselist@gene_sets
         
         withProgress(message = "processing gene sets", value = 0, {
-
-            # Convert gene IDs in the gene sets (but leave them keyed by entrez id)
-                
-            reformatted_gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
-              set_gene_ids <- as.integer(GSEABase::geneIds(y))
-              structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
-            }), names = names(x)), simplify = FALSE, USE.NAMES = TRUE)
-
+          lapply(gene_sets, function(gene_set_collection){
+              lapply(gene_set_collection, function(gene_set){
+                set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
+                structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
+              })
+          })
         })
-        reformatted_gene_sets
     })
     
     # Return list of reactive expressions
