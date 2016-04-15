@@ -76,42 +76,40 @@ geneset <- function(input, output, session, eselist, getExperiment) {
         gene_sets <- eselist@gene_sets
         
         withProgress(message = "processing gene sets", value = 0, {
-            
-            derived_gene_sets <- file.path("calculated", "gene_sets.rds")
-            
-            if (file.exists(derived_gene_sets)) {
-                withProgress(message = "retrieving previously loaded sets", value = 0, {
-                  gene_sets <- readRDS(derived_gene_sets)
-                })
-            } else {
+
+            # Convert gene IDs in the gene sets (but leave them keyed by entrez id)
                 
-                # Convert gene IDs in the gene sets (but leave them keyed by entrez id)
-                
-                gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
-                  set_gene_ids <- as.integer(GSEABase::geneIds(y))
-                  structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
-                }), names = names(x)), simplify = FALSE, USE.NAMES = TRUE)
-                
-                # Save output to R object for faster future retrieval
-                
-                dir.create(dirname(derived_gene_sets), showWarnings = FALSE)
-                saveRDS(gene_sets, derived_gene_sets)
-            }
+            gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
+              set_gene_ids <- as.integer(GSEABase::geneIds(y))
+              structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
+            }), names = names(x)), simplify = FALSE, USE.NAMES = TRUE)
+
         })
         gene_sets
-        
     })
     
     # Return list of reactive expressions
     
-    list(getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getPathwayNames = reactive({
+    list(
+      getGeneSets = getGeneSets, 
+      updateGeneSetsList = updateGeneSetsList, 
+      getPathwayNames = reactive({
         validate(need(input$geneSets, "Waiting for gene set input for names"))
         gene_sets <- getGeneSets()
-        lapply(input$geneSets, function(pathcode) {
+        unlist(lapply(input$geneSets, function(pathcode) {
             pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
             names(gene_sets[[pathparts[1]]])[pathparts[2]]
-        })
-    }), getPathwayGenes = reactive({
+        }))
+      }), 
+      getGenesetTypes = reactive({
+        validate(need(input$geneSets, "Waiting for gene set input for names"))
+        gene_sets <- getGeneSets()
+        unique(unlist(lapply(input$geneSets, function(pathcode) {
+          pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
+          names(gene_sets)[pathparts[1]]
+        })))
+      }),
+      getPathwayGenes = reactive({
         validate(need(input$geneSets, "Waiting for gene set input for genes"))
         
         gene_sets <- getGeneSets()
@@ -128,3 +126,15 @@ geneset <- function(input, output, session, eselist, getExperiment) {
     }))
     
 } 
+
+#' Prettify gene set names like those from MSigDB
+#'
+#' @param gsn Gene set name like 'KEGG_GLYCOLOYSIS_GLUCONEOGENESIS'
+#'
+#' @return output Prettified version
+#' @export
+
+prettifyGeneSetName <- function(gsn){
+   words <- unlist(strsplit(gsn, '_'))
+   paste(words[1], paste(tolower(words[-1]), collapse = ' '))
+}

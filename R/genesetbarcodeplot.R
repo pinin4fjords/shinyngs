@@ -115,18 +115,43 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
       updateGeneSetsList()
     })
     
+    # Make a sensible title for the plot
+    
+    barcodeplotTitle <- reactive({
+      ese <- getExperiment()
+      title_components <- c(
+        prettifyGeneSetName(unlist(getPathwayNames())),
+        getSelectedContrastNames() 
+      )
+
+      if (getGenesetTypes() %in% names(ese@gene_set_analyses) && getPathwayNames() %in% rownames(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]])){
+        fdr <- ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]][getPathwayNames(),'FDR']
+        direction <- ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]][getPathwayNames(),'Direction']
+        title_components <- c(title_components, paste('Direction:', direction), paste('FDR:', signif(fdr, 3))) 
+      }else{
+        title_components <- c(title_components, '(no association)')
+      }
+      
+      plot_title <- paste(
+        title_components,
+        collapse = '\n'
+      )
+      
+      plot_title
+    })
+    
     # Make the barcode plot using limma
     
     output$genesetbarcodeplot <- renderPlot({
       ct <- filteredContrastsTables()[[1]]
       set_genes <- getPathwayGenes() 
         
-        par(cex = 2)
+        par(cex = 1.5, cex.main = 0.8)
       
         limma::barcodeplot(
           ct$`Fold change`, 
           index = convertIds(rownames(ct), getExperiment(), getExperiment()@entrezgenefield) %in% names(set_genes),
-          main = getPathwayNames()
+          main = barcodeplotTitle()
         )
     })
 } 

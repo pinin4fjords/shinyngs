@@ -6,7 +6,7 @@
 \usage{
 ExploratorySummarizedExperiment(assays, colData, annotation, idfield,
   labelfield = character(), entrezgenefield = character(), tests = list(),
-  gene_set_analyses = list())
+  assay_measures = list(), gene_set_analyses = list())
 }
 \arguments{
 \item{assays}{An object of class SimpleList as would be supplied to the 
