@@ -151,6 +151,12 @@ genesetanalysistable <- function(input, output, session, eselist) {
           
           gene_sets <- getGeneSets()
           
+          saveRDS(ese, '~/shinytests/ese.rds')
+          saveRDS(ct, '~/shinytests/ct.rds')
+          saveRDS(gene_sets, '~/shinytests/gene_sets.rds')
+          saveRDS(gst, '~/shinytests/gst.rds')
+          saveRDS(input$geneSetTypes, '~/shinytests/geneSetTypes.rds')
+          
           gst$significant_genes <- apply(gst, 1, function(row) {
               if (row["Direction"] == "Up") {
                   siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], up)
