@@ -33,7 +33,7 @@ genesetanalysistableInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     fieldSets(ns("fieldset"), list(gene_set_types = uiOutput(ns("geneSetTypes")), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), 
-        "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 0.5), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), 
+        "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), 
         "Gene set analysis")))
 }
 
