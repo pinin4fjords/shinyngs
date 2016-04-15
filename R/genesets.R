@@ -43,8 +43,6 @@ genesetInput <- function(id) {
 #'   getPathwayGenes() which will be used by other modules.
 #'   
 #' @keywords shiny
-#' @import GSEABase
-#' @impot SummarizedExperiment
 #'   
 #' @examples
 #' geneset_functions <- callModule(geneset, 'heatmap', getExperiment())
@@ -79,10 +77,16 @@ geneset <- function(input, output, session, eselist, getExperiment) {
         
         withProgress(message = "processing gene sets", value = 0, {
           lapply(gene_sets, function(gene_set_collection){
-              lapply(gene_set_collection, function(gene_set){
+              
+              # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure
+              # the result gets named properly
+            
+              gsc <- lapply(gene_set_collection, function(gene_set){
                 set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
                 structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
               })
+              names(gsc) <- names(gene_set_collection)
+              gsc
           })
         })
     })
