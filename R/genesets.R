@@ -79,13 +79,13 @@ geneset <- function(input, output, session, eselist, getExperiment) {
 
             # Convert gene IDs in the gene sets (but leave them keyed by entrez id)
                 
-            gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
+            reformatted_gene_sets <- sapply(gene_sets, function(x) structure(sapply(x, function(y) {
               set_gene_ids <- as.integer(GSEABase::geneIds(y))
               structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
             }), names = names(x)), simplify = FALSE, USE.NAMES = TRUE)
 
         })
-        gene_sets
+        reformatted_gene_sets
     })
     
     # Return list of reactive expressions
