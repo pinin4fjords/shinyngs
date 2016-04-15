@@ -138,6 +138,17 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         input$assay
     })
     
+    # Retrieve the assay measure to display with plots etc (where defined by the user)
+    
+    getAssayMeasure <- reactive({
+        ese <- getExperiment()
+        if (length(ese@assay_measures) > 0 && getAssay() %in% names(ese@assay_measures)){
+           ese@assay_measures[[getAssay()]]
+        }else{
+          'expression' 
+        }
+    })
+    
     varMax <- reactive({
         if (is.null(var_max)) {
             nrow(getExperiment())
@@ -210,7 +221,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, 
+    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, 
         getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
 }
 

@@ -120,7 +120,7 @@ gene <- function(input, output, session, eselist) {
                 rownames(barplot_expression) <- paste(getRows(), input$gene_label, sep = " / ")
             }
             
-            p <- geneBarplot(barplot_expression, selectColData(), colorBy(), "expression")
+            p <- geneBarplot(barplot_expression, selectColData(), colorBy(), getAssayMeasure())
             
         })
     })
