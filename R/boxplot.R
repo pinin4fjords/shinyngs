@@ -53,7 +53,10 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    plotOutput(ns("sampleBoxplot"))
+    list(
+      h3('Box plots'),
+      plotOutput(ns("sampleBoxplot"))
+    )
 }
 
 #' The server function of the boxplot module
@@ -86,7 +89,7 @@ boxplot <- function(input, output, session, eselist) {
         withProgress(message = "Making sample boxplot", value = 0, {
             ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
         })
-    }, height = 800)
+    }, height = 600)
     
     # Provide the plot for download
     
@@ -141,8 +144,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }
     
-    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), 
-        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
+    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
+        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
+        expressiontype, ")"), 15))
     
     print(p)
 }

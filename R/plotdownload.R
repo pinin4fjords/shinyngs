@@ -50,7 +50,6 @@ plotdownload <- function(input, output, session, makePlot, filename = "plot.png"
     }
     
     output$plotdownload <- downloadHandler(filename = filename, content = function(file) {
-        print(paste0("Making output file of dimension ", plotWidth, "x", plotHeight))
         png(file, height = plotHeight, width = plotWidth, units = "px")
         print(makePlot())
         dev.off()

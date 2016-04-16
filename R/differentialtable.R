@@ -73,7 +73,7 @@ differentialtable <- function(input, output, session, eselist) {
     output$differentialtable <- renderUI({
         ns <- session$ns
         
-        simpletableOutput(ns("differentialtable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
+        simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "))
     })
     
     # Call the selectmatrix module and unpack the reactives it sends back
@@ -82,9 +82,11 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = TRUE))
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", 
+        rownames = FALSE)
 } 

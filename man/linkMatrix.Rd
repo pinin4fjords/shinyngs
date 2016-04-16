@@ -4,13 +4,16 @@
 \alias{linkMatrix}
 \title{Add links to a table}
 \usage{
-linkMatrix(matrix, url_roots)
+linkMatrix(matrix, url_roots, display_values = data.frame())
 }
 \arguments{
 \item{matrix}{The input table}
 
 \item{url_roots}{A list with URL roots, with names matching columns of 
 \code{matrix}}
+
+\item{display_values}{A matrix which may contain values for displaying 
+in the link, differerent from that used in the href.}
 }
 \value{
 output Table with links added

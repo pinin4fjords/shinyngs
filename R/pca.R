@@ -26,8 +26,8 @@ pcaInput <- function(id, eselist) {
     
     # Output sets of fields in their own containers
     
-    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))), expression = expression_filters, 
-        export = simpletableInput(ns("loading"), tabletitle = "Loading")))
+    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))), 
+        expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
 }
 
 #' The output function of the pca module
@@ -48,7 +48,8 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings"))))
+    tabsetPanel(tabPanel("Principal components", scatterplotOutput(ns("pca"))), tabPanel("Loadings", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), 
+        tabletitle = "Loadings"))))
 }
 
 #' The server function of the pca module
@@ -86,10 +87,10 @@ pca <- function(input, output, session, eselist) {
     
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
     
-    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, 
-        title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
+    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
+        getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
+        getShowLabels = getShowLabels, getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
     
     # Make a matrix of values to the PCA
     

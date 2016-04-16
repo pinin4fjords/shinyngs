@@ -3,6 +3,7 @@
 export(ExploratorySummarizedExperiment)
 export(ExploratorySummarizedExperimentList)
 export(annotatedHeatmap)
+export(barcode_plot)
 export(calculateDendrogram)
 export(calculateDist)
 export(clustering_dendrogram)

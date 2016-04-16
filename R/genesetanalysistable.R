@@ -32,9 +32,9 @@ genesetanalysistableInput <- function(id, eselist) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(gene_set_types = uiOutput(ns("geneSetTypes")), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), 
-        "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), 
-        "Gene set analysis")))
+    fieldSets(ns("fieldset"), list(gene_set_types = uiOutput(ns("geneSetTypes")), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", 
+        value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, 
+        default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), "Gene set analysis")))
 }
 
 #' The output function of the genesetanalysistable module
@@ -57,7 +57,7 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
     ns <- NS(id)
     
-    htmlOutput(ns("genesetanalysistable"))
+    simpletableOutput(ns("genesetanalysistable"), tabletitle = 'Gene set analysis')
 }
 
 #' The server function of the genesetanalysistable module
@@ -93,14 +93,6 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # Render the output area - and provide an input-dependent title
-    
-    output$genesetanalysistable <- renderUI({
-        ns <- session$ns
-        
-        simpletableOutput(ns("genesetanalysistable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
-    })
-    
     # Extract the gene sets that have been analysed for the the user to select from
     
     output$geneSetTypes <- renderUI({
@@ -115,7 +107,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -129,7 +122,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
         
         # Rename p value if we have PValue from mroast etc()
         
-        colnames(gst) <- sub('PValue', 'p value', colnames(gst))
+        colnames(gst) <- sub("PValue", "p value", colnames(gst))
         
         # Move the row naes to an actual column
         
@@ -141,26 +134,26 @@ genesetanalysistable <- function(input, output, session, eselist) {
         
         gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, , drop = FALSE]
         
-        if (nrow(gst) > 0){
-        
-          # Add in the differential genes
-          
-          ct <- filteredContrastsTables()[[1]]
-          up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
-          down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
-          
-          gene_sets <- getGeneSets()
-          
-          gst$significant_genes <- apply(gst, 1, function(row) {
-              if (row["Direction"] == "Up") {
+        if (nrow(gst) > 0) {
+            
+            # Add in the differential genes
+            
+            ct <- filteredContrastsTables()[[1]]
+            up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
+            down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
+            
+            gene_sets <- getGeneSets()
+            
+            gst$significant_genes <- apply(gst, 1, function(row) {
+                if (row["Direction"] == "Up") {
                   siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], up)
-              } else {
+                } else {
                   siggenes <- intersect(gene_sets[[input$geneSetTypes]][[row["gene_set_id"]]], down)
-              }
-              paste(siggenes, collapse = " ")
-          })
-          
-          gst
+                }
+                paste(siggenes, collapse = " ")
+            })
+            
+            gst
         }
     })
     
@@ -168,8 +161,10 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     getDisplayGeneSetAnalysis <- reactive({
         gst <- getGeneSetAnalysis()
-        gst <- linkMatrix(gst, eselist@url_roots)
-        gst$gene_set_id <- gsub("_", " ", gst$gene_set_id)
+        
+        # Add links, but use a prettiefied version of the gene set name that re-flows to take up less space
+        
+        gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id)))
         colnames(gst) <- prettifyVariablename(colnames(gst))
         
         gst
@@ -178,10 +173,11 @@ genesetanalysistable <- function(input, output, session, eselist) {
     # Make an explantory file name
     
     makeFileName <- reactive({
-      gsub("[^a-zA-Z0-9_]","_" , paste('gsa', getSelectedContrastNames(), input$geneSetTypes))
+        gsub("[^a-zA-Z0-9_]", "_", paste("gsa", getSelectedContrastNames(), input$geneSetTypes))
     })
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
+    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, 
+        rownames = FALSE)
 } 

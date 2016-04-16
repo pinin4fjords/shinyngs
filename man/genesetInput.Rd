@@ -4,7 +4,7 @@
 \alias{genesetInput}
 \title{The UI function of the gene set module}
 \usage{
-genesetInput(id)
+genesetInput(id, multiple = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}

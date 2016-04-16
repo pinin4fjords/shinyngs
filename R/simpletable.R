@@ -46,7 +46,7 @@ simpletableOutput <- function(id, tabletitle = NULL) {
     
     outputs <- list()
     if (!is.null(tabletitle)) {
-        outputs <- pushToList(outputs, h4(tabletitle))
+        outputs <- pushToList(outputs, h3(tabletitle))
     }
     
     outputs <- pushToList(outputs, DT::dataTableOutput(ns("datatable")))
@@ -82,16 +82,15 @@ simpletable <- function(input, output, session, downloadMatrix = NULL, displayMa
     
     output$datatable = DT::renderDataTable({
         displayMatrix()
-    }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100"))), rownames = rownames, escape = FALSE)
+    }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100"))), rownames = rownames, 
+        escape = FALSE)
     
-    output$downloadTable <- downloadHandler(
-      filename = function(){
-        if (is.reactive(filename)){
-          filename <- filename() 
+    output$downloadTable <- downloadHandler(filename = function() {
+        if (is.reactive(filename)) {
+            filename <- filename()
         }
-        paste0(filename, ".csv") 
-      },
-      content = function(file) {
+        paste0(filename, ".csv")
+    }, content = function(file) {
         write.csv(downloadMatrix(), file = file, row.names = rownames)
     })
     
