@@ -132,11 +132,11 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     makeTitle <- reactive({
         if (type == "PCA") {
-            paste("PCA vs variable association plot based on expression matrix:", tolower(matrixTitle()))
+            paste("PCA vs variable association plot based on expression matrix:", matrixTitle())
         } else if (type == "expression") {
-            paste("Expression heat map based on expression matrix:", tolower(matrixTitle()))
+            paste("Expression heat map based on expression matrix:", matrixTitle())
         } else {
-            paste("Sample clustering heat map based on expression matrix:", tolower(matrixTitle()))
+            paste("Sample clustering heat map based on expression matrix:", matrixTitle())
         }
     })
     
@@ -305,14 +305,16 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     rowLabels <- reactive({
         ese <- getExperiment()
+        plot_matrix <- getPlotMatrix()
+        
         if (length(ese@labelfield) > 0 && type == "expression") {
             annotation <- as.data.frame(mcols(ese))
-            labels <- annotation[match(rownames(getPlotMatrix()), annotation[[ese@idfield]]), ese@labelfield]
-            labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(getPlotMatrix())[!is.na(labels)], sep = " / ")
-            labels[is.na(labels)] <- rownames(getPlotMatrix())[is.na(labels)]
+            labels <- annotation[match(rownames(plot_matrix), annotation[[ese@idfield]]), ese@labelfield]
+            labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(plot_matrix)[!is.na(labels)], sep = " / ")
+            labels[is.na(labels)] <- rownames(plot_matrix)[is.na(labels)]
             labels
         } else {
-            rownames(getPlotMatrix())
+            rownames(plot_matrix)
         }
     })
     

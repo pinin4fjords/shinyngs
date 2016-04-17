@@ -112,7 +112,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Parse the gene sets for ease of use
     
-    unpack.list(callModule(geneset, "genesetanalysistable", eselist, getExperiment))
+    unpack.list(callModule(genesetselect, "genesetanalysistable", eselist, getExperiment))
     
     getGeneSetAnalysis <- reactive({
         validate(need(input$geneSetTypes, "Waiting for gene set type selection"), need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))

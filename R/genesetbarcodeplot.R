@@ -32,7 +32,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(gene_set = genesetInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), 
+    fieldSets(ns("fieldset"), list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), 
         allow_filtering = FALSE), select_assay_data = expression_filters, export = list(p(simpletableInput(ns("genesetbarcodeplot"), "Gene set")), plotdownloadInput(ns("genesetbarcodeplot")))))
 }
 
@@ -103,7 +103,7 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Parse the gene sets for ease of use
     
-    unpack.list(callModule(geneset, "genesetbarcodeplot", eselist, getExperiment, multiple = FALSE))
+    unpack.list(callModule(genesetselect, "genesetbarcodeplot", eselist, getExperiment, multiple = FALSE))
     
     # Call to plotdownload module
     

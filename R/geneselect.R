@@ -69,7 +69,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
-    unpack.list(callModule(geneset, "geneset", eselist = eselist, getExperiment = getExperiment))
+    unpack.list(callModule(genesetselect, "geneset", eselist = eselist, getExperiment = getExperiment))
     
     # Add the gene sets to the drop-down if required
     
@@ -109,7 +109,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             # If gene sets have been provided, then make a gene sets filter
             
             if (useGenesets()) {
-                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetInput(ns("geneset")))
+                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetselectInput(ns("geneset")))
             }
             
         })
@@ -177,7 +177,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
         } else if (input$geneSelect == "variance") {
             title <- paste(paste("Top", input$obs, "rows"), "by variance")
         } else if (input$geneSelect == "gene set") {
-            title <- paste0("Genes in sets:\n", paste(getPathwayNames(), collapse = "\n"))
+            title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getPathwayNames()), collapse = "\n"))
         } else if (input$geneSelect == "list") {
             title <- "Rows for specifified gene list"
         }
