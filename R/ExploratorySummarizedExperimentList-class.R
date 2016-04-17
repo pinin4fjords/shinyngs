@@ -95,7 +95,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
           
           gsc <- lapply(gene_set_collection, function(gene_set) {
             set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
-            gs <- structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), genefield], names = set_gene_ids)
+            gs <- structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), labelfield], names = set_gene_ids)
             gs[! is.na(gs)]
           })
           names(gsc) <- names(gene_set_collection)
