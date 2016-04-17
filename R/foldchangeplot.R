@@ -65,7 +65,7 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(h3('Fold change plot'), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+    list(h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -110,8 +110,8 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = getSelectedContrastNames(), 
-        allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = getSelectedContrastNames(), allow_3d = FALSE, getLabels = foldchangeLabels, 
+        x = 1, y = 2, colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     

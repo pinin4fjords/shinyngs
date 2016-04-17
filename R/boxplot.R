@@ -53,10 +53,7 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    list(
-      h3('Box plots'),
-      plotOutput(ns("sampleBoxplot"))
-    )
+    list(h3("Box plots"), plotOutput(ns("sampleBoxplot")))
 }
 
 #' The server function of the boxplot module

@@ -44,10 +44,7 @@ dendroInput <- function(id, eselist) {
 
 dendroOutput <- function(id) {
     ns <- NS(id)
-    list(
-      h3('Sample clustering dendrogram'),
-      plotOutput(ns("sampleDendroPlot"))
-    )
+    list(h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot")))
 }
 
 #' The server function of the dendrogram module
@@ -70,7 +67,7 @@ dendro <- function(input, output, session, eselist) {
     
     # Get the expression matrix - no need for a gene selection
     
-    unpack.list(callModule(selectmatrix, "dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE))
+    unpack.list(callModule(selectmatrix, "dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
     colorBy <- callModule(groupby, "dendro", eselist = eselist, group_label = "Color by")
     
     # Call to plotdownload module

@@ -76,8 +76,8 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     # Get gene sets with the proper label field keying
     
     getGeneSets <- reactive({
-      ese <- getExperiment()
-      eselist@gene_sets[[ese@labelfield]]
+        ese <- getExperiment()
+        eselist@gene_sets[[ese@labelfield]]
     })
     
     # Rerieve and validate the gene set selection

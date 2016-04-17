@@ -57,7 +57,7 @@ geneselectInput <- function(id, select_genes = TRUE) {
 
 geneselect <- function(input, output, session, eselist, getExperiment, var_n = 50, var_max = 500, selectSamples = reactive({
     colnames(getExperiment())
-}), assay, provide_all = TRUE, provide_none = FALSE) {
+}), assay, provide_all = TRUE, provide_none = FALSE, default = NULL) {
     
     # Check if we have the nessary component for gene sets
     
@@ -101,7 +101,13 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 gene_select_methods <- c(gene_select_methods, "gene set")
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods), conditionalPanel(condition = paste0("input['", 
+            if (is.null(default)) {
+                selected = gene_select_methods[1]
+            } else {
+                selected = default
+            }
+            
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0("input['", 
                 ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), 
                 conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, 
                   "Paste gene list here, one per line")))

@@ -57,7 +57,7 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
     ns <- NS(id)
     
-    simpletableOutput(ns("genesetanalysistable"), tabletitle = 'Gene set analysis')
+    simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis")
 }
 
 #' The server function of the genesetanalysistable module

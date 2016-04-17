@@ -165,7 +165,7 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
         ese <- getExperiment()
         set_genes <- getPathwayGenes()
         
-        lct[which(lct[[prettifyVariablename(ese@labelfield)]] %in% set_genes),]
+        lct[which(lct[[prettifyVariablename(ese@labelfield)]] %in% set_genes), ]
     })
     
     # Add links for display

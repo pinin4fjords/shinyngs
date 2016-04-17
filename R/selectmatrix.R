@@ -62,6 +62,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' @param provide_all_genes Allow the 'all rows' selection in the UI? Means we 
 #'   don't have to calculate variance so the display is quicker, but it's a bad 
 #'   idea for e.g. heatmaps where the visual scales by the numbre of rows.
+#' @param default_gene_select The default method to use for selecting genes
 #' @param rounding Number of decimal places to show in results (Default 2)
 #'   
 #' @return output A list of reactive functions for fetching the derived matrix 
@@ -73,13 +74,13 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
 selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
-    require_tests = FALSE, rounding = 2) {
+    default_gene_select = NULL, require_tests = FALSE, rounding = 2) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
     unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, 
-        assay = getAssay, provide_all = provide_all_genes))
+        assay = getAssay, provide_all = provide_all_genes, default = default_gene_select))
     
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     

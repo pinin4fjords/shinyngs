@@ -74,38 +74,38 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), 
     contrasts = list(), url_roots = list(), gene_sets = list()) {
     
-    # Key the gene sets by gene name for easier access 
-  
-    if (length(gene_sets) > 0){
-      
-      gene_sets_by_name <- list()
-      
-      for (ese in eses){
-        annotation <- data.frame(SummarizedExperiment::mcols(ese))
-        entrezgenefield <- ese@entrezgenefield
-        labelfield <- ese@labelfield
+    # Key the gene sets by gene name for easier access
+    
+    if (length(gene_sets) > 0) {
         
-        if (labelfield %in% names(gene_sets_by_name)){
-          next 
+        gene_sets_by_name <- list()
+        
+        for (ese in eses) {
+            annotation <- data.frame(SummarizedExperiment::mcols(ese))
+            entrezgenefield <- ese@entrezgenefield
+            labelfield <- ese@labelfield
+            
+            if (labelfield %in% names(gene_sets_by_name)) {
+                next
+            }
+            
+            gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
+                
+                # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named properly
+                
+                gsc <- lapply(gene_set_collection, function(gene_set) {
+                  set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
+                  gs <- structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), labelfield], names = set_gene_ids)
+                  gs[!is.na(gs)]
+                })
+                names(gsc) <- names(gene_set_collection)
+                gsc
+            })
         }
         
-        gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
-          
-          # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named properly
-          
-          gsc <- lapply(gene_set_collection, function(gene_set) {
-            set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
-            gs <- structure(annotation[match(set_gene_ids, annotation[[entrezgenefield]]), labelfield], names = set_gene_ids)
-            gs[! is.na(gs)]
-          })
-          names(gsc) <- names(gene_set_collection)
-          gsc
-        }) 
-      }
-      
-      gene_sets <- gene_sets_by_name
+        gene_sets <- gene_sets_by_name
     }
-  
+    
     new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, default_groupvar = default_groupvar, 
         contrasts = contrasts, url_roots = url_roots, gene_sets = gene_sets)
 } 
