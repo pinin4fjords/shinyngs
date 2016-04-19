@@ -17,3 +17,25 @@
 h3{
   margin-top: 0;
 }
+
+.helptrigger{
+  padding:0 .5em 0 0; 
+  font-size: large;
+  float:left;
+}
+
+.tab-content .popover{
+  width: 100%;
+  max-width:100%;
+}
+
+/* This is for getting the shinyBS modals to show. CSS from shinythemes was 
+overriding the z-index we need from bootstrap.css  */
+
+.modal{
+  z-index: 1050; 
+}
+
+.help{
+  float:right; 
+}

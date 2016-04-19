@@ -209,6 +209,13 @@ unpack.list <- function(object) {
     }
 }
 
+#' Interleave the columns of two matrices of equal dimensions
+#'
+#' @param mat1 
+#' @param mat2 
+#'
+#' @return output Interleaved matrix
+#' @export
 
 interleaveColumns <- function(mat1, mat2) {
     out <- cbind(mat1, mat2)

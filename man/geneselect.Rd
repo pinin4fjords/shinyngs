@@ -6,7 +6,7 @@
 \usage{
 geneselect(input, output, session, eselist, getExperiment, var_n = 50,
   var_max = 500, selectSamples = reactive({     colnames(getExperiment())
-  }), assay, provide_all = TRUE, provide_none = FALSE)
+  }), assay, provide_all = TRUE, provide_none = FALSE, default = NULL)
 }
 \arguments{
 \item{input}{Input object}

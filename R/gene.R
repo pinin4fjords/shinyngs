@@ -21,8 +21,7 @@ geneInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("gene"), eselist)
-    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
-        groupbyInput(ns("gene")))
+    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), groupbyInput(ns("gene")))
     
     list(expression_filters, fieldSets(ns("fieldset"), list(gene = gene_filters, table_options = contrastsInput(ns("gene"), allow_filtering = FALSE))))
     
@@ -77,8 +76,7 @@ gene <- function(input, output, session, eselist) {
     # Call all the required modules and unpack their reactives
     
     unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
-    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, 
-        show_controls = FALSE))
+    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
