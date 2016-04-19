@@ -25,10 +25,10 @@ foldchangeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
+    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
     
     fieldsets <- list()
-    if (length(eselist) > 1) {
+    if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
         fieldsets$expression_matrix <- expression_filters
     }
     
@@ -37,7 +37,7 @@ foldchangeplotInput <- function(id, eselist) {
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
-    if (length(eselist) == 1) {
+    if (length(eselist) == 1 && length(assays(eselist[[1]])) == 1) {
         inputs <- pushToList(inputs, expression_filters)
     }
     

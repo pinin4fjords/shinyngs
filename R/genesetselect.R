@@ -16,7 +16,7 @@
 genesetselectInput <- function(id, multiple = TRUE) {
     ns <- NS(id)
     
-    tagList(selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5), multiple = multiple), radioButtons(ns("overlapType"), 
+    tagList(uiOutput(ns('geneSetTypes')), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5), multiple = multiple), radioButtons(ns("overlapType"), 
         "Overlap type", c("union", "intersect")))
 }
 
@@ -39,16 +39,38 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #'   ExploratorySummarizedExperiment object, with 'entrezgenefield', 
 #'   'labelfield' set in its slots
 #'
-#' @return output A list of two reactive functions: getPathwayNames() and 
-#'   getPathwayGenes() which will be used by other modules.
+#' @return output A list of two reactive functions which will be used by other 
+#' modules.
 #'   
 #' @keywords shiny
 #'   
 #' @examples
 #' geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment())
 
-genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE) {
+genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
     
+    output$geneSetTypes <- renderUI({
+      if (filter_by_type){
+        ese <- getExperiment()
+  
+        gene_set_types <- names(eselist@gene_sets[[ese@labelfield]])
+        ns <- session$ns
+        selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
+      }
+    })
+    
+    # Reactive to fetch the gene set types (if used)
+    
+    getGeneSetTypes <- reactive({
+        ese <- getExperiment()
+        if (! filter_by_type){
+          names(eselist@gene_sets[[ese@labelfield]]) 
+        }else{
+          validate(need(input$geneSetTypes, 'Waiting for gene set type'))
+          input$geneSetTypes 
+        }
+    })
+  
     # Get a list of names to show for the gene sets
     
     getGeneSetNames <- reactive({
@@ -75,14 +97,18 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     
     getGeneSets <- reactive({
         ese <- getExperiment()
-        eselist@gene_sets[[ese@labelfield]]
+        gene_sets <- eselist@gene_sets[[ese@labelfield]]
+        gene_set_types <- getGeneSetTypes()
+        gene_sets[gene_set_types] 
     })
     
     # Rerieve and validate the gene set selection
     
     getInputGeneSets <- reactive({
-        validate(need(input$geneSets, "Please select a gene set"))
-        
+        if (require_select){
+          validate(need(input$geneSets, "Please select a gene set"))
+        }
+
         if ((!multiple)) {
             validate(need(length(input$geneSets) == 1, "Please select a single gene set only"))
         }
@@ -92,10 +118,14 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     
     # Return list of reactive expressions
     
-    list(getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getPathwayNames = reactive({
+    list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getGenesetNames = reactive({
         
         gene_sets <- getGeneSets()
         input_gene_sets <- getInputGeneSets()
+        
+        if (is.null(input_gene_sets)){
+          return(NULL) 
+        }
         
         unlist(lapply(input_gene_sets, function(pathcode) {
             pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
@@ -145,13 +175,12 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
 
 #' Prettify gene set names like those from MSigDB
 #'
-#' @param gsn Gene set name like 'KEGG_GLYCOLOYSIS_GLUCONEOGENESIS'
+#' @param gsn Gene set name like 'KEGG_GLYCOLYSIS_GLUCONEOGENESIS'
 #'
 #' @return output Prettified version
 #' @export
 
 prettifyGeneSetName <- function(gsn) {
-    saveRDS(gsn, file = "~/shinytests/gsn.rds")
     words <- strsplit(gsn, "_")
     
     unlist(lapply(words, function(w) paste(w[1], paste(tolower(w[-1]), collapse = " "))))

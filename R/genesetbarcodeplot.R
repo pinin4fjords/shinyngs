@@ -117,11 +117,11 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     barcodeplotTitle <- reactive({
         ese <- getExperiment()
         
-        title_components <- c(prettifyGeneSetName(unlist(getPathwayNames())), getSelectedContrastNames())
+        title_components <- c(prettifyGeneSetName(unlist(getGenesetNames())), getSelectedContrastNames())
         
-        if (getGenesetTypes() %in% names(ese@gene_set_analyses) && getPathwayNames() %in% rownames(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]])) {
-            fdr <- paste(signif(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]][getPathwayNames(), "FDR"], 3), collapse = ",")
-            direction <- paste(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]][getPathwayNames(), "Direction"], collapse = ",")
+        if (getGenesetTypes() %in% names(ese@gene_set_analyses) && getGenesetNames() %in% rownames(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]])) {
+            fdr <- paste(signif(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]][getGenesetNames(), "FDR"], 3), collapse = ",")
+            direction <- paste(ese@gene_set_analyses[[getGenesetTypes()]][[getSelectedContrasts()]][getGenesetNames(), "Direction"], collapse = ",")
             title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
         } else {
             title_components <- c(title_components, "(no association)")

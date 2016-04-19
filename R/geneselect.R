@@ -182,7 +182,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
         } else if (input$geneSelect == "variance") {
             title <- paste(paste("Top", input$obs, "rows"), "by variance")
         } else if (input$geneSelect == "gene set") {
-            title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getPathwayNames()), collapse = "\n"))
+            title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
         } else if (input$geneSelect == "list") {
             title <- "Rows for specifified gene list"
         }

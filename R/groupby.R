@@ -32,8 +32,8 @@ groupbyInput <- function(id) {
 #' @param group_label A label for the grouping field
 #' @param multiple Produces a checkbox group if true, a select box if false
 #'   
-#' @return output A list of two reactive functions: getPathwayNames() and 
-#'   getPathwayGenes() which will be used by other modules.
+#' @return output A list of reactive functions which will be used by other 
+#' modules.
 #'   
 #' @keywords shiny
 #'   
