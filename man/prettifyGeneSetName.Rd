@@ -7,7 +7,7 @@
 prettifyGeneSetName(gsn)
 }
 \arguments{
-\item{gsn}{Gene set name like 'KEGG_GLYCOLOYSIS_GLUCONEOGENESIS'}
+\item{gsn}{Gene set name like 'KEGG_GLYCOLYSIS_GLUCONEOGENESIS'}
 }
 \value{
 output Prettified version

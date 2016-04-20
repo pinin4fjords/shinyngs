@@ -4,7 +4,8 @@
 \alias{genesetselect}
 \title{The server function of the genesetselect module}
 \usage{
-genesetselect(input, output, session, eselist, getExperiment, multiple = TRUE)
+genesetselect(input, output, session, eselist, getExperiment, multiple = TRUE,
+  filter_by_type = FALSE, require_select = TRUE)
 }
 \arguments{
 \item{input}{Input object}
@@ -21,8 +22,8 @@ ExploratorySummarizedExperiment object, with 'entrezgenefield',
 'labelfield' set in its slots}
 }
 \value{
-output A list of two reactive functions: getPathwayNames() and 
-  getPathwayGenes() which will be used by other modules.
+output A list of two reactive functions which will be used by other 
+modules.
 }
 \description{
 The gene set module is for adding a gene set filter to shiny UI elements. 

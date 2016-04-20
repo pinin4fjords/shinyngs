@@ -56,7 +56,14 @@ genesetbarcodeplotInput <- function(id, eselist) {
 genesetbarcodeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(h3("Gene set barcode plot"), plotOutput(ns("genesetbarcodeplot")), h4("Gene set differential expression"), simpletableOutput(ns("genesetbarcodeplot")))
+    list(
+      modalInput(ns("genesetbarcodeplot"), "help", "help"), 
+      modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp", "genesetbarcodeplot.md", package = packageName()))),
+      h3("Gene set barcode plot"), 
+      plotOutput(ns("genesetbarcodeplot")), 
+      h4("Gene set differential expression"), 
+      simpletableOutput(ns("genesetbarcodeplot"))
+    )
 }
 
 #' The server function of the genesetbarcodeplot module

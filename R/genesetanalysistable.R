@@ -57,7 +57,11 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
     ns <- NS(id)
     
-    simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis")
+    list(
+      modalInput(ns("genesetanalysistable"), "help", "help"), 
+      modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", "genesetanalysistable.md", package = packageName()))),
+      simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis")
+    )
 }
 
 #' The server function of the genesetanalysistable module

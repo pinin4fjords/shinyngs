@@ -221,3 +221,16 @@ interleaveColumns <- function(mat1, mat2) {
     out <- cbind(mat1, mat2)
     out[, unlist(lapply(1:ncol(mat1), function(n) c(n, n + ncol(mat1))))]
 } 
+
+#' Return a usable citation string for a package
+#' 
+#' Adds just the tiny bit of wrapping code to make the output of
+#' \code{citation()} printable.
+#' 
+#' @param package Character string of package name
+#' 
+#' @return citation A string that can be put in markdown doucments etc.
+
+makePackageCitation <- function(package){
+  paste(capture.output(print(citation(package), style = 'HTML')), collapse = ' ')
+}

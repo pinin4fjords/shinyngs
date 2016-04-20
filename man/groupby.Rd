@@ -22,8 +22,8 @@ ExploratorySummarizedExperiment objects}
 \item{multiple}{Produces a checkbox group if true, a select box if false}
 }
 \value{
-output A list of two reactive functions: getPathwayNames() and 
-  getPathwayGenes() which will be used by other modules.
+output A list of reactive functions which will be used by other 
+modules.
 }
 \description{
 The groupby module provides a UI element to choose from the group_vars in a
