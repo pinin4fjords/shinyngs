@@ -54,7 +54,7 @@ readdistributionplotOutput <- function(id, eselist) {
 readdistributionplot <- function(input, output, session, eselist) {
     
     getPlotmatrix <- reactive({
-        eselist@read_distribution
+        t(eselist@read_distribution)
     })
     
     callModule(barplot, "barplot", getPlotmatrix = getPlotmatrix, getYLabel = reactive({
