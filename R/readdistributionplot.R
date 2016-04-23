@@ -34,7 +34,8 @@ readdistributionplotOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("readdistributionplot"), "help", "help"), modalOutput(ns("readdistributionplot"), "Read distribution plot", includeMarkdown(system.file("inlinehelp", 
-        "readdistributionplot.md", package = packageName()))), h3("Read distribution plot"), barplotOutput(ns("barplot")), h4("Read counts at each stage of processing"), simpletableOutput(ns("readdist")))
+        "readdistributionplot.md", package = packageName()))), h3("Read distribution plot"), barplotOutput(ns("barplot")), h4("Read counts at each stage of processing"), 
+        simpletableOutput(ns("readdist")))
 }
 
 #' Server function of the \code{readdistributionplot} module 
@@ -53,15 +54,15 @@ readdistributionplotOutput <- function(id, eselist) {
 
 readdistributionplot <- function(input, output, session, eselist) {
     
-  getPlotmatrix <- reactive({
-    t(getDistributionTable())
-  })
-  
-  getDistributionTable <- reactive({
-    plotmatrix <- eselist@read_distribution
-    colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
-    plotmatrix
-  })
+    getPlotmatrix <- reactive({
+        t(getDistributionTable())
+    })
+    
+    getDistributionTable <- reactive({
+        plotmatrix <- eselist@read_distribution
+        colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
+        plotmatrix
+    })
     
     callModule(barplot, "barplot", getPlotmatrix = getPlotmatrix, getYLabel = reactive({
         "Tags"

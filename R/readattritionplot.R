@@ -34,7 +34,8 @@ readattritionplotOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("readattritionplot"), "help", "help"), modalOutput(ns("readattritionplot"), "Read distribution plot", includeMarkdown(system.file("inlinehelp", 
-        "readattritionplot.md", package = packageName()))), h3("Read attrition report"), barplotOutput(ns("barplot")), h4("Tag counts for each genomic feature type"), simpletableOutput(ns("readattr")))
+        "readattritionplot.md", package = packageName()))), h3("Read attrition report"), barplotOutput(ns("barplot")), h4("Tag counts for each genomic feature type"), 
+        simpletableOutput(ns("readattr")))
 }
 
 #' Server function of the \code{readattritionplot} module 
@@ -54,13 +55,13 @@ readattritionplotOutput <- function(id, eselist) {
 readattritionplot <- function(input, output, session, eselist) {
     
     getPlotmatrix <- reactive({
-      t(getAttritionTable())
+        t(getAttritionTable())
     })
     
     getAttritionTable <- reactive({
-      plotmatrix <- eselist@read_attrition
-      colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
-      plotmatrix
+        plotmatrix <- eselist@read_attrition
+        colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
+        plotmatrix
     })
     
     callModule(barplot, "barplot", getPlotmatrix = getPlotmatrix, getYLabel = reactive({
