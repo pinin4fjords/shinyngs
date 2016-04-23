@@ -31,8 +31,8 @@ boxplotInput <- function(id, eselist) {
         naked_fields[[1]] <- boxplot_filters
     }
     
-    # field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns('boxplot'))))
-    field_sets <- c(field_sets, list(expression = expression_filters))
+    field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns('boxplot'))))
+    #field_sets <- c(field_sets, list(expression = expression_filters))
     
     list(naked_fields, fieldSets(ns("fieldset"), field_sets))
     
@@ -54,7 +54,7 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    list(h3("Box plots"), plotlyOutput(ns("sampleBoxplot")))
+    list(h3("Box plots"), plotOutput(ns("sampleBoxplot")))
 }
 
 #' The server function of the boxplot module
@@ -83,22 +83,22 @@ boxplot <- function(input, output, session, eselist) {
     
     # Render the plot
     
-    # output$sampleBoxplot <- renderPlot({ withProgress(message = 'Making sample boxplot', value = 0, { ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
-    # }, height = 600)
+    output$sampleBoxplot <- renderPlot({ withProgress(message = 'Making sample boxplot', value = 0, { ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
+    }, height = 600)
     
-    output$sampleBoxplot <- renderPlotly({
-        withProgress(message = "Making sample boxplot", value = 0, {
-            plotly_boxplot(selectMatrix(), selectColData(), colorBy(), getAssayMeasure())
-        })
-    })
+    # output$sampleBoxplot <- renderPlotly({
+    #     withProgress(message = "Making sample boxplot", value = 0, {
+    #         plotly_boxplot(selectMatrix(), selectColData(), colorBy(), getAssayMeasure())
+    #     })
+    # })
     
     # Provide the plot for download
     
-    # plotSampleBoxplot <- reactive({ ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
+     plotSampleBoxplot <- reactive({ ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
     
     # Call to plotdownload module
     
-    # callModule(plotdownload, 'boxplot', makePlot = plotSampleBoxplot, filename = 'boxplot.png', plotHeight = 600, plotWidth = 800)
+    callModule(plotdownload, 'boxplot', makePlot = plotSampleBoxplot, filename = 'boxplot.png', plotHeight = 600, plotWidth = 800)
 }
 
 #' Make a boxplot with coloring by experimental variable
