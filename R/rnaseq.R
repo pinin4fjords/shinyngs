@@ -36,7 +36,7 @@ rnaseqInput <- function(id, eselist) {
         sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), 
             width = 9))))
     
-    if (nrow(eselist@read_distribution) > 0) {
+    if (nrow(eselist@read_distribution) > 1) {
         exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read distribution", sidebarLayout(sidebarPanel(readdistributionplotInput(ns("readdist"), eselist), 
             width = 3), mainPanel(readdistributionplotOutput(ns("readdist")), width = 9))))
     }
@@ -136,7 +136,7 @@ rnaseq <- function(input, output, session, eselist) {
     callModule(dendro, "dendro", eselist)
     callModule(assaydatatable, "expression", eselist)
     
-    if (nrow(eselist@read_distribution) > 0) {
+    if (nrow(eselist@read_distribution) > 1) {
         callModule(readdistributionplot, "readdist", eselist)
     }
     
