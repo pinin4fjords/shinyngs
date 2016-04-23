@@ -16,8 +16,8 @@
 genesetselectInput <- function(id, multiple = TRUE) {
     ns <- NS(id)
     
-    tagList(uiOutput(ns('geneSetTypes')), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5), multiple = multiple), radioButtons(ns("overlapType"), 
-        "Overlap type", c("union", "intersect")))
+    tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5), 
+        multiple = multiple), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
 }
 
 #' The server function of the genesetselect module
@@ -50,27 +50,27 @@ genesetselectInput <- function(id, multiple = TRUE) {
 genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
     
     output$geneSetTypes <- renderUI({
-      if (filter_by_type){
-        ese <- getExperiment()
-  
-        gene_set_types <- names(eselist@gene_sets[[ese@labelfield]])
-        ns <- session$ns
-        selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
-      }
+        if (filter_by_type) {
+            ese <- getExperiment()
+            
+            gene_set_types <- names(eselist@gene_sets[[ese@labelfield]])
+            ns <- session$ns
+            selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
+        }
     })
     
     # Reactive to fetch the gene set types (if used)
     
     getGeneSetTypes <- reactive({
         ese <- getExperiment()
-        if (! filter_by_type){
-          names(eselist@gene_sets[[ese@labelfield]]) 
-        }else{
-          validate(need(input$geneSetTypes, 'Waiting for gene set type'))
-          input$geneSetTypes 
+        if (!filter_by_type) {
+            names(eselist@gene_sets[[ese@labelfield]])
+        } else {
+            validate(need(input$geneSetTypes, "Waiting for gene set type"))
+            input$geneSetTypes
         }
     })
-  
+    
     # Get a list of names to show for the gene sets
     
     getGeneSetNames <- reactive({
@@ -87,7 +87,8 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
         structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) names(gene_sets[[settype]]))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the
+    # calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
@@ -99,16 +100,16 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
         ese <- getExperiment()
         gene_sets <- eselist@gene_sets[[ese@labelfield]]
         gene_set_types <- getGeneSetTypes()
-        gene_sets[gene_set_types] 
+        gene_sets[gene_set_types]
     })
     
     # Rerieve and validate the gene set selection
     
     getInputGeneSets <- reactive({
-        if (require_select){
-          validate(need(input$geneSets, "Please select a gene set"))
+        if (require_select) {
+            validate(need(input$geneSets, "Please select a gene set"))
         }
-
+        
         if ((!multiple)) {
             validate(need(length(input$geneSets) == 1, "Please select a single gene set only"))
         }
@@ -123,8 +124,8 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
         gene_sets <- getGeneSets()
         input_gene_sets <- getInputGeneSets()
         
-        if (is.null(input_gene_sets)){
-          return(NULL) 
+        if (is.null(input_gene_sets)) {
+            return(NULL)
         }
         
         unlist(lapply(input_gene_sets, function(pathcode) {

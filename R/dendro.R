@@ -21,8 +21,8 @@ dendroInput <- function(id, eselist) {
     expression_filters <- selectmatrixInput(ns("dendro"), eselist)
     
     dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), 
-        "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", 
-            UPGMC = "centroid")), groupbyInput(ns("dendro")))
+        "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", 
+            WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -44,8 +44,8 @@ dendroInput <- function(id, eselist) {
 
 dendroOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.md", package = packageName()))), 
-        h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
+    list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.md", 
+        package = packageName()))), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
 }
 
 #' The server function of the dendrogram module

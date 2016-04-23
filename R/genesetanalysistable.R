@@ -32,9 +32,9 @@ genesetanalysistableInput <- function(id, eselist) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), 
-        "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, 
-        export = simpletableInput(ns("genesetanalysistable"), "Gene set analysis")))
+    fieldSets(ns("fieldset"), list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), 
+        numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2), 
+        select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), "Gene set analysis")))
 }
 
 #' The output function of the genesetanalysistable module
@@ -57,11 +57,8 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
     ns <- NS(id)
     
-    list(
-      modalInput(ns("genesetanalysistable"), "help", "help"), 
-      modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", "genesetanalysistable.md", package = packageName()))),
-      simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis")
-    )
+    list(modalInput(ns("genesetanalysistable"), "help", "help"), modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", 
+        "genesetanalysistable.md", package = packageName()))), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
 }
 
 #' The server function of the genesetanalysistable module
@@ -111,14 +108,15 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
     unpack.list(callModule(genesetselect, "genesetanalysistable", eselist, getExperiment, filter_by_type = TRUE, require_select = FALSE))
     
     observe({
-      updateGeneSetsList()
+        updateGeneSetsList()
     })
     
     getGeneSetAnalysis <- reactive({
@@ -134,9 +132,9 @@ genesetanalysistable <- function(input, output, session, eselist) {
         # Select out specific gene sets if they've been provided
         
         selected_gene_sets <- getGenesetNames()
-        if (! is.null(selected_gene_sets)){
-          validate(need(any(selected_gene_sets %in% rownames(gst)), 'Selected gene sets not available in test results'))
-          gst <- gst[selected_gene_sets,, drop=FALSE] 
+        if (!is.null(selected_gene_sets)) {
+            validate(need(any(selected_gene_sets %in% rownames(gst)), "Selected gene sets not available in test results"))
+            gst <- gst[selected_gene_sets, , drop = FALSE]
         }
         
         # Move the row names to an actual column
@@ -149,7 +147,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
         
         gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, , drop = FALSE]
         
-        validate(need(nrow(gst) > 0, 'No results matching specified filters'))
+        validate(need(nrow(gst) > 0, "No results matching specified filters"))
         
         if (nrow(gst) > 0) {
             

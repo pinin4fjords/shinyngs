@@ -25,8 +25,8 @@ heatmapInput <- function(id, eselist, type = "expression") {
     # Only provide controls for clustering etc for the expression heat maps
     
     if (type == "expression") {
-        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", FALSE), radioButtons(ns("scale"), 
-            "Scale by:", c(Row = "row", Column = "column", None = "none")))
+        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", 
+            FALSE), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")))
     } else {
         if (type == "pca") {
             cluster_rows <- TRUE
@@ -151,7 +151,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
             if (!is.null(groupBy())) {
                 
                 # Prettify the factor levels for display
-              
+                
                 colnames(ed)[match(groupBy(), colnames(ed))] <- prettifyVariablename(groupBy())
                 group_vars <- prettifyVariablename(groupBy())
                 
@@ -234,13 +234,13 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         pca <- runPCA(pcavals)
         fraction_explained <- calculatePCAFractionExplained(pca)
         
-        pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = 10, dimnames = list(colnames(pcameta), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], "%)", 
-            sep = "")))
+        pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = 10, dimnames = list(colnames(pcameta), paste(paste("PC", 1:10, sep = ""), " (", fraction_explained[1:10], 
+            "%)", sep = "")))
         
         for (i in 1:ncol(pcameta)) {
             for (j in 1:10) {
                 fit <- aov(pca$x[, j] ~ factor(pcameta[, i]))
-                if ("Pr(>F)" %in% names(summary(fit)[[1]])){
+                if ("Pr(>F)" %in% names(summary(fit)[[1]])) {
                   pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]
                 }
             }
@@ -354,8 +354,8 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     output$interactiveHeatmap <- d3heatmap::renderD3heatmap({
         withProgress(message = "Building interactive heatmap", value = 0, {
-            interactiveHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
-                scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = cexCol(), cexRow = cexRow())
+            interactiveHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), 
+                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = cexCol(), cexRow = cexRow())
         })
     })
     
@@ -363,8 +363,8 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     output$annotatedHeatmap <- renderPlot({
         withProgress(message = "Building static heatmap", value = 0, {
-            annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), cluster_rows = as.logical(input$cluster_rows), 
-                scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
+            annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), 
+                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
         })
     }, height = plotHeight)
     
@@ -527,7 +527,8 @@ makeAnnotationColors <- function(sample_annotation) {
         if (RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"] >= length(categories) && length(categories) > 2) {
             colcolors <- RColorBrewer::brewer.pal(length(categories), palettes[i])
         } else {
-            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), length(categories))
+            colcolors <- sample(colorRampPalette(RColorBrewer::brewer.pal(RColorBrewer::brewer.pal.info[palettes[i], "maxcolors"], palettes[i]))(length(categories)), 
+                length(categories))
         }
         
         names(colcolors) <- levels(sample_annotation[, i])

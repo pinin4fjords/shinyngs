@@ -32,8 +32,8 @@ genesetbarcodeplotInput <- function(id, eselist) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), allow_filtering = FALSE), 
-        select_assay_data = expression_filters, export = list(p(simpletableInput(ns("genesetbarcodeplot"), "Gene set")), plotdownloadInput(ns("genesetbarcodeplot")))))
+    fieldSets(ns("fieldset"), list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), 
+        allow_filtering = FALSE), select_assay_data = expression_filters, export = list(p(simpletableInput(ns("genesetbarcodeplot"), "Gene set")), plotdownloadInput(ns("genesetbarcodeplot")))))
 }
 
 #' The output function of the genesetbarcodeplot module
@@ -56,14 +56,9 @@ genesetbarcodeplotInput <- function(id, eselist) {
 genesetbarcodeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(
-      modalInput(ns("genesetbarcodeplot"), "help", "help"), 
-      modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp", "genesetbarcodeplot.md", package = packageName()))),
-      h3("Gene set barcode plot"), 
-      plotOutput(ns("genesetbarcodeplot")), 
-      h4("Gene set differential expression"), 
-      simpletableOutput(ns("genesetbarcodeplot"))
-    )
+    list(modalInput(ns("genesetbarcodeplot"), "help", "help"), modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp", 
+        "genesetbarcodeplot.md", package = packageName()))), h3("Gene set barcode plot"), plotOutput(ns("genesetbarcodeplot")), h4("Gene set differential expression"), 
+        simpletableOutput(ns("genesetbarcodeplot")))
 }
 
 #' The server function of the genesetbarcodeplot module

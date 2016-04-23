@@ -165,8 +165,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         if (any(unlabelled())) {
             withProgress(message = "Adding unlabelled points", value = 0, {
                 
-                plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", type = plotType(), showlegend = showLegend(), 
-                  name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"), evaluate = TRUE)
+                plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", type = plotType(), 
+                  showlegend = showLegend(), name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"), evaluate = TRUE)
                 
                 p <- do.call(plotly::add_trace, plotargs)
                 
@@ -206,8 +206,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         # Show specified labels
         
         if (getShowLabels()) {
-            labelargs <- list(p, x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", text = getLabels()[!unlabelled()], type = plotType(), 
-                hoverinfo = "none", showlegend = FALSE, evaluate = TRUE)
+            labelargs <- list(p, x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", text = getLabels()[!unlabelled()], 
+                type = plotType(), hoverinfo = "none", showlegend = FALSE, evaluate = TRUE)
             
             if (!is.null(colorby)) {
                 labelargs$color <- colorby()[!unlabelled()]
@@ -259,12 +259,13 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         p
     }
     
-    # Chain the various steps together. Note the use of 'evaluate' in this and other plotly commands. For reasons I'm still not clear about this speeds things up substantially,
-    # particularly in multi-panel apps.
+    # Chain the various steps together. Note the use of 'evaluate' in this and other plotly commands. For reasons I'm still not clear about this speeds things up
+    # substantially, particularly in multi-panel apps.
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout() %>% config(showLink = TRUE)
+            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout() %>% 
+                config(showLink = TRUE)
         })
     })
 } 

@@ -29,9 +29,9 @@ geneInput <- function(id, eselist) {
     # Don't create an empty field set if we're not grouping
     
     if (singleValidMatrix(eselist)) {
-      naked_fields[[1]] <- expression_filters
+        naked_fields[[1]] <- expression_filters
     } else {
-      field_sets$expression <- expression_filters
+        field_sets$expression <- expression_filters
     }
     
     field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE)))
@@ -89,7 +89,8 @@ gene <- function(input, output, session, eselist) {
     # Call all the required modules and unpack their reactives
     
     unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
-    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
+    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, 
+        show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field

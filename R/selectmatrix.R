@@ -79,8 +79,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
-    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, provide_all = provide_all_genes, 
-        default = default_gene_select))
+    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, assay = getAssay, 
+        provide_all = provide_all_genes, default = default_gene_select))
     
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
@@ -186,8 +186,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         })
     })
     
-    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be summarised if grouping
-    # variables were supplied!
+    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be
+    # summarised if grouping variables were supplied!
     
     isSummarised <- reactive({
         length(eselist@group_vars) > 0 && getSummaryType() != "none"
@@ -224,8 +224,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, 
-        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
+    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, 
+        selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
 }
 
 #' Add columns to display ID and label in a table
@@ -345,7 +345,7 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
         converted <- converted[!is.na(converted)]
     }
     converted
-} 
+}
 
 #' Is there only on matrix to plot from this object?
 #' 
@@ -356,8 +356,6 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
 #' @return output Logical value
 #' @export
 
-singleValidMatrix <- function(eselist){
-  length(eselist) == 1 && length(assays(eselist[[1]])) == 1 
-}
-
-
+singleValidMatrix <- function(eselist) {
+    length(eselist) == 1 && length(assays(eselist[[1]])) == 1
+} 

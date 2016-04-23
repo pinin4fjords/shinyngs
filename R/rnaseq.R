@@ -23,15 +23,34 @@ rnaseqInput <- function(id, eselist) {
     navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, 
         offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
         p(HTML("Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>")), p("This app is best viewed with the Chrome browser.")), 
-        width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), h3(eselist@author), div(h4("Description")), HTML(eselist@description))), width = 9))), navbarMenu("Sample data", 
-        tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), 
-            width = 9)))), navbarMenu("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
+        width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), h3(eselist@author), div(h4("Description")), HTML(eselist@description))), width = 9))), 
+        navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), 
+            width = 9)))))
+    
+    # Add in the QC/ exploratory menu
+    
+    exploratory_menu <- list("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
         width = 9))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("PCA vs Experiment", 
         sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), mainPanel(heatmapOutput(ns("heatmap-pca")), width = 9))), tabPanel("Clustering dendrogram", 
-        sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9))), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
-        eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), width = 9)))), navbarMenu("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), 
-        eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")), width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), 
-        eselist, type = "expression"), width = 3), mainPanel(heatmapOutput(ns("heatmap-expression")), width = 9)))))
+        sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9))), tabPanel("Clustering Heatmap", 
+        sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), 
+            width = 9))))
+    
+    if (nrow(eselist@read_distribution) > 0) {
+        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read distribution", sidebarLayout(sidebarPanel(readdistributionplotInput(ns("readdist"), eselist), 
+            width = 3), mainPanel(readdistributionplotOutput(ns("readdist")), width = 9))))
+    }
+    
+    
+    navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", exploratory_menu))
+    
+    # Add the assay data menu
+    
+    assaydata_menu <- list("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")), 
+        width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"), width = 3), mainPanel(heatmapOutput(ns("heatmap-expression")), 
+        width = 9))))
+    
+    navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", assaydata_menu))
     
     # If there are contrasts present, add the differential tab
     
@@ -46,8 +65,8 @@ rnaseqInput <- function(id, eselist) {
         if (any(unlist(lapply(eselist, function(ese) {
             length(ese@tests) > 0
         })))) {
-            differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), width = 3), mainPanel(volcanoplotOutput(ns("volcano")), 
-                width = 9))))
+            differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), width = 3), 
+                mainPanel(volcanoplotOutput(ns("volcano")), width = 9))))
         }
         
         # If any of the experiments have gene set analyses, add this table to the menu
@@ -55,8 +74,8 @@ rnaseqInput <- function(id, eselist) {
         if (any(unlist(lapply(eselist, function(ese) {
             length(ese@gene_set_analyses) > 0
         })))) {
-            differential_menu <- pushToList(differential_menu, tabPanel("Gene set analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(ns("genesetanalysis"), eselist), 
-                width = 3), mainPanel(genesetanalysistableOutput(ns("genesetanalysis")), width = 9))))
+            differential_menu <- pushToList(differential_menu, tabPanel("Gene set analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(ns("genesetanalysis"), 
+                eselist), width = 3), mainPanel(genesetanalysistableOutput(ns("genesetanalysis")), width = 9))))
             
             differential_menu <- pushToList(differential_menu, tabPanel("Gene set barcode plots", value = "genesetbarcode", sidebarLayout(sidebarPanel(genesetbarcodeplotInput(ns("rnaseq"), 
                 eselist), width = 3), mainPanel(genesetbarcodeplotOutput(ns("rnaseq")), width = 9))))
@@ -117,6 +136,10 @@ rnaseq <- function(input, output, session, eselist) {
     callModule(dendro, "dendro", eselist)
     callModule(assaydatatable, "expression", eselist)
     
+    if (nrow(eselist@read_distribution) > 0) {
+        callModule(readdistributionplot, "readdist", eselist)
+    }
+    
     if (length(eselist@contrasts) > 0) {
         callModule(differentialtable, "differential", eselist)
         callModule(volcanoplot, "volcano", eselist)
@@ -127,7 +150,8 @@ rnaseq <- function(input, output, session, eselist) {
     
     updateGeneLabel <- callModule(gene, "gene", eselist)
     
-    # Catch the specified gene from the URL, switch to the gene info tab, and and use the reactive supplied by the gene module to update its gene label field accordingly
+    # Catch the specified gene from the URL, switch to the gene info tab, and and use the reactive supplied by the gene module to update its gene label field
+    # accordingly
     
     observe({
         query <- parseQueryString(session$clientData$url_search)

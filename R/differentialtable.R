@@ -86,5 +86,6 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", 
+        rownames = FALSE)
 } 

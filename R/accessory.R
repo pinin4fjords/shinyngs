@@ -220,7 +220,7 @@ unpack.list <- function(object) {
 interleaveColumns <- function(mat1, mat2) {
     out <- cbind(mat1, mat2)
     out[, unlist(lapply(1:ncol(mat1), function(n) c(n, n + ncol(mat1))))]
-} 
+}
 
 #' Return a usable citation string for a package
 #' 
@@ -231,6 +231,6 @@ interleaveColumns <- function(mat1, mat2) {
 #' 
 #' @return citation A string that can be put in markdown doucments etc.
 
-makePackageCitation <- function(package){
-  paste(capture.output(print(citation(package), style = 'HTML')), collapse = ' ')
-}
+makePackageCitation <- function(package) {
+    paste(capture.output(print(citation(package), style = "HTML")), collapse = " ")
+} 

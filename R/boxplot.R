@@ -31,7 +31,8 @@ boxplotInput <- function(id, eselist) {
         naked_fields[[1]] <- boxplot_filters
     }
     
-    field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns("boxplot"))))
+    # field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns('boxplot'))))
+    field_sets <- c(field_sets, list(expression = expression_filters))
     
     list(naked_fields, fieldSets(ns("fieldset"), field_sets))
     
@@ -53,7 +54,7 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    list(h3("Box plots"), plotOutput(ns("sampleBoxplot")))
+    list(h3("Box plots"), plotlyOutput(ns("sampleBoxplot")))
 }
 
 #' The server function of the boxplot module
@@ -82,21 +83,22 @@ boxplot <- function(input, output, session, eselist) {
     
     # Render the plot
     
-    output$sampleBoxplot <- renderPlot({
+    # output$sampleBoxplot <- renderPlot({ withProgress(message = 'Making sample boxplot', value = 0, { ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
+    # }, height = 600)
+    
+    output$sampleBoxplot <- renderPlotly({
         withProgress(message = "Making sample boxplot", value = 0, {
-            ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+            plotly_boxplot(selectMatrix(), selectColData(), colorBy(), getAssayMeasure())
         })
-    }, height = 600)
+    })
     
     # Provide the plot for download
     
-    plotSampleBoxplot <- reactive({
-        ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
-    })
+    # plotSampleBoxplot <- reactive({ ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "boxplot", makePlot = plotSampleBoxplot, filename = "boxplot.png", plotHeight = 600, plotWidth = 800)
+    # callModule(plotdownload, 'boxplot', makePlot = plotSampleBoxplot, filename = 'boxplot.png', plotHeight = 600, plotWidth = 800)
 }
 
 #' Make a boxplot with coloring by experimental variable
@@ -142,7 +144,8 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     }
     
     p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), 
-        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
+        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 
+        15))
     
     print(p)
 }
@@ -163,8 +166,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
 #'
 #' @import plotly
 
-plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "Normalised counts per million") {
+plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expression") {
     
     plotdata <- ggplotify(as.matrix(matrix), experiment, colorby)
-    plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby)
+    plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>% layout(yaxis = list(title = expressiontype), xaxis = list(title = NULL), 
+        evaluate = TRUE) %>% config(showLink = TRUE)
 } 

@@ -35,7 +35,7 @@ volcanoplotInput <- function(id, eselist) {
     }
     
     fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("volcano")), highlight_points = geneselectInput(ns("volcano")), 
-        export = simpletableInput(ns("differentialtable"))))
+        export = simpletableInput(ns("volcanotable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -109,8 +109,8 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, title = getSelectedContrastNames(), allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, colorby = colorby, 
-        getLines = plotLines)
+    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, title = getSelectedContrastNames(), allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, 
+        colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -131,7 +131,8 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1])
             xmin <- min(vt[normal_x, 1])
             
-            data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 2)))
+            data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 
+                2)))
         })
         
     })
@@ -178,6 +179,7 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", rownames = FALSE, 
+        pageLength = 10)
     
 } 

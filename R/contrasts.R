@@ -27,7 +27,8 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
         inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), "Minimum absolute fold change", 
-            value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), numericInput(ns("qvalMax"), "Maximum q value", value = default_max_q)))
+            value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), numericInput(ns("qvalMax"), "Maximum q value", 
+            value = default_max_q)))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
@@ -117,8 +118,8 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
         names(getAllContrasts())[getSelectedContrasts()]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and calculate fold
-    # changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and
+    # calculate fold changes etc.
     
     getSummaries <- reactive({
         ese <- getExperiment()
@@ -253,8 +254,8 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
     # Basic accessors for parameters
     
     
-    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, contrastsTables = contrastsTables, 
-        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
+    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, 
+        contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }
 
 #' Fold change between two vectors

@@ -8,7 +8,7 @@ ExploratorySummarizedExperiments}
 ExploratorySummarizedExperimentList(eses, title = "", author = "",
   description = "", group_vars = character(),
   default_groupvar = character(), contrasts = list(), url_roots = list(),
-  gene_sets = list())
+  gene_sets = list(), read_distribution = matrix())
 }
 \arguments{
 \item{eses}{List of ExploratorySummarizedExperiments}
@@ -36,6 +36,10 @@ metadata column names of the experiments. Exploratory tools displayed via
 reading .gmt format gene sets (for example from MSigDB) using 
 GSEABase::getGmt(). \code{shinyngs} modules currently assume genes
 represented by Entrez ID (not symbol).}
+
+\item{read_distribution}{A matrix of values showing groups (exons, introns
+etc) in rows and samples in columns, illustrating how reads fell in the 
+genome. RSeqQC can produce such statistics.}
 }
 \value{
 output An ExploratorySummarizedExperimentList

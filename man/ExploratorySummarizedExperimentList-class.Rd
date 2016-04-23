@@ -25,5 +25,7 @@ The ExploratorySummaizedExperimentList class
 \item{\code{url_roots}}{list.}
 
 \item{\code{gene_sets}}{list.}
+
+\item{\code{read_distribution}}{}
 }}
 

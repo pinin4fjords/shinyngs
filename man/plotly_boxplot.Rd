@@ -4,8 +4,7 @@
 \alias{plotly_boxplot}
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
-plotly_boxplot(matrix, experiment, colorby,
-  expressiontype = "Normalised counts per million")
+plotly_boxplot(matrix, experiment, colorby, expressiontype = "expression")
 }
 \arguments{
 \item{experiment}{Annotation for the columns of plotmatrix}

@@ -27,8 +27,8 @@ experimenttableInput <- function(id, eselist) {
     if (length(eselist) == 1) {
         tagList(hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), "Experiment", description))))
     } else {
-        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist)), export = simpletableInput(ns("experimenttable"), "experiment", 
-            description)))
+        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist)), export = simpletableInput(ns("experimenttable"), 
+            "experiment", description)))
     }
 }
 
