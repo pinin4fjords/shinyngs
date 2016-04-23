@@ -55,7 +55,6 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     formatPlotMatrix <- reactive({
       pm <- getPlotmatrix()
       if (input$barMode == 'overlay'){
-        print("Re-ordering")
         pm <- pm[order(rowMeans(pm)),] 
       }
       pm

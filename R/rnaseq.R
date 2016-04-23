@@ -23,7 +23,7 @@ rnaseqInput <- function(id, eselist) {
     navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, 
         offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
         p(HTML("Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>")), p("This app is best viewed with the Chrome browser.")), 
-        width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), h3(eselist@author), div(h4("Description")), HTML(eselist@description))), width = 9))), 
+        width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), h3(eselist@author), HTML(eselist@description))), width = 9))), 
         navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), 
             width = 9)))))
     
@@ -36,11 +36,19 @@ rnaseqInput <- function(id, eselist) {
         sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), 
             width = 9))))
     
+    # Add the read attrition plot/table if the data is provided
+    
+    if (nrow(eselist@read_attrition) > 1) {
+      exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read attrition", sidebarLayout(sidebarPanel(readattritionplotInput(ns("readattr"), eselist), 
+                                                                                                             width = 3), mainPanel(readattritionplotOutput(ns("readattr")), width = 9))))
+    }
+    
+    # Add the read distribution plot/table if the data is provided
+    
     if (nrow(eselist@read_distribution) > 1) {
         exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read distribution", sidebarLayout(sidebarPanel(readdistributionplotInput(ns("readdist"), eselist), 
             width = 3), mainPanel(readdistributionplotOutput(ns("readdist")), width = 9))))
     }
-    
     
     navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", exploratory_menu))
     
@@ -126,6 +134,8 @@ rnaseq <- function(input, output, session, eselist) {
             eselist@url_roots$gene_set_id <- "?geneset="
         }
     }
+  
+    # Now a lot of boring calls to all the modules to activate the UI parts
     
     callModule(experimenttable, "experimenttable", eselist)
     callModule(heatmap, "heatmap-clustering", eselist, type = "samples")
@@ -136,8 +146,14 @@ rnaseq <- function(input, output, session, eselist) {
     callModule(dendro, "dendro", eselist)
     callModule(assaydatatable, "expression", eselist)
     
+    # Calls for the various optional tables
+    
+    if (nrow(eselist@read_attrition) > 1) {
+        callModule(readattritionplot, "readattr", eselist)
+    }
+    
     if (nrow(eselist@read_distribution) > 1) {
-        callModule(readdistributionplot, "readdist", eselist)
+      callModule(readdistributionplot, "readdist", eselist)
     }
     
     if (length(eselist@contrasts) > 0) {
