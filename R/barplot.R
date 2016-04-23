@@ -9,10 +9,14 @@
 #' @return A list of controls that can be added to a UI definition
 #' @export
 
-barplotInput <- function(id, default_mode = "stack") {
+barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
     ns <- NS(id)
     
-    list(selectInput(ns("barMode"), "Mode", choices = c("group", "stack", "overlay"), selected = default_mode))
+    if (allow_select){
+      selectInput(ns("barMode"), "Mode", choices = c("group", "stack", "overlay"), selected = default_mode)
+    }else{
+      hiddenInput(ns("barMode"), default_mode)
+    }
 }
 
 #' Output function of the \code{barplot} module 
@@ -46,8 +50,21 @@ barplotOutput <- function(id) {
 
 barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = "stack") {
     
+    # If we're doing an overlay plot, let's re-order the rows such that we've a better chance of seeing each group
+  
+    formatPlotMatrix <- reactive({
+      pm <- getPlotmatrix()
+      if (input$barMode == 'overlay'){
+        print("Re-ordering")
+        pm <- pm[order(rowMeans(pm)),] 
+      }
+      pm
+    })
+  
+    # Render the plot
+  
     output$barPlot <- renderPlotly({
-        plotdata <- reshape2::melt(getPlotmatrix())
+        plotdata <- reshape2::melt(formatPlotMatrix())
         plot_ly(plotdata, x = Var2, y = value, group = Var1, type = "bar", evaluate = TRUE) %>% layout(barmode = input$barMode, xaxis = list(title = " "), yaxis = list(title = getYLabel()), 
             evaluate = TRUE) %>% config(showLink = TRUE)
     })
