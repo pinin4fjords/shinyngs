@@ -82,7 +82,7 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
     
     treatments <- levels(treatment_factor)
     sm <- do.call(cbind, lapply(treatments, function(lev) {
-        summaryFunc(t_matrix[treatment_factor == lev, ])
+        summaryFunc(t_matrix[treatment_factor == lev, , drop = FALSE])
     }))
     colnames(sm) <- treatments
     sm

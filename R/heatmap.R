@@ -151,7 +151,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
             if (!is.null(groupBy())) {
                 
                 # Prettify the factor levels for display
-                
+              
                 colnames(ed)[match(groupBy(), colnames(ed))] <- prettifyVariablename(groupBy())
                 group_vars <- prettifyVariablename(groupBy())
                 
@@ -240,7 +240,9 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         for (i in 1:ncol(pcameta)) {
             for (j in 1:10) {
                 fit <- aov(pca$x[, j] ~ factor(pcameta[, i]))
-                pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]
+                if ("Pr(>F)" %in% names(summary(fit)[[1]])){
+                  pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]
+                }
             }
         }
         

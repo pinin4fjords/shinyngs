@@ -23,7 +23,20 @@ geneInput <- function(id, eselist) {
     expression_filters <- selectmatrixInput(ns("gene"), eselist)
     gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), groupbyInput(ns("gene")))
     
-    list(expression_filters, fieldSets(ns("fieldset"), list(gene = gene_filters, table_options = contrastsInput(ns("gene"), allow_filtering = FALSE))))
+    field_sets = list(gene = gene_filters)
+    naked_fields = list()  # Things we don't want to wrap in a field set - probably hidden stuff
+    
+    # Don't create an empty field set if we're not grouping
+    
+    if (singleValidMatrix(eselist)) {
+      naked_fields[[1]] <- expression_filters
+    } else {
+      field_sets$expression <- expression_filters
+    }
+    
+    field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE)))
+    
+    list(naked_fields, fieldSets(ns("fieldset"), field_sets))
     
 }
 

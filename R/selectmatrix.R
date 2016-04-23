@@ -346,3 +346,18 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
     }
     converted
 } 
+
+#' Is there only on matrix to plot from this object?
+#' 
+#' Convenience function for deciding how to construct filters
+#'
+#' @param eselist 
+#'
+#' @return output Logical value
+#' @export
+
+singleValidMatrix <- function(eselist){
+  length(eselist) == 1 && length(assays(eselist[[1]])) == 1 
+}
+
+
