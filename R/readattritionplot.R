@@ -34,7 +34,7 @@ readattritionplotOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("readattritionplot"), "help", "help"), modalOutput(ns("readattritionplot"), "Read distribution plot", includeMarkdown(system.file("inlinehelp", 
-        "readattritionplot.md", package = packageName()))), h3("Read attrition report"), barplotOutput(ns("barplot")), h4("Tag counts for each genomic feature type"), 
+        "readattritionplot.md", package = packageName()))), h3("Read attrition report"), barplotOutput(ns("barplot")), h4("Read counts at each stage of processing"), 
         simpletableOutput(ns("readattr")))
 }
 

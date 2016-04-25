@@ -34,7 +34,7 @@ readdistributionplotOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("readdistributionplot"), "help", "help"), modalOutput(ns("readdistributionplot"), "Read distribution plot", includeMarkdown(system.file("inlinehelp", 
-        "readdistributionplot.md", package = packageName()))), h3("Read distribution plot"), barplotOutput(ns("barplot")), h4("Read counts at each stage of processing"), 
+        "readdistributionplot.md", package = packageName()))), h3("Read distribution plot"), barplotOutput(ns("barplot")), h4("Tag counts for each genomic feature type"), 
         simpletableOutput(ns("readdist")))
 }
 
