@@ -4,13 +4,13 @@
 \alias{barplotOutput}
 \title{Output function of the \code{barplot} module}
 \usage{
-barplotOutput(id)
+barplotOutput(id, height = "400")
 }
 \arguments{
 \item{id}{Submodule namespace}
 }
 \value{
-output A list of elements that can be included in a panel
+A list of elements that can be included in a panel
 }
 \description{
 Display grouped, stacked or overlaid bars for a matrix

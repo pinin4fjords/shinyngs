@@ -4,7 +4,7 @@
 \alias{barplotInput}
 \title{Input function of the \code{barplot} module}
 \usage{
-barplotInput(id, default_mode = "stack")
+barplotInput(id, default_mode = "stack", allow_select = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -12,7 +12,7 @@ barplotInput(id, default_mode = "stack")
 \item{default_mode}{Default bar mode}
 }
 \value{
-output A list of controls that can be added to a UI definition
+A list of controls that can be added to a UI definition
 }
 \description{
 Display grouped, stacked or overlaid bars for a matrix

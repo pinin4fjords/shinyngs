@@ -11,9 +11,7 @@
 
 barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
     ns <- NS(id)
-    
-    print(paste("Default mode: ", default_mode))
-    
+
     if (allow_select) {
         selectInput(ns("barMode"), "Mode", choices = c("group", "stack", "overlay"), selected = default_mode)
     } else {
@@ -31,10 +29,10 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
 #' @return A list of elements that can be included in a panel
 #' @export
 
-barplotOutput <- function(id) {
+barplotOutput <- function(id, height = '400') {
     ns <- NS(id)
     
-    list(plotlyOutput(ns("barPlot")))
+    list(plotlyOutput(ns("barPlot"), height = paste0(height, "px")))
 }
 
 #' Server function of the \code{barplot} module 

@@ -36,18 +36,11 @@ rnaseqInput <- function(id, eselist) {
         sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), 
             width = 9))))
     
-    # Add the read attrition plot/table if the data is provided
+    # Add read reports if provided
     
-    if (nrow(eselist@read_attrition) > 1) {
-        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read attrition", sidebarLayout(sidebarPanel(readattritionplotInput(ns("readattr"), eselist), width = 3), 
-            mainPanel(readattritionplotOutput(ns("readattr")), width = 9))))
-    }
-    
-    # Add the read distribution plot/table if the data is provided
-    
-    if (nrow(eselist@read_distribution) > 1) {
-        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read distribution", sidebarLayout(sidebarPanel(readdistributionplotInput(ns("readdist"), eselist), 
-            width = 3), mainPanel(readdistributionplotOutput(ns("readdist")), width = 9))))
+    if (length(eselist@read_reports) > 0){
+      exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read reports", sidebarLayout(sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3), 
+                                                                                                mainPanel(readreportsOutput(ns("readrep")), width = 9))))
     }
     
     navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", exploratory_menu))
@@ -148,12 +141,8 @@ rnaseq <- function(input, output, session, eselist) {
     
     # Calls for the various optional tables
     
-    if (nrow(eselist@read_attrition) > 1) {
-        callModule(readattritionplot, "readattr", eselist)
-    }
-    
-    if (nrow(eselist@read_distribution) > 1) {
-        callModule(readdistributionplot, "readdist", eselist)
+    if (length(eselist@read_reports) > 0){
+      callModule(readreports, "readrep", eselist) 
     }
     
     if (length(eselist@contrasts) > 0) {

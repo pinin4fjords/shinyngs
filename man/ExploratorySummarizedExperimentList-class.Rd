@@ -26,6 +26,6 @@ The ExploratorySummaizedExperimentList class
 
 \item{\code{gene_sets}}{list.}
 
-\item{\code{read_distribution}}{}
+\item{\code{read_reports}}{list.}
 }}
 

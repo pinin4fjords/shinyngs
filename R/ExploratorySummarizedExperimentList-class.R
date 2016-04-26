@@ -8,8 +8,7 @@
 #' @slot contrasts list. 
 #' @slot url_roots list. 
 #' @slot gene_sets list. 
-#' @slot read_attrition
-#' @slot read_distribution
+#' @slot read_reports list.
 #'
 #' @export
 
@@ -69,9 +68,9 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' reading .gmt format gene sets (for example from MSigDB) using 
 #' GSEABase::getGmt(). \code{shinyngs} modules currently assume genes
 #' represented by Entrez ID (not symbol). 
-#' @param read_distribution A matrix of values showing groups (exons, introns
-#' etc) in rows and samples in columns, illustrating how reads fell in the 
-#' genome. RSeqQC can produce such statistics.
+#' @param read_reports A named list of matrices with read counts in columns
+#' and sample names in rows. Useful for providing mapped read counts, 
+#' counts per gene type etc
 #'
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
