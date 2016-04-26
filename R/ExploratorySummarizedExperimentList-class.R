@@ -14,27 +14,27 @@
 #' @export
 
 setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", description = "character", 
-    group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", read_attrition = "matrix", read_distribution = "matrix"))
+    group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", read_reports = "list"))
 
 # Subset operator for integer type like 1:2
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "ANY", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
     initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, read_attrition = x@read_attrition, read_distribution = x@read_distribution)
+        url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports=x@read_reports)
 })
 
 # Subset operator for numeric type like 1
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "numeric", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
     initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, read_attrition = x@read_attrition, read_distribution = x@read_distribution)
+        url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports=x@read_reports)
 })
 
 # And one for logicals. Do I really need to repeat these? Must look into it....
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
     initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, read_attrition = x@read_attrition, read_distribution = x@read_distribution)
+        url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports=x@read_reports)
 })
 
 #' ExploratorySummarizedExperimentLists, containers for
@@ -77,7 +77,7 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' @export
 
 ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), contrasts = list(), 
-    url_roots = list(), gene_sets = list(), read_attrition = matrix(), read_distribution = matrix()) {
+    url_roots = list(), gene_sets = list(), read_reports = list()) {
     
     # Key the gene sets by gene name for easier access
     
@@ -112,5 +112,5 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
     }
     
     new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, default_groupvar = default_groupvar, 
-        contrasts = contrasts, url_roots = url_roots, gene_sets = gene_sets, read_attrition = read_attrition, read_distribution = read_distribution)
+        contrasts = contrasts, url_roots = url_roots, gene_sets = gene_sets, read_reports = read_reports)
 } 

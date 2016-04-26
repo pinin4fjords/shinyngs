@@ -89,9 +89,19 @@ pca <- function(input, output, session, eselist) {
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
     
     callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, title = paste("Components plot for PCA on matrix:", tolower(matrixTitle())), colorby = pcaColorBy)
+        getPointSize = getPointSize, getTitle = getComponentsTitle, colorby = pcaColorBy)
     callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, title = paste("Loading plot for PCA on matrix:", tolower(matrixTitle())), getLabels = getLoadLabels)
+        getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
+    
+    # Simple title functions
+    
+    getComponentsTitle <- reactive({
+      paste("Components plot for PCA on matrix:", tolower(matrixTitle()))
+    })
+    
+    getLoadingTitle <- reactive({
+      paste("Loading plot for PCA on matrix:", tolower(matrixTitle()))
+    })
     
     # Make a matrix of values to the PCA
     

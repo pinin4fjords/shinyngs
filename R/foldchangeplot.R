@@ -108,7 +108,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, title = getSelectedContrastNames(), allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, 
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, 
         y = 2, colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds

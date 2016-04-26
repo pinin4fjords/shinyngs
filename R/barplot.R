@@ -12,6 +12,8 @@
 barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
     ns <- NS(id)
     
+    print(paste("Default mode: ", default_mode))
+    
     if (allow_select) {
         selectInput(ns("barMode"), "Mode", choices = c("group", "stack", "overlay"), selected = default_mode)
     } else {
@@ -54,6 +56,9 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     
     formatPlotMatrix <- reactive({
         pm <- getPlotmatrix()
+        
+        validate(need(input$barMode, 'Waiting for bar mode'))
+        
         if (input$barMode == "overlay") {
             pm <- pm[order(rowMeans(pm)), ]
         }

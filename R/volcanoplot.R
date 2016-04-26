@@ -109,7 +109,7 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, title = getSelectedContrastNames(), allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, 
+    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, 
         colorby = colorby, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds

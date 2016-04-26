@@ -146,6 +146,9 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
         gene_sets <- getGeneSets()
         input_gene_sets <- getInputGeneSets()
         
+        saveRDS(gene_sets, file = "~/shinytests/gene_sets.rds")
+        saveRDS(input_gene_sets, file = "~/shinytests/input_gene_sets.rds")
+        
         gene_sets <- getGeneSets()
         path_gene_sets <- lapply(input_gene_sets, function(pathcode) {
             pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))

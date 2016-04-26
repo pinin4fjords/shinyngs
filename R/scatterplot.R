@@ -92,7 +92,7 @@ scatterplotOutput <- function(id) {
 #' callModule(scatterplot, 'pca', getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, title = 'PCA plot', colorby = na.replace(selectColData()[[colorBy()]], 'N/A'))
 
 scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, 
-    title = "", getLabels = reactive({
+    getTitle = reactive({""}), getLabels = reactive({
         rownames(getDatamatrix())
     }), colorby = NULL, size = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
     
@@ -221,7 +221,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     # Do the layout
     
-    adjustLayout <- function(p) {
+    adjustLayout <- function(p, title = '') {
         
         withProgress(message = "Adjusting axis display", value = 0, {
             
@@ -264,7 +264,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout() %>% 
+            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout(title = getTitle()) %>% 
                 config(showLink = TRUE)
         })
     })
