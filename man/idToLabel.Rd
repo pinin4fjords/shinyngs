@@ -5,10 +5,12 @@
 \title{Create row labels based on the settings of \code{labelfield} in the 
 SummarizedExperiment object and the annotation data in \code{mcols}}
 \usage{
-idToLabel(ids, ese)
+idToLabel(ids, ese, sep = " / ")
 }
 \arguments{
 \item{ese}{An ExploratorySummarizedExperiment}
+
+\item{sep}{Separator for ID and label fields}
 
 \item{list}{of ids}
 }

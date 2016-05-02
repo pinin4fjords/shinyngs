@@ -104,34 +104,66 @@ gene <- function(input, output, session, eselist) {
         }
     })
     
+    # A static version to stop the gene box getting reset when changing between transcript/gene. 
+    # But dynamic might be desirable where genes are different between assays.....
+    
+    getGeneNamesStatic <- function(){
+      gene_name_lists <- lapply(eselist, function(ese){
+        mcols(ese)[[ese@labelfield]]
+      })
+      
+      sort(Reduce(union, gene_name_lists))  
+    }
+    
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
     
     observe({
-        updateSelectizeInput(session, "gene_label", choices = getGeneNames(), server = TRUE)
+        updateSelectizeInput(session, "gene_label", choices = getGeneNamesStatic(), server = TRUE)
+    })
+    
+    # get the gene label
+    
+    getGeneLabels <- reactive({
+      validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
+      input$gene_label
     })
     
     # Get the row or rows of the data that correspond to this symbol
     
     getRows <- reactive({
-        rowids <- input$gene_label
+        rowids <- getGeneLabels()
         ese <- getExperiment()
+        sm <- selectMatrix()
         
         if (length(ese@labelfield) > 0) {
-            rowids <- rownames(ese)[which(mcols(ese)[[ese@labelfield]] == input$gene_label)]
+          
+            gene_labels <- getGeneLabels()
+          
+            # The rows of the entire object
+            
+            rowids <- rownames(ese)[which(mcols(ese)[[ese@labelfield]] %in% gene_labels)]
+        
+            # The rows for which we have values in the selected assay
+            
+            rowids <- rowids[rowids %in% rownames(sm)]
         }
+        rowids
     })
     
     # Render the bar plot with plotly
     
     output$barPlot <- renderPlotly({
-        validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
         
         withProgress(message = "Making bar plot", value = 0, {
             ese <- getExperiment()
-            barplot_expression <- selectMatrix()[getRows(), , drop = FALSE]
+            rows <- getRows()
+            
+            barplot_expression <- selectMatrix()[rows, , drop = FALSE]
+            
+            gene_labels <- getGeneLabels()
             
             if (length(ese@labelfield) > 0) {
-                rownames(barplot_expression) <- paste(getRows(), input$gene_label, sep = " / ")
+                rownames(barplot_expression) <- idToLabel(rows, ese, sep = '<br />')
             }
             
             p <- geneBarplot(barplot_expression, selectColData(), colorBy(), getAssayMeasure())
@@ -154,15 +186,14 @@ gene <- function(input, output, session, eselist) {
     
     getGeneContrastsTable <- reactive({
         contrasts_table <- labelledContrastsTable()
-        linkMatrix(contrasts_table[which(contrasts_table[[prettifyVariablename(getLabelField())]] == input$gene_label), , drop = FALSE], url_roots = eselist@url_roots)
+        gene_labels <- getGeneLabels()
+        linkMatrix(contrasts_table[which(contrasts_table[[prettifyVariablename(getLabelField())]] %in% gene_labels), , drop = FALSE], url_roots = eselist@url_roots)
     })
     
     # Render the contrasts table- when a valid label is supplied
     
     if (length(eselist@contrasts) > 0) {
         output$contrastTable <- DT::renderDataTable({
-            validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
-            
             getGeneContrastsTable()
         }, rownames = FALSE, escape = FALSE)
     }
@@ -220,7 +251,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             plotargs$color <- groups
         }
         
-        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno]), yaxis = yaxis, margin = list(b = 100), evaluate = TRUE)
+        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150), evaluate = TRUE)
     })
     
     if (length(plots) > 1) {

@@ -311,16 +311,17 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 #'
 #' @param list of ids
 #' @param ese An ExploratorySummarizedExperiment
+#' @param sep Separator for ID and label fields
 #'
 #' @return String vector of same length as \code{ids}
 #' @export
 
-idToLabel <- function(ids, ese) {
+idToLabel <- function(ids, ese, sep = " / ") {
     if (length(ese@labelfield) == 0) {
         ids
     } else {
         labels <- convertIds(ids, ese, ese@labelfield)
-        labels[!is.na(labels)] <- paste(labels[!is.na(labels)], ids[!is.na(labels)], sep = " / ")
+        labels[!is.na(labels)] <- paste(labels[!is.na(labels)], ids[!is.na(labels)], sep = sep)
         labels[is.na(labels)] <- ids[is.na(labels)]
         labels
     }
