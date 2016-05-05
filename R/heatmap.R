@@ -51,10 +51,12 @@ heatmapInput <- function(id, eselist, type = "expression") {
     # Output sets of fields in their own containers
     
     if (type == "pca" && length(eselist@group_vars) == 0) {
-        list(heatmap_filters, interactivity_filter, fieldSets(ns("fieldset"), list(expression = expression_filters, export = plotdownloadInput(ns("heatmap")))))
+        filters <- list(heatmap_filters, interactivity_filter, fieldSets(ns("fieldset"), list(expression = expression_filters, export = plotdownloadInput(ns("heatmap")))))
     } else {
-        fieldSets(ns("fieldset"), list(heatmap = list(heatmap_filters, interactivity_filter), expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
+        filters <- fieldSets(ns("fieldset"), list(heatmap = list(heatmap_filters, interactivity_filter), expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
     }
+    
+    filters
     
 }
 
@@ -72,10 +74,30 @@ heatmapInput <- function(id, eselist, type = "expression") {
 #' @examples
 #' heatmapOutput('heatmap')
 
-heatmapOutput <- function(id) {
+heatmapOutput <- function(id, type = '') {
     ns <- NS(id)
     
-    uiOutput(ns("heatmap_ui"))
+    # Add in the help modal
+    
+    help <- list()
+    
+    if (type == 'pca'){
+      help = list(modalInput(ns("pcavsexperiment"), "help", "help"), 
+                  modalOutput(ns("pcavsexperiment"), "Principal components vs experimental variables", includeMarkdown(system.file("inlinehelp", "pcavsexperiment.md", package = packageName())))) 
+    }else if (type == 'samples'){
+      help = list(modalInput(ns("clusteringheatmap"), "help", "help"), 
+                  modalOutput(ns("clusteringheatmap"), "Sample clustering heatmap", includeMarkdown(system.file("inlinehelp", "clusteringheatmap.md", package = packageName()))))
+    }else if (type == 'expression'){
+      help = list(modalInput(ns("expressionheatmap"), "help", "help"), 
+                  modalOutput(ns("expressionheatmap"), "Expression heatmap", includeMarkdown(system.file("inlinehelp", "expressionheatmap.md", package = packageName()))))
+    }
+    
+    # Return outputs and help link
+    
+    list(
+        help,
+        uiOutput(ns("heatmap_ui"))
+    )
 }
 
 #' The server function of the heatmap module

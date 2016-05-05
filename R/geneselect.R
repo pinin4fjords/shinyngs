@@ -57,7 +57,7 @@ geneselectInput <- function(id, select_genes = TRUE) {
 
 geneselect <- function(input, output, session, eselist, getExperiment, var_n = 50, var_max = 500, selectSamples = reactive({
     colnames(getExperiment())
-}), assay, provide_all = TRUE, provide_none = FALSE, default = NULL) {
+}), getAssay, provide_all = TRUE, provide_none = FALSE, default = NULL) {
     
     # Check if we have the nessary component for gene sets
     
@@ -126,7 +126,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     rowVariances <- reactive({
         withProgress(message = "Calculating row variances", value = 0, {
-            apply(SummarizedExperiment::assays(getExperiment())[[assay()]][, selectSamples()], 1, var)
+            apply(SummarizedExperiment::assays(getExperiment())[[getAssay()]][, selectSamples()], 1, var)
         })
     })
     

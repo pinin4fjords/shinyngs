@@ -66,7 +66,13 @@ volcanoplotInput <- function(id, eselist) {
 volcanoplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(h3("Volcano plot"), scatterplotOutput(ns("volcano")), htmlOutput(ns("volcanotable")))
+    list(
+      modalInput(ns("volcanoplot"), "help", "help"), 
+      modalOutput(ns("volcanoplot"), "Volcano plots", includeMarkdown(system.file("inlinehelp", "volcanoplot.md", package = packageName()))),
+      h3("Volcano plot"), 
+      scatterplotOutput(ns("volcano")), 
+      htmlOutput(ns("volcanotable"))
+    )
 }
 
 #' The server function of the differentialtable module
@@ -105,7 +111,7 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
-    unpack.list(callModule(geneselect, "volcano", eselist = eselist, getExperiment = getExperiment, assay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    unpack.list(callModule(geneselect, "volcano", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
     
     # Pass the matrix to the scatterplot module for display
     
@@ -125,11 +131,11 @@ volcanoplot <- function(input, output, session, eselist) {
             normal_y <- !is.infinite(vt[, 2])
             normal_x <- !is.infinite(vt[, 1])
             
-            ymax <- max(vt[normal_y, 2])
-            ymin <- min(vt[normal_y, 2])
+            ymax <- max(vt[normal_y, 2], na.rm = TRUE)
+            ymin <- min(vt[normal_y, 2], na.rm = TRUE)
             
-            xmax <- max(vt[normal_x, 1])
-            xmin <- min(vt[normal_x, 1])
+            xmax <- max(vt[normal_x, 1], na.rm = TRUE)
+            xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
             data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 
                 2)))

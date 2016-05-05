@@ -64,7 +64,11 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+    list(
+      modalInput(ns("foldchangeplot"), "help", "help"), 
+      modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp", "foldchangeplot.md", package = packageName()))),
+      h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable"))
+    )
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -104,7 +108,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
-    unpack.list(callModule(geneselect, "foldchange", eselist = eselist, getExperiment = getExperiment, assay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    unpack.list(callModule(geneselect, "foldchange", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
     
     # Pass the matrix to the scatterplot module for display
     

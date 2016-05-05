@@ -31,9 +31,9 @@ rnaseqInput <- function(id, eselist) {
     
     exploratory_menu <- list("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
         width = 9))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("PCA vs Experiment", 
-        sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), mainPanel(heatmapOutput(ns("heatmap-pca")), width = 9))), tabPanel("Clustering dendrogram", 
+        sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), mainPanel(heatmapOutput(ns("heatmap-pca"), type = 'pca'), width = 9))), tabPanel("Clustering dendrogram", 
         sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9))), tabPanel("Clustering Heatmap", 
-        sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering")), 
+        sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = 'samples'), 
             width = 9))))
     
     # Add read reports if provided
@@ -48,7 +48,7 @@ rnaseqInput <- function(id, eselist) {
     # Add the assay data menu
     
     assaydata_menu <- list("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")), 
-        width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"), width = 3), mainPanel(heatmapOutput(ns("heatmap-expression")), 
+        width = 9))), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"), width = 3), mainPanel(heatmapOutput(ns("heatmap-expression"), type = 'expression'), 
         width = 9))))
     
     navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", assaydata_menu))
@@ -58,7 +58,7 @@ rnaseqInput <- function(id, eselist) {
     if (length(eselist@contrasts) > 0) {
         
         differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3), mainPanel(differentialtableOutput(ns("differential")), 
-            width = 9))), tabPanel("Scatter plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), 
+            width = 9))), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), 
             width = 9))))
         
         # If any of the experiments in the list have assays with associated tests, add a volcano plot
