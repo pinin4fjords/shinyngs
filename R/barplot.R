@@ -11,7 +11,7 @@
 
 barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
     ns <- NS(id)
-
+    
     if (allow_select) {
         selectInput(ns("barMode"), "Mode", choices = c("group", "stack", "overlay"), selected = default_mode)
     } else {
@@ -29,7 +29,7 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
 #' @return A list of elements that can be included in a panel
 #' @export
 
-barplotOutput <- function(id, height = '400') {
+barplotOutput <- function(id, height = "400") {
     ns <- NS(id)
     
     list(plotlyOutput(ns("barPlot"), height = paste0(height, "px")))
@@ -55,7 +55,7 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     formatPlotMatrix <- reactive({
         pm <- getPlotmatrix()
         
-        validate(need(input$barMode, 'Waiting for bar mode'))
+        validate(need(input$barMode, "Waiting for bar mode"))
         
         if (input$barMode == "overlay") {
             pm <- pm[order(rowMeans(pm)), ]
@@ -67,7 +67,7 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     
     output$barPlot <- renderPlotly({
         plotdata <- reshape2::melt(formatPlotMatrix())
-        plot_ly(plotdata, x = Var2, y = value, group = Var1, type = "bar", evaluate = TRUE) %>% layout(barmode = input$barMode, xaxis = list(title = " "), yaxis = list(title = getYLabel()), 
-            evaluate = TRUE) %>% config(showLink = TRUE)
+        plot_ly(plotdata, x = Var2, y = value, group = Var1, type = "bar", evaluate = TRUE) %>% layout(barmode = input$barMode, xaxis = list(title = " "), 
+            yaxis = list(title = getYLabel()), evaluate = TRUE) %>% config(showLink = TRUE)
     })
 } 

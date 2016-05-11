@@ -45,10 +45,8 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
     ns <- NS(id)
     
-    list(
-      modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", includeMarkdown(system.file("inlinehelp", "differentialtable.md", package = packageName()))),
-      htmlOutput(ns("differentialtable"))
-    )
+    list(modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", includeMarkdown(system.file("inlinehelp", 
+        "differentialtable.md", package = packageName()))), htmlOutput(ns("differentialtable")))
 }
 
 #' The server function of the differentialtable module
@@ -85,7 +83,8 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = FALSE))
     
     # Pass the matrix to the simpletable module for display
     

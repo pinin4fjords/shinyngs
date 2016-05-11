@@ -33,7 +33,8 @@ genesetbarcodeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     fieldSets(ns("fieldset"), list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), 
-        allow_filtering = FALSE), select_assay_data = expression_filters, export = list(p(simpletableInput(ns("genesetbarcodeplot"), "Gene set")), plotdownloadInput(ns("genesetbarcodeplot")))))
+        allow_filtering = FALSE), select_assay_data = expression_filters, export = list(p(simpletableInput(ns("genesetbarcodeplot"), "Gene set")), 
+        plotdownloadInput(ns("genesetbarcodeplot")))))
 }
 
 #' The output function of the genesetbarcodeplot module
@@ -100,7 +101,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -177,8 +179,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Provide the gene set genes in a table of contrst data
     
-    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, 
-        pageLength = 10)
+    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", 
+        rownames = FALSE, pageLength = 10)
     
     # Catch the gene set from the URL
     

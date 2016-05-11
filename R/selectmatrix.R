@@ -73,14 +73,14 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
-selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, 
-    require_tests = FALSE, rounding = 2) {
+selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
+    default_gene_select = NULL, require_tests = FALSE, rounding = 2) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
-    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, getAssay = getAssay, 
-        provide_all = provide_all_genes, default = default_gene_select))
+    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, 
+        getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select))
     
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
@@ -97,8 +97,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
             } else {
                 assayselect <- hiddenInput(ns("assay"), validAssays()[1])
             }
-            list(assayselect, sampleselectInput(ns("selectmatrix"), eselist = eselist, getExperiment = getExperiment, select_samples = select_samples), geneselectInput(ns("selectmatrix"), 
-                select_genes = select_genes))
+            list(assayselect, sampleselectInput(ns("selectmatrix"), eselist = eselist, getExperiment = getExperiment, select_samples = select_samples), 
+                geneselectInput(ns("selectmatrix"), select_genes = select_genes))
             
         })
     })
@@ -164,8 +164,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"), need(length(selectRows()) > 
-                0, "No matching rows in selected matrix"))
+            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"), 
+                need(length(selectRows()) > 0, "No matching rows in selected matrix"))
             
             selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
             selected_matrix <- selected_matrix[complete.cases(selected_matrix), ]
@@ -186,8 +186,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         })
     })
     
-    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be
-    # summarised if grouping variables were supplied!
+    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will
+    # only be summarised if grouping variables were supplied!
     
     isSummarised <- reactive({
         length(eselist@group_vars) > 0 && getSummaryType() != "none"
@@ -224,8 +224,9 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, 
-        selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels)
+    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, 
+        matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, 
+        getRowLabels = getRowLabels)
 }
 
 #' Add columns to display ID and label in a table

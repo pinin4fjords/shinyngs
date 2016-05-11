@@ -21,7 +21,8 @@ geneInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("gene"), eselist)
-    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), groupbyInput(ns("gene")))
+    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
+        groupbyInput(ns("gene")))
     
     field_sets = list(gene = gene_filters)
     naked_fields = list()  # Things we don't want to wrap in a field set - probably hidden stuff
@@ -89,8 +90,8 @@ gene <- function(input, output, session, eselist) {
     # Call all the required modules and unpack their reactives
     
     unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
-    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, 
-        show_controls = FALSE))
+    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
@@ -104,15 +105,15 @@ gene <- function(input, output, session, eselist) {
         }
     })
     
-    # A static version to stop the gene box getting reset when changing between transcript/gene. 
-    # But dynamic might be desirable where genes are different between assays.....
+    # A static version to stop the gene box getting reset when changing between transcript/gene.  But dynamic might be desirable where genes are
+    # different between assays.....
     
-    getGeneNamesStatic <- function(){
-      gene_name_lists <- lapply(eselist, function(ese){
-        mcols(ese)[[ese@labelfield]]
-      })
-      
-      sort(Reduce(union, gene_name_lists))  
+    getGeneNamesStatic <- function() {
+        gene_name_lists <- lapply(eselist, function(ese) {
+            mcols(ese)[[ese@labelfield]]
+        })
+        
+        sort(Reduce(union, gene_name_lists))
     }
     
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
@@ -124,8 +125,8 @@ gene <- function(input, output, session, eselist) {
     # get the gene label
     
     getGeneLabels <- reactive({
-      validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
-      input$gene_label
+        validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
+        input$gene_label
     })
     
     # Get the row or rows of the data that correspond to this symbol
@@ -136,13 +137,13 @@ gene <- function(input, output, session, eselist) {
         sm <- selectMatrix()
         
         if (length(ese@labelfield) > 0) {
-          
+            
             gene_labels <- getGeneLabels()
-          
+            
             # The rows of the entire object
             
             rowids <- rownames(ese)[which(mcols(ese)[[ese@labelfield]] %in% gene_labels)]
-        
+            
             # The rows for which we have values in the selected assay
             
             rowids <- rowids[rowids %in% rownames(sm)]
@@ -163,7 +164,7 @@ gene <- function(input, output, session, eselist) {
             gene_labels <- getGeneLabels()
             
             if (length(ese@labelfield) > 0) {
-                rownames(barplot_expression) <- idToLabel(rows, ese, sep = '<br />')
+                rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
             }
             
             p <- geneBarplot(barplot_expression, selectColData(), colorBy(), getAssayMeasure())
@@ -251,7 +252,8 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             plotargs$color <- groups
         }
         
-        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150), evaluate = TRUE)
+        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150), 
+            evaluate = TRUE)
     })
     
     if (length(plots) > 1) {

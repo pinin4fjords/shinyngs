@@ -27,8 +27,8 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
         inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), "Minimum absolute fold change", 
-            value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), numericInput(ns("qvalMax"), "Maximum q value", 
-            value = default_max_q)))
+            value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), numericInput(ns("qvalMax"), 
+            "Maximum q value", value = default_max_q)))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
@@ -59,7 +59,8 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment, selectMatrix = NULL, getAssay = NULL, multiple = FALSE, show_controls = TRUE, summarise = TRUE) {
+contrasts <- function(input, output, session, eselist, getExperiment, selectMatrix = NULL, getAssay = NULL, multiple = FALSE, show_controls = TRUE, 
+    summarise = TRUE) {
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
@@ -96,7 +97,8 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
         if (length(eselist@contrasts) > 0) {
             contrasts <- eselist@contrasts
             
-            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), sep = ": ")))
+            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), 
+                sep = ": ")))
         } else {
             NULL
         }
@@ -118,8 +120,8 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
         names(getAllContrasts())[getSelectedContrasts()]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and
-    # calculate fold changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this
+    # output and calculate fold changes etc.
     
     getSummaries <- reactive({
         ese <- getExperiment()
@@ -135,8 +137,8 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
         summaries
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot of the
-    # ExploratorySummarizedExperiment.
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a
+    # 'tests' slot of the ExploratorySummarizedExperiment.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()
@@ -206,7 +208,8 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
             if (length(ese@tests) == 0 || !getAssay() %in% names(ese@tests)) {
                 lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), ])
             } else {
-                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["p value"]] <= pvalMax() & ct[["q value"]] <= qvalMax(), ])
+                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["p value"]] <= pvalMax() & ct[["q value"]] <= 
+                  qvalMax(), ])
             }
         } else {
             contrastsTables()

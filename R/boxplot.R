@@ -17,17 +17,14 @@
 boxplotInput <- function(id, eselist) {
     ns <- NS(id)
     
-    default_type <- 'boxes'
-    if (ncol(eselist[[1]]) > 20){
-      default_type <- 'lines' 
+    default_type <- "boxes"
+    if (ncol(eselist[[1]]) > 20) {
+        default_type <- "lines"
     }
     
     expression_filters <- selectmatrixInput(ns("sampleBoxplot"), eselist)
-    quartile_plot_filters <- list(
-      radioButtons(ns('plotType'), 'Plot type', c('boxes', 'lines'), selected = default_type),
-      numericInput(ns('whiskerDistance'), 'Whisker distance in multiples of IQR', value = 1.5),
-      groupbyInput(ns("boxplot"))
-    )
+    quartile_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines"), selected = default_type), numericInput(ns("whiskerDistance"), 
+        "Whisker distance in multiples of IQR", value = 1.5), groupbyInput(ns("boxplot")))
     
     field_sets = list()
     naked_fields = list()  # Things we don't want to wrap in a field set - probably hidden stuff
@@ -40,7 +37,7 @@ boxplotInput <- function(id, eselist) {
         naked_fields[[1]] <- quartile_plot_filters
     }
     
-    field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns('boxplot'), 'box plot')))
+    field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns("boxplot"), "box plot")))
     
     list(naked_fields, fieldSets(ns("fieldset"), field_sets))
     
@@ -62,12 +59,8 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    list(
-      modalInput(ns("boxplot"), "help", "help"), 
-      modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", "boxplot.md", package = packageName()))),
-      h3("Quartile plots"),
-      uiOutput(ns('quartilesPlot'))
-    )
+    list(modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", "boxplot.md", 
+        package = packageName()))), h3("Quartile plots"), uiOutput(ns("quartilesPlot")))
 }
 
 #' The server function of the boxplot module
@@ -97,34 +90,36 @@ boxplot <- function(input, output, session, eselist) {
     # Render the plot
     
     output$quartilesPlot <- renderUI({
-      ns <- session$ns
-      if (input$plotType == 'boxes'){
-        plotOutput(ns("sampleBoxplot"))
-      }else{
-        plotlyOutput(ns('quartilesPlotly'), height = '600px')
-      }
+        ns <- session$ns
+        if (input$plotType == "boxes") {
+            plotOutput(ns("sampleBoxplot"))
+        } else {
+            plotlyOutput(ns("quartilesPlotly"), height = "600px")
+        }
     })
     
     output$quartilesPlotly <- renderPlotly({
-      plotly_quartiles(selectMatrix(), getExperiment(), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+        plotly_quartiles(selectMatrix(), getExperiment(), getAssayMeasure(), whisker_distance = input$whiskerDistance)
     })
     
-    output$sampleBoxplot <- renderPlot({ withProgress(message = 'Making sample boxplot', value = 0, { ggplot_boxplot(selectMatrix(), selectColData(), colorBy(), whisker_distance = input$whiskerDistance) })
+    output$sampleBoxplot <- renderPlot({
+        withProgress(message = "Making sample boxplot", value = 0, {
+            ggplot_boxplot(selectMatrix(), selectColData(), colorBy(), whisker_distance = input$whiskerDistance)
+        })
     }, height = 600)
     
-    # output$sampleBoxplot <- renderPlotly({
-    #     withProgress(message = "Making sample boxplot", value = 0, {
-    #         plotly_boxplot(selectMatrix(), selectColData(), colorBy(), getAssayMeasure())
-    #     })
-    # })
+    # output$sampleBoxplot <- renderPlotly({ withProgress(message = 'Making sample boxplot', value = 0, { plotly_boxplot(selectMatrix(),
+    # selectColData(), colorBy(), getAssayMeasure()) }) })
     
     # Provide the plot for download
     
-     plotSampleBoxplot <- reactive({ ggplot_boxplot(selectMatrix(), selectColData(), colorBy()) })
+    plotSampleBoxplot <- reactive({
+        ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+    })
     
     # Call to plotdownload module
     
-    callModule(plotdownload, 'boxplot', makePlot = plotSampleBoxplot, filename = 'boxplot.png', plotHeight = 600, plotWidth = 800)
+    callModule(plotdownload, "boxplot", makePlot = plotSampleBoxplot, filename = "boxplot.png", plotHeight = 600, plotWidth = 800)
 }
 
 #' Make a boxplot with coloring by experimental variable
@@ -164,14 +159,15 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
     
     if (!is.null(colorby)) {
-        p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_discrete(name = colorby) + guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
+        p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_discrete(name = colorby) + 
+            guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     } else {
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }
     
-    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), 
-        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 
-        15))
+    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
+        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
+        expressiontype, ")"), 15))
     
     print(p)
 }
@@ -195,9 +191,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
 plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expression") {
     
     plotdata <- ggplotify(as.matrix(matrix), experiment, colorby)
-    plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>% layout(yaxis = list(title = expressiontype), xaxis = list(title = NULL), 
-        evaluate = TRUE) %>% config(showLink = TRUE)
-} 
+    plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>% layout(yaxis = list(title = expressiontype), 
+        xaxis = list(title = NULL), evaluate = TRUE) %>% config(showLink = TRUE)
+}
 
 #' Make a line-based alternative to boxplots
 #' 
@@ -213,95 +209,38 @@ plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expres
 #'
 #' @export
 
-plotly_quartiles <- function(matrix, ese, expressiontype = 'expression', whisker_distance = 1.5){
-  matrix <- log2(matrix)
-  
-  quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)
-  samples <- structure(colnames(matrix), names = colnames(matrix))
-  iqrs <-
-    lapply(samples, function(x) {
-      quantiles['75%', x] - quantiles['25%', x]
+plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker_distance = 1.5) {
+    matrix <- log2(matrix)
+    
+    quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)
+    samples <- structure(colnames(matrix), names = colnames(matrix))
+    iqrs <- lapply(samples, function(x) {
+        quantiles["75%", x] - quantiles["25%", x]
     })
-  
-  outliers <- lapply(samples, function(x) {
-    y <- matrix[, x]
-    ol <-
-      y[which(y > quantiles['75%', x] + iqrs[[x]] * whisker_distance |
-                y < quantiles['25%', x] - iqrs[[x]] * whisker_distance)]
-    if (length(ol) > 0) {
-      data.frame(x = x,
-                 y = ol,
-                 label = idToLabel(names(ol), ese),
-                 stringsAsFactors = FALSE)
-    } else{
-      NULL
-    }
-  })
-  outliers <- do.call(rbind, outliers[! unlist(lapply(outliers, is.null))])
-  
-  
-  plot_ly(
-    type = 'line',
-    showlegend = FALSE,
-    evaluate = TRUE
-  ) %>%
-    add_trace(
-      x = samples,
-      y = quantiles['50%',],
-      group = 'median',
-      mode = 'lines',
-      line = list(color = 'black'),
-      showlegend = TRUE,
-      evaluate = TRUE
-    ) %>% add_trace(
-     x = samples,
-     y = quantiles['25%',],
-     group = 'quartiles',
-     mode = 'lines',
-     line = list(dash = 'dash', color = 'black'),
-     showlegend = TRUE,
-     evaluate = TRUE
-   ) %>% add_trace(
-     x = samples,
-     y = quantiles['75%',],
-     group = 'quartiles',
-     mode = 'lines',
-     line = list(dash = 'dash', color = 'black'),
-     evaluate = TRUE
-   ) %>% add_trace(
-    x = samples,
-    y = quantiles['75%',] + ((quantiles['75%',] - quantiles['25%',]) * whisker_distance),
-    mode = 'lines',
-    group = paste0('quartiles<br />+/- (IQR * ', whisker_distance,')'),
-    line = list(width = 1, color = 'grey'),
-    showlegend = TRUE,
-    evaluate = TRUE
-  ) %>% add_trace(
-    x = samples,
-    y = quantiles['25%',] - ((quantiles['75%',] - quantiles['25%',]) * whisker_distance),
-    mode = 'lines',
-    line = list(width = 1, color = 'grey'),
-    group = paste0('quartiles<br />+/- (IQR * ', whisker_distance,')'),
-    evaluate = TRUE
-  ) %>% add_trace(
-    x = outliers$x,
-    y = outliers$y,
-    mode = 'markers',
-    name = 'outliers',
-    marker = list(color = 'black'),
-    showlegend = TRUE,
-    evaluate = TRUE,
-    hoverinfo = 'text',
-    text = outliers$label
-  )%>% layout(
-     xaxis = list(title = NULL),
-     yaxis = list(title = paste0('log2(', expressiontype, ')')),
-     margin = list(b = 150),
-     hovermode = "closest",
-     title = NULL,
-     evaluate = TRUE
-    )
-
+    
+    outliers <- lapply(samples, function(x) {
+        y <- matrix[, x]
+        ol <- y[which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)]
+        if (length(ol) > 0) {
+            data.frame(x = x, y = ol, label = idToLabel(names(ol), ese), stringsAsFactors = FALSE)
+        } else {
+            NULL
+        }
+    })
+    outliers <- do.call(rbind, outliers[!unlist(lapply(outliers, is.null))])
+    
+    
+    plot_ly(type = "line", showlegend = FALSE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["50%", ], group = "median", mode = "lines", 
+        line = list(color = "black"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ], group = "quartiles", 
+        mode = "lines", line = list(dash = "dash", color = "black"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["75%", 
+        ], group = "quartiles", mode = "lines", line = list(dash = "dash", color = "black"), evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["75%", 
+        ] + ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), mode = "lines", group = paste0("quartiles<br />+/- (IQR * ", whisker_distance, 
+        ")"), line = list(width = 1, color = "grey"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ] - ((quantiles["75%", 
+        ] - quantiles["25%", ]) * whisker_distance), mode = "lines", line = list(width = 1, color = "grey"), group = paste0("quartiles<br />+/- (IQR * ", 
+        whisker_distance, ")"), evaluate = TRUE) %>% add_trace(x = outliers$x, y = outliers$y, mode = "markers", name = "outliers", marker = list(color = "black"), 
+        showlegend = TRUE, evaluate = TRUE, hoverinfo = "text", text = outliers$label) %>% layout(xaxis = list(title = NULL), yaxis = list(title = paste0("log2(", 
+        expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL, evaluate = TRUE)
+    
 }
 
-
+ 
