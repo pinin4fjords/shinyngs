@@ -295,7 +295,7 @@ plotly_quartiles <- function(matrix, ese, expressiontype = 'expression', whisker
     text = outliers$label
   )%>% layout(
      xaxis = list(title = NULL),
-     yaxis = list(title = expressiontype),
+     yaxis = list(title = paste0('log2(', expressiontype, ')')),
      margin = list(b = 150),
      hovermode = "closest",
      title = NULL,
