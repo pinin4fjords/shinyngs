@@ -13,11 +13,11 @@
 #' @examples
 #' plotdownloadInput(ns('heatmap'))
 
-plotdownloadInput <- function(id) {
+plotdownloadInput <- function(id, label = 'Plot') {
     
     ns <- NS(id)
     
-    downloadButton(ns("plotdownload"), "Download Plot")
+    downloadButton(ns("plotdownload"), paste("Download", label))
     
 }
 

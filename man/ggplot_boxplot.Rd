@@ -5,7 +5,7 @@
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
 ggplot_boxplot(plotmatrix, experiment, colorby = NULL,
-  expressiontype = "Normalised counts per million")
+  expressiontype = "Normalised counts per million", whisker_distance = 1.5)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}

@@ -29,7 +29,7 @@ rnaseqInput <- function(id, eselist) {
     
     # Add in the QC/ exploratory menu
     
-    exploratory_menu <- list("QC/ exploratory", tabPanel("Boxplots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
+    exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
         width = 9))), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), width = 9))), tabPanel("PCA vs Experiment", 
         sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), mainPanel(heatmapOutput(ns("heatmap-pca"), type = 'pca'), width = 9))), tabPanel("Clustering dendrogram", 
         sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9))), tabPanel("Clustering Heatmap", 

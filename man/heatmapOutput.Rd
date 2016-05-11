@@ -4,7 +4,7 @@
 \alias{heatmapOutput}
 \title{The output function of the heatmap module}
 \usage{
-heatmapOutput(id)
+heatmapOutput(id, type = "")
 }
 \arguments{
 \item{id}{Submodule namespace}
