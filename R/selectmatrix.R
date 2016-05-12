@@ -203,7 +203,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     selectLabelledMatrix <- reactive({
         
-        selected_matrix <- data.frame(selectMatrix())
+        selected_matrix <- data.frame(selectMatrix(), check.names = FALSE)
         se <- getExperiment()
         
         labelMatrix(selected_matrix, se)
