@@ -246,7 +246,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             yaxis = ax
         }
         
-        plotargs <- list(x = names(row), y = as.numeric(row), type = "bar", showlegend = (rowno == 1), evaluate = TRUE)
+        plotargs <- list(x = paste0(names(row), "&nbsp;"), y = as.numeric(row), type = "bar", showlegend = (rowno == 1), evaluate = TRUE)
         
         if (!is.null(colorby)) {
             plotargs$color <- groups
