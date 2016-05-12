@@ -158,9 +158,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     
     plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
     
-    # Make sure name is character (could be a numeric identifier)
+    # Make sure name is a factor to 1) stop ggplot re-ordering the axis and 2) stop it interpreting it as numeric
     
-    plotdata$name <- as.character(plotdata$name)
+    plotdata$name <- factor(plotdata$name, levels = unique(plotdata$name))
     
     if (!is.null(colorby)) {
         p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_discrete(name = colorby) + 
