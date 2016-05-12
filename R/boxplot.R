@@ -104,7 +104,7 @@ boxplot <- function(input, output, session, eselist) {
     
     output$sampleBoxplot <- renderPlot({
         withProgress(message = "Making sample boxplot", value = 0, {
-            ggplot_boxplot(selectMatrix(), selectColData(), colorBy(), whisker_distance = input$whiskerDistance)
+            ggplot_boxplot(selectMatrix(), selectColData(), colorBy(), expressiontype = , getAssayMeasure(), whisker_distance = input$whiskerDistance)
         })
     }, height = 600)
     
@@ -141,7 +141,7 @@ boxplot <- function(input, output, session, eselist) {
 #' @examples
 #' ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
 
-ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontype = "Normalised counts per million", whisker_distance = 1.5) {
+ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontype = "expression", whisker_distance = 1.5) {
     
     # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
     
@@ -157,6 +157,10 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     # Reshape the data for ggplot2
     
     plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
+    
+    # Make sure name is character (could be a numeric identifier)
+    
+    plotdata$name <- as.character(plotdata$name)
     
     if (!is.null(colorby)) {
         p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_discrete(name = colorby) + 
@@ -210,7 +214,7 @@ plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expres
 #' @export
 
 plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker_distance = 1.5) {
-    matrix <- log2(matrix)
+    matrix <- log2(matrix+1)
     
     quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)
     samples <- structure(colnames(matrix), names = colnames(matrix))
@@ -229,6 +233,13 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
     })
     outliers <- do.call(rbind, outliers[!unlist(lapply(outliers, is.null))])
     
+    # These lines to force plotly to use and display sample IDs as strings. For some reason character strings of numeric things get 
+    # converted back
+    
+    samples <- paste0(samples, '&nbsp;')
+    outliers$x <- paste0(outliers$x, '&nbsp;')
+    
+    # The polotting business
     
     plot_ly(type = "line", showlegend = FALSE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["50%", ], group = "median", mode = "lines", 
         line = list(color = "black"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ], group = "quartiles", 
