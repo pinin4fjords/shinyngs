@@ -4,7 +4,7 @@
 \alias{plotdownloadInput}
 \title{The input function of the gene plotdownload module}
 \usage{
-plotdownloadInput(id)
+plotdownloadInput(id, label = "Plot")
 }
 \arguments{
 \item{id}{Submodule namespace}

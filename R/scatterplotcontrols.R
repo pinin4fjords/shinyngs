@@ -23,7 +23,7 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
     }
     
     c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", min = 1, 
-        max = 20, value = 7)))
+        max = 20, value = 5)))
 }
 
 #' Server function for scatterplotcontrols module

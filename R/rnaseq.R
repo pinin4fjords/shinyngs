@@ -58,8 +58,7 @@ rnaseqInput <- function(id, eselist) {
     if (length(eselist@contrasts) > 0) {
         
         differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), 
-            width = 3), mainPanel(differentialtableOutput(ns("differential")), width = 9))), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), 
-            eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9))))
+            width = 3), mainPanel(differentialtableOutput(ns("differential")), width = 9))), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9))), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), eselist), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9))))
         
         # If any of the experiments in the list have assays with associated tests, add a volcano plot
         
@@ -149,6 +148,7 @@ rnaseq <- function(input, output, session, eselist) {
         callModule(differentialtable, "differential", eselist)
         callModule(volcanoplot, "volcano", eselist)
         callModule(foldchangeplot, "foldchange", eselist)
+        callModule(maplot, "ma", eselist)
         callModule(genesetanalysistable, "genesetanalysis", eselist)
         updateBarcodeGeneset <- callModule(genesetbarcodeplot, "rnaseq", eselist)
     }
