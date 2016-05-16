@@ -86,8 +86,6 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     output$assay <- renderUI({
         withProgress(message = "Rendering assay drop-down", value = 0, {
-            validate(need(!is.null(input$experiment), "Waiting for form to provide experiment"))
-            
             ns <- session$ns
             
             ese <- getExperiment()
@@ -118,8 +116,20 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Reactive for getting the right ExploratorySummarizedExperiment and passing it on to sample and gene selection
     
     getExperiment <- reactive({
-        validate(need(input$experiment, FALSE))
-        eselist[[input$experiment]]
+      eid <- getExperimentId()  
+      eselist[[eid]]
+    })
+    
+    # Name of the experment is useful sometimes
+    
+    getExperimentId <- reactive({
+      validate(need(input$experiment, FALSE))
+      input$experiment
+    })
+    
+    getExperimentName <- reactive({
+      eid <- getExperimentId()
+      prettifyVariablename(eid)
     })
     
     # Get the row labels where available
@@ -222,11 +232,27 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         }
     })
     
+    # Accessors for the id and label fields of the current experiment
+    
+    getIdField <- reactive({
+        ese <- getExperiment()
+        ese@idfield
+    })
+    
+    getLabelField <- reactive({
+        ese <- getExperiment()
+        if (length(ese@labelfield) > 0) {
+          ese@labelfield
+        } else {
+          ese@idfield
+        }
+    })
+    
     # Return the list of reactive expressions we'll need to access the data
     
     list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, 
         matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, 
-        getRowLabels = getRowLabels)
+        getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName)
 }
 
 #' Add columns to display ID and label in a table
@@ -279,7 +305,7 @@ labelMatrix <- function(matrix, ese) {
 #' @return output Table with links added
 
 linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
-    
+  
     # Add prettified version of each field in URL roots in case matrix column names are prettified
     
     for (fieldname in names(url_roots)) {

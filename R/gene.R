@@ -21,7 +21,8 @@ geneInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("gene"), eselist)
-    gene_filters <- list(selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
+    gene_filters <- list(
+      selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
         groupbyInput(ns("gene")))
     
     field_sets = list(gene = gene_filters)
@@ -38,7 +39,6 @@ geneInput <- function(id, eselist) {
     field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE)))
     
     list(naked_fields, fieldSets(ns("fieldset"), field_sets))
-    
 }
 
 #' The input function of the gene module
@@ -63,7 +63,11 @@ geneInput <- function(id, eselist) {
 geneOutput <- function(id, eselist) {
     ns <- NS(id)
     
-    list(h3("Gene expression bar plot"), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), DT::dataTableOutput(ns("contrastTable")))
+    list(
+      uiOutput(ns('info')),
+      
+      uiOutput(ns('title')), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), DT::dataTableOutput(ns("contrastTable"))
+    )
 }
 
 #' The server function of the gene module
@@ -93,6 +97,23 @@ gene <- function(input, output, session, eselist) {
     unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
         multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
+    
+    # The title and info link are reactive to the currently active experiment
+    
+    output$title <- renderUI({
+      en <- getExperimentName()
+      h3(paste(en, "expression bar plot"))
+    })
+    
+    output$info <- renderUI({
+      ns <- session$ns
+      en <- getExperimentName()
+      
+      list(
+        modalInput(ns("geneInfo"), paste(en, " info"), "help"),
+        modalOutput(ns("geneInfo"), paste(en, "information"), DT::dataTableOutput(ns('geneInfoTable')))
+      )
+    })
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
     
@@ -134,8 +155,7 @@ gene <- function(input, output, session, eselist) {
     getRows <- reactive({
         rowids <- getGeneLabels()
         ese <- getExperiment()
-        sm <- selectMatrix()
-        
+
         if (length(ese@labelfield) > 0) {
             
             gene_labels <- getGeneLabels()
@@ -143,11 +163,21 @@ gene <- function(input, output, session, eselist) {
             # The rows of the entire object
             
             rowids <- rownames(ese)[which(mcols(ese)[[ese@labelfield]] %in% gene_labels)]
-            
-            # The rows for which we have values in the selected assay
-            
-            rowids <- rowids[rowids %in% rownames(sm)]
         }
+ 
+        rowids
+    })
+    
+    # Get the rows with valid data. Some rows of some assays may be blank
+    
+    getRowsWithData <- reactive({
+        rowids <- getRows()
+        
+        sm <- selectMatrix()
+        rowids <- rowids[rowids %in% rownames(sm)]
+        
+        validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", getAssay(), "'")))
+        
         rowids
     })
     
@@ -157,11 +187,9 @@ gene <- function(input, output, session, eselist) {
         
         withProgress(message = "Making bar plot", value = 0, {
             ese <- getExperiment()
-            rows <- getRows()
+            rows <- getRowsWithData()
             
             barplot_expression <- selectMatrix()[rows, , drop = FALSE]
-            
-            gene_labels <- getGeneLabels()
             
             if (length(ese@labelfield) > 0) {
                 rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
@@ -171,24 +199,27 @@ gene <- function(input, output, session, eselist) {
             
         })
     })
+
+    # Make a table of the annotation data
     
-    # Convenience function for deciding whether to use ID or symbol
-    
-    getLabelField <- reactive({
-        ese <- getExperiment()
-        if (length(ese@labelfield) > 0) {
-            ese@labelfield
-        } else {
-            ese@idfield
-        }
-    })
+    output$geneInfoTable <- DT::renderDataTable({
+      rows <- getRows()
+      ese <- getExperiment()
+      
+      gene_info <- data.frame(mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = idToLabel(rows, ese, sep = " /<br/ >"))
+      gene_info <- t(linkMatrix(gene_info, eselist@url_roots))
+      rownames(gene_info) <- prettifyVariablename(rownames(gene_info))
+      gene_info
+      
+    }, options = list(rownames = TRUE, pageLength = 20, dom = 't'), escape = FALSE)
     
     # Retrieve the contrasts table
     
     getGeneContrastsTable <- reactive({
+        rows <- getRowsWithData()
         contrasts_table <- labelledContrastsTable()
-        gene_labels <- getGeneLabels()
-        linkMatrix(contrasts_table[which(contrasts_table[[prettifyVariablename(getLabelField())]] %in% gene_labels), , drop = FALSE], url_roots = eselist@url_roots)
+
+        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getIdField())]] %in% rows, , drop = FALSE], url_roots = eselist@url_roots)
     })
     
     # Render the contrasts table- when a valid label is supplied
