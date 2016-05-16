@@ -214,6 +214,11 @@ gene <- function(input, output, session, eselist) {
       
     }, options = list(rownames = TRUE, pageLength = 20, dom = 't'), escape = FALSE)
     
+    # Make the gene info table update (probably invisibly) even when hidden, so
+    # there's not a delay in rendering when the link to the modal is clicked.
+    
+    outputOptions(output, 'geneInfoTable', suspendWhenHidden = FALSE)
+    
     # Retrieve the contrasts table
     
     getGeneContrastsTable <- reactive({
