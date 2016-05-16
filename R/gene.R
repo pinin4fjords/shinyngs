@@ -175,6 +175,7 @@ gene <- function(input, output, session, eselist) {
         
         sm <- selectMatrix()
         rowids <- rowids[rowids %in% rownames(sm)]
+        gene_labels <- getGeneLabels()
         
         validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", getAssay(), "'")))
         
