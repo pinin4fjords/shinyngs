@@ -37,7 +37,8 @@ overriding the z-index we need from bootstrap.css  */
 }
 
 .help{
-  float:right; 
+  float:right;
+  padding-left:1em;
 }
 
 .modal-dialog{
@@ -47,5 +48,4 @@ overriding the z-index we need from bootstrap.css  */
 
 .dataTables_wrapper{
   overflow-x: scroll; 
-}
 }

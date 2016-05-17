@@ -89,7 +89,7 @@ rnaseqInput <- function(id, eselist) {
     # Add the gene info plots
     
     navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(sidebarPanel(geneInput(ns("gene"), eselist), 
-        width = 3), mainPanel(geneOutput(ns("gene")), width = 9))))
+        width = 3), mainPanel(geneOutput(ns("gene"), eselist), width = 9))))
     
     # Add the final wrappers
     

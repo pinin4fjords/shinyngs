@@ -63,11 +63,22 @@ geneInput <- function(id, eselist) {
 geneOutput <- function(id, eselist) {
     ns <- NS(id)
     
-    list(
+    out <- list()
+    
+    # if (length(eselist@ensembl_species) > 0){
+    #   out <- list(
+    #     modalInput(ns("geneModel"), 'Gene model', "help"),
+    #     modalOutput(ns("geneModel"), 'Gene model', plotOutput(ns('geneModel')))
+    #   )
+    # }
+    
+    out <- c(out, list(
+      uiOutput(ns('model')),
       uiOutput(ns('info')),
-      
       uiOutput(ns('title')), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), DT::dataTableOutput(ns("contrastTable"))
-    )
+    ))
+    
+    out
 }
 
 #' The server function of the gene module
@@ -108,11 +119,24 @@ gene <- function(input, output, session, eselist) {
     output$info <- renderUI({
       ns <- session$ns
       en <- getExperimentName()
+      gene_labels <- getGeneLabels()
       
       list(
         modalInput(ns("geneInfo"), paste(en, " info"), "help"),
-        modalOutput(ns("geneInfo"), paste(en, "information"), DT::dataTableOutput(ns('geneInfoTable')))
+        modalOutput(ns("geneInfo"), paste(en, "information for", paste(gene_labels, sep = ', ')), DT::dataTableOutput(ns('geneInfoTable')))
       )
+    })
+    
+    output$model <- renderUI({
+      ns <- session$ns
+      gene_labels <- getGeneLabels()
+      
+      if (length(eselist@ensembl_species) > 0){
+        out <- list(
+          modalInput(ns("geneModel"), 'Gene model', "help"),
+          modalOutput(ns("geneModel"), paste(gene_labels[1], 'gene model'), plotOutput(ns('geneModel'), height = "600px"))
+        )
+      }
     })
     
     # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
@@ -146,7 +170,7 @@ gene <- function(input, output, session, eselist) {
     # get the gene label
     
     getGeneLabels <- reactive({
-        validate(need(!is.null(input$gene_label), "Waiting for a gene input"))
+        validate(need(!is.null(input$gene_label), FALSE))
         input$gene_label
     })
     
@@ -201,6 +225,20 @@ gene <- function(input, output, session, eselist) {
         })
     })
 
+    # Make a gene region plot
+    
+    output$geneModel <- renderPlot({ 
+
+      gene_labels <- getGeneLabels()
+      
+      withProgress(message = paste("Fetching gene models from Ensembl for gene", gene_labels[1]), value = 0, {
+        annotation <- data.frame(SummarizedExperiment::mcols(eselist$gene), stringsAsFactors = FALSE)
+        annotation <- annotation[which(annotation[[eselist$gene@labelfield]] == gene_labels[1]),]
+        
+        geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = annotation$start_position, end = annotation$end_position)
+      })
+    })
+    
     # Make a table of the annotation data
     
     output$geneInfoTable <- DT::renderDataTable({
@@ -299,4 +337,82 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
         p <- plots[[1]]
     }
     p %>% config(showLink = TRUE)
-} 
+}
+
+
+#' Make a gene model plot for a chromosomal location
+#'
+#' @param ensembl_species 
+#' @param chromosome 
+#' @param start 
+#' @param end 
+#'
+#' @import Gviz
+
+geneModelPlot <- function(ensembl_species, chromosome, start, end){
+  
+  # Initialise a connection to Ensembl
+  
+  ensembl <-
+    biomaRt::useMart(
+      biomart = "ENSEMBL_MART_ENSEMBL",
+      dataset = paste0(eselist@ensembl_species, '_gene_ensembl'),
+      host = 'www.ensembl.org'
+    )
+  
+  options(ucscChromosomeNames=FALSE)
+  
+  # Create a basic axis
+  
+  gtrack <- GenomeAxisTrack()
+  
+  # We should know the start_position and end_position. Fetch a track showing genes in the region
+  
+  geneTrack <- BiomartGeneRegionTrack(
+    #genome = genome,
+    chromosome = chromosome,
+    start = start,
+    end = end,
+    name = "Gene",
+    biomart = ensembl,
+    transcriptAnnotation = "symbol",
+    collapseTranscripts = TRUE,
+    shape = "arrow"
+  )
+  
+  # Move gene labels to above
+  
+  displayPars(geneTrack) = list(showId = TRUE,
+                                fontcolor.title = "black",
+                                just.group = "above")
+  
+  transcriptTrack <- BiomartGeneRegionTrack(
+    #genome = genome,
+    chromosome = chromosome,
+    start = start,
+    end = end,
+    name = "Transcripts",
+    biomart = ensembl,
+    transcriptAnnotation = "transcript"
+  )
+  
+  # Move transcript labels to above
+  
+  displayPars(transcriptTrack) = list(showId = TRUE,
+                                      fontcolor.title = "black",
+                                      just.group = "above")
+  
+  plotTracks(
+    list(gtrack, geneTrack, transcriptTrack),
+    from = start,
+    to = end,
+    extend.left = 1000,
+    extend.right = 1000,
+    cex = 1,
+    cex.legend = 0.8,
+    cex.group = 0.8,
+    cex.title = 0.8
+  )
+}
+
+

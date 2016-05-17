@@ -8,7 +8,8 @@ ExploratorySummarizedExperiments}
 ExploratorySummarizedExperimentList(eses, title = "", author = "",
   description = "", group_vars = character(),
   default_groupvar = character(), contrasts = list(), url_roots = list(),
-  gene_sets = list(), read_reports = list())
+  gene_sets = list(), read_reports = list(),
+  ensembl_species = character())
 }
 \arguments{
 \item{eses}{List of ExploratorySummarizedExperiments}
