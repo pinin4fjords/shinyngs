@@ -356,7 +356,7 @@ geneModelPlot <- function(ensembl_species, chromosome, start, end){
   ensembl <-
     biomaRt::useMart(
       biomart = "ENSEMBL_MART_ENSEMBL",
-      dataset = paste0(eselist@ensembl_species, '_gene_ensembl'),
+      dataset = paste0(ensembl_species, '_gene_ensembl'),
       host = 'www.ensembl.org'
     )
   
