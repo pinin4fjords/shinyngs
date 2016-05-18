@@ -53,9 +53,12 @@ Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
 ## Install with devtools
 
+There is currently an issue with versions of plotly > 2.0.16, so this version is needed, and you need to prevent `devtools` from upgrading it automatically. 
+
 ```{r, eval=FALSE}
 library(devtools)
-install_github('pinin4fjords/shinyngs', ref='v0.1.2-alpha')
+install.packages('http://cran.r-project.org/src/contrib/Archive/plotly/plotly_2.0.16.tar.gz', repos=NULL, type="source")
+install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
 ```
 
 # Example

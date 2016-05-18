@@ -189,8 +189,6 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
 #' @return output A \code{plotly} output
 #'
 #' @keywords keywords
-#'
-#' @import plotly
 
 plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expression") {
     
