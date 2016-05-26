@@ -4,7 +4,8 @@
 \alias{fieldSets}
 \title{Create sets of fields for display}
 \usage{
-fieldSets(id, fieldset_list, open = NULL, use_shinybs = TRUE)
+fieldSets(id, fieldset_list, open = NULL, use_shinybs = TRUE,
+  visibilities = list())
 }
 \arguments{
 \item{id}{ID field to apply to the overall container}

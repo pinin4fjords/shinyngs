@@ -59,7 +59,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment, selectMatrix = NULL, getAssay = NULL, multiple = FALSE, show_controls = TRUE, 
+contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, getAssay = NULL, multiple = FALSE, show_controls = TRUE, 
     summarise = TRUE) {
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
@@ -92,7 +92,7 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
     getAllContrasts <- reactive({
-        ese <- getExperiment()
+        #ese <- getExperiment()
         
         if (length(eselist@contrasts) > 0) {
             contrasts <- eselist@contrasts
@@ -107,7 +107,7 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
     # Get the actual contrasts to which the numbers from the interface pertain
     
     getContrasts <- reactive({
-        ese <- getExperiment()
+        #ese <- getExperiment()
         eselist@contrasts[getSelectedContrasts()]
     })
     
@@ -118,6 +118,26 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
     
     getSelectedContrastNames <- reactive({
         names(getAllContrasts())[getSelectedContrasts()]
+    })
+    
+    # Get list describing, for each contrast, the samples on each side 
+    
+    getContrastSamples <- reactive({
+        ese <- getExperiment()
+        coldata <- droplevels(data.frame(colData(ese)))
+        
+        lapply(eselist@contrasts, function(c){
+            list(
+              colnames(ese)[coldata[c[1]] == c[2]],
+              colnames(ese)[coldata[c[1]] == c[3]]  
+            )
+        })
+    })
+    
+    getSelectedContrastSamples <- reactive({
+        contrast_samples <- getContrastSamples()
+        selected_contrasts <- getSelectedContrasts()
+        contrast_samples[selected_contrasts]
     })
     
     # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this
@@ -256,9 +276,19 @@ contrasts <- function(input, output, session, eselist, getExperiment, selectMatr
     
     # Basic accessors for parameters
     
-    
-    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, 
-        contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
+    list(
+      fcMin = fcMin, 
+      qvalMax = qvalMax, 
+      getContrasts = getContrasts, 
+      getSelectedContrasts = getSelectedContrasts, 
+      getSelectedContrastNames = getSelectedContrastNames,
+      getContrastSamples = getContrastSamples,
+      getSelectedContrastSamples = getSelectedContrastSamples,
+      contrastsTables = contrastsTables, 
+      filteredContrastsTables = filteredContrastsTables, 
+      labelledContrastsTable = labelledContrastsTable, 
+      linkedLabelledContrastsTable = linkedLabelledContrastsTable
+    )
 }
 
 #' Fold change between two vectors

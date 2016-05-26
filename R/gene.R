@@ -22,7 +22,8 @@ geneInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("gene"), eselist)
     gene_filters <- list(
-      selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
+      labelselectfieldInput(ns("gene_label")),
+      #selectizeInput(ns("gene_label"), "Gene label", choices = NULL, options = list(placeholder = "Type a gene label", maxItems = 5)), 
         groupbyInput(ns("gene")))
     
     field_sets = list(gene = gene_filters)
@@ -105,6 +106,7 @@ gene <- function(input, output, session, eselist) {
     # Call all the required modules and unpack their reactives
     
     unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
+    unpack.list(callModule(labelselectfield, 'gene_label', eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = 'gene'))
     unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
         multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
@@ -119,7 +121,7 @@ gene <- function(input, output, session, eselist) {
     output$info <- renderUI({
       ns <- session$ns
       en <- getExperimentName()
-      gene_labels <- getGeneLabels()
+      gene_labels <- getSelectedLabels()
       
       list(
         modalInput(ns("geneInfo"), paste(en, " info"), "help"),
@@ -127,9 +129,11 @@ gene <- function(input, output, session, eselist) {
       )
     })
     
+    # Render the gene model plot 
+    
     output$model <- renderUI({
       ns <- session$ns
-      gene_labels <- getGeneLabels()
+      gene_labels <- getSelectedLabels()
       
       if (length(eselist@ensembl_species) > 0){
         out <- list(
@@ -139,70 +143,17 @@ gene <- function(input, output, session, eselist) {
       }
     })
     
-    # Get the list of valid IDs / labels. This will be used to populate the autocomplete field
-    
-    getGeneNames <- reactive({
-        ese <- getExperiment()
-        
-        gene_names <- rownames(ese)
-        if (length(ese@labelfield) > 0) {
-            gene_names <- sort(mcols(ese)[[ese@labelfield]])
-        }
-    })
-    
-    # A static version to stop the gene box getting reset when changing between transcript/gene.  But dynamic might be desirable where genes are
-    # different between assays.....
-    
-    getGeneNamesStatic <- function() {
-        gene_name_lists <- lapply(eselist, function(ese) {
-            mcols(ese)[[ese@labelfield]]
-        })
-        
-        sort(Reduce(union, gene_name_lists))
-    }
-    
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
-    
-    observe({
-        updateSelectizeInput(session, "gene_label", choices = getGeneNamesStatic(), server = TRUE)
-    })
-    
-    # get the gene label
-    
-    getGeneLabels <- reactive({
-        validate(need(!is.null(input$gene_label), FALSE))
-        input$gene_label
-    })
-    
-    # Get the row or rows of the data that correspond to this symbol
-    
-    getRows <- reactive({
-        rowids <- getGeneLabels()
-        ese <- getExperiment()
-
-        if (length(ese@labelfield) > 0) {
-            
-            gene_labels <- getGeneLabels()
-            
-            # The rows of the entire object
-            
-            rowids <- rownames(ese)[which(mcols(ese)[[ese@labelfield]] %in% gene_labels)]
-        }
- 
-        rowids
-    })
-    
     # Get the rows with valid data. Some rows of some assays may be blank
-    
-    getRowsWithData <- reactive({
-        rowids <- getRows()
-        
+
+    getSelectedIdsWithData <- reactive({
+        rowids <- getSelectedIds()
+
         sm <- selectMatrix()
         rowids <- rowids[rowids %in% rownames(sm)]
-        gene_labels <- getGeneLabels()
-        
+        gene_labels <- getSelectedLabels()
+
         validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", getAssay(), "'")))
-        
+
         rowids
     })
     
@@ -212,7 +163,7 @@ gene <- function(input, output, session, eselist) {
         
         withProgress(message = "Making bar plot", value = 0, {
             ese <- getExperiment()
-            rows <- getRowsWithData()
+            rows <- getSelectedIdsWithData()
             
             barplot_expression <- selectMatrix()[rows, , drop = FALSE]
             
@@ -229,7 +180,7 @@ gene <- function(input, output, session, eselist) {
     
     output$geneModel <- renderPlot({ 
 
-      gene_labels <- getGeneLabels()
+      gene_labels <- getSelectedLabels()
       
       withProgress(message = paste("Fetching gene models from Ensembl for gene", gene_labels[1]), value = 0, {
         annotation <- data.frame(SummarizedExperiment::mcols(eselist$gene), stringsAsFactors = FALSE)
@@ -242,7 +193,7 @@ gene <- function(input, output, session, eselist) {
     # Make a table of the annotation data
     
     output$geneInfoTable <- DT::renderDataTable({
-      rows <- getRows()
+      rows <- getSelectedIds()
       ese <- getExperiment()
       
       gene_info <- data.frame(mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = idToLabel(rows, ese, sep = " /<br/ >"))
@@ -260,7 +211,7 @@ gene <- function(input, output, session, eselist) {
     # Retrieve the contrasts table
     
     getGeneContrastsTable <- reactive({
-        rows <- getRowsWithData()
+        rows <- getSelectedIdsWithData()
         contrasts_table <- labelledContrastsTable()
 
         linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getIdField())]] %in% rows, , drop = FALSE], url_roots = eselist@url_roots)
@@ -274,12 +225,10 @@ gene <- function(input, output, session, eselist) {
         }, rownames = FALSE, escape = FALSE)
     }
     
-    # Supply a reactive for updating the gene input field
+    # Return the reactive for updating the gene input field. Will be used for
+    # updating the field when linking to this panel
     
-    reactive({
-        query <- parseQueryString(session$clientData$url_search)
-        updateSelectizeInput(session, "gene_label", selected = query$gene, choices = getGeneNames(), server = TRUE)
-    })
+    updateLabelField
     
 }
 

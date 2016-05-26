@@ -27,7 +27,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
             length(ese@tests) > 0
         })))]
     }
-    inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")))
+    inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")), uiOutput(ns('samples')), uiOutput(ns('rows')) )
     
     # Replace experiment with a hidden input if we've got just the one
     
@@ -35,7 +35,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
         inputs[[1]] <- hiddenInput(ns("experiment"), names(eselist)[1])
     }
     
-    return(tagList(inputs))
+    return(inputs)
 }
 
 #' The server function of the selectmatrix module
@@ -55,6 +55,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #'   = 50
 #' @param var_max The maximum umber of rows to select when doing so by variance.
 #'   Default = 500
+#' @param select_assays Provide UI and functions for assay selection?
 #' @param select_samples Provide UI and functions for sample selection?
 #'   (Default: TRUE)
 #' @param select_genes Provide UI and functions for gene (row) selection? 
@@ -73,7 +74,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
-selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
+selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
     default_gene_select = NULL, require_tests = FALSE, rounding = 2) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
@@ -84,21 +85,34 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
+    ns <- session$ns
+    
     output$assay <- renderUI({
         withProgress(message = "Rendering assay drop-down", value = 0, {
             ns <- session$ns
             
-            ese <- getExperiment()
+              if (length(validAssays()) > 1 && select_assays) {
+                  assayselect <- selectInput(ns("assay"), "Matrix", validAssays())
+              } else {
+                  assayselect <- hiddenInput(ns("assay"), validAssays()[1])
+              }
+  
+              assayselect
             
-            if (length(validAssays()) > 1) {
-                assayselect <- selectInput(ns("assay"), "Matrix", validAssays())
-            } else {
-                assayselect <- hiddenInput(ns("assay"), validAssays()[1])
-            }
-            list(assayselect, sampleselectInput(ns("selectmatrix"), eselist = eselist, getExperiment = getExperiment, select_samples = select_samples), 
-                geneselectInput(ns("selectmatrix"), select_genes = select_genes))
             
         })
+    })
+    
+    # Render sample selection controls
+    
+    output$samples <- renderUI({
+        sampleselectInput(ns("selectmatrix"), eselist = eselist, getExperiment = getExperiment, select_samples = select_samples)  
+    })
+    
+    # Render row selection controls
+    
+    output$rows <- renderUI({
+        geneselectInput(ns("selectmatrix"), select_genes = select_genes)
     })
     
     # Get list of assays
@@ -123,7 +137,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Name of the experment is useful sometimes
     
     getExperimentId <- reactive({
-      validate(need(input$experiment, FALSE))
+      validate(need(input$experiment, "Waiting for experiment selection"))
       input$experiment
     })
     
@@ -264,20 +278,22 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
 #'
 #' @return output Table with columns added
 
-labelMatrix <- function(matrix, ese) {
-    
-    withProgress(message = "Adding labels to matrix", value = 0, {
-        
-        datacolnames <- colnames(matrix)
+labelMatrix <- function(matrix, ese, idcol = NULL) {
         
         idfield <- ese@idfield
-        matrix[[idfield]] <- rownames(matrix)
+        
+        if (is.null(idcol)){
+          datacolnames <- colnames(matrix)
+          matrix[[idfield]] <- rownames(matrix)
+        }else{
+          datacolnames <- colnames(matrix)[colnames(matrix) != idcol]
+          colnames(matrix)[colnames(matrix) == idcol] <- idfield 
+        }
         
         if (length(ese@labelfield) > 0) {
-            annotation <- data.frame(mcols(ese))
             labelfield <- ese@labelfield
             
-            matrix[[labelfield]] <- annotation[match(rownames(matrix), annotation[[idfield]]), labelfield]
+            matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield)
             matrix <- matrix[, c(idfield, labelfield, datacolnames)]
             
             colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
@@ -288,7 +304,7 @@ labelMatrix <- function(matrix, ese) {
         # Make the field identifiers nicer
         
         colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
-    })
+
     matrix
 }
 
@@ -368,7 +384,15 @@ idToLabel <- function(ids, ese, sep = " / ") {
 convertIds <- function(ids, ese, to, remove_na = FALSE) {
     annotation <- data.frame(mcols(ese))
     
+    multi <- grepl(" ", ids)
+    
     converted <- annotation[match(ids, annotation[[ese@idfield]]), to]
+    
+    # If some elements contained multiple values try splitting them
+    
+    multi_ids <- lapply(ids[multi], function(x) unlist(strsplit(x, ' ')))
+    converted[multi] <- unlist(lapply(multi_ids, function(x) paste(annotation[match(x, annotation[[ese@idfield]]), to], collapse = ' ')))
+
     if (remove_na) {
         converted <- converted[!is.na(converted)]
     }

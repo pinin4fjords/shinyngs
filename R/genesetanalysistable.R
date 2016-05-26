@@ -105,7 +105,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, select_samples = FALSE, select_genes = FALSE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE))
     
     # Pass the matrix to the contrasts module for processing
     

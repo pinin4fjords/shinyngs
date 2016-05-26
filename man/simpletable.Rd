@@ -5,7 +5,7 @@
 \title{The server function of the simpletable module}
 \usage{
 simpletable(input, output, session, downloadMatrix = NULL, displayMatrix,
-  pageLength = 15, filename, rownames = FALSE)
+  pageLength = 15, filename, rownames = FALSE, show_controls = TRUE)
 }
 \arguments{
 \item{input}{Input object}

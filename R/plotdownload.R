@@ -17,7 +17,7 @@ plotdownloadInput <- function(id, label = "Plot") {
     
     ns <- NS(id)
     
-    downloadButton(ns("plotdownload"), paste("Download", label))
+    downloadButton(ns("plotdownload"), label)
     
 }
 

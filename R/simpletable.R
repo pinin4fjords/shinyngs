@@ -74,15 +74,21 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @examples
 #' callModule(simpletable, 'simpletable', my_data_frame)
 
-simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE) {
+simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE) {
     
     if (is.null(downloadMatrix)) {
         downloadMatrix <- displayMatrix
     }
     
+    options <- list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100")))
+    
+    if (! show_controls){
+      options$dom <- 't' 
+    }
+  
     output$datatable = DT::renderDataTable({
         displayMatrix()
-    }, options = list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100"))), rownames = rownames, 
+    }, options = options, rownames = rownames, 
         escape = FALSE)
     
     output$downloadTable <- downloadHandler(filename = function() {

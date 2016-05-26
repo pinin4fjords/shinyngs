@@ -5,8 +5,9 @@
 \title{The server function of the selectmatrix module}
 \usage{
 selectmatrix(input, output, session, eselist, var_n = 50, var_max = NULL,
-  select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE,
-  default_gene_select = NULL, require_tests = FALSE, rounding = 2)
+  select_assays = TRUE, select_samples = TRUE, select_genes = TRUE,
+  provide_all_genes = FALSE, default_gene_select = NULL,
+  require_tests = FALSE, rounding = 2)
 }
 \arguments{
 \item{input}{Input object}
@@ -23,6 +24,8 @@ ExploratorySummarizedExperiment objects}
 
 \item{var_max}{The maximum umber of rows to select when doing so by variance.
 Default = 500}
+
+\item{select_assays}{Provide UI and functions for assay selection?}
 
 \item{select_samples}{Provide UI and functions for sample selection?
 (Default: TRUE)}

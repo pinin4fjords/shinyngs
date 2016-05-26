@@ -82,6 +82,15 @@ rnaseqInput <- function(id, eselist) {
             
         }
         
+        # If any of the experiments have differential exon usage results
+        
+        if (any(unlist(lapply(eselist, function(ese) {
+          length(ese@dexseq_results) > 0
+        })))) {
+          differential_menu <- pushToList(differential_menu, tabPanel("Differential exon usage table", sidebarLayout(sidebarPanel(dexseqtableInput(ns("deutable"), eselist), width = 3), mainPanel(dexseqtableOutput(ns("deutable")), width = 9)))) 
+          differential_menu <- pushToList(differential_menu, tabPanel("Differential exon usage plot", value = "deugene", sidebarLayout(sidebarPanel(dexseqplotInput(ns("deuplot"), eselist), width = 3), mainPanel(dexseqplotOutput(ns("deuplot")), width = 9))))
+        }
+        
         navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", differential_menu))
         
     }
@@ -153,6 +162,13 @@ rnaseq <- function(input, output, session, eselist) {
         updateBarcodeGeneset <- callModule(genesetbarcodeplot, "rnaseq", eselist)
     }
     
+    if (any(unlist(lapply(eselist, function(ese) {
+      length(ese@dexseq_results) > 0
+    })))) {
+      callModule(dexseqtable, 'deutable', eselist) 
+      updateDEUGeneLabel <- callModule(dexseqplot, 'deuplot', eselist) 
+    }
+    
     updateGeneLabel <- callModule(gene, "gene", eselist)
     
     # Catch the specified gene from the URL, switch to the gene info tab, and and use the reactive supplied by the gene module to update its gene
@@ -161,12 +177,15 @@ rnaseq <- function(input, output, session, eselist) {
     observe({
         query <- parseQueryString(session$clientData$url_search)
         
-        if (length(intersect(c("gene", "geneset"), names(query))) == 0) {
+        if (length(intersect(c("gene", "geneset", "deu_gene"), names(query))) == 0) {
             return()
         }
         
         url_observe <- observe({
-            if ("gene" %in% names(query)) {
+            if ("deu_gene" %in% names(query)){
+                updateNavbarPage(session, "rnaseq", "deugene")
+                updateDEUGeneLabel()
+            }else if ("gene" %in% names(query)) {
                 updateNavbarPage(session, "rnaseq", "geneinfo")
                 updateGeneLabel()
             } else if ("geneset" %in% names(query)) {
