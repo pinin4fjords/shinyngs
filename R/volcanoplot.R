@@ -27,8 +27,8 @@ volcanoplotInput <- function(id, eselist) {
     })))]
     expression_filters <- selectmatrixInput(ns("expression"), eselist, require_tests = TRUE)
     
-    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an empty
-    # fieldset for them
+    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an
+    # empty fieldset for them
     
     fieldsets <- list()
     if (length(eselist) > 1) {
@@ -109,7 +109,8 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
-    unpack.list(callModule(geneselect, "volcano", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    unpack.list(callModule(geneselect, "volcano", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, 
+        provide_none = TRUE))
     
     # Pass the matrix to the scatterplot module for display
     
@@ -135,8 +136,8 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1], na.rm = TRUE)
             xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
-            data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, 
-                ymin, ymax, rep(qvallim, 2)))
+            data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, 
+                ymax, ymin, ymax, rep(qvallim, 2)))
         })
         
     })

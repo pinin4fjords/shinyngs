@@ -262,8 +262,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         p
     }
     
-    # Chain the various steps together. Note the use of 'evaluate' in this and other plotly commands. For reasons I'm still not clear about this
-    # speeds things up substantially, particularly in multi-panel apps.
+    # Chain the various steps together. Note the use of 'evaluate' in this and other plotly commands. For reasons I'm still not clear about
+    # this speeds things up substantially, particularly in multi-panel apps.
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {

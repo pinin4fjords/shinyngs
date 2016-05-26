@@ -13,8 +13,9 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", description = "character", 
-    group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", read_reports = "list", ensembl_species = "character"))
+setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", 
+    description = "character", group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", 
+    read_reports = "list", ensembl_species = "character"))
 
 # Subset operator for integer type like 1:2
 

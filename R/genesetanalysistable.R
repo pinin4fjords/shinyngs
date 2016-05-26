@@ -32,9 +32,9 @@ genesetanalysistableInput <- function(id, eselist) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", 
-        value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, 
-        default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), 
+    fieldSets(ns("fieldset"), list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), 
+        "Maximum p value", value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), 
+        default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), 
         "Gene set analysis")))
 }
 
@@ -109,8 +109,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE))
     
     # Parse the gene sets for ease of use
     

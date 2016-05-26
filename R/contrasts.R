@@ -26,9 +26,9 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
     if (allow_filtering) {
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
-        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), "Minimum absolute fold change", 
-            value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), numericInput(ns("qvalMax"), 
-            "Maximum q value", value = default_max_q)))
+        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), 
+            "Minimum absolute fold change", value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", value = default_max_p), 
+            numericInput(ns("qvalMax"), "Maximum q value", value = default_max_q)))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
@@ -92,7 +92,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
     getAllContrasts <- reactive({
-        #ese <- getExperiment()
+        # ese <- getExperiment()
         
         if (length(eselist@contrasts) > 0) {
             contrasts <- eselist@contrasts
@@ -107,7 +107,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Get the actual contrasts to which the numbers from the interface pertain
     
     getContrasts <- reactive({
-        #ese <- getExperiment()
+        # ese <- getExperiment()
         eselist@contrasts[getSelectedContrasts()]
     })
     
@@ -120,17 +120,14 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         names(getAllContrasts())[getSelectedContrasts()]
     })
     
-    # Get list describing, for each contrast, the samples on each side 
+    # Get list describing, for each contrast, the samples on each side
     
     getContrastSamples <- reactive({
         ese <- getExperiment()
         coldata <- droplevels(data.frame(colData(ese)))
         
-        lapply(eselist@contrasts, function(c){
-            list(
-              colnames(ese)[coldata[c[1]] == c[2]],
-              colnames(ese)[coldata[c[1]] == c[3]]  
-            )
+        lapply(eselist@contrasts, function(c) {
+            list(colnames(ese)[coldata[c[1]] == c[2]], colnames(ese)[coldata[c[1]] == c[3]])
         })
     })
     
@@ -140,8 +137,8 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         contrast_samples[selected_contrasts]
     })
     
-    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this
-    # output and calculate fold changes etc.
+    # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from
+    # this output and calculate fold changes etc.
     
     getSummaries <- reactive({
         ese <- getExperiment()
@@ -151,14 +148,15 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         names(contrast_variables) <- contrast_variables
         
         withProgress(message = paste("Calculating summaries by", getSummaryType()), value = 0, {
-            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(selectMatrix(), data.frame(colData(getExperiment()))[[cv]], getSummaryType()))
+            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(selectMatrix(), data.frame(colData(getExperiment()))[[cv]], 
+                getSummaryType()))
         })
         
         summaries
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a
-    # 'tests' slot of the ExploratorySummarizedExperiment.
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in
+    # a 'tests' slot of the ExploratorySummarizedExperiment.
     
     contrastsTables <- reactive({
         matrix <- selectMatrix()
@@ -276,19 +274,9 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     # Basic accessors for parameters
     
-    list(
-      fcMin = fcMin, 
-      qvalMax = qvalMax, 
-      getContrasts = getContrasts, 
-      getSelectedContrasts = getSelectedContrasts, 
-      getSelectedContrastNames = getSelectedContrastNames,
-      getContrastSamples = getContrastSamples,
-      getSelectedContrastSamples = getSelectedContrastSamples,
-      contrastsTables = contrastsTables, 
-      filteredContrastsTables = filteredContrastsTables, 
-      labelledContrastsTable = labelledContrastsTable, 
-      linkedLabelledContrastsTable = linkedLabelledContrastsTable
-    )
+    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, 
+        getContrastSamples = getContrastSamples, getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, 
+        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }
 
 #' Fold change between two vectors

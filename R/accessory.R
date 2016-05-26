@@ -110,7 +110,7 @@ pushToList <- function(input_list, element) {
 fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE, visibilities = list()) {
     
     if (is.null(open)) {
-      open = names(fieldset_list)
+        open = names(fieldset_list)
     }
     
     if (requireNamespace("shinyBS", quietly = TRUE) && use_shinybs) {

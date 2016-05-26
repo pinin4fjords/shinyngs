@@ -21,8 +21,8 @@ dendroInput <- function(id, eselist) {
     expression_filters <- selectmatrixInput(ns("dendro"), eselist)
     
     dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), 
-        selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", 
-            `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
+        selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", 
+            `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -78,7 +78,8 @@ dendro <- function(input, output, session, eselist) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
+        clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+            matrixTitle())
         
     })
     

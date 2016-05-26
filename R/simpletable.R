@@ -82,14 +82,13 @@ simpletable <- function(input, output, session, downloadMatrix = NULL, displayMa
     
     options <- list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100")))
     
-    if (! show_controls){
-      options$dom <- 't' 
+    if (!show_controls) {
+        options$dom <- "t"
     }
-  
+    
     output$datatable = DT::renderDataTable({
         displayMatrix()
-    }, options = options, rownames = rownames, 
-        escape = FALSE)
+    }, options = options, rownames = rownames, escape = FALSE)
     
     output$downloadTable <- downloadHandler(filename = function() {
         if (is.reactive(filename)) {

@@ -59,8 +59,8 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", "boxplot.md", 
-        package = packageName()))), h3("Quartile plots"), uiOutput(ns("quartilesPlot")))
+    list(modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", 
+        "boxplot.md", package = packageName()))), h3("Quartile plots"), uiOutput(ns("quartilesPlot")))
 }
 
 #' The server function of the boxplot module
@@ -170,8 +170,8 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     }
     
     p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
-        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
-        expressiontype, ")"), 15))
+        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + 
+        ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
     
     print(p)
 }
@@ -212,7 +212,7 @@ plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expres
 #' @export
 
 plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker_distance = 1.5) {
-    matrix <- log2(matrix+1)
+    matrix <- log2(matrix + 1)
     
     quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)
     samples <- structure(colnames(matrix), names = colnames(matrix))
@@ -231,11 +231,11 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
     })
     outliers <- do.call(rbind, outliers[!unlist(lapply(outliers, is.null))])
     
-    # These lines to force plotly to use and display sample IDs as strings. For some reason character strings of numeric things get 
-    # converted back
+    # These lines to force plotly to use and display sample IDs as strings. For some reason character strings of numeric things get converted
+    # back
     
-    samples <- paste0(samples, '&nbsp;')
-    outliers$x <- paste0(outliers$x, '&nbsp;')
+    samples <- paste0(samples, "&nbsp;")
+    outliers$x <- paste0(outliers$x, "&nbsp;")
     
     # The polotting business
     
@@ -244,12 +244,10 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
         mode = "lines", line = list(dash = "dash", color = "black"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["75%", 
         ], group = "quartiles", mode = "lines", line = list(dash = "dash", color = "black"), evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["75%", 
         ] + ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), mode = "lines", group = paste0("quartiles<br />+/- (IQR * ", whisker_distance, 
-        ")"), line = list(width = 1, color = "grey"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ] - ((quantiles["75%", 
-        ] - quantiles["25%", ]) * whisker_distance), mode = "lines", line = list(width = 1, color = "grey"), group = paste0("quartiles<br />+/- (IQR * ", 
+        ")"), line = list(width = 1, color = "grey"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ] - 
+        ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), mode = "lines", line = list(width = 1, color = "grey"), group = paste0("quartiles<br />+/- (IQR * ", 
         whisker_distance, ")"), evaluate = TRUE) %>% add_trace(x = outliers$x, y = outliers$y, mode = "markers", name = "outliers", marker = list(color = "black"), 
         showlegend = TRUE, evaluate = TRUE, hoverinfo = "text", text = outliers$label) %>% layout(xaxis = list(title = NULL), yaxis = list(title = paste0("log2(", 
         expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL, evaluate = TRUE)
     
-}
-
- 
+} 

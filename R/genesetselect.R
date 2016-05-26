@@ -88,8 +88,8 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
             function(settype) names(gene_sets[[settype]]))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be
-    # called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must
+    # be called by the calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)

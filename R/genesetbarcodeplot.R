@@ -101,8 +101,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -110,7 +110,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, plotWidth = 800)
+    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, 
+        plotWidth = 800)
     
     observe({
         updateGeneSetsList()

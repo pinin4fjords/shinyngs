@@ -67,7 +67,7 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     
     output$barPlot <- renderPlotly({
         plotdata <- reshape2::melt(formatPlotMatrix())
-        plot_ly(plotdata, x = paste0(Var2, '&nbsp;'), y = value, group = Var1, type = "bar", evaluate = TRUE) %>% layout(barmode = input$barMode, xaxis = list(title = " "), 
-            yaxis = list(title = getYLabel()), evaluate = TRUE) %>% config(showLink = TRUE)
+        plot_ly(plotdata, x = paste0(Var2, "&nbsp;"), y = value, group = Var1, type = "bar", evaluate = TRUE) %>% layout(barmode = input$barMode, 
+            xaxis = list(title = " "), yaxis = list(title = getYLabel()), evaluate = TRUE) %>% config(showLink = TRUE)
     })
 } 

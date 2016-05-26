@@ -90,8 +90,8 @@ pca <- function(input, output, session, eselist) {
     
     callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
         getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, colorby = pcaColorBy)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
-        getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, 
+        getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
     
     # Simple title functions
     

@@ -25,8 +25,8 @@ heatmapInput <- function(id, eselist, type = "expression") {
     # Only provide controls for clustering etc for the expression heat maps
     
     if (type == "expression") {
-        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), "Cluster columns?", 
-            FALSE), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")))
+        heatmap_filters <- list(h5("Clustering"), checkboxInput(ns("cluster_rows"), "Cluster rows?", TRUE), checkboxInput(ns("cluster_cols"), 
+            "Cluster columns?", FALSE), radioButtons(ns("scale"), "Scale by:", c(Row = "row", Column = "column", None = "none")))
     } else {
         if (type == "pca") {
             cluster_rows <- TRUE
@@ -86,8 +86,8 @@ heatmapOutput <- function(id, type = "") {
         help = list(modalInput(ns("pcavsexperiment"), "help", "help"), modalOutput(ns("pcavsexperiment"), "Principal components vs experimental variables", 
             includeMarkdown(system.file("inlinehelp", "pcavsexperiment.md", package = packageName()))))
     } else if (type == "samples") {
-        help = list(modalInput(ns("clusteringheatmap"), "help", "help"), modalOutput(ns("clusteringheatmap"), "Sample clustering heatmap", includeMarkdown(system.file("inlinehelp", 
-            "clusteringheatmap.md", package = packageName()))))
+        help = list(modalInput(ns("clusteringheatmap"), "help", "help"), modalOutput(ns("clusteringheatmap"), "Sample clustering heatmap", 
+            includeMarkdown(system.file("inlinehelp", "clusteringheatmap.md", package = packageName()))))
     } else if (type == "expression") {
         help = list(modalInput(ns("expressionheatmap"), "help", "help"), modalOutput(ns("expressionheatmap"), "Expression heatmap", includeMarkdown(system.file("inlinehelp", 
             "expressionheatmap.md", package = packageName()))))
@@ -431,8 +431,8 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #' @examples
 #' R code here showing how your function works
 
-annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
-    name = "RdYlBu")))(100)) {
+annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12, 
+    colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100)) {
     
     rownames(plotmatrix) <- row_labels
     
@@ -442,9 +442,10 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
         annotation_colors <- makeAnnotationColors(annotation)
     }
     
-    pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, 
-        border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), 
-        clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors)
+    pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, 
+        annotation_colors = annotation_colors, border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, 
+        clustering_distance_rows = calculateDist(t(plotmatrix)), clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", 
+        treeheight_col = 150, scale = scale, color = colors)
 }
 
 #' Make a ineractive heatmap with d3heatmap
@@ -482,7 +483,8 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
     Colv <- FALSE
     
     if ((!is.null(sample_annotation)) && ncol(sample_annotation) > 0) {
-        colnames(plotmatrix) <- paste0(colnames(plotmatrix), " (", sample_annotation[colnames(plotmatrix), colnames(sample_annotation)[1]], ")")
+        colnames(plotmatrix) <- paste0(colnames(plotmatrix), " (", sample_annotation[colnames(plotmatrix), colnames(sample_annotation)[1]], 
+            ")")
     }
     
     # Specify how the dendrogram should be created

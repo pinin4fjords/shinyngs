@@ -25,16 +25,16 @@ foldchangeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for
-    # them
+    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty
+    # fieldset for them
     
     fieldsets <- list()
     if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
         fieldsets$expression_matrix <- expression_filters
     }
     
-    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")), 
-        export = simpletableInput(ns("differentialtable"))))
+    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), 
+        highlight_points = geneselectInput(ns("foldchange")), export = simpletableInput(ns("differentialtable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -135,8 +135,8 @@ foldchangeplot <- function(input, output, session, eselist) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        data.frame(name = c(rep("diagonal", 2), rep("lower", 2), rep("upper", 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - 
-            log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))))
+        data.frame(name = c(rep("diagonal", 2), rep("lower", 2), rep("upper", 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), 
+            (min - log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))))
     })
     
     # Extract labels from the volcano table

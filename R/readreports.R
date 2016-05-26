@@ -34,7 +34,8 @@ readreportsOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("readreports"), "help", "help"), modalOutput(ns("readreports"), "Read reports", includeMarkdown(system.file("inlinehelp", 
-        "readreports.md", package = packageName()))), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
+        "readreports.md", package = packageName()))), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), 
+        simpletableOutput(ns("readrep")))
 }
 
 #' Server function of the \code{readreports} module 
@@ -94,8 +95,8 @@ readreports <- function(input, output, session, eselist) {
         input$reportType
     })
     
-    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at the
-    # previous, it makes sense to use overlapped bars.
+    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at
+    # the previous, it makes sense to use overlapped bars.
     
     getDefaultMode <- reactive({
         if (getReportType() == "read_attrition") {
