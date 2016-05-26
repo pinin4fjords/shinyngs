@@ -49,7 +49,7 @@ setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", 
 #' @export
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), 
-    tests = list(), assay_measures = list(), gene_set_analyses = list()) {
+    tests = list(), assay_measures = list(), gene_set_analyses = list(), dexseq_results = list()) {
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
