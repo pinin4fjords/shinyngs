@@ -145,7 +145,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
                 
                 # Add the mean values for the counts
                 
-                counts <- counts(d, normalized = TRUE)
+                counts <- DEXSeq::counts(d, normalized = TRUE)
                 colnames(counts) <- colnames(ese)
                 selected_contrast_samples <- getSelectedContrastSamples()
                 
