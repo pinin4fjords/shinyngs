@@ -31,11 +31,31 @@ genesetanalysistableInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
+    # For each experiment with gene set analysis, only keep assays associated 
+    # with gene set results, so that the assay select doesn't have invalid 
+    # options.
+
+    for (exp in names(eselist)){
+      assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
+    }
+
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), 
-        "Maximum p value", value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), 
-        default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2), select_assay_data = expression_filters, export = simpletableInput(ns("genesetanalysistable"), 
-        "Gene set analysis")))
+    
+    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2))
+    
+    # Things we don't want to wrap in a field set - probably hidden stuff
+    
+    naked_fields = list()  
+    
+    if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1){
+      field_sets$select_assay_data <- expression_filters 
+    }else{
+      naked_fields <- pushToList(naked_fields, expression_filters) 
+    }
+    
+    field_sets <- c(field_sets, list(export = simpletableInput(ns("genesetanalysistable"), "Gene set analysis")))
+
+    list(naked_fields, fieldSets(ns("fieldset"), field_sets))    
 }
 
 #' The output function of the genesetanalysistable module
@@ -95,6 +115,14 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
+    # For each experiment with gene set analysis, only keep assays associated 
+    # with gene set results, so that the assay select doesn't have invalid 
+    # options.
+    
+    for (exp in names(eselist)){
+      assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
+    }
+    
     # Extract the gene sets that have been analysed for the the user to select from
     
     ns <- session$ns
@@ -105,7 +133,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, select_assays = TRUE, select_samples = FALSE, select_genes = FALSE))
     
     # Pass the matrix to the contrasts module for processing
     
@@ -124,7 +152,11 @@ genesetanalysistable <- function(input, output, session, eselist) {
         validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
         
         ese <- getExperiment()
-        gst <- ese@gene_set_analyses[[getGeneSetTypes()]][[getSelectedContrasts()]]
+        assay <- getAssay()
+        gene_set_types <- getGeneSetTypes()
+        selected_contrasts <- getSelectedContrasts()
+        
+        gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[selected_contrasts]]
         
         # Rename p value if we have PValue from mroast etc()
         
