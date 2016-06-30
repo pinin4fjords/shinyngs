@@ -257,9 +257,13 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
             })
         }
         
-        do.call(rbind, lapply(cts, function(ct) {
+        labelled_contrasts_table <- do.call(rbind, lapply(cts, function(ct) {
             labelMatrix(ct, getExperiment())
         }))
+        
+        validate(need(nrow(labelled_contrasts_table) > 0, 'No results matching specified filters'))
+        
+        labelled_contrasts_table
     })
     
     # Use labelledContrastsTable to get the labelled matrix and add some links.

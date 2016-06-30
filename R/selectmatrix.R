@@ -323,7 +323,7 @@ labelMatrix <- function(matrix, ese, idcol = NULL) {
 #' @return output Table with links added
 
 linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
-    
+
     # Add prettified version of each field in URL roots in case matrix column names are prettified
     
     for (fieldname in names(url_roots)) {

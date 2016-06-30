@@ -169,13 +169,14 @@ gene <- function(input, output, session, eselist) {
     output$geneModel <- renderPlot({
         
         gene_labels <- getSelectedLabels()
+        ese <- getExperiment()
         
         withProgress(message = paste("Fetching gene models from Ensembl for gene", gene_labels[1]), value = 0, {
-            annotation <- data.frame(SummarizedExperiment::mcols(eselist$gene), stringsAsFactors = FALSE)
-            annotation <- annotation[which(annotation[[eselist$gene@labelfield]] == gene_labels[1]), ]
+            annotation <- data.frame(SummarizedExperiment::mcols(ese), stringsAsFactors = FALSE)
+            annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
             
-            geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = annotation$start_position, 
-                end = annotation$end_position)
+            geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = min(annotation$start_position), 
+                end = max(annotation$end_position))
         })
     })
     
