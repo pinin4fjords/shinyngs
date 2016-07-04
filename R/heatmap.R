@@ -176,9 +176,12 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
                 group_vars <- prettifyVariablename(groupBy())
                 
                 # Make factors from the specified grouping variables
+
+                sm <- selectMatrix()
+                ed <- ed[colnames(sm),]
                 
-                ed <- data.frame(apply(ed[colnames(selectMatrix()), group_vars, drop = F], 2, as.factor), check.names = FALSE)
-                
+                ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[,x], levels = unique(ed[,x]))), check.names = FALSE, stringsAsFactors = FALSE, row.names = rownames(ed))
+
                 # Order by the group variables for display purposes
                 
                 ed[do.call(order, as.list(ed[, group_vars, drop = FALSE])), , drop = FALSE]

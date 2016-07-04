@@ -140,7 +140,7 @@ rnaseq <- function(input, output, session, eselist) {
             eselist@url_roots$gene_set_id <- "?geneset="
         }
     }
-    
+  
     # Now a lot of boring calls to all the modules to activate the UI parts
     
     callModule(experimenttable, "experimenttable", eselist)

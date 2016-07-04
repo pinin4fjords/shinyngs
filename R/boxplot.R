@@ -142,15 +142,18 @@ boxplot <- function(input, output, session, eselist) {
 #' ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
 
 ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontype = "expression", whisker_distance = 1.5) {
-    
+  
     # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
     
     if (!is.null(colorby)) {
         colnames(experiment)[colnames(experiment) == colorby] <- prettifyVariablename(colorby)
         colorby <- prettifyVariablename(colorby)
         
-        experiment <- experiment[order(experiment[[colorby]]), ]
         experiment[[colorby]] <- na.replace(experiment[[colorby]], "N/A")
+        
+        # Group samples by the coloring variable while maintaining ordering as much as possible
+        
+        experiment <- experiment[order(factor(experiment[[colorby]], levels = unique(experiment[[colorby]]))),]
         plotmatrix <- plotmatrix[, rownames(experiment)]
     }
     
