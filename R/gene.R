@@ -34,7 +34,7 @@ geneInput <- function(id, eselist) {
         field_sets$expression <- expression_filters
     }
     
-    field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE)))
+    field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE), export = simpletableInput(ns("geneContrastsTable"))))
     
     list(naked_fields, fieldSets(ns("fieldset"), field_sets))
 }
@@ -67,7 +67,7 @@ geneOutput <- function(id, eselist) {
     # 'Gene model', plotOutput(ns('geneModel'))) ) }
     
     out <- c(out, list(uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), 
-        DT::dataTableOutput(ns("contrastTable"))))
+        simpletableOutput(ns("geneContrastsTable"))))
     
     out
 }
@@ -101,7 +101,7 @@ gene <- function(input, output, session, eselist) {
     unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
         multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
-    
+
     # The title and info link are reactive to the currently active experiment
     
     output$title <- renderUI({
@@ -204,16 +204,19 @@ gene <- function(input, output, session, eselist) {
         rows <- getSelectedIdsWithData()
         contrasts_table <- labelledContrastsTable()
         
-        linkMatrix(contrasts_table[contrasts_table[[prettifyVariablename(getIdField())]] %in% rows, , drop = FALSE], url_roots = eselist@url_roots)
+        contrasts_table[contrasts_table[[prettifyVariablename(getIdField())]] %in% rows, , drop = FALSE]
+    })
+    
+    # Link the contrasts table for display
+    
+    getLinkedGeneContrastsTable <- reactive({
+        linkMatrix(getGeneContrastsTable(), url_roots = eselist@url_roots)
     })
     
     # Render the contrasts table- when a valid label is supplied
-    
-    if (length(eselist@contrasts) > 0) {
-        output$contrastTable <- DT::renderDataTable({
-            getGeneContrastsTable()
-        }, rownames = FALSE, escape = FALSE)
-    }
+
+    callModule(simpletable, "geneContrastsTable", downloadMatrix = getGeneContrastsTable, displayMatrix = getLinkedGeneContrastsTable, filename = "gene_contrasts", 
+               rownames = FALSE)
     
     # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
     
