@@ -141,15 +141,17 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
         
         withProgress(message = "Making DEU table for each contrast", value = 0, {
             
-            deu_tables <- lapply(ese@dexseq_results, function(d) {
+            deu_tables <- lapply(1:length(ese@dexseq_results), function(contrast) {
                 
+                d <- ese@dexseq_results[[contrast]]
+              
                 # Add the mean values for the counts
                 
                 counts <- DEXSeq::counts(d, normalized = TRUE)
-                colnames(counts) <- colnames(ese)
-                selected_contrast_samples <- getSelectedContrastSamples()
-                
-                mean_counts <- lapply(selected_contrast_samples[[1]], function(scs) {
+                constrast_samples <- getContrastSamples()
+                selected_contrast_samples <- contrast_samples[[contrast]]
+
+                mean_counts <- lapply(selected_contrast_samples, function(scs) {
                   rowMeans(counts[, scs])
                 })
                 

@@ -134,7 +134,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     getSelectedContrastSamples <- reactive({
         contrast_samples <- getContrastSamples()
         selected_contrasts <- getSelectedContrasts()
-        contrast_samples[selected_contrasts]
+        contrast_samples[[selected_contrasts]]
     })
     
     # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from
