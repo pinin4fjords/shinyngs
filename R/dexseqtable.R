@@ -148,7 +148,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
                 # Add the mean values for the counts
                 
                 counts <- DEXSeq::counts(d, normalized = TRUE)
-                constrast_samples <- getContrastSamples()
+                contrast_samples <- getContrastSamples()
                 selected_contrast_samples <- contrast_samples[[contrast]]
 
                 mean_counts <- lapply(selected_contrast_samples, function(scs) {
