@@ -151,7 +151,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     # Create a title
     
     makeTitle <- reactive({
-        if (type == "PCA") {
+        if (type == "pca") {
             paste("PCA vs variable association plot based on expression matrix:", matrixTitle())
         } else if (type == "expression") {
             paste("Expression heat map based on expression matrix:", matrixTitle())
@@ -250,7 +250,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         
         # Take out anything with less than 2 unique values or the below won't work
         
-        pcameta <- pcameta[, apply(pcameta, 2, function(x) length(unique(x[!is.na(x)]))) > 1]
+        pcameta <- pcameta[, apply(pcameta, 2, function(x) length(unique(x[!is.na(x)]))) > 1, drop = FALSE]
         
         pcavals <- selectMatrix()[, rownames(pcameta)]
         

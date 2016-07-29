@@ -186,6 +186,8 @@ gene <- function(input, output, session, eselist) {
         rows <- getSelectedIds()
         ese <- getExperiment()
         
+        validate(need(all(rows %in% rownames(ese)), FALSE))
+        
         gene_info <- data.frame(mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = idToLabel(rows, ese, sep = " /<br/ >"))
         gene_info <- t(linkMatrix(gene_info, eselist@url_roots))
         rownames(gene_info) <- prettifyVariablename(rownames(gene_info))

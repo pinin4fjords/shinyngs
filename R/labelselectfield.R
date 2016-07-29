@@ -1,8 +1,14 @@
-labelselectfieldInput <- function(id, max_items = 1) {
+labelselectfieldInput <- function(id, max_items = 1, id_selection = TRUE) {
     
     ns <- NS(id)
     
-    selectizeInput(ns("label"), "Label", choices = NULL, options = list(placeholder = "Type a label", maxItems = max_items, addPrecedence = TRUE))
+    filters <- list(selectizeInput(ns("label"), "Label", choices = NULL, options = list(placeholder = "Type a label", maxItems = max_items, addPrecedence = TRUE)))
+    
+    if (id_selection){
+      filters <- pushToList(filters, uiOutput(ns('labelIds'))) 
+    }
+    
+    filters
 }
 
 labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label") {
@@ -18,6 +24,20 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
             list(getExperiment())
         }
     })
+    
+    # Allow selection from the ids pertaining to a given label
+    
+    output$labelIds <- renderUI({
+        ns <- session$ns
+        
+        ids <- getAssociatedIds()
+        
+        if (length(ids) == 1){
+          hiddenInput(ns('ids'), ids) 
+        }else{
+          checkboxGroupInput(ns('ids'), label = 'Associated IDs', choices = getAssociatedIds(), selected = getAssociatedIds())
+        }
+      })
     
     # Get the list of labels. This will be used to populate the autocomplete field
     
@@ -52,6 +72,11 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     # Get the row or rows of the data that correspond to this symbol
     
     getSelectedIds <- reactive({
+      validate(need(length(input$ids) > 0, FALSE))
+      input$ids
+    })
+    
+    getAssociatedIds <- reactive({
         labels <- getSelectedLabels()
         exps <- getExperiments()
         
