@@ -93,7 +93,8 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
             mcols(ese)[[mf]]
         })
         
-        sort(unique(Reduce(union, label_lists)))
+        labels <- unique(Reduce(union, label_lists))
+        labels[order(tolower(labels))]
     })
     
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
