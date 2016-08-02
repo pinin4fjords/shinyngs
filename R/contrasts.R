@@ -171,8 +171,8 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
                 
                 cont <- eselist@contrasts[[c]]
                 
-                smry1 <- summaries[[cont[1]]][, cont[2]]
-                smry2 <- summaries[[cont[1]]][, cont[3]]
+                smry1 <- summaries[[cont[1]]][, cont[2], drop = FALSE]
+                smry2 <- summaries[[cont[1]]][, cont[3], drop = FALSE]
                 
                 ct <- data.frame(round(smry1, 2), round(smry2, 2), round(foldChange(smry1, smry2), 2))
                 names(ct) <- c(cont[2], cont[3], "Fold change")
@@ -194,7 +194,6 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         })
         
         names(contrast_tables) <- getSelectedContrasts()
-        
         contrast_tables
     })
     
@@ -224,10 +223,10 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         
         if (getFilterRows()) {
             if (length(ese@tests) == 0 || !getAssay() %in% names(ese@tests)) {
-                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), ])
+                lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin(), , drop = FALSE])
             } else {
                 lapply(contrastsTables(), function(ct) ct[abs(ct[["Fold change"]]) >= fcMin() & ct[["p value"]] <= pvalMax() & ct[["q value"]] <= 
-                  qvalMax(), ])
+                  qvalMax(), , drop = FALSE])
             }
         } else {
             contrastsTables()
@@ -253,7 +252,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
                 ct$Variable <- prettifyVariablename(contrast[1])
                 ct[["Condition 1"]] <- contrast[2]
                 ct[["Condition 2"]] <- contrast[3]
-                ct[, c("Variable", "Condition 1", "Average 1", "Condition 2", "Average 2", "Fold change", "p value", "q value")]
+                ct[, c("Variable", "Condition 1", "Average 1", "Condition 2", "Average 2", "Fold change", "p value", "q value"), drop = FALSE]
             })
         }
         

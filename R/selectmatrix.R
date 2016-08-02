@@ -193,12 +193,20 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
                 need(length(selectRows()) > 0, "No matching rows in selected matrix"))
             
             selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
-            selected_matrix <- selected_matrix[complete.cases(selected_matrix), ]
+            #selected_matrix <- selected_matrix[complete.cases(selected_matrix), , drop = FALSE]
             
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
-            apply(selected_matrix, 2, round, rounding)
+            
+            # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
+            
+            if (nrow(selected_matrix) == 1){
+               selected_matrix[1,] <- apply(selected_matrix, 2, round, rounding)
+               selected_matrix
+            }else{
+              apply(selected_matrix, 2, round, rounding)
+            }
         })
     })
     
@@ -296,11 +304,11 @@ labelMatrix <- function(matrix, ese, idcol = NULL) {
         labelfield <- ese@labelfield
         
         matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield)
-        matrix <- matrix[, c(idfield, labelfield, datacolnames)]
+        matrix <- matrix[, c(idfield, labelfield, datacolnames), drop = FALSE]
         
         colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
     } else {
-        matrix <- matrix[, c(idfield, datacolnames)]
+        matrix <- matrix[, c(idfield, datacolnames), drop = FALSE]
     }
     
     # Make the field identifiers nicer
