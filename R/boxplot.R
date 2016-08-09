@@ -153,7 +153,7 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
         
         # Group samples by the coloring variable while maintaining ordering as much as possible
         
-        experiment <- experiment[order(factor(experiment[[colorby]], levels = unique(experiment[[colorby]]))),]
+        experiment <- experiment[order(factor(experiment[[colorby]], levels = unique(experiment[[colorby]]))),, drop = FALSE]
         plotmatrix <- plotmatrix[, rownames(experiment)]
     }
     

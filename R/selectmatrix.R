@@ -193,12 +193,10 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
                 need(length(selectRows()) > 0, "No matching rows in selected matrix"))
             
             selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
-            #selected_matrix <- selected_matrix[complete.cases(selected_matrix), , drop = FALSE]
-            
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
-            
+
             # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
             
             if (nrow(selected_matrix) == 1){

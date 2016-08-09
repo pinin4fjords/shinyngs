@@ -178,7 +178,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
                 # Make factors from the specified grouping variables
 
                 sm <- selectMatrix()
-                ed <- ed[colnames(sm),]
+                ed <- ed[colnames(sm), , drop = FALSE]
                 
                 ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[,x], levels = unique(ed[,x]))), check.names = FALSE, stringsAsFactors = FALSE, row.names = rownames(ed))
 
@@ -488,6 +488,10 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
     if ((!is.null(sample_annotation)) && ncol(sample_annotation) > 0) {
         colnames(plotmatrix) <- paste0(colnames(plotmatrix), " (", sample_annotation[colnames(plotmatrix), colnames(sample_annotation)[1]], 
             ")")
+    }
+    
+    if (nrow(plotmatrix) < 2){
+      cluster_rows <- FALSE
     }
     
     # Specify how the dendrogram should be created

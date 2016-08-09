@@ -146,7 +146,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE, visibi
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 
 ggplotify <- function(matrix, experiment, colorby = NULL) {
-    
+
     plotdata <- reshape2::melt(matrix)
     plotdata <- plotdata[which(plotdata$value > 0), ]
     if (max(plotdata$value) > 20) {
