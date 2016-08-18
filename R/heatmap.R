@@ -282,9 +282,9 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     xAxisLabelsHeight <- reactive({
         if (input$interactive) {
-            300
+            350
         } else {
-            100
+            120
         }
     })
     

@@ -209,7 +209,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                   selected_rows <- rownames(ese)[which(tolower(rownames(ese))) %in% tolower(selected_genes)]
                 }
                 
-                return(intersect(selected_rows, nonemty))
+                return(intersect(selected_rows, nonempty))
             }
         })
     })
