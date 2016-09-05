@@ -44,7 +44,7 @@ Graphical enhancements are provided by `shinyBS` and `shinyjs`
 Install with devtools
 ---------------------
 
-At time of writing, the most recent CRAN version of Plotly was problematic (see <http://community.plot.ly/t/evaluate-broken-in-recent-versions-of-r-api/1060>). I recommend using (the most recent dev version from GitHub)\[<https://github.com/ropensci/plotly>\]
+At time of writing, the most recent CRAN version of Plotly [was problematic](http://community.plot.ly/t/evaluate-broken-in-recent-versions-of-r-api/1060). I recommend using [the most recent dev version from GitHub](https://github.com/ropensci/plotly)
 
 ``` r
 devtools::install_github("ropensci/plotly", upgrade_dependencies = FALSE)
