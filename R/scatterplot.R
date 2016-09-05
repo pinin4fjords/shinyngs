@@ -168,8 +168,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             withProgress(message = "Adding unlabelled points", value = 0, {
                 
                 plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", 
-                  type = plotType(), showlegend = showLegend(), name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"), 
-                  evaluate = TRUE)
+                  type = plotType(), showlegend = showLegend(), name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"))
                 
                 p <- do.call(plotly::add_trace, plotargs)
                 
@@ -190,7 +189,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         if (any(!unlabelled())) {
             withProgress(message = "Adding labelled points", value = 0, {
                 plotargs <- list(p, x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", hoverinfo = "text", 
-                  text = getLabels()[!unlabelled()], type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()), evaluate = TRUE)
+                  text = getLabels()[!unlabelled()], type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()))
                 
                 if (!is.null(colorby)) {
                   plotargs$color <- colorby()[!unlabelled()]
@@ -210,7 +209,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         
         if (getShowLabels()) {
             labelargs <- list(p, x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", text = getLabels()[!unlabelled()], 
-                type = plotType(), hoverinfo = "none", showlegend = FALSE, evaluate = TRUE)
+                type = plotType(), hoverinfo = "none", showlegend = FALSE)
             
             if (!is.null(colorby)) {
                 labelargs$color <- colorby()[!unlabelled()]
@@ -229,12 +228,13 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         withProgress(message = "Adjusting axis display", value = 0, {
             
             axis_layouts <- list(xaxis = list(title = colnames(getDatamatrix())[getXAxis()]), yaxis = list(title = colnames(getDatamatrix())[getYAxis()]), 
-                zaxis = list(title = colnames(getDatamatrix())[getZAxis()]), legend = list(y = 0.8))
+                legend = list(y = 0.8))
             
             layoutArgs <- reactive({
-                la <- c(list(p, hovermode = "closest", evaluate = TRUE, title = title), axis_layouts)
+                la <- c(list(p, hovermode = "closest", title = title), axis_layouts)
                 
                 if (getThreedee()) {
+                  axis_layouts$zaxis <- list(title = colnames(getDatamatrix())[getZAxis()])
                   la$scene <- axis_layouts
                 }
                 la
@@ -253,21 +253,20 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         if (!is.null(getLines)) {
             withProgress(message = "Drawing lines", value = 0, {
                 lines <- getLines()
+                lines <- group_by(lines)
                 
-                p <- plotly::add_trace(lines, x = lines$x, y = lines$y, group = lines$name, mode = "lines", line = list(color = "black", dash = 6, 
-                  width = 1), showlegend = FALSE, evaluate = TRUE)
+                p <- add_lines(p, data = lines, x =~ x, y =~ y, linetype =~ name, line = list(color = 'black'))
             })
             
         }
         p
     }
     
-    # Chain the various steps together. Note the use of 'evaluate' in this and other plotly commands. For reasons I'm still not clear about
-    # this speeds things up substantially, particularly in multi-panel apps.
+    # Chain the various steps together. 
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType(), evaluate = TRUE) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% 
+            plot_ly(type = plotType()) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% 
                 adjustLayout(title = getTitle()) %>% config(showLink = TRUE)
         })
     })

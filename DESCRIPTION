@@ -5,7 +5,8 @@ Authors@R: person("Jonathan", "Manning", email = "Jonathan.Manning@ed.ac.uk", ro
 Description: Provides Shiny applications for various array and NGS applications.
     Currently very RNA-seq centric, with plans for expansion.
 Depends:
-    R (>= 3.2.2)
+    R (>= 3.2.2),
+    SummarizedExperiment
 License: MIT
 LazyData: true
 Imports:
@@ -14,7 +15,7 @@ Imports:
     ggdendro,
     GSEABase,
     pheatmap,
-    plotly,
+    plotly (>= 4.3.4),
     RColorBrewer,
     shiny,
     shinyjs,

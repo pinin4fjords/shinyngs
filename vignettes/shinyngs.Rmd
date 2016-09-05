@@ -10,7 +10,7 @@ vignette: >
 ---
 
 
-Shinyngs is a package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots. It's a work in progress, with new features added on a regular basis. Individual components (heatmaps, pca etc) can function independently and will be useful outside of the RNA-seq context.
+Shinyngs is a package designed to facilitate downstream analysis of RNA-seq and similar matrix data with various exploratory plots. It's a work in progress, with new features added on a regular basis. Individual components (heatmaps, pca etc) can function independently and will be useful outside of the RNA-seq context.
 
 ![Example: the gene page](gene_page.png)
 
@@ -133,7 +133,7 @@ Note the extra fields that mostly tell `shinyngs` about annotation to help with 
 
 #### Making an `ExploratorySummarizedExperimentList` 
 
-`ExploratorySummarizedExperimentList`s are basically a list of `ExploratorySummarizedExperimentList`s, with additional metadata slots.
+`ExploratorySummarizedExperimentList`s are basically a list of `ExploratorySummarizedExperiment`s, with additional metadata slots.
 
 ```{r eval=TRUE}
 myesel <- ExploratorySummarizedExperimentList(
@@ -147,7 +147,7 @@ myesel <- ExploratorySummarizedExperimentList(
 You can use this object to make an app straight away:
 
 ```{r eval=FALSE}
-app <- prepareApp("rnaseq", esel)
+app <- prepareApp("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 
@@ -160,7 +160,7 @@ myesel@group_vars <- c('cell_type', 'source_name')
 .. then if we re-make the app you should see group highlighting.
 
 ```{r eval=FALSE}
-app <- prepareApp("rnaseq", esel)
+app <- prepareApp("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 
@@ -201,7 +201,7 @@ app <- prepareApp("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 
-Further options are available - for example supplying `url_roots` in the `ExploratorySummarizedExperimentList` will add link-outs where appropriate.
+Further options are available - for example supplying `url_roots` in the `ExploratorySummarizedExperimentList` will add link-outs where appropriate, and the `description` slot is handy for providing details of analysis to the user.
 
 ## Detail
 
@@ -231,7 +231,7 @@ I intend to provide modules for a number of things I currently use (boxplots, PC
 
 ## Required data structure
 
-The data structures used by Shinyngs build on `SummarizedExperiment`. On `SummarizedExperiment` can have multiple 'assays', essentially matrices with samples in columns and 'features' (transcripts or genes) in rows, representing different results for the same features and samples. This is handy to compare results before and after processing, for example. `ExploratorySummarizedExperiment` extends `SummarizedExperiment` to include slots relating to annotation, and associated results of 'tests', providing p values and q values.  
+The data structures used by Shinyngs build on `SummarizedExperiment`. One `SummarizedExperiment` can have multiple 'assays', essentially matrices with samples in columns and 'features' (transcripts or genes) in rows, representing different results for the same features and samples. This is handy to compare results before and after processing, for example. `ExploratorySummarizedExperiment` extends `SummarizedExperiment` to include slots relating to annotation, and associated results of 'tests', providing p values and q values.  
 
 `ExploratorySummarizedExperimentList` is a container for one or more `ExploratorySummarizedExperiment` objects, and is intented to describe an overall study, i.e. one or more experiments the same set of samples, but different sets of features in each experiment. The `ExploratorySummarizedExperimentListList` therefore is used to supply study-wide things such as contrasts, gene sets, url roots for creating links etc.  
 
@@ -239,7 +239,7 @@ The data structures used by Shinyngs build on `SummarizedExperiment`. On `Summar
 
 It's quite handy to see heat maps etc based on known gene sets. Assuming you have a bunch of .gmt format gene set files from MSigDB keyed by Entrez ID, continuing from the example above you can supply gene sets like:
 
-```{r}
+```{r eval=FALSE}
 genesets_files = list(
   'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
   'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
@@ -256,4 +256,13 @@ This will read in the gene sets (which will take a while first time), and use th
 
 ### Running on a shiny server
 
-Just use the commands sets above with `shinyApp()` in a file called app.R in a directory of its own on your Shiny server.
+Just use the commands sets above with `shinyApp()` in a file called app.R in a directory of its own on your Shiny server. For example, If you're created an `ExploratorySummarizedExperiment` and saved it to a file called 'data.rds':
+
+```{r eval=FALSE}
+library(shinyngs)
+
+mydata <- readRDS("data.rds")
+
+app <- prepareApp("rnaseq", mydata)
+shiny::shinyApp(app$ui, app$server)
+```

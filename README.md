@@ -33,7 +33,7 @@ Installation
 Prerequisites
 -------------
 
-`shinyngs` relies heavily on `SumamrizedExperiment`. Formerly found in the `GenomicRanges` package, it now has its own package on Bioconductor: <http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html>. This requires a recent version of R.
+`shinyngs` relies heavily on `SummarizedExperiment`. Formerly found in the `GenomicRanges` package, it now has its own package on Bioconductor: <http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html>. This requires a recent version of R.
 
 Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
@@ -44,11 +44,10 @@ Graphical enhancements are provided by `shinyBS` and `shinyjs`
 Install with devtools
 ---------------------
 
-There is currently an issue with versions of plotly &gt; 2.0.16, so this version is needed, and you need to prevent `devtools` from upgrading it automatically.
+At time of writing, the most recent CRAN version of Plotly was problematic (see <http://community.plot.ly/t/evaluate-broken-in-recent-versions-of-r-api/1060>). I recommend using (the most recent dev version from GitHub)\[<https://github.com/ropensci/plotly>\]
 
 ``` r
-library(devtools)
-install.packages('http://cran.r-project.org/src/contrib/Archive/plotly/plotly_2.0.16.tar.gz', repos=NULL, type="source")
+devtools::install_github("ropensci/plotly", upgrade_dependencies = FALSE)
 install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
 ```
 

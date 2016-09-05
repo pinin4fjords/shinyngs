@@ -16,7 +16,7 @@
 groupbyInput <- function(id) {
     ns <- NS(id)
     
-    uiOutput(ns("groupby"))
+    uiOutput(ns("groupby_fields"))
 }
 
 #' The server function of the groupby module
@@ -40,34 +40,46 @@ groupbyInput <- function(id) {
 #' @examples
 #' geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
 
-groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE) {
+groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, isDynamic = reactive({TRUE})) {
     
     # Choose a default grouping variable, either the one specified or the first
     
     getDefaultGroupby <- reactive({
-        if (length(eselist@default_groupvar) > 0) {
-            eselist@default_groupvar
-        } else {
-            eselist@group_vars[1]
+        if (multiple){
+          eselist@group_vars 
+        }else{
+          if (length(eselist@default_groupvar) > 0) {
+              eselist@default_groupvar
+          } else {
+              eselist@group_vars[1]
+          }
         }
     })
     
     # Render function for the field
     
-    output$groupby <- renderUI({
+    output$groupby_fields <- renderUI({
         
         withProgress(message = "Rendering group by", value = 0, {
             ns <- session$ns
             
             if (length(eselist@group_vars) > 0) {
                 
-                group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
+                dynamic <- isDynamic()
                 
-                if (multiple) {
-                  checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
-                } else {
-                  selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
-                }
+                  group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
+                  
+                  if (multiple) {
+                    groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
+                  } else {
+                    groupinput <- selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
+                  }
+                  
+                  if (! dynamic){
+                    groupinput <- shinyjs::hidden(groupinput) 
+                  }
+                  
+                  groupinput
             } else {
                 hiddenInput(ns("groupby"), "NULL")
             }
@@ -78,7 +90,7 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
     
     reactive({
         validate(need(input$groupby, "waiting for form to provide groupby"))
-        if (input$groupby == "NULL") {
+        if (input$groupby[1] == "NULL") {
             NULL
         } else {
             input$groupby

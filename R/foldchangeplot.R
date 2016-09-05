@@ -135,8 +135,12 @@ foldchangeplot <- function(input, output, session, eselist) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        data.frame(name = c(rep("diagonal", 2), rep("lower", 2), rep("upper", 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), 
-            (min - log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))))
+        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 2)), x = c(min, max, min, max, min, max), y = c(c(min, max), 
+            (min - log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))), stringsAsFactors = FALSE)
+        lines$name <- factor(lines$name, levels = unique(lines$name))
+        
+        lines
+        
     })
     
     # Extract labels from the volcano table

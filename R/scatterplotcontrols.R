@@ -64,7 +64,7 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
             
             # Work out how many axes we need
             
-            axes <- c(x = x, y = y)
+            axes <- list(x = x, y = y)
             if (getThreedee()) {
                 axes$z <- z
             }

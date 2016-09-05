@@ -136,7 +136,7 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1], na.rm = TRUE)
             xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
-            data.frame(name = c(rep("xmin", 2), rep("xmax", 2), rep("ymin", 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, 
+            data.frame(name = c(rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 2), rep(paste('q <', qvalMax()), 2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, 
                 ymax, ymin, ymax, rep(qvallim, 2)))
         })
         

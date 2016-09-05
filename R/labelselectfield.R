@@ -31,7 +31,7 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     # What field to use? 
     
     getSelectedMetaField <- reactive({
-        validate(need(input$metaField, 'FALSE'))
+        validate(need(input$metaField, FALSE))
         mf <- input$metaField
         mf
     })

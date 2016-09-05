@@ -237,20 +237,66 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
     # These lines to force plotly to use and display sample IDs as strings. For some reason character strings of numeric things get converted
     # back
     
-    samples <- paste0(samples, "&nbsp;")
-    outliers$x <- paste0(outliers$x, "&nbsp;")
+    # The plotting business
     
-    # The polotting business
-    
-    plot_ly(type = "line", showlegend = FALSE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["50%", ], group = "median", mode = "lines", 
-        line = list(color = "black"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ], group = "quartiles", 
-        mode = "lines", line = list(dash = "dash", color = "black"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["75%", 
-        ], group = "quartiles", mode = "lines", line = list(dash = "dash", color = "black"), evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["75%", 
-        ] + ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), mode = "lines", group = paste0("quartiles<br />+/- (IQR * ", whisker_distance, 
-        ")"), line = list(width = 1, color = "grey"), showlegend = TRUE, evaluate = TRUE) %>% add_trace(x = samples, y = quantiles["25%", ] - 
-        ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), mode = "lines", line = list(width = 1, color = "grey"), group = paste0("quartiles<br />+/- (IQR * ", 
-        whisker_distance, ")"), evaluate = TRUE) %>% add_trace(x = outliers$x, y = outliers$y, mode = "markers", name = "outliers", marker = list(color = "black"), 
-        showlegend = TRUE, evaluate = TRUE, hoverinfo = "text", text = outliers$label) %>% layout(xaxis = list(title = NULL), yaxis = list(title = paste0("log2(", 
-        expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL, evaluate = TRUE)
+    plot_ly(data.frame(quantiles)) %>%
+      add_trace(
+        x = outliers$x,
+        y = outliers$y,
+        name = "outliers",
+        marker = list(color = "black"),
+        hoverinfo = "text",
+        text = outliers$label,
+        type = 'scatter'
+      ) %>%
+      add_lines(
+        x = samples,
+        y = quantiles["75%", ] + ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance),
+        line = list(
+          width = 1,
+          color = "grey",
+          dash = 'dash'
+        ),
+        name = paste0("75%<br />+ (IQR * ", whisker_distance, ")")
+      ) %>%
+      add_lines(
+        x = samples,
+        y = quantiles["75%", samples],
+        line = list(dash = 'dash', color = 'black'),
+        name = '75%'
+      ) %>%
+      add_lines(
+        x = samples,
+        y = quantiles["50%", samples],
+        line = list(dash = 'solid', color = 'black'),
+        name = 'median'
+      ) %>%
+      add_lines(
+        x = samples,
+        y = quantiles["25%", samples],
+        line = list(dash = 'longdash', color = 'black'),
+        name = '25%'
+      ) %>%
+      add_lines(
+        x = samples,
+        y = quantiles["25%", ] - ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance),
+        line = list(
+          width = 1,
+          color = "grey",
+          dash = 'longdash'
+        ),
+        name = paste0("25%<br />- (IQR * ", whisker_distance, ")")
+      ) %>%
+      layout(
+        xaxis = list(
+          title = NULL,
+          categoryarray = samples,
+          categoryorder = "array"
+        ),
+        yaxis = list(title = paste0("log2(", expressiontype, ")")),
+        margin = list(b = 150),
+        hovermode = "closest",
+        title = NULL
+      )
     
 } 

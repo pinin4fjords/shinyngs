@@ -39,7 +39,7 @@ heatmapInput <- function(id, eselist, type = "expression") {
             "none"))
     }
     
-    heatmap_filters <- list(heatmap_filters, groupbyInput(ns("heatmap")))
+    #heatmap_filters <- list(heatmap_filters, groupbyInput(ns("heatmap")))
     
     # PCA doesn't have annoatation, so doesn't need the non-iteractive version
     
@@ -52,9 +52,9 @@ heatmapInput <- function(id, eselist, type = "expression") {
     # Output sets of fields in their own containers
     
     if (type == "pca" && length(eselist@group_vars) == 0) {
-        filters <- list(heatmap_filters, interactivity_filter, fieldSets(ns("fieldset"), list(expression = expression_filters, export = plotdownloadInput(ns("heatmap")))))
+        filters <- list(interactivity_filter, groupbyInput(ns("heatmap")), heatmap_filters, fieldSets(ns("fieldset"), list(expression = expression_filters, export = plotdownloadInput(ns("heatmap")))))
     } else {
-        filters <- fieldSets(ns("fieldset"), list(heatmap = list(heatmap_filters, interactivity_filter), expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
+        filters <- fieldSets(ns("fieldset"), list(heatmap = list(interactivity_filter, groupbyInput(ns("heatmap")), heatmap_filters), expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
     }
     
     filters
@@ -124,10 +124,19 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     ns <- session$ns
     
+    # User need to be able to alter the grouping variables either when
+    # an annotated heatmap is required, or for PCA heatmaps where the
+    # variables relation to principal components is examined.
+    
+    isDynamic <- reactive({
+        validate(need(input$interactive, 'waiting for interactive'))
+        type == 'pca' || ! as.logical(input$interactive)
+    })
+    
     # Make the groupby UI element
     
-    groupBy <- callModule(groupby, "heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE)
-    
+    groupBy <- callModule(groupby, "heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE, isDynamic = isDynamic)
+
     # Call the selectmatrix module and unpack the reactives it sends back
     
     if (type == "expression") {
@@ -168,12 +177,14 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         } else {
             ed <- selectColData()
             
-            if (!is.null(groupBy())) {
+            anno_fields <- groupBy()
+            
+            if (!is.null(anno_fields)) {
                 
                 # Prettify the factor levels for display
                 
-                colnames(ed)[match(groupBy(), colnames(ed))] <- prettifyVariablename(groupBy())
-                group_vars <- prettifyVariablename(groupBy())
+                colnames(ed)[match(anno_fields, colnames(ed))] <- prettifyVariablename(anno_fields)
+                group_vars <- prettifyVariablename(anno_fields)
                 
                 # Make factors from the specified grouping variables
 
@@ -224,7 +235,6 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         if (type == "expression") {
             pm <- pm[, rownames(getExperimentData())]
         }
-        
         pm
     })
     
@@ -245,9 +255,8 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     # Run a PCA with the currently selected matrix
     
     getPCAMatrix <- reactive({
-        
         pcameta <- getExperimentData()
-        
+
         # Take out anything with less than 2 unique values or the below won't work
         
         pcameta <- pcameta[, apply(pcameta, 2, function(x) length(unique(x[!is.na(x)]))) > 1, drop = FALSE]
@@ -313,10 +322,12 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     # Annotations allowance for pheatmap
     
     annotationsHeight <- reactive({
+      
         if (input$interactive) {
             0
         } else {
-            (length(groupBy()) * 14)
+            anno_fields <- groupBy()
+            (length(anno_fields) * 14)
         }
     })
     
@@ -476,7 +487,7 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, 
     colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...) {
-    
+  
     # should be possible to specify this in the labRow parameter- but the clustering messes it up
     
     rownames(plotmatrix) <- row_labels
@@ -519,7 +530,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
     yaxis_width = max(unlist(lapply(rownames(plotmatrix), function(x) nchar(x)))) * (cexRow * 10)
     # xaxis_height = max(unlist(lapply(colnames(plotmatrix), function(x) nchar(x)))) * 10
     xaxis_height = 300
-    
+
     d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, cellnote = displaymatrix, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, 
         yaxis_width = yaxis_width, colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = row_labels, ...)
 }

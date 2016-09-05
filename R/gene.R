@@ -188,7 +188,7 @@ gene <- function(input, output, session, eselist) {
         
         validate(need(all(rows %in% rownames(ese)), FALSE))
         
-        gene_info <- data.frame(mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = idToLabel(rows, ese, sep = " /<br/ >"))
+        gene_info <- data.frame(SummarizedExperiment::mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = idToLabel(rows, ese, sep = " /<br/ >"))
         gene_info <- t(linkMatrix(gene_info, eselist@url_roots))
         rownames(gene_info) <- prettifyVariablename(rownames(gene_info))
         gene_info
@@ -264,14 +264,14 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             yaxis = ax
         }
         
-        plotargs <- list(x = paste0(names(row), "&nbsp;"), y = as.numeric(row), type = "bar", showlegend = (rowno == 1), evaluate = TRUE)
+        plotargs <- list(x = paste0(names(row), "&nbsp;"), y = as.numeric(row), type = "bar", showlegend = (rowno == 1))
         
         if (!is.null(colorby)) {
             plotargs$color <- groups
         }
         
         do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, 
-            margin = list(b = 150), evaluate = TRUE)
+            margin = list(b = 150))
     })
     
     if (length(plots) > 1) {

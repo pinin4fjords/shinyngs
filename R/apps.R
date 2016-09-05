@@ -59,10 +59,12 @@
 
 prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
     
-    if (type == "rnaseq") {
+    if (type %in% c("rnaseq", "chipseq")) {
         
-        app <- list(ui = rnaseqInput("rnaseq", eselist), server = function(input, output, session) {
-            callModule(rnaseq, "rnaseq", eselist)
+      inputFunc <- get(paste0(type, "Input"))
+      
+        app <- list(ui = inputFunc(type, eselist), server = function(input, output, session) {
+            callModule(get(type), type, eselist)
         })
         
     } else {
