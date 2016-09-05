@@ -54,14 +54,14 @@ myesel <- ExploratorySummarizedExperimentList(
 )
 
 ## ----eval=FALSE----------------------------------------------------------
-#  app <- prepareApp("rnaseq", esel)
+#  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
 ## ----eval=TRUE-----------------------------------------------------------
 myesel@group_vars <- c('cell_type', 'source_name')
 
 ## ----eval=FALSE----------------------------------------------------------
-#  app <- prepareApp("rnaseq", esel)
+#  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
 ## ----eval=TRUE-----------------------------------------------------------
@@ -82,8 +82,8 @@ myesel[[1]]@tests <- zhangneurons[[1]]@tests
 #  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ---- eval=FALSE---------------------------------------------------------
-#  myesel@genesets_files = list(
+## ----eval=FALSE----------------------------------------------------------
+#  genesets_files = list(
 #    'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
 #    'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
 #    'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
@@ -91,4 +91,14 @@ myesel[[1]]@tests <- zhangneurons[[1]]@tests
 #    'GO molecular function' = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
 #    'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
 #  )
+#  
+#  myesel@gene_sets <- lapply(genesets_files, GSEABase::getGmt)
+
+## ----eval=FALSE----------------------------------------------------------
+#  library(shinyngs)
+#  
+#  mydata <- readRDS("data.rds")
+#  
+#  app <- prepareApp("rnaseq", mydata)
+#  shiny::shinyApp(app$ui, app$server)
 
