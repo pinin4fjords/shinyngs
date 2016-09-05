@@ -48,7 +48,7 @@ At time of writing, the most recent CRAN version of Plotly [was problematic](htt
 
 ``` r
 devtools::install_github("ropensci/plotly", upgrade_dependencies = FALSE)
-install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
+devtools::install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
 ```
 
 Example
