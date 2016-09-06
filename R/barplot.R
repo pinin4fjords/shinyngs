@@ -58,7 +58,7 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
         validate(need(input$barMode, "Waiting for bar mode"))
         
         if (input$barMode == "overlay") {
-            pm <- pm[order(rowMeans(pm)), ]
+            pm <- pm[order(rowMeans(pm), decreasing = TRUE), ]
         }
         pm
     })
@@ -66,8 +66,9 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     # Render the plot
     
     output$barPlot <- renderPlotly({
-        plotdata <- reshape2::melt(formatPlotMatrix())
-        plot_ly(plotdata, x = paste0(Var2, "&nbsp;"), y = value, group = Var1, type = "bar", evaluate = TRUE) %>% layout(barmode = input$barMode, 
-            xaxis = list(title = " "), yaxis = list(title = getYLabel()), evaluate = TRUE) %>% config(showLink = TRUE)
+        fpm <- formatPlotMatrix()
+        plotdata <- reshape2::melt(fpm)
+        plotdata %>% plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>% layout(margin = list(b = 100), barmode = input$barMode, 
+            xaxis = list(title = " "), yaxis = list(title = getYLabel())) %>% config(showLink = TRUE)
     })
 } 

@@ -227,7 +227,9 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Extract the annotation from the SummarizedExperiment
     
     getAnnotation = reactive({
+      withProgress(message = "Deriving annotation", value = 0, {
         data.frame(mcols(getExperiment()))
+      })
     })
     
     # Use selectMatrix() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
@@ -330,6 +332,8 @@ labelMatrix <- function(matrix, ese, idcol = NULL) {
 
 linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 
+  withProgress(message = "Adding links", value = 0, {
+  
     # Add prettified version of each field in URL roots in case matrix column names are prettified
     
     for (fieldname in names(url_roots)) {
@@ -355,6 +359,7 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
         }
     }
     matrix
+  })
 }
 
 #' Create row labels based on the settings of \code{labelfield} in the 

@@ -14,8 +14,13 @@
 #' @examples
 #' modalInput(ns('dendro'), 'help'),
 
-modalInput <- function(id, label, class) {
+modalInput <- function(id, label, class, icon = 'info-circle') {
     ns <- NS(id)
+    
+    if (! is.null(icon)){
+      label <- HTML(paste(icon(icon), label))
+    }
+    
     actionLink(ns("link"), label = label, `data-toggle` = "modal", `data-target` = paste0("#", ns(id)), class = class)
 }
 

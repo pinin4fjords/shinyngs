@@ -4,11 +4,13 @@
 #' components of a variety of shiny apps, based on the type and data specified.
 #'
 #'
-#' @param type A string specifying the type of shiny app required (options:
-#'   heatmap)
+#' @param type A string specifying the type of shiny app required. Currently,
+#'   'rnaseq' or 'chipseq' produce large multi-panel applications designed to
+#'   facilitate analysis of those data types. For any other 'type', the call is
+#'   passed to \code{simpleApp()}, which will attempt to build an application
+#'   using \code{Input} and \code{Output} functions of the same module.
 #' @param eselist An ExploratorySummarizedExperimentList object containing assay
 #'   data (expression, counts...), sample data and annotation data for the rows.
-#' @param params A list containing data and display options for the Shiny app
 #'
 #' @return output A list of length 2 containing: the UI and server components
 #'

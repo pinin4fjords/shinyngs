@@ -57,7 +57,7 @@ nlines <- function(string) {
 #' selects etc
 #'
 #' @param string An HTML id
-#' @param value The value the input should return
+#' @param values The value the input should return
 #'
 #' @return output HTML as output by Shiny's \code{HTML()}
 #'
@@ -107,7 +107,7 @@ pushToList <- function(input_list, element) {
 #'
 #' @return list
 
-fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE, visibilities = list()) {
+fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
     
     if (is.null(open)) {
         open = names(fieldset_list)
@@ -194,12 +194,10 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
     paste(unlist(strings), collapse = "\n")
 }
 
-
-
 #' Unpack a list to the environment. Handy when many reactive functions are 
 #' returned by a call to a module's server function
 #'
-#' @param x A named list of objects to unpack
+#' @param object A named list of objects to unpack
 #'
 #' @export
 
