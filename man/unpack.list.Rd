@@ -8,7 +8,7 @@ returned by a call to a module's server function}
 unpack.list(object)
 }
 \arguments{
-\item{x}{A named list of objects to unpack}
+\item{object}{A named list of objects to unpack}
 }
 \description{
 Unpack a list to the environment. Handy when many reactive functions are 

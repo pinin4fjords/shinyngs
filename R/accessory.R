@@ -146,7 +146,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 
 ggplotify <- function(matrix, experiment, colorby = NULL) {
-
+    
     plotdata <- reshape2::melt(matrix)
     plotdata <- plotdata[which(plotdata$value > 0), ]
     if (max(plotdata$value) > 20) {
@@ -231,4 +231,39 @@ interleaveColumns <- function(mat1, mat2) {
 
 makePackageCitation <- function(package) {
     paste(capture.output(print(citation(package), style = "HTML")), collapse = " ")
-} 
+}
+
+#' Choose a valid set of grouping variables from a targets/ experiment data
+#' frame.
+#' 
+#' To be useful for grouping a variable needs to be a character or a factor, 
+#' and to have a number of values greater than one but less than the number of
+#' samples.
+#'
+#' @param df Input data frame 
+#'
+#' @return out A list of valid column names
+#' @export
+#' 
+#' @examples
+#' # `airway` contains info on the samples it's based on
+#' 
+#' data(airway, package = 'airway')
+#' 
+#' # However, not all variables are useful for grouping data. Some have a 
+#' # different value for every sample, one has the same value for all of them.
+#' 
+#' colData(airway)
+#' 
+#' # So just pick the variables that ARE useful
+#' 
+#' chooseGroupingVariables(data.frame(colData(airway)))
+
+chooseGroupingVariables <- function(df){
+    all_vars <- colnames(df)
+    vartypes <- unlist(lapply(df, class))
+    numunique <- unlist(lapply(df, function(x) length(unique(x[! is.na(x)]))))
+    
+    all_vars[vartypes != 'integer' & numunique < nrow(df) & numunique > 1]
+}
+

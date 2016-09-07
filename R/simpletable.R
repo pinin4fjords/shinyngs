@@ -99,4 +99,4 @@ simpletable <- function(input, output, session, downloadMatrix = NULL, displayMa
         write.csv(downloadMatrix(), file = file, row.names = rownames)
     })
     
-} 
+}

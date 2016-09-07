@@ -74,17 +74,16 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' @examples
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
-selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, 
-    provide_all_genes = FALSE, default_gene_select = NULL, require_tests = FALSE, rounding = 2) {
+selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, 
+    require_tests = FALSE, rounding = 2) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
-    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, 
-        getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select))
+    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, getAssay = getAssay, provide_all = provide_all_genes, 
+        default = default_gene_select))
     
-    # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within
-    # each
+    # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
     ns <- session$ns
     
@@ -152,11 +151,11 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     getRowLabels <- reactive({
         withProgress(message = "Deriving row labels", value = 0, {
             ese <- getExperiment()
-            if (!is.null(ese@idfield)) {
+            #if (!is.null(ese@idfield)) {
                 idToLabel(rownames(ese), ese)
-            } else {
-                rownames(ese)
-            }
+            #} else {
+            #    rownames(ese)
+            #}
         })
     })
     
@@ -189,21 +188,21 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     selectMatrix = reactive({
         withProgress(message = "Getting expression data subset", value = 0, {
-            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"), 
-                need(length(selectRows()) > 0, "No matching rows in selected matrix"))
+            validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"), need(length(selectRows()) > 0, 
+                "No matching rows in selected matrix"))
             
             selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
-
+            
             # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
             
-            if (nrow(selected_matrix) == 1){
-               selected_matrix[1,] <- apply(selected_matrix, 2, round, rounding)
-               selected_matrix
-            }else{
-              apply(selected_matrix, 2, round, rounding)
+            if (nrow(selected_matrix) == 1) {
+                selected_matrix[1, ] <- apply(selected_matrix, 2, round, rounding)
+                selected_matrix
+            } else {
+                apply(selected_matrix, 2, round, rounding)
             }
         })
     })
@@ -217,8 +216,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         })
     })
     
-    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices
-    # Will only be summarised if grouping variables were supplied!
+    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be summarised if grouping variables
+    # were supplied!
     
     isSummarised <- reactive({
         length(eselist@group_vars) > 0 && getSummaryType() != "none"
@@ -227,9 +226,11 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Extract the annotation from the SummarizedExperiment
     
     getAnnotation = reactive({
-      withProgress(message = "Deriving annotation", value = 0, {
-        data.frame(mcols(getExperiment()))
-      })
+        ese <- getExperiment()
+        validate(need(ncol(mcols(ese)) > 0, 'Selected experiment contains no row metadata')) 
+        withProgress(message = "Deriving annotation", value = 0, {
+            data.frame(mcols(ese))
+        })
     })
     
     # Use selectMatrix() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
@@ -259,7 +260,11 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     getIdField <- reactive({
         ese <- getExperiment()
-        ese@idfield
+        if (length(ese@idfield) > 0){
+          ese@idfield
+        }else{
+          'id' 
+        }
     })
     
     getLabelField <- reactive({
@@ -267,16 +272,16 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         if (length(ese@labelfield) > 0) {
             ese@labelfield
         } else {
-            ese@idfield
+            #ese@idfield
+	          NULL
         }
     })
     
     # Return the list of reactive expressions we'll need to access the data
     
-    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, 
-        matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, 
-        getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, 
-        getExperimentName = getExperimentName)
+    list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, selectColData = selectColData, 
+        isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField,
+        getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName)
 }
 
 #' Add columns to display ID and label in a table
@@ -290,7 +295,11 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
 
 labelMatrix <- function(matrix, ese, idcol = NULL) {
     
-    idfield <- ese@idfield
+    #idfield <- ese@idfield
+    idfield <- 'id'
+    if (length(ese@idfield) > 0){
+      idfield <- ese@idfield 
+    }
     
     if (is.null(idcol)) {
         datacolnames <- colnames(matrix)
@@ -302,7 +311,6 @@ labelMatrix <- function(matrix, ese, idcol = NULL) {
     
     if (length(ese@labelfield) > 0) {
         labelfield <- ese@labelfield
-        
         matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield)
         matrix <- matrix[, c(idfield, labelfield, datacolnames), drop = FALSE]
         
@@ -331,35 +339,35 @@ labelMatrix <- function(matrix, ese, idcol = NULL) {
 #' @return output Table with links added
 
 linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
-
-  withProgress(message = "Adding links", value = 0, {
   
-    # Add prettified version of each field in URL roots in case matrix column names are prettified
-    
-    for (fieldname in names(url_roots)) {
-        url_roots[[prettifyVariablename(fieldname)]] <- url_roots[[fieldname]]
-    }
-    
-    for (fieldname in names(url_roots)) {
-        if (fieldname %in% colnames(matrix)) {
-            
-            matrix[[fieldname]] <- unlist(lapply(1:length(matrix[[fieldname]]), function(x) {
-                fvs_for_href <- unlist(strsplit(matrix[[fieldname]][x], " "))
-                
-                # If user has specified different values for display, use them
-                
-                if (fieldname %in% colnames(display_values)) {
-                  fvs_for_display <- display_values[x, fieldname]
-                } else {
-                  fvs_for_display <- fvs_for_href
-                }
-                
-                paste(paste0("<a href='", url_roots[fieldname], fvs_for_href, "'>", fvs_for_display, "</a>"), collapse = " ")
-            }))
+    withProgress(message = "Adding links", value = 0, {
+        
+        # Add prettified version of each field in URL roots in case matrix column names are prettified
+        
+        for (fieldname in names(url_roots)) {
+            url_roots[[prettifyVariablename(fieldname)]] <- url_roots[[fieldname]]
         }
-    }
-    matrix
-  })
+        
+        for (fieldname in names(url_roots)) {
+            if (fieldname %in% colnames(matrix)) {
+                
+                matrix[[fieldname]] <- unlist(lapply(1:length(matrix[[fieldname]]), function(x) {
+                  fvs_for_href <- unlist(strsplit(matrix[[fieldname]][x], " "))
+                  
+                  # If user has specified different values for display, use them
+                  
+                  if (fieldname %in% colnames(display_values)) {
+                    fvs_for_display <- display_values[x, fieldname]
+                  } else {
+                    fvs_for_display <- fvs_for_href
+                  }
+                  
+                  paste(paste0("<a href='", url_roots[fieldname], fvs_for_href, "'>", fvs_for_display, "</a>"), collapse = " ")
+                }))
+            }
+        }
+        matrix
+    })
 }
 
 #' Create row labels based on the settings of \code{labelfield} in the 
@@ -399,12 +407,14 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
     
     multi <- grepl(" ", ids)
     
-    converted <- annotation[match(ids, annotation[[ese@idfield]]), to]
+    #converted <- annotation[match(ids, annotation[[ese@idfield]]), to]
+    converted <- annotation[match(ids, rownames(ese)), to]
     
     # If some elements contained multiple values try splitting them
     
     multi_ids <- lapply(ids[multi], function(x) unlist(strsplit(x, " ")))
-    converted[multi] <- unlist(lapply(multi_ids, function(x) paste(annotation[match(x, annotation[[ese@idfield]]), to], collapse = " ")))
+    #converted[multi] <- unlist(lapply(multi_ids, function(x) paste(annotation[match(x, annotation[[ese@idfield]]), to], collapse = " ")))
+    converted[multi] <- unlist(lapply(multi_ids, function(x) paste(annotation[match(x, rownames(ese)), to], collapse = " ")))
     
     if (remove_na) {
         converted <- converted[!is.na(converted)]
@@ -423,4 +433,4 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
 
 singleValidMatrix <- function(eselist) {
     length(eselist) == 1 && length(assays(eselist[[1]])) == 1
-} 
+}

@@ -22,8 +22,7 @@ summarisematrixInput <- function(id, allow_none = TRUE) {
         summaryoptions <- c(None = "none")
     }
     
-    selectInput(ns("summaryType"), "Average type", c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
-        selected = "none")
+    selectInput(ns("summaryType"), "Average type", c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), selected = "none")
 }
 
 #' The server function of the summarisematrix module
@@ -67,7 +66,7 @@ summarisematrix <- function(input, output, session) {
 #' summarizeMatrix(mymatrix, myfactor)
 
 summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
-  
+    
     # We need a factor
     
     if (!is.factor(treatment_factor)) {
@@ -150,4 +149,4 @@ na.replace <- function(vec, replacement = "NA") {
     }
     
     vec
-} 
+}

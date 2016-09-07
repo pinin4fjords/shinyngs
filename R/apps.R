@@ -1,8 +1,9 @@
-#' Make UI and server functions for apps based on supplied data
+#' Make UI and server functions for Shiny apps based on data supplied as 
+#' modfied SummarizedExperiments
 #'
 #' Draws on various components (heatmaps, tables etc) to produce the UI and server
-#' components of a variety of shiny apps, based on the type and data specified.
-#'
+#' components of a variety of shiny apps, based on the type and data specified,
+#' using modularised Shiny components.
 #'
 #' @param type A string specifying the type of shiny app required. Currently,
 #'   'rnaseq' or 'chipseq' produce large multi-panel applications designed to
@@ -23,48 +24,87 @@
 #' @examples
 #' require(airway)
 #' library(shinyngs)
-#' library(shiny)
-#' library(GenomicRanges)
 #' 
-#' # Get some example data in the form of a StructuredExperiment object
-#' data(airway, package='airway')
-#' se <- airway
+#' # 1: BASIC RNA-SEQ APP 
+#' 
+#' # Get an example RNA-seq dataset from the `airway` package
+#'
+#' data(airway, package = 'airway')
+#'
+#' Get some information about these data from the package description
+#'
+#' expinfo <- packageDescription('airway')
+#'
+#' # Convert to an ExploratorySummarizedExperiment (with extra slots)
+#'
+#' ese <- as(airway, 'ExploratorySummarizedExperiment')
+#'
+#' # Make the ExploratorySummarizedExperimentList that represents the study as a 
+#' # whole.
+#' 
+#' eselist <- ExploratorySummarizedExperimentList(
+#'   ese,
+#'   title = expinfo$Title,
+#'   author = expinfo$Author,
+#'   description = expinfo$Description
+#' )
+#'
+#' # Make the app
+#'
+#' app <- prepareApp('rnaseq', eselist)
+#' 
+#' # Run the app
+#' 
+#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' 
+#' # 2: AUGMENT WITH ANNOTATION INFO FOR MORE INFORMATIVE APP
 #' 
 #' # Use Biomart to retrieve some annotation, and add it to the object
+#' 
 #' library(biomaRt)
 #' attributes <- c(
 #'   'ensembl_gene_id', # The sort of ID your results are keyed by
 #'   'entrezgene', # Will be used mostly for gene set based stuff
 #'   'external_gene_name' # Used to annotate gene names on the plot
-#')
+#' )
+#' 
+#' mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
+#' annotation <- getBM(attributes = attributes, mart = mart)
+#' annotation <- annotation[order(annotation$entrezgene),]
+#' 
+#' mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id),]
+#' ese@labelfield <- 'external_gene_name'
 #'
-#'mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
-#'annotation <- getBM(attributes = attributes, mart = mart)
-#'annotation <- annotation[order(annotation$entrezgene),]
-#'
-#'mcols(se) <- annotation[match(rownames(se), annotation$ensembl_gene_id),]
-#'
-#'# Specify some display parameters
-#'params <- list(
-#'  idfield = 'ensembl_gene_id', 
-#'  entrezgenefield = 'entrezgene',
-#'  labelfield = 'external_gene_name', 
-#'  group_vars = c('cell', 'dex', 'albut'), 
-#'  default_groupvar = 'albut'
-#')
-#'  
-#'  # Prepare the UI and server parts of the Shiny app
-#'  app <- prepareApp('heatmap', se, params)
-#'  
-#'  # Run the Shiny app
-#'  shinyApp(app$ui, app$server)
+#' # Re-do app creation etc, choose to use a different grouping variable by 
+#' # default
+#' 
+#' eselist <- ExploratorySummarizedExperimentList(
+#'   ese,
+#'   title = expinfo$Title,
+#'   author = expinfo$Author,
+#'   description = expinfo$Description,
+#'   default_groupvar <- 'dex' 
+#' )
+#' app <- prepareApp('rnaseq', eselist)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' 
+#' 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
+#' 
+#' # See vignette for more info. However, the included sample 
+#' # ExploratorySummarizedExperimentList has the appopriate slots populated 
+#' # to demonstrate contrasts, gene set annotations etc. The app produced in 
+#' # this way will have more panels for differential analyses.
+#' 
+#' data("zhangneurons")
+#' app <- prepareApp('rnaseq', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
     
     if (type %in% c("rnaseq", "chipseq")) {
         
-      inputFunc <- get(paste0(type, "Input"))
-      
+        inputFunc <- get(paste0(type, "Input"))
+        
         app <- list(ui = inputFunc(type, eselist), server = function(input, output, session) {
             callModule(get(type), type, eselist)
         })
@@ -102,9 +142,8 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     
     if (!is.null(module)) {
         
-        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, 
-            windowTitle = moduletitle, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), 
-                mainPanel(outputFunc(module, ...), width = 9)))))
+        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, windowTitle = moduletitle, tabPanel(prettifyVariablename(module), 
+            sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(module, ...), width = 9)))))
         
         if (ui_only) {
             server <- function(input, output, session) {
@@ -116,4 +155,4 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
         }
         list(ui = ui, server = server)
     }
-} 
+}

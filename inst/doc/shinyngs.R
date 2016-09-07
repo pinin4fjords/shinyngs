@@ -2,6 +2,64 @@
 #  library(devtools)
 #  install_github('pinin4fjords/shinyngs')
 
+## ----eval = FALSE--------------------------------------------------------
+#  library(shinyngs)
+#  
+#  data(airway, package = 'airway')
+#  ese <- as(airway, 'ExploratorySummarizedExperiment')
+#  eselist <- ExploratorySummarizedExperimentList(ese)
+
+## ----eval = FALSE--------------------------------------------------------
+#  app <- prepareApp('heatmap', eselist)
+#  shiny::shinyApp(ui = app$ui, server = app$server)
+
+## ----eval = FALSE--------------------------------------------------------
+#  app <- prepareApp('rnaseq', eselist)
+#  shiny::shinyApp(ui = app$ui, server = app$server)
+
+## ----eval = FALSE--------------------------------------------------------
+#  expinfo <- packageDescription('airway')
+#  eselist <- ExploratorySummarizedExperimentList(
+#    ese,
+#    title = expinfo$Title,
+#    author = expinfo$Author,
+#    description = expinfo$Description
+#  )
+#  app <- prepareApp('rnaseq', eselist)
+#  shiny::shinyApp(ui = app$ui, server = app$server)
+
+## ----eval = FALSE--------------------------------------------------------
+#  # Use Biomart to retrieve some annotation, and add it to the object
+#  
+#  library(biomaRt)
+#  attributes <- c(
+#    'ensembl_gene_id', # The sort of ID your results are keyed by
+#    'entrezgene', # Will be used mostly for gene set based stuff
+#    'external_gene_name' # Used to annotate gene names on the plot
+#  )
+#  
+#  mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
+#  annotation <- getBM(attributes = attributes, mart = mart)
+#  annotation <- annotation[order(annotation$entrezgene),]
+#  
+#  mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id),]
+#  
+#  # Tell shinyngs what the ids are, and what field to use as a label
+#  
+#  ese@idfield <- 'ensembl_gene_id'
+#  ese@labelfield <- 'external_gene_name'
+#  
+#  # Re-build the app
+#  
+#  eselist <- ExploratorySummarizedExperimentList(
+#    ese,
+#    title = expinfo$Title,
+#    author = expinfo$Author,
+#    description = expinfo$Description
+#  )
+#  app <- prepareApp('rnaseq', eselist)
+#  shiny::shinyApp(ui = app$ui, server = app$server)
+
 ## ----eval=FALSE----------------------------------------------------------
 #  library(shinyngs)
 #  data("zhangneurons")

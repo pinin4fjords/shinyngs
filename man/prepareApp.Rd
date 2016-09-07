@@ -2,37 +2,69 @@
 % Please edit documentation in R/apps.R
 \name{prepareApp}
 \alias{prepareApp}
-\title{Make UI and server functions for apps based on supplied data}
+\title{Make UI and server functions for Shiny apps based on data supplied as 
+modfied SummarizedExperiments}
 \usage{
 prepareApp(type, eselist, ui_only = FALSE, ...)
 }
 \arguments{
-\item{type}{A string specifying the type of shiny app required (options:
-heatmap)}
+\item{type}{A string specifying the type of shiny app required. Currently,
+'rnaseq' or 'chipseq' produce large multi-panel applications designed to
+facilitate analysis of those data types. For any other 'type', the call is
+passed to \code{simpleApp()}, which will attempt to build an application
+using \code{Input} and \code{Output} functions of the same module.}
 
 \item{eselist}{An ExploratorySummarizedExperimentList object containing assay
 data (expression, counts...), sample data and annotation data for the rows.}
-
-\item{params}{A list containing data and display options for the Shiny app}
 }
 \value{
 output A list of length 2 containing: the UI and server components
 }
 \description{
 Draws on various components (heatmaps, tables etc) to produce the UI and server
-components of a variety of shiny apps, based on the type and data specified.
+components of a variety of shiny apps, based on the type and data specified,
+using modularised Shiny components.
 }
 \examples{
 require(airway)
 library(shinyngs)
-library(shiny)
-library(GenomicRanges)
 
-# Get some example data in the form of a StructuredExperiment object
-data(airway, package='airway')
-se <- airway
+# 1: BASIC RNA-SEQ APP 
+
+# Get an example RNA-seq dataset from the `airway` package
+
+data(airway, package = 'airway')
+
+Get some information about these data from the package description
+
+expinfo <- packageDescription('airway')
+
+# Convert to an ExploratorySummarizedExperiment (with extra slots)
+
+ese <- as(airway, 'ExploratorySummarizedExperiment')
+
+# Make the ExploratorySummarizedExperimentList that represents the study as a 
+# whole.
+
+eselist <- ExploratorySummarizedExperimentList(
+  ese,
+  title = expinfo$Title,
+  author = expinfo$Author,
+  description = expinfo$Description
+)
+
+# Make the app
+
+app <- prepareApp('rnaseq', eselist)
+
+# Run the app
+
+shiny::shinyApp(ui = app$ui, server = app$server)
+
+# 2: AUGMENT WITH ANNOTATION INFO FOR MORE INFORMATIVE APP
 
 # Use Biomart to retrieve some annotation, and add it to the object
+
 library(biomaRt)
 attributes <- c(
   'ensembl_gene_id', # The sort of ID your results are keyed by
@@ -44,22 +76,32 @@ mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensem
 annotation <- getBM(attributes = attributes, mart = mart)
 annotation <- annotation[order(annotation$entrezgene),]
 
-mcols(se) <- annotation[match(rownames(se), annotation$ensembl_gene_id),]
+mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id),]
+ese@labelfield <- 'external_gene_name'
 
-# Specify some display parameters
-params <- list(
- idfield = 'ensembl_gene_id', 
- entrezgenefield = 'entrezgene',
- labelfield = 'external_gene_name', 
- group_vars = c('cell', 'dex', 'albut'), 
- default_groupvar = 'albut'
+# Re-do app creation etc, choose to use a different grouping variable by 
+# default
+
+eselist <- ExploratorySummarizedExperimentList(
+  ese,
+  title = expinfo$Title,
+  author = expinfo$Author,
+  description = expinfo$Description,
+  default_groupvar <- 'dex' 
 )
- 
- # Prepare the UI and server parts of the Shiny app
- app <- prepareApp('heatmap', se, params)
- 
- # Run the Shiny app
- shinyApp(app$ui, app$server)
+app <- prepareApp('rnaseq', eselist)
+shiny::shinyApp(ui = app$ui, server = app$server)
+
+3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
+
+# See vignette for more info. However, the included sample 
+# ExploratorySummarizedExperimentList has the appopriate slots populated 
+# to demonstrate contrasts, gene set annotations etc. The app produced in 
+# this way will have more panels for differential analyses.
+
+data("zhangneurons")
+app <- prepareApp('rnaseq', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

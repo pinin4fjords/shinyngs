@@ -26,8 +26,8 @@ pcaInput <- function(id, eselist) {
     
     # Output sets of fields in their own containers
     
-    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), 
-        groupbyInput(ns("pca"))), expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
+    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))), expression = expression_filters, 
+        export = simpletableInput(ns("loading"), tabletitle = "Loading")))
 }
 
 #' The output function of the pca module
@@ -48,9 +48,8 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", 
-        "pca.md", package = packageName()))), h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca"))), 
-        tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
+    list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", "pca.md", package = packageName()))), h3("Principal components analysis"), 
+        tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca"))), tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
 }
 
 #' The server function of the pca module
@@ -88,10 +87,10 @@ pca <- function(input, output, session, eselist) {
     
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
     
-    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
-        getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, colorby = pcaColorBy)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, 
-        getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
+    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, 
+        getTitle = getComponentsTitle, colorby = pcaColorBy)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
+        getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
     
     # Simple title functions
     
@@ -202,8 +201,7 @@ pca <- function(input, output, session, eselist) {
         loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
     
-    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", 
-        rownames = FALSE)
+    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
     
 }
 
@@ -246,4 +244,4 @@ runPCA <- function(matrix) {
 
 calculatePCAFractionExplained <- function(pca) {
     round((pca$sdev)^2/sum(pca$sdev^2), 3) * 100
-} 
+}

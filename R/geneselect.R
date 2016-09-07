@@ -80,8 +80,8 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     observeEvent(input$geneSelect, {
         if (input$geneSelect == "gene set") {
             updateGeneSetsList()
-        }else if (input$geneSelect == 'metadata'){
-            updateLabelField() 
+        } else if (input$geneSelect == "metadata") {
+            updateLabelField()
         }
     })
     
@@ -113,26 +113,15 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 selected = default
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), 
-                conditionalPanel(
-                  condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), 
-                  sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)
-                ), 
-                conditionalPanel(
-                  condition = paste0("input['", ns("geneSelect"), "'] == 'list' "), 
-                  tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")
-                ),
-                conditionalPanel(
-                  condition = paste0("input['", ns("geneSelect"), "'] == 'metadata' "), 
-                  labelselectfieldInput(ns("gene_label"))
-                )
-              )
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'metadata' "), labelselectfieldInput(ns("gene_label"))))
             
             # If gene sets have been provided, then make a gene sets filter
             
             if (useGenesets()) {
-                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), 
-                  genesetselectInput(ns("geneset")))
+                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetselectInput(ns("geneset")))
             }
             
         })
@@ -143,17 +132,17 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     # Return the matrix so far, selected just on the basis of samples
     
     matrixFromSamples <- reactive({
-      ese <- getExperiment()
-      assay <- getAssay()
-      samples <- selectSamples()
-      
-      SummarizedExperiment::assays(ese)[[assay]][, selectSamples(), drop = FALSE]
+        ese <- getExperiment()
+        assay <- getAssay()
+        samples <- selectSamples()
+        
+        SummarizedExperiment::assays(ese)[[assay]][, selectSamples(), drop = FALSE]
     })
     
     # Reactive function to calculate variances only when required
     
     rowVariances <- reactive({
-      nonempty <-  getNonEmptyRows()
+        nonempty <- getNonEmptyRows()
         withProgress(message = "Calculating row variances", value = 0, {
             mfs <- matrixFromSamples()
             apply(mfs, 1, var)
@@ -181,16 +170,16 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
         withProgress(message = "Selecting rows", value = 0, {
             validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
             
-            nonempty <-  getNonEmptyRows()
-          
+            nonempty <- getNonEmptyRows()
+            
             if (input$geneSelect == "none") {
                 return(c())
             } else if (input$geneSelect == "all") {
                 return(nonempty)
             } else if (input$geneSelect == "variance") {
                 vars <- rowVariances()
-                return (names(vars)[order(vars, decreasing = TRUE)][1:input$obs])
-            } else if (input$geneSelect == "metadata"){
+                return(names(vars)[order(vars, decreasing = TRUE)][1:input$obs])
+            } else if (input$geneSelect == "metadata") {
                 selected_rows <- getSelectedIds()
                 return(intersect(selected_rows, nonempty))
             } else {
@@ -229,11 +218,11 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
         } else if (input$geneSelect == "list") {
             title <- "Rows for specifified gene list"
-        } else if (input$geneSelect == "metadata"){
-            title <- "Rows by metadata field value" 
+        } else if (input$geneSelect == "metadata") {
+            title <- "Rows by metadata field value"
         }
         title
     })
     
     geneselect_functions
-} 
+}

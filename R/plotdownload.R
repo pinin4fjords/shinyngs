@@ -55,4 +55,4 @@ plotdownload <- function(input, output, session, makePlot, filename = "plot.png"
         dev.off()
     })
     
-} 
+}

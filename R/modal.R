@@ -14,11 +14,11 @@
 #' @examples
 #' modalInput(ns('dendro'), 'help'),
 
-modalInput <- function(id, label, class, icon = 'info-circle') {
+modalInput <- function(id, label, class, icon = "info-circle") {
     ns <- NS(id)
     
-    if (! is.null(icon)){
-      label <- HTML(paste(icon(icon), label))
+    if (!is.null(icon)) {
+        label <- HTML(paste(icon(icon), label))
     }
     
     actionLink(ns("link"), label = label, `data-toggle` = "modal", `data-target` = paste0("#", ns(id)), class = class)
@@ -43,4 +43,4 @@ modalInput <- function(id, label, class, icon = 'info-circle') {
 modalOutput <- function(id, title, content) {
     ns <- NS(id)
     shinyBS::bsModal(ns(id), title, ns(id), size = "large", content)
-} 
+}

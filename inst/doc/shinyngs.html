@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jonathan Manning" />
 
-<meta name="date" content="2016-09-05" />
+<meta name="date" content="2016-09-07" />
 
 <title>Interactive downstream RNA-seq analysis with ShinyNGS</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title">Interactive downstream RNA-seq analysis with ShinyNGS</h1>
 <h4 class="author"><em>Jonathan Manning</em></h4>
-<h4 class="date"><em>2016-09-05</em></h4>
+<h4 class="date"><em>2016-09-07</em></h4>
 
 </div>
 
@@ -114,8 +114,62 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="quickstart" class="section level2">
 <h2>Quickstart</h2>
+<p>To see how to quickly build an RNA-seq app from a simple SummarizedExperiment, we can use the example data in the <code>airway</code> package. We just convert the RangedSummarizedExperiment to an ExploratorySummarizedExperiment, and add it to a list of such objects, which represent a study.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(shinyngs)
+
+<span class="kw">data</span>(airway, <span class="dt">package =</span> <span class="st">'airway'</span>)
+ese &lt;-<span class="st"> </span><span class="kw">as</span>(airway, <span class="st">'ExploratorySummarizedExperiment'</span>)
+eselist &lt;-<span class="st"> </span><span class="kw">ExploratorySummarizedExperimentList</span>(ese)</code></pre></div>
+<p>Then we build and run the app. For example, a basic app just for heatmaps:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">app &lt;-<span class="st"> </span><span class="kw">prepareApp</span>(<span class="st">'heatmap'</span>, eselist)
+shiny::<span class="kw">shinyApp</span>(<span class="dt">ui =</span> app$ui, <span class="dt">server =</span> app$server)</code></pre></div>
+<p>… or a more comprehensive one with multiple panels aimed at RNA-seq:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">app &lt;-<span class="st"> </span><span class="kw">prepareApp</span>(<span class="st">'rnaseq'</span>, eselist)
+shiny::<span class="kw">shinyApp</span>(<span class="dt">ui =</span> app$ui, <span class="dt">server =</span> app$server)</code></pre></div>
+<p>Airway provides some info about the dataset, which we can add in to the object before we build the app:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">expinfo &lt;-<span class="st"> </span><span class="kw">packageDescription</span>(<span class="st">'airway'</span>)
+eselist &lt;-<span class="st"> </span><span class="kw">ExploratorySummarizedExperimentList</span>(
+  ese,
+  <span class="dt">title =</span> expinfo$Title,
+  <span class="dt">author =</span> expinfo$Author,
+  <span class="dt">description =</span> expinfo$Description
+)
+app &lt;-<span class="st"> </span><span class="kw">prepareApp</span>(<span class="st">'rnaseq'</span>, eselist)
+shiny::<span class="kw">shinyApp</span>(<span class="dt">ui =</span> app$ui, <span class="dt">server =</span> app$server)</code></pre></div>
+<p>All this app knows about is gene IDs, however, which aren’t all that informative for gene expression plots etc. We can add row metadata to fix that:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Use Biomart to retrieve some annotation, and add it to the object</span>
+
+<span class="kw">library</span>(biomaRt)
+attributes &lt;-<span class="st"> </span><span class="kw">c</span>(
+  <span class="st">'ensembl_gene_id'</span>, <span class="co"># The sort of ID your results are keyed by</span>
+  <span class="st">'entrezgene'</span>, <span class="co"># Will be used mostly for gene set based stuff</span>
+  <span class="st">'external_gene_name'</span> <span class="co"># Used to annotate gene names on the plot</span>
+)
+
+mart &lt;-<span class="st"> </span><span class="kw">useMart</span>(<span class="dt">biomart =</span> <span class="st">'ENSEMBL_MART_ENSEMBL'</span>, <span class="dt">dataset =</span> <span class="st">'hsapiens_gene_ensembl'</span>, <span class="dt">host=</span><span class="st">'www.ensembl.org'</span>)
+annotation &lt;-<span class="st"> </span><span class="kw">getBM</span>(<span class="dt">attributes =</span> attributes, <span class="dt">mart =</span> mart)
+annotation &lt;-<span class="st"> </span>annotation[<span class="kw">order</span>(annotation$entrezgene),]
+
+<span class="kw">mcols</span>(ese) &lt;-<span class="st"> </span>annotation[<span class="kw">match</span>(<span class="kw">rownames</span>(ese), annotation$ensembl_gene_id),]
+
+<span class="co"># Tell shinyngs what the ids are, and what field to use as a label</span>
+
+ese@idfield &lt;-<span class="st"> 'ensembl_gene_id'</span>
+ese@labelfield &lt;-<span class="st"> 'external_gene_name'</span>
+
+<span class="co"># Re-build the app</span>
+
+eselist &lt;-<span class="st"> </span><span class="kw">ExploratorySummarizedExperimentList</span>(
+  ese,
+  <span class="dt">title =</span> expinfo$Title,
+  <span class="dt">author =</span> expinfo$Author,
+  <span class="dt">description =</span> expinfo$Description
+)
+app &lt;-<span class="st"> </span><span class="kw">prepareApp</span>(<span class="st">'rnaseq'</span>, eselist)
+shiny::<span class="kw">shinyApp</span>(<span class="dt">ui =</span> app$ui, <span class="dt">server =</span> app$server)</code></pre></div>
 <div id="example-dataset" class="section level3">
 <h3>Example dataset</h3>
+<p><code>airway</code> is fine, but it contains no information on differential expression. <code>shinyngs</code> provides extra slots for differential analyses, among other things.</p>
 <p>An example <code>ExploratorySummarizedExperimentList</code> based on the Zhang et al study of neurons and glia (<a href="http://www.jneurosci.org/content/34/36/11929.long" class="uri">http://www.jneurosci.org/content/34/36/11929.long</a>) is included in the package, and this can be used to demonstrate available features. The dataset includes transcript- and gene- level quantification estimates (as <code>ExporatorySummarizedExperiment</code>s within an <code>ExploratorySummarizedExperimentList</code>, and three levels of processing (raw, filtered, normalised) in the <code>assays</code> slots of each.</p>
 <p>Note: this data was generated while testing Kallisto (<a href="https://pachterlab.github.io/kallisto/" class="uri">https://pachterlab.github.io/kallisto/</a>) for quantification, and results may therefore be slightly different to the authors’ online tool (which did not use Kallisto).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(shinyngs)

@@ -7,8 +7,12 @@
 #' 
 #' @export
 
-setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", representation = representation(idfield = "character", entrezgenefield = "character", 
-    labelfield = "character", tests = "list", assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list"))
+setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", 
+    tests = "list", assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list"))
+
+setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
+  as((as(from, 'SummarizedExperiment0')), 'ExploratorySummarizedExperiment')
+})
 
 #' ExploratorySummarizedExperiments
 #' 
@@ -48,12 +52,12 @@ setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", 
 #' @import SummarizedExperiment
 #' @export
 
-ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), 
-    tests = list(), assay_measures = list(), gene_set_analyses = list(), dexseq_results = list()) {
+ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), assay_measures = list(), gene_set_analyses = list(), 
+    dexseq_results = list()) {
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
-    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, 
-        tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results)
-} 
+    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, tests = tests, gene_set_analyses = gene_set_analyses, 
+        dexseq_results = dexseq_results)
+}

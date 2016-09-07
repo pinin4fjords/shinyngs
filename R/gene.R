@@ -63,11 +63,9 @@ geneOutput <- function(id, eselist) {
     
     out <- list()
     
-    # if (length(eselist@ensembl_species) > 0){ out <- list( modalInput(ns('geneModel'), 'Gene model', 'help'), modalOutput(ns('geneModel'),
-    # 'Gene model', plotOutput(ns('geneModel'))) ) }
+    # if (length(eselist@ensembl_species) > 0){ out <- list( modalInput(ns('geneModel'), 'Gene model', 'help'), modalOutput(ns('geneModel'), 'Gene model', plotOutput(ns('geneModel'))) ) }
     
-    out <- c(out, list(uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), 
-        simpletableOutput(ns("geneContrastsTable"))))
+    out <- c(out, list(uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), simpletableOutput(ns("geneContrastsTable"))))
     
     out
 }
@@ -96,12 +94,10 @@ gene <- function(input, output, session, eselist) {
     # Call all the required modules and unpack their reactives
     
     unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
-    unpack.list(callModule(labelselectfield, "gene_label", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, 
-        url_field = "gene", id_selection = TRUE))
-    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = TRUE, show_controls = FALSE))
+    unpack.list(callModule(labelselectfield, "gene_label", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "gene", id_selection = TRUE))
+    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
-
+    
     # The title and info link are reactive to the currently active experiment
     
     output$title <- renderUI({
@@ -114,8 +110,7 @@ gene <- function(input, output, session, eselist) {
         en <- getExperimentName()
         gene_labels <- getSelectedLabels()
         
-        list(modalInput(ns("geneInfo"), paste(en, " info"), "help"), modalOutput(ns("geneInfo"), paste(en, "information for", paste(gene_labels, 
-            sep = ", ")), DT::dataTableOutput(ns("geneInfoTable"))))
+        list(modalInput(ns("geneInfo"), paste(en, " info"), "help"), modalOutput(ns("geneInfo"), paste(en, "information for", paste(gene_labels, sep = ", ")), DT::dataTableOutput(ns("geneInfoTable"))))
     })
     
     # Render the gene model plot
@@ -125,8 +120,7 @@ gene <- function(input, output, session, eselist) {
         gene_labels <- getSelectedLabels()
         
         if (length(eselist@ensembl_species) > 0) {
-            out <- list(modalInput(ns("geneModel"), "Gene model", "help"), modalOutput(ns("geneModel"), paste(gene_labels[1], "gene model"), 
-                plotOutput(ns("geneModel"), height = "600px")))
+            out <- list(modalInput(ns("geneModel"), "Gene model", "help"), modalOutput(ns("geneModel"), paste(gene_labels[1], "gene model"), plotOutput(ns("geneModel"), height = "600px")))
         }
     })
     
@@ -139,8 +133,7 @@ gene <- function(input, output, session, eselist) {
         rowids <- rowids[rowids %in% rownames(sm)]
         gene_labels <- getSelectedLabels()
         
-        validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", getAssay(), 
-            "'")))
+        validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", getAssay(), "'")))
         
         rowids
     })
@@ -175,8 +168,7 @@ gene <- function(input, output, session, eselist) {
             annotation <- data.frame(SummarizedExperiment::mcols(ese), stringsAsFactors = FALSE)
             annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
             
-            geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = min(annotation$start_position), 
-                end = max(annotation$end_position))
+            geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = min(annotation$start_position), end = max(annotation$end_position))
         })
     })
     
@@ -195,8 +187,7 @@ gene <- function(input, output, session, eselist) {
         
     }, options = list(rownames = TRUE, pageLength = 20, dom = "t"), escape = FALSE)
     
-    # Make the gene info table update (probably invisibly) even when hidden, so there's not a delay in rendering when the link to the modal is
-    # clicked.
+    # Make the gene info table update (probably invisibly) even when hidden, so there's not a delay in rendering when the link to the modal is clicked.
     
     outputOptions(output, "geneInfoTable", suspendWhenHidden = FALSE)
     
@@ -207,6 +198,7 @@ gene <- function(input, output, session, eselist) {
         contrasts_table <- labelledContrastsTable()
         
         contrasts_table[contrasts_table[[prettifyVariablename(getIdField())]] %in% rows, , drop = FALSE]
+        #contrasts_table[contrasts_table[[prettifyVariablename('id')]] %in% rows, , drop = FALSE]
     })
     
     # Link the contrasts table for display
@@ -216,9 +208,8 @@ gene <- function(input, output, session, eselist) {
     })
     
     # Render the contrasts table- when a valid label is supplied
-
-    callModule(simpletable, "geneContrastsTable", downloadMatrix = getGeneContrastsTable, displayMatrix = getLinkedGeneContrastsTable, filename = "gene_contrasts", 
-               rownames = FALSE)
+    
+    callModule(simpletable, "geneContrastsTable", downloadMatrix = getGeneContrastsTable, displayMatrix = getLinkedGeneContrastsTable, filename = "gene_contrasts", rownames = FALSE)
     
     # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
     
@@ -270,8 +261,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             plotargs$color <- groups
         }
         
-        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, 
-            margin = list(b = 150))
+        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150))
     })
     
     if (length(plots) > 1) {
@@ -306,8 +296,8 @@ geneModelPlot <- function(ensembl_species, chromosome, start, end) {
     
     # We should know the start_position and end_position. Fetch a track showing genes in the region
     
-    geneTrack <- BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol", 
-        collapseTranscripts = TRUE, shape = "arrow")
+    geneTrack <- BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol", collapseTranscripts = TRUE, 
+        shape = "arrow")
     
     # Move gene labels to above
     
@@ -319,8 +309,5 @@ geneModelPlot <- function(ensembl_species, chromosome, start, end) {
     
     displayPars(transcriptTrack) = list(showId = TRUE, fontcolor.title = "black", just.group = "above")
     
-    plotTracks(list(gtrack, geneTrack, transcriptTrack), from = start, to = end, extend.left = 1000, extend.right = 1000, cex = 1, cex.legend = 0.8, 
-        cex.group = 0.8, cex.title = 0.8)
+    plotTracks(list(gtrack, geneTrack, transcriptTrack), from = start, to = end, extend.left = 1000, extend.right = 1000, cex = 1, cex.legend = 0.8, cex.group = 0.8, cex.title = 0.8)
 }
-
- 

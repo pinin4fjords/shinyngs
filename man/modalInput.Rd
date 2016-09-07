@@ -4,7 +4,7 @@
 \alias{modalInput}
 \title{The input function for the \code{modal} module}
 \usage{
-modalInput(id, label, class)
+modalInput(id, label, class, icon = "info-circle")
 }
 \arguments{
 \item{id}{Modal ID. Must match that passed to \code{inlinehelpOutput}}

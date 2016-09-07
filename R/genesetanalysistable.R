@@ -31,31 +31,30 @@ genesetanalysistableInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated 
-    # with gene set results, so that the assay select doesn't have invalid 
-    # options.
-
-    for (exp in names(eselist)){
-      assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    
+    for (exp in names(eselist)) {
+        assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
     }
-
+    
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2))
+    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), "Maximum FDR", 
+        value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2))
     
     # Things we don't want to wrap in a field set - probably hidden stuff
     
-    naked_fields = list()  
+    naked_fields = list()
     
-    if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1){
-      field_sets$select_assay_data <- expression_filters 
-    }else{
-      naked_fields <- pushToList(naked_fields, expression_filters) 
+    if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
+        field_sets$select_assay_data <- expression_filters
+    } else {
+        naked_fields <- pushToList(naked_fields, expression_filters)
     }
     
     field_sets <- c(field_sets, list(export = simpletableInput(ns("genesetanalysistable"), "Gene set analysis")))
-
-    list(naked_fields, fieldSets(ns("fieldset"), field_sets))    
+    
+    list(naked_fields, fieldSets(ns("fieldset"), field_sets))
 }
 
 #' The output function of the genesetanalysistable module
@@ -78,8 +77,8 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("genesetanalysistable"), "help", "help"), modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", 
-        "genesetanalysistable.md", package = packageName()))), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
+    list(modalInput(ns("genesetanalysistable"), "help", "help"), modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", "genesetanalysistable.md", 
+        package = packageName()))), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
 }
 
 #' The server function of the genesetanalysistable module
@@ -115,12 +114,10 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated 
-    # with gene set results, so that the assay select doesn't have invalid 
-    # options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
     
-    for (exp in names(eselist)){
-      assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
+    for (exp in names(eselist)) {
+        assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
     }
     
     # Extract the gene sets that have been analysed for the the user to select from
@@ -137,8 +134,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -226,6 +222,5 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, 
-        rownames = FALSE)
-} 
+    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
+}

@@ -22,8 +22,7 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
         inputs <- list(hiddenInput(ns("threedee"), FALSE))
     }
     
-    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", 
-        min = 1, max = 20, value = 5)))
+    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", min = 1, max = 20, value = 5)))
 }
 
 #' Server function for scatterplotcontrols module
@@ -124,4 +123,4 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
     
     list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)
     
-} 
+}

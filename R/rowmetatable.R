@@ -24,10 +24,7 @@ rowmetatableInput <- function(id, eselist) {
     
     description = "This is the metadata associated with the rows (e.g. genes) of this study."
     
-    list(
-      selectmatrixInput(ns("rowmetatable"), eselist = eselist),
-      simpletableInput(ns("rowmetatable"), tabletitle = "Annotation")  
-    )
+    list(selectmatrixInput(ns("rowmetatable"), eselist = eselist), simpletableInput(ns("rowmetatable"), tabletitle = "Annotation"))
 }
 
 #' The output function of the rowmetatable module
@@ -51,8 +48,8 @@ rowmetatableInput <- function(id, eselist) {
 
 rowmetatableOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("rowmetatable"), "help", "help"), modalOutput(ns("rowmetatable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", 
-        "rowmetatable.md", package = packageName()))), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
+    list(modalInput(ns("rowmetatable"), "help", "help"), modalOutput(ns("rowmetatable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", "rowmetatable.md", package = packageName()))), 
+        simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
 }
 
 #' The server function of the rowmetatable module
@@ -74,18 +71,18 @@ rowmetatableOutput <- function(id) {
 #' callModule(rowmetatable, 'rowmetatable', eselist)
 
 rowmetatable <- function(input, output, session, eselist) {
-  
+    
     getRowMeta <- reactive({
-      meta <- getAnnotation()
-      meta
+        meta <- getAnnotation()
+        meta
     })
     
     getLinkedRowMeta <- reactive({
-      meta <- getRowMeta()
-      colnames(meta) <- prettifyVariablename(colnames(meta))
-      linkMatrix(meta, eselist@url_roots)
+        meta <- getRowMeta()
+        colnames(meta) <- prettifyVariablename(colnames(meta))
+        linkMatrix(meta, eselist@url_roots)
     })
-  
-    unpack.list(callModule(selectmatrix, 'rowmetatable', eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE))
+    
+    unpack.list(callModule(selectmatrix, "rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE))
     callModule(simpletable, "rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
-} 
+}

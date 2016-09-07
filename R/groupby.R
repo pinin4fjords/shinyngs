@@ -40,19 +40,21 @@ groupbyInput <- function(id) {
 #' @examples
 #' geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
 
-groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, isDynamic = reactive({TRUE})) {
+groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, isDynamic = reactive({
+    TRUE
+})) {
     
     # Choose a default grouping variable, either the one specified or the first
     
     getDefaultGroupby <- reactive({
-        if (multiple){
-          eselist@group_vars 
-        }else{
-          if (length(eselist@default_groupvar) > 0) {
-              eselist@default_groupvar
-          } else {
-              eselist@group_vars[1]
-          }
+        if (multiple) {
+            eselist@group_vars
+        } else {
+            if (length(eselist@default_groupvar) > 0) {
+                eselist@default_groupvar
+            } else {
+                eselist@group_vars[1]
+            }
         }
     })
     
@@ -67,19 +69,19 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
                 
                 dynamic <- isDynamic()
                 
-                  group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
-                  
-                  if (multiple) {
-                    groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
-                  } else {
-                    groupinput <- selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
-                  }
-                  
-                  if (! dynamic){
-                    groupinput <- shinyjs::hidden(groupinput) 
-                  }
-                  
-                  groupinput
+                group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
+                
+                if (multiple) {
+                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
+                } else {
+                  groupinput <- selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
+                }
+                
+                if (!dynamic) {
+                  groupinput <- shinyjs::hidden(groupinput)
+                }
+                
+                groupinput
             } else {
                 hiddenInput(ns("groupby"), "NULL")
             }
@@ -96,4 +98,4 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
             input$groupby
         }
     })
-} 
+}
