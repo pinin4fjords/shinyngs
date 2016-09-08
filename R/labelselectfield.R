@@ -137,11 +137,15 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
         exps <- getExperiments()
         mf <- getSelectedMetaField()
         
-        if (mf == 'id' || mf == ese@idfield){
+        if (mf == 'id'){
           labels 
         }else{
           id_lists <- lapply(exps, function(ese) {
-              rownames(ese)[which(mcols(ese)[[mf]] %in% labels)]
+              if (mf == ese@idfield){
+                labels 
+              }else{
+                rownames(ese)[which(mcols(ese)[[mf]] %in% labels)]
+              }
           })
           sort(Reduce(union, id_lists))
         }
