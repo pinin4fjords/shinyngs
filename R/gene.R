@@ -236,10 +236,14 @@ gene <- function(input, output, session, eselist) {
 #' callModule(gene, 'gene', ses)
 
 geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Expression") {
-    
+  
     if (!is.null(colorby)) {
         groups <- as.character(experiment[colnames(expression), colorby])
         groups[is.na(groups)] <- "N/A"
+        
+        # Convert to factor and maintain order of levels
+        
+        groups <- factor(groups, levels = unique(groups))
     }
     
     # A hidden axis
@@ -261,7 +265,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             plotargs$color <- groups
         }
         
-        do.call(plot_ly, plotargs) %>% layout(xaxis = list(title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150))
+        do.call(plot_ly, plotargs) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150))
     })
     
     if (length(plots) > 1) {
