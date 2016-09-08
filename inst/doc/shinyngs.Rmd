@@ -20,11 +20,6 @@ vignette: >
 
 It's not always trivial to quickly assess the results of next-generation sequencing experiment. `r Githubpkg("pinin4fjords/shinyngs")` is designed to help fix that by providing a way of instantly producing a visual tool for data mining at the end of an analysis pipeline. 
 
-* Allow rapid exploration of data output more or less straight from RNA-seq piplelines etc. 
-* Where more parameters are provided, extend the exploratory tools available - e.g. for differential expression.
-
-Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it's not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.
-
 # Features
 
 * A variety of single and multiple-panel Shiny applications- currently heatmap, pca, boxplot, dendrogram, gene-wise barplot, various tables and an RNA-seq app combining all of these.
@@ -32,7 +27,7 @@ Shiny apps are great for NGS and bioinformatics applications in general. But app
 * Takes input in an extension of the commonly used `SummarizedExperiment` format, called `ExploratorySummarizedExperiment` 
 * Interface kept simple where possible, with complexity automatically added where required:
     * Input field clutter reduced with the use of collapses from [shinyBS](https://ebailey78.github.io/shinyBS/index.html) (when installed).
-    * If a list of `ExploratorySummarizedExperiment`s is supplied (useful in situiations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.
+    * If a list of `ExploratorySummarizedExperiment`s is supplied (useful in situations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.
     * If a selected experiment contains more than one assay, a selector will again be provided.
 * For me: leveraging of [Shiny modules](http://shiny.rstudio.com/articles/modules.html). This makes re-using complex UI components much easier, and maintaining application code is orders of magnitude simpler as a result.
 
@@ -57,7 +52,7 @@ The data structures used by Shinyngs build on `SummarizedExperiment`. One `Summa
 
 `ExploratorySummarizedExperimentList` is a container for one or more `ExploratorySummarizedExperiment` objects, and is intented to describe an overall study, i.e. one or more experiments the same set of samples, but different sets of features in each experiment. The `ExploratorySummarizedExperimentListList` therefore is used to supply study-wide things such as contrasts, gene sets, url roots for creating links etc. 
 
-# Quickstart
+# Quickstart: working from a SummarizedExperiment
 
 To see how to quickly build an RNA-seq app from a simple SummarizedExperiment, we can use the example data in the `airway` package. We just convert the RangedSummarizedExperiment to an ExploratorySummarizedExperiment, and add it to a list of such objects, which represent a study.
 

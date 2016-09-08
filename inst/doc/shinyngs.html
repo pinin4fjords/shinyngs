@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#install-with-devtools"><span class="toc-section-number">4.2</span> Install with devtools</a></li>
 </ul></li>
 <li><a href="#concepts-and-data-structures"><span class="toc-section-number">5</span> Concepts and data structures</a></li>
-<li><a href="#quickstart"><span class="toc-section-number">6</span> Quickstart</a></li>
+<li><a href="#quickstart-working-from-a-summarizedexperiment"><span class="toc-section-number">6</span> Quickstart: working from a SummarizedExperiment</a></li>
 <li><a href="#more-complex-use-case-the-zhangneurons-example-dataset"><span class="toc-section-number">7</span> More complex use case: the <code>zhangneurons</code> Example dataset</a><ul>
 <li><a href="#use-example-data-to-make-some-applications"><span class="toc-section-number">7.1</span> Use example data to make some applications</a></li>
 </ul></li>
@@ -95,11 +95,6 @@ document.addEventListener("DOMContentLoaded", function() {
 <div id="motivation" class="section level1">
 <h1><span class="header-section-number">2</span> Motivation</h1>
 <p>It’s not always trivial to quickly assess the results of next-generation sequencing experiment. <em><a href="https://github.com/pinin4fjords/shinyngs">shinyngs</a></em> is designed to help fix that by providing a way of instantly producing a visual tool for data mining at the end of an analysis pipeline.</p>
-<ul>
-<li>Allow rapid exploration of data output more or less straight from RNA-seq piplelines etc.</li>
-<li>Where more parameters are provided, extend the exploratory tools available - e.g. for differential expression.</li>
-</ul>
-<p>Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it’s not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.</p>
 </div>
 <div id="features" class="section level1">
 <h1><span class="header-section-number">3</span> Features</h1>
@@ -110,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li>Interface kept simple where possible, with complexity automatically added where required:
 <ul>
 <li>Input field clutter reduced with the use of collapses from <a href="https://ebailey78.github.io/shinyBS/index.html">shinyBS</a> (when installed).</li>
-<li>If a list of <code>ExploratorySummarizedExperiment</code>s is supplied (useful in situiations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.</li>
+<li>If a list of <code>ExploratorySummarizedExperiment</code>s is supplied (useful in situations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.</li>
 <li>If a selected experiment contains more than one assay, a selector will again be provided.</li>
 </ul></li>
 <li>For me: leveraging of <a href="http://shiny.rstudio.com/articles/modules.html">Shiny modules</a>. This makes re-using complex UI components much easier, and maintaining application code is orders of magnitude simpler as a result.</li>
@@ -134,8 +129,8 @@ install_github('pinin4fjords/shinyngs')</code></pre>
 <p>The data structures used by Shinyngs build on <code>SummarizedExperiment</code>. One <code>SummarizedExperiment</code> can have multiple ‘assays’, essentially matrices with samples in columns and ‘features’ (transcripts or genes) in rows, representing different results for the same features and samples. This is handy to compare results before and after processing, for example. <code>ExploratorySummarizedExperiment</code> extends <code>SummarizedExperiment</code> to include slots relating to annotation, and associated results of ‘tests’, providing p values and q values.</p>
 <p><code>ExploratorySummarizedExperimentList</code> is a container for one or more <code>ExploratorySummarizedExperiment</code> objects, and is intented to describe an overall study, i.e. one or more experiments the same set of samples, but different sets of features in each experiment. The <code>ExploratorySummarizedExperimentListList</code> therefore is used to supply study-wide things such as contrasts, gene sets, url roots for creating links etc.</p>
 </div>
-<div id="quickstart" class="section level1">
-<h1><span class="header-section-number">6</span> Quickstart</h1>
+<div id="quickstart-working-from-a-summarizedexperiment" class="section level1">
+<h1><span class="header-section-number">6</span> Quickstart: working from a SummarizedExperiment</h1>
 <p>To see how to quickly build an RNA-seq app from a simple SummarizedExperiment, we can use the example data in the <code>airway</code> package. We just convert the RangedSummarizedExperiment to an ExploratorySummarizedExperiment, and add it to a list of such objects, which represent a study.</p>
 <pre class="r"><code>library(shinyngs)
 
