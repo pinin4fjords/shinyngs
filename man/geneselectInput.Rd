@@ -24,7 +24,7 @@ This will generally not be called directly, but by other modules such as the
 heatmap module.
 }
 \examples{
-geneselectInput(ns('heatmap'))
+geneselectInput('myid')
 }
 \keyword{shiny}
 

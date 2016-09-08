@@ -1,6 +1,11 @@
 #' The input function of the dendrogram module
 #' 
-#' This provides the form elements to control the pca display
+#' This module will produce a sample clustering dendrogram based on 
+#' user-selected parameters of row (e.g. gene) and column (sample) selection 
+#' provided by the \code{selectmatrix} module, as well distance matrix 
+#' generation and clustering method. 
+#' 
+#' This funcion provides the form elements to control the display
 #' 
 #' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
@@ -12,7 +17,9 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' dendroInput(ns('boxplot'), eselist)
+#' library(shinyngs)
+#' data(zhangneurons)
+#' dendroInput('myid', zhangneurons)
 
 dendroInput <- function(id, eselist) {
     
@@ -20,17 +27,22 @@ dendroInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("dendro"), eselist)
     
-    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), "Clustering method", 
-        c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), 
-        groupbyInput(ns("dendro")))
+    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), 
+        selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", 
+            `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
 }
 
-#' The output function of the boxplot module
+#' The output function of the dendro module
 #' 
-#' This provides actual boxplot element for display by applications
+#' This module will produce a sample clustering dendrogram based on 
+#' user-selected parameters of row (e.g. gene) and column (sample) selection 
+#' provided by the \code{selectmatrix} module, as well distance matrix 
+#' generation and clustering method. 
+#' 
+#' This provides actual dendrogram plot element for display by applications
 #'
 #' @param id Submodule namespace
 #'
@@ -40,15 +52,20 @@ dendroInput <- function(id, eselist) {
 #' @keywords shiny
 #' 
 #' @examples
-#' dendroOutput('dendro')
+#' dendroOutput('myid')
 
 dendroOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.md", package = packageName()))), 
-        h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
+    list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", 
+        "dendro.md", package = packageName()))), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
 }
 
 #' The server function of the dendrogram module
+#' 
+#' This module will produce a sample clustering dendrogram based on 
+#' user-selected parameters of row (e.g. gene) and column (sample) selection 
+#' provided by the \code{selectmatrix} module, as well distance matrix 
+#' generation and clustering method. 
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
@@ -62,7 +79,7 @@ dendroOutput <- function(id) {
 #' @keywords shiny
 #'   
 #' @examples
-#' callModule(dendro, 'dendro', eselist)
+#' callModule(dendro, 'myid', eselist)
 
 dendro <- function(input, output, session, eselist) {
     
@@ -78,7 +95,8 @@ dendro <- function(input, output, session, eselist) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
+        clusteringDengrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+            matrixTitle())
         
     })
     
@@ -87,7 +105,8 @@ dendro <- function(input, output, session, eselist) {
     output$sampleDendroPlot <- renderPlot({
         withProgress(message = "Making sample dendrogram", value = 0, {
             
-            clustering_dendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
+            clusteringDengrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+                matrixTitle())
             
         })
     }, height = 600)
@@ -111,9 +130,19 @@ dendro <- function(input, output, session, eselist) {
 #' @export
 #' 
 #' @examples
-#' ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+#' # Make a dendrogram with the data in airway
+#' 
+#' data(airway, pakckage = 'airway')
+#' clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
+#' 
+#' # Do the same, but only usig the 1000 most variant rows and see how the
+#' # clustering improves. 
+#' 
+#' mymatrix <- assays(airway)[[1]]
+#' mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000],]
+#' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = 'dex')
 
-clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "") {
+clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "") {
     
     plotmatrix <- log2(plotmatrix + 1)
     
@@ -131,7 +160,8 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_me
     
     if (is.null(colorby)) {
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40)), show_guide = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40)), 
+            show.legend = F)
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/3), ymax)
         
@@ -142,19 +172,22 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_me
         labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
         shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), show_guide = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), 
+            colour = colorby), show.legend = F)
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_discrete(name = prettifyVariablename(colorby))
         
-        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + 
-            theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
+        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, 
+            name = prettifyVariablename(colorby)) + theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + 
+            ggtitle(plot_title)
         
     }
     
     if (!is.null(colorby)) {
         p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     }
-    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
+    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + 
+        ggtitle(plot_title))
 }
 
 #' Calculate a distance matrix based on correlation
@@ -169,6 +202,8 @@ clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_me
 #' @export
 #' 
 #' @examples
+#' data(airway, package = 'airway')
+#' mymatrix <- assays(airway)[[1]]
 #' calculateDist(mymatrix)
 
 calculateDist <- function(plotmatrix, cor_method = "spearman") {
@@ -188,7 +223,9 @@ calculateDist <- function(plotmatrix, cor_method = "spearman") {
 #' @export
 #' 
 #' @examples
-#' calculateDist(mymatrix)
+#' data(airway, package = 'airway')
+#' mymatrix <- assays(airway)[[1]]
+#' calculateDendrogram(mymatrix)
 
 calculateDendrogram <- function(plotmatrix, cor_method = "spearman", cluster_method = "ward.D2") {
     

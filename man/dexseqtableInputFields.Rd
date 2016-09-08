@@ -13,7 +13,9 @@ dexseqtableInputFields(id, eselist, allow_filtering = TRUE)
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 
-\item{allow_filtering}{Display filters for fold change etc?}
+\item{allow_filtering}{Allow user filtering of results (default: TRUE)?
+Deactivated by the \code{dexseqplot} module, which uses it for showing
+gene-specific results.}
 }
 \value{
 output Named list of \code{shiny.tag} objects

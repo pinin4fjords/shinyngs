@@ -8,11 +8,13 @@ barplotOutput(id, height = "400")
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{heigth}{Height of the plotting space in px}
 }
 \value{
 A list of elements that can be included in a panel
 }
 \description{
-Display grouped, stacked or overlaid bars for a matrix
+Generic module to isplay grouped, stacked or overlaid bars for a matrix
 }
 

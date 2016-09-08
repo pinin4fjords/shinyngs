@@ -17,10 +17,18 @@ output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This provides the form elements to control the pca display
+This module will produce a sample clustering dendrogram based on 
+user-selected parameters of row (e.g. gene) and column (sample) selection 
+provided by the \code{selectmatrix} module, as well distance matrix 
+generation and clustering method.
+}
+\details{
+This funcion provides the form elements to control the display
 }
 \examples{
-dendroInput(ns('boxplot'), eselist)
+library(shinyngs)
+data(zhangneurons)
+dendroInput('myid', zhangneurons)
 }
 \keyword{shiny}
 

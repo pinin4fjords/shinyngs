@@ -17,19 +17,28 @@ heatmap(input, output, session, eselist, type = "expression")
 ExploratorySummarizedExperiment objects}
 
 \item{type}{The type of heatmap that will be made. 'expression', 'samples' or
-'pca'}
+'pca' (default: 'expression')}
 }
 \description{
+Three types of heatmaps are provided, employed in various places in the
+rnaseq app (for example), and using much of the same code. Expresssion 
+heatmaps plot expression for samples by column and e.g. genes by row. A 
+samples heatmap plots samples vs samples to illustrate correlation patterns.
+A pca heatmap plots the results of anova tests applied to examine the
+associations between principal components and experimental variables.
+}
+\details{
 This function is not called directly, but rather via callModule() (see 
 example).
 }
-\details{
-This function assumes that the gene sets have one gene ID (e.g. Entrez) which
-need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
-common when dealign with MSigDB gene sets, for example.
-}
 \examples{
 callModule(heatmap, 'heatmap', eselist, type = 'pca')
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('heatmap', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

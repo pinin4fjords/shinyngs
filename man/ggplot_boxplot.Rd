@@ -15,6 +15,10 @@ ggplot_boxplot(plotmatrix, experiment, colorby = NULL,
 \item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
 
 \item{expressiontype}{Expression type for use in y axis label}
+
+\item{whisker_distance}{Passed to \code{\link[ggplot2]{geom_boxplot}} as 
+\code{coef}, controlling the length of the whiskers. See documentation of 
+that function for more info (default: 1.5).}
 }
 \value{
 output A \code{ggplot} output
@@ -23,7 +27,8 @@ output A \code{ggplot} output
 A simple function using \code{ggplot2} to make a sample boxplot
 }
 \examples{
-ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+data(airway, package = 'airway')
+ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
 }
 \keyword{keywords}
 

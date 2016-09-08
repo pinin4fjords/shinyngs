@@ -1,7 +1,7 @@
 #' The UI input function of the differentialtable module
 #' 
 #' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
+#' defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 #' 
 #' Leverages the \code{simpletable} module
 #' 
@@ -22,13 +22,14 @@ differentialtableInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
+    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, 
+        export = simpletableInput(ns("differentialtable"))))
 }
 
 #' The output function of the differentialtable module
 #' 
 #' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
+#' defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 #' 
 #' Leverages the \code{simpletable} module
 #'
@@ -45,16 +46,20 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", includeMarkdown(system.file("inlinehelp", "differentialtable.md", 
-        package = packageName()))), htmlOutput(ns("differentialtable")))
+    list(modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", 
+        includeMarkdown(system.file("inlinehelp", "differentialtable.md", package = packageName()))), htmlOutput(ns("differentialtable")))
 }
 
 #' The server function of the differentialtable module
 #' 
+#' This module provides information on the comparison betwen pairs of groups 
+#' defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
+#' 
 #' This function is not called directly, but rather via callModule() (see 
-#' example). Essentially this just passes the results of \code{colData()} 
-#' applied to the specified SummarizedExperiment object to the 
-#' \code{simpletable} module
+#' example). 
+#' 
+#' Essentially this funnction uses the \code{contrasts} module to group samples
+#' and calculate fold changes, adding test statistics where available.
 #' 
 #' @param input Input object
 #' @param output Output object
@@ -83,9 +88,11 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE))
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
+        filename = "differential", rownames = FALSE)
 }

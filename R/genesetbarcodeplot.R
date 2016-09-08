@@ -1,15 +1,11 @@
 #' The UI input function of the genesetbarcodeplot module
 #' 
-#' This module displays gene set analysis tables stored as a list in the 
-#' \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
-#' The keys of this list must match those of the \code{gene_sets} slot of the
-#' containing \code{ExploratorySummarizedExperimentList}, and the row names
-#' of each table must match the second-level keys. The module is based on the
-#' output of roast() from \code{limma}, but it's fairly generic, and assumes
-#' only the presence of a 'p value' and 'FDR' column, so the output of other
-#' methods should be easily adapted to suit.
-#' 
-#' Leverages the \code{simpletable} module
+#' This module leverages gene sets stored in the \code{gene_sets} slot of an
+#' \code{ExploratorySummarizedExperimentList} object to produce barcode plots
+#' using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
+#' fold changes calculated with the \code{contrasts} module, and FDR values 
+#' from the \code{gene_set_analyses} slot of the selected 
+#' \code{ExploratorySummarizedExperiment} are displayed where provided.
 #' 
 #' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
@@ -21,7 +17,13 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' genesetbarcodeplotInput('experiment', eselist)
+#' data(zhangneurons)
+#' genesetbarcodeplotInput('myid', zhangneurons)
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' app <- prepareApp('genesetbarcodeplot', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 genesetbarcodeplotInput <- function(id, eselist) {
     
@@ -31,7 +33,8 @@ genesetbarcodeplotInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select
+    # doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -39,7 +42,8 @@ genesetbarcodeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    field_sets <- list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), allow_filtering = FALSE))
+    field_sets <- list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), 
+        allow_filtering = FALSE))
     
     # Things we don't want to wrap in a field set - probably hidden stuff
     
@@ -58,10 +62,12 @@ genesetbarcodeplotInput <- function(id, eselist) {
 
 #' The output function of the genesetbarcodeplot module
 #' 
-#' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
-#' 
-#' Leverages the \code{simpletable} module
+#' This module leverages gene sets stored in the \code{gene_sets} slot of an
+#' \code{ExploratorySummarizedExperimentList} object to produce barcode plots
+#' using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
+#' fold changes calculated with the \code{contrasts} module, and FDR values 
+#' from the \code{gene_set_analyses} slot of the selected 
+#' \code{ExploratorySummarizedExperiment} are displayed where provided.
 #'
 #' @param id Module namespace
 #'
@@ -72,29 +78,31 @@ genesetbarcodeplotInput <- function(id, eselist) {
 #' 
 #' @examples
 #' genesetbarcodeplotOutput('experiment')
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' app <- prepareApp('genesetbarcodeplot', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 genesetbarcodeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("genesetbarcodeplot"), "help", "help"), modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp", "genesetbarcodeplot.md", 
-        package = packageName()))), h3("Gene set barcode plot"), plotOutput(ns("genesetbarcodeplot")), h4("Gene set differential expression"), simpletableOutput(ns("genesetbarcodeplot")))
+    list(modalInput(ns("genesetbarcodeplot"), "help", "help"), modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp", 
+        "genesetbarcodeplot.md", package = packageName()))), h3("Gene set barcode plot"), plotOutput(ns("genesetbarcodeplot")), 
+        h4("Gene set differential expression"), simpletableOutput(ns("genesetbarcodeplot")))
 }
 
 #' The server function of the genesetbarcodeplot module
 #' 
-#' This module displays gene set analysis tables stored as a list in the 
-#' \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
-#' The keys of this list must match those of the \code{gene_sets} slot of the
-#' containing \code{ExploratorySummarizedExperimentList}, and the row names
-#' of each table must match the second-level keys. The module is based on the
-#' output of roast() from \code{limma}, but it's fairly generic, and assumes
-#' only the presence of a 'p value' and 'FDR' column, so the output of other
-#' methods should be easily adapted to suit.
+#' This module leverages gene sets stored in the \code{gene_sets} slot of an
+#' \code{ExploratorySummarizedExperimentList} object to produce barcode plots
+#' using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
+#' fold changes calculated with the \code{contrasts} module, and FDR values 
+#' from the \code{gene_set_analyses} slot of the selected 
+#' \code{ExploratorySummarizedExperiment} are displayed where provided.
 #' 
 #' This function is not called directly, but rather via callModule() (see 
-#' example). Essentially this just passes the results of \code{colData()} 
-#' applied to the specified SummarizedExperiment object to the 
-#' \code{simpletable} module
+#' example). 
 #' 
 #' @param input Input object
 #' @param output Output object
@@ -106,6 +114,11 @@ genesetbarcodeplotOutput <- function(id) {
 #'   
 #' @examples
 #' callModule(genesetbarcodeplot, 'genesetbarcodeplot', eselist)
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' app <- prepareApp('genesetbarcodeplot', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 genesetbarcodeplot <- function(input, output, session, eselist) {
     
@@ -113,7 +126,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select
+    # doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -125,7 +139,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -133,7 +148,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, plotWidth = 800)
+    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, 
+        plotWidth = 800)
     
     observe({
         updateGeneSetsList()
@@ -151,8 +167,10 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
         gene_set_names <- getGenesetNames()
         
         if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]])) {
-            fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]][gene_set_names, "FDR"], 3), collapse = ",")
-            direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]][gene_set_names, "Direction"], collapse = ",")
+            fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]][gene_set_names, "FDR"], 
+                3), collapse = ",")
+            direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]][gene_set_names, "Direction"], 
+                collapse = ",")
             title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
         } else {
             title_components <- c(title_components, "(no association)")
@@ -206,7 +224,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Provide the gene set genes in a table of contrst data
     
-    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, 
+        filename = "gene_set_contrast", rownames = FALSE, pageLength = 10)
     
     # Catch the gene set from the URL
     

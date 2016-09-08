@@ -10,11 +10,13 @@ barplotInput(id, default_mode = "stack", allow_select = TRUE)
 \item{id}{Submodule namespace}
 
 \item{default_mode}{Default bar mode}
+
+\item{allow_select}{Allow user to choose stack mode?}
 }
 \value{
 A list of controls that can be added to a UI definition
 }
 \description{
-Display grouped, stacked or overlaid bars for a matrix
+Generic module to isplay grouped, stacked or overlaid bars for a matrix
 }
 

@@ -16,6 +16,11 @@ contrastsInput(id, default_min_foldchange = 2, default_max_p = 0.05,
 
 \item{allow_filtering}{Provide the filtering fields? Can be disabled to
 produce unfiltered contrasts tables.}
+
+\item{summarise}{Provide summarisation controls? Allow user to control how 
+how values are summarised per group. Disabling this disables 
+summarisation, which may be the desired result for modules that just need
+to use the contrasts drop-down.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

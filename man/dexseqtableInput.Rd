@@ -11,6 +11,10 @@ dexseqtableInput(id, eselist, allow_filtering = TRUE)
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
+
+\item{allow_filtering}{Allow user filtering of results (default: TRUE)?
+Deactivated by the \code{dexseqplot} module, which uses it for showing
+gene-specific results.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

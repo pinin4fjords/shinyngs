@@ -18,6 +18,8 @@ output Object of class 'dist'
 Calculate a distance matrix based on correlation
 }
 \examples{
+data(airway, package = 'airway')
+mymatrix <- assays(airway)[[1]]
 calculateDist(mymatrix)
 }
 \keyword{keywords}

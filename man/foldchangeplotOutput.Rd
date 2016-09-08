@@ -14,14 +14,18 @@ output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module is for making scatter plots comparing pairs of groups 
-defined in a 'tests' slot of the ExploratorySummarizedExperiment
+This module is for making scatter plots comparing pairs of groups defined in
+a 'contrasts' slot of the ExploratorySummarizedExperimentList
 }
 \details{
 Leverages the \code{scatterplot} module
 }
 \examples{
-differentialtableOutput('experiment')
+foldchangeplotOutput('myid')
+
+data(zhangneurons)
+app <- prepareApp('foldchangeplot', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

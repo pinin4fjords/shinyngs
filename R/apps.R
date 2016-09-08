@@ -95,7 +95,7 @@
 #' # to demonstrate contrasts, gene set annotations etc. The app produced in 
 #' # this way will have more panels for differential analyses.
 #' 
-#' data("zhangneurons")
+#' data('zhangneurons')
 #' app <- prepareApp('rnaseq', zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 
@@ -142,8 +142,9 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     
     if (!is.null(module)) {
         
-        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, windowTitle = moduletitle, tabPanel(prettifyVariablename(module), 
-            sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(module, ...), width = 9)))))
+        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", 
+            title = moduletitle, windowTitle = moduletitle, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, 
+                eselist, ...), width = 3), mainPanel(outputFunc(module, ...), width = 9)))))
         
         if (ui_only) {
             server <- function(input, output, session) {

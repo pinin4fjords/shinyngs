@@ -26,6 +26,12 @@ example).
 }
 \examples{
 callModule(maplot, 'maplot', eselist)
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('maplot', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

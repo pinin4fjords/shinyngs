@@ -17,11 +17,17 @@ dendro(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
+This module will produce a sample clustering dendrogram based on 
+user-selected parameters of row (e.g. gene) and column (sample) selection 
+provided by the \code{selectmatrix} module, as well distance matrix 
+generation and clustering method.
+}
+\details{
 This function is not called directly, but rather via callModule() (see 
 example).
 }
 \examples{
-callModule(dendro, 'dendro', eselist)
+callModule(dendro, 'myid', eselist)
 }
 \keyword{shiny}
 

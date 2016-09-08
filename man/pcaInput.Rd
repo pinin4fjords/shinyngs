@@ -23,6 +23,12 @@ modules.
 }
 \examples{
 pcaInput('pca', ese, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('pca', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

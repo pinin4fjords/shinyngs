@@ -2,7 +2,8 @@
 % Please edit documentation in R/chipseq.R
 \name{chipseqInput}
 \alias{chipseqInput}
-\title{The input function of the chipseq module}
+\title{The input function of the chipseq module. Currently a near-clone of the 
+RNA-seq module, with ChIP-seq optimisations planned.}
 \usage{
 chipseqInput(id, eselist)
 }

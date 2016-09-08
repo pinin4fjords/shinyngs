@@ -30,6 +30,12 @@ Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
 callModule(pca, 'pca', eselist)
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('pca', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

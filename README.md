@@ -69,15 +69,12 @@ There's lots more information and examples of how to build your own apps in the 
 TODO
 ====
 
--   Tidy up out-of-date function documentation
--   Add tables for gene sets, read statistics etc
--   Incorporate some more fundamental QC plots
--   More apps for more things!
+-   More useful non-RNAseq functionality to be added
 
 Contributors
 ============
 
-This is an experimental embryonic project, but I can be reached on @pinin4fjords with any queries. Other contributors welcome.
+I can be reached on @pinin4fjords with any queries. Other contributors welcome.
 
 License
 =======

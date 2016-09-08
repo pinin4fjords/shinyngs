@@ -16,6 +16,12 @@
 #'   
 #' @examples
 #' assaydatatableInput('experiment', eselist)
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('assaydatatable', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 assaydatatableInput <- function(id, eselist) {
     
@@ -41,12 +47,18 @@ assaydatatableInput <- function(id, eselist) {
 #' 
 #' @examples
 #' assaydatatableOutput('experiment')
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('assaydatatable', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 assaydatatableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("assaydatatable"), "help", "help"), modalOutput(ns("assaydatatable"), "Assay data table", includeMarkdown(system.file("inlinehelp", "assaydatatable.md", package = packageName()))), 
-        htmlOutput(ns("assaydatatable")))
+    list(modalInput(ns("assaydatatable"), "help", "help"), modalOutput(ns("assaydatatable"), "Assay data table", includeMarkdown(system.file("inlinehelp", 
+        "assaydatatable.md", package = packageName()))), htmlOutput(ns("assaydatatable")))
 }
 
 #' The server function of the assaydatatable module
@@ -66,6 +78,12 @@ assaydatatableOutput <- function(id) {
 #' 
 #' @examples
 #' callModule(assaydatatable, 'assaydatatable', eselist)
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('assaydatatable', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 assaydatatable <- function(input, output, session, eselist) {
     
@@ -83,5 +101,6 @@ assaydatatable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
+    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, 
+        filename = getAssay(), rownames = FALSE)
 }

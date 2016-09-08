@@ -41,6 +41,10 @@ represented by Entrez ID (not symbol).}
 \item{read_reports}{A named list of matrices with read counts in columns
 and sample names in rows. Useful for providing mapped read counts, 
 counts per gene type etc}
+
+\item{ensembl_species}{Ensembl species definition like 'mmusculus'. Used to
+interface with BiomaRt e.g. to make gene model plots in the \code{gene} 
+module.}
 }
 \value{
 output An ExploratorySummarizedExperimentList

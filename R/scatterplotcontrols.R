@@ -7,7 +7,6 @@
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character()
-#' @export
 #'
 #' @examples
 #' scatterplotcontrolsInput('pca', allow_3d = FALSE) # for a 2D plot
@@ -22,7 +21,8 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
         inputs <- list(hiddenInput(ns("threedee"), FALSE))
     }
     
-    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", min = 1, max = 20, value = 5)))
+    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", 
+        min = 1, max = 20, value = 5)))
 }
 
 #' Server function for scatterplotcontrols module
@@ -47,7 +47,6 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
 #' the user to select axes (default: NA)
 #'
 #' @return output A list of reactives for accessing input values
-#' @export
 #'
 #' @examples
 #' unpack.list(callModule(scatterplotcontrols, 'pca', pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
@@ -121,6 +120,7 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
         input$pointSize
     })
     
-    list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)
+    list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, 
+        getPointSize = getPointSize)
     
 }

@@ -14,14 +14,21 @@ output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module is for making scatter plots comparing pairs of groups 
-defined in a 'tests' slot of the ExploratorySummarizedExperiment
+This module produces an MA plot of log(10) expression vs log(2) fold change
+for contrasts defined in the `contrasts` slot of an 
+'ExploratorySummarizedExperimentList` object.
 }
 \details{
-Leverages the \code{scatterplot} module
+Leverages the \code{contrasts} and \code{scatterplot} modules
 }
 \examples{
-differentialtableOutput('experiment')
+maplotOutput('experiment')
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('maplot', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

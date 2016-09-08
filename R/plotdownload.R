@@ -4,6 +4,7 @@
 #' This will generally not be called directly, but by other modules
 #'
 #' @param id Submodule namespace
+#' @param label Label for the download button
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -18,7 +19,6 @@ plotdownloadInput <- function(id, label = "Plot") {
     ns <- NS(id)
     
     downloadButton(ns("plotdownload"), label)
-    
 }
 
 #' The server function of the gene set module

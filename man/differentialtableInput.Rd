@@ -18,7 +18,7 @@ output An HTML tag object that can be rendered as HTML using
 }
 \description{
 This module provides information on the comparison betwen pairs of groups 
-defined in a 'tests' slot of the ExploratorySummarizedExperiment
+defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 }
 \details{
 Leverages the \code{simpletable} module

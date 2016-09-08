@@ -17,23 +17,24 @@ genesetbarcodeplot(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This module displays gene set analysis tables stored as a list in the 
-\code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
-The keys of this list must match those of the \code{gene_sets} slot of the
-containing \code{ExploratorySummarizedExperimentList}, and the row names
-of each table must match the second-level keys. The module is based on the
-output of roast() from \code{limma}, but it's fairly generic, and assumes
-only the presence of a 'p value' and 'FDR' column, so the output of other
-methods should be easily adapted to suit.
+This module leverages gene sets stored in the \code{gene_sets} slot of an
+\code{ExploratorySummarizedExperimentList} object to produce barcode plots
+using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
+fold changes calculated with the \code{contrasts} module, and FDR values 
+from the \code{gene_set_analyses} slot of the selected 
+\code{ExploratorySummarizedExperiment} are displayed where provided.
 }
 \details{
 This function is not called directly, but rather via callModule() (see 
-example). Essentially this just passes the results of \code{colData()} 
-applied to the specified SummarizedExperiment object to the 
-\code{simpletable} module
+example).
 }
 \examples{
 callModule(genesetbarcodeplot, 'genesetbarcodeplot', eselist)
+
+# Almost certainly used via application creation
+
+app <- prepareApp('genesetbarcodeplot', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

@@ -64,11 +64,6 @@
 #  library(shinyngs)
 #  data("zhangneurons")
 
-## ----eval=TRUE, message=FALSE, warning=FALSE-----------------------------
-library(SummarizedExperiment)
-library(shinyngs)
-data("zhangneurons")
-
 ## ----eval=FALSE----------------------------------------------------------
 #  app <- prepareApp("rnaseq", zhangneurons)
 #  shiny::shinyApp(app$ui, app$server)
@@ -150,7 +145,35 @@ myesel[[1]]@tests <- zhangneurons[[1]]@tests
 #    'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
 #  )
 #  
-#  myesel@gene_sets <- lapply(genesets_files, GSEABase::getGmt)
+#  gene_sets <- lapply(genesets_files, GSEABase::getGmt)
+
+## ----eval = FALSE--------------------------------------------------------
+#  myesel <- ExploratorySummarizedExperimentList(
+#    eses = list(expression = myese),
+#    title = "My title",
+#    author = "My Authors",
+#    description = 'Look what I gone done',
+#    gene_sets = gene_sets
+#  )
+
+## ----eval = TRUE---------------------------------------------------------
+names(zhangneurons@gene_sets)
+
+## ----eval = TRUE---------------------------------------------------------
+names(zhangneurons@gene_sets$external_gene_name$KEGG)[1:10]
+
+## ----eval = TRUE---------------------------------------------------------
+zhangneurons@gene_sets$external_gene_name$KEGG$KEGG_GLYCOLYSIS_GLUCONEOGENESIS
+
+## ----eval = TRUE---------------------------------------------------------
+names(zhangneurons$gene@gene_set_analyses)
+names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
+names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG)
+head(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG$`myelinating_oligodendrocytes:0-1`)
+
+## ----eval = FALSE--------------------------------------------------------
+#  app <- prepareApp('dendro', eselist)
+#  shiny::shinyApp(ui = app$ui, server = app$server)
 
 ## ----eval=FALSE----------------------------------------------------------
 #  library(shinyngs)

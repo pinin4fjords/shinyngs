@@ -1,7 +1,10 @@
 #' The UI function of the genesetselect module
 #' 
-#' The gene set module is for adding a gene set filter to shiny UI elements.
-#' This will generally not be called directly, but by other modules
+#' The gene set module is for adding a gene set filter to displays. A
+#' \code{\link[shiny]{selectizeInput}} is used for performance reasons, 
+#' providing an autocomplete field for selecting from a list that could stretch 
+#' to thousands of entries. This would be difficult to do client-side using a 
+#' standard select field.  
 #'
 #' @param id Submodule namespace
 #'
@@ -11,24 +14,22 @@
 #' @keywords shiny
 #' 
 #' @examples
-#' genesetselectInput(ns('heatmap'))
+#' genesetselectInput('myid')
 
 genesetselectInput <- function(id, multiple = TRUE) {
     ns <- NS(id)
     
-    tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5), multiple = multiple), 
-        radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
+    tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", 
+        maxItems = 5), multiple = multiple), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
 }
 
 #' The server function of the genesetselect module
 #' 
-#' The gene set module is for adding a gene set filter to shiny UI elements. 
-#' This function is not called directly, but rather via callModule() (see 
-#' example).
-#' 
-#' This function assumes that the gene sets have one gene ID (e.g. Entrez) which
-#' need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
-#' common when dealign with MSigDB gene sets, for example.
+#' The gene set module is for adding a gene set filter to displays. A
+#' \code{\link[shiny]{selectizeInput}} is used for performance reasons, 
+#' providing an autocomplete field for selecting from a list that could stretch 
+#' to thousands of entries. This would be difficult to do client-side using a 
+#' standard select field.  
 #' 
 #' @param input Input object
 #' @param output Output object
@@ -36,8 +37,7 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #' @param eselist An ExploratorySummarizedExperimentList with its gene_sets
 #' slot set
 #' @param getExperiment Accessor for returning an
-#'   ExploratorySummarizedExperiment object, with 'entrezgenefield', 
-#'   'labelfield' set in its slots
+#'   ExploratorySummarizedExperiment object, with 'labelfield' set in its slots
 #'
 #' @return output A list of two reactive functions which will be used by other 
 #' modules.
@@ -45,10 +45,12 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #' @keywords shiny
 #'   
 #' @examples
-#' geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment())
+#' geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment)
 
 genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
     
+    # Allow user to select the type of gene set
+  
     output$geneSetTypes <- renderUI({
         if (filter_by_type) {
             ese <- getExperiment()
@@ -76,18 +78,20 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
         
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), 
-            " (", settype, ")"))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
+            function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")"))))
     })
     
     # A reactive for relating codes back to gene set IDs
     
     getGeneSetCodesByIDs <- reactive({
         gene_sets <- getGeneSets()
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) names(gene_sets[[settype]]))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
+            function(settype) names(gene_sets[[settype]]))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This
+    # reactive must be called by the calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)

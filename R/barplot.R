@@ -1,13 +1,12 @@
 #' Input function of the \code{barplot} module 
 #' 
-#' Display grouped, stacked or overlaid bars for a matrix
+#' Generic module to isplay grouped, stacked or overlaid bars for a matrix
 #' 
-#'
 #' @param id Submodule namespace
 #' @param default_mode Default bar mode
+#' @param allow_select Allow user to choose stack mode?
 #'
 #' @return A list of controls that can be added to a UI definition
-#' @export
 
 barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
     ns <- NS(id)
@@ -21,13 +20,12 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
 
 #' Output function of the \code{barplot} module 
 #' 
-#' Display grouped, stacked or overlaid bars for a matrix
+#' Generic module to isplay grouped, stacked or overlaid bars for a matrix
 #' 
-#'
 #' @param id Submodule namespace
+#' @param heigth Height of the plotting space in px
 #'
 #' @return A list of elements that can be included in a panel
-#' @export
 
 barplotOutput <- function(id, height = "400") {
     ns <- NS(id)
@@ -45,8 +43,6 @@ barplotOutput <- function(id, height = "400") {
 #' @param getPlotmatrix Reactive supplying a matrix to plot
 #' @param getYLabel Reactive supplying the Y axis label
 #' @param barmode Bar mode: 'stack', 'group' or 'overlay'
-#'
-#' @export
 
 barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = "stack") {
     
@@ -68,7 +64,7 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     output$barPlot <- renderPlotly({
         fpm <- formatPlotMatrix()
         plotdata <- reshape2::melt(fpm)
-        plotdata %>% plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>% layout(margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "), yaxis = list(title = getYLabel())) %>% 
-            config(showLink = TRUE)
+        plotdata %>% plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>% layout(margin = list(b = 100), barmode = input$barMode, 
+            xaxis = list(title = " "), yaxis = list(title = getYLabel())) %>% config(showLink = TRUE)
     })
 }

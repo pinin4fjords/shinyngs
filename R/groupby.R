@@ -1,7 +1,7 @@
 #' The UI function of the groupby module
 #' 
-#' The groupby module provides a UI element to choose from the group_vars in
-#' a SummarizedExperment. Useful for coloring in a PCA etc
+#' The groupby module provides a UI element to choose from the 
+#' \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA etc
 #'
 #' @param id Submodule namespace
 #'
@@ -21,8 +21,8 @@ groupbyInput <- function(id) {
 
 #' The server function of the groupby module
 #' 
-#' The groupby module provides a UI element to choose from the group_vars in a
-#' SummarizedExperment. Useful for coloring in a PCA etc
+#' The groupby module provides a UI element to choose from the 
+#' \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA etc
 #' 
 #' @param input Input object
 #' @param output Output object

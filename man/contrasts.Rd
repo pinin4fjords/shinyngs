@@ -6,7 +6,7 @@
 \usage{
 contrasts(input, output, session, eselist, getExperiment = NULL,
   selectMatrix = NULL, getAssay = NULL, multiple = FALSE,
-  show_controls = TRUE, summarise = TRUE)
+  show_controls = TRUE)
 }
 \arguments{
 \item{input}{Input object}

@@ -13,28 +13,29 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", description = "character", group_vars = "character", 
-    default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", read_reports = "list", ensembl_species = "character"))
+setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", 
+    description = "character", group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", 
+    gene_sets = "list", read_reports = "list", ensembl_species = "character"))
 
 # Subset operator for integer type like 1:2
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "ANY", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports = x@read_reports, ensembl_species = x@ensembl_species)
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+        contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports = x@read_reports, ensembl_species = x@ensembl_species)
 })
 
 # Subset operator for numeric type like 1
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "numeric", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports = x@read_reports, ensembl_species = x@ensembl_species)
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+        contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports = x@read_reports, ensembl_species = x@ensembl_species)
 })
 
 # And one for logicals. Do I really need to repeat these? Must look into it....
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports = x@read_reports, ensembl_species = x@ensembl_species)
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+        contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, read_reports = x@read_reports, ensembl_species = x@ensembl_species)
 })
 
 #' ExploratorySummarizedExperimentLists, containers for
@@ -72,30 +73,33 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' @param read_reports A named list of matrices with read counts in columns
 #' and sample names in rows. Useful for providing mapped read counts, 
 #' counts per gene type etc
+#' @param ensembl_species Ensembl species definition like 'mmusculus'. Used to
+#'   interface with BiomaRt e.g. to make gene model plots in the \code{gene} 
+#'   module.
 #'
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
 
-ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), contrasts = list(), url_roots = list(), 
-    gene_sets = list(), read_reports = list(), ensembl_species = character()) {
-  
-    if (! is.list(eses)){
-      eses <- list(eses)
+ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), 
+    contrasts = list(), url_roots = list(), gene_sets = list(), read_reports = list(), ensembl_species = character()) {
+    
+    if (!is.list(eses)) {
+        eses <- list(eses)
     }
     
     # Make sure the eses are named for internal purposes
-  
-    if (is.null(names(eses))){
-      names(eses) <- 'noname' 
+    
+    if (is.null(names(eses))) {
+        names(eses) <- "noname"
     }
-  
+    
     # Set grouping variales as any non-integer field applied to more than one sample
-  
-    if (length(group_vars) == 0){
-      group_vars <- chooseGroupingVariables(data.frame(colData(eses[[1]])))
-      default_groupvar <- group_vars[1]
+    
+    if (length(group_vars) == 0) {
+        group_vars <- chooseGroupingVariables(data.frame(colData(eses[[1]])))
+        default_groupvar <- group_vars[1]
     }
-  
+    
     # If gene sets are provided, key the gene sets by gene name for easier access
     
     if (length(gene_sets) > 0) {
@@ -113,7 +117,8 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
             
             gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
                 
-                # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named properly
+                # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named
+                # properly
                 
                 gsc <- lapply(gene_set_collection, function(gene_set) {
                   set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
@@ -128,6 +133,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
         gene_sets <- gene_sets_by_name
     }
     
-    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, default_groupvar = default_groupvar, contrasts = contrasts, 
-        url_roots = url_roots, gene_sets = gene_sets, read_reports = read_reports, ensembl_species = ensembl_species)
+    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, 
+        default_groupvar = default_groupvar, contrasts = contrasts, url_roots = url_roots, gene_sets = gene_sets, read_reports = read_reports, 
+        ensembl_species = ensembl_species)
 }

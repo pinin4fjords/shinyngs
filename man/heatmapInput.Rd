@@ -20,10 +20,24 @@ output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
+Three types of heatmaps are provided, employed in various places in the
+rnaseq app (for example), and using much of the same code. Expresssion 
+heatmaps plot expression for samples by column and e.g. genes by row. A 
+samples heatmap plots samples vs samples to illustrate correlation patterns.
+A pca heatmap plots the results of anova tests applied to examine the
+associations between principal components and experimental variables.
+}
+\details{
 This provides the form elements to control the heatmap display
 }
 \examples{
 heatmapInput('heatmap', ese, group_vars, default_groupvar)
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('heatmap', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

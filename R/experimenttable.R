@@ -17,6 +17,12 @@
 #'   
 #' @examples
 #' experimentableInput('experiment', eselist)
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('experimenttable', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 experimenttableInput <- function(id, eselist) {
     
@@ -25,9 +31,11 @@ experimenttableInput <- function(id, eselist) {
     description = "This is the metadata associated with the experimental samples of this study."
     
     if (length(eselist) == 1) {
-        tagList(hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), "Experiment", description))))
+        tagList(hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(ns("experimenttable"), 
+            "Experiment", description))))
     } else {
-        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist)), export = simpletableInput(ns("experimenttable"), "experiment", description)))
+        fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist)), export = simpletableInput(ns("experimenttable"), 
+            "experiment", description)))
     }
 }
 
@@ -49,11 +57,17 @@ experimenttableInput <- function(id, eselist) {
 #'   
 #' @examples
 #' experimenttableOutput('experiment')
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('experimenttable', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 experimenttableOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("experimenttable"), "help", "help"), modalOutput(ns("experimenttable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", "experimenttable.md", 
-        package = packageName()))), simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data"))
+    list(modalInput(ns("experimenttable"), "help", "help"), modalOutput(ns("experimenttable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", 
+        "experimenttable.md", package = packageName()))), simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data"))
 }
 
 #' The server function of the experimenttable module
@@ -73,6 +87,12 @@ experimenttableOutput <- function(id) {
 #'   
 #' @examples
 #' callModule(experimenttable, 'experimenttable', eselist)
+#' 
+#' # Almost certainly used via application creation
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('experimenttable', zhangneurons)
+#' shiny::shinyApp(ui = app$ui, server = app$server)
 
 experimenttable <- function(input, output, session, eselist) {
     

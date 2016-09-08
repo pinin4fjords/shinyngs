@@ -19,17 +19,44 @@ output An HTML tag object that can be rendered as HTML using
 \description{
 This module displays gene set analysis tables stored as a list in the 
 \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
-The keys of this list must match those of the \code{gene_sets} slot of the
-containing \code{ExploratorySummarizedExperimentList}, and the row names
-of each table must match the second-level keys. The module is based on the
-output of roast() from \code{limma}, but it's fairly generic, and assumes
-only the presence of a 'p value' and 'FDR' column, so the output of other
-methods should be easily adapted to suit.
 }
 \details{
+The \code{gene_set_analyses} slot must be keyed first by the name of the 
+assay to which it pertains, and second by the gene set type (e.g. 'KEGG'). 
+The containing \code{ExploratorySummarizedExperiment} must have a populated
+\code{gene_sets} slot, keyed first by metadata column used to define the 
+gene sets and secondly by the gene set type.
+
+The module is based on the output of roast() from \code{limma}, but it's 
+fairly generic, and assumes only the presence of a 'p value' and 'FDR' 
+column, so the output of other methods should be easily adapted to suit.
+
 Leverages the \code{simpletable} module
 }
 \examples{
+# Example of structures using provided example data
+
+> data(zhangneurons)
+> names(assays(zhangneurons$gene))
+[1] "normalised-filtered" "filtered"            "raw" 
+
+# The normalised matrix was used to perform gene set analysis, using 6 types
+# of gene set
+
+> names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
+[1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
+[6] "MSigDB hallmark"  
+
+# Gene set can be related back to individual genes via information in the
+# containing object's 'gene_sets' slot. These are keyed first to indicate 
+# which metadata field gene set members pertain to, and secondly by gene
+# set type. 
+
+> names(zhangneurons@gene_sets)
+[1] "external_gene_name"
+
+# Module input produced like:
+
 genesetanalysistableInput('experiment', eselist)
 }
 \keyword{shiny}

@@ -18,25 +18,21 @@ genesetselect(input, output, session, eselist, getExperiment, multiple = TRUE,
 slot set}
 
 \item{getExperiment}{Accessor for returning an
-ExploratorySummarizedExperiment object, with 'entrezgenefield', 
-'labelfield' set in its slots}
+ExploratorySummarizedExperiment object, with 'labelfield' set in its slots}
 }
 \value{
 output A list of two reactive functions which will be used by other 
 modules.
 }
 \description{
-The gene set module is for adding a gene set filter to shiny UI elements. 
-This function is not called directly, but rather via callModule() (see 
-example).
-}
-\details{
-This function assumes that the gene sets have one gene ID (e.g. Entrez) which
-need to be converted to another (e.g. Symbol, Ensembl gene ID). This would be
-common when dealign with MSigDB gene sets, for example.
+The gene set module is for adding a gene set filter to displays. A
+\code{\link[shiny]{selectizeInput}} is used for performance reasons, 
+providing an autocomplete field for selecting from a list that could stretch 
+to thousands of entries. This would be difficult to do client-side using a 
+standard select field.
 }
 \examples{
-geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment())
+geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment)
 }
 \keyword{shiny}
 

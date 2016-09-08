@@ -8,6 +8,8 @@ plotdownloadInput(id, label = "Plot")
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{label}{Label for the download button}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

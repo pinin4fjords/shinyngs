@@ -2,7 +2,7 @@
 % Please edit documentation in R/contrasts.R
 \name{foldChange}
 \alias{foldChange}
-\title{Fold change between two vectors}
+\title{Calculate fold change between two vectors}
 \usage{
 foldChange(vec1, vec2)
 }
@@ -15,6 +15,9 @@ foldChange(vec1, vec2)
 Vector of fold changes
 }
 \description{
-Fold change between two vectors
+Calculate fold change between two vectors
+}
+\examples{
+foldChange(c(2,2,2), c(2,4,8))
 }
 

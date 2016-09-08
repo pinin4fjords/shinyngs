@@ -7,14 +7,14 @@
 dexseqplot(input, output, session, eselist)
 }
 \arguments{
+\item{input}{Input object}
+
+\item{output}{Output object}
+
+\item{session}{Session object}
+
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
-
-\item{id}{Submodule namespace}
-}
-\value{
-output An HTML tag object that can be rendered as HTML using 
-  as.character()
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

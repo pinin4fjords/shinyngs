@@ -24,6 +24,12 @@ applied to the specified SummarizedExperiment object to the
 }
 \examples{
 callModule(assaydatatable, 'assaydatatable', eselist)
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('assaydatatable', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

@@ -9,7 +9,7 @@ geneOutput(id, eselist)
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{dses}{List of structuredExperiment objects with assay and experimental 
+\item{eselist}{List of structuredExperiment objects with assay and experimental 
 data}
 }
 \value{
@@ -24,7 +24,7 @@ or label. This is used to create a gene-centric info page.
 Outputs are a bar plot and a table contrast data for this gene
 }
 \examples{
-geneOutput(ns('gene'), eselist)
+geneOutput('gene', eselist)
 }
 \keyword{shiny}
 

@@ -259,11 +259,11 @@ makePackageCitation <- function(package) {
 #' 
 #' chooseGroupingVariables(data.frame(colData(airway)))
 
-chooseGroupingVariables <- function(df){
+chooseGroupingVariables <- function(df) {
     all_vars <- colnames(df)
     vartypes <- unlist(lapply(df, class))
-    numunique <- unlist(lapply(df, function(x) length(unique(x[! is.na(x)]))))
+    numunique <- unlist(lapply(df, function(x) length(unique(x[!is.na(x)]))))
     
-    all_vars[vartypes != 'integer' & numunique < nrow(df) & numunique > 1]
+    all_vars[vartypes != "integer" & numunique < nrow(df) & numunique > 1]
 }
 

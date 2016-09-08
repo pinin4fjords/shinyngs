@@ -17,6 +17,21 @@ dexseqtable(input, output, session, eselist, allow_filtering = TRUE,
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
+
+\item{allow_filtering}{Allow user filtering of results (default: TRUE)?
+Deactivated by the \code{dexseqplot} module, which uses it for showing
+gene-specific results.}
+
+\item{getDEUGeneID}{Reactive expression returning a gene ID.}
+
+\item{show_controls}{Passed to \code{\link{simpletable}}, spcifies whether 
+the various \code{datatables} controls are displayed (default: TRUE).}
+
+\item{page_length}{Passed to \code{\link{simpletable}}, spcifies the number 
+of rows to display (default: 15).}
+
+\item{link_to_deu_plot}{Link label fields to the plots produced by 
+\code{\link{dexseqplot}}? (default: TRUE)}
 }
 \description{
 This module produces a differential exon usage table based on the output

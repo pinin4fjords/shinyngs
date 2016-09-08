@@ -7,15 +7,16 @@
 geneModelPlot(ensembl_species, chromosome, start, end)
 }
 \arguments{
-\item{ensembl_species}{}
+\item{ensembl_species}{Ensembl species definition like 'mmuscululus'}
 
-\item{chromosome}{}
+\item{chromosome}{Chromosome number}
 
-\item{start}{}
+\item{start}{Chromosome start coordinate}
 
-\item{end}{}
+\item{end}{Chromosome end coordinate}
 }
 \description{
-Make a gene model plot for a chromosomal location
+Uses the Gviz module to show transcripts and exon locations for a given gene
+id.
 }
 

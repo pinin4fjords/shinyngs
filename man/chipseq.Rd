@@ -2,7 +2,8 @@
 % Please edit documentation in R/chipseq.R
 \name{chipseq}
 \alias{chipseq}
-\title{The server function of the chipseq module}
+\title{The server function of the chipseq module. Currently a near-clone of the 
+RNA-seq module, with ChIP-seq optimisations planned.}
 \usage{
 chipseq(input, output, session, eselist)
 }

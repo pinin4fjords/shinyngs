@@ -15,6 +15,9 @@ geneselect(input, output, session, eselist, getExperiment, var_n = 50,
 
 \item{session}{Session object}
 
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
+
 \item{getExperiment}{Reactive expression which returns a 
 ExploratorySummarizedExperiment object with assay and experimental data}
 
@@ -29,7 +32,12 @@ to use, e.g. in row-wise variance calculation}
 
 \item{provide_all}{Allow the 'all rows' selection in the UI? Means we don't
 have to calculate variance so the display is quicker, but it's a bad idea
-for e.g. heatmaps where the visual scales by the numbre of rows.}
+for e.g. heatmaps where the visual scales by the number of rows.}
+
+\item{provide_none}{Allow the 'none' selection in the UI to make row
+selection optional.}
+
+\item{default}{Default gene selection method}
 }
 \value{
 output A list of reactive functions for interrogating the selected 
@@ -40,7 +48,7 @@ This module provides controls for selecting genes (matrix rows) by various
 criteria such as variance and gene set.
 }
 \examples{
-geneselect_functions <- callModule(geneselect, 'heatmap', getExperiment, getMatrix=selectColumns)
+geneselect_functions <- callModule(geneselect, 'heatmap', getExperiments)
 }
 \keyword{shiny}
 

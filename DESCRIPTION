@@ -23,7 +23,9 @@ Imports:
     SummarizedExperiment
 Suggests:
     shinyBS,
+    BiocStyle,
     knitr,
     rmarkdown
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
+

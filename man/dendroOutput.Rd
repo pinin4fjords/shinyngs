@@ -2,7 +2,7 @@
 % Please edit documentation in R/dendro.R
 \name{dendroOutput}
 \alias{dendroOutput}
-\title{The output function of the boxplot module}
+\title{The output function of the dendro module}
 \usage{
 dendroOutput(id)
 }
@@ -14,10 +14,16 @@ output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This provides actual boxplot element for display by applications
+This module will produce a sample clustering dendrogram based on 
+user-selected parameters of row (e.g. gene) and column (sample) selection 
+provided by the \code{selectmatrix} module, as well distance matrix 
+generation and clustering method.
+}
+\details{
+This provides actual dendrogram plot element for display by applications
 }
 \examples{
-dendroOutput('dendro')
+dendroOutput('myid')
 }
 \keyword{shiny}
 

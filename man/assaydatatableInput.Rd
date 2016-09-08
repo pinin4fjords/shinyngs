@@ -25,6 +25,12 @@ Leverages the \code{simpletable} module
 }
 \examples{
 assaydatatableInput('experiment', eselist)
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('assaydatatable', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

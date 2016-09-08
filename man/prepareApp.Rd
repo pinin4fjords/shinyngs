@@ -99,7 +99,7 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 # to demonstrate contrasts, gene set annotations etc. The app produced in 
 # this way will have more panels for differential analyses.
 
-data("zhangneurons")
+data('zhangneurons')
 app <- prepareApp('rnaseq', zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
 }

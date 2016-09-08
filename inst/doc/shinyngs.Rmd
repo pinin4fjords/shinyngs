@@ -2,25 +2,30 @@
 title: "Interactive downstream RNA-seq analysis with ShinyNGS"
 author: "Jonathan Manning"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Interactive downstream RNA-seq analysis with ShinyNGS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+# Intro
 
-Shinyngs is a package designed to facilitate downstream analysis of RNA-seq and similar matrix data with various exploratory plots. It's a work in progress, with new features added on a regular basis. Individual components (heatmaps, pca etc) can function independently and will be useful outside of the RNA-seq context.
+`r Githubpkg("pinin4fjords/shinyngs")` is a package designed to facilitate downstream analysis of RNA-seq and similar matrix data with various exploratory plots. It's a work in progress, with new features added on a regular basis. Individual components (heatmaps, pca etc) can function independently and will be useful outside of the RNA-seq context.
 
 ![Example: the gene page](gene_page.png)
 
+# Motivation
 
-## Objectives
+It's not always trivial to quickly assess the results of next-generation sequencing experiment. `r Githubpkg("pinin4fjords/shinyngs")` is designed to help fix that by providing a way of instantly producing a visual tool for data mining at the end of an analysis pipeline. 
 
 * Allow rapid exploration of data output more or less straight from RNA-seq piplelines etc. 
 * Where more parameters are provided, extend the exploratory tools available - e.g. for differential expression.
 
-## Features
+Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it's not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.
+
+# Features
 
 * A variety of single and multiple-panel Shiny applications- currently heatmap, pca, boxplot, dendrogram, gene-wise barplot, various tables and an RNA-seq app combining all of these.
 * Leveraging of libraries such as [DataTables](https://rstudio.github.io/DT/) and [Plotly](https://plot.ly/) for rich interactivity.
@@ -31,22 +36,28 @@ Shinyngs is a package designed to facilitate downstream analysis of RNA-seq and 
     * If a selected experiment contains more than one assay, a selector will again be provided.
 * For me: leveraging of [Shiny modules](http://shiny.rstudio.com/articles/modules.html). This makes re-using complex UI components much easier, and maintaining application code is orders of magnitude simpler as a result.
 
-## Installation
+# Installation
 
-### Prerequisites
+## Prerequisites
 
 `shinyngs` relies heavily on `SumamrizedExperiment`. Formerly found in the `GenomicRanges` package, it now has its own package on Bioconductor: http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html. This requires a recent version of R. 
 
 Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
-### Install with devtools
+## Install with devtools
 
 ```{r, eval=FALSE}
 library(devtools)
 install_github('pinin4fjords/shinyngs')
 ```
 
-## Quickstart
+# Concepts and data structures
+
+The data structures used by Shinyngs build on `SummarizedExperiment`. One `SummarizedExperiment` can have multiple 'assays', essentially matrices with samples in columns and 'features' (transcripts or genes) in rows, representing different results for the same features and samples. This is handy to compare results before and after processing, for example. `ExploratorySummarizedExperiment` extends `SummarizedExperiment` to include slots relating to annotation, and associated results of 'tests', providing p values and q values.  
+
+`ExploratorySummarizedExperimentList` is a container for one or more `ExploratorySummarizedExperiment` objects, and is intented to describe an overall study, i.e. one or more experiments the same set of samples, but different sets of features in each experiment. The `ExploratorySummarizedExperimentListList` therefore is used to supply study-wide things such as contrasts, gene sets, url roots for creating links etc. 
+
+# Quickstart
 
 To see how to quickly build an RNA-seq app from a simple SummarizedExperiment, we can use the example data in the `airway` package. We just convert the RangedSummarizedExperiment to an ExploratorySummarizedExperiment, and add it to a list of such objects, which represent a study.
 
@@ -121,7 +132,7 @@ app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
-### Example dataset
+# More complex use case: the `zhangneurons` Example dataset
 
 `airway` is fine, but it contains no information on differential expression. `shinyngs` provides extra slots for differential analyses, among other things.
 
@@ -134,15 +145,9 @@ library(shinyngs)
 data("zhangneurons")
 ```
 
-### Use example data to make some applications
+## Use example data to make some applications
 
 An example `ExploratorySummarizedExperimentList` based on the Zhang et al study of neurons and glia (http://www.jneurosci.org/content/34/36/11929.long) is included in the package, and this can be used to demonstrate available features.
-
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-library(SummarizedExperiment)
-library(shinyngs)
-data("zhangneurons")
-```
 
 ```{r eval=FALSE}
 app <- prepareApp("rnaseq", zhangneurons)
@@ -156,11 +161,11 @@ app <- prepareApp("heatmap", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 
-### Use your own data to make an application
+# Building an application from scratch
 
-To demonstrate this, let's break down `zhangneurons` into simple datatypes and put it back together again.
+To demonstrate this, let's break down `zhangneurons` into simple datatypes and put it back together again. 
 
-#### Assays
+## Assays
 
 ```{r eval=TRUE}
 # Assays is a list of matrices
@@ -168,7 +173,7 @@ myassays <- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])
 ```
 
-#### colData
+## colData
 
 colData is your sample information defining groups etc
 
@@ -177,7 +182,7 @@ mycoldata <- data.frame(SummarizedExperiment::colData(zhangneurons[[1]]))
 head(mycoldata)
 ```
 
-#### Annotation
+## Annotation
 
 Annotation is important to `shinyngs'. You need a data frame with rows corresonding to those in the assays
 
@@ -186,7 +191,7 @@ myannotation <- SummarizedExperiment::mcols(zhangneurons[[1]])
 head(myannotation)
 ```
 
-#### Making an `ExploratorySummarizedExperiment`
+## Making an `ExploratorySummarizedExperiment`
 
 Now we can put these things together to create an 'ExploratorySummarizedExperiment: 
 
@@ -206,7 +211,7 @@ print(myese)
 
 Note the extra fields that mostly tell `shinyngs` about annotation to help with labelling etc.
 
-#### Making an `ExploratorySummarizedExperimentList` 
+## Making an `ExploratorySummarizedExperimentList` 
 
 `ExploratorySummarizedExperimentList`s are basically a list of `ExploratorySummarizedExperiment`s, with additional metadata slots.
 
@@ -243,6 +248,8 @@ shiny::shinyApp(app$ui, app$server)
 
 ![Example: the gene page](pca_highlighted.png)
 
+## Specifying contrasts for differential outputs
+
 But where are the extra plots for looking at differential expression? For those, we need to supply contrasts. Contrasts are supplied as a list of character vectors describing the variable in `colData` upon the contrast is based, and the two values of that variable to use in the comparison. We'll just copy the one over from the original `zhangneurons`: 
 
 ```{r eval=TRUE}
@@ -276,15 +283,83 @@ app <- prepareApp("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 
+# Gene sets
+
+Many displays are more useful if they can be limited to biologically meaningful sets of genes. The `gene_sets` slot is designed to allow that. Gene sets are stored as lists of character vectors of gene identifiers, each list keyed by the name of the metadata column to which they pertain. 
+
+## Adding gene sets to enable gene set filtering
+
+The constructor for `ExploratorySummarizedExperimentList` assumes that gene sets are represented by Entrez IDs, as is common with resources such as the Molecular Signatures Database, and that they are specified as a list of `GeneSetCollection`s. You might generate such a list as follows:
+
+```{r eval=FALSE}
+genesets_files = list(
+  'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
+  'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
+  'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
+  'GO cellular component' = "/path/to/MSigDB/c5.cc.v5.0.entrez.gmt",
+  'GO molecular function' = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
+  'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
+)
+
+gene_sets <- lapply(genesets_files, GSEABase::getGmt)
+```
+
+Then provide them during object creation:
+
+```{r eval = FALSE}
+myesel <- ExploratorySummarizedExperimentList(
+  eses = list(expression = myese),
+  title = "My title",
+  author = "My Authors",
+  description = 'Look what I gone done',
+  gene_sets = gene_sets
+)
+```
+
+These are then converted internally to a list of lists of character vectors of gene IDs. The top level is keyed by the type of gene ID to be used for labelling (stored in `labelfield' on `ExploratorySummarisedExperiments`, the next level by the type of gene set.
+
+For the `zhangneurons` example, gene sets are stored by `external_gene_name`:
+
+```{r eval = TRUE}
+names(zhangneurons@gene_sets)
+```
+
+6 types of gene set are used. For example, KEGG:
+
+```{r eval = TRUE}
+names(zhangneurons@gene_sets$external_gene_name$KEGG)[1:10]
+```
+
+We can find the list of KEGG gluconeogenesis genes, keyed by the original Entrez ID:
+
+```{r eval = TRUE}
+zhangneurons@gene_sets$external_gene_name$KEGG$KEGG_GLYCOLYSIS_GLUCONEOGENESIS
+```
+
+Of course if you want to avoid the constructor, you can replicate that data structure and set the `@gene_sets` directly.
+
+## Gene set analysis
+
+Gene set analyses can be stored as a list of tables in the `@gene_set_analyses` slot of an `ExploratorySummarizedExperiment`, supplied via the `gene_set_analyses` argument to its constructor. The list is keyed at three levels representing the assay, the gene set type and contrast involved. Illustrated with `zhangneurons` again:  
+
+```{r eval = TRUE}
+names(zhangneurons$gene@gene_set_analyses)
+names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
+names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG)
+head(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG$`myelinating_oligodendrocytes:0-1`)
+```
+
+This data struture is a bit cumbersome, and I'm thinking of ways of better representing such data and the associated contrasts.
+
+# Other options
+
 Further options are available - for example supplying `url_roots` in the `ExploratorySummarizedExperimentList` will add link-outs where appropriate, and the `description` slot is handy for providing details of analysis to the user.
 
-## Detail
+# Included modules
 
-### Motivation
+`shinyngs` is build on a number of components built using Shiny's module framework, many of which are used multiple times in complex applications such as the one described above for RNA-seq.
 
-Shiny apps are great for NGS and bioinformatics applications in general. But apps can get monstrous when their complexity increases, and it's not always easy to re-use components. This is an effort to create modularised components (e.g. a heatmap with controls), re-used to produce multiple shiny apps.
-
-This package now contains a large number of Shiny modules: 
+Included modules are currently: 
 
 * `heatmap` - provides controls and a display for making heat maps based on user criteria.
 * `pca` - provides controls and display for an interactive PCA plot.
@@ -302,34 +377,14 @@ This package now contains a large number of Shiny modules:
 
 So for example `heatmap` uses `selectmatrix` to provide the UI controls to subselect the supplied matrices as well as the code which reads the output of those controls to actually derive the subsetted matrix. Shiny modules make this recycling of code much, much simpler than it would be otherwise. 
 
-I intend to provide modules for a number of things I currently use (boxplots, PCA, scatterplots), which can then be simply plugged into many different applications.
+Many of these can be called individually, for example to make an app for dendrograms only:
 
-## Required data structure
-
-The data structures used by Shinyngs build on `SummarizedExperiment`. One `SummarizedExperiment` can have multiple 'assays', essentially matrices with samples in columns and 'features' (transcripts or genes) in rows, representing different results for the same features and samples. This is handy to compare results before and after processing, for example. `ExploratorySummarizedExperiment` extends `SummarizedExperiment` to include slots relating to annotation, and associated results of 'tests', providing p values and q values.  
-
-`ExploratorySummarizedExperimentList` is a container for one or more `ExploratorySummarizedExperiment` objects, and is intented to describe an overall study, i.e. one or more experiments the same set of samples, but different sets of features in each experiment. The `ExploratorySummarizedExperimentListList` therefore is used to supply study-wide things such as contrasts, gene sets, url roots for creating links etc.  
-
-### Enabling gene set filtering
-
-It's quite handy to see heat maps etc based on known gene sets. Assuming you have a bunch of .gmt format gene set files from MSigDB keyed by Entrez ID, continuing from the example above you can supply gene sets like:
-
-```{r eval=FALSE}
-genesets_files = list(
-  'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
-  'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
-  'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
-  'GO cellular component' = "/path/to/MSigDB/c5.cc.v5.0.entrez.gmt",
-  'GO molecular function' = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
-  'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
-)
-
-myesel@gene_sets <- lapply(genesets_files, GSEABase::getGmt)
+```{r eval = FALSE}
+app <- prepareApp('dendro', eselist)
+shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
-This will read in the gene sets (which will take a while first time), and use them to add a filter which will allow users to make heat maps based on known sets of genes. Of course you could make your own .gmt files with custom gene sets.
-
-### Running on a shiny server
+# Running on a shiny server
 
 Just use the commands sets above with `shinyApp()` in a file called app.R in a directory of its own on your Shiny server. For example, If you're created an `ExploratorySummarizedExperiment` and saved it to a file called 'data.rds':
 

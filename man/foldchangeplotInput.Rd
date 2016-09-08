@@ -18,13 +18,20 @@ output An HTML tag object that can be rendered as HTML using
 }
 \description{
 This module is for making scatter plots comparing pairs of groups defined in
-a 'tests' slot of the ExploratorySummarizedExperiment
+a 'contrasts' slot of the ExploratorySummarizedExperimentList
 }
 \details{
 Leverages the \code{scatterplot} module
 }
 \examples{
-differentialtableInput('experiment', eselist)
+data(zhangneurons)
+foldchangeplotInput('myid', zhangneurons)
+
+# Almost certainly used via application creation
+
+data(zhangneurons)
+app <- prepareApp('foldchangeplot', zhangneurons)
+shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

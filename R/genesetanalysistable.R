@@ -2,12 +2,16 @@
 #' 
 #' This module displays gene set analysis tables stored as a list in the 
 #' \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
-#' The keys of this list must match those of the \code{gene_sets} slot of the
-#' containing \code{ExploratorySummarizedExperimentList}, and the row names
-#' of each table must match the second-level keys. The module is based on the
-#' output of roast() from \code{limma}, but it's fairly generic, and assumes
-#' only the presence of a 'p value' and 'FDR' column, so the output of other
-#' methods should be easily adapted to suit.
+#' 
+#' The \code{gene_set_analyses} slot must be keyed first by the name of the 
+#' assay to which it pertains, and second by the gene set type (e.g. 'KEGG'). 
+#' The containing \code{ExploratorySummarizedExperiment} must have a populated
+#' \code{gene_sets} slot, keyed first by metadata column used to define the 
+#' gene sets and secondly by the gene set type.
+#' 
+#' The module is based on the output of roast() from \code{limma}, but it's 
+#' fairly generic, and assumes only the presence of a 'p value' and 'FDR' 
+#' column, so the output of other methods should be easily adapted to suit.
 #' 
 #' Leverages the \code{simpletable} module
 #' 
@@ -21,6 +25,29 @@
 #' @keywords shiny
 #'   
 #' @examples
+#' # Example of structures using provided example data
+#' 
+#' > data(zhangneurons)
+#' > names(assays(zhangneurons$gene))
+#' [1] "normalised-filtered" "filtered"            "raw" 
+#' 
+#' # The normalised matrix was used to perform gene set analysis, using 6 types
+#' # of gene set
+#' 
+#' > names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
+#' [1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
+#' [6] "MSigDB hallmark"  
+#'
+#' # Gene set can be related back to individual genes via information in the
+#' # containing object's 'gene_sets' slot. These are keyed first to indicate 
+#' # which metadata field gene set members pertain to, and secondly by gene
+#' # set type. 
+#' 
+#' > names(zhangneurons@gene_sets)
+#' [1] "external_gene_name"
+#' 
+#' # Module input produced like:
+#' 
 #' genesetanalysistableInput('experiment', eselist)
 
 genesetanalysistableInput <- function(id, eselist) {
@@ -31,7 +58,8 @@ genesetanalysistableInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select
+    # doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -39,8 +67,9 @@ genesetanalysistableInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), numericInput(ns("fdr"), "Maximum FDR", 
-        value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2))
+    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", 
+        value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), 
+        default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2))
     
     # Things we don't want to wrap in a field set - probably hidden stuff
     
@@ -59,8 +88,18 @@ genesetanalysistableInput <- function(id, eselist) {
 
 #' The output function of the genesetanalysistable module
 #' 
-#' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
+#' This module displays gene set analysis tables stored as a list in the 
+#' \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
+#' 
+#' The \code{gene_set_analyses} slot must be keyed first by the name of the 
+#' assay to which it pertains, and second by the gene set type (e.g. 'KEGG'). 
+#' The containing \code{ExploratorySummarizedExperiment} must have a populated
+#' \code{gene_sets} slot, keyed first by metadata column used to define the 
+#' gene sets and secondly by the gene set type.
+#' 
+#' The module is based on the output of roast() from \code{limma}, but it's 
+#' fairly generic, and assumes only the presence of a 'p value' and 'FDR' 
+#' column, so the output of other methods should be easily adapted to suit.
 #' 
 #' Leverages the \code{simpletable} module
 #'
@@ -72,25 +111,53 @@ genesetanalysistableInput <- function(id, eselist) {
 #' @keywords shiny
 #' 
 #' @examples
+#' 
+#' # Example of structures using provided example data
+#' 
+#' > data(zhangneurons)
+#' > names(assays(zhangneurons$gene))
+#' [1] "normalised-filtered" "filtered"            "raw" 
+#' 
+#' # The normalised matrix was used to perform gene set analysis, using 6 types
+#' # of gene set
+#' 
+#' > names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
+#' [1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
+#' [6] "MSigDB hallmark"  
+#'
+#' # Gene set can be related back to individual genes via information in the
+#' # containing object's 'gene_sets' slot. These are keyed first to indicate 
+#' # which metadata field gene set members pertain to, and secondly by gene
+#' # set type. 
+#' 
+#' > names(zhangneurons@gene_sets)
+#' [1] "external_gene_name"
+#' 
+#' # Module output function called like:
+#' 
 #' genesetanalysistableOutput('experiment')
 
 genesetanalysistableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("genesetanalysistable"), "help", "help"), modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", "genesetanalysistable.md", 
-        package = packageName()))), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
+    list(modalInput(ns("genesetanalysistable"), "help", "help"), modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp", 
+        "genesetanalysistable.md", package = packageName()))), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
 }
 
 #' The server function of the genesetanalysistable module
 #' 
 #' This module displays gene set analysis tables stored as a list in the 
 #' \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
-#' The keys of this list must match those of the \code{gene_sets} slot of the
-#' containing \code{ExploratorySummarizedExperimentList}, and the row names
-#' of each table must match the second-level keys. The module is based on the
-#' output of roast() from \code{limma}, but it's fairly generic, and assumes
-#' only the presence of a 'p value' and 'FDR' column, so the output of other
-#' methods should be easily adapted to suit.
+#' 
+#' The \code{gene_set_analyses} slot must be keyed first by the name of the 
+#' assay to which it pertains, and second by the gene set type (e.g. 'KEGG'). 
+#' The containing \code{ExploratorySummarizedExperiment} must have a populated
+#' \code{gene_sets} slot, keyed first by metadata column used to define the 
+#' gene sets and secondly by the gene set type.
+#' 
+#' The module is based on the output of roast() from \code{limma}, but it's 
+#' fairly generic, and assumes only the presence of a 'p value' and 'FDR' 
+#' column, so the output of other methods should be easily adapted to suit.
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example). Essentially this just passes the results of \code{colData()} 
@@ -106,6 +173,28 @@ genesetanalysistableOutput <- function(id) {
 #' @keywords shiny
 #'   
 #' @examples
+#' 
+#' # Example of structures using provided example data
+#' 
+#' > data(zhangneurons)
+#' > names(assays(zhangneurons$gene))
+#' [1] "normalised-filtered" "filtered"            "raw" 
+#' 
+#' # The normalised matrix was used to perform gene set analysis, using 6 types
+#' # of gene set
+#' 
+#' > names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
+#' [1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
+#' [6] "MSigDB hallmark"  
+#'
+#' # Gene set can be related back to individual genes via information in the
+#' # containing object's 'gene_sets' slot. These are keyed first to indicate 
+#' # which metadata field gene set members pertain to, and secondly by gene
+#' # set type. 
+#' 
+#' > names(zhangneurons@gene_sets)
+#' [1] "external_gene_name"
+#' 
 #' callModule(genesetanalysistable, 'genesetanalysistable', eselist)
 
 genesetanalysistable <- function(input, output, session, eselist) {
@@ -114,7 +203,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select
+    # doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -134,7 +224,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -222,5 +313,6 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
+    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, 
+        filename = makeFileName, rownames = FALSE)
 }
