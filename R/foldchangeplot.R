@@ -41,7 +41,7 @@ foldchangeplotInput <- function(id, eselist) {
     }
     
     fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), 
-        highlight_points = geneselectInput(ns("foldchange")), export = simpletableInput(ns("differentialtable"))))
+        highlight_points = geneselectInput(ns("foldchange")), export = simpletableInput(ns("foldchangetable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -128,7 +128,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     # Pass the matrix to the scatterplot module for display
     
     callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, 
-        getLabels = foldchangeLabels, x = 1, y = 2, colorby = colorby, getLines = plotLines)
+        getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -168,7 +168,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Extract a vector use to make colors by group
     
-    colorby <- reactive({
+    colorBy <- reactive({
         fct <- foldchangeTable()
         fct$colorby
     })

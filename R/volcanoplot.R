@@ -139,7 +139,7 @@ volcanoplot <- function(input, output, session, eselist) {
     # Pass the matrix to the scatterplot module for display
     
     callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = volcanoLabels, 
-        x = 1, y = 2, colorby = colorby, getLines = plotLines)
+        x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -177,7 +177,7 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Extract a vector use to make colors by group
     
-    colorby <- reactive({
+    colorBy <- reactive({
         vt <- volcanoTable()
         vt$colorby
     })

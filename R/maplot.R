@@ -41,7 +41,7 @@ maplotInput <- function(id, eselist) {
     }
     
     fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"), default_min_foldchange = 1)), scatter_plot = scatterplotInput(ns("ma")), 
-        highlight_points = geneselectInput(ns("ma")), export = simpletableInput(ns("differentialtable"))))
+        highlight_points = geneselectInput(ns("ma")), export = simpletableInput(ns("matable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -133,7 +133,7 @@ maplot <- function(input, output, session, eselist) {
     # Pass the matrix to the scatterplot module for display
     
     callModule(scatterplot, "ma", getDatamatrix = maTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = maLabels, 
-        x = 1, y = 2, colorby = colorby)
+        x = 1, y = 2, colorBy = colorBy)
     
     # Extract labels from the volcano table
     
@@ -144,7 +144,7 @@ maplot <- function(input, output, session, eselist) {
     
     # Extract a vector use to make colors by group
     
-    colorby <- reactive({
+    colorBy <- reactive({
         fct <- maTable()
         fct$colorby
     })
