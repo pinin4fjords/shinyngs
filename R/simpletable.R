@@ -3,6 +3,7 @@
 #' This module produces a simple datatable output with a download button.
 #'
 #' @param id Submodule namespace
+#' @param tabletitle Table title. Will be used on download button.
 #' @param description A string to display in the side bar to explain the table.
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
@@ -68,6 +69,10 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @param displayMatrix Reactive expression for retrieving the plot for display
 #' @param pageLength Number of items per page
 #' @param filename A string to use in the name of the table download
+#' @param rownames Passed to \code{\link[DT]{renderDataTable}}. Display the row 
+#' names of the input matrix? (default: FALSE)
+#' @param show_controls Show search box, controls etc on resulting data table? 
+#' (default: TRUE)
 #'
 #' @keywords shiny
 #' 

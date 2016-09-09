@@ -1,9 +1,11 @@
-#' The UI input function of the volcanoplot module
+#' The UI input function of the \code{volcanoplot} module
 #' 
-#' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
-#' 
-#' Leverages the \code{scatterplot} module
+#' A volcano plot displays -log(10) of a p value/ FDR against a log(2) fold 
+#' change on the x axis. This module produces such a plot using the 
+#' \code{\link{scatterplot}} module (which uses 
+#' \code{\link[plotly]{plot_ly}})), using data provided by the 
+#' \code{\link{contrasts}} module based on the setting of \code{contrasts} in 
+#' \code{eselist}.
 #' 
 #' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
@@ -15,7 +17,13 @@
 #' @keywords shiny
 #'   
 #' @examples
-#' differentialtableInput('experiment', eselist)
+#' volcanoplotInput('myid', eselist)
+#' 
+#' # However, almost certainly called via application creation:
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('volcanoplot', zhangneurons)
+#' shinyApp(ui = app$ui, server = app$server)
 
 volcanoplotInput <- function(id, eselist) {
     ns <- NS(id)
@@ -47,10 +55,14 @@ volcanoplotInput <- function(id, eselist) {
     inputs
 }
 
-#' The output function of the differentialtable module
+#' The output function of the \code{volcanoplot} module
 #' 
-#' This module provides information on the comparison betwen pairs of groups 
-#' defined in a 'tests' slot of the ExploratorySummarizedExperiment
+#' A volcano plot displays -log(10) of a p value/ FDR against a log(2) fold 
+#' change on the x axis. This module produces such a plot using the 
+#' \code{\link{scatterplot}} module (which uses 
+#' \code{\link[plotly]{plot_ly}})), using data provided by the 
+#' \code{\link{contrasts}} module based on the setting of \code{contrasts} in 
+#' \code{eselist}.
 #' 
 #' Leverages the \code{scatterplot} module
 #'
@@ -63,6 +75,12 @@ volcanoplotInput <- function(id, eselist) {
 #' 
 #' @examples
 #' differentialtableOutput('experiment')
+#' 
+#' # However, almost certainly called via application creation:
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('volcanoplot', zhangneurons)
+#' shinyApp(ui = app$ui, server = app$server)
 
 volcanoplotOutput <- function(id) {
     ns <- NS(id)
@@ -71,7 +89,7 @@ volcanoplotOutput <- function(id) {
         "volcanoplot.md", package = packageName()))), h3("Volcano plot"), scatterplotOutput(ns("volcano")), htmlOutput(ns("volcanotable")))
 }
 
-#' The server function of the differentialtable module
+#' The server function of the \code{volcanoplot} module
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example). Essentially this just passes the results of \code{colData()} 
@@ -88,6 +106,12 @@ volcanoplotOutput <- function(id) {
 #' 
 #' @examples
 #' callModule(differentialtable, 'differentialtable', eselist)
+#' 
+#' # However, almost certainly called via application creation:
+#' 
+#' data(zhangneurons)
+#' app <- prepareApp('volcanoplot', zhangneurons)
+#' shinyApp(ui = app$ui, server = app$server)
 
 volcanoplot <- function(input, output, session, eselist) {
     

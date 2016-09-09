@@ -2,7 +2,7 @@
 % Please edit documentation in R/selectmatrix.R
 \name{singleValidMatrix}
 \alias{singleValidMatrix}
-\title{Is there only on matrix to plot from this object?}
+\title{Is there only one matrix to plot from this object?}
 \usage{
 singleValidMatrix(eselist)
 }

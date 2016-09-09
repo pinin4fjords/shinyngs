@@ -8,6 +8,8 @@ summarisematrixInput(id, allow_none = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{allow_none}{Allow a 'no summarisation' selection.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

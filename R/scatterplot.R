@@ -1,4 +1,7 @@
 #' Input function for the scatterplot module
+#' 
+#' This module uses \href{https://plot.ly/}{Plotly} to create scatter plots 
+#' (see \code{\link[plotly]{plot_ly}}), of both 2D and 3D varieties. 
 #'
 #' Controls for this module are provided by the \code{scatterplotcontrols}
 #' module, which is automatically called if reactives are not supplied to the 
@@ -20,6 +23,14 @@ scatterplotInput <- function(id) {
 }
 
 #' Output function for the scatterplot module
+#' 
+#' This module uses \href{https://plot.ly/}{Plotly} to create scatter plots 
+#' (see \code{\link[plotly]{plot_ly}}), of both 2D and 3D varieties. 
+#'
+#' Controls for this module are provided by the \code{scatterplotcontrols}
+#' module, which is automatically called if reactives are not supplied to the 
+#' server function. This setup allows the same set of controls to power 
+#' multiple scatter plots.
 #'
 #' @param id Module namespace
 #'
@@ -38,12 +49,13 @@ scatterplotOutput <- function(id) {
 
 #' Server function for the scatterplot module
 #'
+#' This module uses \href{https://plot.ly/}{Plotly} to create scatter plots 
+#' (see \code{\link[plotly]{plot_ly}}), of both 2D and 3D varieties. 
+#'
 #' Controls for this module are provided by the \code{scatterplotcontrols}
 #' module, which is automatically called if reactives are not supplied to the 
 #' server function. This setup allows the same set of controls to power 
 #' multiple scatter plots.
-#' 
-#' Plots are powered by plotly
 #'
 #' @param input 
 #' @param output 
@@ -67,32 +79,39 @@ scatterplotOutput <- function(id) {
 #' points. 
 #' @param getPointSize NULL, or if \code{getThreedee} is a reactive, a 
 #' reactive supplying an integer point size to pass to plotly.
-#' @param title A plot title
-#' @param labels An optional list of labels to use instead of row names from
-#' \code{getDatamatrix()}.
-#' @param colorby A reactive returning a factor definining the groups in which 
+#' @param getTitle A reactive expression supplying a title.
+#' @param getLabels A reactive supplying a list of labels to use instead of row 
+#' names from \code{getDatamatrix()}
+#' @param colorBy A reactive returning a factor definining the groups in which 
 #' points should be colored.
-#' @param allow_3d For case where controls are generated, passed to  
-#' \code{scatterplotcontrols}.
-#' @param x For case where controls are generated, passed to  
-#' \code{scatterplotcontrols}.
-#' @param y For case where controls are generated, passed to  
-#' \code{scatterplotcontrols}.
-#' @param z For case where controls are generated, passed to  
-#' \code{scatterplotcontrols}.
+#
+#' @param allow_3d Passed to \code{\link{scatterplotcontrolsInput}} to dermine 
+#' if the user will be allowed to create 3D plots.
+#' @param x Passed to \code{\link{scatterplotcontrolsInput}} to determine how
+#' it produces an input field for selecting the x axis. A value supplied for 
+#' this parameter will cause a hidden field to be generated instead of a 
+#' select, useful for scatter plots that don't need the user to select axes 
+#' (default: NA).
+#' @param y Passed to \code{\link{scatterplotcontrolsInput}} to determine how
+#' it produces an input field for selecting the y axis. A value supplied for 
+#' this parameter will cause a hidden field to be generated instead of a 
+#' select, useful for scatter plots that don't need the user to select axes 
+#' (default: NA).
+#' @param z Passed to \code{\link{scatterplotcontrolsInput}} to determine how
+#' it produces an input field for selecting the z axis. A value supplied for 
+#' this parameter will cause a hidden field to be generated instead of a 
+#' select, useful for scatter plots that don't need the user to select axes 
+#' (default: NA).
 #' @param getLines Reactive returning a data frame defining lines to be drawn.
 #' Three columns required: name, x and y, with two rows for every value of
 #' name. These two rows represent the start and end of a line.
-#'
-#' @examples
-#' callModule(scatterplot, 'pca', getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, title = 'PCA plot', colorby = na.replace(selectColData()[[colorBy()]], 'N/A'))
 
 scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, 
     getShowLabels = NULL, getPointSize = NULL, getTitle = reactive({
         ""
     }), getLabels = reactive({
         rownames(getDatamatrix())
-    }), colorby = NULL, size = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
+    }), colorBy = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
     
     # If inputs are not provided, render controls to provide them
     
@@ -123,7 +142,6 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         }
     })
     
-    
     # Slight offset for labels on the y axis
     
     yLabData <- reactive({
@@ -148,7 +166,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     # Only show a legend if we're coloring points
     
     showLegend <- reactive({
-        if (is.null(colorby)) {
+        if (is.null(colorBy)) {
             FALSE
         } else {
             TRUE
@@ -175,7 +193,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     }
     
     makeColorScale <- reactive({
-        ncolors <- nlevels(factor(colorby()))
+        ncolors <- nlevels(factor(colorBy()))
         
         rev(RColorBrewer::brewer.pal(ncolors, "Set1"))
     })
@@ -188,8 +206,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                 plotargs <- list(p, x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", 
                   hoverinfo = "text", text = getLabels()[!unlabelled()], type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()))
                 
-                if (!is.null(colorby)) {
-                  plotargs$color <- colorby()[!unlabelled()]
+                if (!is.null(colorBy)) {
+                  plotargs$color <- colorBy()[!unlabelled()]
                   plotargs$colors = makeColorScale()
                 }
                 
@@ -202,14 +220,13 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     # Show actual text labels if specified
     
     addTextLabels <- function(p) {
-        # Show specified labels
         
         if (getShowLabels()) {
             labelargs <- list(p, x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", 
                 text = getLabels()[!unlabelled()], type = plotType(), hoverinfo = "none", showlegend = FALSE)
             
-            if (!is.null(colorby)) {
-                labelargs$color <- colorby()[!unlabelled()]
+            if (!is.null(colorBy)) {
+                labelargs$color <- colorBy()[!unlabelled()]
                 labelargs$colors = makeColorScale()
             }
             

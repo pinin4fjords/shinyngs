@@ -8,6 +8,8 @@ scatterplotcontrolsInput(id, allow_3d = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{allow_3d}{Allow user to choose 3D plotting?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

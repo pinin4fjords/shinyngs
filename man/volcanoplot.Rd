@@ -2,7 +2,7 @@
 % Please edit documentation in R/volcanoplot.R
 \name{volcanoplot}
 \alias{volcanoplot}
-\title{The server function of the differentialtable module}
+\title{The server function of the \code{volcanoplot} module}
 \usage{
 volcanoplot(input, output, session, eselist)
 }
@@ -24,6 +24,12 @@ applied to the specified SummarizedExperiment object to the
 }
 \examples{
 callModule(differentialtable, 'differentialtable', eselist)
+
+# However, almost certainly called via application creation:
+
+data(zhangneurons)
+app <- prepareApp('volcanoplot', zhangneurons)
+shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

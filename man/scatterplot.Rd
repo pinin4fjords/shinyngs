@@ -8,8 +8,8 @@ scatterplot(input, output, session, getDatamatrix, getThreedee = NULL,
   getXAxis = NULL, getYAxis = NULL, getZAxis = NULL,
   getShowLabels = NULL, getPointSize = NULL, getTitle = reactive({     ""
   }), getLabels = reactive({     rownames(getDatamatrix()) }),
-  colorby = NULL, size = NULL, allow_3d = TRUE, x = NA, y = NA,
-  z = NA, getLines = NULL)
+  colorBy = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA,
+  getLines = NULL)
 }
 \arguments{
 \item{input}{}
@@ -44,40 +44,47 @@ points.}
 \item{getPointSize}{NULL, or if \code{getThreedee} is a reactive, a 
 reactive supplying an integer point size to pass to plotly.}
 
-\item{colorby}{A reactive returning a factor definining the groups in which 
+\item{getTitle}{A reactive expression supplying a title.}
+
+\item{getLabels}{A reactive supplying a list of labels to use instead of row 
+names from \code{getDatamatrix()}}
+
+\item{colorBy}{A reactive returning a factor definining the groups in which 
 points should be colored.}
 
-\item{allow_3d}{For case where controls are generated, passed to
-\code{scatterplotcontrols}.}
+\item{allow_3d}{Passed to \code{\link{scatterplotcontrolsInput}} to dermine 
+if the user will be allowed to create 3D plots.}
 
-\item{x}{For case where controls are generated, passed to
-\code{scatterplotcontrols}.}
+\item{x}{Passed to \code{\link{scatterplotcontrolsInput}} to determine how
+it produces an input field for selecting the x axis. A value supplied for 
+this parameter will cause a hidden field to be generated instead of a 
+select, useful for scatter plots that don't need the user to select axes 
+(default: NA).}
 
-\item{y}{For case where controls are generated, passed to
-\code{scatterplotcontrols}.}
+\item{y}{Passed to \code{\link{scatterplotcontrolsInput}} to determine how
+it produces an input field for selecting the y axis. A value supplied for 
+this parameter will cause a hidden field to be generated instead of a 
+select, useful for scatter plots that don't need the user to select axes 
+(default: NA).}
 
-\item{z}{For case where controls are generated, passed to
-\code{scatterplotcontrols}.}
+\item{z}{Passed to \code{\link{scatterplotcontrolsInput}} to determine how
+it produces an input field for selecting the z axis. A value supplied for 
+this parameter will cause a hidden field to be generated instead of a 
+select, useful for scatter plots that don't need the user to select axes 
+(default: NA).}
 
 \item{getLines}{Reactive returning a data frame defining lines to be drawn.
 Three columns required: name, x and y, with two rows for every value of
 name. These two rows represent the start and end of a line.}
-
-\item{title}{A plot title}
-
-\item{labels}{An optional list of labels to use instead of row names from
-\code{getDatamatrix()}.}
 }
 \description{
+This module uses \href{https://plot.ly/}{Plotly} to create scatter plots 
+(see \code{\link[plotly]{plot_ly}}), of both 2D and 3D varieties.
+}
+\details{
 Controls for this module are provided by the \code{scatterplotcontrols}
 module, which is automatically called if reactives are not supplied to the 
 server function. This setup allows the same set of controls to power 
 multiple scatter plots.
-}
-\details{
-Plots are powered by plotly
-}
-\examples{
-callModule(scatterplot, 'pca', getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, title = 'PCA plot', colorby = na.replace(selectColData()[[colorBy()]], 'N/A'))
 }
 

@@ -1,11 +1,11 @@
 ---
-title: "Interactive downstream RNA-seq analysis with ShinyNGS"
+title: "Interactive downstream analysis with ShinyNGS"
 author: "Jonathan Manning"
 date: "`r Sys.Date()`"
 output: 
   BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Interactive downstream RNA-seq analysis with ShinyNGS}
+  %\VignetteIndexEntry{Interactive downstream analysis with ShinyNGS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -377,6 +377,14 @@ Many of these can be called individually, for example to make an app for dendrog
 ```{r eval = FALSE}
 app <- prepareApp('dendro', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
+```
+
+# Technical information
+
+For technical information on package layout and functions, consult the package documentation:
+
+```{r eval = FALSE}
+?shinyngs
 ```
 
 # Running on a shiny server

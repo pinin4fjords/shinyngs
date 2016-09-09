@@ -2,7 +2,7 @@
 % Please edit documentation in R/volcanoplot.R
 \name{volcanoplotInput}
 \alias{volcanoplotInput}
-\title{The UI input function of the volcanoplot module}
+\title{The UI input function of the \code{volcanoplot} module}
 \usage{
 volcanoplotInput(id, eselist)
 }
@@ -17,14 +17,21 @@ output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module provides information on the comparison betwen pairs of groups 
-defined in a 'tests' slot of the ExploratorySummarizedExperiment
-}
-\details{
-Leverages the \code{scatterplot} module
+A volcano plot displays -log(10) of a p value/ FDR against a log(2) fold 
+change on the x axis. This module produces such a plot using the 
+\code{\link{scatterplot}} module (which uses 
+\code{\link[plotly]{plot_ly}})), using data provided by the 
+\code{\link{contrasts}} module based on the setting of \code{contrasts} in 
+\code{eselist}.
 }
 \examples{
-differentialtableInput('experiment', eselist)
+volcanoplotInput('myid', eselist)
+
+# However, almost certainly called via application creation:
+
+data(zhangneurons)
+app <- prepareApp('volcanoplot', zhangneurons)
+shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
 

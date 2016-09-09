@@ -11,6 +11,8 @@ simpletableInput(id, tabletitle = "", description = NULL)
 \arguments{
 \item{id}{Submodule namespace}
 
+\item{tabletitle}{Table title. Will be used on download button.}
+
 \item{description}{A string to display in the side bar to explain the table.}
 }
 \value{

@@ -9,8 +9,15 @@ sampleselectInput(id, eselist, getExperiment, select_samples = TRUE)
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{ese}{ExploratorySummarizedExperiment object with assay and experimental
-data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
+
+\item{getExperiment}{Reactive expression that returns a
+\code{ExploratorySummarizedExperiment} with assays and metadata. Usually a 
+result of a user selection}
+
+\item{select_samples}{Select samples at all? If set to false, a hidden input
+indicating the selection of all samples is produced.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

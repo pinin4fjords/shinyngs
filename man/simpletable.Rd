@@ -23,6 +23,12 @@ used)}
 \item{pageLength}{Number of items per page}
 
 \item{filename}{A string to use in the name of the table download}
+
+\item{rownames}{Passed to \code{\link[DT]{renderDataTable}}. Display the row 
+names of the input matrix? (default: FALSE)}
+
+\item{show_controls}{Show search box, controls etc on resulting data table? 
+(default: TRUE)}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

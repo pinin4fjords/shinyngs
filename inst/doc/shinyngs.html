@@ -10,9 +10,9 @@
 
 <meta name="author" content="Jonathan Manning" />
 
-<meta name="date" content="2016-09-08" />
+<meta name="date" content="2016-09-09" />
 
-<title>Interactive downstream RNA-seq analysis with ShinyNGS</title>
+<title>Interactive downstream analysis with ShinyNGS</title>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -49,9 +49,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 <div id="header">
-<h1 class="title">Interactive downstream RNA-seq analysis with ShinyNGS</h1>
+<h1 class="title">Interactive downstream analysis with ShinyNGS</h1>
 <h4 class="author"><em>Jonathan Manning</em></h4>
-<h4 class="date"><em>2016-09-08</em></h4>
+<h4 class="date"><em>2016-09-09</em></h4>
 </div>
 
 <h1>Contents</h1>
@@ -83,7 +83,8 @@ document.addEventListener("DOMContentLoaded", function() {
 </ul></li>
 <li><a href="#other-options"><span class="toc-section-number">10</span> Other options</a></li>
 <li><a href="#included-modules"><span class="toc-section-number">11</span> Included modules</a></li>
-<li><a href="#running-on-a-shiny-server"><span class="toc-section-number">12</span> Running on a shiny server</a></li>
+<li><a href="#technical-information"><span class="toc-section-number">12</span> Technical information</a></li>
+<li><a href="#running-on-a-shiny-server"><span class="toc-section-number">13</span> Running on a shiny server</a></li>
 </ul>
 </div>
 
@@ -580,8 +581,13 @@ gene_sets &lt;- lapply(genesets_files, GSEABase::getGmt)</code></pre>
 <pre class="r"><code>app &lt;- prepareApp('dendro', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)</code></pre>
 </div>
+<div id="technical-information" class="section level1">
+<h1><span class="header-section-number">12</span> Technical information</h1>
+<p>For technical information on package layout and functions, consult the package documentation:</p>
+<pre class="r"><code>?shinyngs</code></pre>
+</div>
 <div id="running-on-a-shiny-server" class="section level1">
-<h1><span class="header-section-number">12</span> Running on a shiny server</h1>
+<h1><span class="header-section-number">13</span> Running on a shiny server</h1>
 <p>Just use the commands sets above with <code>shinyApp()</code> in a file called app.R in a directory of its own on your Shiny server. For example, If you’re created an <code>ExploratorySummarizedExperiment</code> and saved it to a file called ‘data.rds’:</p>
 <pre class="r"><code>library(shinyngs)
 

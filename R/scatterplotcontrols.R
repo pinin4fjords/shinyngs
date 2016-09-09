@@ -4,6 +4,7 @@
 #' may then be used by one or more instances of the scatterplot module.
 #'
 #' @param id Submodule namespace
+#' @param allow_3d Allow user to choose 3D plotting?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character()

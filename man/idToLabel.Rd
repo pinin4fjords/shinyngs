@@ -3,7 +3,8 @@
 \name{idToLabel}
 \alias{idToLabel}
 \title{Create row labels based on the settings of \code{labelfield} in the 
-SummarizedExperiment object and the annotation data in \code{mcols}}
+\code{ExploratorySummarizedExperiment} object and the annotation data in 
+\code{mcols}.}
 \usage{
 idToLabel(ids, ese, sep = " / ")
 }
@@ -19,6 +20,7 @@ String vector of same length as \code{ids}
 }
 \description{
 Create row labels based on the settings of \code{labelfield} in the 
-SummarizedExperiment object and the annotation data in \code{mcols}
+\code{ExploratorySummarizedExperiment} object and the annotation data in 
+\code{mcols}.
 }
 

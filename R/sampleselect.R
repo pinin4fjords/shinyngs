@@ -7,8 +7,13 @@
 #' selectmatrix module.
 #' 
 #' @param id Submodule namespace
-#' @param ese ExploratorySummarizedExperiment object with assay and experimental
-#'   data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
+#' @param getExperiment Reactive expression that returns a
+#'   \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a 
+#'   result of a user selection
+#' @param select_samples Select samples at all? If set to false, a hidden input
+#'   indicating the selection of all samples is produced. 
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -69,8 +74,11 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param getExperiment Reactive expression which returns an
-#' ExploratorySummarizedExperiment object with assay and experimental data
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
+#' @param getExperiment Reactive expression that returns a
+#'   \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a 
+#'   result of a user selection
 #'
 #' @return output A list of reactive functions for interrogating the selected
 #' samples/ columns.
@@ -110,7 +118,6 @@ sampleselect <- function(input, output, session, eselist, getExperiment) {
     getSampleGroupVar <- reactive({
         input$sampleGroupVar
     })
-    
     
     # Reactive expression for selecting the specified columns
     

@@ -1,14 +1,25 @@
 #' The UI input function of the selectmarix module
 #' 
-#' This module uses the geneselect and sampleselect modules to parse controls 
-#' defining matrix, row and column and return a matrix.
+#' This module forms the core of many operations in \code{shinyngs}. To use the
+#' matrix data stored in an \code{ExploratorySummarizedExperimentList} object, 
+#' selection must be made on the basis of experiment (which 
+#' \code{ExploratorySummarizedExperiment}) to use), the specific assay of the 
+#' experiment, and the rows and columns of the selected assay matrix. This 
+#' module provides customisable controls for selection at each of these levels, 
+#' and parses those inputs to produce matrices used in the various plots. 
 #' 
+#' The \code{\link{geneselect}} and \code{\link{sampleselect}} modules provide
+#' row- and column- selection, respectively.
+
 #' This will generally not be called directly, but by other modules such as the 
 #' heatmap module.
 #' 
 #' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
+#' @param require_tests Only use elements of \code{eselist} that have a 
+#'   populated \code{tests} slot. For plots using p value data etc, this is 
+#'   used to hide experiments that don't have the necessary data.
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
 #'   as.character()
@@ -21,6 +32,8 @@
 selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
     
     ns <- NS(id)
+    
+    # Restrict to valid experiments
     
     if (require_tests) {
         eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
@@ -41,8 +54,19 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 
 #' The server function of the selectmatrix module
 #' 
-#' This module uses the geneselect and sampleselect modules to parse controls 
-#' defining matrix, row and column and return a subsetted matrix.
+#' This module forms the core of many operations in \code{shinyngs}. To use the
+#' matrix data stored in an \code{ExploratorySummarizedExperimentList} object, 
+#' selection must be made on the basis of experiment (which 
+#' \code{ExploratorySummarizedExperiment}) to use), the specific assay of the 
+#' experiment, and the rows and columns of the selected assay matrix. This 
+#' module provides customisable controls for selection at each of these levels, 
+#' and parses those inputs to produce matrices used in the various plots. 
+#' 
+#' The \code{\link{geneselect}} and \code{\link{sampleselect}} modules provide
+#' row- and column- selection, respectively.
+
+#' This will generally not be called directly, but by other modules such as the 
+#' heatmap module.
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
@@ -65,6 +89,9 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #'   don't have to calculate variance so the display is quicker, but it's a bad 
 #'   idea for e.g. heatmaps where the visual scales by the numbre of rows.
 #' @param default_gene_select The default method to use for selecting genes
+#' @param require_tests Only use elements of \code{eselist} that have a 
+#'   populated \code{tests} slot. For plots using p value data etc, this is 
+#'   used to hide experiments that don't have the necessary data.
 #' @param rounding Number of decimal places to show in results (Default 2)
 #'   
 #' @return output A list of reactive functions for fetching the derived matrix 
@@ -100,8 +127,6 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
             }
             
             assayselect
-            
-            
         })
     })
     
@@ -288,7 +313,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
 
 #' Add columns to display ID and label in a table
 #'
-#' Labels only added if \code{labelfield} is specified in \code{se}
+#' Labels only added if \code{labelfield} is specified in \code{ese}
 #'
 #' @param matrix The input table
 #' @param ese An ExploratorySummarizedExperiment object
@@ -373,7 +398,8 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 }
 
 #' Create row labels based on the settings of \code{labelfield} in the 
-#' SummarizedExperiment object and the annotation data in \code{mcols}
+#' \code{ExploratorySummarizedExperiment} object and the annotation data in 
+#' \code{mcols}.
 #'
 #' @param list of ids
 #' @param ese An ExploratorySummarizedExperiment
@@ -425,7 +451,7 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
     converted
 }
 
-#' Is there only on matrix to plot from this object?
+#' Is there only one matrix to plot from this object?
 #' 
 #' Convenience function for deciding how to construct filters
 #'

@@ -175,6 +175,9 @@ head(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG$`myelinating
 #  app <- prepareApp('dendro', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
+## ----eval = FALSE--------------------------------------------------------
+#  ?shinyngs
+
 ## ----eval=FALSE----------------------------------------------------------
 #  library(shinyngs)
 #  

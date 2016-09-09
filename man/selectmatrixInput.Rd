@@ -11,16 +11,27 @@ selectmatrixInput(id, eselist, require_tests = FALSE)
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
+
+\item{require_tests}{Only use elements of \code{eselist} that have a 
+populated \code{tests} slot. For plots using p value data etc, this is 
+used to hide experiments that don't have the necessary data.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
   as.character()
 }
 \description{
-This module uses the geneselect and sampleselect modules to parse controls 
-defining matrix, row and column and return a matrix.
+This module forms the core of many operations in \code{shinyngs}. To use the
+matrix data stored in an \code{ExploratorySummarizedExperimentList} object, 
+selection must be made on the basis of experiment (which 
+\code{ExploratorySummarizedExperiment}) to use), the specific assay of the 
+experiment, and the rows and columns of the selected assay matrix. This 
+module provides customisable controls for selection at each of these levels, 
+and parses those inputs to produce matrices used in the various plots.
 }
 \details{
+The \code{\link{geneselect}} and \code{\link{sampleselect}} modules provide
+row- and column- selection, respectively.
 This will generally not be called directly, but by other modules such as the 
 heatmap module.
 }

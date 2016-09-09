@@ -16,8 +16,12 @@ sampleselect(input, output, session, eselist, getExperiment)
 
 \item{session}{Session object}
 
-\item{getExperiment}{Reactive expression which returns an
-ExploratorySummarizedExperiment object with assay and experimental data}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
+
+\item{getExperiment}{Reactive expression that returns a
+\code{ExploratorySummarizedExperiment} with assays and metadata. Usually a 
+result of a user selection}
 }
 \value{
 output A list of reactive functions for interrogating the selected

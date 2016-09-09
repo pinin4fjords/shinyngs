@@ -4,6 +4,7 @@
 #' how a summary statistic is calculated (probably by mean).
 #'
 #' @param id Submodule namespace
+#' @param allow_none Allow a 'no summarisation' selection.
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -45,7 +46,6 @@ summarisematrix <- function(input, output, session) {
     getSummaryType <- reactive({
         input$summaryType
     })
-    
 }
 
 #' Summarise the rows of a matrix, applying a function to groups of cells 

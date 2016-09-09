@@ -39,6 +39,10 @@ idea for e.g. heatmaps where the visual scales by the numbre of rows.}
 
 \item{default_gene_select}{The default method to use for selecting genes}
 
+\item{require_tests}{Only use elements of \code{eselist} that have a 
+populated \code{tests} slot. For plots using p value data etc, this is 
+used to hide experiments that don't have the necessary data.}
+
 \item{rounding}{Number of decimal places to show in results (Default 2)}
 }
 \value{
@@ -46,10 +50,20 @@ output A list of reactive functions for fetching the derived matrix
   and making a title based on its properties.
 }
 \description{
-This module uses the geneselect and sampleselect modules to parse controls 
-defining matrix, row and column and return a subsetted matrix.
+This module forms the core of many operations in \code{shinyngs}. To use the
+matrix data stored in an \code{ExploratorySummarizedExperimentList} object, 
+selection must be made on the basis of experiment (which 
+\code{ExploratorySummarizedExperiment}) to use), the specific assay of the 
+experiment, and the rows and columns of the selected assay matrix. This 
+module provides customisable controls for selection at each of these levels, 
+and parses those inputs to produce matrices used in the various plots.
 }
 \details{
+The \code{\link{geneselect}} and \code{\link{sampleselect}} modules provide
+row- and column- selection, respectively.
+This will generally not be called directly, but by other modules such as the 
+heatmap module.
+
 This function is not called directly, but rather via callModule() (see 
 example).
 }
