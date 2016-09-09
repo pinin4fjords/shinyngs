@@ -16,11 +16,12 @@ What follows is technical documentation for the package, use
 usage.
 }
 \section{Principal software dependencies}{
- This package makes use of many
-  packages, and is indebted to their developers.
+ This package makes use of many 
+  packages, and is indebted to their developers. 
   \href{http://shiny.rstudio.com/}{Shiny} provides the overall framework that
-  made the current work possible, and \href{https://plot.ly/} has been key to
-  making the included visualisations as dynamic and useful as they are.
+  made the current work possible, and \href{https://plot.ly/}{Plotly} has
+  been key to making the included visualisations as dynamic and useful as
+  they are.
   
   Plotly's R interface has changed markedly between versions, and 
   \code{shinyngs} is currently dependent on a version later than the (now 
@@ -51,10 +52,10 @@ usage.
   terribly happy with the structure of some of the slots in these objects, 
   and they may be open to 'improvement' in the future.
   
-  \subsection{Example data} An example based on the Zhang et al study of 
+  \subsection{Example data}{An example based on the Zhang et al study of 
   neurons and glia (http://www.jneurosci.org/content/34/36/11929.long) is 
   included in the package, and can be picked apart to further understand the 
-  data structure.
+  data structure.}
 }
 
 \section{Shiny modules}{
@@ -68,24 +69,24 @@ usage.
   of an application without interfering with itself. \code{shinyngs} has many
   modules that provide various functionalities.
   
-  \subsection{Components} Each module will have server and UI functions that
+  \subsection{Components}{Each module will have server and UI functions that
   provide processing and UI functionality respectively. For example, the
   \code{dendro} module, which provides sample clustering dengrograms, has
   \code{\link{dendroInput}}, which provides user interface components to
   determine clustering method etc, and \code{\link{dendro}}, which parses
   those inputs and calls the appropriate functions to generate a dendrogram.
   \code{\link{dendroOutput}} provides elements that display the outputs when
-  they're ready. These functions are all present in dendro.R.
+  they're ready. These functions are all present in dendro.R.}
   
-  \subsection{Usage} Any application seeking to create dendrograms need only 
+  \subsection{Usage}{Any application seeking to create dendrograms need only 
   call \code{\link{dendroInput}} \code{\link{dendroOutput}} in the parts of 
   their application where inputs and outputs should appear, and then use 
   \code{\link[shiny]{callModule}} (again using the same ID) to activate them.
   
-  \preformatted{ 
-    dendroInput(ns("dendro"), eselist) 
-    dendroOutput(ns("dendro")) 
-    callModule(dendro, "dendro", eselist) }
+  \preformatted{
+  dendroInput(ns("dendro"), eselist)
+  dendroOutput(ns("dendro"))
+  callModule(dendro, "dendro", eselist) }}
   
   These module functions are not currently exported, not currenlty being 
   intended for use outside \code{shinyngs}. This may change.
@@ -102,10 +103,11 @@ usage.
   sidebar layout. Taking our dendro app and using the \code{airway} example 
   data:
   
-  \preformatted{ data(airway, package = 'airway') 
-  ese <- as(airway, 'ExploratorySummarizedExperiment') 
-  eselist <- ExploratorySummarizedExperimentList(ese) 
-  app <- prepareApp('heatmap',eselist) }
+  \preformatted{
+  data(airway, package = 'airway')
+  ese <- as(airway, 'ExploratorySummarizedExperiment')
+  eselist <- ExploratorySummarizedExperimentList(ese)
+  app <- prepareApp('heatmap',eselist)}
   
   Other apps, for example \code{\link{rnaseq}} require more complex layouts 
   and don't use \code{simpleApp}.
@@ -122,10 +124,10 @@ usage.
   with \code{link[base]{saveRDS}}, the Shiny app can be deployed to a server
   in a script called 'app.R' with content like this:
   
-  \preformatted{ library(shinyngs)
-  
-  mydata <- readRDS("data.rds") app <- prepareApp("rnaseq", mydata) 
-  shiny::shinyApp(app$ui, app$server) }
+  \preformatted{
+  library(shinyngs)
+  mydata <- readRDS("data.rds") app <- prepareApp("rnaseq", mydata)
+  shiny::shinyApp(app$ui, app$server)}
 }
 
 \section{Module list}{
@@ -138,14 +140,12 @@ stand-alone to make heatmaps or dendrograms, for example. Other modules just
 provide small components that don't make sense in isolation. This is the full
 set at the time of writing:
 
-\subsection{Top-level}
+\subsection{Top-level}{\describe{\item{rnaseq}{Pull together PCA analysis,
+heat maps, dendgrograms, volcano plots, gene sets etc to make a comprehensive
+data mining tool.} \item{chipseq}{Currenlty a near clone of \code{rnaseq}, to
+be optimised for ChIP-seq in due course.} }}
 
-\describe{ \item{rnaseq}{Pull together PCA analysis, heat maps, dendgrograms,
-volcano plots, gene sets etc to make a comprehensive data mining tool.} 
-\item{chipseq}{Currenlty a near clone of \code{rnaseq}, to be optimised for
-ChIP-seq in due course.} }
-
-\subsection{Stand-alone}
+\subsection{Stand-alone}{
 
 These modules can also be called directly with \code{\link{prepareApp}}:
 
@@ -173,45 +173,43 @@ based on selected matrix data, using the \code{scatterplot} module}
 \item{readreports}{Makes bar plots and tables of read counts data where 
 provided in the \code{read_reports} slot of an 
 \code{ExploratorySummarizedExperimentList}} \item{rowmetatable}{Displays data
-from the metadata slot of a \code{ExploratorySummarizedExperiment} object
-(accessed via \code{mcols})} \item{volcanoplot}{Uses the \code{scatterplot}
-module to plot fold change vs p value (where necessary slots are populated}}
+from the metadata slot of a \code{ExploratorySummarizedExperiment} object 
+(accessed via \code{mcols})} \item{volcanoplot}{Uses the \code{scatterplot} 
+module to plot fold change vs p value (where necessary slots are populated}}}
 
-\subsection{Component-only}
-
-These modules are only valid as components of applications created by other 
-modules:
+\subsection{Component-only}{These modules are only valid as components of
+applications created by other modules:
 
 \describe{ \item{barplot}{Used by readreports, for example. Requires reactive
-providing input data} \item{contrasts}{Provides data on sample group
-comparisons, using the \code{contrasts} slot of the input object (where
-available)} \item{geneselect}{Provides selection filters for assay matrix
+providing input data} \item{contrasts}{Provides data on sample group 
+comparisons, using the \code{contrasts} slot of the input object (where 
+available)} \item{geneselect}{Provides selection filters for assay matrix 
 rows. Used mainly by the \code{selectmatrix} module} 
-\item{genesetselect}{Uses
-\href{http://selectize.github.io/selectize.js/}{Selectize} to provide an
-autocomplete field to select from available gene sets (where provided in the
-\code{gene_sets} slot)} \item{groupby}{Provides a UI element to choose from
-the \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA
-etc} \item{labelselectfield}{This module provides an input which allows
+\item{genesetselect}{Uses 
+\href{http://selectize.github.io/selectize.js/}{Selectize} to provide an 
+autocomplete field to select from available gene sets (where provided in the 
+\code{gene_sets} slot)} \item{groupby}{Provides a UI element to choose from 
+the \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA 
+etc} \item{labelselectfield}{This module provides an input which allows 
 filtering on the basis of row IDs, labels, or other data in the metadata slot
-of an \code{ExploratorySummarizedExperiment}} \item{modal}{uses modals from
-\href{https://ebailey78.github.io/shinyBS/}{shinyBS} to create overlaid text
+of an \code{ExploratorySummarizedExperiment}} \item{modal}{uses modals from 
+\href{https://ebailey78.github.io/shinyBS/}{shinyBS} to create overlaid text 
 for the current panel which displays when a link is clicked} 
 \item{plotdownload}{Provides a download button for displayed plots} 
-\item{sampleselect}{Allows a subset of columns to be selected from the
-selected assay matrix} \item{scatterplot}{A generic module for producing
-scatter plots using Plotly's \code{\link[plotly]{plot_ly}} method. Used by
-multiple other modules, including \code{foldchangeplot} and
-\code{volcanoplot}} \item{scatterplotcontrols}{A set of controls for scatter
-plots. Separation of controls in this module allows them to be used in
-multiple scatter plot instances. For example, both PCA and loading plots can
-be run off the same set of controls} \item{selectmatrix}{Provides
-functionality central to \code{shinyngs}. Uses filtes on experiment and
-assay, along with \code{sampleselect} and \code{geneselect}, to select parts
+\item{sampleselect}{Allows a subset of columns to be selected from the 
+selected assay matrix} \item{scatterplot}{A generic module for producing 
+scatter plots using Plotly's \code{\link[plotly]{plot_ly}} method. Used by 
+multiple other modules, including \code{foldchangeplot} and 
+\code{volcanoplot}} \item{scatterplotcontrols}{A set of controls for scatter 
+plots. Separation of controls in this module allows them to be used in 
+multiple scatter plot instances. For example, both PCA and loading plots can 
+be run off the same set of controls} \item{selectmatrix}{Provides 
+functionality central to \code{shinyngs}. Uses filtes on experiment and 
+assay, along with \code{sampleselect} and \code{geneselect}, to select parts 
 of input matrices for use by most other \code{shinyngs} modules} 
-\item{simpletable}{A useful generic module that takes a reactive which
-returns a matrix, and both displays that table and produces a download
+\item{simpletable}{A useful generic module that takes a reactive which 
+returns a matrix, and both displays that table and produces a download 
 button} \item{summarizematrix}{Module which takes a matrix and a factor which
-groups columns, and summarises by a supplied method, mean by default} }
+groups columns, and summarises by a supplied method, mean by default} }}
 }
 
