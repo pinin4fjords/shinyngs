@@ -64,7 +64,22 @@ app <- prepareApp("rnaseq", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 
-There's lots more information and examples of how to build your own apps in the [vignette](http://htmlpreview.github.io/?https://github.com/pinin4fjords/shinyngs/blob/master/inst/doc/shinyngs.html).
+Documentation
+=============
+
+Technical information can be accessed via the package documentation:
+
+``` r
+?shinyngs
+```
+
+More user-oriented documentation and examples of how to build your own apps in the [vignette](http://htmlpreview.github.io/?https://github.com/pinin4fjords/shinyngs/blob/master/inst/doc/shinyngs.html).
+
+This is also accessible via the `vignette` command:
+
+``` r
+vignette('shinyngs')
+```
 
 TODO
 ====
