@@ -568,7 +568,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
     
     # If this is a samples/samples heatmap, reverse the dendrograms to match with pheatmap behaviour
     
-    yaxis_width = max(unlist(lapply(rownames(plotmatrix), function(x) nchar(x)))) * (cexRow * 10)
+    yaxis_width = max(unlist(lapply(rownames(plotmatrix), function(x) nchar(x)))) * (cexRow * 15)
     # xaxis_height = max(unlist(lapply(colnames(plotmatrix), function(x) nchar(x)))) * 10
     xaxis_height = 300
     
