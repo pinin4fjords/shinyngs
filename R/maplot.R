@@ -164,6 +164,7 @@ maplot <- function(input, output, session, eselist) {
             matable$colorby <- "hidden"
             matable[rownames(fct), "colorby"] <- "match contrast filters"
             matable[selectRows(), "colorby"] <- "in highlighted gene set"
+            matable$colorby <- factor(matable$colorby, levels = c('hidden', "match contrast filters", "in highlighted gene set"))
             
             matable$label <- idToLabel(rownames(matable), getExperiment())
             matable$label[!rownames(matable) %in% c(rownames(fct), selectRows())] <- NA

@@ -188,6 +188,11 @@ volcanoplot <- function(input, output, session, eselist) {
         withProgress(message = "Compiling volcano plot data", value = 0, {
             
             ct <- contrastsTables()[[1]]
+            
+            # q values of 0 cause trouble
+            
+            ct$`q value`[ct$`q value` == 0] <- 0.000001
+            
             ct <- ct[, c("Fold change", "q value")]
             ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
             ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
@@ -200,6 +205,7 @@ volcanoplot <- function(input, output, session, eselist) {
             ct$colorby <- "hidden"
             ct[rownames(fct), "colorby"] <- "match contrast filters"
             ct[selectRows(), "colorby"] <- "in highlighted gene set"
+            ct$colorby <- factor(ct$colorby, levels = c('hidden', "match contrast filters", "in highlighted gene set"))
             
             ct$label <- idToLabel(rownames(ct), getExperiment())
             ct$label[!rownames(ct) %in% c(rownames(fct), selectRows())] <- NA

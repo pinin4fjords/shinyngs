@@ -189,6 +189,7 @@ foldchangeplot <- function(input, output, session, eselist) {
             ct$colorby <- "hidden"
             ct[rownames(fct), "colorby"] <- "match contrast filters"
             ct[selectRows(), "colorby"] <- "in highlighted gene set"
+            ct$colorby <- factor(ct$colorby, levels = c('hidden', "match contrast filters", "in highlighted gene set"))
             
             ct$label <- idToLabel(rownames(ct), getExperiment())
             ct$label[!rownames(ct) %in% c(rownames(fct), selectRows())] <- NA

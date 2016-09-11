@@ -208,7 +208,6 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                 
                 if (!is.null(colorBy)) {
                   plotargs$color <- colorBy()[!unlabelled()]
-                  plotargs$colors = makeColorScale()
                 }
                 
                 p <- do.call(plotly::add_trace, plotargs)
@@ -280,7 +279,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType()) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% 
+            plot_ly(type = plotType(), colors = makeColorScale()) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% 
                 adjustLayout(title = getTitle()) %>% config(showLink = TRUE)
         })
     })
