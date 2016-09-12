@@ -32,16 +32,15 @@ foldchangeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an
-    # empty fieldset for them
+    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
     
     fieldsets <- list()
     if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
         fieldsets$expression_matrix <- expression_filters
     }
     
-    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), 
-        highlight_points = geneselectInput(ns("foldchange")), export = simpletableInput(ns("foldchangetable"))))
+    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")), 
+        export = simpletableInput(ns("foldchangetable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -76,8 +75,8 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("foldchangeplot"), "help", "help"), modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp", 
-        "foldchangeplot.md", package = packageName()))), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+    list(modalInput(ns("foldchangeplot"), "help", "help"), modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp", "foldchangeplot.md", 
+        package = packageName()))), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -117,18 +116,16 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
-    unpack.list(callModule(geneselect, "foldchange", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, 
-        provide_none = TRUE))
+    unpack.list(callModule(geneselect, "foldchange", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, 
-        getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = foldchangeLabels, 
+        x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -150,9 +147,8 @@ foldchangeplot <- function(input, output, session, eselist) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 
-            2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), 
-            (max + log2(fcMin()))), stringsAsFactors = FALSE)
+        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 2)), x = c(min, max, min, max, 
+            min, max), y = c(c(min, max), (min - log2(fcMin())), (max - log2(fcMin())), (min + log2(fcMin())), (max + log2(fcMin()))), stringsAsFactors = FALSE)
         lines$name <- factor(lines$name, levels = unique(lines$name))
         
         lines
@@ -189,7 +185,7 @@ foldchangeplot <- function(input, output, session, eselist) {
             ct$colorby <- "hidden"
             ct[rownames(fct), "colorby"] <- "match contrast filters"
             ct[selectRows(), "colorby"] <- "in highlighted gene set"
-            ct$colorby <- factor(ct$colorby, levels = c('hidden', "match contrast filters", "in highlighted gene set"))
+            ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
             
             ct$label <- idToLabel(rownames(ct), getExperiment())
             ct$label[!rownames(ct) %in% c(rownames(fct), selectRows())] <- NA
@@ -199,7 +195,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
-        filename = "foldchange", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", 
+        rownames = FALSE, pageLength = 10)
     
 }

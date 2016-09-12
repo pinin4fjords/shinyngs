@@ -27,9 +27,9 @@ dendroInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("dendro"), eselist)
     
-    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), 
-        selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", 
-            `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
+    dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", Kendall = "kendall")), selectInput(ns("clusterMethod"), 
+        "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", 
+            WPGMA = "mcquittye", UPGMC = "centroid")), groupbyInput(ns("dendro")))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -56,8 +56,8 @@ dendroInput <- function(id, eselist) {
 
 dendroOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", 
-        "dendro.md", package = packageName()))), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
+    list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.md", 
+        package = packageName()))), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
 }
 
 #' The server function of the dendrogram module
@@ -95,8 +95,7 @@ dendro <- function(input, output, session, eselist) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
-            matrixTitle())
+        clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
         
     })
     
@@ -105,8 +104,7 @@ dendro <- function(input, output, session, eselist) {
     output$sampleDendroPlot <- renderPlot({
         withProgress(message = "Making sample dendrogram", value = 0, {
             
-            clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
-                matrixTitle())
+            clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle())
             
         })
     }, height = 600)
@@ -160,8 +158,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     
     if (is.null(colorby)) {
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40)), 
-            show.legend = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40)), show.legend = F)
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/3), ymax)
         
@@ -170,27 +167,24 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     } else {
         
         labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
-        labs[[colorby]] <- na.replace(labs[[colorby]], replacement = 'N/A')
+        labs[[colorby]] <- na.replace(labs[[colorby]], replacement = "N/A")
         
-        labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], 'N/A')))
+        labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], "N/A")))
         shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), 
-            colour = colorby), show.legend = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), show.legend = F)
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_manual(name = prettifyVariablename(colorby), values = makeColorScale(length(unique(labs[[colorby]]))))
         
-        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, 
-            name = prettifyVariablename(colorby)) + theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + 
-            ggtitle(plot_title)
+        p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + 
+            theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + ggtitle(plot_title)
         
     }
     
     if (!is.null(colorby)) {
         p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     }
-    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + 
-        ggtitle(plot_title))
+    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
 }
 
 #' Calculate a distance matrix based on correlation

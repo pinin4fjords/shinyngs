@@ -50,7 +50,7 @@ genesetselectInput <- function(id, multiple = TRUE) {
 genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
     
     # Allow user to select the type of gene set
-  
+    
     output$geneSetTypes <- renderUI({
         if (filter_by_type) {
             ese <- getExperiment()
@@ -90,8 +90,8 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
             function(settype) names(gene_sets[[settype]]))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This
-    # reactive must be called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the
+    # calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)

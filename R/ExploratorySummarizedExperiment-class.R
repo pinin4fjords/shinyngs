@@ -1,4 +1,8 @@
 #' The ExploratorySummarizedExperiment class
+#' 
+#' Subclass of SummarizedExperiment if present in the SummarizedExperiment
+#' package (newer versions of Bioconductor have moved this from GenomicRanges), 
+#' otherwise of SummarizedExperiment0.
 #'
 #' @slot idfield character. 
 #' @slot entrezgenefield character. 
@@ -7,12 +11,12 @@
 #' 
 #' @export
 
-setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment0", representation = representation(idfield = "character", 
-    entrezgenefield = "character", labelfield = "character", tests = "list", assay_measures = "list", gene_set_analyses = "list", 
-    dexseq_results = "list"))
+setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", 
+    "SummarizedExperiment0"), representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", tests = "list", 
+    assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list"))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
-    as((as(from, "SummarizedExperiment0")), "ExploratorySummarizedExperiment")
+    as((as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))), "ExploratorySummarizedExperiment")
 })
 
 #' ExploratorySummarizedExperiments
@@ -53,12 +57,12 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' @import SummarizedExperiment
 #' @export
 
-ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), 
-    tests = list(), assay_measures = list(), gene_set_analyses = list(), dexseq_results = list()) {
+ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), assay_measures = list(), 
+    gene_set_analyses = list(), dexseq_results = list()) {
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
-    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, 
-        assay_measures = assay_measures, tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results)
+    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, 
+        tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results)
 }

@@ -18,7 +18,7 @@
 #'   Plotly's R interface has changed markedly between versions, and 
 #'   \code{shinyngs} is currently dependent on a version later than the (now 
 #'   somewhat old) version on CRAN. This should therefore be installed from 
-#'   GitHub: \code{devtools::install_github("ropensci/plotly", 
+#'   GitHub: \code{devtools::install_github('ropensci/plotly', 
 #'   upgrade_dependencies = FALSE)}.
 #' 
 #' @section Input data structure: \code{shinyngs} defines two new data 
@@ -72,9 +72,9 @@
 #'   \code{\link[shiny]{callModule}} (again using the same ID) to activate them.
 #'   
 #'   \preformatted{
-#'   dendroInput(ns("dendro"), eselist)
-#'   dendroOutput(ns("dendro"))
-#'   callModule(dendro, "dendro", eselist) }}
+#'   dendroInput(ns('dendro'), eselist)
+#'   dendroOutput(ns('dendro'))
+#'   callModule(dendro, 'dendro', eselist) }}
 #'   
 #'   These module functions are not currently exported, not currenlty being 
 #'   intended for use outside \code{shinyngs}. This may change.
@@ -110,7 +110,7 @@
 #'   
 #'   \preformatted{
 #'   library(shinyngs)
-#'   mydata <- readRDS("data.rds") app <- prepareApp("rnaseq", mydata)
+#'   mydata <- readRDS('data.rds') app <- prepareApp('rnaseq', mydata)
 #'   shiny::shinyApp(app$ui, app$server)}
 #'   
 #' @section Module list:

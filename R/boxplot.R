@@ -76,8 +76,8 @@ boxplotInput <- function(id, eselist) {
 
 boxplotOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", 
-        "boxplot.md", package = packageName()))), h3("Quartile plots"), uiOutput(ns("quartilesPlot")))
+    list(modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", "boxplot.md", package = packageName()))), 
+        h3("Quartile plots"), uiOutput(ns("quartilesPlot")))
 }
 
 #' The server function of the boxplot module
@@ -201,9 +201,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }
     
-    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), 
-        legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + 
-        ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 15))
+    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
+        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
+        expressiontype, ")"), 15))
     
     print(p)
 }
@@ -225,8 +225,8 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
 plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expression") {
     
     plotdata <- ggplotify(as.matrix(matrix), experiment, colorby)
-    plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>% layout(yaxis = list(title = expressiontype), 
-        xaxis = list(title = NULL), evaluate = TRUE) %>% config(showLink = TRUE)
+    plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>% layout(yaxis = list(title = expressiontype), xaxis = list(title = NULL), 
+        evaluate = TRUE) %>% config(showLink = TRUE)
 }
 
 #' Make a line-based alternative to boxplots
@@ -266,20 +266,17 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
     })
     outliers <- do.call(rbind, outliers[!unlist(lapply(outliers, is.null))])
     
-    # These lines to force plotly to use and display sample IDs as strings. For some reason character strings of numeric things get
-    # converted back
+    # These lines to force plotly to use and display sample IDs as strings. For some reason character strings of numeric things get converted back
     
     # The plotting business
     
-    plot_ly(data.frame(quantiles)) %>% add_trace(x = outliers$x, y = outliers$y, name = "outliers", marker = list(color = "black"), 
-        hoverinfo = "text", text = outliers$label, type = "scatter") %>% add_lines(x = samples, y = quantiles["75%", ] + ((quantiles["75%", 
-        ] - quantiles["25%", ]) * whisker_distance), line = list(width = 1, color = "grey", dash = "dash"), name = paste0("75%<br />+ (IQR * ", 
-        whisker_distance, ")")) %>% add_lines(x = samples, y = quantiles["75%", samples], line = list(dash = "dash", color = "black"), 
-        name = "75%") %>% add_lines(x = samples, y = quantiles["50%", samples], line = list(dash = "solid", color = "black"), name = "median") %>% 
-        add_lines(x = samples, y = quantiles["25%", samples], line = list(dash = "longdash", color = "black"), name = "25%") %>% 
-        add_lines(x = samples, y = quantiles["25%", ] - ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), line = list(width = 1, 
-            color = "grey", dash = "longdash"), name = paste0("25%<br />- (IQR * ", whisker_distance, ")")) %>% layout(xaxis = list(title = NULL, 
-        categoryarray = samples, categoryorder = "array"), yaxis = list(title = paste0("log2(", expressiontype, ")")), margin = list(b = 150), 
-        hovermode = "closest", title = NULL)
+    plot_ly(data.frame(quantiles)) %>% add_trace(x = outliers$x, y = outliers$y, name = "outliers", marker = list(color = "black"), hoverinfo = "text", text = outliers$label, 
+        type = "scatter") %>% add_lines(x = samples, y = quantiles["75%", ] + ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), line = list(width = 1, 
+        color = "grey", dash = "dash"), name = paste0("75%<br />+ (IQR * ", whisker_distance, ")")) %>% add_lines(x = samples, y = quantiles["75%", samples], 
+        line = list(dash = "dash", color = "black"), name = "75%") %>% add_lines(x = samples, y = quantiles["50%", samples], line = list(dash = "solid", color = "black"), 
+        name = "median") %>% add_lines(x = samples, y = quantiles["25%", samples], line = list(dash = "longdash", color = "black"), name = "25%") %>% add_lines(x = samples, 
+        y = quantiles["25%", ] - ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), line = list(width = 1, color = "grey", dash = "longdash"), name = paste0("25%<br />- (IQR * ", 
+            whisker_distance, ")")) %>% layout(xaxis = list(title = NULL, categoryarray = samples, categoryorder = "array"), yaxis = list(title = paste0("log2(", 
+        expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL)
     
 }

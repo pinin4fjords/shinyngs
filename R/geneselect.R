@@ -69,12 +69,10 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     useGenesets <- reactive({
         ese <- getExperiment()
         
-        length(eselist@gene_sets) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 
-            0)))
+        length(eselist@gene_sets) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 0)))
     })
     
-    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our
-    # results
+    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
     unpack.list(callModule(genesetselect, "geneset", eselist = eselist, getExperiment = getExperiment))
     
@@ -120,17 +118,15 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 selected = default
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, 
-                selected = selected), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), 
-                "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")), 
-                conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'metadata' "), labelselectfieldInput(ns("gene_label"))))
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'metadata' "), labelselectfieldInput(ns("gene_label"))))
             
             # If gene sets have been provided, then make a gene sets filter
             
             if (useGenesets()) {
-                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), 
-                  genesetselectInput(ns("geneset")))
+                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetselectInput(ns("geneset")))
             }
             
         })
@@ -202,8 +198,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 
                 if (length(ese@labelfield) > 0) {
                   annotation <- data.frame(mcols(ese))
-                  selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), 
-                    ese@idfield])
+                  selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), ese@idfield])
                 } else {
                   selected_rows <- rownames(ese)[which(tolower(rownames(ese))) %in% tolower(selected_genes)]
                 }

@@ -29,14 +29,14 @@
 #' 
 #' > data(zhangneurons)
 #' > names(assays(zhangneurons$gene))
-#' [1] "normalised-filtered" "filtered"            "raw" 
+#' [1] 'normalised-filtered' 'filtered'            'raw' 
 #' 
 #' # The normalised matrix was used to perform gene set analysis, using 6 types
 #' # of gene set
 #' 
 #' > names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-#' [1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
-#' [6] "MSigDB hallmark"  
+#' [1] 'KEGG'                     'MSigDB canonical pathway' 'GO biological process'    'GO cellular component'    'GO molecular function'   
+#' [6] 'MSigDB hallmark'  
 #'
 #' # Gene set can be related back to individual genes via information in the
 #' # containing object's 'gene_sets' slot. These are keyed first to indicate 
@@ -44,7 +44,7 @@
 #' # set type. 
 #' 
 #' > names(zhangneurons@gene_sets)
-#' [1] "external_gene_name"
+#' [1] 'external_gene_name'
 #' 
 #' # Module input produced like:
 #' 
@@ -58,8 +58,7 @@ genesetanalysistableInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select
-    # doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -67,9 +66,9 @@ genesetanalysistableInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", 
-        value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), 
-        default_max_p = 0.05, default_max_q = 1, default_min_foldchange = 1.2))
+    field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", value = 0.05), 
+        numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_max_p = 0.05, default_max_q = 1, 
+        default_min_foldchange = 1.2))
     
     # Things we don't want to wrap in a field set - probably hidden stuff
     
@@ -116,14 +115,14 @@ genesetanalysistableInput <- function(id, eselist) {
 #' 
 #' > data(zhangneurons)
 #' > names(assays(zhangneurons$gene))
-#' [1] "normalised-filtered" "filtered"            "raw" 
+#' [1] 'normalised-filtered' 'filtered'            'raw' 
 #' 
 #' # The normalised matrix was used to perform gene set analysis, using 6 types
 #' # of gene set
 #' 
 #' > names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-#' [1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
-#' [6] "MSigDB hallmark"  
+#' [1] 'KEGG'                     'MSigDB canonical pathway' 'GO biological process'    'GO cellular component'    'GO molecular function'   
+#' [6] 'MSigDB hallmark'  
 #'
 #' # Gene set can be related back to individual genes via information in the
 #' # containing object's 'gene_sets' slot. These are keyed first to indicate 
@@ -131,7 +130,7 @@ genesetanalysistableInput <- function(id, eselist) {
 #' # set type. 
 #' 
 #' > names(zhangneurons@gene_sets)
-#' [1] "external_gene_name"
+#' [1] 'external_gene_name'
 #' 
 #' # Module output function called like:
 #' 
@@ -178,14 +177,14 @@ genesetanalysistableOutput <- function(id) {
 #' 
 #' > data(zhangneurons)
 #' > names(assays(zhangneurons$gene))
-#' [1] "normalised-filtered" "filtered"            "raw" 
+#' [1] 'normalised-filtered' 'filtered'            'raw' 
 #' 
 #' # The normalised matrix was used to perform gene set analysis, using 6 types
 #' # of gene set
 #' 
 #' > names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-#' [1] "KEGG"                     "MSigDB canonical pathway" "GO biological process"    "GO cellular component"    "GO molecular function"   
-#' [6] "MSigDB hallmark"  
+#' [1] 'KEGG'                     'MSigDB canonical pathway' 'GO biological process'    'GO cellular component'    'GO molecular function'   
+#' [6] 'MSigDB hallmark'  
 #'
 #' # Gene set can be related back to individual genes via information in the
 #' # containing object's 'gene_sets' slot. These are keyed first to indicate 
@@ -193,7 +192,7 @@ genesetanalysistableOutput <- function(id) {
 #' # set type. 
 #' 
 #' > names(zhangneurons@gene_sets)
-#' [1] "external_gene_name"
+#' [1] 'external_gene_name'
 #' 
 #' callModule(genesetanalysistable, 'genesetanalysistable', eselist)
 
@@ -203,8 +202,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select
-    # doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -224,8 +222,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
+        multiple = FALSE))
     
     # Parse the gene sets for ease of use
     
@@ -313,6 +311,5 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, 
-        filename = makeFileName, rownames = FALSE)
+    callModule(simpletable, "genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
 }

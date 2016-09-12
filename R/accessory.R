@@ -273,25 +273,25 @@ chooseGroupingVariables <- function(df) {
 #' palettes from RColorBrewer, and interpolation where necessary.
 #'
 #' @param ncolors Integer specifying the number of colors
-#' @param palette RColorBrewer palette name. (default: "Set1")
+#' @param palette RColorBrewer palette name. (default: 'Set1')
 #'
 #' @return output Character vector of colors
 #' @export
 #'
 #' @examples
 #' makeColorScale(10)
-#' [1] "#999999" "#EC83BA" "#B75F49" "#E1C62F" "#FFB716" "#D16948" "#7E6E85" "#48A462" "#4A72A6" "#E41A1C"
+#' [1] '#999999' '#EC83BA' '#B75F49' '#E1C62F' '#FFB716' '#D16948' '#7E6E85' '#48A462' '#4A72A6' '#E41A1C'
 
-makeColorScale <- function(ncolors, palette = "Set1"){
-
-  paletteinfo <- RColorBrewer::brewer.pal.info
-  
-  if (ncolors > paletteinfo["Set1", 'maxcolors']){
-    cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo["Set1", 'maxcolors'], "Set1"))(ncolors)
-  }else{
-    cols <- RColorBrewer::brewer.pal(ncolors, "Set1")
-  }
-  rev(cols)
+makeColorScale <- function(ncolors, palette = "Set1") {
+    
+    paletteinfo <- RColorBrewer::brewer.pal.info
+    
+    if (ncolors > paletteinfo["Set1", "maxcolors"]) {
+        cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo["Set1", "maxcolors"], "Set1"))(ncolors)
+    } else {
+        cols <- RColorBrewer::brewer.pal(ncolors, "Set1")
+    }
+    rev(cols)
 }
 
 #' Replace NAs with a string for convenience
@@ -304,19 +304,19 @@ makeColorScale <- function(ncolors, palette = "Set1"){
 #' @export
 
 na.replace <- function(vec, replacement = "NA") {
-  
-  isfactor <- is.factor(vec)
-  if (isfactor) {
-    vec <- as.character(vec)
-  }
-  
-  vec[is.na(vec)] <- replacement
-  
-  # Turn it back into a vector if that's what we were passed
-  
-  if (isfactor) {
-    vec <- factor(vec)
-  }
-  
-  vec
+    
+    isfactor <- is.factor(vec)
+    if (isfactor) {
+        vec <- as.character(vec)
+    }
+    
+    vec[is.na(vec)] <- replacement
+    
+    # Turn it back into a vector if that's what we were passed
+    
+    if (isfactor) {
+        vec <- factor(vec)
+    }
+    
+    vec
 }

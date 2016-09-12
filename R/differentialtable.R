@@ -22,8 +22,7 @@ differentialtableInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, 
-        export = simpletableInput(ns("differentialtable"))))
+    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
 }
 
 #' The output function of the differentialtable module
@@ -46,8 +45,8 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", 
-        includeMarkdown(system.file("inlinehelp", "differentialtable.md", package = packageName()))), htmlOutput(ns("differentialtable")))
+    list(modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", includeMarkdown(system.file("inlinehelp", 
+        "differentialtable.md", package = packageName()))), htmlOutput(ns("differentialtable")))
 }
 
 #' The server function of the differentialtable module
@@ -88,11 +87,10 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = FALSE))
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
-        filename = "differential", rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", 
+        rownames = FALSE)
 }
