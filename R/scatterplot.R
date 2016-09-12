@@ -230,7 +230,6 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             
             if (!is.null(colorBy)) {
                 labelargs$color <- colorBy()[!unlabelled()]
-                #labelargs$colors = makeColorScale()
                 labelargs$colors <- makeColorScale(nlevels(factor(colorBy())))
             }
             
@@ -285,7 +284,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
           
-            plotargs <- list(type = plotType())
+            plotargs <- list(type = plotType(), mode = 'markers')
             
             if (! is.null(colorBy)){
               plotargs$colors <- makeColorScale(nlevels(factor(colorBy())))
