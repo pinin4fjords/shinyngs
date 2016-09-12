@@ -195,7 +195,7 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     plotdata$name <- factor(plotdata$name, levels = unique(plotdata$name))
     
     if (!is.null(colorby)) {
-        p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_discrete(name = colorby) + 
+        p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_manual(name = colorby, values = makeColorScale(length(unique(plotdata$colorby)))) + 
             guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     } else {
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()

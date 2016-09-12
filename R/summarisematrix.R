@@ -124,30 +124,3 @@ geom_mean <- function(x, na.rm = TRUE) {
 colMedians <- function(x) {
     apply(x, 2, median)
 }
-
-#' Replace NAs with a string for convenience
-#'
-#' @param vec Character vector or factor containing NAs
-#' @param replacment Character replacement (default: 'NA')
-#' 
-#' @return Vector or factor with NAs replaced
-#'
-#' @export
-
-na.replace <- function(vec, replacement = "NA") {
-    
-    isfactor <- is.factor(vec)
-    if (isfactor) {
-        vec <- as.character(vec)
-    }
-    
-    vec[is.na(vec)] <- replacement
-    
-    # Turn it back into a vector if that's what we were passed
-    
-    if (isfactor) {
-        vec <- factor(vec)
-    }
-    
-    vec
-}

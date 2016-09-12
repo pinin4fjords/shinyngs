@@ -137,7 +137,8 @@ pca <- function(input, output, session, eselist) {
         if (is.null(colorBy())) {
             
         } else {
-            na.replace(selectColData()[[colorBy()]], "N/A")
+            pcb <- na.replace(selectColData()[[colorBy()]], "N/A")
+            factor(pcb, levels = unique(pcb))
         }
     })
     

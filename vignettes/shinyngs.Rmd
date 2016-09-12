@@ -81,12 +81,14 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 Airway provides some info about the dataset, which we can add in to the object before we build the app:
 
 ```{r eval = FALSE}
-expinfo <- packageDescription('airway')
+data(airway, package = 'airway')
+expinfo <- metadata(airway)[[1]]
+
 eselist <- ExploratorySummarizedExperimentList(
   ese,
-  title = expinfo$Title,
-  author = expinfo$Author,
-  description = expinfo$Description
+  title = expinfo@title,
+  author = expinfo@name,
+  description = abstract(expinfo)
 )
 app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)

@@ -269,6 +269,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
         
         if (!is.null(colorby)) {
             plotargs$color <- groups
+            plotargs$colors <- makeColorScale(nlevels(groups))
         }
         
         do.call(plot_ly, plotargs) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = rownames(expression)[rowno], 

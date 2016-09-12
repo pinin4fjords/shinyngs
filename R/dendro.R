@@ -95,7 +95,7 @@ dendro <- function(input, output, session, eselist) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clusteringDengrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+        clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
             matrixTitle())
         
     })
@@ -105,7 +105,7 @@ dendro <- function(input, output, session, eselist) {
     output$sampleDendroPlot <- renderPlot({
         withProgress(message = "Making sample dendrogram", value = 0, {
             
-            clusteringDengrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+            clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
                 matrixTitle())
             
         })
@@ -170,12 +170,15 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     } else {
         
         labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
+        labs[[colorby]] <- na.replace(labs[[colorby]], replacement = 'N/A')
+        
+        labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], 'N/A')))
         shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
         
         p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), 
             colour = colorby), show.legend = F)
         
-        p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_discrete(name = prettifyVariablename(colorby))
+        p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_manual(name = prettifyVariablename(colorby), values = makeColorScale(length(unique(labs[[colorby]]))))
         
         p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + scale_shape_manual(values = shapes, 
             name = prettifyVariablename(colorby)) + theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + 

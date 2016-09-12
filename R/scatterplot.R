@@ -192,11 +192,15 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         p
     }
     
-    makeColorScale <- reactive({
-        ncolors <- nlevels(factor(colorBy()))
-        
-        rev(RColorBrewer::brewer.pal(ncolors, "Set1"))
-    })
+    # makeColorScale <- reactive({
+    #     ncolors <- nlevels(factor(colorBy()))
+    #     if (ncolors > brewer.pal.info["Set1", 'maxcolors']){
+    #       cols <- colorRampPalette(brewer.pal(brewer.pal.info["Set1", 'maxcolors'], "Set1"))(ncolors)
+    #     }else{
+    #       cols <- RColorBrewer::brewer.pal(ncolors, "Set1")
+    #     }
+    #     rev(cols)
+    # })
     
     # Labelled points plotted with hovers, colors as specified in groupings
     
@@ -226,7 +230,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             
             if (!is.null(colorBy)) {
                 labelargs$color <- colorBy()[!unlabelled()]
-                labelargs$colors = makeColorScale()
+                #labelargs$colors = makeColorScale()
+                labelargs$colors <- makeColorScale(nlevels(factor(colorBy())))
             }
             
             p <- do.call(add_trace, labelargs)
@@ -279,7 +284,14 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     
     output$scatter <- renderPlotly({
         withProgress(message = "Drawing scatter plot", value = 0, {
-            plot_ly(type = plotType(), colors = makeColorScale()) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% 
+          
+            plotargs <- list(type = plotType())
+            
+            if (! is.null(colorBy)){
+              plotargs$colors <- makeColorScale(nlevels(factor(colorBy())))
+            }
+          
+            do.call(plot_ly, plotargs) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% 
                 adjustLayout(title = getTitle()) %>% config(showLink = TRUE)
         })
     })
