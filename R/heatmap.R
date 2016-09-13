@@ -51,15 +51,7 @@ heatmapInput <- function(id, eselist, type = "expression") {
         heatmap_filters <- list(hiddenInput(ns("cluster_rows"), cluster_rows), hiddenInput(ns("cluster_cols"), cluster_cols), hiddenInput(ns("scale"), "none"))
     }
     
-    # heatmap_filters <- list(heatmap_filters, groupbyInput(ns('heatmap')))
-    
-    # PCA doesn't have annoatation, so doesn't need the non-iteractive version
-    
     interactivity_filter <- radioButtons(ns("interactive"), "Interactivity", c(interactive = TRUE, annotated = FALSE))
-    
-    if (type == "pca") {
-        interactivity_filter <- hiddenInput(ns("interactive"), TRUE)
-    }
     
     # Output sets of fields in their own containers
     
@@ -420,6 +412,14 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         }
     })
     
+    displayNumbers <- reactive({
+        if(type == 'pca'){
+          TRUE 
+        }else{
+          FALSE
+        }
+    })
+    
     # Make an interactive heatmap version
     
     output$interactiveHeatmap <- d3heatmap::renderD3heatmap({
@@ -434,7 +434,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     output$annotatedHeatmap <- renderPlot({
         withProgress(message = "Building static heatmap", value = 0, {
             annotatedHeatmap(plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols), 
-                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors())
+                cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), row_height = rowHeight(), colors = makeColors(), display_numbers = displayNumbers())
         })
     }, height = plotHeight)
     
@@ -481,7 +481,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #' R code here showing how your function works
 
 annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
-    name = "RdYlBu")))(100)) {
+    name = "RdYlBu")))(100), display_numbers = FALSE) {
     
     rownames(plotmatrix) <- row_labels
     
@@ -493,7 +493,7 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
     
     pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, 
         border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), 
-        clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors)
+        clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors, display_numbers = display_numbers, number_color = 'white', fontsize_number = 14)
 }
 
 #' Make a ineractive heatmap with d3heatmap
