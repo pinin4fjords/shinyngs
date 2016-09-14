@@ -207,6 +207,13 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         }
     })
     
+    getAssayMatrix <- reactive({
+      ese <- getExperiment()
+      assay <- getAssay()
+      
+      SummarizedExperiment::assays(ese)[[assay]]
+    })
+    
     # Generate an expression matrix given the selected experiment, assay, rows and columns
     
     selectMatrix = reactive({
@@ -214,7 +221,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
             validate(need(!is.null(input$assay), "Waiting for form to provide assay"), need(length(selectSamples()) > 0, "Waiting for sample selection"), need(length(selectRows()) > 
                 0, "No matching rows in selected matrix"))
             
-            selected_matrix <- SummarizedExperiment::assays(getExperiment())[[getAssay()]][selectRows(), selectSamples(), drop = FALSE]
+            assay_matrix <- getAssayMatrix()
+            selected_matrix <- assay_matrix[selectRows(), selectSamples(), drop = FALSE]
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
                 selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
             }
@@ -300,11 +308,17 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         }
     })
     
+    getAssayIds <- reactive({
+      assay_matrix <- getAssayMatrix()
+      
+      rownames(assay_matrix[complete.cases(assay_matrix),,drop=F])
+    })
+    
     # Return the list of reactive expressions we'll need to access the data
     
     list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, 
         selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels, 
-        getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName)
+        getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName, getAssayIds = getAssayIds)
 }
 
 #' Add columns to display ID and label in a table

@@ -288,7 +288,10 @@ makeColorScale <- function(ncolors, palette = "Set1") {
     
     if (ncolors > paletteinfo["Set1", "maxcolors"]) {
         cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo["Set1", "maxcolors"], "Set1"))(ncolors)
-    } else {
+    }else if (ncolors < 3){
+        cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo["Set1", "maxcolors"], "Set1"))(3)
+        cols[1:ncolors]
+    }else {
         cols <- RColorBrewer::brewer.pal(ncolors, "Set1")
     }
     rev(cols)
