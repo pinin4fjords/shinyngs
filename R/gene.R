@@ -237,6 +237,10 @@ gene <- function(input, output, session, eselist) {
 #' callModule(gene, 'gene', ses)
 
 geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Expression") {
+  
+    saveRDS(expression, file = "~/shinytests/expression.rds")
+    saveRDS(experiment, file = "~/shinytests/experiment.rds")
+    saveRDS(colorby, file = "~/shinytests/colorby.rds")
     
     if (!is.null(colorby)) {
         groups <- as.character(experiment[colnames(expression), colorby])
@@ -272,7 +276,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
     })
     
     if (length(plots) > 1) {
-        p <- do.call(function(...) subplot(...), plots)
+        p <- do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots)/3)), plots)
     } else {
         p <- plots[[1]]
     }
