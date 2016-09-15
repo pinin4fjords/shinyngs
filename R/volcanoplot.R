@@ -188,7 +188,7 @@ volcanoplot <- function(input, output, session, eselist) {
             
             # q values of 0 cause trouble
             
-            ct$`q value`[ct$`q value` == 0] <- 1e-06
+            ct$`q value`[ct$`q value` == 0] <- min( ct$`q value`[ct$`q value` != 0])/10
             
             ct <- ct[, c("Fold change", "q value")]
             ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)

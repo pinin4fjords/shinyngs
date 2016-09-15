@@ -210,8 +210,8 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
                   pvals <- ese@tests[[getAssay()]]$pvals
                   qvals <- ese@tests[[getAssay()]]$qvals
                   
-                  ct[["p value"]] <- round(pvals[match(rownames(ct), rownames(pvals)), c], 5)
-                  ct[["q value"]] <- round(qvals[match(rownames(ct), rownames(qvals)), c], 5)
+                  ct[["p value"]] <- signif(pvals[match(rownames(ct), rownames(pvals)), c], 5)
+                  ct[["q value"]] <- signif(qvals[match(rownames(ct), rownames(qvals)), c], 5)
                   
                 } else {
                   ct[["p value"]] <- NA
