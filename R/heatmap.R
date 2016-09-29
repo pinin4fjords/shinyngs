@@ -491,6 +491,12 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
         annotation_colors <- makeAnnotationColors(annotation)
     }
     
+    # Turn off scaling if there's only 2 possible values in the matrix, otherwise things look a bit odd
+    
+    if (length(unique(as.numeric(plotmatrix))) < 3){
+      scale <- 'none'
+    }
+    
     pheatmap::pheatmap(plotmatrix, show_rownames = T, fontsize = 12, fontsize_row = 10, cellheight = row_height, annotation_col = annotation, annotation_colors = annotation_colors, 
         border_color = NA, legend = FALSE, cluster_cols = cluster_cols, cluster_rows = cluster_rows, clustering_distance_rows = calculateDist(t(plotmatrix)), 
         clustering_distance_cols = calculateDist(plotmatrix), clustering_method = "ward.D2", treeheight_col = 150, scale = scale, color = colors, display_numbers = display_numbers, number_color = 'white', fontsize_number = 14)
@@ -521,7 +527,7 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
     name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...) {
-    
+  
     # should be possible to specify this in the labRow parameter- but the clustering messes it up
     
     rownames(plotmatrix) <- row_labels
@@ -564,6 +570,12 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
     yaxis_width = max(unlist(lapply(rownames(plotmatrix), function(x) nchar(x)))) * (cexRow * 15)
     # xaxis_height = max(unlist(lapply(colnames(plotmatrix), function(x) nchar(x)))) * 10
     xaxis_height = 300
+    
+    # Turn off scaling if there's only 2 possible values in the matrix, otherwise things look a bit odd
+    
+    if (length(unique(as.numeric(plotmatrix))) < 3){
+        scale <- 'none'
+    }
     
     d3heatmap::d3heatmap(plotmatrix, dendrogram = dendrogram, cellnote = displaymatrix, Rowv = Rowv, Colv = Colv, scale = scale, xaxis_height = xaxis_height, 
         yaxis_width = yaxis_width, colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = row_labels, ...)

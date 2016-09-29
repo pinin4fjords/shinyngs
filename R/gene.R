@@ -93,7 +93,7 @@ gene <- function(input, output, session, eselist) {
     
     unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = FALSE))
     unpack.list(callModule(labelselectfield, "gene_label", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "gene", 
-        id_selection = TRUE, getAssayIds = getAssayIds))
+        id_selection = TRUE, getNonEmptyRows = getNonEmptyRows))
     unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE, 
         show_controls = FALSE))
     colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")

@@ -72,7 +72,7 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #' callModule(labelselectfield, 'myid', eselist)
 
 labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1, field_selection = FALSE, 
-    id_selection = FALSE, getAssayIds = NULL) {
+    id_selection = FALSE, getNonEmptyRows = NULL) {
     
     # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols etc.
     # But if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it will depend
@@ -229,13 +229,16 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
                   
                   # If an assay is specified, limit to valid IDs for that assay
                   
-                  if(! is.null(getAssayIds)){
-                    ids <- intersect(ids, getAssayIds())
+                  if(! is.null(getNonEmptyRows)){
+                    ids <- intersect(ids, getNonEmptyRows())
                   }
                   ids
                 }
             })
-            sort(Reduce(union, id_lists))
+            all_ids <- sort(Reduce(union, id_lists))
+            
+            validate(need(length(all_ids) > 0, 'No results for specified features. Check matrix selection'))
+            all_ids
         }
     })
     

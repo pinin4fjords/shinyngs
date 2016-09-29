@@ -308,17 +308,17 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         }
     })
     
-    getAssayIds <- reactive({
-      assay_matrix <- getAssayMatrix()
-      
-      rownames(assay_matrix[complete.cases(assay_matrix),,drop=F])
-    })
+    # getAssayIds <- reactive({
+    #   assay_matrix <- getAssayMatrix()
+    #   
+    #   rownames(assay_matrix[complete.cases(assay_matrix),,drop=F])
+    # })
     
     # Return the list of reactive expressions we'll need to access the data
     
     list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, 
         selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels, 
-        getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName, getAssayIds = getAssayIds)
+        getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows)
 }
 
 #' Add columns to display ID and label in a table

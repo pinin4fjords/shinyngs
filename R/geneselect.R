@@ -164,7 +164,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     # Make all the reactive expressions that will be needed by calling modules.
     
-    geneselect_functions <- list()
+    geneselect_functions <- list(getNonEmptyRows = getNonEmptyRows)
     
     # Main output. Derive the expression matrix according to row-based criteria
     
