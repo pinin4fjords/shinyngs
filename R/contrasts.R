@@ -63,7 +63,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, getAssay = NULL, multiple = FALSE, show_controls = TRUE) {
+contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, getAssay = NULL, getMetafields = NULL, multiple = FALSE, show_controls = TRUE) {
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
@@ -268,7 +268,11 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         }
         
         labelled_contrasts_table <- do.call(rbind, lapply(cts, function(ct) {
-            labelMatrix(ct, getExperiment())
+            metafields <- c()
+            if (! is.null(getMetafields)){
+              metafields <- getMetafields()
+            }
+            labelMatrix(ct, getExperiment(), metafields = metafields)
         }))
         
         validate(need(nrow(labelled_contrasts_table) > 0, "No results matching specified filters"))

@@ -40,7 +40,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
             length(ese@tests) > 0
         })))]
     }
-    inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")), uiOutput(ns("samples")), uiOutput(ns("rows")))
+    inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")), uiOutput(ns("samples")), uiOutput(ns("rows")), uiOutput(ns("meta")))
     
     # Replace experiment with a hidden input if we've got just the one
     
@@ -102,7 +102,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
 selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
-    default_gene_select = NULL, require_tests = FALSE, rounding = 2) {
+    default_gene_select = NULL, require_tests = FALSE, rounding = 2, select_meta = TRUE) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
@@ -126,6 +126,24 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
             
             assayselect
         })
+    })
+    
+    # Alow users to add extra metadata columns to the display
+    
+    output$meta <- renderUI({
+      if (select_meta){
+        ese <- getExperiment()
+        metafields <- colnames(mcols(ese))
+        if (length(ese@idfield) > 0){
+          metafields <- setdiff(metafields, ese@idfield)
+        }
+        
+        checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)), selected = ese@labelfield, inline = TRUE)
+      }
+    })
+    
+    getMetafields <- reactive({
+        input$metafields
     })
     
     # Render sample selection controls
@@ -271,7 +289,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         selected_matrix <- data.frame(selectMatrix(), check.names = FALSE)
         se <- getExperiment()
         
-        labelMatrix(selected_matrix, se)
+        labelMatrix(selected_matrix, se, metafields = getMetafields())
     })
     
     # Use selectLabelledMatrix to get the labelled matrix and add some links.
@@ -318,7 +336,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     list(getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, matrixTitle = title, 
         selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, getRowLabels = getRowLabels, 
-        getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows)
+        getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields)
 }
 
 #' Add columns to display ID and label in a table
@@ -330,14 +348,15 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
 #'
 #' @return output Table with columns added
 
-labelMatrix <- function(matrix, ese, idcol = NULL) {
-    
-    # idfield <- ese@idfield
+labelMatrix <- function(matrix, ese, idcol = NULL, metafields = c()) {
+  
     idfield <- "id"
     if (length(ese@idfield) > 0) {
         idfield <- ese@idfield
     }
-    
+
+    # If we're just using the row names as IDs
+        
     if (is.null(idcol)) {
         datacolnames <- colnames(matrix)
         matrix[[idfield]] <- rownames(matrix)
@@ -346,19 +365,25 @@ labelMatrix <- function(matrix, ese, idcol = NULL) {
         colnames(matrix)[colnames(matrix) == idcol] <- idfield
     }
     
-    if (length(ese@labelfield) > 0) {
-        labelfield <- ese@labelfield
-        matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield)
-        matrix <- matrix[, c(idfield, labelfield, datacolnames), drop = FALSE]
-        
-        colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
-    } else {
-        matrix <- matrix[, c(idfield, datacolnames), drop = FALSE]
+    # Add in the meta fields if specified
+    
+    for (mf in metafields){
+      matrix[[mf]] <- convertIds(matrix[[idfield]], ese, mf)
     }
     
-    # Make the field identifiers nicer
-    
+    matrix <- matrix[,c(idfield, metafields, datacolnames), drop = FALSE]
+    colnames(matrix)[match(metafields, colnames(matrix))] <- prettifyVariablename(metafields)
     colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
+    
+    #if (length(ese@labelfield) > 0) {
+    #    labelfield <- ese@labelfield
+    #    matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield)
+    #    matrix <- matrix[, c(idfield, labelfield, datacolnames), drop = FALSE]
+        
+    #    colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield)
+    #} else {
+    #    matrix <- matrix[, c(idfield, datacolnames), drop = FALSE]
+    #}
     
     matrix
 }
