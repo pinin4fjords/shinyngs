@@ -33,7 +33,7 @@ pcaInput <- function(id, eselist) {
     # Output sets of fields in their own containers
     
     fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))), 
-        expression = expression_filters, export = simpletableInput(ns("loading"), tabletitle = "Loading")))
+        expression = expression_filters, export = list(simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"))))
 }
 
 #' The output function of the pca module
@@ -61,7 +61,7 @@ pcaOutput <- function(id) {
     ns <- NS(id)
     
     list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", "pca.md", package = packageName()))), 
-        h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca"))), tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), 
+        h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns('components'))), tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), 
             simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
 }
 
@@ -130,6 +130,12 @@ pca <- function(input, output, session, eselist) {
             colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
             plotdata
         })
+    })
+    
+    pcaDisplayMatrix <- reactive({
+        pcam <- pcaMatrix()
+        pcam <- apply(pcam[,1:min(ncol(pcam), 10)], 2, function(x) round(x,2))
+        pcam
     })
     
     pcaColorBy <- reactive({
@@ -220,6 +226,8 @@ pca <- function(input, output, session, eselist) {
         
         loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
+    
+    callModule(simpletable, "components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE)
     
     callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
     
