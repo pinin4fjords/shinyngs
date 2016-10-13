@@ -72,7 +72,7 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #' callModule(labelselectfield, 'myid', eselist)
 
 labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1, field_selection = FALSE, 
-    id_selection = FALSE, getNonEmptyRows = NULL) {
+    id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
     
     # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols etc.
     # But if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it will depend
@@ -139,13 +139,25 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     output$metaValue <- renderUI({
         ns <- session$ns
         mf <- getSelectedMetaField()
-        selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(placeholder = "Type a value or scroll", maxItems = max_items, addPrecedence = TRUE))
+        
+        if (list_input){
+          tags$textarea(
+            id = ns("label"),
+            rows = 3,
+            cols = 20,
+            "Paste list here, one per line"
+          ) 
+        }else{
+          selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(placeholder = "Type a value or scroll", maxItems = max_items, addPrecedence = TRUE))
+        }
     })
     
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
     
     observeEvent(input$metaField, {
+      if (! list_input){
         updateSelectizeInput(session, "label", choices = getValidLabels(), server = TRUE)
+      }  
     })
     
     # Get the list of labels. This will be used to populate the autocomplete field
@@ -174,9 +186,14 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     # Get the value of the label field
     
     getSelectedLabels <- reactive({
-        mf <- getSelectedMetaField()
+        #mf <- getSelectedMetaField()
         validate(need(!is.null(input$label) && input$label != "", FALSE))
-        input$label
+        
+        if (list_input){
+          unlist(strsplit(input$label, "\\n"))
+        }else{
+          input$label
+        }
     })
     
     ### SELECTION OF IDS FOR METAFIELD VALUES

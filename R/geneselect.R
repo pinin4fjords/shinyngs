@@ -76,17 +76,21 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     unpack.list(callModule(genesetselect, "geneset", eselist = eselist, getExperiment = getExperiment))
     
-    # Get rows by metadata
+    # Get rows by metadata: pick from available values
     
-    unpack.list(callModule(labelselectfield, "gene_label", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE))
+    lsf_picked_methods <- callModule(labelselectfield, "gene_label_pick", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, list_input = FALSE)
+    
+    # Get rows by metadata: paste in a list
+    
+    lsf_listed_methods <- callModule(labelselectfield, "gene_label_list", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, list_input = TRUE)
     
     # Add the gene sets to the drop-down if required
     
     observeEvent(input$geneSelect, {
         if (input$geneSelect == "gene set") {
             updateGeneSetsList()
-        } else if (input$geneSelect == "metadata") {
-            updateLabelField()
+        } else if (input$geneSelect == "metadata_pick") {
+          lsf_picked_methods$updateLabelField()
         }
     })
     
@@ -99,13 +103,13 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             
             gene_select_methods <- c()
             if (provide_none) {
-                gene_select_methods <- c("none")
+                gene_select_methods <- c("none" = "none")
             }
             if (provide_all) {
-                gene_select_methods <- c(gene_select_methods, "all")
+                gene_select_methods <- c(gene_select_methods, c("all" = "all"))
             }
             
-            gene_select_methods <- c(gene_select_methods, c("variance", "list", "metadata"))
+            gene_select_methods <- c(gene_select_methods, c("variance" = "variance", "pick from valid metadata" = "metadata_pick", "supply list of metadata values" = "metadata_list"))
             
             
             if (useGenesets()) {
@@ -118,10 +122,43 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 selected = default
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'list' "), tags$textarea(id = ns("geneList"), rows = 3, cols = 20, "Paste gene list here, one per line")), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'metadata' "), labelselectfieldInput(ns("gene_label"))))
+            gene_select <-
+              list(
+                h5("Select genes/ rows"),
+                selectInput(
+                  ns("geneSelect"),
+                  "Select genes by",
+                  gene_select_methods,
+                  selected = selected
+                ),
+                conditionalPanel(
+                  condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "),
+                  sliderInput(
+                    ns("obs"),
+                    "Show top N most variant rows:",
+                    min = 10,
+                    max = var_max,
+                    value = var_n
+                  )
+                ),
+                # conditionalPanel(
+                #   condition = paste0("input['", ns("geneSelect"), "'] == 'list' "),
+                #   tags$textarea(
+                #     id = ns("geneList"),
+                #     rows = 3,
+                #     cols = 20,
+                #     "Paste gene list here, one per line"
+                #   )
+                # ),
+                conditionalPanel(
+                  condition = paste0("input['", ns("geneSelect"), "'] == 'metadata_pick' "),
+                  labelselectfieldInput(ns("gene_label_pick"))
+                ),
+                conditionalPanel(
+                  condition = paste0("input['", ns("geneSelect"), "'] == 'metadata_list' "),
+                  labelselectfieldInput(ns("gene_label_list"))
+                )
+              )
             
             # If gene sets have been provided, then make a gene sets filter
             
@@ -184,8 +221,11 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             } else if (input$geneSelect == "variance") {
                 vars <- rowVariances()
                 return(names(vars)[order(vars, decreasing = TRUE)][1:input$obs])
-            } else if (input$geneSelect == "metadata") {
-                selected_rows <- getSelectedIds()
+            } else if (input$geneSelect == "metadata_pick") {
+                selected_rows <- lsf_picked_methods$getSelectedIds()
+                return(intersect(selected_rows, nonempty))
+            }else if (input$geneSelect == "metadata_list") {
+                selected_rows <- lsf_listed_methods$getSelectedIds()
                 return(intersect(selected_rows, nonempty))
             } else {
                 if (input$geneSelect == "gene set") {
@@ -221,10 +261,12 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
             title <- paste(paste("Top", input$obs, "rows"), "by variance")
         } else if (input$geneSelect == "gene set") {
             title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
-        } else if (input$geneSelect == "list") {
-            title <- "Rows for specifified gene list"
-        } else if (input$geneSelect == "metadata") {
-            title <- "Rows by metadata field value"
+        # } else if (input$geneSelect == "list") {
+        #     title <- "Rows for specifified gene list"
+        } else if (input$geneSelect == "metadata_pick") {
+            title <- "Rows by picked metadata field value"
+        } else if (input$geneSelect == "metadata_list") {
+          title <- "Rows by metadata field value list"
         }
         title
     })
