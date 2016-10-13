@@ -132,12 +132,12 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, select_samples = FALSE, select_genes = FALSE))
+    unpack.list(callModule(selectmatrix, "expression", eselist, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
     
     # Pass the matrix to the contrasts module for processing
     
     unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = FALSE))
+        multiple = FALSE, getMetafields = getMetafields))
     
     # Parse the gene sets for ease of use
     

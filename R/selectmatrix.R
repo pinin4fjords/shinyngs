@@ -139,6 +139,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
         }
         
         checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)), selected = ese@labelfield, inline = TRUE)
+      }else if (length(ese@labelfield) > 0){
+        hiddenInput(id = ns("metafields"), values = ese@labelfield) 
       }
     })
     
@@ -403,7 +405,7 @@ labelMatrix <- function(matrix, ese, idcol = NULL, metafields = c()) {
 linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
   
     withProgress(message = "Adding links", value = 0, {
-        
+
         # Add prettified version of each field in URL roots in case matrix column names are prettified
         
         for (fieldname in names(url_roots)) {
@@ -414,20 +416,24 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
             if (fieldname %in% colnames(matrix)) {
               
                 notna <- ! is.na(matrix[[fieldname]])
+                fvs_for_href <- fvs_for_display <- matrix[[fieldname]][notna]
+                if (fieldname %in% colnames(display_values)) {
+                  fvs_for_display <- display_values[[fieldname]][notna]
+                }
                 
-                matrix[[fieldname]][notna] <- unlist(lapply(1:length(matrix[[fieldname]][notna]), function(x) {
-                  fvs_for_href <- unlist(strsplit(matrix[[fieldname]][notna][x], " "))
+                # Use a simple column paste for single-value columns. Different
+                # aproach for multi-value columns
+                
+                if (any(grepl(' ', matrix[[fieldname]]))){
+                  fvs_for_href <- strsplit(fvs_for_href, ' ')
+                  fvs_for_display <- strsplit(fvs_for_display, ' ')
                   
-                  # If user has specified different values for display, use them
-                  
-                  if (fieldname %in% colnames(display_values)) {
-                    fvs_for_display <- display_values[x, fieldname]
-                  } else {
-                    fvs_for_display <- fvs_for_href
-                  }
-                  
-                  paste(paste0("<a href='", url_roots[fieldname], fvs_for_href, "'>", fvs_for_display, "</a>"), collapse = " ")
-                }))
+                  matrix[[fieldname]][notna] <- unlist(lapply(1:length(fvs_for_href), function(x){
+                    paste(paste0("<a href='", url_roots[fieldname], fvs_for_href[[x]], "'>", fvs_for_display[[x]], "</a>"), collapse = ' ')
+                  }))
+                }else{
+                  matrix[[fieldname]][notna] <- paste0("<a href='", url_roots[fieldname], fvs_for_href, "'>", fvs_for_display, "</a>")
+                }
             }
         }
         matrix
