@@ -131,8 +131,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Alow users to add extra metadata columns to the display
     
     output$meta <- renderUI({
+      ese <- getExperiment()
       if (select_meta){
-        ese <- getExperiment()
         metafields <- colnames(mcols(ese))
         if (length(ese@idfield) > 0){
           metafields <- setdiff(metafields, ese@idfield)
