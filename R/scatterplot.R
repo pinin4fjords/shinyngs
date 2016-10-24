@@ -281,8 +281,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                 plotargs$colors <- makeColorScale(nlevels(factor(colorBy())))
             }
             
-            do.call(plot_ly, plotargs) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% addTextLabels() %>% drawLines() %>% adjustLayout(title = getTitle()) %>% 
-                config(showLink = TRUE)
+            do.call(plot_ly, plotargs) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% drawLines() %>% addTextLabels() %>% adjustLayout(title = getTitle()) %>% config(showLink = TRUE)
         })
     })
 }
