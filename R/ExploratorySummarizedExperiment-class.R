@@ -8,12 +8,13 @@
 #' @slot entrezgenefield character. 
 #' @slot labelfield character. 
 #' @slot tests 
+#' @slot read_reports list.
 #' 
 #' @export
 
 setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", 
     "SummarizedExperiment0"), representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", tests = "list", 
-    assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list"))
+    assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
     as((as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))), "ExploratorySummarizedExperiment")
@@ -52,17 +53,20 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' corresponding to 'contrasts' set in the containing SummarizedExperimentList
 #' @param gene_set_analyses List of lists of gene set tables keyed first by gene set
 #' type and secondly by contrast
+#' @param read_reports A named list of matrices with read counts in columns
+#' and sample names in rows. Useful for providing mapped read counts, 
+#' counts per gene type etc
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
 #' @import SummarizedExperiment
 #' @export
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), assay_measures = list(), 
-    gene_set_analyses = list(), dexseq_results = list()) {
+    gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
     new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, 
-        tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results)
+        tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports)
 }

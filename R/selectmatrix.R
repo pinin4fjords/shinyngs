@@ -205,6 +205,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Allow calling modules to retrieve the current assay
     
     getAssay <- reactive({
+        validate(need(!is.null(input$assay), "Waiting for form to provide assay"))
         input$assay
     })
     

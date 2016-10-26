@@ -247,6 +247,7 @@ plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expres
 #' plotly_quartiles(assays(airway)[[1]], as(airway, 'ExploratorySummarizedExperiment'))
 
 plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker_distance = 1.5) {
+  
     matrix <- log2(matrix + 1)
     
     quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)

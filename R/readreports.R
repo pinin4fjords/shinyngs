@@ -13,8 +13,21 @@ readreportsInput <- function(id, eselist) {
     
     ns <- NS(id)
     
-    fieldSets(ns("fieldsets"), list(report_type = uiOutput(ns("reportType")), bar_plot = uiOutput(ns("barplotControls")), export = simpletableInput(ns("readrep"))))
+    naked_fields <- list()
+    field_sets <- list()
     
+    eselist <- eselist[unlist(lapply(eselist, function(x) length(x@read_reports) > 0))]
+    experiment_filter <- selectmatrixInput(ns("readreports"), eselist = eselist)
+    
+    if (length(eselist) > 1){
+      field_sets$experiment <- experiment_filter
+    }else{
+      naked_fields <- experiment_filter
+    }
+    
+    field_sets <- c(field_sets, list(report_type = uiOutput(ns("reportType")), bar_plot = uiOutput(ns("barplotControls")), export = simpletableInput(ns("readrep"))))
+    
+    list(naked_fields, fieldSets(ns("fieldsets"), field_sets))
 }
 
 #' Output function of the \code{readreports} module 
@@ -51,10 +64,13 @@ readreports <- function(input, output, session, eselist) {
     
     ns <- session$ns
     
+    unpack.list(callModule(selectmatrix, "readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
+    
     # Render a select for the report type based on what's in the 'read_reports' slot
     
     output$reportType <- renderUI({
-        selectInput(ns("reportType"), "Report type", structure(names(eselist@read_reports), names = prettifyVariablename(names(eselist@read_reports))))
+        ese <- getExperiment()
+        selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettifyVariablename(names(ese@read_reports))))
     })
     
     # Render bar plot controls with default behaviour dependent on report type
@@ -110,7 +126,8 @@ readreports <- function(input, output, session, eselist) {
     # Get the report table from the slot
     
     getReportTable <- reactive({
-        plotmatrix <- eselist@read_reports[[getReportType()]]
+        ese <- getExperiment()
+        plotmatrix <- ese@read_reports[[getReportType()]]
         plotmatrix <- plotmatrix[, apply(plotmatrix, 2, function(x) sum(x > 10) > 0)]
         plotmatrix <- plotmatrix[, order(colMeans(plotmatrix), decreasing = TRUE)]
         colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))

@@ -178,7 +178,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
         assay <- getAssay()
         samples <- selectSamples()
         
-        SummarizedExperiment::assays(ese)[[assay]][, selectSamples(), drop = FALSE]
+        SummarizedExperiment::assays(ese)[[assay]][, samples, drop = FALSE]
     })
     
     # Reactive function to calculate variances only when required
@@ -195,6 +195,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     getNonEmptyRows <- reactive({
         mfs <- matrixFromSamples()
+        validate(need(! is.null(mfs), 'Waiting for sample-selected matrix'))
         complete <- complete.cases(mfs)
         rownames(mfs)[complete]
     })
