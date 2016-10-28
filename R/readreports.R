@@ -82,8 +82,9 @@ readreports <- function(input, output, session, eselist) {
     # Render the bar plot with height dependent on the number of columns in the report (so that the legend fits)
     
     output$barplotOutput <- renderUI({
+        ese <- getExperiment()
         min_height <- 400
-        height <- max(min_height, ncol(eselist@read_reports[[getReportType()]]) * 20)
+        height <- max(min_height, ncol(ese@read_reports[[getReportType()]]) * 20)
         barplotOutput(ns("barplot"), height)
     })
     

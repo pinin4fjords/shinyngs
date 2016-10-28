@@ -145,7 +145,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Just use the contrasts module to select a comparison
     
-    unpack.list(callModule(contrasts, "deuContrast", eselist = eselist, getExperiment = getExperiment, multiple = FALSE, summarise = FALSE))
+    unpack.list(callModule(contrasts, "deuContrast", eselist = eselist, getExperiment = getExperiment, multiple = FALSE))
     
     makeDEUTables <- reactive({
         
