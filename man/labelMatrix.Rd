@@ -4,7 +4,7 @@
 \alias{labelMatrix}
 \title{Add columns to display ID and label in a table}
 \usage{
-labelMatrix(matrix, ese, idcol = NULL)
+labelMatrix(matrix, ese, idcol = NULL, metafields = c())
 }
 \arguments{
 \item{matrix}{The input table}

@@ -7,7 +7,7 @@
 selectmatrix(input, output, session, eselist, var_n = 50, var_max = NULL,
   select_assays = TRUE, select_samples = TRUE, select_genes = TRUE,
   provide_all_genes = FALSE, default_gene_select = NULL,
-  require_tests = FALSE, rounding = 2)
+  require_tests = FALSE, rounding = 2, select_meta = TRUE)
 }
 \arguments{
 \item{input}{Input object}

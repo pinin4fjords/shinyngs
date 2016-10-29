@@ -8,8 +8,7 @@ ExploratorySummarizedExperiments}
 ExploratorySummarizedExperimentList(eses, title = "", author = "",
   description = "", group_vars = character(),
   default_groupvar = character(), contrasts = list(), url_roots = list(),
-  gene_sets = list(), read_reports = list(),
-  ensembl_species = character())
+  gene_sets = list(), ensembl_species = character())
 }
 \arguments{
 \item{eses}{List of ExploratorySummarizedExperiments}
@@ -37,10 +36,6 @@ metadata column names of the experiments. Exploratory tools displayed via
 reading .gmt format gene sets (for example from MSigDB) using 
 GSEABase::getGmt(). \code{shinyngs} modules currently assume genes
 represented by Entrez ID (not symbol).}
-
-\item{read_reports}{A named list of matrices with read counts in columns
-and sample names in rows. Useful for providing mapped read counts, 
-counts per gene type etc}
 
 \item{ensembl_species}{Ensembl species definition like 'mmusculus'. Used to
 interface with BiomaRt e.g. to make gene model plots in the \code{gene} 

@@ -5,7 +5,9 @@
 \alias{ExploratorySummarizedExperiment-class}
 \title{The ExploratorySummarizedExperiment class}
 \description{
-The ExploratorySummarizedExperiment class
+Subclass of SummarizedExperiment if present in the SummarizedExperiment
+package (newer versions of Bioconductor have moved this from GenomicRanges), 
+otherwise of SummarizedExperiment0.
 }
 \section{Slots}{
 
@@ -17,5 +19,7 @@ The ExploratorySummarizedExperiment class
 \item{\code{labelfield}}{character.}
 
 \item{\code{tests}}{}
+
+\item{\code{read_reports}}{list.}
 }}
 

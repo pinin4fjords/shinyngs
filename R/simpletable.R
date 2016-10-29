@@ -79,7 +79,7 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @examples
 #' callModule(simpletable, 'simpletable', my_data_frame)
 
-simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE) {
+simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = 'none') {
     
     if (is.null(downloadMatrix)) {
         downloadMatrix <- displayMatrix
@@ -93,7 +93,7 @@ simpletable <- function(input, output, session, downloadMatrix = NULL, displayMa
     
     output$datatable = DT::renderDataTable({
         displayMatrix()
-    }, options = options, rownames = rownames, escape = FALSE)
+    }, options = options, filter = filter, rownames = rownames, escape = FALSE)
     
     output$downloadTable <- downloadHandler(filename = function() {
         if (is.reactive(filename)) {

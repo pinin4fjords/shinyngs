@@ -30,12 +30,71 @@ rnaseqInput <- function(id, eselist) {
     
     # Add in the QC/ exploratory menu
     
-    exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
-        width = 9)), icon = icon("bar-chart-o")), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), 
-        width = 9)), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), 
-        mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
-        eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)), icon = icon("sitemap")), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
-        eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = "samples"), width = 9)), icon = icon("th")))
+    exploratory_menu <-
+      list(
+        "QC/ exploratory",
+        tabPanel(
+          "Quartile plots",
+          sidebarLayout(
+            sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3),
+            mainPanel(boxplotOutput(ns("boxplot")),
+                      width = 9)
+          ),
+          icon = icon("bar-chart-o")
+        ),
+        tabPanel(
+          "PCA",
+          sidebarLayout(
+            sidebarPanel(pcaInput(ns("pca"), eselist), width = 3),
+            mainPanel(pcaOutput(ns("pca")),
+                      width = 9)
+          ),
+          icon = icon("cube")
+        ),
+        tabPanel(
+          "PCA vs Experiment",
+          sidebarLayout(
+            sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3),
+            mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)
+          ),
+          icon = icon("cubes")
+        ),
+        tabPanel(
+          "Clustering dendrogram",
+          sidebarLayout(
+            sidebarPanel(dendroInput(ns("dendro"),
+                                     eselist), width = 3),
+            mainPanel(dendroOutput(ns("dendro")), width = 9)
+          ),
+          icon = icon("sitemap")
+        ),
+        tabPanel(
+          "Clustering Heatmap",
+          sidebarLayout(
+            sidebarPanel(heatmapInput(ns(
+              "heatmap-clustering"
+            ),
+            eselist, type = "samples"), width = 3),
+            mainPanel(heatmapOutput(ns(
+              "heatmap-clustering"
+            ), type = "samples"), width = 9)
+          ),
+          icon = icon("th")
+        ),
+        tabPanel(
+          "Feature-wise clustering",
+          sidebarLayout(
+            sidebarPanel(clusteringInput(ns(
+              "feature-clustering"
+            ),
+            eselist), width = 3),
+            mainPanel(clusteringOutput(ns(
+              "feature-clustering"
+            )), width = 9)
+          ),
+          icon = icon("line-chart")
+        )
+      )
     
     # Add read reports if provided
     
@@ -151,6 +210,7 @@ rnaseq <- function(input, output, session, eselist) {
     callModule(experimenttable, "experimenttable", eselist)
     callModule(rowmetatable, "rowmetatable", eselist)
     callModule(heatmap, "heatmap-clustering", eselist, type = "samples")
+    callModule(clustering, "feature-clustering", eselist)
     callModule(heatmap, "heatmap-expression", eselist, type = "expression")
     callModule(heatmap, "heatmap-pca", eselist, type = "pca")
     callModule(pca, "pca", eselist)

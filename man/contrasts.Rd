@@ -5,8 +5,8 @@
 \title{The server function of the contrasts module}
 \usage{
 contrasts(input, output, session, eselist, getExperiment = NULL,
-  selectMatrix = NULL, getAssay = NULL, multiple = FALSE,
-  show_controls = TRUE)
+  selectMatrix = NULL, getAssay = NULL, getMetafields = NULL,
+  multiple = FALSE, show_controls = TRUE)
 }
 \arguments{
 \item{input}{Input object}

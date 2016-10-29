@@ -7,7 +7,7 @@
 ExploratorySummarizedExperiment(assays, colData, annotation, idfield,
   labelfield = character(), entrezgenefield = character(), tests = list(),
   assay_measures = list(), gene_set_analyses = list(),
-  dexseq_results = list())
+  dexseq_results = list(), read_reports = list())
 }
 \arguments{
 \item{assays}{An object of class SimpleList as would be supplied to the 
@@ -35,6 +35,10 @@ corresponding to 'contrasts' set in the containing SummarizedExperimentList}
 
 \item{gene_set_analyses}{List of lists of gene set tables keyed first by gene set
 type and secondly by contrast}
+
+\item{read_reports}{A named list of matrices with read counts in columns
+and sample names in rows. Useful for providing mapped read counts, 
+counts per gene type etc}
 }
 \value{
 output An ExploratoryRangedSummarizedExperient object

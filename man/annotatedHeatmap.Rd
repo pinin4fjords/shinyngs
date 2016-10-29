@@ -7,7 +7,7 @@
 annotatedHeatmap(plotmatrix, displaymatrix, sample_annotation, cluster_cols,
   cluster_rows, scale, row_labels, row_height = 12,
   colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name =
-  "RdYlBu")))(100))
+  "RdYlBu")))(100), display_numbers = FALSE)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
