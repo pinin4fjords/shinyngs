@@ -2,9 +2,7 @@
 % Please edit documentation in R/clustering.R
 \name{summarySE}
 \alias{summarySE}
-\title{Matrix summarization function adapted from 
-\url{http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/#Helper
-functions}{the R cookbook}.}
+\title{Summarise an input matrix}
 \usage{
 summarySE(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE,
   conf.interval = 0.95, add_medians = FALSE, .drop = TRUE)
@@ -32,6 +30,11 @@ TRUE for this variables make summary statistic calculation take longer.}
 out Data frame with summary statistics
 }
 \description{
+Matrix summarization function adapted from 
+\url{http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/#Helper
+functions}{the R cookbook}.
+}
+\details{
 Uses bootstrapping to return the standard error/ deviation of the median.
 }
 \examples{

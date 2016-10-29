@@ -452,6 +452,8 @@ clustering <- function(input, output, session, eselist) {
   )
 }
 
+#' Summarise an input matrix
+#' 
 #' Matrix summarization function adapted from 
 #' \url{http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/#Helper
 #' functions}{the R cookbook}.
