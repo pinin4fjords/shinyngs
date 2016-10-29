@@ -19,13 +19,14 @@ readreportsInput <- function(id, eselist) {
     eselist <- eselist[unlist(lapply(eselist, function(x) length(x@read_reports) > 0))]
     experiment_filter <- selectmatrixInput(ns("readreports"), eselist = eselist)
     
-    if (length(eselist) > 1){
-      field_sets$experiment <- experiment_filter
-    }else{
-      naked_fields <- experiment_filter
+    if (length(eselist) > 1) {
+        field_sets$experiment <- experiment_filter
+    } else {
+        naked_fields <- experiment_filter
     }
     
-    field_sets <- c(field_sets, list(report_type = uiOutput(ns("reportType")), bar_plot = uiOutput(ns("barplotControls")), export = simpletableInput(ns("readrep"))))
+    field_sets <- c(field_sets, list(report_type = uiOutput(ns("reportType")), bar_plot = uiOutput(ns("barplotControls")), 
+        export = simpletableInput(ns("readrep"))))
     
     list(naked_fields, fieldSets(ns("fieldsets"), field_sets))
 }
@@ -44,8 +45,9 @@ readreportsInput <- function(id, eselist) {
 readreportsOutput <- function(id, eselist) {
     ns <- NS(id)
     
-    list(modalInput(ns("readreports"), "help", "help"), modalOutput(ns("readreports"), "Read reports", includeMarkdown(system.file("inlinehelp", "readreports.md", 
-        package = packageName()))), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
+    list(modalInput(ns("readreports"), "help", "help"), modalOutput(ns("readreports"), "Read reports", includeMarkdown(system.file("inlinehelp", 
+        "readreports.md", package = packageName()))), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), 
+        simpletableOutput(ns("readrep")))
 }
 
 #' Server function of the \code{readreports} module 
@@ -64,7 +66,8 @@ readreports <- function(input, output, session, eselist) {
     
     ns <- session$ns
     
-    unpack.list(callModule(selectmatrix, "readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
+    unpack.list(callModule(selectmatrix, "readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, 
+        select_meta = FALSE))
     
     # Render a select for the report type based on what's in the 'read_reports' slot
     
@@ -107,8 +110,8 @@ readreports <- function(input, output, session, eselist) {
         input$reportType
     })
     
-    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at the previous, it
-    # makes sense to use overlapped bars.
+    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a
+    # subset of those at the previous, it makes sense to use overlapped bars.
     
     getDefaultMode <- reactive({
         if (getReportType() == "read_attrition") {
@@ -142,4 +145,4 @@ readreports <- function(input, output, session, eselist) {
     }))
     callModule(simpletable, "readrep", displayMatrix = getReportTable, filename = "read_report", rownames = TRUE)
     
-}
+} 

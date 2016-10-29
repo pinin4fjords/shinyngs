@@ -72,7 +72,8 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
                 group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
                 
                 if (multiple) {
-                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
+                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, 
+                    inline = TRUE)
                 } else {
                   groupinput <- selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
                 }
@@ -98,4 +99,4 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
             input$groupby
         }
     })
-}
+} 

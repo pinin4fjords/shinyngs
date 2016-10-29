@@ -43,4 +43,4 @@ modalInput <- function(id, label, class, icon = "info-circle") {
 modalOutput <- function(id, title, content) {
     ns <- NS(id)
     shinyBS::bsModal(ns(id), title, ns(id), size = "large", content)
-}
+} 

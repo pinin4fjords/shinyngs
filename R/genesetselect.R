@@ -78,20 +78,21 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
         
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")"))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), 
+            names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), 
+                " (", settype, ")"))))
     })
     
     # A reactive for relating codes back to gene set IDs
     
     getGeneSetCodesByIDs <- reactive({
         gene_sets <- getGeneSets()
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) names(gene_sets[[settype]]))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), 
+            names = unlist(lapply(names(gene_sets), function(settype) names(gene_sets[[settype]]))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This reactive must be called by the
-    # calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the
+    # list. This reactive must be called by the calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
@@ -188,4 +189,4 @@ prettifyGeneSetName <- function(gsn) {
     words <- strsplit(gsn, "_")
     
     unlist(lapply(words, function(w) paste(w[1], paste(tolower(w[-1]), collapse = " "))))
-}
+} 

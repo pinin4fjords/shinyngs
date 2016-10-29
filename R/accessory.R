@@ -288,10 +288,10 @@ makeColorScale <- function(ncolors, palette = "Set1") {
     
     if (ncolors > paletteinfo["Set1", "maxcolors"]) {
         cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
-    }else if (ncolors < 3){
+    } else if (ncolors < 3) {
         cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
         cols[1:ncolors]
-    }else {
+    } else {
         cols <- RColorBrewer::brewer.pal(ncolors, palette)
     }
     rev(cols)
@@ -322,4 +322,4 @@ na.replace <- function(vec, replacement = "NA") {
     }
     
     vec
-}
+} 

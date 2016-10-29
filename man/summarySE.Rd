@@ -20,7 +20,7 @@ variables}
 \item{na.rm}{A boolean that indicates whether to ignore NA's}
 
 \item{conf.interval}{The percent range of the confidence interval (default is
-95%)}
+95 percent)}
 
 \item{add_medians}{Logical indicating whether medians should be added to the
 output. Standard error estimates for the median require bootstrapping, so 
@@ -31,14 +31,13 @@ out Data frame with summary statistics
 }
 \description{
 Matrix summarization function adapted from 
-\url{http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/#Helper
-functions}{the R cookbook}.
+\url{http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)}{the R cookbook}.
 }
 \details{
 Uses bootstrapping to return the standard error/ deviation of the median.
 }
 \examples{
 tg <- ToothGrowth
-summarySE(tg, measurevar="len", groupvars=c("supp","dose"))
+summarySE(tg, measurevar='len', groupvars=c('supp','dose'))
 }
 

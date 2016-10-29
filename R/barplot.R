@@ -64,11 +64,11 @@ barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = 
     output$barPlot <- renderPlotly({
         fpm <- formatPlotMatrix()
         plotdata <- reshape2::melt(fpm)
-
+        
         # Prevent interpretation of row names as numbers
-
+        
         plotdata$Var2 <- as.character(plotdata$Var2)
-        plotdata %>% plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>% layout(margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "), 
-            yaxis = list(title = getYLabel())) %>% config(showLink = TRUE)
+        plotdata %>% plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>% layout(margin = list(b = 100), barmode = input$barMode, 
+            xaxis = list(title = " "), yaxis = list(title = getYLabel())) %>% config(showLink = TRUE)
     })
-}
+} 

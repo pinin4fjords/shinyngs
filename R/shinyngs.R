@@ -197,4 +197,4 @@
 #' @docType package
 #' @name shinyngs
 
-NULL
+NULL 

@@ -71,14 +71,16 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #' @examples
 #' callModule(labelselectfield, 'myid', eselist)
 
-labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1, field_selection = FALSE, 
-    id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
+labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, 
+    url_field = "label", max_items = 1, field_selection = FALSE, id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
     
-    # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols etc.
-    # But if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it will depend
-    # on the value of any experiment-selecting field.
+    # This module will normally be initialised with a reactive that returns the currently selected experiment, whose
+    # metadata will be used for gene symbols etc.  But if that reactive is not present, we can use values from ALL
+    # experiments. In the latter case the field will be more static, in the former it will depend on the value of any
+    # experiment-selecting field.
     
-    # A wrapper reactive to determine the experiments to consider when parsing metadata. Use all experiments if a reactie is not supplied.
+    # A wrapper reactive to determine the experiments to consider when parsing metadata. Use all experiments if a reactie
+    # is not supplied.
     
     getExperiments <- reactive({
         if (is.null(getExperiment)) {
@@ -104,7 +106,8 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
         
         if (field_selection) {
             metaFields <- getMetaFields()
-            selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettifyVariablename(metaFields)), selected = ese@labelfield)
+            selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettifyVariablename(metaFields)), 
+                selected = ese@labelfield)
         } else {
             
             # 'id' means use the row IDs
@@ -140,24 +143,20 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
         ns <- session$ns
         mf <- getSelectedMetaField()
         
-        if (list_input){
-          tags$textarea(
-            id = ns("label"),
-            rows = 3,
-            cols = 20,
-            "Paste list here, one per line"
-          ) 
-        }else{
-          selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(placeholder = "Type a value or scroll", maxItems = max_items, addPrecedence = TRUE))
+        if (list_input) {
+            tags$textarea(id = ns("label"), rows = 3, cols = 20, "Paste list here, one per line")
+        } else {
+            selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(placeholder = "Type a value or scroll", 
+                maxItems = max_items, addPrecedence = TRUE))
         }
     })
     
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
     
     observeEvent(input$metaField, {
-      if (! list_input){
-        updateSelectizeInput(session, "label", choices = getValidLabels(), server = TRUE)
-      }  
+        if (!list_input) {
+            updateSelectizeInput(session, "label", choices = getValidLabels(), server = TRUE)
+        }
     })
     
     # Get the list of labels. This will be used to populate the autocomplete field
@@ -186,13 +185,13 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     # Get the value of the label field
     
     getSelectedLabels <- reactive({
-        #mf <- getSelectedMetaField()
+        # mf <- getSelectedMetaField()
         validate(need(!is.null(input$label) && input$label != "", FALSE))
         
-        if (list_input){
-          unlist(strsplit(input$label, "\\n"))
-        }else{
-          input$label
+        if (list_input) {
+            unlist(strsplit(input$label, "\\n"))
+        } else {
+            input$label
         }
     })
     
@@ -216,7 +215,8 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     
     getSelectedIds <- reactive({
         
-        # If the user has been allowed to select IDs, fetch the value of the input field. Othewise return all IDs associated with the selected label
+        # If the user has been allowed to select IDs, fetch the value of the input field. Othewise return all IDs associated
+        # with the selected label
         
         if (id_selection) {
             validate(need(length(input$ids) > 0, "Waiting for ID list"))
@@ -246,7 +246,7 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
                   
                   # If an assay is specified, limit to valid IDs for that assay
                   
-                  if(! is.null(getNonEmptyRows)){
+                  if (!is.null(getNonEmptyRows)) {
                     ids <- intersect(ids, getNonEmptyRows())
                   }
                   ids
@@ -254,7 +254,7 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
             })
             all_ids <- sort(Reduce(union, id_lists))
             
-            validate(need(length(all_ids) > 0, 'No results for specified features. Check matrix selection'))
+            validate(need(length(all_ids) > 0, "No results for specified features. Check matrix selection"))
             all_ids
         }
     })
@@ -267,4 +267,4 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
     })
     
     list(getSelectedLabels = getSelectedLabels, getValidLabels = getValidLabels, getSelectedIds = getSelectedIds, updateLabelField = updateLabelField)
-}
+} 
