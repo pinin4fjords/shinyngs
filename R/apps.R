@@ -101,7 +101,7 @@
 
 prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
     
-    if (type %in% c("rnaseq", "chipseq")) {
+    if (type %in% c("rnaseq", "chipseq", "illuminaarray")) {
         
         inputFunc <- get(paste0(type, "Input"))
         

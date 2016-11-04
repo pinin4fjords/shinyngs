@@ -282,7 +282,7 @@ chooseGroupingVariables <- function(df) {
 #' makeColorScale(10)
 #' [1] '#999999' '#EC83BA' '#B75F49' '#E1C62F' '#FFB716' '#D16948' '#7E6E85' '#48A462' '#4A72A6' '#E41A1C'
 
-makeColorScale <- function(ncolors, palette = "Set1") {
+makeColorScale <- function(ncolors, palette = "Dark2") {
     
     paletteinfo <- RColorBrewer::brewer.pal.info
     

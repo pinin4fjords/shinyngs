@@ -30,7 +30,7 @@ dendroInput <- function(id, eselist) {
     dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", 
         Kendall = "kendall")), selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", 
         `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", 
-        UPGMC = "centroid")), groupbyInput(ns("dendro")))
+        UPGMC = "centroid")), groupbyInput(ns("dendro")), sliderInput(ns('labelspace'), label = "Label space (%)", min = 0.1, max = 0.5, step = 0.05, value = 0.2))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     
@@ -104,13 +104,19 @@ dendro <- function(input, output, session, eselist) {
         
     })
     
+    # Fetch the label spacing
+    
+    getLabelspace <- reactive({
+        input$labelspace
+    })
+    
     # Render the actual plot
     
     output$sampleDendroPlot <- renderPlot({
         withProgress(message = "Making sample dendrogram", value = 0, {
             
             clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
-                matrixTitle())
+                matrixTitle(), labelspace = getLabelspace())
             
         })
     }, height = 600)
@@ -147,7 +153,7 @@ dendro <- function(input, output, session, eselist) {
 #' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = 'dex')
 
 clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", 
-    plot_title = "") {
+    plot_title = "", labelspace = 0.2) {
     
     plotmatrix <- log2(plotmatrix + 1)
     
@@ -183,7 +189,9 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
         p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), 
             colour = colorby), show.legend = F)
         
-        p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/4), ymax) + scale_color_manual(name = prettifyVariablename(colorby), 
+        total_axis_size = ymax * (1/(1 - labelspace))
+        
+        p3 <- p3 + ggdendro::theme_dendro() + ylim(-(total_axis_size * labelspace), ymax) + scale_color_manual(name = prettifyVariablename(colorby), 
             values = makeColorScale(length(unique(labs[[colorby]]))))
         
         p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + 
