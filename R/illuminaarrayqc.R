@@ -15,8 +15,7 @@
 #'   
 #' @examples
 #' library(shinyngs)
-#' data(zhangneurons)
-#' illuminaarrayqcInput('myid', zhangneurons)
+#' illuminaarrayqcInput('myid', eselist)
 
 illuminaarrayqcInput <- function(id, eselist) {
     
