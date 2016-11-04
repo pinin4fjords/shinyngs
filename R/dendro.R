@@ -30,7 +30,8 @@ dendroInput <- function(id, eselist) {
     dendro_filters <- list(selectInput(ns("corMethod"), "Correlation method", c(Pearson = "pearson", Spearman = "spearman", 
         Kendall = "kendall")), selectInput(ns("clusterMethod"), "Clustering method", c(`Ward minimum variance clustering` = "ward.D2", 
         `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average", WPGMA = "mcquittye", 
-        UPGMC = "centroid")), groupbyInput(ns("dendro")), sliderInput(ns('labelspace'), label = "Label space (%)", min = 0.1, max = 0.5, step = 0.05, value = 0.2))
+        UPGMC = "centroid")), groupbyInput(ns("dendro")), sliderInput(ns("labelspace"), label = "Label space (%)", min = 0.1, 
+        max = 0.5, step = 0.05, value = 0.2))
     
     fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
     

@@ -20,8 +20,8 @@
 illuminaarrayInput <- function(id, eselist) {
     ns <- NS(id)
     
-    navbar_menus <- list(id = ns("illuminaarray"), title = paste0("Illumina expression array explorer: ", eselist@title), windowTitle = eselist@title, 
-        tabPanel("Home", sidebarLayout(sidebarPanel(column(12, offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
+    navbar_menus <- list(id = ns("illuminaarray"), title = paste0("Illumina expression array explorer: ", eselist@title), 
+        windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
             p(HTML(paste0(icon("github"), "&nbsp;Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>"))), 
             p(HTML(paste0(icon("chrome"), "&nbsp;This app is best viewed with the Chrome browser.")))), width = 3), mainPanel(fluidRow(column(12, 
             offset = 0, h2(eselist@title), h3(eselist@author), HTML(eselist@description))), width = 9)), icon = icon("home")), 
@@ -54,9 +54,9 @@ illuminaarrayInput <- function(id, eselist) {
     
     # Illumina-specific QC plot
     
-    if ('control' %in% names(eselist)){
-      exploratory_menu <- pushToList(exploratory_menu, tabPanel("Control probe QC", sidebarLayout(sidebarPanel(illuminaarrayqcInput(ns("illuminaarrayqc"), 
-                                                                                                                            eselist), width = 3), mainPanel(illuminaarrayqcOutput(ns("illuminaarrayqc")), width = 9)), icon = icon("line-chart")))
+    if ("control" %in% names(eselist)) {
+        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Control probe QC", sidebarLayout(sidebarPanel(illuminaarrayqcInput(ns("illuminaarrayqc"), 
+            eselist), width = 3), mainPanel(illuminaarrayqcOutput(ns("illuminaarrayqc")), width = 9)), icon = icon("line-chart")))
     }
     
     exploratory_menu$icon <- icon("binoculars")
