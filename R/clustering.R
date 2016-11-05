@@ -175,7 +175,7 @@ clustering <- function(input, output, session, eselist) {
     
     scaleMatrix <- reactive({
         inmatrix <- selectMatrix()
-        data.frame(t(scale(t(inmatrix))))
+        data.frame(t(scale(t(inmatrix))), check.names = FALSE)
     })
     
     # Do the actual clustering. Assign genes/rows to clusters.
@@ -296,7 +296,7 @@ clustering <- function(input, output, session, eselist) {
         ese <- getExperiment()
         mf <- getMetafields()
         
-        inmatrix <- data.frame(inmatrix)
+        inmatrix <- data.frame(inmatrix, check.names = FALSE)
         
         inmatrix$cluster <- clusters$clustering[match(rownames(inmatrix), names(clusters$clustering))]
         inmatrix <- inmatrix[, c("cluster", colnames(inmatrix)[colnames(inmatrix) != "cluster"])]
