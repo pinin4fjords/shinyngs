@@ -267,36 +267,6 @@ chooseGroupingVariables <- function(df) {
     all_vars[vartypes != "integer" & numunique < nrow(df) & numunique > 1]
 }
 
-#' Make a color palette of a specified length
-#' 
-#' Given an integer, make a palette with a specified number of colors using
-#' palettes from RColorBrewer, and interpolation where necessary.
-#'
-#' @param ncolors Integer specifying the number of colors
-#' @param palette RColorBrewer palette name. (default: 'Set1')
-#'
-#' @return output Character vector of colors
-#' @export
-#'
-#' @examples
-#' makeColorScale(10)
-#' [1] '#999999' '#EC83BA' '#B75F49' '#E1C62F' '#FFB716' '#D16948' '#7E6E85' '#48A462' '#4A72A6' '#E41A1C'
-
-makeColorScale <- function(ncolors, palette = "Dark2") {
-    
-    paletteinfo <- RColorBrewer::brewer.pal.info
-    
-    if (ncolors > paletteinfo["Set1", "maxcolors"]) {
-        cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
-    } else if (ncolors < 3) {
-        cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
-        cols[1:ncolors]
-    } else {
-        cols <- RColorBrewer::brewer.pal(ncolors, palette)
-    }
-    rev(cols)
-}
-
 #' Replace NAs with a string for convenience
 #'
 #' @param vec Character vector or factor containing NAs

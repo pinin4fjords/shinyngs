@@ -107,7 +107,7 @@ scatterplotOutput <- function(id) {
 #' name. These two rows represent the start and end of a line.
 
 scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, 
-    getShowLabels = NULL, getPointSize = NULL, getTitle = reactive({
+    getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, getTitle = reactive({
         ""
     }), getLabels = reactive({
         rownames(getDatamatrix())
@@ -225,7 +225,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             
             if (!is.null(colorBy)) {
                 labelargs$color <- colorBy()[!unlabelled()]
-                labelargs$colors <- makeColorScale(nlevels(factor(colorBy())))
+                labelargs$colors <- getPalette()
             }
             
             p <- do.call(add_trace, labelargs)
@@ -282,7 +282,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             plotargs <- list(type = plotType(), mode = "markers")
             
             if (!is.null(colorBy)) {
-                plotargs$colors <- makeColorScale(nlevels(factor(colorBy())))
+                plotargs$colors <- getPalette()
             }
             
             do.call(plot_ly, plotargs) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% drawLines() %>% addTextLabels() %>% 

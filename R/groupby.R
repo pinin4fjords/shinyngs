@@ -16,7 +16,7 @@
 groupbyInput <- function(id) {
     ns <- NS(id)
     
-    uiOutput(ns("groupby_fields"))
+    list(uiOutput(ns("groupby_fields")), colormakerInput(ns('groupby')))
 }
 
 #' The server function of the groupby module
@@ -40,9 +40,11 @@ groupbyInput <- function(id) {
 #' @examples
 #' geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
 
-groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, isDynamic = reactive({
+groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, selectColData = NULL, isDynamic = reactive({
     TRUE
 })) {
+  
+    getPalette <- callModule(colormaker, "groupby", eselist = eselist, getNumberCategories = getNumberCategories)
     
     # Choose a default grouping variable, either the one specified or the first
     
@@ -91,7 +93,7 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
     
     # Return a reactive that retrieves the field value
     
-    reactive({
+    getGroupby <- reactive({
         validate(need(input$groupby, "waiting for form to provide groupby"))
         if (input$groupby[1] == "NULL") {
             NULL
@@ -99,4 +101,18 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
             input$groupby
         }
     })
+    
+    # Get the number of categories given an input experiment matrixa and the
+    # selected grouping variable.
+    
+    getNumberCategories <- reactive({
+      group_by <- getGroupby()
+      coldata <- selectColData()
+      
+      if (! is.null(group_by) && ! is.null(coldata)){
+        length(unique(coldata[[group_by]]))
+      }
+    })
+    
+    list(getGroupby = getGroupby, getNumberCategories = getNumberCategories, getPalette = getPalette)
 } 

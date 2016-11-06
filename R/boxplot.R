@@ -112,8 +112,7 @@ boxplot <- function(input, output, session, eselist) {
     # Get the expression matrix - no need for a gene selection
     
     unpack.list(callModule(selectmatrix, "sampleBoxplot", eselist, select_genes = FALSE))
-    
-    colorBy <- callModule(groupby, "boxplot", eselist = eselist, group_label = "Color by")
+    unpack.list(callModule(groupby, "boxplot", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # Render the plot
     
@@ -132,7 +131,7 @@ boxplot <- function(input, output, session, eselist) {
     
     output$sampleBoxplot <- renderPlot({
         withProgress(message = "Making sample boxplot", value = 0, {
-            ggplot_boxplot(selectMatrix(), selectColData(), colorBy(), expressiontype = , getAssayMeasure(), whisker_distance = input$whiskerDistance)
+            ggplot_boxplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance, palette = getPalette())
         })
     }, height = 600)
     
@@ -170,7 +169,7 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = 'airway')
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
 
-ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontype = "expression", whisker_distance = 1.5) {
+ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5) {
     
     # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
     
@@ -196,7 +195,7 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, expressiontyp
     
     if (!is.null(colorby)) {
         p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) + geom_boxplot(coef = whisker_distance) + scale_fill_manual(name = colorby, 
-            values = makeColorScale(length(unique(plotdata$colorby)))) + guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
+            values = palette) + guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     } else {
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }

@@ -90,7 +90,7 @@ dendro <- function(input, output, session, eselist) {
     
     unpack.list(callModule(selectmatrix, "dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, 
         default_gene_select = "variance"))
-    colorBy <- callModule(groupby, "dendro", eselist = eselist, group_label = "Color by")
+    unpack.list(callModule(groupby, "dendro", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # Call to plotdownload module
     
@@ -100,8 +100,8 @@ dendro <- function(input, output, session, eselist) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
-            matrixTitle())
+        clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+            matrixTitle(), palette = getPalette())
         
     })
     
@@ -116,8 +116,8 @@ dendro <- function(input, output, session, eselist) {
     output$sampleDendroPlot <- renderPlot({
         withProgress(message = "Making sample dendrogram", value = 0, {
             
-            clusteringDendrogram(selectMatrix(), selectColData(), colorBy(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
-                matrixTitle(), labelspace = getLabelspace())
+            clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(), cor_method = input$corMethod, cluster_method = input$clusterMethod, 
+                matrixTitle(), labelspace = getLabelspace(), palette = getPalette())
             
         })
     }, height = 600)
@@ -154,7 +154,7 @@ dendro <- function(input, output, session, eselist) {
 #' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = 'dex')
 
 clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", 
-    plot_title = "", labelspace = 0.2) {
+    plot_title = "", labelspace = 0.2, palette = NULL) {
     
     plotmatrix <- log2(plotmatrix + 1)
     
@@ -193,7 +193,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
         total_axis_size = ymax * (1/(1 - labelspace))
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(total_axis_size * labelspace), ymax) + scale_color_manual(name = prettifyVariablename(colorby), 
-            values = makeColorScale(length(unique(labs[[colorby]]))))
+            values = palette  )
         
         p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0, colour = colorby, shape = colorby), size = 4) + 
             scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) + theme(title = element_text(size = rel(1.8)), 

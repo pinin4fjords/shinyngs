@@ -32,7 +32,8 @@ clusteringInput <- function(id, eselist) {
     cluster_displays <- c(`Sample lines` = "sample_lines", `Error bars` = "error_bars", `Filled line` = "filled_line")
     
     cluster_filters <- list(selectInput(ns("cluster_number"), label = "Number of clusters", choices = 1:12, selected = 6), 
-        selectInput(ns("cluster_display"), label = "Cluster display", choices = cluster_displays, selected = "filled_line"), 
+        selectInput(ns("cluster_display"), label = "Cluster display", choices = cluster_displays, selected = "filled_line"),
+        colormakerInput(ns('clustering')),
         selectInput(ns("average_type"), label = "Average type", choices = c("mean", "median"), selected = "mean"), selectInput(ns("limits"), 
             label = "Limits show", choices = c(`Standard deviation` = "sd", `Standard error` = "se", `95% confidence interval` = "ci"), 
             selected = "sd"))
@@ -98,12 +99,14 @@ clusteringOutput <- function(id) {
 #' @examples
 #' callModule(clustering, 'myid', eselist)
 
-clustering <- function(input, output, session, eselist) {
+clustering <- function(input, output, session, eselist, ncolors) {
     
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
     
     unpack.list(callModule(selectmatrix, "clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, 
         default_gene_select = "variance"))
+  
+    getPalette <- callModule(colormaker, "clustering", eselist = eselist, getNumberCategories = getClusterNumber)
     
     ############################################################################# Form accessors
     
@@ -111,7 +114,7 @@ clustering <- function(input, output, session, eselist) {
     
     getClusterNumber <- reactive({
         validate(need(!is.null(input$cluster_number), "waiting for cluster number"))
-        input$cluster_number
+        as.numeric(input$cluster_number)
     })
     
     # How limits of error bars etc should be defined
@@ -164,10 +167,10 @@ clustering <- function(input, output, session, eselist) {
     
     # A common set of colors however the clusters are plotted
     
-    getClusterColors <- reactive({
-        number_of_clusters <- getClusterNumber()
-        makeColorScale(as.numeric(number_of_clusters), "Dark2")
-    })
+    # getClusterColors <- reactive({
+    #     number_of_clusters <- getClusterNumber()
+    #     makeColorScale(as.numeric(number_of_clusters), "Dark2")
+    # })
     
     ############################################################################# Clustering
     
@@ -224,7 +227,7 @@ clustering <- function(input, output, session, eselist) {
     makeClusterPlots <- reactive({
         matrices_by_cluster <- getMatricesByCluster()
         summarised_matrices_by_cluster <- getSummarisedMatricesByCluster()
-        cluster_colors <- getClusterColors()
+        cluster_colors <- getPalette()
         limits <- getLimits()
         average_type <- getAverageType()
         cluster_display <- getClusterDisplay()

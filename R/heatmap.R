@@ -153,7 +153,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     
     # Make the groupby UI element
     
-    groupBy <- callModule(groupby, "heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE)
+    unpack.list(callModule(groupby, "heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE))
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
@@ -195,7 +195,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         } else {
             ed <- selectColData()
             
-            anno_fields <- groupBy()
+            anno_fields <- getGroupby()
             
             if (!is.null(anno_fields)) {
                 
@@ -358,7 +358,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         if (input$interactive) {
             0
         } else {
-            anno_fields <- groupBy()
+            anno_fields <- getGroupby()
             (length(anno_fields) * 14)
         }
     })

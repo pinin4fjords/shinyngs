@@ -101,7 +101,7 @@ pca <- function(input, output, session, eselist) {
     unpack.list(callModule(selectmatrix, "pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, 
         default_gene_select = "variance", select_meta = FALSE))
     
-    colorBy <- callModule(groupby, "pca", eselist = eselist, group_label = "Color by")
+    unpack.list(callModule(groupby, "pca", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # Make a common set of controls to be used for components and loadings plots
     
@@ -112,7 +112,7 @@ pca <- function(input, output, session, eselist) {
     
     callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, 
         getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, 
-        colorBy = pcaColorBy)
+        colorBy = pcaColorBy, getPalette = getPalette)
     callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, 
         getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, 
         getLabels = getLoadLabels)
@@ -146,10 +146,10 @@ pca <- function(input, output, session, eselist) {
     
     pcaColorBy <- reactive({
         
-        if (is.null(colorBy())) {
+        if (is.null(getGroupby())) {
             
         } else {
-            pcb <- na.replace(selectColData()[[colorBy()]], "N/A")
+            pcb <- na.replace(selectColData()[[getGroupby()]], "N/A")
             factor(pcb, levels = unique(pcb))
         }
     })

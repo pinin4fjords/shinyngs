@@ -98,7 +98,7 @@ gene <- function(input, output, session, eselist) {
         url_field = "gene", id_selection = TRUE, getNonEmptyRows = getNonEmptyRows))
     unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
         getAssay = getAssay, multiple = TRUE, show_controls = FALSE, getMetafields = getMetafields))
-    colorBy <- callModule(groupby, "gene", eselist = eselist, group_label = "Color by")
+    unpack.list(callModule(groupby, "gene", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # The title and info link are reactive to the currently active experiment
     
@@ -157,7 +157,7 @@ gene <- function(input, output, session, eselist) {
                 rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
             }
             
-            p <- geneBarplot(barplot_expression, selectColData(), colorBy(), getAssayMeasure())
+            p <- geneBarplot(barplot_expression, selectColData(), getGroupby(), getAssayMeasure(), palette = getPalette())
             
         })
     })
@@ -243,7 +243,7 @@ gene <- function(input, output, session, eselist) {
 #' @examples
 #' callModule(gene, 'gene', ses)
 
-geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Expression") {
+geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Expression", palette = NULL) {
     
     if (!is.null(colorby)) {
         groups <- as.character(experiment[colnames(expression), colorby])
@@ -271,7 +271,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
         
         if (!is.null(colorby)) {
             plotargs$color <- groups
-            plotargs$colors <- makeColorScale(nlevels(groups))
+            plotargs$colors <- palette
         }
         
         do.call(plot_ly, plotargs) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", 
