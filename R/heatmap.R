@@ -57,10 +57,10 @@ heatmapInput <- function(id, eselist, type = "expression") {
     # Output sets of fields in their own containers
     
     if (type == "pca" && length(eselist@group_vars) == 0) {
-        filters <- list(interactivity_filter, groupbyInput(ns("heatmap")), heatmap_filters, fieldSets(ns("fieldset"), 
+        filters <- list(interactivity_filter, groupbyInput(ns("heatmap"), color = FALSE), heatmap_filters, fieldSets(ns("fieldset"), 
             list(expression = expression_filters, export = plotdownloadInput(ns("heatmap")))))
     } else {
-        filters <- fieldSets(ns("fieldset"), list(heatmap = list(interactivity_filter, groupbyInput(ns("heatmap")), heatmap_filters), 
+        filters <- fieldSets(ns("fieldset"), list(heatmap = list(interactivity_filter, groupbyInput(ns("heatmap"), color = FALSE), heatmap_filters), 
             expression = expression_filters, export = plotdownloadInput(ns("heatmap"))))
     }
     

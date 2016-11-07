@@ -4,7 +4,7 @@
 \alias{scatterplotcontrolsInput}
 \title{Input function for scatterplotcontrols module}
 \usage{
-scatterplotcontrolsInput(id, allow_3d = TRUE)
+scatterplotcontrolsInput(id, allow_3d = TRUE, make_colors = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}

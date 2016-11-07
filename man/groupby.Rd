@@ -5,7 +5,8 @@
 \title{The server function of the groupby module}
 \usage{
 groupby(input, output, session, eselist, group_label = "Group by",
-  multiple = FALSE, isDynamic = reactive({     TRUE }))
+  multiple = FALSE, selectColData = NULL, isDynamic = reactive({     TRUE
+  }))
 }
 \arguments{
 \item{input}{Input object}
@@ -20,6 +21,9 @@ ExploratorySummarizedExperiment objects}
 \item{group_label}{A label for the grouping field}
 
 \item{multiple}{Produces a checkbox group if true, a select box if false}
+
+\item{selectColData}{Reactive returning an experiment matrix, probably 
+derived from the \code{\link{selectmatrix}} module.}
 }
 \value{
 output A list of reactive functions which will be used by other 

@@ -236,6 +236,8 @@ gene <- function(input, output, session, eselist) {
 #' @param expression Matrix of values
 #' @param experiment Data frame containing metadata to use for coloring etc
 #' @param colorby Column name in \code{experiment} specifying how points should be colored
+#' @param palette Palette of colors, one for each unique value derived from 
+#' \code{colorby}.
 #' @param expressionmeasure String to use for labelling y axis in plots 
 #'
 #' @keywords shiny

@@ -6,10 +6,10 @@
 \usage{
 scatterplot(input, output, session, getDatamatrix, getThreedee = NULL,
   getXAxis = NULL, getYAxis = NULL, getZAxis = NULL,
-  getShowLabels = NULL, getPointSize = NULL, getTitle = reactive({     ""
-  }), getLabels = reactive({     rownames(getDatamatrix()) }),
-  colorBy = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA,
-  getLines = NULL)
+  getShowLabels = NULL, getPointSize = NULL, getPalette = NULL,
+  colorBy = NULL, getTitle = reactive({     "" }), getLabels = reactive({ 
+     rownames(getDatamatrix()) }), allow_3d = TRUE, x = NA, y = NA,
+  z = NA, getLines = NULL)
 }
 \arguments{
 \item{input}{}
@@ -44,13 +44,16 @@ points.}
 \item{getPointSize}{NULL, or if \code{getThreedee} is a reactive, a 
 reactive supplying an integer point size to pass to plotly.}
 
+\item{getPalette}{An optional palette of colors, one for each level of 
+colorBy.}
+
+\item{colorBy}{A reactive returning a factor definining the groups in which 
+points should be colored.}
+
 \item{getTitle}{A reactive expression supplying a title.}
 
 \item{getLabels}{A reactive supplying a list of labels to use instead of row 
 names from \code{getDatamatrix()}}
-
-\item{colorBy}{A reactive returning a factor definining the groups in which 
-points should be colored.}
 
 \item{allow_3d}{Passed to \code{\link{scatterplotcontrolsInput}} to dermine 
 if the user will be allowed to create 3D plots.}

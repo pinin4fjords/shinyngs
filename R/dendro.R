@@ -130,6 +130,13 @@ dendro <- function(input, output, session, eselist) {
 #' @param plotmatrix Expression/ other data matrix
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from 
+#' \code{colorby}.
+#' @param cor_method Correlation method, passed to cor() (default: pearson).
+#' @param cluster_method Clustering method, passed to hclust() (default: 
+#' ward.D).
+#' @param plot_title Plot title
+#' @param labelspace Vertical fraction of plot to be used for labels (default: 0.2).
 #'
 #' @return output A \code{ggplot} output
 #'

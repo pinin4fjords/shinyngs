@@ -84,6 +84,8 @@ scatterplotOutput <- function(id) {
 #' names from \code{getDatamatrix()}
 #' @param colorBy A reactive returning a factor definining the groups in which 
 #' points should be colored.
+#' @param getPalette An optional palette of colors, one for each level of 
+#' colorBy.
 # 
 #' @param allow_3d Passed to \code{\link{scatterplotcontrolsInput}} to dermine 
 #' if the user will be allowed to create 3D plots.
@@ -107,23 +109,39 @@ scatterplotOutput <- function(id) {
 #' name. These two rows represent the start and end of a line.
 
 scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, 
-    getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, getTitle = reactive({
+    getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, colorBy = NULL, getTitle = reactive({
         ""
     }), getLabels = reactive({
         rownames(getDatamatrix())
-    }), colorBy = NULL, allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
+    }), allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
     
     # If inputs are not provided, render controls to provide them
     
     ns <- session$ns
     
+    # If no colors are provided, make our own if necessary. This will cause
+    # the 'getPalette' reactive to be passed back from scatterplotcontrols.
+    
+    getNumberColors <- reactive({
+      make_colors <- is.null(getPalette) && ! is.null(colorBy)
+      if (make_colors){
+        cb <- colorBy()
+        nlevels(cb)
+      }else{
+        NULL 
+      }
+    })
+    
+    # getThreedee used to determine whether the controls were provided.
+    
     if (is.null(getThreedee)) {
         output$controls <- renderUI({
-            scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d)
+            make_colors <- ! is.null(getNumberColors())
+            controls <- list(scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d, make_colors = make_colors))
         })
-        unpack.list(callModule(scatterplotcontrols, "scatter", getDatamatrix, x = x, y = y, z = z))
+        unpack.list(callModule(scatterplotcontrols, "scatter", getDatamatrix, x = x, y = y, z = z, makeColors = getNumberColors))
     }
-    
+
     # Axis data accessors
     
     xdata <- reactive({
@@ -282,7 +300,14 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
             plotargs <- list(type = plotType(), mode = "markers")
             
             if (!is.null(colorBy)) {
-                plotargs$colors <- getPalette()
+              
+                # If a palette was supplied, or if we made our own...
+              
+                if (is.null(getPalette)){
+                  plotargs$colors <- getScatterPalette()
+                }else{
+                  plotargs$colors <- getPalette()
+                }
             }
             
             do.call(plot_ly, plotargs) %>% addUnlabelledPoints() %>% addLabelledPoints() %>% drawLines() %>% addTextLabels() %>% 

@@ -153,6 +153,8 @@ boxplot <- function(input, output, session, eselist) {
 #' @param plotmatrix Expression/ other data matrix
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from 
+#' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #' @param whisker_distance Passed to \code{\link[ggplot2]{geom_boxplot}} as 
 #' \code{coef}, controlling the length of the whiskers. See documentation of 

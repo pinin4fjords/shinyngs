@@ -4,6 +4,7 @@
 #' \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA etc
 #'
 #' @param id Submodule namespace
+#' @param color Provide coloring functionality for groups?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -13,10 +14,16 @@
 #' @examples
 #' groupbyInput(ns('heatmap'))
 
-groupbyInput <- function(id) {
+groupbyInput <- function(id, color = TRUE) {
     ns <- NS(id)
     
-    list(uiOutput(ns("groupby_fields")), colormakerInput(ns('groupby')))
+    fields <- list(uiOutput(ns("groupby_fields")))
+    
+    if (color){
+      fields <-  pushToList(fields, colormakerInput(ns('groupby')))
+    }
+    
+    fields
 }
 
 #' The server function of the groupby module
@@ -31,6 +38,8 @@ groupbyInput <- function(id) {
 #'   ExploratorySummarizedExperiment objects
 #' @param group_label A label for the grouping field
 #' @param multiple Produces a checkbox group if true, a select box if false
+#' @param selectColData Reactive returning an experiment matrix, probably 
+#'   derived from the \code{\link{selectmatrix}} module.
 #'   
 #' @return output A list of reactive functions which will be used by other 
 #' modules.
@@ -44,7 +53,7 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
     TRUE
 })) {
   
-    getPalette <- callModule(colormaker, "groupby", eselist = eselist, getNumberCategories = getNumberCategories)
+    getPalette <- callModule(colormaker, "groupby", getNumberCategories = getNumberCategories)
     
     # Choose a default grouping variable, either the one specified or the first
     

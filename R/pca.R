@@ -101,6 +101,8 @@ pca <- function(input, output, session, eselist) {
     unpack.list(callModule(selectmatrix, "pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, 
         default_gene_select = "variance", select_meta = FALSE))
     
+    # Call the groupby module to define sample groups and group colors
+  
     unpack.list(callModule(groupby, "pca", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # Make a common set of controls to be used for components and loadings plots

@@ -4,7 +4,7 @@
 \alias{ggplot_boxplot}
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
-ggplot_boxplot(plotmatrix, experiment, colorby = NULL,
+ggplot_boxplot(plotmatrix, experiment, colorby = NULL, palette = NULL,
   expressiontype = "expression", whisker_distance = 1.5)
 }
 \arguments{
@@ -13,6 +13,9 @@ ggplot_boxplot(plotmatrix, experiment, colorby = NULL,
 \item{experiment}{Annotation for the columns of plotmatrix}
 
 \item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
+
+\item{palette}{Palette of colors, one for each unique value derived from 
+\code{colorby}.}
 
 \item{expressiontype}{Expression type for use in y axis label}
 

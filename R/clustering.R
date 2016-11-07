@@ -106,7 +106,7 @@ clustering <- function(input, output, session, eselist, ncolors) {
     unpack.list(callModule(selectmatrix, "clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, 
         default_gene_select = "variance"))
   
-    getPalette <- callModule(colormaker, "clustering", eselist = eselist, getNumberCategories = getClusterNumber)
+    getPalette <- callModule(colormaker, "clustering", getNumberCategories = getClusterNumber)
     
     ############################################################################# Form accessors
     

@@ -4,7 +4,8 @@
 \alias{geneBarplot}
 \title{Main function for drawing the bar plot with plotly}
 \usage{
-geneBarplot(expression, experiment, colorby, expressionmeasure = "Expression")
+geneBarplot(expression, experiment, colorby, expressionmeasure = "Expression",
+  palette = NULL)
 }
 \arguments{
 \item{expression}{Matrix of values}
@@ -14,6 +15,9 @@ geneBarplot(expression, experiment, colorby, expressionmeasure = "Expression")
 \item{colorby}{Column name in \code{experiment} specifying how points should be colored}
 
 \item{expressionmeasure}{String to use for labelling y axis in plots}
+
+\item{palette}{Palette of colors, one for each unique value derived from 
+\code{colorby}.}
 }
 \description{
 The gene module picks specified rows out the assay data, either simply by 

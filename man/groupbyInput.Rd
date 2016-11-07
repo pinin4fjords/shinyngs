@@ -4,10 +4,12 @@
 \alias{groupbyInput}
 \title{The UI function of the groupby module}
 \usage{
-groupbyInput(id)
+groupbyInput(id, color = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{color}{Provide coloring functionality for groups?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

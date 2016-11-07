@@ -12,7 +12,7 @@
 #' @examples
 #' scatterplotcontrolsInput('pca', allow_3d = FALSE) # for a 2D plot
 
-scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
+scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE) {
     
     ns <- NS(id)
     
@@ -20,6 +20,10 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
         inputs <- list(radioButtons(ns("threedee"), "Plot type", c(`3D` = TRUE, `2D` = FALSE), inline = TRUE))
     } else {
         inputs <- list(hiddenInput(ns("threedee"), FALSE))
+    }
+    
+    if (make_colors){
+      inputs <- c(inputs, list(colormakerInput(ns('scatterplot'))))  
     }
     
     c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), 
@@ -52,7 +56,7 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE) {
 #' @examples
 #' unpack.list(callModule(scatterplotcontrols, 'pca', pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
 
-scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y = NA, z = NA) {
+scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y = NA, z = NA, makeColors = NULL) {
     
     output$plotColumns <- renderUI({
         withProgress(message = "Making scatter plot controls", value = 0, {
@@ -121,7 +125,14 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
         input$pointSize
     })
     
-    list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, 
+    reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, 
         getPointSize = getPointSize)
     
+    # If specified, make a palette for the specified number of colors
+    
+    if (! is.null(makeColors)){
+      reactives$getScatterPalette <- callModule(colormaker, "scatterplot", getNumberCategories = makeColors)  
+    }
+    
+    reactives
 } 

@@ -6,7 +6,7 @@
 \usage{
 clusteringDendrogram(plotmatrix, experiment, colorby = NULL,
   cor_method = "pearson", cluster_method = "ward.D", plot_title = "",
-  labelspace = 0.2)
+  labelspace = 0.2, palette = NULL)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
@@ -14,6 +14,18 @@ clusteringDendrogram(plotmatrix, experiment, colorby = NULL,
 \item{experiment}{Annotation for the columns of plotmatrix}
 
 \item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
+
+\item{cor_method}{Correlation method, passed to cor() (default: pearson).}
+
+\item{cluster_method}{Clustering method, passed to hclust() (default: 
+ward.D).}
+
+\item{plot_title}{Plot title}
+
+\item{labelspace}{Vertical fraction of plot to be used for labels (default: 0.2).}
+
+\item{palette}{Palette of colors, one for each unique value derived from 
+\code{colorby}.}
 }
 \value{
 output A \code{ggplot} output
