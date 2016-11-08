@@ -121,7 +121,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     # Pass the matrix to the contrasts module for processing
     
     unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields))
+        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -185,7 +185,7 @@ foldchangeplot <- function(input, output, session, eselist) {
             ct <- contrastsTables()[[1]]
             ct <- round(log2(ct[, 1:2]), 3)
             
-            cont <- getContrasts()[[1]]
+            cont <- getSelectedContrasts()[[1]]
             colnames(ct) <- c(paste0("log2(", cont[2], ")"), paste0("log2(", cont[3], ")"))
             
             fct <- filteredContrastsTables()[[1]]

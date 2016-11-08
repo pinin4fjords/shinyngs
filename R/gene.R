@@ -92,12 +92,12 @@ gene <- function(input, output, session, eselist) {
     
     # Call all the required modules and unpack their reactives
     
-    unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, 
+    unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = TRUE, select_genes = FALSE, 
         provide_all_genes = FALSE))
     unpack.list(callModule(labelselectfield, "gene_label", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, 
         url_field = "gene", id_selection = TRUE, getNonEmptyRows = getNonEmptyRows))
     unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = TRUE, show_controls = FALSE, getMetafields = getMetafields))
+        getAssay = getAssay, multiple = TRUE, show_controls = FALSE, getMetafields = getMetafields, selectColData = selectColData))
     unpack.list(callModule(groupby, "gene", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # The title and info link are reactive to the currently active experiment
@@ -256,6 +256,10 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
         groups <- factor(groups, levels = unique(groups))
     }
     
+    # How much space do we need on the x axis?
+  
+    xlab_space <- max(unlist(lapply(rownames(experiment), nchar))) * 10
+  
     # A hidden axis
     
     ax <- list(title = "", showline = FALSE, showticklabels = FALSE, range = list(0, max(expression) * 1.05))
@@ -277,7 +281,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
         }
         
         do.call(plot_ly, plotargs) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", 
-            title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = 150))
+            title = rownames(expression)[rowno], titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = xlab_space))
     })
     
     if (length(plots) > 1) {

@@ -165,11 +165,12 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
         gene_set_types <- getGenesetTypes()
         assay <- getAssay()
         gene_set_names <- getGenesetNames()
+        contrast_numbers <- getSelectedContrastNumbers()
         
-        if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]])) {
-            fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]][gene_set_names, 
+        if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]])) {
+            fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, 
                 "FDR"], 3), collapse = ",")
-            direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[getSelectedContrasts()]][gene_set_names, 
+            direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, 
                 "Direction"], collapse = ",")
             title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
         } else {

@@ -243,7 +243,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
         ese <- getExperiment()
         assay <- getAssay()
         gene_set_types <- getGeneSetTypes()
-        selected_contrasts <- getSelectedContrasts()
+        selected_contrasts <- getSelectedContrastNumbers()
         
         gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[selected_contrasts]]
         

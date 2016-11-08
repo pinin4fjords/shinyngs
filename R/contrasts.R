@@ -54,7 +54,11 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
 #' @param session Session object
 #' @param getExperiment Reactive for getting the selected experiment. Probably 
 #' get this from the \code{selectmatrix} module
-#' @param selectMatrix Reactive for generating a matrix to do comparisons with
+#' @param selectMatrix Reactive for generating a matrix to do comparisons with.
+#' Probably returned by a call to the \code{\link{selectmatrix}} module.
+#' @param selectColData Reactive returning column metadata for the matrix 
+#' provided by selectMatrix. Probably returned by a call to the 
+#' \code{\link{selectmatrix}} module.
 #' @param getAssay Reactive for fetching the current assay. 
 #' @param multiple Allow selection of multiple contrasts?
 #' @param show_controls Show the controls for contrast selection? 
@@ -64,7 +68,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, getAssay = NULL, getMetafields = NULL, 
+contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, selectColData = NULL, getAssay = NULL, getMetafields = NULL, 
     multiple = FALSE, show_controls = TRUE) {
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
@@ -75,14 +79,19 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         
         ns <- session$ns
         
+        contrast_numbers <- getAllContrastsNumbers()
+        
+        summaries <- getSummaries()
         contrasts <- getAllContrasts()
         
-        if (!is.null(contrasts)) {
+        contrast_numbers <- contrast_numbers[unlist(lapply(contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))]
+        
+        if (!is.null(contrast_numbers)) {
             
             if (multiple) {
-                cont_control <- checkboxGroupInput(ns("contrasts"), "Contrast(s):", contrasts, selected = contrasts)
+                cont_control <- checkboxGroupInput(ns("contrasts"), "Contrast(s):", contrast_numbers, selected = contrast_numbers)
             } else {
-                cont_control <- selectInput(ns("contrasts"), "Contrast(s):", contrasts)
+                cont_control <- selectInput(ns("contrasts"), "Contrast(s):", contrast_numbers)
             }
             
             if (!show_controls) {
@@ -95,42 +104,52 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
     getAllContrasts <- reactive({
-        if (length(eselist@contrasts) > 0) {
-            contrasts <- eselist@contrasts
-            
-            structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], 
+      if (length(eselist@contrasts) > 0) {
+        eselist@contrasts 
+      }else{
+        NULL 
+      }
+    })
+    
+    # Get a named vector of integers for contrasts, to be used in field etc
+    
+    getAllContrastsNumbers <- reactive({
+      contrasts <- getAllContrasts()
+      if (! is.null(contrasts)){
+          structure(1:length(contrasts), names = lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], 
                 x[2], sep = " vs "), sep = ": ")))
-        } else {
-            NULL
-        }
+      } else {
+          NULL
+      }
     })
     
     # Get the index of the currently selected contrast
     
-    getSelectedContrasts <- reactive({
-        validate(need(input$contrasts, "Waiting for contrasts"))
+    getSelectedContrastNumbers <- reactive({
+        validate(need(! is.null(input$contrasts), "Waiting for contrasts"))
         as.numeric(input$contrasts)
     })
     
     # Get the actual contrasts to which the numbers from the interface pertain
     
-    getContrasts <- reactive({
-        eselist@contrasts[getSelectedContrasts()]
+    getSelectedContrasts <- reactive({
+        eselist@contrasts[getSelectedContrastNumbers()]
     })
     
     # Get the name of the currently selected contrast
     
     getSelectedContrastNames <- reactive({
-        names(getAllContrasts())[getSelectedContrasts()]
+        names(getAllContrastsNumbers())[getSelectedContrastNumbers()]
     })
     
     # Get list describing, for each contrast, the samples on each side
     
     getContrastSamples <- reactive({
         ese <- getExperiment()
-        coldata <- droplevels(data.frame(colData(ese)))
+        coldata <- selectColData()
+        contrasts <- getAllContrasts()
         
-        lapply(eselist@contrasts, function(c) {
+        lapply(contrasts, function(c) {
             list(colnames(ese)[coldata[c[1]] == c[2]], colnames(ese)[coldata[c[1]] == c[3]])
         })
     })
@@ -139,7 +158,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     getSelectedContrastSamples <- reactive({
         contrast_samples <- getContrastSamples()
-        selected_contrasts <- getSelectedContrasts()
+        selected_contrasts <- getSelectedContrastNumbers()
         contrast_samples[[selected_contrasts]]
     })
     
@@ -148,13 +167,17 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     getSummaries <- reactive({
         ese <- getExperiment()
-        contrasts <- eselist@contrasts[getAllContrasts()]
+        contrasts <- getAllContrasts()
+        matrix <- selectMatrix()
+        coldata <- selectColData()
+        
+        validate(need(nrow(matrix) > 0, 'Waiting for input matrix'))
         
         contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
         names(contrast_variables) <- contrast_variables
         
         withProgress(message = paste("Calculating summaries by", getSummaryType()), value = 0, {
-            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(selectMatrix(), data.frame(colData(getExperiment()))[[cv]], 
+            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(matrix, coldata[[cv]], 
                 getSummaryType()))
         })
         
@@ -195,14 +218,21 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         matrix <- selectMatrix()
         
         ese <- getExperiment()
-        
         summaries <- getSummaries()
+        contrasts <- getAllContrasts()
+        selected_contrasts <- getSelectedContrasts()
+        
+        # There can be a mismatch between the conrasts and summaries as we
+        # adjust the input matrix. Wait for updates to finish before making
+        # the table.
+        
+        validate(need(all(unlist(lapply(selected_contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]) )))), 'Matching summaries and contrasts'))
         
         withProgress(message = "Calculating summary data", value = 0, {
             
-            contrast_tables <- lapply(getSelectedContrasts(), function(c) {
+            contrast_tables <- lapply(getSelectedContrastNumbers(), function(c) {
                 
-                cont <- eselist@contrasts[[c]]
+                cont <- contrasts[[c]]
                 
                 smry1 <- summaries[[cont[1]]][, cont[2], drop = FALSE]
                 smry2 <- summaries[[cont[1]]][, cont[3], drop = FALSE]
@@ -226,7 +256,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
             })
         })
         
-        names(contrast_tables) <- getSelectedContrasts()
+        names(contrast_tables) <- getSelectedContrastNumbers()
         contrast_tables
     })
     
@@ -297,7 +327,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     # Basic accessors for parameters
     
-    list(fcMin = fcMin, qvalMax = qvalMax, getContrasts = getContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNames = getSelectedContrastNames, 
+    list(fcMin = fcMin, qvalMax = qvalMax, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrastNames = getSelectedContrastNames, 
         getContrastSamples = getContrastSamples, getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, 
         filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }

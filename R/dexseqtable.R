@@ -209,7 +209,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     makeDEUTable <- reactive({
         deu_tables <- makeDEUTables()
-        selected_contrast_number <- getSelectedContrasts()
+        selected_contrast_number <- getSelectedContrastNumbers()
         deu_table <- deu_tables[[selected_contrast_number]]
         
         if (allow_filtering) {
@@ -256,5 +256,5 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
     
-    list(getExperiment = getExperiment, getSelectedContrasts = getSelectedContrasts, getContrasts = getContrasts)
+    list(getExperiment = getExperiment, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrasts = getSelectedContrasts)
 } 

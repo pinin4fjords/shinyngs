@@ -130,7 +130,7 @@ volcanoplot <- function(input, output, session, eselist) {
     # Pass the matrix to the contrasts module for processing
     
     unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields))
+        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -199,7 +199,7 @@ volcanoplot <- function(input, output, session, eselist) {
             ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
             ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
             
-            cont <- getContrasts()[[1]]
+            cont <- getSelectedContrasts()[[1]]
             colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], 
                 ")"), sep = "  "), "-log10(q value)")
             

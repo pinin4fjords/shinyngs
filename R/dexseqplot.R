@@ -121,7 +121,7 @@ dexseqplot <- function(input, output, session, eselist) {
         ese <- getExperiment()
         gene_id <- getSelectedIds()
         deu <- ese@dexseq_results
-        selected_contrast_number <- getSelectedContrasts()
+        selected_contrast_number <- getSelectedContrastNumbers()
         
         d <- deu[[selected_contrast_number]]
         
@@ -141,10 +141,10 @@ dexseqplot <- function(input, output, session, eselist) {
         
         ese <- getExperiment()
         
-        selected_contrast_number <- getSelectedContrasts()
+        selected_contrast_number <- getSelectedContrastNumbers()
         dexseq_result <- ese@dexseq_results[[selected_contrast_number]]
         
-        selected_contrast <- getContrasts()
+        selected_contrast <- getSelectedContrasts()
         gene_label <- getSelectedLabels()
         gene_id <- getDEUGeneID()
         
@@ -162,9 +162,9 @@ dexseqplot <- function(input, output, session, eselist) {
         
         ese <- getExperiment()
         
-        selected_contrast_number <- getSelectedContrasts()
+        selected_contrast_number <- getSelectedContrastNumbers()
         dexseq_result <- ese@dexseq_results[[selected_contrast_number]]
-        selected_contrast <- getContrasts()
+        selected_contrast <- getSelectedContrasts()
         gene_label <- getSelectedLabels()
         gene_id <- getDEUGeneID()
         

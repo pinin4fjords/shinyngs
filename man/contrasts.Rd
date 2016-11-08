@@ -5,8 +5,8 @@
 \title{The server function of the contrasts module}
 \usage{
 contrasts(input, output, session, eselist, getExperiment = NULL,
-  selectMatrix = NULL, getAssay = NULL, getMetafields = NULL,
-  multiple = FALSE, show_controls = TRUE)
+  selectMatrix = NULL, selectColData = NULL, getAssay = NULL,
+  getMetafields = NULL, multiple = FALSE, show_controls = TRUE)
 }
 \arguments{
 \item{input}{Input object}
@@ -18,7 +18,12 @@ contrasts(input, output, session, eselist, getExperiment = NULL,
 \item{getExperiment}{Reactive for getting the selected experiment. Probably 
 get this from the \code{selectmatrix} module}
 
-\item{selectMatrix}{Reactive for generating a matrix to do comparisons with}
+\item{selectMatrix}{Reactive for generating a matrix to do comparisons with.
+Probably returned by a call to the \code{\link{selectmatrix}} module.}
+
+\item{selectColData}{Reactive returning column metadata for the matrix 
+provided by selectMatrix. Probably returned by a call to the 
+\code{\link{selectmatrix}} module.}
 
 \item{getAssay}{Reactive for fetching the current assay.}
 
