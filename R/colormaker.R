@@ -17,12 +17,12 @@
 #' colormakerInput('myid')
 
 colormakerInput <- function(id) {
-
-  ns <- NS(id)
-  
-  palettes <- c('Dark2', 'Set1', 'Set2', 'Set3', 'Pastel1', 'Pastel2', 'Paired', 'Accent')
-  
-  selectInput(inputId = ns('palette_name'), label = 'Color palette', choices = palettes, selected = 'Dark2')
+    
+    ns <- NS(id)
+    
+    palettes <- c("Dark2", "Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Paired", "Accent")
+    
+    selectInput(inputId = ns("palette_name"), label = "Color palette", choices = palettes, selected = "Dark2")
 }
 
 #' The output function of the colorby module
@@ -47,18 +47,18 @@ colormakerInput <- function(id) {
 #' callModule(colormaker, 'myid', getNumberCategories)
 
 colormaker <- function(input, output, session, getNumberCategories) {
- 
-  getPaletteName <- reactive({
-    validate(need(! is.null(input$palette_name), 'Waiting for palette'))
-    input$palette_name
-  })
-  
-  reactive({
-    palette <- getPaletteName()
-    n_colors <- getNumberCategories()
     
-    makeColorScale(n_colors, palette)
-  })
+    getPaletteName <- reactive({
+        validate(need(!is.null(input$palette_name), "Waiting for palette"))
+        input$palette_name
+    })
+    
+    reactive({
+        palette <- getPaletteName()
+        n_colors <- getNumberCategories()
+        
+        makeColorScale(n_colors, palette)
+    })
 }
 
 #' Make a color palette of a specified length
@@ -77,16 +77,16 @@ colormaker <- function(input, output, session, getNumberCategories) {
 #' [1] '#999999' '#EC83BA' '#B75F49' '#E1C62F' '#FFB716' '#D16948' '#7E6E85' '#48A462' '#4A72A6' '#E41A1C'
 
 makeColorScale <- function(ncolors, palette = "Dark2") {
-  
-  paletteinfo <- RColorBrewer::brewer.pal.info
-  
-  if (ncolors > paletteinfo["Set1", "maxcolors"]) {
-    cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
-  } else if (ncolors < 3) {
-    cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
-    cols[1:ncolors]
-  } else {
-    cols <- RColorBrewer::brewer.pal(ncolors, palette)
-  }
-  rev(cols)
-}
+    
+    paletteinfo <- RColorBrewer::brewer.pal.info
+    
+    if (ncolors > paletteinfo["Set1", "maxcolors"]) {
+        cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
+    } else if (ncolors < 3) {
+        cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
+        cols[1:ncolors]
+    } else {
+        cols <- RColorBrewer::brewer.pal(ncolors, palette)
+    }
+    rev(cols)
+} 

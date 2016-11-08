@@ -19,8 +19,8 @@ groupbyInput <- function(id, color = TRUE) {
     
     fields <- list(uiOutput(ns("groupby_fields")))
     
-    if (color){
-      fields <-  pushToList(fields, colormakerInput(ns('groupby')))
+    if (color) {
+        fields <- pushToList(fields, colormakerInput(ns("groupby")))
     }
     
     fields
@@ -52,7 +52,7 @@ groupbyInput <- function(id, color = TRUE) {
 groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, selectColData = NULL, isDynamic = reactive({
     TRUE
 })) {
-  
+    
     getPalette <- callModule(colormaker, "groupby", getNumberCategories = getNumberCategories)
     
     # Choose a default grouping variable, either the one specified or the first
@@ -83,8 +83,7 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
                 group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
                 
                 if (multiple) {
-                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, 
-                    inline = TRUE)
+                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
                 } else {
                   groupinput <- selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
                 }
@@ -111,16 +110,15 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
         }
     })
     
-    # Get the number of categories given an input experiment matrixa and the
-    # selected grouping variable.
+    # Get the number of categories given an input experiment matrixa and the selected grouping variable.
     
     getNumberCategories <- reactive({
-      group_by <- getGroupby()
-      coldata <- selectColData()
-      
-      if (! is.null(group_by) && ! is.null(coldata)){
-        length(unique(coldata[[group_by]]))
-      }
+        group_by <- getGroupby()
+        coldata <- selectColData()
+        
+        if (!is.null(group_by) && !is.null(coldata)) {
+            length(unique(coldata[[group_by]]))
+        }
     })
     
     list(getGroupby = getGroupby, getNumberCategories = getNumberCategories, getPalette = getPalette)

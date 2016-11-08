@@ -53,13 +53,13 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
     
-    field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"), 
-        allow_filtering = FALSE, summarise = FALSE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
+    field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"), allow_filtering = FALSE, 
+        summarise = FALSE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
     
     if (allow_filtering) {
-        field_sets$differential_exon_usage = c(field_sets$differential_exon_usage, list(numericInput(ns("deuFcMin"), "Minimum fold change", 
-            value = 2), numericInput(ns("deuQvalMax"), "Maximum false discovery rate", value = 0.1), checkboxInput(ns("deuMostSigExon"), 
-            "Show most significant exon only per gene?", value = TRUE)))
+        field_sets$differential_exon_usage = c(field_sets$differential_exon_usage, list(numericInput(ns("deuFcMin"), "Minimum fold change", value = 2), 
+            numericInput(ns("deuQvalMax"), "Maximum false discovery rate", value = 0.1), checkboxInput(ns("deuMostSigExon"), "Show most significant exon only per gene?", 
+                value = TRUE)))
     }
     
     field_sets
@@ -93,9 +93,8 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
 dexseqtableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("dexseqtable"), "help", "help"), modalOutput(ns("dexseqtable"), "Differential exon usage table", 
-        includeMarkdown(system.file("inlinehelp", "dexseqtable.md", package = packageName()))), simpletableOutput(ns("dexseqtable"), 
-        tabletitle = "Differential exon usage"))
+    list(modalInput(ns("dexseqtable"), "help", "help"), modalOutput(ns("dexseqtable"), "Differential exon usage table", includeMarkdown(system.file("inlinehelp", 
+        "dexseqtable.md", package = packageName()))), simpletableOutput(ns("dexseqtable"), tabletitle = "Differential exon usage"))
 }
 
 #' The server function of the dexseqtable module
@@ -135,8 +134,7 @@ dexseqtableOutput <- function(id) {
 #' @examples
 #' callModule(dexseqtable, 'dexseqtable', eselist)
 
-dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, 
-    page_length = 15, link_to_deu_plot = TRUE) {
+dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, link_to_deu_plot = TRUE) {
     
     # Only use experiments with gene set analyses available
     
@@ -192,8 +190,8 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
                 
                 # Make prettier column labels
                 
-                colnames(deu_table) <- c("groupID", "Exon", paste0("Mean normalised count (", eu_cols, ")"), paste0("Exon usage (", 
-                  eu_cols, ")"), "Relative exon usage fold change", "P value", "FDR corrected p value")
+                colnames(deu_table) <- c("groupID", "Exon", paste0("Mean normalised count (", eu_cols, ")"), paste0("Exon usage (", eu_cols, ")"), 
+                  "Relative exon usage fold change", "P value", "FDR corrected p value")
                 
                 # Add in gene symbols
                 
@@ -236,8 +234,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
         labelMatrix(deu_table, ese, "groupID")
     })
     
-    # Make a linked version of the table for display. Override the label links so they point to DEU plots rather than gene
-    # pages
+    # Make a linked version of the table for display. Override the label links so they point to DEU plots rather than gene pages
     
     makeDisplayDEUTable <- reactive({
         deu_table <- makeDEUTable()
@@ -251,8 +248,8 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", 
-        rownames = FALSE, show_controls = show_controls, pageLength = page_length)
+    callModule(simpletable, "dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, 
+        show_controls = show_controls, pageLength = page_length)
     
     # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
     

@@ -31,12 +31,10 @@ clusteringInput <- function(id, eselist) {
     
     cluster_displays <- c(`Sample lines` = "sample_lines", `Error bars` = "error_bars", `Filled line` = "filled_line")
     
-    cluster_filters <- list(selectInput(ns("cluster_number"), label = "Number of clusters", choices = 1:12, selected = 6), 
-        selectInput(ns("cluster_display"), label = "Cluster display", choices = cluster_displays, selected = "filled_line"),
-        colormakerInput(ns('clustering')),
-        selectInput(ns("average_type"), label = "Average type", choices = c("mean", "median"), selected = "mean"), selectInput(ns("limits"), 
-            label = "Limits show", choices = c(`Standard deviation` = "sd", `Standard error` = "se", `95% confidence interval` = "ci"), 
-            selected = "sd"))
+    cluster_filters <- list(selectInput(ns("cluster_number"), label = "Number of clusters", choices = 1:12, selected = 6), selectInput(ns("cluster_display"), 
+        label = "Cluster display", choices = cluster_displays, selected = "filled_line"), colormakerInput(ns("clustering")), selectInput(ns("average_type"), 
+        label = "Average type", choices = c("mean", "median"), selected = "mean"), selectInput(ns("limits"), label = "Limits show", choices = c(`Standard deviation` = "sd", 
+        `Standard error` = "se", `95% confidence interval` = "ci"), selected = "sd"))
     
     # Ad clustering filters to clustering and table export fields
     
@@ -71,8 +69,8 @@ clusteringInput <- function(id, eselist) {
 clusteringOutput <- function(id) {
     ns <- NS(id)
     list(modalInput(ns("clustering"), "help", "help"), modalOutput(ns("clustering"), "Feature-wise clustering", includeMarkdown(system.file("inlinehelp", 
-        "clustering.md", package = packageName()))), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), 
-        height = 600), h4("Table of values by cluster"), simpletableOutput(ns("geneClusteringTable")))
+        "clustering.md", package = packageName()))), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"), 
+        simpletableOutput(ns("geneClusteringTable")))
 }
 
 #' The server function of the clustering module
@@ -103,9 +101,8 @@ clustering <- function(input, output, session, eselist, ncolors) {
     
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
     
-    unpack.list(callModule(selectmatrix, "clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, 
-        default_gene_select = "variance"))
-  
+    unpack.list(callModule(selectmatrix, "clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
+    
     getPalette <- callModule(colormaker, "clustering", getNumberCategories = getClusterNumber)
     
     ############################################################################# Form accessors
@@ -167,10 +164,7 @@ clustering <- function(input, output, session, eselist, ncolors) {
     
     # A common set of colors however the clusters are plotted
     
-    # getClusterColors <- reactive({
-    #     number_of_clusters <- getClusterNumber()
-    #     makeColorScale(as.numeric(number_of_clusters), "Dark2")
-    # })
+    # getClusterColors <- reactive({ number_of_clusters <- getClusterNumber() makeColorScale(as.numeric(number_of_clusters), 'Dark2') })
     
     ############################################################################# Clustering
     
@@ -206,9 +200,8 @@ clustering <- function(input, output, session, eselist, ncolors) {
         average_type == "median"
     })
     
-    # Generate summary statistics from the matrix for each cluster. This is what's actually plotted if cluster display is
-    # set to something other than 'sample lines'. Uses summarySE() to derive mean, median, standard error, standard
-    # deviation and 95% confidence intervals.
+    # Generate summary statistics from the matrix for each cluster. This is what's actually plotted if cluster display is set to something other than
+    # 'sample lines'. Uses summarySE() to derive mean, median, standard error, standard deviation and 95% confidence intervals.
     
     getSummarisedMatricesByCluster <- reactive({
         matrices_by_cluster <- getMatricesByCluster()
@@ -221,8 +214,7 @@ clustering <- function(input, output, session, eselist, ncolors) {
         })
     })
     
-    # The business end of the cluster plotting. Use the above parameters and processing to produce one plot object for
-    # each cluster of matrix rows.
+    # The business end of the cluster plotting. Use the above parameters and processing to produce one plot object for each cluster of matrix rows.
     
     makeClusterPlots <- reactive({
         matrices_by_cluster <- getMatricesByCluster()
@@ -241,15 +233,15 @@ clustering <- function(input, output, session, eselist, ncolors) {
                   x <- x[sample(1:nrow(x), 100), ]
                 }
                 x <- reshape2::melt(as.matrix(x))
-                x %>% group_by(Var1) %>% plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, 
-                  name = paste("Cluster", c), line = list(color = cluster_color))
+                x %>% group_by(Var1) %>% plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), 
+                  line = list(color = cluster_color))
             })
         } else if (cluster_display == "error_bars") {
             plots <- lapply(names(summarised_matrices_by_cluster), function(c) {
                 cluster_color <- cluster_colors[as.numeric(c)]
                 x <- summarised_matrices_by_cluster[[c]]
-                plot_ly(x, x = ~Var2, y = ~x[, average_type], name = paste("Cluster", c)) %>% add_lines(error_y = ~list(name = paste("Cluster", 
-                  c), color = cluster_color, type = "array", array = x[, limits]), line = list(color = cluster_color))
+                plot_ly(x, x = ~Var2, y = ~x[, average_type], name = paste("Cluster", c)) %>% add_lines(error_y = ~list(name = paste("Cluster", c), 
+                  color = cluster_color, type = "array", array = x[, limits]), line = list(color = cluster_color))
             })
         } else {
             plots <- lapply(names(matrices_by_cluster), function(c) {
@@ -259,12 +251,11 @@ clustering <- function(input, output, session, eselist, ncolors) {
                 x$lower <- x[, average_type] - x[, limits]
                 x$upper <- x[, average_type] + x[, limits]
                 
-                plot_ly(x, name = paste("Cluster", c)) %>% add_trace(x = ~Var2, y = x[, average_type], type = "scatter", 
-                  mode = "lines", line = list(color = cluster_color), showlegend = TRUE) %>% add_trace(x = ~Var2, y = ~upper, 
-                  type = "scatter", mode = "lines", line = list(color = "transparent"), showlegend = FALSE, name = paste(average_type, 
-                    toupper(limits), sep = " + ")) %>% add_trace(x = ~Var2, y = ~lower, type = "scatter", mode = "lines", 
-                  fill = "tonexty", fillcolor = "rgba(0,100,80,0.2)", line = list(color = "transparent"), showlegend = FALSE, 
-                  name = paste(average_type, toupper(limits), sep = " - "))
+                plot_ly(x, name = paste("Cluster", c)) %>% add_trace(x = ~Var2, y = x[, average_type], type = "scatter", mode = "lines", line = list(color = cluster_color), 
+                  showlegend = TRUE) %>% add_trace(x = ~Var2, y = ~upper, type = "scatter", mode = "lines", line = list(color = "transparent"), showlegend = FALSE, 
+                  name = paste(average_type, toupper(limits), sep = " + ")) %>% add_trace(x = ~Var2, y = ~lower, type = "scatter", mode = "lines", 
+                  fill = "tonexty", fillcolor = "rgba(0,100,80,0.2)", line = list(color = "transparent"), showlegend = FALSE, name = paste(average_type, 
+                    toupper(limits), sep = " - "))
             })
         }
         
@@ -286,8 +277,8 @@ clustering <- function(input, output, session, eselist, ncolors) {
             withProgress(message = "Making a plot for each cluster", value = 0, {
                 plots <- makeClusterPlots()
             })
-            do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots)/3)), 
-                plots) %>% config(showLink = TRUE)
+            do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots)/3)), plots) %>% 
+                config(showLink = TRUE)
         })
     })
     
@@ -315,8 +306,8 @@ clustering <- function(input, output, session, eselist, ncolors) {
     
     # Render the table and provide for download, using the simpletable module.
     
-    callModule(simpletable, "geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, 
-        filter = "top", filename = "clustered_matrix", rownames = FALSE)
+    callModule(simpletable, "geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", 
+        filename = "clustered_matrix", rownames = FALSE)
 }
 
 #' Summarise an input matrix
@@ -347,8 +338,7 @@ clustering <- function(input, output, session, eselist, ncolors) {
 #' tg <- ToothGrowth
 #' summarySE(tg, measurevar='len', groupvars=c('supp','dose'))
 
-summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, 
-    .drop = TRUE) {
+summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
     require(plyr)
     
     # New version of length which can handle NA's: if na.rm==T, don't count them
@@ -372,8 +362,8 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
     
     datac$se <- datac$sd/sqrt(datac$N)  # Calculate standard error of the mean
     
-    # Confidence interval multiplier for standard error Calculate t-statistic for confidence interval: e.g., if
-    # conf.interval is .95, use .975 (above/below), and use df=N-1
+    # Confidence interval multiplier for standard error Calculate t-statistic for confidence interval: e.g., if conf.interval is .95, use .975
+    # (above/below), and use df=N-1
     
     ciMult <- qt(conf.interval/2 + 0.5, datac$N - 1)
     datac$ci <- datac$se * ciMult
