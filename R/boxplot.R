@@ -27,7 +27,7 @@ boxplotInput <- function(id, eselist) {
     ns <- NS(id)
     
     default_type <- "boxes"
-    if (ncol(eselist[[1]]) > 20) {
+    if (ncol(eselist[[1]]) > 50) {
         default_type <- "lines"
     }
     
@@ -273,7 +273,7 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
     
     # The plotting business
     
-    plot_ly(data.frame(quantiles)) %>% add_trace(x = outliers$x, y = outliers$y, name = "outliers", marker = list(color = "black"), hoverinfo = "text", 
+    plot_ly(data.frame(quantiles), mode = 'markers') %>% add_trace(x = outliers$x, y = outliers$y, name = "outliers", marker = list(color = "black"), hoverinfo = "text", 
         text = outliers$label, type = "scatter") %>% add_lines(x = samples, y = quantiles["75%", ] + ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), 
         line = list(width = 1, color = "grey", dash = "dash"), name = paste0("75%<br />+ (IQR * ", whisker_distance, ")")) %>% add_lines(x = samples, 
         y = quantiles["75%", samples], line = list(dash = "dash", color = "black"), name = "75%") %>% add_lines(x = samples, y = quantiles["50%", samples], 
