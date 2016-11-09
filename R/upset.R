@@ -26,8 +26,9 @@ upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
     upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, 
-        max = 20, step = 1, value = 10), selectInput(ns("group_by"), label = "Group by", choices = c("degree", "sets"), 
-        selected = "degree"))
+        max = 40, step = 1, value = 10), selectInput(ns("group_by"), label = "Group by", choices = c("degree", "sets"), 
+        selected = "degree"), checkboxInput(ns('separate_by_direction'), label = 'Separate by direction of change?', value = TRUE),
+        checkboxInput(ns('show_empty_intersections'), label = 'Show empty intersections?', value = TRUE))
     
     fieldSets(ns("fieldset"), list(intersections = upset_fields, expression = selectmatrixInput(ns("upset"), eselist), 
         contrasts = contrastsInput(ns("upset")), export = plotdownloadInput(ns("upset"), "UpSet Plot")))
@@ -159,15 +160,34 @@ upset <- function(input, output, session, eselist) {
         fcts <- filteredContrastsTables()
         names(fcts) <- getSafeSelectedContrastNames()
         fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
+        
+        # If specified by the user, separate gene sets into 'up' and 'down' for
+        # each contrast
+        
+        if (input$separate_by_direction){             
+          fcts <- unlist(lapply(fcts, function(x){
+            y <- split(x, x[['Fold change']] > 0)
+            names(y) <- c('down', 'up')
+            y
+          }), recursive = FALSE)
+          
+          fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
+        }
+        
+        fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
         lapply(fcts, rownames)
     })
     
     output$upset <- renderPlot({
-        makeUpsetPlot(getValidSets(), nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby())
+        data <- getValidSets()
+        validate(need(! is.null(data), 'Parsing data'))
+        makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
     })
     
     makeUpsetPlotForDownload <- reactive({
-        makeUpsetPlot(getValidSets(), nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby())
+        data <- getValidSets()
+        validate(need(! is.null(data), 'Parsing data'))
+        makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
     })
     
     # Create a table with simpletable

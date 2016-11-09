@@ -117,7 +117,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         assay <- getAssay()
         
         if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
-            numericInput(ns("pvalMax"), "Maximum q value", value = 0.05)
+            numericInput(ns("pvalMax"), "Maximum p value", value = 0.05)
         } else {
             hiddenInput(ns("pvalMax"), 1)
         }
@@ -158,7 +158,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         contrasts <- getAllContrasts()
         
         lapply(contrasts, function(x) paste(ucfirst(prettifyVariablename(x[1])), paste(ucfirst(x[3]), ucfirst(x[2]), sep = "VS"), 
-            sep = "_"))
+            sep = "."))
     })
     
     # Get the index of the currently selected contrast
@@ -374,7 +374,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     makeDifferentialSetSummary <- reactive({
         fcts <- filteredContrastsTables()
-        contrasts <- getAllContrasts()
+        contrasts <- getSelectedContrasts()
         
         summary <- data.frame(do.call(rbind, contrasts))
         colnames(summary) <- c("Variable", "group 1", "group 2")
