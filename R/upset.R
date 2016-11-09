@@ -156,6 +156,7 @@ upset <- function(input, output, session, eselist) {
     # Look at the contrasts and remove any contrast with no differential features
     
     getValidSets <- reactive({
+      withProgress(message = "Deriving input sets", value = 0, {
         fcts <- filteredContrastsTables()
         names(fcts) <- getSafeSelectedContrastNames()
         fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
@@ -174,12 +175,15 @@ upset <- function(input, output, session, eselist) {
         
         fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
         lapply(fcts, rownames)
+      })
     })
     
     output$upset <- renderPlot({
         data <- getValidSets()
         validate(need(!is.null(data), "Parsing data"))
-        makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
+        withProgress(message = "Making UpSet plot", value = 0, {
+          makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
+        })
     })
     
     makeUpsetPlotForDownload <- reactive({
