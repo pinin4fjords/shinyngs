@@ -20,7 +20,8 @@ Imports:
     shiny,
     shinyjs,
     shinythemes,
-    SummarizedExperiment
+    SummarizedExperiment,
+    UpSetR
 Suggests:
     shinyBS,
     BiocStyle,

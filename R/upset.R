@@ -26,7 +26,7 @@ upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
     upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, 
-        value = 10), selectInput(ns("group_by"), label = "Group by", choices = c("degree", "sets"), selected = "degree"), checkboxInput(ns("separate_by_direction"), 
+        value = 20), selectInput(ns("group_by"), label = "Group by", choices = c("degree", "sets"), selected = "degree"), checkboxInput(ns("separate_by_direction"), 
         label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("show_empty_intersections"), label = "Show empty intersections?", 
         value = TRUE))
     
