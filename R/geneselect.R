@@ -69,24 +69,22 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     useGenesets <- reactive({
         ese <- getExperiment()
         
-        length(eselist@gene_sets) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, 
-            x)) > 0)))
+        length(eselist@gene_sets) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 0)))
     })
     
-    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them
-    # to our results
+    # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
     
     unpack.list(callModule(genesetselect, "geneset", eselist = eselist, getExperiment = getExperiment))
     
     # Get rows by metadata: pick from available values
     
-    lsf_picked_methods <- callModule(labelselectfield, "gene_label_pick", eselist = eselist, getExperiment = getExperiment, 
-        field_selection = TRUE, list_input = FALSE)
+    lsf_picked_methods <- callModule(labelselectfield, "gene_label_pick", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, 
+        list_input = FALSE)
     
     # Get rows by metadata: paste in a list
     
-    lsf_listed_methods <- callModule(labelselectfield, "gene_label_list", eselist = eselist, getExperiment = getExperiment, 
-        field_selection = TRUE, list_input = TRUE)
+    lsf_listed_methods <- callModule(labelselectfield, "gene_label_list", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, 
+        list_input = TRUE)
     
     # Add the gene sets to the drop-down if required
     
@@ -113,8 +111,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 gene_select_methods <- c(gene_select_methods, c(all = "all"))
             }
             
-            gene_select_methods <- c(gene_select_methods, c(variance = "variance", `pick from valid metadata` = "metadata_pick", 
-                `supply list of metadata values` = "metadata_list"))
+            gene_select_methods <- c(gene_select_methods, c(variance = "variance", `pick from valid metadata` = "metadata_pick", `supply list of metadata values` = "metadata_list"))
             
             
             if (useGenesets()) {
@@ -127,17 +124,17 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 selected = default
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, 
-                selected = selected), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), 
-                sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'metadata_pick' "), labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0("input['", 
-                ns("geneSelect"), "'] == 'metadata_list' "), labelselectfieldInput(ns("gene_label_list"))))
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), 
+                conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", 
+                  min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'metadata_pick' "), 
+                  labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'metadata_list' "), 
+                  labelselectfieldInput(ns("gene_label_list"))))
             
             # If gene sets have been provided, then make a gene sets filter
             
             if (useGenesets()) {
-                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), 
-                  "'] == 'gene set' "), genesetselectInput(ns("geneset")))
+                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), 
+                  genesetselectInput(ns("geneset")))
             }
             
         })
@@ -213,8 +210,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 
                 if (length(ese@labelfield) > 0) {
                   annotation <- data.frame(mcols(ese))
-                  selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), 
-                    ese@idfield])
+                  selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), ese@idfield])
                 } else {
                   selected_rows <- rownames(ese)[which(tolower(rownames(ese))) %in% tolower(selected_genes)]
                 }

@@ -66,9 +66,8 @@ experimenttableInput <- function(id, eselist) {
 
 experimenttableOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("experimenttable"), "help", "help"), modalOutput(ns("experimenttable"), "Experimental data table", 
-        includeMarkdown(system.file("inlinehelp", "experimenttable.md", package = packageName()))), simpletableOutput(ns("experimenttable"), 
-        tabletitle = "Experimental data"))
+    list(modalInput(ns("experimenttable"), "help", "help"), modalOutput(ns("experimenttable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", 
+        "experimenttable.md", package = packageName()))), simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data"))
 }
 
 #' The server function of the experimenttable module
