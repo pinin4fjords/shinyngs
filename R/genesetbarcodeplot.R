@@ -33,8 +33,8 @@ genesetbarcodeplotInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid
-    # options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay
+    # select doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -87,9 +87,9 @@ genesetbarcodeplotInput <- function(id, eselist) {
 genesetbarcodeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("genesetbarcodeplot"), "help", "help"), modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp", 
-        "genesetbarcodeplot.md", package = packageName()))), h3("Gene set barcode plot"), plotOutput(ns("genesetbarcodeplot")), h4("Gene set differential expression"), 
-        simpletableOutput(ns("genesetbarcodeplot")))
+    list(modalInput(ns("genesetbarcodeplot"), "help", "help"), modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", 
+        includeMarkdown(system.file("inlinehelp", "genesetbarcodeplot.md", package = packageName()))), h3("Gene set barcode plot"), 
+        plotOutput(ns("genesetbarcodeplot")), h4("Gene set differential expression"), simpletableOutput(ns("genesetbarcodeplot")))
 }
 
 #' The server function of the genesetbarcodeplot module
@@ -126,8 +126,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid
-    # options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay
+    # select doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -139,8 +139,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = FALSE, getMetafields = getMetafields))
+    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields))
     
     # Parse the gene sets for ease of use
     
@@ -148,7 +148,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, plotWidth = 800)
+    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", 
+        plotHeight = 600, plotWidth = 800)
     
     observe({
         updateGeneSetsList()
@@ -167,8 +168,10 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
         contrast_numbers <- getSelectedContrastNumbers()
         
         if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]])) {
-            fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "FDR"], 3), collapse = ",")
-            direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "Direction"], collapse = ",")
+            fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "FDR"], 
+                3), collapse = ",")
+            direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "Direction"], 
+                collapse = ",")
             title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
         } else {
             title_components <- c(title_components, "(no association)")
@@ -222,8 +225,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Provide the gene set genes in a table of contrst data
     
-    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", 
-        rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, 
+        filename = "gene_set_contrast", rownames = FALSE, pageLength = 10)
     
     # Catch the gene set from the URL
     

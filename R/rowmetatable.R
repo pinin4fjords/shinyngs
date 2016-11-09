@@ -83,6 +83,8 @@ rowmetatable <- function(input, output, session, eselist) {
         linkMatrix(meta, eselist@url_roots)
     })
     
-    unpack.list(callModule(selectmatrix, "rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
-    callModule(simpletable, "rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
+    unpack.list(callModule(selectmatrix, "rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, 
+        select_meta = FALSE))
+    callModule(simpletable, "rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", 
+        rownames = TRUE, pageLength = 10)
 } 

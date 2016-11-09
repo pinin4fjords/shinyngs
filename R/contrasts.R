@@ -21,8 +21,7 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRUE, 
-    summarise = TRUE) {
+contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRUE, summarise = TRUE) {
     
     ns <- NS(id)
     
@@ -32,7 +31,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRU
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
         inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), 
-            "Minimum absolute fold change", value = default_min_foldchange), uiOutput(ns('pvalMax')), uiOutput(ns('qvalMax'))))
+            "Minimum absolute fold change", value = default_min_foldchange), uiOutput(ns("pvalMax")), uiOutput(ns("qvalMax"))))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
@@ -67,11 +66,11 @@ contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRU
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, selectColData = NULL, getAssay = NULL, getMetafields = NULL, 
-    multiple = FALSE, show_controls = TRUE) {
+contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, selectColData = NULL, 
+    getAssay = NULL, getMetafields = NULL, multiple = FALSE, show_controls = TRUE) {
     
     ns <- session$ns
-  
+    
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
     # Render the controls depending on currently selected experiment etc.
@@ -106,65 +105,66 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         ese <- getExperiment()
         assay <- getAssay()
         
-        if ('qvals' %in% names(ese@tests[[assay]]) && ! is.null(ese@tests[[assay]]$qvals)){
-          numericInput(ns("qvalMax"), "Maximum q value", value = 0.1)
-        }else{
-          hiddenInput(ns("qvalMax"), 1)
+        if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
+            numericInput(ns("qvalMax"), "Maximum q value", value = 0.1)
+        } else {
+            hiddenInput(ns("qvalMax"), 1)
         }
     })
     
     output$pvalMax <- renderUI({
-      ese <- getExperiment()
-      assay <- getAssay()
-      
-      if ('pvals' %in% names(ese@tests[[assay]]) && ! is.null(ese@tests[[assay]]$pvals)){
-        numericInput(ns("pvalMax"), "Maximum q value", value = 0.05)
-      }else{
-        hiddenInput(ns("pvalMax"), 1)
-      }
+        ese <- getExperiment()
+        assay <- getAssay()
+        
+        if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
+            numericInput(ns("pvalMax"), "Maximum q value", value = 0.05)
+        } else {
+            hiddenInput(ns("pvalMax"), 1)
+        }
     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
     getAllContrasts <- reactive({
-      if (length(eselist@contrasts) > 0) {
-        eselist@contrasts 
-      }else{
-        NULL 
-      }
+        if (length(eselist@contrasts) > 0) {
+            eselist@contrasts
+        } else {
+            NULL
+        }
     })
     
     # Get a named vector of integers for contrasts, to be used in field etc
     
     getAllContrastsNumbers <- reactive({
-      contrasts <- getAllContrasts()
-      contrast_names <- makeContrastNames()
-      
-      if (! is.null(contrasts)){
-          structure(1:length(contrasts), names = contrast_names)
-      } else {
-          NULL
-      }
+        contrasts <- getAllContrasts()
+        contrast_names <- makeContrastNames()
+        
+        if (!is.null(contrasts)) {
+            structure(1:length(contrasts), names = contrast_names)
+        } else {
+            NULL
+        }
     })
     
     # Make names for the contrasts
     
     makeContrastNames <- reactive({
-      contrasts <- getAllContrasts()
-      
-      lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), sep = ": "))
+        contrasts <- getAllContrasts()
+        
+        lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), sep = ": "))
     })
     
     makeSafeContrastNames <- reactive({
-      contrasts <- getAllContrasts()
-      
-      lapply(contrasts, function(x) paste(ucfirst(prettifyVariablename(x[1])), paste(ucfirst(x[3]), ucfirst(x[2]), sep = "VS"), sep = "_"))
+        contrasts <- getAllContrasts()
+        
+        lapply(contrasts, function(x) paste(ucfirst(prettifyVariablename(x[1])), paste(ucfirst(x[3]), ucfirst(x[2]), sep = "VS"), 
+            sep = "_"))
     })
     
     # Get the index of the currently selected contrast
     
     getSelectedContrastNumbers <- reactive({
-        validate(need(! is.null(input$contrasts), "Waiting for contrasts"))
+        validate(need(!is.null(input$contrasts), "Waiting for contrasts"))
         as.numeric(input$contrasts)
     })
     
@@ -184,8 +184,8 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # The same, but with safe names that won't get mangled by plotting etc
     
     getSafeSelectedContrastNames <- reactive({
-      contrast_names <- makeSafeContrastNames()
-      contrast_names[getSelectedContrastNumbers()]
+        contrast_names <- makeSafeContrastNames()
+        contrast_names[getSelectedContrastNumbers()]
     })
     
     # Get list describing, for each contrast, the samples on each side
@@ -217,14 +217,13 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         matrix <- selectMatrix()
         coldata <- selectColData()
         
-        validate(need(nrow(matrix) > 0, 'Waiting for input matrix'))
+        validate(need(nrow(matrix) > 0, "Waiting for input matrix"))
         
         contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
         names(contrast_variables) <- contrast_variables
         
         withProgress(message = paste("Calculating summaries by", getSummaryType()), value = 0, {
-            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(matrix, coldata[[cv]], 
-                getSummaryType()))
+            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(matrix, coldata[[cv]], getSummaryType()))
         })
         
         summaries
@@ -268,11 +267,11 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         contrasts <- getAllContrasts()
         selected_contrasts <- getSelectedContrasts()
         
-        # There can be a mismatch between the conrasts and summaries as we
-        # adjust the input matrix. Wait for updates to finish before making
-        # the table.
+        # There can be a mismatch between the conrasts and summaries as we adjust the input matrix. Wait for updates to finish
+        # before making the table.
         
-        validate(need(all(unlist(lapply(selected_contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]) )))), 'Matching summaries and contrasts'))
+        validate(need(all(unlist(lapply(selected_contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))), 
+            "Matching summaries and contrasts"))
         
         withProgress(message = "Calculating summary data", value = 0, {
             
@@ -374,20 +373,22 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # A summary table of differential expression
     
     makeDifferentialSetSummary <- reactive({
-      fcts <- filteredContrastsTables()
-      contrasts <- getAllContrasts()
-      
-      summary <- data.frame(do.call(rbind, contrasts))
-      colnames(summary) <- c('Variable', 'group 1', 'group 2')
-      summary[['Set size']] <- unlist(lapply(fcts, nrow))
-      summary
+        fcts <- filteredContrastsTables()
+        contrasts <- getAllContrasts()
+        
+        summary <- data.frame(do.call(rbind, contrasts))
+        colnames(summary) <- c("Variable", "group 1", "group 2")
+        summary[["Set size"]] <- unlist(lapply(fcts, nrow))
+        summary
     })
     
     # Basic accessors for parameters
     
-    list(fcMin = fcMin, qvalMax = qvalMax, getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames,  
+    list(fcMin = fcMin, qvalMax = qvalMax, getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, 
+        getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames, 
         getContrastSamples = getContrastSamples, getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, 
-        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable, makeDifferentialSetSummary = makeDifferentialSetSummary)
+        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable, 
+        makeDifferentialSetSummary = makeDifferentialSetSummary)
 }
 
 #' Calculate fold change between two vectors

@@ -26,8 +26,8 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE) {
         inputs <- c(inputs, list(colormakerInput(ns("scatterplot"))))
     }
     
-    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), "Point size", min = 1, 
-        max = 20, value = 5)))
+    c(inputs, list(uiOutput(ns("plotColumns")), checkboxInput(ns("showLabels"), "Show labels?"), sliderInput(ns("pointSize"), 
+        "Point size", min = 1, max = 20, value = 5)))
 }
 
 #' Server function for scatterplotcontrols module
@@ -125,7 +125,8 @@ scatterplotcontrols <- function(input, output, session, getDatamatrix, x = NA, y
         input$pointSize
     })
     
-    reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)
+    reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, 
+        getPointSize = getPointSize)
     
     # If specified, make a palette for the specified number of colors
     

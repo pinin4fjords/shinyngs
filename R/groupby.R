@@ -49,9 +49,10 @@ groupbyInput <- function(id, color = TRUE) {
 #' @examples
 #' geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
 
-groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, selectColData = NULL, isDynamic = reactive({
-    TRUE
-})) {
+groupby <- function(input, output, session, eselist, group_label = "Group by", multiple = FALSE, selectColData = NULL, 
+    isDynamic = reactive({
+        TRUE
+    })) {
     
     getPalette <- callModule(colormaker, "groupby", getNumberCategories = getNumberCategories)
     
@@ -83,7 +84,8 @@ groupby <- function(input, output, session, eselist, group_label = "Group by", m
                 group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
                 
                 if (multiple) {
-                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
+                  groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, 
+                    inline = TRUE)
                 } else {
                   groupinput <- selectInput(ns("groupby"), group_label, group_options, selected = getDefaultGroupby())
                 }

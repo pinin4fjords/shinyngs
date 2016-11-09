@@ -32,9 +32,9 @@ pcaInput <- function(id, eselist) {
     
     # Output sets of fields in their own containers
     
-    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), 
-        groupbyInput(ns("pca"))), expression = expression_filters, export = list(simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), 
-        tabletitle = "Loading"))))
+    fieldSets(ns("fieldset"), list(principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), 
+        allow_3d = TRUE), groupbyInput(ns("pca"))), expression = expression_filters, export = list(simpletableInput(ns("components"), 
+        tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"))))
 }
 
 #' The output function of the pca module
@@ -61,9 +61,10 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", "pca.md", 
-        package = packageName()))), h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))), 
-        tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
+    list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", 
+        "pca.md", package = packageName()))), h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", 
+        scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))), tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), 
+        simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
 }
 
 #' The server function of the pca module
@@ -108,12 +109,14 @@ pca <- function(input, output, session, eselist) {
     
     unpack.list(callModule(scatterplotcontrols, "pca", pcaMatrix))
     
-    # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
+    # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and
+    # loading
     
-    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
-        getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = getPalette)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
-        getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
+    callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, 
+        getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, 
+        colorBy = pcaColorBy, getPalette = getPalette)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, 
+        getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
     
     # Simple title functions
     
@@ -184,7 +187,8 @@ pca <- function(input, output, session, eselist) {
             fraction_explained <- calculatePCAFractionExplained()
             colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
             
-            loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
+            loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), 
+                decreasing = TRUE)[1:input$n_loadings]]))
             
             # Also return a table with the loadings converted to fractions
             
@@ -228,13 +232,15 @@ pca <- function(input, output, session, eselist) {
         })
         percent_contributions$sep = "<br />"
         
-        loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
+        loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), 
+            sep = "<br />")
     })
     
-    callModule(simpletable, "components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE)
+    callModule(simpletable, "components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", 
+        rownames = TRUE)
     
-    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", 
-        rownames = FALSE)
+    callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, 
+        filename = "pcaloading", rownames = FALSE)
     
 }
 
