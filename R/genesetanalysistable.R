@@ -68,7 +68,7 @@ genesetanalysistableInput <- function(id, eselist) {
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
     field_sets = list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(numericInput(ns("pval"), "Maximum p value", 
-        value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable"), default_min_foldchange = 1.2))
+        value = 0.05), numericInput(ns("fdr"), "Maximum FDR", value = 0.1)), contrasts = contrastsInput(ns("genesetanalysistable")))
     
     # Things we don't want to wrap in a field set - probably hidden stuff
     
@@ -224,7 +224,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     # Pass the matrix to the contrasts module for processing
     
     unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE))
+        getAssay = getAssay, multiple = FALSE, default_min_foldchange = 1.2))
     
     # Parse the gene sets for ease of use
     

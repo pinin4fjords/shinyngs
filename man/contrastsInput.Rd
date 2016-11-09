@@ -4,13 +4,10 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(id, default_min_foldchange = 2, allow_filtering = TRUE,
-  summarise = TRUE)
+contrastsInput(id, allow_filtering = TRUE, summarise = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
-
-\item{default_min_foldchange}{default value for the fold change filter}
 
 \item{allow_filtering}{Provide the filtering fields? Can be disabled to
 produce unfiltered contrasts tables.}

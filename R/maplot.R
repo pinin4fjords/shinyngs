@@ -40,7 +40,7 @@ maplotInput <- function(id, eselist) {
         fieldsets$expression_matrix <- expression_filters
     }
     
-    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"), default_min_foldchange = 1)), scatter_plot = scatterplotInput(ns("ma")), 
+    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("ma")), 
         highlight_points = geneselectInput(ns("ma")), export = simpletableInput(ns("matable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
@@ -123,7 +123,7 @@ maplot <- function(input, output, session, eselist) {
     # Pass the matrix to the contrasts module for processing
     
     unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
+        multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData, default_min_foldchange = 1))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     

@@ -4,7 +4,6 @@
 #' differential expression panels.
 #'
 #' @param id Submodule namespace
-#' @param default_min_foldchange default value for the fold change filter
 #' @param default_max_q default value for the q value filter
 #' @param allow_filtering Provide the filtering fields? Can be disabled to
 #' produce unfiltered contrasts tables.
@@ -21,24 +20,24 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRUE, summarise = TRUE) {
+contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE) {
     
     ns <- NS(id)
-    
-    inputs <- list(uiOutput(ns("contrasts")))
+
+    inputs <- list()
     
     if (allow_filtering) {
-        
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
-        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), inlineField(numericInput(ns("fcMin"), 
-            NULL, value = default_min_foldchange), label = "Minimum absolute fold change"), uiOutput(ns("pvalMax")), uiOutput(ns("qvalMax"))))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
     
+    inputs <- pushToList(inputs, uiOutput(ns("contrast_filters")))
+    
     if (summarise) {
         inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE))
     }
+
     inputs
 }
 
@@ -60,6 +59,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRU
 #' @param getAssay Reactive for fetching the current assay. 
 #' @param multiple Allow selection of multiple contrasts?
 #' @param show_controls Show the controls for contrast selection? 
+#' @param default_min_foldchange default value for the fold change filter
 #'
 #' @keywords shiny
 #' 
@@ -67,7 +67,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRU
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
 contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, selectColData = NULL, getAssay = NULL, getMetafields = NULL, 
-    multiple = FALSE, show_controls = TRUE) {
+    multiple = FALSE, show_controls = TRUE, default_min_foldchange = 2) {
     
     ns <- session$ns
     
@@ -75,59 +75,25 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     # Render the controls depending on currently selected experiment etc.
     
-    output$contrasts <- renderUI({
-        
-        contrast_numbers <- getAllContrastsNumbers()
-        
-        summaries <- getSummaries()
-        contrasts <- getAllContrasts()
-        
-        contrast_numbers <- contrast_numbers[unlist(lapply(contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))]
-        
-        if (!is.null(contrast_numbers)) {
-            
-            if (multiple) {
-                cont_control <- checkboxGroupInput(ns("contrasts"), "Contrast(s):", contrast_numbers, selected = contrast_numbers)
-            } else {
-                cont_control <- selectInput(ns("contrasts"), "Contrast(s):", contrast_numbers)
-            }
-            
-            if (!show_controls) {
-                cont_control <- shinyjs::hidden(cont_control)
-            }
-            cont_control
-        }
-    })
-    
-    # Only some assays have associated stats
-    
-    output$qvalMax <- renderUI({
-        ese <- getExperiment()
-        assay <- getAssay()
-        
-        if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
-          inlineField(numericInput(ns("qvalMax"), NULL, value = 0.1), label = "Maximum q value")
-        } else {
-            hiddenInput(ns("qvalMax"), 1)
-        }
-    })
-    
-    output$pvalMax <- renderUI({
-        ese <- getExperiment()
-        assay <- getAssay()
-        
-        if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
-          inlineField(numericInput(ns("pvalMax"), NULL, value = 0.05), label = "Maximum p value")
-        } else {
-            hiddenInput(ns("pvalMax"), 1)
-        }
+    output$contrast_filters <- renderUI({
+      
+      ese <- getExperiment()
+      assay <- getAssay()
+      
+      summaries <- getSummaries()
+      contrasts <- getAllContrasts()
+      contrast_numbers <- getAllContrastsNumbers()
+      
+      makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows())
     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
     getAllContrasts <- reactive({
         if (length(eselist@contrasts) > 0) {
-            eselist@contrasts
+            contrasts <- eselist@contrasts
+            names(contrasts) <- 1:length(contrasts)
+            contrasts
         } else {
             NULL
         }
@@ -404,3 +370,98 @@ foldChange <- function(vec1, vec2) {
     fc[which(fc < 1)] <- -1/fc[which(fc < 1)]
     fc
 } 
+
+#' Make a complete set of filters for a contrast: the contrast itself, fold
+#' change, and where applicable p- and q- values.
+#'
+#' @param ns A namespace function (created with \code{\link[shiny]{NS}} to be 
+#' used in creating field IDs.
+#' @param ese ExploratorySummarizedExperiment object
+#' @param assay Assay in \code{ese}
+#' @param summaries Summaries derived from \code{\link{summarizematrix}}, will
+#' be used to select valid contrasts.
+#' @param contrasts A list of lists specifying contrasts. 
+#' @param contrast_numbers A named vector of indices corresponding to 
+#' \code{contrasts}.
+#' @param multiple Allow multiple contrasts to be selected? Passed to 
+#' \code{\link{makeContrastControl}}.
+#' @param show_controls Show controls? Setting to false will cause them to be 
+#' hidden.
+#' @param default_min_foldchange Default value for the fold change field 
+#' @param index Index. Will be used to differentiate mutiple copies of the
+#' field set.
+#' @param filter_rows Use fold change and p value etc to filter values? 
+#'
+#' @return output An HTML tag object that can be rendered as HTML using 
+#' as.character() 
+
+makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple, show_controls, default_min_foldchange = default_min_foldchange, index = '', filter_rows = TRUE){
+  
+  contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers, summaries, multiple = multiple, show_controls = show_controls))
+  
+  if (filter_rows){
+  
+    # p value field
+    
+    if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
+      pval_field <- inlineField(numericInput(ns(paste0("pvalMax", index)), NULL, value = 0.05), label = "Maximum p value")
+    } else {
+      pval_field <- hiddenInput(ns(paste0("pvalMax", index)), 1)
+    }
+    
+    # q value field
+    
+    if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
+      qval_field <- inlineField(numericInput(ns(paste0("qvalMax", index)), NULL, value = 0.1), label = "Maximum q value")
+    } else {
+      qval_field <- hiddenInput(ns(paste0("qvalMax", index)), 1)
+    }
+    
+    # Create a set of all the contrast fields
+    
+    contrast_field_set <- c(contrast_field_set, list(
+      inlineField(numericInput(ns(paste0("fcMin", index)), NULL, value = default_min_foldchange), label = "Minimum absolute fold change"),
+      pval_field,
+      qval_field)
+    )
+  }
+  if (index == ''){
+      contrast_field_set
+  }else{
+    tags$fieldset(tags$legend(paste('Contrast', index)), contrast_field_set, class = 'shinyngs-contrast')
+  }
+}
+
+#' Make a select field for picking one or more contrasts
+#'
+#' @param id An id to apply to form elements
+#' @param contrasts A list of lists specifying contrasts. 
+#' @param contrast_numbers A named vector of indices corresponding to 
+#' \code{contrasts}.
+#' @param summaries Summaries derived from \code{\link{summarizematrix}}, will
+#' be used to select valid contrasts.
+#' @param multiple Allow multiple contrasts to be selected?
+#' @param show_controls Show controls? Setting to false will cause them to be 
+#' hidden.
+#'
+#' @return output An HTML tag object that can be rendered as HTML using 
+#' as.character() 
+
+makeContrastControl <- function(id, contrasts, contrast_numbers, summaries, multiple = FALSE, show_controls = TRUE){
+  
+  contrast_numbers <- contrast_numbers[unlist(lapply(contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))]
+  
+  if (!is.null(contrast_numbers)) {
+    
+    if (multiple) {
+      cont_control <- checkboxGroupInput(id, "Contrast(s):", contrast_numbers, selected = contrast_numbers)
+    } else {
+      cont_control <- selectInput(id, "Contrast(s):", contrast_numbers)
+    }
+    
+    if (!show_controls) {
+      cont_control <- shinyjs::hidden(cont_control)
+    }
+    cont_control
+  } 
+}

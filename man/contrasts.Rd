@@ -6,7 +6,8 @@
 \usage{
 contrasts(input, output, session, eselist, getExperiment = NULL,
   selectMatrix = NULL, selectColData = NULL, getAssay = NULL,
-  getMetafields = NULL, multiple = FALSE, show_controls = TRUE)
+  getMetafields = NULL, multiple = FALSE, show_controls = TRUE,
+  default_min_foldchange = 2)
 }
 \arguments{
 \item{input}{Input object}
@@ -30,6 +31,8 @@ provided by selectMatrix. Probably returned by a call to the
 \item{multiple}{Allow selection of multiple contrasts?}
 
 \item{show_controls}{Show the controls for contrast selection?}
+
+\item{default_min_foldchange}{default value for the fold change filter}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 
