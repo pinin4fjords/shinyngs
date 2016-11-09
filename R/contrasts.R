@@ -20,7 +20,7 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE) {
+contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic_filters = TRUE) {
     
     ns <- NS(id)
 
@@ -34,8 +34,12 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE) {
     
     inputs <- pushToList(inputs, uiOutput(ns("contrast_filters")))
     
+    if (dynamic_filters){
+      inputs <- pushToList(inputs, actionButton(ns("addContrastFieldset"),"Add contrast field set")) 
+    }
+    
     if (summarise) {
-        inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE))
+        inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE, select_summary_type = FALSE))
     }
 
     inputs
@@ -75,17 +79,43 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     # Render the controls depending on currently selected experiment etc.
     
-    output$contrast_filters <- renderUI({
-      
-      ese <- getExperiment()
-      assay <- getAssay()
-      
-      summaries <- getSummaries()
-      contrasts <- getAllContrasts()
-      contrast_numbers <- getAllContrastsNumbers()
-      
-      makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows())
+    index <<- ''
+    
+    observeEvent(input$addContrastFieldset,{
+      print(index)
+      if (index == ''){
+        index <<- 1
+      }else{
+        index <<- index+1
+      }
+      output$contrast_filters <- renderUI({
+        
+        ese <- getExperiment()
+        assay <- getAssay()
+        
+        summaries <- getSummaries()
+        contrasts <- getAllContrasts()
+        contrast_numbers <- getAllContrastsNumbers()
+        
+        tagList(
+          lapply(1:index,function(i){
+            makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), index = i)
+          })
+        )
+      })
     })
+    
+     output$contrast_filters <- renderUI({
+       
+       ese <- getExperiment()
+       assay <- getAssay()
+       
+       summaries <- getSummaries()
+       contrasts <- getAllContrasts()
+       contrast_numbers <- getAllContrastsNumbers()
+       
+       makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), index = index)
+     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     

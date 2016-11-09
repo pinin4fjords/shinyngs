@@ -14,7 +14,7 @@
 #' @examples
 #' contrastsInput('test')
 
-summarisematrixInput <- function(id, allow_none = TRUE) {
+summarisematrixInput <- function(id, allow_none = TRUE, select_summary_type = TRUE) {
     
     ns <- NS(id)
     
@@ -23,8 +23,14 @@ summarisematrixInput <- function(id, allow_none = TRUE) {
         summaryoptions <- c(None = "none")
     }
     
-    inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
+    field <- inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
         selected = "none"), label = "Average type")
+    
+    if (! select_summary_type){
+      field <- shinyjs::hidden(field) 
+    }
+    
+    field
 }
 
 #' The server function of the summarisematrix module
