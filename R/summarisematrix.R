@@ -23,8 +23,8 @@ summarisematrixInput <- function(id, allow_none = TRUE) {
         summaryoptions <- c(None = "none")
     }
     
-    selectInput(ns("summaryType"), "Average type", c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
-        selected = "none")
+    inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
+        selected = "none"), label = "Average type")
 }
 
 #' The server function of the summarisematrix module

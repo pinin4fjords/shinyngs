@@ -293,3 +293,19 @@ na.replace <- function(vec, replacement = "NA") {
     
     vec
 } 
+
+#' Wrap a Shiny input so its label is displayed inline
+#'
+#' @param field_def A field definition with NULL set for the label property
+#' @param label Field label
+#' @param labelwidth With (in units out of 12) for label
+#'
+#' @return output A UI definition that can be passed to the shinyUI function.
+#' @export
+#'
+#' @examples
+#' inlineField(numericInput('foo', label = NULL, min = 0, max = 100, value = 50), 'FOO') 
+
+inlineField <- function(field_def, label, labelwidth = 6){
+  fluidRow(column(labelwidth, HTML(paste0('<b>',label,':</b>&nbsp;'))), column(12-labelwidth, field_def))
+}

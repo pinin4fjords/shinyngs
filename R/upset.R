@@ -26,7 +26,10 @@ upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
     upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, 
-        value = 20), selectInput(ns("group_by"), label = "Group by", choices = c("degree", "sets"), selected = "degree"), checkboxInput(ns("separate_by_direction"), 
+        value = 20), 
+        inlineField(selectInput(ns("group_by"), label = NULL, choices = c("degree", "sets"), selected = "degree"), label = 'Group by'), 
+        
+        checkboxInput(ns("separate_by_direction"), 
         label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("show_empty_intersections"), label = "Show empty intersections?", 
         value = TRUE))
     
@@ -226,5 +229,5 @@ upset <- function(input, output, session, eselist) {
 
 makeUpsetPlot <- function(list_input, nsets = 10, nintersects = 20, empty.intersections = FALSE, text.scale = 1.8, point.size = 3, group_by = "degree") {
     UpSetR::upset(fromList(list_input), nsets = nsets, nintersects = nintersects, order.by = "freq", empty.intersections = empty.intersections, 
-        text.scale = text.scale, group.by = group_by, point.size = point.size)
+        text.scale = text.scale, group.by = group_by, point.size = point.size, keep.order = TRUE)
 } 

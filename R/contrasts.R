@@ -30,8 +30,8 @@ contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRU
     if (allow_filtering) {
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
-        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), 
-            "Minimum absolute fold change", value = default_min_foldchange), uiOutput(ns("pvalMax")), uiOutput(ns("qvalMax"))))
+        inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), inlineField(numericInput(ns("fcMin"), 
+            NULL, value = default_min_foldchange), label = "Minimum absolute fold change"), uiOutput(ns("pvalMax")), uiOutput(ns("qvalMax"))))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
@@ -106,7 +106,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         assay <- getAssay()
         
         if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
-            numericInput(ns("qvalMax"), "Maximum q value", value = 0.1)
+          inlineField(numericInput(ns("qvalMax"), NULL, value = 0.1), label = "Maximum q value")
         } else {
             hiddenInput(ns("qvalMax"), 1)
         }
@@ -117,7 +117,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         assay <- getAssay()
         
         if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
-            numericInput(ns("pvalMax"), "Maximum p value", value = 0.05)
+          inlineField(numericInput(ns("pvalMax"), NULL, value = 0.05), label = "Maximum p value")
         } else {
             hiddenInput(ns("pvalMax"), 1)
         }
