@@ -328,7 +328,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     labelledContrastsTable <- reactive({
         
         cts <- filteredContrastsTables()
-        saveRDS(cts, file = "/tmp/cts.rds")
+
         # If we're going to tabulate results from more than one contrast, the tables will need info on the contrasts
         
         if (length(cts) > 1) {
