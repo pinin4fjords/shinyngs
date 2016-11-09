@@ -21,7 +21,7 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05, default_max_q = 0.1, allow_filtering = TRUE, 
+contrastsInput <- function(id, default_min_foldchange = 2, allow_filtering = TRUE, 
     summarise = TRUE) {
     
     ns <- NS(id)
@@ -32,8 +32,7 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
         
         inputs <- pushToList(inputs, checkboxInput(ns("filterRows"), "Filter rows", TRUE))
         inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true"), numericInput(ns("fcMin"), 
-            "Minimum absolute fold change", value = default_min_foldchange), numericInput(ns("pvalMax"), "Maximum p value", 
-            value = default_max_p), numericInput(ns("qvalMax"), "Maximum q value", value = default_max_q)))
+            "Minimum absolute fold change", value = default_min_foldchange), uiOutput(ns('pvalMax')), uiOutput(ns('qvalMax'))))
     } else {
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
@@ -71,13 +70,13 @@ contrastsInput <- function(id, default_min_foldchange = 2, default_max_p = 0.05,
 contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, selectColData = NULL, getAssay = NULL, getMetafields = NULL, 
     multiple = FALSE, show_controls = TRUE) {
     
+    ns <- session$ns
+  
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
     # Render the controls depending on currently selected experiment etc.
     
     output$contrasts <- renderUI({
-        
-        ns <- session$ns
         
         contrast_numbers <- getAllContrastsNumbers()
         
@@ -99,6 +98,30 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
             }
             cont_control
         }
+    })
+    
+    # Only some assays have associated stats
+    
+    output$qvalMax <- renderUI({
+        ese <- getExperiment()
+        assay <- getAssay()
+        
+        if ('qvals' %in% names(ese@tests[[assay]]) && ! is.null(ese@tests[[assay]]$qvals)){
+          numericInput(ns("qvalMax"), "Maximum q value", value = 0.1)
+        }else{
+          hiddenInput(ns("qvalMax"), 1)
+        }
+    })
+    
+    output$pvalMax <- renderUI({
+      ese <- getExperiment()
+      assay <- getAssay()
+      
+      if ('pvals' %in% names(ese@tests[[assay]]) && ! is.null(ese@tests[[assay]]$pvals)){
+        numericInput(ns("pvalMax"), "Maximum q value", value = 0.05)
+      }else{
+        hiddenInput(ns("pvalMax"), 1)
+      }
     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
@@ -348,11 +371,23 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         }
     })
     
+    # A summary table of differential expression
+    
+    makeDifferentialSetSummary <- reactive({
+      fcts <- filteredContrastsTables()
+      contrasts <- getAllContrasts()
+      
+      summary <- data.frame(do.call(rbind, contrasts))
+      colnames(summary) <- c('Variable', 'group 1', 'group 2')
+      summary[['Set size']] <- unlist(lapply(fcts, nrow))
+      summary
+    })
+    
     # Basic accessors for parameters
     
-    list(fcMin = fcMin, qvalMax = qvalMax, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames,  
+    list(fcMin = fcMin, qvalMax = qvalMax, getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames,  
         getContrastSamples = getContrastSamples, getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, 
-        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
+        filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable, makeDifferentialSetSummary = makeDifferentialSetSummary)
 }
 
 #' Calculate fold change between two vectors

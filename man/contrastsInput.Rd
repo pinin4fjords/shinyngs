@@ -4,15 +4,13 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(id, default_min_foldchange = 2, default_max_p = 0.05,
-  default_max_q = 0.1, allow_filtering = TRUE, summarise = TRUE)
+contrastsInput(id, default_min_foldchange = 2, allow_filtering = TRUE,
+  summarise = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
 
 \item{default_min_foldchange}{default value for the fold change filter}
-
-\item{default_max_q}{default value for the q value filter}
 
 \item{allow_filtering}{Provide the filtering fields? Can be disabled to
 produce unfiltered contrasts tables.}
@@ -21,6 +19,8 @@ produce unfiltered contrasts tables.}
 how values are summarised per group. Disabling this disables 
 summarisation, which may be the desired result for modules that just need
 to use the contrasts drop-down.}
+
+\item{default_max_q}{default value for the q value filter}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
