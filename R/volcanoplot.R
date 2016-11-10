@@ -187,7 +187,7 @@ volcanoplot <- function(input, output, session, eselist) {
     volcanoTable <- reactive({
         withProgress(message = "Compiling volcano plot data", value = 0, {
             
-            ct <- contrastsTables()[[1]]
+            ct <- selectedContrastsTables()[[1]]
             
             # q values of 0 cause trouble
             

@@ -248,7 +248,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
             assay_matrix <- getAssayMatrix()
             selected_matrix <- assay_matrix[selectRows(), selectSamples(), drop = FALSE]
             if (getSampleSelect() == "group" && getSummaryType() != "none") {
-                selected_matrix <- summarizeMatrix(selected_matrix, data.frame(selectColData())[[getSampleGroupVar()]], getSummaryType())
+                selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[getSampleGroupVar()]], getSummaryType())
             }
             
             # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
@@ -337,7 +337,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Return the list of reactive expressions we'll need to access the data
     
     list(getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, 
-        matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, 
+        matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, 
         getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, 
         getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields)
 }

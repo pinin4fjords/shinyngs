@@ -179,7 +179,7 @@ foldchangeplot <- function(input, output, session, eselist) {
         
         withProgress(message = "Compiling fold change plot data", value = 0, {
             
-            ct <- contrastsTables()[[1]]
+            ct <- selectedContrastsTables()[[1]]
             ct <- round(log2(ct[, 1:2]), 3)
             
             cont <- getSelectedContrasts()[[1]]
