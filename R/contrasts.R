@@ -35,7 +35,7 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
     inputs <- pushToList(inputs, uiOutput(ns("contrast_filters")))
     
     if (dynamic_filters){
-      inputs <- pushToList(inputs, actionButton(ns("addContrastFieldset"),"Add contrast field set")) 
+      inputs <- c(inputs, list( tags$div(id = ns('contrasts-placeholder')), actionButton(ns('insertBtn'), "Add filter"), actionButton(ns('removeBtn'), 'Remove filter') ))
     }
     
     if (summarise) {
@@ -79,43 +79,35 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     
     # Render the controls depending on currently selected experiment etc.
     
-    index <<- ''
+    inserted <- c()
     
-    observeEvent(input$addContrastFieldset,{
-      print(index)
-      if (index == ''){
-        index <<- 1
-      }else{
-        index <<- index+1
-      }
-      output$contrast_filters <- renderUI({
-        
-        ese <- getExperiment()
-        assay <- getAssay()
-        
-        summaries <- getSummaries()
-        contrasts <- getAllContrasts()
-        contrast_numbers <- getAllContrastsNumbers()
-        
-        tagList(
-          lapply(1:index,function(i){
-            makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), index = i)
-          })
-        )
-      })
+    observeEvent(
+      { getSummaries()
+        input$insertBtn},{
+
+      ese <- getExperiment()
+      contrasts <- getAllContrasts()
+      summaries <- getSummaries()
+      contrast_numbers <- getAllContrastsNumbers()
+      assay <- getAssay()
+      
+      btn <- input$insertBtn
+      
+      insertUI(
+        selector = paste0("#", ns("contrasts-placeholder")),
+        where = "beforeEnd",
+        ui = makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), index = btn)
+      )
+      inserted <<- c(paste0('contrast', btn), inserted)
+    }, ignoreNULL = FALSE)
+    
+    observeEvent(input$removeBtn, {
+      removeUI(
+        ## pass in appropriate div id
+        selector = paste0('#', inserted[length(inserted)])
+      )
+      inserted <<- inserted[-length(inserted)]
     })
-    
-     output$contrast_filters <- renderUI({
-       
-       ese <- getExperiment()
-       assay <- getAssay()
-       
-       summaries <- getSummaries()
-       contrasts <- getAllContrasts()
-       contrast_numbers <- getAllContrastsNumbers()
-       
-       makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), index = index)
-     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
     
@@ -159,8 +151,12 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Get the index of the currently selected contrast
     
     getSelectedContrastNumbers <- reactive({
-        validate(need(!is.null(input$contrasts), "Waiting for contrasts"))
-        as.numeric(input$contrasts)
+        cont_fields <- paste0('contrasts', 1:length(inserted)-1)
+        for (cf in cont_fields){
+          req(input[[cf]])
+        }
+        
+        as.numeric(unlist(lapply(cont_fields, function(cf) input[[cf]])))
     })
     
     # Get the actual contrasts to which the numbers from the interface pertain
@@ -224,25 +220,34 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         summaries
     })
     
-    # Filter the contrasts table by the fold change and q value filters
+    # Fetch the values from all the fold change filters
     
     fcMin <- reactive({
-        validate(need(input$fcMin, FALSE))
-        input$fcMin
+        fc_fields <- paste0('fcMin', 1:length(inserted)-1)
+        for (fcf in fc_fields){
+          req(input[[fcf]])
+        }
+        unlist(lapply(fc_fields, function(fcf) input[[fcf]]))
     })
     
     # Get current value of the q value filter
     
     qvalMax <- reactive({
-        validate(need(input$qvalMax, FALSE))
-        input$qvalMax
+        q_fields <- paste0('qvalMax', 1:length(inserted)-1)
+        for (qf in q_fields){
+          req(input[[qf]])
+        }
+        unlist(lapply(q_fields, function(qf) input[[qf]]))
     })
     
     # Get current value of the p value filter
     
     pvalMax <- reactive({
-        validate(need(input$pvalMax, FALSE))
-        input$pvalMax
+      p_fields <- paste0('pvalMax', 1:length(inserted)-1)
+      for (pf in p_fields){
+        req(input[[pf]])
+      }
+      unlist(lapply(p_fields, function(pf) input[[pf]]))
     })
     
     # Get current value of field which determines if the table should be filtered at all.
@@ -455,11 +460,11 @@ makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast
       qval_field)
     )
   }
-  if (index == ''){
-      contrast_field_set
-  }else{
-    tags$fieldset(tags$legend(paste('Contrast', index)), contrast_field_set, class = 'shinyngs-contrast')
-  }
+  #if (index == ''){
+  #    contrast_field_set
+  #}else{
+    tags$fieldset(id = paste0('contrast', index), tags$legend(paste('Contrast filter', (index+1))), contrast_field_set, class = 'shinyngs-contrast')
+  #}
 }
 
 #' Make a select field for picking one or more contrasts
