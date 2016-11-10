@@ -35,7 +35,7 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
     inputs <- pushToList(inputs, uiOutput(ns("contrast_filters")))
     
     if (dynamic_filters){
-      inputs <- c(inputs, list( tags$div(id = ns('contrasts-placeholder')), actionButton(ns('insertBtn'), "Add filter"), actionButton(ns('removeBtn'), 'Remove filter'), actionButton(ns('applyBtn'), 'Apply filters') ))
+      inputs <- c(inputs, list( tags$div(id = ns('contrasts-placeholder')), actionButton(ns('insertBtn'), "+"), HTML('&nbsp;'), actionButton(ns('removeBtn'), '-'),HTML('&nbsp;'), actionButton(ns('applyBtn'), 'Apply') ))
     }
     
     if (summarise) {
@@ -67,6 +67,8 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
 #'
 #' @keywords shiny
 #' 
+#' @import data.table
+#' 
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
@@ -80,12 +82,13 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Render the controls depending on currently selected experiment etc.
     
     inserted <- c()
-    
-    makeReactiveBinding("filterset_values")
     filterset_values <- list()
+    makeReactiveBinding("filterset_values")
+    
     
     observeEvent(
       {
+        getSummaries()
         input$insertBtn},{
           
           print(paste("Firing"))
@@ -98,6 +101,8 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
       
       btn <- length(inserted)
       
+
+      
       insertUI(
         selector = paste0("#", ns("contrasts-placeholder")),
         where = "beforeEnd",
@@ -105,43 +110,24 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
       )
       inserted <<- c(inserted, paste0('contrast', btn))
       
+      
       # Now add observers for each new element
       
       filterId <- paste0('filter', btn)
-      qvalfilterId <- ns(paste0('qvalMax', btn))
-      print(paste("Will observe event", qvalfilterId))
       
-      observeEvent(input[[qvalfilterId]], {
-        
-        req(input[[qvalfilterId]])
-        print(paste("Observing a q value of", input[[qvalfilterId]], 'class', class(input[[qvalfilterId]]) ))
-        qval <- input[[qvalfilterId]]
-        
-        filterset_values[[filterId]]$qval <<- qval
-        
-      }, ignoreNULL = FALSE)
-      
-      
-      
+      lapply(c('contrasts', 'fcMin', 'qvalMax', 'pvalMax'), function(field){
+        filter_field_id <- paste0(field, btn)
+        observeEvent(input[[filter_field_id]], {
+          if (is.null(filterset_values[[filterId]])){
+            filterset_values[[filterId]] <<- list()
+          }
+          filterset_values[[filterId]][[field]] <<- input[[filter_field_id]]
+        }, ignoreNULL = FALSE) 
+      })
       
     }, ignoreNULL = FALSE)
     
-    # Get current value of the q value filter
-    
-    qvalMax <- reactive({
-      # q_fields <- paste0('qvalMax', 1:length(inserted)-1)
-      # for (qf in q_fields){
-      #   req(input[[qf]])
-      # }
-      # print(paste('Calculating based on', length(q_fields), 'filters'))
-      # unlist(lapply(q_fields, function(qf) input[[qf]]))
-      
-      
-      
-      qvals <- unlist(lapply(filterset_values, function(x) x$qvals))
-      print(paste('I have', length(qvals), 'q values'))
-      qvals
-    })
+
     
     observeEvent(input$removeBtn, {
       if (length(inserted) > 1){
@@ -150,6 +136,9 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
           selector = paste0('#', inserted[length(inserted)])
         )
         inserted <<- inserted[-length(inserted)]
+        
+        filterset_values[[filterId]] <<- NULL
+        
       }
     })
     
@@ -195,12 +184,14 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Get the index of the currently selected contrasts for each filter set
     
     getSelectedContrastNumbers <- reactive({
-        cont_fields <- paste0('contrasts', 1:length(inserted)-1)
-        for (cf in cont_fields){
-          req(input[[cf]])
-        }
-        
-        lapply(cont_fields, function(cf) input[[cf]])
+        # cont_fields <- paste0('contrasts', 1:length(inserted)-1)
+        # for (cf in cont_fields){
+        #   req(input[[cf]])
+        # }
+        # 
+        # lapply(cont_fields, function(cf) input[[cf]])
+        saveRDS(filterset_values, file = '/tmp/filterset_values.rds')
+        lapply(filterset_values, function(x) x$contrasts)
     })
     
     # Get the actual contrasts to which the numbers from the interface pertain
@@ -284,24 +275,45 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Fetch the values from all the fold change filters
     
     fcMin <- reactive({
-        fc_fields <- paste0('fcMin', 1:length(inserted)-1)
-        for (fcf in fc_fields){
-          req(input[[fcf]])
-        }
-        print(paste('Calculating based on', length(fc_fields), 'filters'))
-        unlist(lapply(fc_fields, function(fcf) input[[fcf]]))
+        # fc_fields <- paste0('fcMin', 1:length(inserted)-1)
+        # for (fcf in fc_fields){
+        #   req(input[[fcf]])
+        # }
+        # print(paste('Calculating based on', length(fc_fields), 'filters'))
+        # unlist(lapply(fc_fields, function(fcf) input[[fcf]]))
+      
+        unlist(lapply(filterset_values, function(x) x$fcMin))
     })
     
-
+    # Get current value of the q value filter
+    
+    qvalMax <- reactive({
+      # q_fields <- paste0('qvalMax', 1:length(inserted)-1)
+      # for (qf in q_fields){
+      #   req(input[[qf]])
+      # }
+      # print(paste('Calculating based on', length(q_fields), 'filters'))
+      # unlist(lapply(q_fields, function(qf) input[[qf]]))
+      
+      
+      
+      #qvals <- unlist(lapply(filterset_values, function(x) x$qvalMax))
+      #print(paste('I have', length(qvals), 'q values:', paste(qvals, collapse = ',')))
+      #qvals
+      
+      unlist(lapply(filterset_values, function(x) x$qvalMax))
+    })
     
     # Get current value of the p value filter
     
     pvalMax <- reactive({
-      p_fields <- paste0('pvalMax', 1:length(inserted)-1)
-      for (pf in p_fields){
-        req(input[[pf]])
-      }
-      unlist(lapply(p_fields, function(pf) input[[pf]]))
+      # p_fields <- paste0('pvalMax', 1:length(inserted)-1)
+      # for (pf in p_fields){
+      #   req(input[[pf]])
+      # }
+      # unlist(lapply(p_fields, function(pf) input[[pf]]))
+      
+      unlist(lapply(filterset_values, function(x) x$pvalMax))
     })
     
     # Get current value of field which determines if the table should be filtered at all.
@@ -328,7 +340,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
       
       #validate(need(all(unlist(lapply(selected_contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))), "Matching summaries and contrasts"))
       
-      withProgress(message = "Calculating summary data", value = 0, {
+      withProgress(message = "Calculating contrast tables", value = 0, {
         
         contrast_tables <- lapply(names(contrasts), function(c) {
           
@@ -381,16 +393,21 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         # Selected contrasts is a list, one for each filter set. Each one can 
         # have multiple contrasts
         
-        lapply(selected_contrasts, function(scs_set){
-          lapply(scs_set, function(s){
-            contrast_tables[[s]]
+        withProgress(message = "Filtering to specified features", value = 0, {
+        
+          lapply(selected_contrasts, function(scs_set){
+            lapply(scs_set, function(s){
+              contrast_tables[[s]]
+            })
           })
+          
         })
     })
     
-    # Apply user filters to results of contrastsTables()
+    # Apply user filters to results of contrastsTables(). Called on first page
+    # load and on subsequent clicks of 'Apply'.
     
-    filteredContrastsTables <- reactive({
+    filteredContrastsTables <- eventReactive({input$applyBtn}, {
       
         selected_contrasts_tables <- selectedContrastsTables()
         
@@ -401,7 +418,9 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
           fc_min <- fcMin()
           pval_max <- pvalMax()
           qval_max <- qvalMax()
-        
+          
+          withProgress(message = "Applying filters", value = 0, {
+
           lapply(1:length(selected_contrasts_tables), function(i){
             sct <- selected_contrasts_tables[[i]]
             
@@ -415,10 +434,13 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
               s[filter,,drop = FALSE]
             })
           })
+          
+          })
+          
         }else{
           selected_contrasts_tables
         }
-    })
+    }, ignoreNULL = FALSE)
     
     # The final contrast table will be, for all
     
@@ -431,36 +453,24 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     selectFinalFeatures <- reactive({
       filtered_contrasts_tables <- filteredContrastsTables()
 
+      withProgress(message = "Selecting final feature set", value = 0, {
       Reduce(get(filterSetCombinationOperator()), lapply(filtered_contrasts_tables, function(fcts){
           Reduce(intersect, lapply(fcts, function(fct){
             rownames(fct)
           }))
       }))
+      })
     })
     
     # The output of filteredContrastsTables() are significant results for each
     # filter set, and each contrast within those. 
     
-    # finalContrastsTable <- reactive({
-    #   
-    #   sff <- selectFinalFeatures()
-    #   filtered_contrast_tables <- filteredContrastsTables()
-    #   
-    #   final_contrasts_table <- unique(data.table::rbindlist(lapply(filtered_contrast_tables, function(fcts){
-    #     data.table::rbindlist(lapply(fcts, function(fct){
-    #         fct[sff,,drop = FALSE]
-    #       }))
-    #   })))
-    #   
-    #   validate(need(nrow(final_contrasts_table) > 0, "No results matching specified filters"))
-    #   
-    #   final_contrasts_table
-    # })
-    
-    labelledContrastsTable <- eventReactive(input$applyBtn, {
+    labelledContrastsTable <- reactive({
       
       ese <- getExperiment()
       sff <- selectFinalFeatures()
+      #validate(need(nrow(sff) > 0, 'No results matching specified criteria'))
+      
       filtered_contrast_tables <- filteredContrastsTables()
       
       print(paste("Making final table based on", length(filtered_contrast_tables), "filter sets"))
@@ -470,11 +480,14 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         metafields <- getMetafields()
       }
       
+      withProgress(message = "Making labelled table", value = 0, {
+      
       final_contrasts_table <- unique(data.table::rbindlist(lapply(filtered_contrast_tables, function(fcts){
         data.table::rbindlist(lapply(fcts, function(fct){
           labelMatrix(fct[sff,,drop = FALSE], ese = ese, metafields = metafields)
         }))
       })))
+      })
     })
     
     
@@ -617,10 +630,12 @@ makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast
       qval_field)
     )
   }
-  #if (index == ''){
+  if (index > 0){
+    contrast_field_set <- c(HTML(as.character(tags$p('AND'))), contrast_field_set)
+  }
   #    contrast_field_set
   #}else{
-    tags$fieldset(id = paste0('contrast', index), tags$legend(paste('Contrast filter', (index+1))), contrast_field_set, class = 'shinyngs-contrast')
+    tags$fieldset(id = paste0('contrast', index), contrast_field_set, class = 'shinyngs-contrast')
   #}
 }
 
