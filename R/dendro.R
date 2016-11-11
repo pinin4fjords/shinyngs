@@ -175,7 +175,8 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     
     if (is.null(colorby)) {
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40)), show.legend = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax/40)), 
+            show.legend = F)
         
         p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax/3), ymax)
         
@@ -189,8 +190,8 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
         labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], "N/A")))
         shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
         
-        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), colour = colorby), 
-            show.legend = F)
+        p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(5), aes_string(label = "label", x = "x", y = -(ymax/40), 
+            colour = colorby), show.legend = F)
         
         total_axis_size = ymax * (1/(1 - labelspace))
         
@@ -206,7 +207,8 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     if (!is.null(colorby)) {
         p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]]))/2)))
     }
-    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
+    print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + 
+        ggtitle(plot_title))
 }
 
 #' Calculate a distance matrix based on correlation

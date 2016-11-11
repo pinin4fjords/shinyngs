@@ -35,16 +35,16 @@ volcanoplotInput <- function(id, eselist) {
     })))]
     expression_filters <- selectmatrixInput(ns("expression"), eselist, require_tests = TRUE)
     
-    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an
-    # empty fieldset for them
+    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in
+    # creating an empty fieldset for them
     
     fieldsets <- list()
     if (length(eselist) > 1) {
         fieldsets$expression_matrix <- expression_filters
     }
     
-    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("volcano")), highlight_points = geneselectInput(ns("volcano")), 
-        export = simpletableInput(ns("volcanotable"))))
+    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("volcano")), 
+        highlight_points = geneselectInput(ns("volcano")), export = simpletableInput(ns("volcanotable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -128,8 +128,8 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -160,8 +160,8 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1], na.rm = TRUE)
             xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
-            data.frame(name = c(rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 2), rep(paste("q <", qvalMax()), 2)), 
-                x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 2)))
+            data.frame(name = c(rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 2), rep(paste("q <", qvalMax()), 
+                2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 2)))
         })
         
     })
@@ -198,8 +198,8 @@ volcanoplot <- function(input, output, session, eselist) {
             ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
             
             cont <- getSelectedContrasts()[[1]]
-            colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), sep = "  "), 
-                "-log10(q value)")
+            colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), 
+                sep = "  "), "-log10(q value)")
             
             fct <- filteredContrastsTables()[[1]]
             ct$colorby <- "hidden"
@@ -215,7 +215,7 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", 
-        rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
+        filename = "volcano", rownames = FALSE, pageLength = 10)
     
 } 

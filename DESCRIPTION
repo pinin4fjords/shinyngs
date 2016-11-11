@@ -11,7 +11,7 @@ License: MIT
 LazyData: true
 Imports:
     d3heatmap,
-    DT,
+    DT (>= 0.2),
     ggdendro,
     GSEABase,
     pheatmap,

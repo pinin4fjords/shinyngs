@@ -25,13 +25,10 @@
 upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
-    upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, 
-        value = 20), 
-        inlineField(selectInput(ns("group_by"), label = NULL, choices = c("degree", "sets"), selected = "degree"), label = 'Group by'), 
-        
-        checkboxInput(ns("separate_by_direction"), 
-        label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("show_empty_intersections"), label = "Show empty intersections?", 
-        value = TRUE))
+    upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, 
+        step = 1, value = 20), inlineField(selectInput(ns("group_by"), label = NULL, choices = c("degree", "sets"), selected = "degree"), 
+        label = "Group by"), checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", value = TRUE), 
+        checkboxInput(ns("show_empty_intersections"), label = "Show empty intersections?", value = TRUE))
     
     fieldSets(ns("fieldset"), list(intersections = upset_fields, expression = selectmatrixInput(ns("upset"), eselist), contrasts = contrastsInput(ns("upset")), 
         export = plotdownloadInput(ns("upset"), "UpSet Plot")))
@@ -67,8 +64,8 @@ upsetOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("upset"), "help", "help"), modalOutput(ns("upset"), "Intersection plots with UpSet", includeMarkdown(system.file("inlinehelp", 
-        "upset.md", package = packageName()))), h3("Intersection of differential sets"), plotOutput(ns("upset"), height = "600px"), uiOutput(ns("differential_parameters")), 
-        simpletableOutput(ns("upset")))
+        "upset.md", package = packageName()))), h3("Intersection of differential sets"), plotOutput(ns("upset"), height = "600px"), 
+        uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset")))
 }
 
 #' The server function of the upstart module
@@ -106,8 +103,8 @@ upset <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "upset", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = TRUE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "upset", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
+        getAssay = getAssay, multiple = TRUE, getMetafields = getMetafields, selectColData = selectColData))
     
     ############################################################################# Render dynamic fields
     
@@ -123,7 +120,8 @@ upset <- function(input, output, session, eselist) {
         fc_min <- fcMin()
         qval_max <- qvalMax()
         
-        message <- paste0("Summary of all ", experiment_id, "s in assay \"", assay, "\" differential by a fold change threshold of ", fc_min)
+        message <- paste0("Summary of all ", experiment_id, "s in assay \"", assay, "\" differential by a fold change threshold of ", 
+            fc_min)
         
         if (qval_max < 1) {
             message <- paste0(message, " and a q value threshold of ", qval_max)
@@ -159,33 +157,33 @@ upset <- function(input, output, session, eselist) {
     # Look at the contrasts and remove any contrast with no differential features
     
     getValidSets <- reactive({
-      withProgress(message = "Deriving input sets", value = 0, {
-        fcts <- filteredContrastsTables()
-        names(fcts) <- getSafeSelectedContrastNames()
-        fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
-        
-        # If specified by the user, separate gene sets into 'up' and 'down' for each contrast
-        
-        if (input$separate_by_direction) {
-            fcts <- unlist(lapply(fcts, function(x) {
-                y <- split(x, x[["Fold change"]] > 0)
-                names(y) <- c("down", "up")
-                y
-            }), recursive = FALSE)
+        withProgress(message = "Deriving input sets", value = 0, {
+            fcts <- filteredContrastsTables()
+            names(fcts) <- getSafeSelectedContrastNames()
+            fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
+            
+            # If specified by the user, separate gene sets into 'up' and 'down' for each contrast
+            
+            if (input$separate_by_direction) {
+                fcts <- unlist(lapply(fcts, function(x) {
+                  y <- split(x, x[["Fold change"]] > 0)
+                  names(y) <- c("down", "up")
+                  y
+                }), recursive = FALSE)
+                
+                fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
+            }
             
             fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
-        }
-        
-        fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
-        lapply(fcts, rownames)
-      })
+            lapply(fcts, rownames)
+        })
     })
     
     output$upset <- renderPlot({
         data <- getValidSets()
         validate(need(!is.null(data), "Parsing data"))
         withProgress(message = "Making UpSet plot", value = 0, {
-          makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
+            makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
         })
     })
     
@@ -197,8 +195,8 @@ upset <- function(input, output, session, eselist) {
     
     # Create a table with simpletable
     
-    callModule(simpletable, "upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, filter = "none", 
-        filename = "differential_summary", rownames = FALSE)
+    callModule(simpletable, "upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, 
+        filter = "none", filename = "differential_summary", rownames = FALSE)
     
     # Call to plotdownload module to provide plot as a download
     
@@ -227,7 +225,8 @@ upset <- function(input, output, session, eselist) {
 #' 
 #' Gehlenborg N (2016). <em>UpSetR: A More Scalable Alternative to Venn and Euler Diagrams for Visualizing Intersecting Sets</em>. R package version 1.3.0, \url{https://CRAN.R-project.org/package=UpSetR}
 
-makeUpsetPlot <- function(list_input, nsets = 10, nintersects = 20, empty.intersections = FALSE, text.scale = 1.8, point.size = 3, group_by = "degree") {
+makeUpsetPlot <- function(list_input, nsets = 10, nintersects = 20, empty.intersections = FALSE, text.scale = 1.8, point.size = 3, 
+    group_by = "degree") {
     UpSetR::upset(fromList(list_input), nsets = nsets, nintersects = nintersects, order.by = "freq", empty.intersections = empty.intersections, 
         text.scale = text.scale, group.by = group_by, point.size = point.size, keep.order = TRUE)
 } 

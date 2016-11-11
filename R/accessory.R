@@ -292,7 +292,7 @@ na.replace <- function(vec, replacement = "NA") {
     }
     
     vec
-} 
+}
 
 #' Wrap a Shiny input so its label is displayed inline
 #'
@@ -306,6 +306,6 @@ na.replace <- function(vec, replacement = "NA") {
 #' @examples
 #' inlineField(numericInput('foo', label = NULL, min = 0, max = 100, value = 50), 'FOO') 
 
-inlineField <- function(field_def, label, labelwidth = 6){
-  fluidRow(column(labelwidth, HTML(paste0('<b>',label,':</b>&nbsp;'))), column(12-labelwidth, field_def))
-}
+inlineField <- function(field_def, label, labelwidth = 6) {
+    fluidRow(column(labelwidth, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(12 - labelwidth, field_def))
+} 

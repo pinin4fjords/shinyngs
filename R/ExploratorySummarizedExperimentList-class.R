@@ -13,8 +13,8 @@
 #' @export
 
 setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", 
-    description = "character", group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", 
-    ensembl_species = "character"))
+    description = "character", group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", 
+    gene_sets = "list", ensembl_species = "character"))
 
 # Subset operator for integer type like 1:2
 
@@ -113,7 +113,8 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
             
             gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
                 
-                # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named properly
+                # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets
+                # named properly
                 
                 gsc <- lapply(gene_set_collection, function(gene_set) {
                   set_gene_ids <- as.integer(GSEABase::geneIds(gene_set))
@@ -128,6 +129,6 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
         gene_sets <- gene_sets_by_name
     }
     
-    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, default_groupvar = default_groupvar, 
-        contrasts = contrasts, url_roots = url_roots, gene_sets = gene_sets, ensembl_species = ensembl_species)
+    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, 
+        default_groupvar = default_groupvar, contrasts = contrasts, url_roots = url_roots, gene_sets = gene_sets, ensembl_species = ensembl_species)
 } 
