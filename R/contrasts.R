@@ -32,12 +32,48 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
         inputs <- pushToList(inputs, shinyjs::hidden(checkboxInput(ns("filterRows"), "Filter rows", FALSE)))
     }
     
-    inputs <- pushToList(inputs, uiOutput(ns("contrast_filters")))
+    # Contrasts filters added by the observeEvent() in the server function. If
+    # no dynamic filters are to be provided, then all we need to do is provide
+    # a placeholder and a single set of filters will be provided when the page
+    # loads. If dynamic filters ARE to be provided, then some other buttons 
+    # etc are required.
     
-    if (dynamic_filters){
-      inputs <- c(inputs, list( tags$div(id = ns('contrasts-placeholder')), actionButton(ns('insertBtn'), "+"), HTML('&nbsp;'), actionButton(ns('removeBtn'), '-'),HTML('&nbsp;'), actionButton(ns('applyBtn'), 'Apply') ))
+    contrast_filters <- list(tags$div(id = ns('contrasts-placeholder')))
+    
+    
+    if (dynamic_filters) {
+      contrast_filters <-
+        c(
+          list(
+            helpText('Build up a complex query by adding filters below'),
+            hr()
+          ),
+          contrast_filters,
+          list(
+            hr(),
+            inlineField(selectInput(
+              ns('combine_operator'),
+              NULL,
+              c(and = 'intersect', or = 'union')
+            ), label = 'Combine using', 8),
+            
+            actionButton(ns('insertBtn'), "+"),
+            HTML('&nbsp;'),
+            actionButton(ns('removeBtn'), '-'),
+            HTML('&nbsp;'),
+            actionButton(ns('applyBtn'), 'Apply')
+          )
+        )
+    }else{
+      contrast_filters <- pushToList(contrast_filters, hiddenInput(ns('combine_operator'), 'intersect')) 
     }
     
+     inputs <- pushToList(inputs, conditionalPanel(
+       condition = paste0("input['", ns("filterRows"), "'] == true "),
+       contrast_filters
+       ))
+    
+
     if (summarise) {
         inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE, select_summary_type = FALSE))
     }
@@ -72,10 +108,12 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, getExperiment = NULL, selectMatrix = NULL, selectColData = NULL, getAssay = NULL, getAssayMatrix = NULL, getMetafields = NULL, 
+contrasts <- function(input, output, session, eselist, selectmatrix_reactives = list(),
     multiple = FALSE, show_controls = TRUE, default_min_foldchange = 2) {
     
     ns <- session$ns
+    
+    unpack.list(selectmatrix_reactives)
     
     getSummaryType <- callModule(summarisematrix, "contrasts")
     
@@ -90,6 +128,11 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
       {
         getSummaries()
         input$insertBtn},{
+          
+
+          
+          
+          
           
           print(paste("Firing"))
 
@@ -125,6 +168,10 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         }, ignoreNULL = FALSE) 
       })
       
+          
+      
+      
+      
     }, ignoreNULL = FALSE)
     
 
@@ -137,8 +184,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
         )
         inserted <<- inserted[-length(inserted)]
         
-        filterset_values[[filterId]] <<- NULL
-        
+        filterset_values[[length(filterset_values)]] <<- NULL
       }
     })
     
@@ -407,7 +453,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Apply user filters to results of contrastsTables(). Called on first page
     # load and on subsequent clicks of 'Apply'.
     
-    filteredContrastsTables <- eventReactive({input$applyBtn}, {
+    filteredContrastsTables <- reactive({
       
         selected_contrasts_tables <- selectedContrastsTables()
         
@@ -421,7 +467,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
           
           withProgress(message = "Applying filters", value = 0, {
 
-          lapply(1:length(selected_contrasts_tables), function(i){
+          fcts <- lapply(1:length(selected_contrasts_tables), function(i){
             sct <- selected_contrasts_tables[[i]]
             
             lapply(sct, function(s){
@@ -438,14 +484,15 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
           })
           
         }else{
-          selected_contrasts_tables
+          fcts <- selected_contrasts_tables
         }
-    }, ignoreNULL = FALSE)
+        fcts
+    })
     
     # The final contrast table will be, for all
     
     filterSetCombinationOperator <- reactive({
-      'intersect'
+      input$combine_operator
     })
 
     # Find the list of features that result from combining all the filters
@@ -481,7 +528,7 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
       }
       
       withProgress(message = "Making labelled table", value = 0, {
-      
+      print("making labelled table")
       final_contrasts_table <- unique(data.table::rbindlist(lapply(filtered_contrast_tables, function(fcts){
         data.table::rbindlist(lapply(fcts, function(fct){
           labelMatrix(fct[sff,,drop = FALSE], ese = ese, metafields = metafields)
@@ -531,11 +578,14 @@ contrasts <- function(input, output, session, eselist, getExperiment = NULL, sel
     # Use labelledContrastsTable to get the labelled matrix and add some links.
     
     linkedLabelledContrastsTable <- reactive({
+        print("linking table")
         if (length(eselist@url_roots) > 0) {
-            linkMatrix(labelledContrastsTable(), eselist@url_roots)
+            lct <- linkMatrix(labelledContrastsTable(), eselist@url_roots)
         } else {
-            labelledContrastsTable()
+            lct <- labelledContrastsTable()
         }
+        print("done linking")
+        lct
     })
     
     # A summary table of differential expression
@@ -630,13 +680,9 @@ makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast
       qval_field)
     )
   }
-  if (index > 0){
-    contrast_field_set <- c(HTML(as.character(tags$p('AND'))), contrast_field_set)
-  }
-  #    contrast_field_set
-  #}else{
+
     tags$fieldset(id = paste0('contrast', index), contrast_field_set, class = 'shinyngs-contrast')
-  #}
+
 }
 
 #' Make a select field for picking one or more contrasts

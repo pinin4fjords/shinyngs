@@ -83,12 +83,13 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE))
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, getAssayMatrix = getAssayMatrix, 
-        multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, 
+        multiple = FALSE))
     
     # Pass the matrix to the simpletable module for display
     

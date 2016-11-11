@@ -48,4 +48,11 @@ overriding the z-index we need from bootstrap.css  */
 
 /* Contrast field sets */
 
+.shinyngs-and{
+  text-align: center;
+  background-color:#F5F5F5;
+  border-color:#DDDDDD;
+  color:#333333;
+}
+
 
