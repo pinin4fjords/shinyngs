@@ -23,9 +23,8 @@ illuminaarrayqcInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("illuminaarrayqc"), eselist[names(eselist) == "control"])
     
-    fieldSets(ns("fieldset"), list(quality_checks = tags$ul(tags$li("cy3_high > cy3_med > cy3_low"), tags$li("low stringency =~ 0"), 
-        tags$li("high stringency <= cy3 high"), tags$li("housekeeping = high"), tags$li("biotin = high"), tags$li("negative =~ 0")), 
-        `table fields` = expression_filters, export = simpletableInput(ns("qctable"))))
+    fieldSets(ns("fieldset"), list(quality_checks = tags$ul(tags$li("cy3_high > cy3_med > cy3_low"), tags$li("low stringency =~ 0"), tags$li("high stringency <= cy3 high"), 
+        tags$li("housekeeping = high"), tags$li("biotin = high"), tags$li("negative =~ 0")), `table fields` = expression_filters, export = simpletableInput(ns("qctable"))))
 }
 
 #' The output function of the illuminaarrayqc module
@@ -51,8 +50,8 @@ illuminaarrayqcOutput <- function(id) {
     ns <- NS(id)
     
     list(modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", 
-        includeMarkdown(system.file("inlinehelp", "illuminaarrayqc.md", package = packageName()))), h3("Illumina microarray QC plot"), 
-        plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"), simpletableOutput(ns("qctable")))
+        includeMarkdown(system.file("inlinehelp", "illuminaarrayqc.md", package = packageName()))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), 
+        height = 600), h4("Table of data"), simpletableOutput(ns("qctable")))
 }
 
 #' The server function of the illuminaarrayqc module
@@ -95,10 +94,10 @@ illuminaarrayqc <- function(input, output, session, eselist) {
             colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
         })))
         
-        group_by(plotdata, Var2) %>% plot_ly() %>% add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c("red", "red", "red", 
-            "orange", "orange", "black", "purple", "blue", "green"), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", 
-            "solid", "solid", "solid", "solid", "solid")) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", 
-            title = ""), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>% config(showLink = TRUE)
+        group_by(plotdata, Var2) %>% plot_ly() %>% add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c("red", "red", "red", "orange", 
+            "orange", "black", "purple", "blue", "green"), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", 
+            "solid", "solid", "solid")) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = ""), 
+            yaxis = list(title = "Intensity"), margin = list(b = 200)) %>% config(showLink = TRUE)
     })
     
     # Render the table and provide for download, using the simpletable module.

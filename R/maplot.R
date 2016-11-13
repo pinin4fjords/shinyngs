@@ -32,16 +32,16 @@ maplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an
-    # empty fieldset for them
+    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty
+    # fieldset for them
     
     fieldsets <- list()
     if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
         fieldsets$expression_matrix <- expression_filters
     }
     
-    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("ma")), 
-        highlight_points = geneselectInput(ns("ma")), export = simpletableInput(ns("matable"))))
+    fieldsets <- c(fieldsets, list(contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("ma")), highlight_points = geneselectInput(ns("ma")), 
+        export = simpletableInput(ns("matable"))))
     
     inputs <- list(fieldSets(ns("fieldset"), fieldsets))
     
@@ -79,8 +79,8 @@ maplotInput <- function(id, eselist) {
 maplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("maplot"), "help", "help"), modalOutput(ns("maplot"), "MA plots", includeMarkdown(system.file("inlinehelp", 
-        "maplot.md", package = packageName()))), h3("MA plot"), scatterplotOutput(ns("ma")), htmlOutput(ns("matable")))
+    list(modalInput(ns("maplot"), "help", "help"), modalOutput(ns("maplot"), "MA plots", includeMarkdown(system.file("inlinehelp", "maplot.md", 
+        package = packageName()))), h3("MA plot"), scatterplotOutput(ns("ma")), htmlOutput(ns("matable")))
 }
 
 #' The server function of the \code{maplot} module
@@ -118,12 +118,14 @@ maplot <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, 
+        provide_all_genes = TRUE)
     unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_min_foldchange = 1))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, 
+        default_min_foldchange = 1))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -132,59 +134,51 @@ maplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "ma", getDatamatrix = maTable, getTitle = getTitle, allow_3d = FALSE, getLabels = maLabels, 
-        x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    callModule(scatterplot, "ma", getDatamatrix = maTable, getTitle = getTitle, allow_3d = FALSE, getLabels = maLabels, x = 1, y = 2, colorBy = colorBy, 
+        getLines = plotLines)
     
     
     # Make a title by selecting the single contrast name of the single filter set
     
     getTitle <- reactive({
-      contrast_names <- getSelectedContrastNames()
-      contrast_names[[1]][[1]]
+        contrast_names <- getSelectedContrastNames()
+        contrast_names[[1]][[1]]
     })
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
     plotLines <- reactive({
-      withProgress(message = "Calculating lines", value = 0, {
+        withProgress(message = "Calculating lines", value = 0, {
+            
+            mat <- maTable()
+            
+            fclim <- getFoldChange()
+            
+            normal_y <- !is.infinite(mat[, 2])
+            normal_x <- !is.infinite(mat[, 1])
+            
+            ymax <- max(mat[normal_y, 2], na.rm = TRUE)
+            ymin <- min(mat[normal_y, 2], na.rm = TRUE)
+            
+            xmax <- max(mat[normal_x, 1], na.rm = TRUE)
+            xmin <- min(mat[normal_x, 1], na.rm = TRUE)
+            
+            lines <- data.frame(name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(xmin, 
+                xmax, xmin, xmax), y = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2)))
+            
+            # Use lines dependent on how the fold change filter is applied
+            
+            fccard <- getFoldChangeCard()
+            if (fccard %in% c("> or <-", "< and >-")) {
+                lines
+            } else if (fccard == "<" && sign(fclim) == "-1") {
+                droplevels(lines[c(1, 2), ])
+            } else {
+                droplevels(lines[c(3, 4), ])
+            }
+            
+        })
         
-        mat <- maTable()
-        
-        fclim <- getFoldChange()
-        
-        normal_y <- !is.infinite(mat[, 2])
-        normal_x <- !is.infinite(mat[, 1])
-        
-        ymax <- max(mat[normal_y, 2], na.rm = TRUE)
-        ymin <- min(mat[normal_y, 2], na.rm = TRUE)
-        
-        xmax <- max(mat[normal_x, 1], na.rm = TRUE)
-        xmin <- min(mat[normal_x, 1], na.rm = TRUE)
-        
-        lines <-
-          data.frame(
-            name = c(rep(paste0(
-              abs(fclim), "-fold down"
-            ), 2), rep(paste0(
-              abs(fclim), "-fold up"
-            ), 2)),
-            x = c(xmin, xmax, xmin, xmax),
-            y = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2))
-          )
-      
-        # Use lines dependent on how the fold change filter is applied
-        
-        fccard <- getFoldChangeCard()
-        if (fccard %in% c('> or <-', '< and >-')){
-          lines
-        }else if (fccard == '<' && sign(fclim) == '-1'){
-          droplevels(lines[c(1,2),])
-        }else{
-          droplevels(lines[c(3,4),])
-        }
-        
-      })
-      
     })
     
     
@@ -228,7 +222,7 @@ maplot <- function(input, output, session, eselist) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "matable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
-        filename = "ma", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "matable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "ma", 
+        rownames = FALSE, pageLength = 10)
     
 } 

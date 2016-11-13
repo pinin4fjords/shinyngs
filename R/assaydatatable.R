@@ -101,6 +101,6 @@ assaydatatable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, 
-        filename = getAssay(), rownames = FALSE)
+    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), 
+        rownames = FALSE)
 } 

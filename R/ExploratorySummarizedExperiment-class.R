@@ -17,8 +17,8 @@ setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperim
     labelfield = "character", tests = "list", assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
-    as((as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", 
-        "SummarizedExperiment0"))), "ExploratorySummarizedExperiment")
+    as((as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))), 
+        "ExploratorySummarizedExperiment")
 })
 
 #' ExploratorySummarizedExperiments
@@ -68,7 +68,6 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
     
-    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, 
-        assay_measures = assay_measures, tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, 
-        read_reports = read_reports)
+    new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, 
+        tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports)
 } 

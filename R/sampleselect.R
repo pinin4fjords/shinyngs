@@ -45,15 +45,15 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
         # We can select by sample in any case
         
         inputs <- list(h5("Select samples/ columns"), selectInput(ns("sampleSelect"), "Select samples by", selectby, selected = selectby[length(selectby)]), 
-            conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), 
-                "Samples:", colnames(ese), selected = colnames(ese), inline = TRUE)))
+            conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'name' "), checkboxGroupInput(ns("samples"), "Samples:", 
+                colnames(ese), selected = colnames(ese), inline = TRUE)))
         
         # Add in group selection if relevant
         
         if (length(eselist@group_vars) > 0) {
-            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), 
-                selectInput(ns("sampleGroupVar"), "Define groups by:", structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars)), 
-                  selected = eselist@default_groupvar), uiOutput(ns("groupSamples"))))
+            inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"), 
+                "Define groups by:", structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars)), selected = eselist@default_groupvar), 
+                uiOutput(ns("groupSamples"))))
         }
         
     } else {

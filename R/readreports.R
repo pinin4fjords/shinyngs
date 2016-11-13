@@ -65,8 +65,7 @@ readreports <- function(input, output, session, eselist) {
     
     ns <- session$ns
     
-    unpack.list(callModule(selectmatrix, "readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, 
-        select_meta = FALSE))
+    unpack.list(callModule(selectmatrix, "readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
     
     # Render a select for the report type based on what's in the 'read_reports' slot
     
@@ -109,8 +108,8 @@ readreports <- function(input, output, session, eselist) {
         input$reportType
     })
     
-    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset
-    # of those at the previous, it makes sense to use overlapped bars.
+    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at
+    # the previous, it makes sense to use overlapped bars.
     
     getDefaultMode <- reactive({
         if (getReportType() == "read_attrition") {

@@ -32,8 +32,8 @@ foldchangeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an
-    # empty fieldset for them
+    # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty
+    # fieldset for them
     
     fieldsets <- list()
     if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
@@ -113,7 +113,8 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, 
+        provide_all_genes = TRUE)
     unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
@@ -127,14 +128,14 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, 
-        getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, getLabels = foldchangeLabels, 
+        x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
     
     # Make a title by selecting the single contrast name of the single filter set
     
     getTitle <- reactive({
-      contrast_names <- getSelectedContrastNames()
-      contrast_names[[1]][[1]]
+        contrast_names <- getSelectedContrastNames()
+        contrast_names[[1]][[1]]
     })
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
@@ -142,7 +143,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     plotLines <- reactive({
         
         fct <- foldchangeTable()
-      
+        
         fclim <- getFoldChange()
         
         normal_y <- !is.infinite(fct[, 2])
@@ -158,19 +159,19 @@ foldchangeplot <- function(input, output, session, eselist) {
         max <- max(xmax, ymax)
         
         lines <- data.frame(name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 
-            2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + 
-            log2(abs(fclim))), (max + log2(abs(fclim)))), stringsAsFactors = FALSE)
+            2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), 
+            (max + log2(abs(fclim)))), stringsAsFactors = FALSE)
         lines$name <- factor(lines$name, levels = unique(lines$name))
         
         # Use lines dependent on how the fold change filter is applied
         
         fccard <- getFoldChangeCard()
-        if (fccard %in% c('> or <-', '< and >-')){
-          lines
-        }else if (fccard == '<' && sign(fclim) == '-1'){
-          droplevels(lines[1:4,])
-        }else{
-          droplevels(lines[c(1,2,5,6),])
+        if (fccard %in% c("> or <-", "< and >-")) {
+            lines
+        } else if (fccard == "<" && sign(fclim) == "-1") {
+            droplevels(lines[1:4, ])
+        } else {
+            droplevels(lines[c(1, 2, 5, 6), ])
         }
     })
     
@@ -214,7 +215,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
-        filename = "foldchange", rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", 
+        rownames = FALSE, pageLength = 10)
     
 } 
