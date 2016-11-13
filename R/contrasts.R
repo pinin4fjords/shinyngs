@@ -740,7 +740,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     
     ########################################################################### Return the reactive that allow other modules to interact with this one
     
-    list(getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, 
+    list(getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
         getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, 
         getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames, getContrastSamples = getContrastSamples, 
         getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, 
