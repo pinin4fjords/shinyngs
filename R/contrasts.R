@@ -123,23 +123,31 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     # This observer adds a set of filters on the first page load and when the assocaited button is clicked.
     
     observeEvent({
-        getAssay()
+        selectMatrix()
         input$insertBtn
     }, {
-        
+
         ese <- getExperiment()
         contrasts <- getAllContrasts()
-        summaries <- getSummaries()
         contrast_numbers <- getAllContrastsNumbers()
         assay <- getAssay()
+        coldata <- selectColData()
         
+        # Restrict contrasts to those valid for the input matrix
+        
+        valid_contrasts <- unlist(lapply(contrasts, function(cont){
+          all(cont[-1] %in% coldata[[cont[1]]])
+        }))
+        contrasts <- contrasts[valid_contrasts]
+        contrast_numbers <- contrast_numbers[valid_contrasts]
+      
         # btn keeps track of how many filter sets have been added
         
         btn <- length(inserted)
         
         # Call makeContrastFilterSet() to generate a set of filters, and add to the UI with insertUI()
         
-        insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay, summaries, 
+        insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay,  
             contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, 
             filter_rows = getFilterRows(), index = btn, select_all_contrasts = select_all_contrasts))
         
@@ -184,9 +192,9 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         }
     })
     
-    # When a new assay is selected, we need to rebuild the inputs
+    # When a new assay is selected, or when the input matrix is otherwise changed, we need to rebuild the inputs
     
-    observeEvent(getAssay(), {
+    observeEvent(selectMatrix(), {
         if (length(inserted) > 0) {
             lapply(names(filterset_values), function(filterId) {
                 lapply(names(filterset_values[[filterId]]), function(field) {
@@ -413,18 +421,9 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     ########################################################################### Subsetting using the rows in the input matrix. This does NOT involve the filters from this module, but simply subsets the base data to
     ########################################################################### the rows pertinent to the input matrix.
     
-    # Select out the rows from the summaries corresponding to the rows of the selected matrix
-    
-    getSummariesWithSelectedRows <- reactive({
-        summaries <- getSummaries()
-        matrix <- selectMatrix()
-        
-        lapply(summaries, function(s) s[rownames(matrix), ])
-    })
-    
     # Get contrasts tables with rows reflecting the input matrix
     
-    contrastsTablesWithSelectedRows <- reactive({
+    contrastsTablesToMatchMatrix <- reactive({
         contrast_tables <- contrastsTables()
         matrix <- selectMatrix()
         
@@ -503,7 +502,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     selectedContrastsTables <- reactive({
         
         selected_contrasts <- getSelectedContrastNumbers()
-        contrast_tables <- contrastsTablesWithSelectedRows()
+        contrast_tables <- contrastsTablesToMatchMatrix()
         
         req(selected_contrasts, contrast_tables)
         
@@ -774,8 +773,6 @@ foldChange <- function(vec1, vec2) {
 #' used in creating field IDs.
 #' @param ese ExploratorySummarizedExperiment object
 #' @param assay Assay in \code{ese}
-#' @param summaries Summaries derived from \code{\link{summarizematrix}}, will
-#' be used to select valid contrasts.
 #' @param contrasts A list of lists specifying contrasts. 
 #' @param contrast_numbers A named vector of indices corresponding to 
 #' \code{contrasts}.
@@ -791,10 +788,10 @@ foldChange <- function(vec1, vec2) {
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
 
-makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast_numbers, multiple, show_controls, default_min_foldchange = default_min_foldchange, 
+makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, multiple, show_controls, default_min_foldchange = default_min_foldchange, 
     index = "", filter_rows = TRUE, select_all_contrasts = FALSE) {
     
-    contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers, summaries, multiple = multiple, 
+    contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers, multiple = multiple, 
         show_controls = show_controls, select_all = select_all_contrasts))
     
     if (filter_rows) {
@@ -837,8 +834,6 @@ makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast
 #' @param contrasts A list of lists specifying contrasts. 
 #' @param contrast_numbers A named vector of indices corresponding to 
 #' \code{contrasts}.
-#' @param summaries Summaries derived from \code{\link{summarizematrix}}, will
-#' be used to select valid contrasts.
 #' @param multiple Allow multiple contrasts to be selected?
 #' @param show_controls Show controls? Setting to false will cause them to be 
 #' hidden.
@@ -846,9 +841,7 @@ makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
 
-makeContrastControl <- function(id, contrasts, contrast_numbers, summaries, multiple = FALSE, show_controls = TRUE, select_all = FALSE) {
-    
-    contrast_numbers <- contrast_numbers[unlist(lapply(contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))]
+makeContrastControl <- function(id, contrasts, contrast_numbers, multiple = FALSE, show_controls = TRUE, select_all = FALSE) {
     
     if (!is.null(contrast_numbers)) {
         

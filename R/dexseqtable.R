@@ -54,7 +54,7 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
     
     field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"), allow_filtering = FALSE, 
-        summarise = TRUE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
+        summarise = FALSE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
     
     if (allow_filtering) {
         field_sets$differential_exon_usage = c(field_sets$differential_exon_usage, list(numericInput(ns("deuFcMin"), "Minimum fold change", 
