@@ -54,7 +54,7 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
     
     field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"), allow_filtering = FALSE, 
-        summarise = FALSE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
+        summarise = TRUE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
     
     if (allow_filtering) {
         field_sets$differential_exon_usage = c(field_sets$differential_exon_usage, list(numericInput(ns("deuFcMin"), "Minimum fold change", 
@@ -143,11 +143,12 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE))
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE)
+    unpack.list(selectmatrix_reactives)
     
     # Just use the contrasts module to select a comparison
     
-    unpack.list(callModule(contrasts, "deuContrast", eselist = eselist, getExperiment = getExperiment, multiple = FALSE))
+    unpack.list(callModule(contrasts, "deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
     
     makeDEUTables <- reactive({
         
@@ -208,8 +209,8 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     makeDEUTable <- reactive({
         deu_tables <- makeDEUTables()
-        selected_contrast_number <- getSelectedContrastNumbers()
-        deu_table <- deu_tables[[selected_contrast_number]]
+        selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
+        deu_table <- deu_tables[[as.numeric(selected_contrast_number)]]
         
         if (allow_filtering) {
             

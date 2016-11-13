@@ -289,6 +289,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     # from this output and calculate fold changes etc.
     
     getSummaries <- reactive({
+      if (! is.null(getSummaryType())){
         ese <- getExperiment()
         contrasts <- getAllContrasts()
         matrix <- getAssayMatrix()
@@ -304,6 +305,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         })
         
         summaries
+      }
     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
