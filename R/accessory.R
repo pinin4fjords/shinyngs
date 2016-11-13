@@ -360,6 +360,4 @@ evaluateCardinalFilter <- function(values, cardinality, limit) {
         stop("invalid cardinality")
     }
     
-}
-
- 
+} 

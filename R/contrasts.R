@@ -126,7 +126,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         selectMatrix()
         input$insertBtn
     }, {
-
+        
         ese <- getExperiment()
         contrasts <- getAllContrasts()
         contrast_numbers <- getAllContrastsNumbers()
@@ -135,21 +135,21 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         
         # Restrict contrasts to those valid for the input matrix
         
-        valid_contrasts <- unlist(lapply(contrasts, function(cont){
-          all(cont[-1] %in% coldata[[cont[1]]])
+        valid_contrasts <- unlist(lapply(contrasts, function(cont) {
+            all(cont[-1] %in% coldata[[cont[1]]])
         }))
         contrasts <- contrasts[valid_contrasts]
         contrast_numbers <- contrast_numbers[valid_contrasts]
-      
+        
         # btn keeps track of how many filter sets have been added
         
         btn <- length(inserted)
         
         # Call makeContrastFilterSet() to generate a set of filters, and add to the UI with insertUI()
         
-        insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay,  
-            contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, 
-            filter_rows = getFilterRows(), index = btn, select_all_contrasts = select_all_contrasts))
+        insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay, contrasts, 
+            contrast_numbers, multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), 
+            index = btn, select_all_contrasts = select_all_contrasts))
         
         # Record the ID of the added filter set
         
@@ -297,23 +297,23 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     # from this output and calculate fold changes etc.
     
     getSummaries <- reactive({
-      if (! is.null(getSummaryType())){
-        ese <- getExperiment()
-        contrasts <- getAllContrasts()
-        matrix <- getAssayMatrix()
-        coldata <- data.frame(colData(ese))
-        
-        validate(need(nrow(matrix) > 0, "Waiting for input matrix"))
-        
-        contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
-        names(contrast_variables) <- contrast_variables
-        
-        withProgress(message = paste("Calculating summaries by", getSummaryType()), value = 0, {
-            summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(matrix, coldata[[cv]], getSummaryType()))
-        })
-        
-        summaries
-      }
+        if (!is.null(getSummaryType())) {
+            ese <- getExperiment()
+            contrasts <- getAllContrasts()
+            matrix <- getAssayMatrix()
+            coldata <- data.frame(colData(ese))
+            
+            validate(need(nrow(matrix) > 0, "Waiting for input matrix"))
+            
+            contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
+            names(contrast_variables) <- contrast_variables
+            
+            withProgress(message = paste("Calculating summaries by", getSummaryType()), value = 0, {
+                summaries <- lapply(contrast_variables, function(cv) summarizeMatrix(matrix, coldata[[cv]], getSummaryType()))
+            })
+            
+            summaries
+        }
     })
     
     # Get all the contrasts the user specified in their StructuredExperiment- if any
@@ -740,8 +740,8 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     
     ########################################################################### Return the reactive that allow other modules to interact with this one
     
-    list(getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
-        getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, 
+    list(getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, 
+        getPvalCard = getPvalCard, getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, 
         getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames, getContrastSamples = getContrastSamples, 
         getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, 
         labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable, makeDifferentialSetSummary = makeDifferentialSetSummary, 
@@ -791,8 +791,8 @@ foldChange <- function(vec1, vec2) {
 makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, multiple, show_controls, default_min_foldchange = default_min_foldchange, 
     index = "", filter_rows = TRUE, select_all_contrasts = FALSE) {
     
-    contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers, multiple = multiple, 
-        show_controls = show_controls, select_all = select_all_contrasts))
+    contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, 
+        select_all = select_all_contrasts))
     
     if (filter_rows) {
         

@@ -57,9 +57,8 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
         summarise = FALSE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
     
     if (allow_filtering) {
-        field_sets$differential_exon_usage = c(field_sets$differential_exon_usage, list(
-          checkboxInput(ns("deuMostSigExon"), 
-            "Show most significant exon only per gene?", value = TRUE)))
+        field_sets$differential_exon_usage = c(field_sets$differential_exon_usage, list(checkboxInput(ns("deuMostSigExon"), "Show most significant exon only per gene?", 
+            value = TRUE)))
     }
     
     field_sets
@@ -224,14 +223,12 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
             pvallim_card <- getPvalCard()
             qvallim <- getQval()
             qvallim_card <- getQvalCard()
-          
-            #deu_table <- deu_table[which(deu_table[["FDR corrected p value"]] < qvallim & abs(deu_table[["Relative exon usage fold change"]]) > 
-            #    fclim), ]
             
-            deu_table <- deu_table[
-              evaluateCardinalFilter(deu_table[["FDR corrected p value"]], qvallim_card, qvallim) &
-              evaluateCardinalFilter(deu_table[["P value"]], pvallim_card, pvallim) &
-              evaluateCardinalFilter(deu_table[["Relative exon usage fold change"]], fclim_card, fclim),]
+            # deu_table <- deu_table[which(deu_table[['FDR corrected p value']] < qvallim & abs(deu_table[['Relative exon usage fold change']]) >
+            # fclim), ]
+            
+            deu_table <- deu_table[evaluateCardinalFilter(deu_table[["FDR corrected p value"]], qvallim_card, qvallim) & evaluateCardinalFilter(deu_table[["P value"]], 
+                pvallim_card, pvallim) & evaluateCardinalFilter(deu_table[["Relative exon usage fold change"]], fclim_card, fclim), ]
         }
         
         # If provided, filter by gene symbol
