@@ -282,7 +282,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         if (!is.null(getLines)) {
             withProgress(message = "Drawing lines", value = 0, {
                 lines <- getLines()
-                lines <- group_by(lines)
+                lines <- group_by(lines, name)
                 
                 p <- add_lines(p, data = lines, x = ~x, y = ~y, linetype = ~name, line = list(color = "black"))
             })

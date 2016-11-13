@@ -7,7 +7,7 @@ change, and where applicable p- and q- values.}
 \usage{
 makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers,
   multiple, show_controls, default_min_foldchange = default_min_foldchange,
-  index = "", filter_rows = TRUE)
+  index = "", filter_rows = TRUE, select_all_contrasts = FALSE)
 }
 \arguments{
 \item{ns}{A namespace function (created with \code{\link[shiny]{NS}} to be 

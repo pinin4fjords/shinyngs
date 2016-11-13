@@ -22,7 +22,7 @@ differentialtableInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"))), select_assay_data = expression_filters, 
+    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"), dynamic_filters = TRUE)), select_assay_data = expression_filters, 
         export = simpletableInput(ns("differentialtable"))))
 }
 

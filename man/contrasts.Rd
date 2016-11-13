@@ -4,9 +4,8 @@
 \alias{contrasts}
 \title{The server function of the contrasts module}
 \usage{
-contrasts(input, output, session, eselist, getExperiment = NULL,
-  selectMatrix = NULL, selectColData = NULL, getAssay = NULL,
-  getMetafields = NULL, multiple = FALSE, show_controls = TRUE,
+contrasts(input, output, session, eselist, selectmatrix_reactives = list(),
+  multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE,
   default_min_foldchange = 2)
 }
 \arguments{
@@ -15,6 +14,12 @@ contrasts(input, output, session, eselist, getExperiment = NULL,
 \item{output}{Output object}
 
 \item{session}{Session object}
+
+\item{multiple}{Allow selection of multiple contrasts?}
+
+\item{show_controls}{Show the controls for contrast selection?}
+
+\item{default_min_foldchange}{default value for the fold change filter}
 
 \item{getExperiment}{Reactive for getting the selected experiment. Probably 
 get this from the \code{selectmatrix} module}
@@ -27,12 +32,6 @@ provided by selectMatrix. Probably returned by a call to the
 \code{\link{selectmatrix}} module.}
 
 \item{getAssay}{Reactive for fetching the current assay.}
-
-\item{multiple}{Allow selection of multiple contrasts?}
-
-\item{show_controls}{Show the controls for contrast selection?}
-
-\item{default_min_foldchange}{default value for the fold change filter}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

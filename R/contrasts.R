@@ -22,7 +22,7 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic_filters = TRUE) {
+contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic_filters = FALSE) {
     
     ns <- NS(id)
     
@@ -41,7 +41,7 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
     contrast_filters <- list(tags$div(id = ns("contrasts-placeholder")))
     
     if (dynamic_filters) {
-        contrast_filters <- c(hiddenInput(ns('dynamic'), 1), list(helpText("Build up a complex query by adding filters below"), hr()), contrast_filters, list(hr(), 
+        contrast_filters <- c(list(hiddenInput(ns('dynamic'), 1)), list(helpText("Build up a complex query by adding filters below"), hr()), contrast_filters, list(hr(), 
             uiOutput(ns('combine_operator')),
                                                                                                                                 actionButton(ns("insertBtn"), "Add"), HTML("&nbsp;"), actionButton(ns("removeBtn"), "Remove")))
     } else {
@@ -58,21 +58,23 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
     inputs
 }
 
-#' Title
-#'
-#' @param id 
-#'
-#' @return
-#' @export
-#'
+#' The output function of the contrasts module
+#' 
+#' This module provides the form elements to control contrasts used in e.g. 
+#' differential expression panels.
+#' 
+#' This function provides a summary. Actual output should be rendered
+#' by calling modules using the provided reactives.
+#' 
+#' @param id Submodule namespace
+#' 
 #' @examples
+#' contrastsOutput('myid')
  
-
 contrastsOutput <- function(id){
   ns <- NS(id)
   uiOutput(ns('summary'))
 }
-
 
 #' The server function of the contrasts module
 #' 
@@ -160,7 +162,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         
         filterId <- paste0("filter", btn)
         
-        filter_observers[[filterId]] <<- lapply(c("contrasts", "fold_change", "q_value", "p_value"), function(field) {
+        filter_observers[[filterId]] <<- lapply(c("contrasts", "fold_change", "q_value", "p_value", "fold_change_card", "q_value_card", "p_value_card"), function(field) {
             filter_field_id <- paste0(field, btn)
             observeEvent(input[[filter_field_id]], {
                 req(input[[filter_field_id]])
@@ -174,8 +176,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
                   filterset_values[[filterId]][[field]] <<- input[[filter_field_id]]
                 }
                 
-                
-                filterset_values[[filterId]][[paste0(field, 'card')]] <<- input[[paste0(filter_field_id, 'card')]]
+                #filterset_values[[filterId]][[paste0(field, 'card')]] <<- input[[paste0(filter_field_id, 'card')]]
             }, ignoreNULL = FALSE)
         })
     }, ignoreNULL = FALSE, priority = 1)
@@ -235,48 +236,56 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     # by querying filterset_values.
     
     getSelectedContrastNumbers <- reactive({
+      req(length(filterset_values) > 0)
       lapply(filterset_values, function(x) x$contrasts)
     })
     
     # Fetch the values from all the fold change filters
     
     getFoldChange <- reactive({
+      req(length(filterset_values) > 0)
       unlist(lapply(filterset_values, function(x) x$fold_change))
     })
     
     # Fetch the values from all the fold change cardinality filters
     
     getFoldChangeCard <- reactive({
-      unlist(lapply(filterset_values, function(x) x$fold_changecard))
+      req(length(filterset_values) > 0)
+      unlist(lapply(filterset_values, function(x) x$fold_change_card))
     })
     
     # Get current value of the q value filter
     
-    getQVal <- reactive({
+    getQval <- reactive({
+      req(length(filterset_values) > 0)
       unlist(lapply(filterset_values, function(x) x$q_value))
     })
     
     # Get current value of the q value cardinality filter
     
-    getQValCard <- reactive({
-      unlist(lapply(filterset_values, function(x) x$q_valuecard))
+    getQvalCard <- reactive({
+      req(length(filterset_values) > 0)
+      unlist(lapply(filterset_values, function(x) x$q_value_card))
     })
     
     # Get current value of the p value filter
     
     getPval <- reactive({
+      req(length(filterset_values) > 0)
       unlist(lapply(filterset_values, function(x) x$p_value))
     })
     
     # Get current value of the p value cardinality filter
     
     getPvalCard <- reactive({
-      unlist(lapply(filterset_values, function(x) x$p_valuecard))
+      req(length(filterset_values) > 0)
+      unlist(lapply(filterset_values, function(x) x$p_value_card))
     })
     
     # Get method for combining filters
     
     getFilterSetCombinationOperator <- reactive({
+      req(input$combine_operator)
       input$combine_operator
     })
     
@@ -386,7 +395,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
           
           ct <- data.frame(cont[1], cont[2], cont[3], round(smry1, 2), round(smry2, 2), round(foldChange(smry1, smry2), 
                                                                                               2))
-          names(ct) <- c("Variable", "Condition 1", "Condition 2", cont[2], cont[3], "Fold change")
+          names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2", "Fold change")
           
           if (pvalsAvailable()){
             pvals <- ese@tests[[assay]]$pvals
@@ -522,6 +531,15 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     #
     ###########################################################################
 
+    # If we're only looking at a single contrast filter with a single contrast
+    # (e.g. for a fold change plot etc), then we can simplify.
+    
+    singleContrast <- reactive({
+      selected_contrasts <- getSelectedContrastNumbers()
+      
+      length(selected_contrasts == 1 && length(selected_contrasts[[1]][[1]]) == 1)
+    })
+    
     # Filter contrasts tables down to the contrasts of interest
     
     selectedContrastsTables <- reactive({
@@ -529,13 +547,20 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         selected_contrasts <- getSelectedContrastNumbers()
         contrast_tables <- contrastsTablesWithSelectedRows()
         
+        req(selected_contrasts, contrast_tables)
+        
         # Selected contrasts is a list, one for each filter set. Each one can have multiple contrasts
         
         withProgress(message = "Filtering to specified features", value = 0, {
             
             lapply(selected_contrasts, function(scs_set) {
                 lapply(scs_set, function(s) {
-                  contrast_tables[[s]]
+                  ct <- contrast_tables[[s]]
+                  if (singleContrast()){
+                    simplifyContrastTable(ct)
+                  }else{
+                    ct
+                  }
                 })
             })
             
@@ -557,8 +582,8 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
             fold_change_card <- getFoldChangeCard()
             p_value <- getPval()
             p_value_card <- getPvalCard()
-            q_value <- getQVal()
-            q_value_card <- getQValCard()
+            q_value <- getQval()
+            q_value_card <- getQvalCard()
             
             withProgress(message = "Applying filters", value = 0, {
               
@@ -566,7 +591,6 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
                   sct <- selected_contrasts_tables[[i]]
                   
                   lapply(sct, function(s) {
-                    #filter <- abs(s[["Fold change"]]) >= fold_change[i]
                     filter <- evaluateCardinalFilter(s[["Fold change"]], fold_change_card[i], fold_change[i])
                     
                     if (pvalsAvailable()){
@@ -681,7 +705,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
       
       unlist(lapply(fvs, function(x){
         paste('<p>', paste(unlist(lapply(grep('card', names(x[-1]), invert = TRUE, value = TRUE), function(y){
-          paste(y, x[[paste0(y,'card')]], x[[y]])
+          paste(y, x[[paste0(y,'_card')]], x[[y]])
         })), collapse = ' AND '), 'in <i>', x[[1]], '</i></p>')
       }))
     })
@@ -770,7 +794,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     #
     ###########################################################################
     
-    list(getFoldChange = getFoldChange, getQVal = getQVal, getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, 
+    list(getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, 
         getSelectedContrastNames = getSelectedContrastNames, getSafeSelectedContrastNames = getSafeSelectedContrastNames, getContrastSamples = getContrastSamples, 
         getSelectedContrastSamples = getSelectedContrastSamples, contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, 
         labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable, makeDifferentialSetSummary = makeDifferentialSetSummary, getQueryStrings = getQueryStrings, selectedContrastsTables = selectedContrastsTables)
@@ -829,23 +853,25 @@ makeContrastFilterSet <- function(ns, ese, assay, summaries, contrasts, contrast
         # p value field
         
         if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
-          pval_field <- cardinalNumericField(ns(paste0("p_value", index)), value = 0.05, label = "p value", min = 0, max = 1, step = 0.01)
+          pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)), value = 0.05, label = "p value", min = 0, max = 1, step = 0.01)
          
         }else{
           pval_field <- hiddenInput(ns(paste0("p_value", index)), value = 'NULL')
+          pval_field <- hiddenInput(ns(paste0("p_value_card", index)), value = 'NULL')
         }
         contrast_field_set <- c(contrast_field_set, list(pval_field))
         
         # q value field
         
         if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
-          qval_field <- cardinalNumericField(ns(paste0("q_value", index)), value = 0.1, label = "q value", min = 0, max = 1, step = 0.01)
+          qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)), value = 0.1, label = "q value", min = 0, max = 1, step = 0.01)
         }else{
           qval_field <- hiddenInput(ns(paste0("q_value", index)), value = 'NULL')
+          qval_field <- hiddenInput(ns(paste0("q_value_card", index)), value = 'NULL')
         }
         contrast_field_set <- c(contrast_field_set, list(qval_field))
           
-        fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), value = 2, label = "fold change", cardinality = '> or <-', step = 0.5)
+        fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)), value = 2, label = "fold change", cardinality = '> or <-', step = 0.5)
         contrast_field_set <- c(contrast_field_set, list(fold_change_field))
     }
     
@@ -890,3 +916,25 @@ makeContrastControl <- function(id, contrasts, contrast_numbers, summaries, mult
         cont_control
     }
 } 
+
+#' Simplify a contrast table
+#' 
+#' By default the contrast tables are created with three initial columns to 
+#' indicate the contrast: the metadata variable and the two values of that 
+#' variable that define the contrast. But if there is only one contrast then
+#' this make the table overly cumbersome, an we can simplify it by simply 
+#' naming the average column to the values of the contrast variable.
+#'
+#' @param table 
+#'
+#' @return output Simplified table
+
+simplifyContrastTable <- function(table){
+  
+  if (length(unique(table$Variable)) > 1 | length(unique(table[['Condition 1']])) > 1 | length(unique(table[['Condition 2']])) > 1){
+     stop("Table represents multiple contrasts, it cannot be simplified.")
+  }
+  
+  colnames(table)[4:5] <- c(as.character(table[1,'Condition 1']), as.character(table[1,'Condition 2']))
+  table[,4:ncol(table)]
+}

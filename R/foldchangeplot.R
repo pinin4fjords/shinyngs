@@ -108,7 +108,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     output$foldchangetable <- renderUI({
         ns <- session$ns
         
-        simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames(), sep = ": "))
+        simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "))
     })
     
     # Call the selectmatrix module and unpack the reactives it sends back
@@ -127,16 +127,23 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames[[1]], allow_3d = FALSE, 
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, 
         getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    
+    # Make a title by selecting the single contrast name of the single filter set
+    
+    getTitle <- reactive({
+      contrast_names <- getSelectedContrastNames()
+      contrast_names[[1]][[1]]
+    })
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
     plotLines <- reactive({
         
         fct <- foldchangeTable()
-        
-        fclim <- log2(fcMin())
+      
+        fclim <- getFoldChange()
         
         normal_y <- !is.infinite(fct[, 2])
         normal_x <- !is.infinite(fct[, 1])
@@ -150,13 +157,21 @@ foldchangeplot <- function(input, output, session, eselist) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 
-            2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(fcMin())), (max - log2(fcMin())), (min + 
-            log2(fcMin())), (max + log2(fcMin()))), stringsAsFactors = FALSE)
+        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 
+            2)), x = c(min, max, min, max, min, max), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + 
+            log2(abs(fclim))), (max + log2(abs(fclim)))), stringsAsFactors = FALSE)
         lines$name <- factor(lines$name, levels = unique(lines$name))
         
-        lines
+        # Use lines dependent on how the fold change filter is applied
         
+        fccard <- getFoldChangeCard()
+        if (fccard %in% c('> or <-', '< and >-')){
+          lines
+        }else if (fccard == '<' && sign(fclim) == '-1'){
+          droplevels(lines[1:4,])
+        }else{
+          droplevels(lines[c(1,2,5,6),])
+        }
     })
     
     # Extract labels from the volcano table
@@ -179,8 +194,7 @@ foldchangeplot <- function(input, output, session, eselist) {
         
         withProgress(message = "Compiling fold change plot data", value = 0, {
             sct <- selectedContrastsTables()
-            saveRDS(sct, file = "/tmp/sct.rds")
-            ct <- selectedContrastsTables()[[1]][[1]]
+            ct <- sct[[1]][[1]]
             ct <- round(log2(ct[, 1:2]), 3)
             
             cont <- getSelectedContrasts()[[1]][[1]]

@@ -4,7 +4,7 @@
 \alias{summarisematrixInput}
 \title{The input function of the summarizematrix module}
 \usage{
-summarisematrixInput(id, allow_none = TRUE)
+summarisematrixInput(id, allow_none = TRUE, select_summary_type = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}

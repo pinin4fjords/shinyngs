@@ -4,7 +4,8 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(id, allow_filtering = TRUE, summarise = TRUE)
+contrastsInput(id, allow_filtering = TRUE, summarise = TRUE,
+  dynamic_filters = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -18,6 +19,9 @@ summarisation, which may be the desired result for modules that just need
 to use the contrasts drop-down.}
 
 \item{default_max_q}{default value for the q value filter}
+
+\item{dyanamic_filters}{Logical indicating whether the user should be able 
+to add progressive filters.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

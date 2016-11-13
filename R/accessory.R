@@ -311,10 +311,38 @@ inlineField <- function(field_def, label, labelwidth = 6) {
 } 
 
 
-cardinalNumericField <- function(id, label, value, cardinality = "<", step = NA, min = NA, max = NA){
-  
-  tags$div(fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))),  column(3, selectInput(paste0(id, 'card'), label = NULL, choices = c('<', '>', '> or <-', '< and >-'), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))), class = 'shinyngs-cardinalfield')
+
+#' Make a numeric field with selectable associated cardinality (>, < ..).
+#' 
+#' A wrapper around \code{\link[shiny]{numericInput}}, providing an inline 
+#' label and an associated field specifying how the value should be applied,
+#' i.e. 'greater than this value' etc.
+#'
+#' @param id ID to use for the numeric field
+#' @param cardinal_id ID to use for the cardinality field
+#' @param label Label
+#' @param value Default value
+#' @param cardinality Default cardinality
+#' @param step Passed to \code{\link[shiny]{numericInput}}
+#' @param min Passed to \code{\link[shiny]{numericInput}}
+#' @param max Passed to \code{\link[shiny]{numericInput}}
+#'
+#' @return out An HTML tag object that can be rendered as HTML using 
+#' as.character() 
+
+cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<", step = NA, min = NA, max = NA){
+  tags$div(fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))),  column(3, selectInput(cardinal_id, label = NULL, choices = c('<', '>', '> or <-', '< and >-'), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))), class = 'shinyngs-cardinalfield')
 }
+
+#' Evaluate a vector of values with respect to a limit and a cardinality, being
+#' '>', '<' , '> or <-' (e.g. a fold change above a limit in + or - 
+#' directions), or '< and >-' (not a above a limit in + or -).  
+#'
+#' @param values 
+#' @param cardinality 
+#' @param limit 
+#'
+#' @return out A logical vector
 
 evaluateCardinalFilter <- function(values, cardinality, limit){
   
