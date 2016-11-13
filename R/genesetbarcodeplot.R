@@ -135,12 +135,12 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields))
+    unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
     
     # Parse the gene sets for ease of use
     
@@ -160,12 +160,12 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     barcodeplotTitle <- reactive({
         ese <- getExperiment()
         
-        title_components <- c(prettifyGeneSetName(unlist(getGenesetNames())), getSelectedContrastNames())
+        title_components <- c(prettifyGeneSetName(unlist(getGenesetNames())), getSelectedContrastNames()[[1]])
         
         gene_set_types <- getGenesetTypes()
         assay <- getAssay()
         gene_set_names <- getGenesetNames()
-        contrast_numbers <- getSelectedContrastNumbers()
+        contrast_numbers <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
         
         if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]])) {
             fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "FDR"], 3), 
@@ -185,14 +185,14 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     # Get the list of fold changes by which to rank genes
     
     getFoldChanges <- reactive({
-        ct <- filteredContrastsTables()[[1]]
+        ct <- filteredContrastsTables()[[1]][[1]]
         ct$`Fold change`
     })
     
     # Get gene IDs of the same type as used for gene sets
     
     getGeneIDs <- reactive({
-        convertIds(rownames(filteredContrastsTables()[[1]]), getExperiment(), getExperiment()@entrezgenefield)
+        convertIds(rownames(filteredContrastsTables()[[1]][[1]]), getExperiment(), getExperiment()@entrezgenefield)
     })
     
     # Make the barcode plot using limma for download

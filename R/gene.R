@@ -34,7 +34,7 @@ geneInput <- function(id, eselist) {
         field_sets$expression <- expression_filters
     }
     
-    field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE), export = simpletableInput(ns("geneContrastsTable"))))
+    field_sets <- c(field_sets, list(table_options = contrastsInput(ns("gene"), allow_filtering = FALSE, select_summary_type = TRUE), export = simpletableInput(ns("geneContrastsTable"))))
     
     list(naked_fields, fieldSets(ns("fieldset"), field_sets))
 }
@@ -92,11 +92,11 @@ gene <- function(input, output, session, eselist) {
     
     # Call all the required modules and unpack their reactives
     
-    unpack.list(callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = TRUE, select_genes = FALSE, provide_all_genes = FALSE))
+    selectmatrix_reactives <- callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = TRUE, select_genes = FALSE, provide_all_genes = FALSE)
+    unpack.list(selectmatrix_reactives)
     unpack.list(callModule(labelselectfield, "gene_label", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, 
         url_field = "gene", id_selection = TRUE, getNonEmptyRows = getNonEmptyRows))
-    unpack.list(callModule(contrasts, "gene", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, 
-        multiple = TRUE, show_controls = FALSE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "gene", eselist = eselist, multiple = TRUE, show_controls = FALSE, selectmatrix_reactives = selectmatrix_reactives, select_all_contrasts = TRUE))
     unpack.list(callModule(groupby, "gene", eselist = eselist, group_label = "Color by", selectColData = selectColData))
     
     # The title and info link are reactive to the currently active experiment

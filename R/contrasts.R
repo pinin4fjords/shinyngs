@@ -22,7 +22,7 @@
 #' @examples
 #' contrastsInput('test')
 
-contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic_filters = FALSE) {
+contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic_filters = FALSE, select_summary_type = FALSE) {
     
     ns <- NS(id)
     
@@ -48,11 +48,11 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
         contrast_filters <- pushToList(contrast_filters, uiOutput(ns('combine_operator')))
     }
     
-    inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true "), contrast_filters))
-    
+    #inputs <- pushToList(inputs, conditionalPanel(condition = paste0("input['", ns("filterRows"), "'] == true "), contrast_filters))
+    inputs <- pushToList(inputs, contrast_filters)
     
     if (summarise) {
-        inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE, select_summary_type = FALSE))
+        inputs <- pushToList(inputs, summarisematrixInput(ns("contrasts"), allow_none = FALSE, select_summary_type = select_summary_type))
     }
     
     inputs
@@ -536,8 +536,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     
     singleContrast <- reactive({
       selected_contrasts <- getSelectedContrastNumbers()
-      
-      length(selected_contrasts == 1 && length(selected_contrasts[[1]][[1]]) == 1)
+      length(selected_contrasts) == 1 && length(selected_contrasts[[1]]) == 1
     })
     
     # Filter contrasts tables down to the contrasts of interest

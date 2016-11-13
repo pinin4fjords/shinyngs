@@ -220,13 +220,13 @@ genesetanalysistable <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, select_assays = TRUE, select_samples = FALSE, select_genes = FALSE, 
-        select_meta = FALSE))
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, select_assays = TRUE, select_samples = FALSE, select_genes = FALSE, 
+        select_meta = FALSE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, default_min_foldchange = 1.2))
+    unpack.list(callModule(contrasts, "genesetanalysistable", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_min_foldchange = 1.2))
     
     # Parse the gene sets for ease of use
     
@@ -242,9 +242,9 @@ genesetanalysistable <- function(input, output, session, eselist) {
         ese <- getExperiment()
         assay <- getAssay()
         gene_set_types <- getGeneSetTypes()
-        selected_contrasts <- getSelectedContrastNumbers()
+        selected_contrasts <- getSelectedContrastNumbers()[[1]]
         
-        gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[selected_contrasts]]
+        gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[as.numeric(selected_contrasts)]]
         
         # Rename p value if we have PValue from mroast etc()
         
@@ -274,7 +274,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
             
             # Add in the differential genes
             
-            ct <- filteredContrastsTables()[[1]]
+            ct <- filteredContrastsTables()[[1]][[1]]
             up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
             down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
             
