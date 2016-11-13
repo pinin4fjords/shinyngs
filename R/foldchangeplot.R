@@ -113,12 +113,12 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -127,7 +127,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, 
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getSelectedContrastNames[[1]], allow_3d = FALSE, 
         getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
@@ -178,14 +178,15 @@ foldchangeplot <- function(input, output, session, eselist) {
     foldchangeTable <- reactive({
         
         withProgress(message = "Compiling fold change plot data", value = 0, {
-            
-            ct <- selectedContrastsTables()[[1]]
+            sct <- selectedContrastsTables()
+            saveRDS(sct, file = "/tmp/sct.rds")
+            ct <- selectedContrastsTables()[[1]][[1]]
             ct <- round(log2(ct[, 1:2]), 3)
             
-            cont <- getSelectedContrasts()[[1]]
+            cont <- getSelectedContrasts()[[1]][[1]]
             colnames(ct) <- c(paste0("log2(", cont[2], ")"), paste0("log2(", cont[3], ")"))
             
-            fct <- filteredContrastsTables()[[1]]
+            fct <- filteredContrastsTables()[[1]][[1]]
             ct$colorby <- "hidden"
             ct[rownames(fct), "colorby"] <- "match contrast filters"
             ct[selectRows(), "colorby"] <- "in highlighted gene set"

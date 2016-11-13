@@ -11,6 +11,8 @@ See the [UpSet documentation](http://www.caleydo.org/tools/upset/) for more info
 
 These controls dictate how the plotting is actually done. Intersections are complex with large numbers of sets, so you can restrict the number of contrasts considered. You'll also find that many intersections are to small to be useful, so you can change the number of intersections that will be displayed.
 
+<b>Note:</b> Features are only members of a single intersection, and are placed into higher-order intersections first. So for example, to get the true number of features in a 4th level-intersection, you must add that value to those in 5th, 6th level intersections and so on.
+
 ##### Expression matrix
 
 You may select any available matrix to use for generating comparisons, including the selection of a specified list of rows. 

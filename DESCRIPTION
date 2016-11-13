@@ -10,6 +10,7 @@ Depends:
 License: MIT
 LazyData: true
 Imports:
+    data.table,
     d3heatmap,
     DT (>= 0.2),
     ggdendro,

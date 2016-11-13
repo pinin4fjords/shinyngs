@@ -90,7 +90,7 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = FALSE))
+    unpack.list(callModule(contrasts, "differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE))
     
     # Pass the matrix to the simpletable module for display
     

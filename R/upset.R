@@ -65,7 +65,7 @@ upsetOutput <- function(id, eselist) {
     
     list(modalInput(ns("upset"), "help", "help"), modalOutput(ns("upset"), "Intersection plots with UpSet", includeMarkdown(system.file("inlinehelp", 
         "upset.md", package = packageName()))), h3("Intersection of differential sets"), plotOutput(ns("upset"), height = "600px"), 
-        uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset")))
+        h4('Differential set summary'), uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset")))
 }
 
 #' The server function of the upstart module
@@ -98,13 +98,13 @@ upset <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "upset", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE, 
-        select_meta = FALSE))
+    selectmatrix_reactives <- callModule(selectmatrix, "upset", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE, 
+        select_meta = FALSE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "upset", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = TRUE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE))
     
     ############################################################################# Render dynamic fields
     
@@ -115,18 +115,8 @@ upset <- function(input, output, session, eselist) {
     })
     
     output$differential_parameters <- renderUI({
-        experiment_id <- getExperimentId()
-        assay <- getAssay()
-        fc_min <- fcMin()
-        qval_max <- qvalMax()
-        
-        message <- paste0("Summary of all ", experiment_id, "s in assay \"", assay, "\" differential by a fold change threshold of ", 
-            fc_min)
-        
-        if (qval_max < 1) {
-            message <- paste0(message, " and a q value threshold of ", qval_max)
-        }
-        h4(message)
+        query_strings <- getQueryStrings()
+        HTML(query_strings[1])
     })
     
     ############################################################################# Form accessors
@@ -158,8 +148,9 @@ upset <- function(input, output, session, eselist) {
     
     getValidSets <- reactive({
         withProgress(message = "Deriving input sets", value = 0, {
-            fcts <- filteredContrastsTables()
-            names(fcts) <- getSafeSelectedContrastNames()
+            fcts <- unlist(filteredContrastsTables(), recursive = FALSE)
+            names(fcts) <- unlist(getSafeSelectedContrastNames(), recursive = FALSE)
+            
             fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
             
             # If specified by the user, separate gene sets into 'up' and 'down' for each contrast
@@ -192,8 +183,6 @@ upset <- function(input, output, session, eselist) {
         validate(need(!is.null(data), "Parsing data"))
         makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
     })
-    
-    # Create a table with simpletable
     
     callModule(simpletable, "upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, 
         filter = "none", filename = "differential_summary", rownames = FALSE)

@@ -55,4 +55,17 @@ overriding the z-index we need from bootstrap.css  */
   color:#333333;
 }
 
+.shinyngs-cardinalfield .row div:nth-child(2){
+  padding-left:0;
+  padding-right:0;
+}
 
+.shinyngs-cardinalfield .row div:nth-child(3) input{
+  padding:0 6px;
+} 
+
+.shinyngs-cardinalfield .row div:nth-child(2) .selectize-input,
+.shinyngs-cardinalfield .row div:nth-child(3) input{
+  height: 35px; 
+  border-radius: 4px;
+}
