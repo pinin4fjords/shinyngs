@@ -119,9 +119,9 @@ dexseqplot <- function(input, output, session, eselist) {
         ese <- getExperiment()
         gene_id <- getSelectedIds()
         deu <- ese@dexseq_results
-        selected_contrast_number <- getSelectedContrastNumbers()
+        selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
         
-        d <- deu[[selected_contrast_number]]
+        d <- deu[[as.numeric(selected_contrast_number)]]
         
         # Sometimes an exon can be part of multiple Ensembl gene records. The group ID will then be a composite like
         # 'ENSRNOG00000051235+ENSRNOG00000051158+ENSRNOG00000000419'
@@ -139,10 +139,10 @@ dexseqplot <- function(input, output, session, eselist) {
         
         ese <- getExperiment()
         
-        selected_contrast_number <- getSelectedContrastNumbers()
-        dexseq_result <- ese@dexseq_results[[selected_contrast_number]]
+        selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
+        dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
         
-        selected_contrast <- getSelectedContrasts()
+        selected_contrast <- getSelectedContrasts()[[1]][[1]]
         gene_label <- getSelectedLabels()
         gene_id <- getDEUGeneID()
         
@@ -160,9 +160,9 @@ dexseqplot <- function(input, output, session, eselist) {
         
         ese <- getExperiment()
         
-        selected_contrast_number <- getSelectedContrastNumbers()
+        selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
         dexseq_result <- ese@dexseq_results[[selected_contrast_number]]
-        selected_contrast <- getSelectedContrasts()
+        selected_contrast <- getSelectedContrasts()[[1]][[1]]
         gene_label <- getSelectedLabels()
         gene_id <- getDEUGeneID()
         
