@@ -118,18 +118,18 @@ volcanoplot <- function(input, output, session, eselist) {
     output$volcanotable <- renderUI({
         ns <- session$ns
         
-        simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames(), sep = ": "))
+        simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]][[1]], sep = ": "))
     })
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE, 
-        require_tests = TRUE))
+    selectmatrix_reactives = callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE, 
+        require_tests = TRUE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -138,8 +138,15 @@ volcanoplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = volcanoLabels, 
+    callModule(scatterplot, "volcano", getDatamatrix = volcanoTable, getTitle = getTitle, allow_3d = FALSE, getLabels = volcanoLabels, 
         x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    
+    # Make a title by selecting the single contrast name of the single filter set
+    
+    getTitle <- reactive({
+      contrast_names <- getSelectedContrastNames()
+      contrast_names[[1]][[1]]
+    })
     
     # Make a set of dashed lines to overlay on the plot representing thresholds
     
@@ -148,8 +155,8 @@ volcanoplot <- function(input, output, session, eselist) {
             
             vt <- volcanoTable()
             
-            fclim <- log2(fcMin())
-            qvallim <- -log10(qvalMax())
+            fclim <- getFoldChange()
+            qvallim <- getQval()
             
             normal_y <- !is.infinite(vt[, 2])
             normal_x <- !is.infinite(vt[, 1])
@@ -160,8 +167,20 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1], na.rm = TRUE)
             xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
-            data.frame(name = c(rep(paste0(fcMin(), "-fold down"), 2), rep(paste0(fcMin(), "-fold up"), 2), rep(paste("q <", qvalMax()), 
-                2)), x = c(rep(-fclim, 2), rep(fclim, 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(qvallim, 2)))
+            lines <- data.frame(name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2), rep(paste("q <", qvallim), 
+                2)), x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2)))
+        
+            # Use lines dependent on how the fold change filter is applied
+            
+            fccard <- getFoldChangeCard()
+            if (fccard %in% c('> or <-', '< and >-')){
+              lines
+            }else if (fccard == '<' && sign(fclim) == '-1'){
+              droplevels(lines[1,2,5,6,])
+            }else{
+              droplevels(lines[1:4,])
+            }
+                
         })
         
     })
@@ -187,7 +206,8 @@ volcanoplot <- function(input, output, session, eselist) {
     volcanoTable <- reactive({
         withProgress(message = "Compiling volcano plot data", value = 0, {
             
-            ct <- selectedContrastsTables()[[1]]
+            sct <- selectedContrastsTables()
+            ct <- sct[[1]][[1]]
             
             # q values of 0 cause trouble
             
@@ -197,11 +217,11 @@ volcanoplot <- function(input, output, session, eselist) {
             ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
             ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
             
-            cont <- getSelectedContrasts()[[1]]
+            cont <- getSelectedContrasts()[[1]][[1]]
             colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), 
                 sep = "  "), "-log10(q value)")
             
-            fct <- filteredContrastsTables()[[1]]
+            fct <- filteredContrastsTables()[[1]][[1]]
             ct$colorby <- "hidden"
             ct[rownames(fct), "colorby"] <- "match contrast filters"
             ct[selectRows(), "colorby"] <- "in highlighted gene set"
