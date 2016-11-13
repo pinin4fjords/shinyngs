@@ -113,17 +113,17 @@ maplot <- function(input, output, session, eselist) {
     output$matable <- renderUI({
         ns <- session$ns
         
-        simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames(), sep = ": "))
+        simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "))
     })
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE))
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
+    unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
     
-    unpack.list(callModule(contrasts, "differential", eselist = eselist, getExperiment = getExperiment, selectMatrix = selectMatrix, 
-        getAssay = getAssay, multiple = FALSE, getMetafields = getMetafields, selectColData = selectColData, default_min_foldchange = 1))
+    unpack.list(callModule(contrasts, "differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_min_foldchange = 1))
     
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
     
@@ -132,8 +132,61 @@ maplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "ma", getDatamatrix = maTable, getTitle = getSelectedContrastNames, allow_3d = FALSE, getLabels = maLabels, 
-        x = 1, y = 2, colorBy = colorBy)
+    callModule(scatterplot, "ma", getDatamatrix = maTable, getTitle = getTitle, allow_3d = FALSE, getLabels = maLabels, 
+        x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    
+    
+    # Make a title by selecting the single contrast name of the single filter set
+    
+    getTitle <- reactive({
+      contrast_names <- getSelectedContrastNames()
+      contrast_names[[1]][[1]]
+    })
+    
+    # Make a set of dashed lines to overlay on the plot representing thresholds
+    
+    plotLines <- reactive({
+      withProgress(message = "Calculating lines", value = 0, {
+        
+        mat <- maTable()
+        
+        fclim <- getFoldChange()
+        
+        normal_y <- !is.infinite(mat[, 2])
+        normal_x <- !is.infinite(mat[, 1])
+        
+        ymax <- max(mat[normal_y, 2], na.rm = TRUE)
+        ymin <- min(mat[normal_y, 2], na.rm = TRUE)
+        
+        xmax <- max(mat[normal_x, 1], na.rm = TRUE)
+        xmin <- min(mat[normal_x, 1], na.rm = TRUE)
+        
+        lines <-
+          data.frame(
+            name = c(rep(paste0(
+              abs(fclim), "-fold down"
+            ), 2), rep(paste0(
+              abs(fclim), "-fold up"
+            ), 2)),
+            x = c(xmin, xmax, xmin, xmax),
+            y = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2))
+          )
+      
+        # Use lines dependent on how the fold change filter is applied
+        
+        fccard <- getFoldChangeCard()
+        if (fccard %in% c('> or <-', '< and >-')){
+          lines
+        }else if (fccard == '<' && sign(fclim) == '-1'){
+          droplevels(lines[c(1,2),])
+        }else{
+          droplevels(lines[c(3,4),])
+        }
+        
+      })
+      
+    })
+    
     
     # Extract labels from the volcano table
     
@@ -155,12 +208,13 @@ maplot <- function(input, output, session, eselist) {
         
         withProgress(message = "Compiling fold change plot data", value = 0, {
             
-            ct <- selectedContrastsTables()[[1]]
+            sct <- selectedContrastsTables()
+            ct <- sct[[1]][[1]]
             
             matable <- data.frame(`log(10) mean expression` = round(log10(rowMeans(ct[, 1:2])), 3), `log(2) fold change` = round(sign(ct[["Fold change"]]) * 
                 log2(abs(ct[["Fold change"]])), 3), row.names = rownames(ct), check.names = FALSE)
             
-            fct <- filteredContrastsTables()[[1]]
+            fct <- filteredContrastsTables()[[1]][[1]]
             matable$colorby <- "hidden"
             matable[rownames(fct), "colorby"] <- "match contrast filters"
             matable[selectRows(), "colorby"] <- "in highlighted gene set"
