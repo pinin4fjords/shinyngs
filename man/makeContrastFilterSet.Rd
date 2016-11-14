@@ -5,8 +5,8 @@
 \title{Make a complete set of filters for a contrast: the contrast itself, fold
 change, and where applicable p- and q- values.}
 \usage{
-makeContrastFilterSet(ns, ese, assay, summaries, contrasts, contrast_numbers,
-  multiple, show_controls, default_min_foldchange = default_min_foldchange,
+makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers, multiple,
+  show_controls, default_min_foldchange = default_min_foldchange,
   index = "", filter_rows = TRUE, select_all_contrasts = FALSE)
 }
 \arguments{
@@ -16,9 +16,6 @@ used in creating field IDs.}
 \item{ese}{ExploratorySummarizedExperiment object}
 
 \item{assay}{Assay in \code{ese}}
-
-\item{summaries}{Summaries derived from \code{\link{summarizematrix}}, will
-be used to select valid contrasts.}
 
 \item{contrasts}{A list of lists specifying contrasts.}
 

@@ -15,25 +15,27 @@ contrasts(input, output, session, eselist, selectmatrix_reactives = list(),
 
 \item{session}{Session object}
 
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
+
+\item{selectmatrix_reactives}{The list of reactive expressions returned by
+a call to the \code{\link{selectmatrix}} module. This will be unpacked to
+gain access to the data provided by those reaactive.}
+
 \item{multiple}{Allow selection of multiple contrasts?}
+
+\item{select_all_contrasts}{Select all contrasts by default?}
 
 \item{show_controls}{Show the controls for contrast selection?}
 
 \item{default_min_foldchange}{default value for the fold change filter}
-
-\item{getExperiment}{Reactive for getting the selected experiment. Probably 
-get this from the \code{selectmatrix} module}
-
-\item{selectMatrix}{Reactive for generating a matrix to do comparisons with.
-Probably returned by a call to the \code{\link{selectmatrix}} module.}
-
-\item{selectColData}{Reactive returning column metadata for the matrix 
-provided by selectMatrix. Probably returned by a call to the 
-\code{\link{selectmatrix}} module.}
-
-\item{getAssay}{Reactive for fetching the current assay.}
 }
 \description{
+This module provides the form elements to control contrasts used in e.g. 
+differential expression panels. In particular it provides the ability for 
+users to add filters to progressively refine a query.
+}
+\details{
 This function is not called directly, but rather via callModule() (see 
 example).
 }

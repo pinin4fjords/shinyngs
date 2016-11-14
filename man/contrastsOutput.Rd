@@ -11,7 +11,8 @@ contrastsOutput(id)
 }
 \description{
 This module provides the form elements to control contrasts used in e.g. 
-differential expression panels.
+differential expression panels. In particular it provides the ability for 
+users to add filters to progressively refine a query.
 }
 \details{
 This function provides a summary. Actual output should be rendered

@@ -32,7 +32,7 @@ dexseqplotInput <- function(id, eselist) {
     table_fields <- dexseqtableInputFields(ns("deuPlotTable"), eselist, allow_filtering = FALSE)
     
     field_sets <- list(gene = list(labelselectfieldInput(ns("genesymbol"))), differential_exon_usage = c(table_fields$differential_exon_usage, 
-        list(numericInput(ns("deuQvalPlotMax"), "Maximum false discovery rate", value = 0.1), checkboxInput(ns("deuExpression"), "Show expression plot?", 
+        list(inlineField(numericInput(ns("deuQvalPlotMax"), NULL, value = 0.1), "Maximum false discovery rate"), checkboxInput(ns("deuExpression"), "Show expression plot?", 
             value = TRUE), checkboxInput(ns("deuSplicing"), "Show exon usage (adjusted for gene expression)", value = TRUE), checkboxInput(ns("deuNorcounts"), 
             "Show normalised counts plot?", value = FALSE), checkboxInput(ns("deuDisplayTranscripts"), "Show transcripts?", value = TRUE))), 
         export = list(p(plotdownloadInput(ns("deuPlot"), "DEU plot")), br(), p(table_fields$export)))
@@ -161,7 +161,7 @@ dexseqplot <- function(input, output, session, eselist) {
         ese <- getExperiment()
         
         selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
-        dexseq_result <- ese@dexseq_results[[selected_contrast_number]]
+        dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
         selected_contrast <- getSelectedContrasts()[[1]][[1]]
         gene_label <- getSelectedLabels()
         gene_id <- getDEUGeneID()

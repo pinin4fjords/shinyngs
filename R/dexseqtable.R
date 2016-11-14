@@ -53,7 +53,7 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
     
-    field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"), allow_filtering = TRUE, 
+    field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"), allow_filtering = allow_filtering, 
         summarise = FALSE)), export = simpletableInput(ns("dexseqtable"), tabletitle = "DEU"))
     
     if (allow_filtering) {
@@ -147,7 +147,8 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Just use the contrasts module to select a comparison
     
-    unpack.list(callModule(contrasts, "deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
+    contrast_reactives <- callModule(contrasts, "deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
+    unpack.list(contrast_reactives)
     
     makeDEUTables <- reactive({
         
@@ -264,5 +265,5 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
     
-    list(getExperiment = getExperiment, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrasts = getSelectedContrasts)
+    c(contrast_reactives, list(getExperiment = getExperiment, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrasts = getSelectedContrasts))
 } 

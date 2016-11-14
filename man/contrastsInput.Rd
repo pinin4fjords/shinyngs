@@ -5,7 +5,7 @@
 \title{The input function of the contrasts module}
 \usage{
 contrastsInput(id, allow_filtering = TRUE, summarise = TRUE,
-  dynamic_filters = FALSE)
+  dynamic_filters = FALSE, select_summary_type = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -18,6 +18,9 @@ how values are summarised per group. Disabling this disables
 summarisation, which may be the desired result for modules that just need
 to use the contrasts drop-down.}
 
+\item{select_summary_type}{Allow user to select summary type (e.g. mean)?
+Passed to \code{\link{summarisematrixInput}}.}
+
 \item{default_max_q}{default value for the q value filter}
 
 \item{dyanamic_filters}{Logical indicating whether the user should be able 
@@ -29,7 +32,8 @@ as.character()
 }
 \description{
 This module provides the form elements to control contrasts used in e.g. 
-differential expression panels.
+differential expression panels. In particular it provides the ability for 
+users to add filters to progressively refine a query.
 }
 \examples{
 contrastsInput('test')

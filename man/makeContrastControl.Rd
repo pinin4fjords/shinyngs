@@ -4,8 +4,8 @@
 \alias{makeContrastControl}
 \title{Make a select field for picking one or more contrasts}
 \usage{
-makeContrastControl(id, contrasts, contrast_numbers, summaries,
-  multiple = FALSE, show_controls = TRUE, select_all = FALSE)
+makeContrastControl(id, contrasts, contrast_numbers, multiple = FALSE,
+  show_controls = TRUE, select_all = FALSE)
 }
 \arguments{
 \item{id}{An id to apply to form elements}
@@ -14,9 +14,6 @@ makeContrastControl(id, contrasts, contrast_numbers, summaries,
 
 \item{contrast_numbers}{A named vector of indices corresponding to 
 \code{contrasts}.}
-
-\item{summaries}{Summaries derived from \code{\link{summarizematrix}}, will
-be used to select valid contrasts.}
 
 \item{multiple}{Allow multiple contrasts to be selected?}
 
