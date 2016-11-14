@@ -146,7 +146,7 @@ maplot <- function(input, output, session, eselist) {
         withProgress(message = "Calculating lines", value = 0, {
             
             mat <- maTable()
-            
+
             fclim <- getFoldChange()
             
             normal_y <- !is.infinite(mat[, 2])

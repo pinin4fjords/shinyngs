@@ -63,7 +63,7 @@ upsetOutput <- function(id, eselist) {
     ns <- NS(id)
     
     list(modalInput(ns("upset"), "help", "help"), modalOutput(ns("upset"), "Intersection plots with UpSet", includeMarkdown(system.file("inlinehelp", "upset.md", 
-        package = packageName()))), h3("Intersection of differential sets"), plotOutput(ns("upset"), height = "600px"), h4("Differential set summary"), uiOutput(ns("differential_parameters")), 
+        package = packageName()))), h3("Intersection of differential sets"), uiOutput(ns('subset_notice')), plotOutput(ns("upset"), height = "600px"), h4("Differential set summary"), uiOutput(ns("differential_parameters")), 
         simpletableOutput(ns("upset")))
 }
 
@@ -91,7 +91,7 @@ upsetOutput <- function(id, eselist) {
 #' @examples
 #' callModule(upstart, 'myid', eselist)
 
-upset <- function(input, output, session, eselist) {
+upset <- function(input, output, session, eselist, setlimit = 14) {
     
     ns <- session$ns
     
@@ -109,12 +109,26 @@ upset <- function(input, output, session, eselist) {
     output$nsets <- renderUI({
         
         valid_sets <- getValidSets()
-        sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = length(valid_sets), step = 1, value = length(valid_sets))
+        max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
+        sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
     })
     
     output$differential_parameters <- renderUI({
         query_strings <- getQueryStrings()
         HTML(query_strings[1])
+    })
+    
+    output$subset_notice <- renderUI({
+        valid_sets <- getValidSets()
+        max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
+        
+        if (length(valid_sets) > setlimit){
+          message <- paste("(Note: the set selection used to produce the below plot has been limited to", max_sets, "sets")
+          if (input$separate_by_direction) {
+            message <- paste(message,  paste("(",floor((max_sets/2))," contrasts)")) 
+          }
+          message <- paste(message, "due to computational limitations. You may wish to refine your choice of contrasts)")  
+        }
     })
     
     ############################################################################# Form accessors
@@ -156,7 +170,8 @@ upset <- function(input, output, session, eselist) {
             if (input$separate_by_direction) {
                 fcts <- unlist(lapply(fcts, function(x) {
                   y <- split(x, x[["Fold change"]] > 0)
-                  names(y) <- c("down", "up")
+                  names(y)[names(y) == 'TRUE'] <- 'up'
+                  names(y)[names(y) == 'FALSE'] <- 'down'
                   y
                 }), recursive = FALSE)
                 
