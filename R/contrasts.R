@@ -98,7 +98,7 @@ contrastsOutput <- function(id) {
 #' @param multiple Allow selection of multiple contrasts?
 #' @param select_all_contrasts Select all contrasts by default?
 #' @param show_controls Show the controls for contrast selection? 
-#' @param default_min_foldchange default value for the fold change filter
+#' @param default_foldchange default value for the fold change filter
 #'
 #' @keywords shiny
 #' 
@@ -107,7 +107,7 @@ contrastsOutput <- function(id) {
 #' @examples
 #' callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
-contrasts <- function(input, output, session, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, default_min_foldchange = 2) {
+contrasts <- function(input, output, session, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1) {
     
     ns <- session$ns
     
@@ -151,7 +151,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         # Call makeContrastFilterSet() to generate a set of filters, and add to the UI with insertUI()
         
         insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers, 
-            multiple = multiple, show_controls = show_controls, default_min_foldchange = default_min_foldchange, filter_rows = getFilterRows(), index = btn, select_all_contrasts = select_all_contrasts))
+            multiple = multiple, show_controls = show_controls, default_foldchange = default_foldchange, default_pval = default_pval, default_qval = default_qval, filter_rows = getFilterRows(), index = btn, select_all_contrasts = select_all_contrasts))
         
         # Record the ID of the added filter set
         
@@ -775,7 +775,7 @@ foldChange <- function(vec1, vec2) {
 #' \code{\link{makeContrastControl}}.
 #' @param show_controls Show controls? Setting to false will cause them to be 
 #' hidden.
-#' @param default_min_foldchange Default value for the fold change field 
+#' @param default_foldchange Default value for the fold change field 
 #' @param index Index. Will be used to differentiate mutiple copies of the
 #' field set.
 #' @param filter_rows Use fold change and p value etc to filter values? 
@@ -783,7 +783,7 @@ foldChange <- function(vec1, vec2) {
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
 
-makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, multiple, show_controls, default_min_foldchange = default_min_foldchange, index = "", 
+makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, multiple, show_controls, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1, index = "", 
     filter_rows = TRUE, select_all_contrasts = FALSE) {
     
     contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers, multiple = multiple, show_controls = show_controls, 
@@ -794,7 +794,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
         # p value field
         
         if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
-            pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)), value = 0.05, label = "p value", min = 0, max = 1, 
+            pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)), value = default_pval, label = "p value", min = 0, max = 1, 
                 step = 0.01)
             
         } else {
@@ -806,7 +806,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
         # q value field
         
         if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
-            qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)), value = 0.1, label = "q value", min = 0, max = 1, 
+            qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)), value = default_qval, label = "q value", min = 0, max = 1, 
                 step = 0.01)
         } else {
             qval_field <- hiddenInput(ns(paste0("q_value", index)), value = "NULL")
@@ -814,7 +814,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
         }
         contrast_field_set <- c(contrast_field_set, list(qval_field))
         
-        fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)), value = 2, label = "fold change", cardinality = "> or <-", 
+        fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)), value = default_foldchange, label = "fold change", cardinality = "> or <-", 
             step = 0.5)
         contrast_field_set <- c(contrast_field_set, list(fold_change_field))
     }
