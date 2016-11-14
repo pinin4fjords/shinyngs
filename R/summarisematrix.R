@@ -23,8 +23,8 @@ summarisematrixInput <- function(id, allow_none = TRUE, select_summary_type = TR
         summaryoptions <- c(None = "none")
     }
     
-    field <- inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
-        selected = "none"), label = "Average type")
+    field <- inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), selected = "none"), 
+        label = "Average type")
     
     if (!select_summary_type) {
         field <- shinyjs::hidden(field)

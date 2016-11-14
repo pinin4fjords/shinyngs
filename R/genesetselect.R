@@ -19,8 +19,8 @@
 genesetselectInput <- function(id, multiple = TRUE) {
     ns <- NS(id)
     
-    tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", 
-        maxItems = 5), multiple = multiple), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
+    tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(placeholder = "Type a gene set keyword", maxItems = 5), 
+        multiple = multiple), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
 }
 
 #' The server function of the genesetselect module
@@ -78,20 +78,19 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     getGeneSetNames <- reactive({
         gene_sets <- getGeneSets()
         
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")"))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), 
+            " (", settype, ")"))))
     })
     
     # A reactive for relating codes back to gene set IDs
     
     getGeneSetCodesByIDs <- reactive({
         gene_sets <- getGeneSets()
-        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), 
-            function(settype) names(gene_sets[[settype]]))))
+        structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(names(gene_sets), function(settype) names(gene_sets[[settype]]))))
     })
     
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list.  This reactive
-    # must be called by the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list.  This reactive must be called by the
+    # calling module.
     
     updateGeneSetsList <- reactive({
         updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)

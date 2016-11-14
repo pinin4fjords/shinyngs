@@ -25,13 +25,12 @@
 upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
-    upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, 
-        value = 20), inlineField(selectInput(ns("group_by"), label = NULL, choices = c("degree", "sets"), selected = "degree"), label = "Group by"), 
-        checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("show_empty_intersections"), 
-            label = "Show empty intersections?", value = TRUE))
+    upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, value = 20), inlineField(selectInput(ns("group_by"), 
+        label = NULL, choices = c("degree", "sets"), selected = "degree"), label = "Group by"), checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", 
+        value = TRUE), checkboxInput(ns("show_empty_intersections"), label = "Show empty intersections?", value = TRUE))
     
-    fieldSets(ns("fieldset"), list(intersections = upset_fields, expression = selectmatrixInput(ns("upset"), eselist), contrasts = contrastsInput(ns("upset")), 
-        export = plotdownloadInput(ns("upset"), "UpSet Plot")))
+    fieldSets(ns("fieldset"), list(intersections = upset_fields, expression = selectmatrixInput(ns("upset"), eselist), contrasts = contrastsInput(ns("upset")), export = plotdownloadInput(ns("upset"), 
+        "UpSet Plot")))
 }
 
 #' The output function of the clustering module
@@ -63,9 +62,9 @@ upsetInput <- function(id, eselist) {
 upsetOutput <- function(id, eselist) {
     ns <- NS(id)
     
-    list(modalInput(ns("upset"), "help", "help"), modalOutput(ns("upset"), "Intersection plots with UpSet", includeMarkdown(system.file("inlinehelp", 
-        "upset.md", package = packageName()))), h3("Intersection of differential sets"), plotOutput(ns("upset"), height = "600px"), h4("Differential set summary"), 
-        uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset")))
+    list(modalInput(ns("upset"), "help", "help"), modalOutput(ns("upset"), "Intersection plots with UpSet", includeMarkdown(system.file("inlinehelp", "upset.md", 
+        package = packageName()))), h3("Intersection of differential sets"), plotOutput(ns("upset"), height = "600px"), h4("Differential set summary"), uiOutput(ns("differential_parameters")), 
+        simpletableOutput(ns("upset")))
 }
 
 #' The server function of the upstart module
@@ -98,8 +97,7 @@ upset <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    selectmatrix_reactives <- callModule(selectmatrix, "upset", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE, 
-        select_meta = FALSE)
+    selectmatrix_reactives <- callModule(selectmatrix, "upset", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE, select_meta = FALSE)
     unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
@@ -184,8 +182,8 @@ upset <- function(input, output, session, eselist) {
         makeUpsetPlot(data, nsets = getNsets(), nintersects = getNintersections(), group_by = getGroupby(), empty.intersections = input$show_empty_intersections)
     })
     
-    callModule(simpletable, "upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, filter = "none", 
-        filename = "differential_summary", rownames = FALSE)
+    callModule(simpletable, "upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, filter = "none", filename = "differential_summary", 
+        rownames = FALSE)
     
     # Call to plotdownload module to provide plot as a download
     
@@ -215,6 +213,6 @@ upset <- function(input, output, session, eselist) {
 #' Gehlenborg N (2016). <em>UpSetR: A More Scalable Alternative to Venn and Euler Diagrams for Visualizing Intersecting Sets</em>. R package version 1.3.0, \url{https://CRAN.R-project.org/package=UpSetR}
 
 makeUpsetPlot <- function(list_input, nsets = 10, nintersects = 20, empty.intersections = FALSE, text.scale = 1.8, point.size = 3, group_by = "degree") {
-    UpSetR::upset(fromList(list_input), nsets = nsets, nintersects = nintersects, order.by = "freq", empty.intersections = empty.intersections, 
-        text.scale = text.scale, group.by = group_by, point.size = point.size, keep.order = TRUE)
+    UpSetR::upset(fromList(list_input), nsets = nsets, nintersects = nintersects, order.by = "freq", empty.intersections = empty.intersections, text.scale = text.scale, 
+        group.by = group_by, point.size = point.size, keep.order = TRUE)
 } 

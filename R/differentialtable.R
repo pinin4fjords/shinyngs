@@ -22,8 +22,7 @@ differentialtableInput <- function(id, eselist) {
     ns <- NS(id)
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
-    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"), dynamic_filters = TRUE)), select_assay_data = expression_filters, 
-        export = simpletableInput(ns("differentialtable"))))
+    fieldSets(ns("fieldset"), list(contrasts = list(contrastsInput(ns("differential"), dynamic_filters = TRUE)), select_assay_data = expression_filters, export = simpletableInput(ns("differentialtable"))))
 }
 
 #' The output function of the differentialtable module
@@ -84,8 +83,7 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module and unpack the reactives it sends back
     
-    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, 
-        provide_all_genes = TRUE)
+    selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
     unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing
@@ -94,6 +92,6 @@ differentialtable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, 
-        filename = "differential", rownames = FALSE)
+    callModule(simpletable, "differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", 
+        rownames = FALSE)
 } 

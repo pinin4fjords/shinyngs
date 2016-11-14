@@ -133,8 +133,7 @@ dexseqtableOutput <- function(id) {
 #' @examples
 #' callModule(dexseqtable, 'dexseqtable', eselist)
 
-dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, 
-    link_to_deu_plot = TRUE) {
+dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, link_to_deu_plot = TRUE) {
     
     # Only use experiments with gene set analyses available
     
@@ -192,8 +191,8 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
                 
                 # Make prettier column labels
                 
-                colnames(deu_table) <- c("groupID", "Exon", paste0("Mean normalised count (", eu_cols, ")"), paste0("Exon usage (", eu_cols, 
-                  ")"), "Relative exon usage fold change", "P value", "FDR corrected p value")
+                colnames(deu_table) <- c("groupID", "Exon", paste0("Mean normalised count (", eu_cols, ")"), paste0("Exon usage (", eu_cols, ")"), "Relative exon usage fold change", 
+                  "P value", "FDR corrected p value")
                 
                 # Add in gene symbols
                 
@@ -225,8 +224,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
             qvallim <- getQval()
             qvallim_card <- getQvalCard()
             
-            # deu_table <- deu_table[which(deu_table[['FDR corrected p value']] < qvallim & abs(deu_table[['Relative exon usage fold change']]) >
-            # fclim), ]
+            # deu_table <- deu_table[which(deu_table[['FDR corrected p value']] < qvallim & abs(deu_table[['Relative exon usage fold change']]) > fclim), ]
             
             deu_table <- deu_table[evaluateCardinalFilter(deu_table[["FDR corrected p value"]], qvallim_card, qvallim) & evaluateCardinalFilter(deu_table[["P value"]], 
                 pvallim_card, pvallim) & evaluateCardinalFilter(deu_table[["Relative exon usage fold change"]], fclim_card, fclim), ]
@@ -260,8 +258,8 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, 
-        show_controls = show_controls, pageLength = page_length)
+    callModule(simpletable, "dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, show_controls = show_controls, 
+        pageLength = page_length)
     
     # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
     

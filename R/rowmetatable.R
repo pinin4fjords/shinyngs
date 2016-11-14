@@ -48,8 +48,8 @@ rowmetatableInput <- function(id, eselist) {
 
 rowmetatableOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("rowmetatable"), "help", "help"), modalOutput(ns("rowmetatable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", 
-        "rowmetatable.md", package = packageName()))), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
+    list(modalInput(ns("rowmetatable"), "help", "help"), modalOutput(ns("rowmetatable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", "rowmetatable.md", 
+        package = packageName()))), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
 }
 
 #' The server function of the rowmetatable module
@@ -84,6 +84,5 @@ rowmetatable <- function(input, output, session, eselist) {
     })
     
     unpack.list(callModule(selectmatrix, "rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
-    callModule(simpletable, "rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, 
-        pageLength = 10)
+    callModule(simpletable, "rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
 } 

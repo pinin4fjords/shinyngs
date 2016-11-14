@@ -57,8 +57,8 @@ assaydatatableInput <- function(id, eselist) {
 assaydatatableOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("assaydatatable"), "help", "help"), modalOutput(ns("assaydatatable"), "Assay data table", includeMarkdown(system.file("inlinehelp", 
-        "assaydatatable.md", package = packageName()))), htmlOutput(ns("assaydatatable")))
+    list(modalInput(ns("assaydatatable"), "help", "help"), modalOutput(ns("assaydatatable"), "Assay data table", includeMarkdown(system.file("inlinehelp", "assaydatatable.md", 
+        package = packageName()))), htmlOutput(ns("assaydatatable")))
 }
 
 #' The server function of the assaydatatable module
@@ -101,6 +101,5 @@ assaydatatable <- function(input, output, session, eselist) {
     
     # Pass the matrix to the simpletable module for display
     
-    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), 
-        rownames = FALSE)
+    callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
 } 

@@ -49,9 +49,8 @@ illuminaarrayqcOutput <- function(id) {
     
     ns <- NS(id)
     
-    list(modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", 
-        includeMarkdown(system.file("inlinehelp", "illuminaarrayqc.md", package = packageName()))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), 
-        height = 600), h4("Table of data"), simpletableOutput(ns("qctable")))
+    list(modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", includeMarkdown(system.file("inlinehelp", 
+        "illuminaarrayqc.md", package = packageName()))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"), simpletableOutput(ns("qctable")))
 }
 
 #' The server function of the illuminaarrayqc module
@@ -74,8 +73,7 @@ illuminaarrayqcOutput <- function(id) {
 
 illuminaarrayqc <- function(input, output, session, eselist) {
     
-    unpack.list(callModule(selectmatrix, "illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, 
-        select_assay = FALSE))
+    unpack.list(callModule(selectmatrix, "illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
     
     output$qcplot <- renderPlotly({
         
@@ -86,23 +84,20 @@ illuminaarrayqc <- function(input, output, session, eselist) {
         
         controls_merged <- merge(control_annotation, controls, by.x = "Array_Address_Id", by.y = "row.names")
         
-        qc_groups <- list(cy3_low = "phage_lambda_genome:low", cy3_med = "phage_lambda_genome:med", cy3_high = "phage_lambda_genome:high", 
-            low_stringency_pm = "phage_lambda_genome:pm", low_stringency_mm = "phage_lambda_genome:mm2", negative = "permuted_negative", 
-            biotin = "phage_lambda_genome", labeling = "thrB", housekeeping = "housekeeping")
+        qc_groups <- list(cy3_low = "phage_lambda_genome:low", cy3_med = "phage_lambda_genome:med", cy3_high = "phage_lambda_genome:high", low_stringency_pm = "phage_lambda_genome:pm", 
+            low_stringency_mm = "phage_lambda_genome:mm2", negative = "permuted_negative", biotin = "phage_lambda_genome", labeling = "thrB", housekeeping = "housekeeping")
         
         plotdata <- reshape2::melt(do.call(cbind, lapply(qc_groups, function(qcg) {
             colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
         })))
         
-        group_by(plotdata, Var2) %>% plot_ly() %>% add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c("red", "red", "red", "orange", 
-            "orange", "black", "purple", "blue", "green"), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", 
-            "solid", "solid", "solid")) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = ""), 
-            yaxis = list(title = "Intensity"), margin = list(b = 200)) %>% config(showLink = TRUE)
+        group_by(plotdata, Var2) %>% plot_ly() %>% add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c("red", "red", "red", "orange", "orange", "black", "purple", 
+            "blue", "green"), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")) %>% layout(xaxis = list(categoryarray = rownames(experiment), 
+            categoryorder = "array", title = ""), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>% config(showLink = TRUE)
     })
     
     # Render the table and provide for download, using the simpletable module.
     
-    callModule(simpletable, "qctable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = "illumina_array_qc", 
-        rownames = FALSE)
+    callModule(simpletable, "qctable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE)
     
 } 

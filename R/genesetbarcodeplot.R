@@ -33,8 +33,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have
-    # invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -42,8 +41,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
     
     expression_filters <- selectmatrixInput(ns("expression"), eselist)
     
-    field_sets <- list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), 
-        allow_filtering = FALSE))
+    field_sets <- list(gene_set = genesetselectInput(ns("genesetbarcodeplot"), multiple = FALSE), contrast = contrastsInput(ns("genesetbarcodeplot"), allow_filtering = FALSE))
     
     # Things we don't want to wrap in a field set - probably hidden stuff
     
@@ -126,8 +124,7 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
     
-    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have
-    # invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
     
     for (exp in names(eselist)) {
         assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
@@ -148,8 +145,7 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Call to plotdownload module
     
-    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, 
-        plotWidth = 800)
+    callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, plotWidth = 800)
     
     observe({
         updateGeneSetsList()
@@ -223,8 +219,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Provide the gene set genes in a table of contrst data
     
-    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", 
-        rownames = FALSE, pageLength = 10)
+    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, 
+        pageLength = 10)
     
     # Catch the gene set from the URL
     

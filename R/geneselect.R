@@ -78,13 +78,11 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     
     # Get rows by metadata: pick from available values
     
-    lsf_picked_methods <- callModule(labelselectfield, "gene_label_pick", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, 
-        list_input = FALSE)
+    lsf_picked_methods <- callModule(labelselectfield, "gene_label_pick", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, list_input = FALSE)
     
     # Get rows by metadata: paste in a list
     
-    lsf_listed_methods <- callModule(labelselectfield, "gene_label_list", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, 
-        list_input = TRUE)
+    lsf_listed_methods <- callModule(labelselectfield, "gene_label_list", eselist = eselist, getExperiment = getExperiment, field_selection = TRUE, list_input = TRUE)
     
     # Add the gene sets to the drop-down if required
     
@@ -124,17 +122,15 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
                 selected = default
             }
             
-            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), 
-                conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", 
-                  min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'metadata_pick' "), 
-                  labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'metadata_list' "), 
-                  labelselectfieldInput(ns("gene_label_list"))))
+            gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'variance' "), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0("input['", 
+                ns("geneSelect"), "'] == 'metadata_pick' "), labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0("input['", ns("geneSelect"), 
+                "'] == 'metadata_list' "), labelselectfieldInput(ns("gene_label_list"))))
             
             # If gene sets have been provided, then make a gene sets filter
             
             if (useGenesets()) {
-                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), 
-                  genesetselectInput(ns("geneset")))
+                gene_select[[length(gene_select) + 1]] <- conditionalPanel(condition = paste0("input['", ns("geneSelect"), "'] == 'gene set' "), genesetselectInput(ns("geneset")))
             }
             
         })
