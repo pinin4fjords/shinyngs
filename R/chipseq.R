@@ -40,9 +40,11 @@ chipseqInput <- function(id, eselist) {
     
     # Add read reports if provided
     
-    if (length(eselist@read_reports) > 0) {
-        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read reports", sidebarLayout(sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3), 
-            mainPanel(readreportsOutput(ns("readrep")), width = 9)), icon = icon("bar-chart-o")))
+    if (any(unlist(lapply(eselist, function(ese) {
+      length(ese@read_reports) > 0
+    })))) {
+      exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read reports", sidebarLayout(sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3), 
+                                                                                              mainPanel(readreportsOutput(ns("readrep")), width = 9)), icon = icon("bar-chart-o")))
     }
     exploratory_menu$icon <- icon("binoculars")
     
@@ -158,8 +160,10 @@ chipseq <- function(input, output, session, eselist) {
     
     # Calls for the various optional tables
     
-    if (length(eselist@read_reports) > 0) {
-        callModule(readreports, "readrep", eselist)
+    if (any(unlist(lapply(eselist, function(ese) {
+      length(ese@read_reports) > 0
+    })))) {
+      callModule(readreports, "readrep", eselist)
     }
     
     if (length(eselist@contrasts) > 0) {
