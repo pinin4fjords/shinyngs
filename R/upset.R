@@ -122,13 +122,15 @@ upset <- function(input, output, session, eselist, setlimit = 14) {
         valid_sets <- getValidSets()
         max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
         
+        message <- paste(length(valid_sets), "valid differential sets found (count > 0)")
         if (length(valid_sets) > setlimit){
-          message <- paste("(Note: the set selection used to produce the below plot has been limited to", max_sets, "sets")
+          message <- paste(message, "<br />(Note: the set selection used to produce the below plot has been limited to", max_sets, "sets")
           if (input$separate_by_direction) {
             message <- paste(message,  paste("(",floor((max_sets/2))," contrasts)")) 
           }
           message <- paste(message, "due to computational limitations. You may wish to refine your choice of contrasts)")  
         }
+        message
     })
     
     ############################################################################# Form accessors
