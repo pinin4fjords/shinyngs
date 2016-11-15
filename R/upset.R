@@ -130,7 +130,7 @@ upset <- function(input, output, session, eselist, setlimit = 14) {
           }
           message <- paste(message, "due to computational limitations. You may wish to refine your choice of contrasts)")  
         }
-        message
+        HTML(message)
     })
     
     ############################################################################# Form accessors
