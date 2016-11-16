@@ -4,7 +4,7 @@
 \alias{upset}
 \title{The server function of the upstart module}
 \usage{
-upset(input, output, session, eselist)
+upset(input, output, session, eselist, setlimit = 14)
 }
 \arguments{
 \item{input}{Input object}
@@ -17,8 +17,12 @@ upset(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This module illustrates the intersection of differential sets using the 
-\code{\link[UpSetR]{upset}} tool of Lex, Gehlenborg et al.
+This module illustrates the intersection of differential sets using a 
+reimplementation of the \code{\link[UpSetR]{upset}} tool of Lex, 
+Gehlenborg et al. The reimplementation was done to allow use of more dynamic
+components, and to allow plotting of all elements in given intersections 
+(rather than assigning every item to its highest-order intersection). It 
+also seems to have sped things up.
 }
 \details{
 This function is not called directly, but rather via callModule() (see 

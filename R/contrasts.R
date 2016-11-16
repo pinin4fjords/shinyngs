@@ -443,7 +443,6 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     
     makeSafeContrastNames <- reactive({
         contrasts <- getAllContrasts()
-        saveRDS(contrasts, file = "/tmp/contrasts.rds")
         names <- lapply(contrasts, function(x) paste(ucfirst(prettifyVariablename(x[1])), paste(ucfirst(x[3]), ucfirst(x[2]), sep = "_vs_"), sep = "."))
         names <- lapply(names, function(name){
           name <- sub('\\+', '_POS_', name)

@@ -6,7 +6,7 @@
 \usage{
 contrasts(input, output, session, eselist, selectmatrix_reactives = list(),
   multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE,
-  default_min_foldchange = 2)
+  default_foldchange = 2, default_pval = 0.05, default_qval = 0.1)
 }
 \arguments{
 \item{input}{Input object}
@@ -28,7 +28,7 @@ gain access to the data provided by those reaactive.}
 
 \item{show_controls}{Show the controls for contrast selection?}
 
-\item{default_min_foldchange}{default value for the fold change filter}
+\item{default_foldchange}{default value for the fold change filter}
 }
 \description{
 This module provides the form elements to control contrasts used in e.g. 

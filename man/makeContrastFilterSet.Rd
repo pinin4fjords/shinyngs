@@ -6,8 +6,9 @@
 change, and where applicable p- and q- values.}
 \usage{
 makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers, multiple,
-  show_controls, default_min_foldchange = default_min_foldchange,
-  index = "", filter_rows = TRUE, select_all_contrasts = FALSE)
+  show_controls, default_foldchange = 2, default_pval = 0.05,
+  default_qval = 0.1, index = "", filter_rows = TRUE,
+  select_all_contrasts = FALSE)
 }
 \arguments{
 \item{ns}{A namespace function (created with \code{\link[shiny]{NS}} to be 
@@ -28,7 +29,7 @@ used in creating field IDs.}
 \item{show_controls}{Show controls? Setting to false will cause them to be 
 hidden.}
 
-\item{default_min_foldchange}{Default value for the fold change field}
+\item{default_foldchange}{Default value for the fold change field}
 
 \item{index}{Index. Will be used to differentiate mutiple copies of the
 field set.}

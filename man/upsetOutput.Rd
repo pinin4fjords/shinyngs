@@ -17,8 +17,12 @@ output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module illustrates the intersection of differential sets using the 
-\code{\link[UpSetR]{upset}} tool of Lex, Gehlenborg et al.
+This module illustrates the intersection of differential sets using a 
+reimplementation of the \code{\link[UpSetR]{upset}} tool of Lex, 
+Gehlenborg et al. The reimplementation was done to allow use of more dynamic
+components, and to allow plotting of all elements in given intersections 
+(rather than assigning every item to its highest-order intersection). It 
+also seems to have sped things up.
 }
 \details{
 This function provides the form elements to control the display

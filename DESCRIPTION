@@ -21,8 +21,7 @@ Imports:
     shiny,
     shinyjs,
     shinythemes,
-    SummarizedExperiment,
-    UpSetR
+    SummarizedExperiment
 Suggests:
     shinyBS,
     BiocStyle,

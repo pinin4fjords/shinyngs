@@ -11,7 +11,7 @@ See the [UpSet documentation](http://www.caleydo.org/tools/upset/) for more info
 
 These controls dictate how the plotting is actually done. Intersections are complex with large numbers of sets, so you can restrict the number of contrasts considered. You'll also find that many intersections are to small to be useful, so you can change the number of intersections that will be displayed.
 
-<b>Note:</b> Interpretation of these plots can be tricky, because the columns in the plot represent the areas of a Venn/Euler plot. This means that e.g. the visible intersection of four sets is that of <i>exactly</i> four sets. It does not include those features present in other sets as well. For example if a five-set itersection is present involving those four sets and one other, its counts will not be present in the four-set intersection. 
+<b>Note:</b> Interpretation of the UpSet-style version of these plots can be tricky, because the columns in the plot represent the areas of a Venn/Euler plot. This means that e.g. the visible intersection of four sets is that of <i>exactly</i> four sets. It does not include those features present in other sets as well. For example if a five-set itersection is present involving those four sets and one other, its counts will not be present in the four-set intersection. Switch betwen 'all' and 'upset' modes to understand the difference.
 
 ##### Expression matrix
 
