@@ -48,8 +48,8 @@ rowmetatableInput <- function(id, eselist) {
 
 rowmetatableOutput <- function(id) {
     ns <- NS(id)
-    list(modalInput(ns("rowmetatable"), "help", "help"), modalOutput(ns("rowmetatable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", "rowmetatable.md", 
-        package = packageName()))), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
+    list(modalInput(ns("rowmetatable"), "help", "help"), modalOutput(ns("rowmetatable"), "Experimental data table", includeMarkdown(system.file("inlinehelp", 
+        "rowmetatable.md", package = packageName()))), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
 }
 
 #' The server function of the rowmetatable module

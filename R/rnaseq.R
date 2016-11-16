@@ -32,8 +32,8 @@ rnaseqInput <- function(id, eselist) {
     
     exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
         width = 9)), icon = icon("bar-chart-o")), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), 
-        width = 9)), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), 
-        mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
+        width = 9)), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), 
+        width = 3), mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
         eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)), icon = icon("sitemap")), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
         eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = "samples"), width = 9)), icon = icon("th")), tabPanel("Feature-wise clustering", 
         sidebarLayout(sidebarPanel(clusteringInput(ns("feature-clustering"), eselist), width = 3), mainPanel(clusteringOutput(ns("feature-clustering")), width = 9)), 
@@ -65,9 +65,9 @@ rnaseqInput <- function(id, eselist) {
     
     if (length(eselist@contrasts) > 0) {
         
-        differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3), mainPanel(differentialtableOutput(ns("differential")), 
-            width = 9)), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), eselist), width = 3), 
-            mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("line-chart")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
+        differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3), 
+            mainPanel(differentialtableOutput(ns("differential")), width = 9)), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), 
+            eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("line-chart")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
             eselist), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9)), icon = icon("line-chart")))
         
         # If any of the experiments in the list have assays with associated tests, add a volcano plot
@@ -75,8 +75,8 @@ rnaseqInput <- function(id, eselist) {
         if (any(unlist(lapply(eselist, function(ese) {
             length(ese@tests) > 0
         })))) {
-            differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), width = 3), 
-                mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("line-chart")))
+            differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), 
+                width = 3), mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("line-chart")))
         }
         
         # If any of the experiments have gene set analyses, add this table to the menu
@@ -106,8 +106,8 @@ rnaseqInput <- function(id, eselist) {
         # If there's more than one contrast we can compare differential sets
         
         if (length(eselist@contrasts) > 1) {
-            differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(ns("upset"), eselist), 
-                width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o")))
+            differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(ns("upset"), 
+                eselist), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o")))
         }
         
         differential_menu$icon <- icon("line-chart")
@@ -118,8 +118,8 @@ rnaseqInput <- function(id, eselist) {
     
     # Add the gene info plots
     
-    navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(sidebarPanel(geneInput(ns("gene"), eselist), width = 3), mainPanel(geneOutput(ns("gene"), 
-        eselist), width = 9)), icon = icon("bar-chart-o")))
+    navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(sidebarPanel(geneInput(ns("gene"), eselist), width = 3), 
+        mainPanel(geneOutput(ns("gene"), eselist), width = 9)), icon = icon("bar-chart-o")))
     
     # Add the final wrappers
     

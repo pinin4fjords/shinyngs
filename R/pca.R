@@ -60,9 +60,9 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", "pca.md", package = packageName()))), 
-        h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))), tabPanel("Loadings plot", 
-            list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
+    list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", "pca.md", 
+        package = packageName()))), h3("Principal components analysis"), tabsetPanel(tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))), 
+        tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))))
 }
 
 #' The server function of the pca module
@@ -110,8 +110,8 @@ pca <- function(input, output, session, eselist) {
     
     callModule(scatterplot, "pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
         getPointSize = getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = getPalette)
-    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, 
-        getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
+    callModule(scatterplot, "loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, 
+        getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
     
     # Simple title functions
     

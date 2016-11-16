@@ -107,8 +107,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
     unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
-    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, getAssay = getAssay, 
-        provide_all = provide_all_genes, default = default_gene_select))
+    unpack.list(callModule(geneselect, "selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, 
+        getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select))
     
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
     
@@ -138,7 +138,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
                 metafields <- setdiff(metafields, ese@idfield)
             }
             
-            checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)), selected = ese@labelfield, inline = TRUE)
+            checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)), selected = ese@labelfield, 
+                inline = TRUE)
         } else if (length(ese@labelfield) > 0) {
             hiddenInput(id = ns("metafields"), values = ese@labelfield)
         }
@@ -335,8 +336,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     
     list(getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix, 
         matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix, 
-        getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, getExperimentName = getExperimentName, 
-        getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields)
+        getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId, 
+        getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields)
 }
 
 #' Add columns to display ID and label in a table
@@ -378,7 +379,8 @@ labelMatrix <- function(matrix, ese, idcol = NULL, metafields = c()) {
     # if (length(ese@labelfield) > 0) { labelfield <- ese@labelfield matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield) matrix <- matrix[,
     # c(idfield, labelfield, datacolnames), drop = FALSE]
     
-    # colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield) } else { matrix <- matrix[, c(idfield, datacolnames), drop = FALSE] }
+    # colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield) } else { matrix <- matrix[, c(idfield, datacolnames), drop = FALSE]
+    # }
     
     matrix
 }

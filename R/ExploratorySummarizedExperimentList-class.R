@@ -18,22 +18,22 @@ setClass("ExploratorySummarizedExperimentList", contains = "list", representatio
 # Subset operator for integer type like 1:2
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "ANY", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, ensembl_species = x@ensembl_species)
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+        contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, ensembl_species = x@ensembl_species)
 })
 
 # Subset operator for numeric type like 1
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "numeric", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, ensembl_species = x@ensembl_species)
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+        contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, ensembl_species = x@ensembl_species)
 })
 
 # And one for logicals. Do I really need to repeat these? Must look into it....
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, contrasts = x@contrasts, 
-        url_roots = x@url_roots, gene_sets = x@gene_sets, ensembl_species = x@ensembl_species)
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+        contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, ensembl_species = x@ensembl_species)
 })
 
 #' ExploratorySummarizedExperimentLists, containers for
@@ -75,8 +75,8 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
 
-ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), contrasts = list(), 
-    url_roots = list(), gene_sets = list(), ensembl_species = character()) {
+ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), 
+    contrasts = list(), url_roots = list(), gene_sets = list(), ensembl_species = character()) {
     
     if (!is.list(eses)) {
         eses <- list(eses)

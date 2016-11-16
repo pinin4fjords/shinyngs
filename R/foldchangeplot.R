@@ -75,8 +75,8 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
     ns <- NS(id)
     
-    list(modalInput(ns("foldchangeplot"), "help", "help"), modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp", "foldchangeplot.md", 
-        package = packageName()))), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+    list(modalInput(ns("foldchangeplot"), "help", "help"), modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp", 
+        "foldchangeplot.md", package = packageName()))), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -125,8 +125,8 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Pass the matrix to the scatterplot module for display
     
-    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, 
-        getLines = plotLines)
+    callModule(scatterplot, "foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, 
+        colorBy = colorBy, getLines = plotLines)
     
     # Make a title by selecting the single contrast name of the single filter set
     
@@ -155,8 +155,9 @@ foldchangeplot <- function(input, output, session, eselist) {
         min <- min(xmin, ymin)
         max <- max(xmax, ymax)
         
-        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(min, max, min, 
-            max, min, max), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim)))), stringsAsFactors = FALSE)
+        lines <- data.frame(name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(min, max, 
+            min, max, min, max), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim)))), 
+            stringsAsFactors = FALSE)
         lines$name <- factor(lines$name, levels = unique(lines$name))
         
         # Use lines dependent on how the fold change filter is applied
@@ -211,7 +212,7 @@ foldchangeplot <- function(input, output, session, eselist) {
     
     # Display the data as a table alongside
     
-    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", rownames = FALSE, 
-        pageLength = 10)
+    callModule(simpletable, "foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", 
+        rownames = FALSE, pageLength = 10)
     
 } 

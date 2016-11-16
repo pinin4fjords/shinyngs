@@ -50,7 +50,8 @@ illuminaarrayqcOutput <- function(id) {
     ns <- NS(id)
     
     list(modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", includeMarkdown(system.file("inlinehelp", 
-        "illuminaarrayqc.md", package = packageName()))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"), simpletableOutput(ns("qctable")))
+        "illuminaarrayqc.md", package = packageName()))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"), 
+        simpletableOutput(ns("qctable")))
 }
 
 #' The server function of the illuminaarrayqc module
@@ -91,8 +92,8 @@ illuminaarrayqc <- function(input, output, session, eselist) {
             colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
         })))
         
-        group_by(plotdata, Var2) %>% plot_ly() %>% add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c("red", "red", "red", "orange", "orange", "black", "purple", 
-            "blue", "green"), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")) %>% layout(xaxis = list(categoryarray = rownames(experiment), 
+        group_by(plotdata, Var2) %>% plot_ly() %>% add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c("red", "red", "red", "orange", "orange", "black", 
+            "purple", "blue", "green"), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")) %>% layout(xaxis = list(categoryarray = rownames(experiment), 
             categoryorder = "array", title = ""), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>% config(showLink = TRUE)
     })
     

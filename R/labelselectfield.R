@@ -71,12 +71,12 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #' @examples
 #' callModule(labelselectfield, 'myid', eselist)
 
-labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1, field_selection = FALSE, 
-    id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
+labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1, 
+    field_selection = FALSE, id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
     
-    # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols etc.  But
-    # if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it will depend on the
-    # value of any experiment-selecting field.
+    # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols
+    # etc.  But if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it
+    # will depend on the value of any experiment-selecting field.
     
     # A wrapper reactive to determine the experiments to consider when parsing metadata. Use all experiments if a reactie is not supplied.
     
@@ -143,7 +143,8 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
         if (list_input) {
             tags$textarea(id = ns("label"), rows = 3, cols = 20, "Paste list here, one per line")
         } else {
-            selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(placeholder = "Type a value or scroll", maxItems = max_items, addPrecedence = TRUE))
+            selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(placeholder = "Type a value or scroll", maxItems = max_items, 
+                addPrecedence = TRUE))
         }
     })
     

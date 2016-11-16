@@ -35,7 +35,8 @@ volcanoplotInput <- function(id, eselist) {
     })))]
     expression_filters <- selectmatrixInput(ns("expression"), eselist, require_tests = TRUE)
     
-    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
+    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for
+    # them
     
     fieldsets <- list()
     if (length(eselist) > 1) {
@@ -165,8 +166,8 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1], na.rm = TRUE)
             xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
-            lines <- data.frame(name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2), rep(paste("q <", qvallim), 2)), x = c(rep(-log2(abs(fclim)), 
-                2), rep(log2(abs(fclim)), 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2)))
+            lines <- data.frame(name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2), rep(paste("q <", qvallim), 2)), 
+                x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2)))
             
             # Use lines dependent on how the fold change filter is applied
             

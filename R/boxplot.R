@@ -32,8 +32,8 @@ boxplotInput <- function(id, eselist) {
     }
     
     expression_filters <- selectmatrixInput(ns("sampleBoxplot"), eselist)
-    quartile_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines"), selected = default_type), numericInput(ns("whiskerDistance"), "Whisker distance in multiples of IQR", 
-        value = 1.5), groupbyInput(ns("boxplot")))
+    quartile_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines"), selected = default_type), numericInput(ns("whiskerDistance"), 
+        "Whisker distance in multiples of IQR", value = 1.5), groupbyInput(ns("boxplot")))
     
     field_sets = list()
     naked_fields = list()  # Things we don't want to wrap in a field set - probably hidden stuff
@@ -202,9 +202,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NUL
         p <- ggplot(plotdata, aes(name, log2_count)) + geom_boxplot()
     }
     
-    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", axis.text.y = element_text(size = rel(1.5)), 
-        legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", expressiontype, ")"), 
-        15))
+    p <- p + theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom", 
+        axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))) + ylab(splitStringToFixedwidthLines(paste0("log2(", 
+        expressiontype, ")"), 15))
     
     print(p)
 }
@@ -277,8 +277,8 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
         line = list(width = 1, color = "grey", dash = "dash"), name = paste0("75%<br />+ (IQR * ", whisker_distance, ")")) %>% add_lines(x = samples, y = quantiles["75%", 
         samples], line = list(dash = "dash", color = "black"), name = "75%") %>% add_lines(x = samples, y = quantiles["50%", samples], line = list(dash = "solid", 
         color = "black"), name = "median") %>% add_lines(x = samples, y = quantiles["25%", samples], line = list(dash = "longdash", color = "black"), name = "25%") %>% 
-        add_lines(x = samples, y = quantiles["25%", ] - ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), line = list(width = 1, color = "grey", dash = "longdash"), 
-            name = paste0("25%<br />- (IQR * ", whisker_distance, ")")) %>% layout(xaxis = list(title = NULL, categoryarray = samples, categoryorder = "array"), yaxis = list(title = paste0("log2(", 
-        expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL)
+        add_lines(x = samples, y = quantiles["25%", ] - ((quantiles["75%", ] - quantiles["25%", ]) * whisker_distance), line = list(width = 1, color = "grey", 
+            dash = "longdash"), name = paste0("25%<br />- (IQR * ", whisker_distance, ")")) %>% layout(xaxis = list(title = NULL, categoryarray = samples, 
+        categoryorder = "array"), yaxis = list(title = paste0("log2(", expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL)
     
 } 

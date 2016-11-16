@@ -108,8 +108,8 @@ scatterplotOutput <- function(id) {
 #' Three columns required: name, x and y, with two rows for every value of
 #' name. These two rows represent the start and end of a line.
 
-scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, 
-    getPalette = NULL, colorBy = NULL, getTitle = reactive({
+scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, 
+    getPointSize = NULL, getPalette = NULL, colorBy = NULL, getTitle = reactive({
         ""
     }), getLabels = reactive({
         rownames(getDatamatrix())
@@ -198,8 +198,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         if (any(unlabelled())) {
             withProgress(message = "Adding unlabelled points", value = 0, {
                 
-                plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", type = plotType(), 
-                  showlegend = showLegend(), name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"))
+                plotargs <- list(p, x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none", 
+                  type = plotType(), showlegend = showLegend(), name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray"))
                 
                 p <- do.call(plotly::add_trace, plotargs)
                 
@@ -209,15 +209,16 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     }
     
     # makeColorScale <- reactive({ ncolors <- nlevels(factor(colorBy())) if (ncolors > brewer.pal.info['Set1', 'maxcolors']){ cols <-
-    # colorRampPalette(brewer.pal(brewer.pal.info['Set1', 'maxcolors'], 'Set1'))(ncolors) }else{ cols <- RColorBrewer::brewer.pal(ncolors, 'Set1') } rev(cols) })
+    # colorRampPalette(brewer.pal(brewer.pal.info['Set1', 'maxcolors'], 'Set1'))(ncolors) }else{ cols <- RColorBrewer::brewer.pal(ncolors, 'Set1') } rev(cols)
+    # })
     
     # Labelled points plotted with hovers, colors as specified in groupings
     
     addLabelledPoints <- function(p) {
         if (any(!unlabelled())) {
             withProgress(message = "Adding labelled points", value = 0, {
-                plotargs <- list(p, x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", hoverinfo = "text", text = getLabels()[!unlabelled()], 
-                  type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()))
+                plotargs <- list(p, x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", hoverinfo = "text", 
+                  text = getLabels()[!unlabelled()], type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize()))
                 
                 if (!is.null(colorBy)) {
                   plotargs$color <- colorBy()[!unlabelled()]
@@ -253,7 +254,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         
         withProgress(message = "Adjusting axis display", value = 0, {
             
-            axis_layouts <- list(xaxis = list(title = colnames(getDatamatrix())[getXAxis()]), yaxis = list(title = colnames(getDatamatrix())[getYAxis()]), legend = list(y = 0.8))
+            axis_layouts <- list(xaxis = list(title = colnames(getDatamatrix())[getXAxis()]), yaxis = list(title = colnames(getDatamatrix())[getYAxis()]), 
+                legend = list(y = 0.8))
             
             layoutArgs <- reactive({
                 la <- c(list(p, hovermode = "closest", title = title), axis_layouts)

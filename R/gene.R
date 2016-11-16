@@ -63,7 +63,8 @@ geneOutput <- function(id, eselist) {
     
     out <- list()
     
-    out <- c(out, list(uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), simpletableOutput(ns("geneContrastsTable"))))
+    out <- c(out, list(uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"), 
+        simpletableOutput(ns("geneContrastsTable"))))
     
     out
 }
@@ -110,7 +111,8 @@ gene <- function(input, output, session, eselist) {
         en <- getExperimentName()
         gene_labels <- getSelectedLabels()
         
-        list(modalInput(ns("geneInfo"), paste(en, " info"), "help"), modalOutput(ns("geneInfo"), paste(en, "information for", paste(gene_labels, sep = ", ")), DT::dataTableOutput(ns("geneInfoTable"))))
+        list(modalInput(ns("geneInfo"), paste(en, " info"), "help"), modalOutput(ns("geneInfo"), paste(en, "information for", paste(gene_labels, sep = ", ")), 
+            DT::dataTableOutput(ns("geneInfoTable"))))
     })
     
     # Render the gene model plot
@@ -272,8 +274,8 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
             plotargs$colors <- palette
         }
         
-        do.call(plot_ly, plotargs) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = rownames(expression)[rowno], titlefont = list(size = 10)), 
-            yaxis = yaxis, margin = list(b = xlab_space))
+        do.call(plot_ly, plotargs) %>% layout(xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = rownames(expression)[rowno], 
+            titlefont = list(size = 10)), yaxis = yaxis, margin = list(b = xlab_space))
     })
     
     if (length(plots) > 1) {
@@ -311,8 +313,8 @@ geneModelPlot <- function(ensembl_species, chromosome, start, end) {
     
     # We should know the start_position and end_position. Fetch a track showing genes in the region
     
-    geneTrack <- BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol", collapseTranscripts = TRUE, 
-        shape = "arrow")
+    geneTrack <- BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol", 
+        collapseTranscripts = TRUE, shape = "arrow")
     
     # Move gene labels to above
     

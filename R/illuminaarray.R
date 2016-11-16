@@ -23,17 +23,18 @@ illuminaarrayInput <- function(id, eselist) {
     navbar_menus <- list(id = ns("illuminaarray"), title = paste0("Illumina expression array explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", 
         sidebarLayout(sidebarPanel(column(12, offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
             p(HTML(paste0(icon("github"), "&nbsp;Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>"))), 
-            p(HTML(paste0(icon("chrome"), "&nbsp;This app is best viewed with the Chrome browser.")))), width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), 
-            h3(eselist@author), HTML(eselist@description))), width = 9)), icon = icon("home")), navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), 
-        eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)), icon = icon("table")), tabPanel("Annotation", sidebarLayout(sidebarPanel(rowmetatableInput(ns("rowmetatable"), 
-        eselist), width = 2), mainPanel(rowmetatableOutput(ns("rowmetatable")), width = 10)), icon = icon("table")), icon = icon("flask")))
+            p(HTML(paste0(icon("chrome"), "&nbsp;This app is best viewed with the Chrome browser.")))), width = 3), mainPanel(fluidRow(column(12, offset = 0, 
+            h2(eselist@title), h3(eselist@author), HTML(eselist@description))), width = 9)), icon = icon("home")), navbarMenu("Sample data", tabPanel("Experiment", 
+        sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), 
+            width = 9)), icon = icon("table")), tabPanel("Annotation", sidebarLayout(sidebarPanel(rowmetatableInput(ns("rowmetatable"), eselist), width = 2), 
+        mainPanel(rowmetatableOutput(ns("rowmetatable")), width = 10)), icon = icon("table")), icon = icon("flask")))
     
     # Add in the QC/ exploratory menu
     
     exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
         width = 9)), icon = icon("bar-chart-o")), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), 
-        width = 9)), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), width = 3), 
-        mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
+        width = 9)), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), 
+        width = 3), mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
         eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)), icon = icon("sitemap")), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
         eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = "samples"), width = 9)), icon = icon("th")), tabPanel("Feature-wise clustering", 
         sidebarLayout(sidebarPanel(clusteringInput(ns("feature-clustering"), eselist), width = 3), mainPanel(clusteringOutput(ns("feature-clustering")), width = 9)), 
@@ -51,8 +52,8 @@ illuminaarrayInput <- function(id, eselist) {
     # Illumina-specific QC plot
     
     if ("control" %in% names(eselist)) {
-        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Control probe QC", sidebarLayout(sidebarPanel(illuminaarrayqcInput(ns("illuminaarrayqc"), eselist), 
-            width = 3), mainPanel(illuminaarrayqcOutput(ns("illuminaarrayqc")), width = 9)), icon = icon("line-chart")))
+        exploratory_menu <- pushToList(exploratory_menu, tabPanel("Control probe QC", sidebarLayout(sidebarPanel(illuminaarrayqcInput(ns("illuminaarrayqc"), 
+            eselist), width = 3), mainPanel(illuminaarrayqcOutput(ns("illuminaarrayqc")), width = 9)), icon = icon("line-chart")))
     }
     
     exploratory_menu$icon <- icon("binoculars")
@@ -73,9 +74,9 @@ illuminaarrayInput <- function(id, eselist) {
     
     if (length(eselist@contrasts) > 0) {
         
-        differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3), mainPanel(differentialtableOutput(ns("differential")), 
-            width = 9)), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), eselist), width = 3), 
-            mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("line-chart")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
+        differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3), 
+            mainPanel(differentialtableOutput(ns("differential")), width = 9)), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), 
+            eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("line-chart")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
             eselist), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9)), icon = icon("line-chart")))
         
         # If any of the experiments in the list have assays with associated tests, add a volcano plot
@@ -83,8 +84,8 @@ illuminaarrayInput <- function(id, eselist) {
         if (any(unlist(lapply(eselist, function(ese) {
             length(ese@tests) > 0
         })))) {
-            differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), width = 3), 
-                mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("line-chart")))
+            differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), 
+                width = 3), mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("line-chart")))
         }
         
         # If any of the experiments have gene set analyses, add this table to the menu
@@ -114,8 +115,8 @@ illuminaarrayInput <- function(id, eselist) {
         # If there's more than one contrast we can compare differential sets
         
         if (length(eselist@contrasts) > 1) {
-            differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(ns("upset"), eselist), 
-                width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o")))
+            differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(ns("upset"), 
+                eselist), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o")))
         }
         
         differential_menu$icon <- icon("line-chart")
@@ -126,8 +127,8 @@ illuminaarrayInput <- function(id, eselist) {
     
     # Add the gene info plots
     
-    navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(sidebarPanel(geneInput(ns("gene"), eselist), width = 3), mainPanel(geneOutput(ns("gene"), 
-        eselist), width = 9)), icon = icon("bar-chart-o")))
+    navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(sidebarPanel(geneInput(ns("gene"), eselist), width = 3), 
+        mainPanel(geneOutput(ns("gene"), eselist), width = 9)), icon = icon("bar-chart-o")))
     
     # Add the final wrappers
     

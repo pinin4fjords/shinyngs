@@ -96,7 +96,8 @@ dendro <- function(input, output, session, eselist) {
     # Reactive for making a plot for download
     
     plotSampleDendroPlot <- reactive({
-        clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(), palette = getPalette())
+        clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(), cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(), 
+            palette = getPalette())
         
     })
     
@@ -155,7 +156,8 @@ dendro <- function(input, output, session, eselist) {
 #' mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000],]
 #' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = 'dex')
 
-clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2, palette = NULL) {
+clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2, 
+    palette = NULL) {
     
     plotmatrix <- log2(plotmatrix + 1)
     

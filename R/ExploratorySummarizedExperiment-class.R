@@ -13,11 +13,12 @@
 #' @export
 
 setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", 
-    "SummarizedExperiment0"), representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", tests = "list", assay_measures = "list", 
-    gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"))
+    "SummarizedExperiment0"), representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", tests = "list", 
+    assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
-    as((as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))), "ExploratorySummarizedExperiment")
+    as((as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))), 
+        "ExploratorySummarizedExperiment")
 })
 
 #' ExploratorySummarizedExperiments
@@ -61,8 +62,8 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' @import SummarizedExperiment
 #' @export
 
-ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), assay_measures = list(), 
-    gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
+ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), 
+    assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation

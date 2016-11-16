@@ -219,8 +219,8 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     
     # Provide the gene set genes in a table of contrst data
     
-    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, 
-        pageLength = 10)
+    callModule(simpletable, "genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", 
+        rownames = FALSE, pageLength = 10)
     
     # Catch the gene set from the URL
     
