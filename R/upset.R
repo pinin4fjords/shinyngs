@@ -30,8 +30,7 @@ upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
     upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, value = 20), 
-        checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", value = TRUE), inlineField(checkboxInput(ns("set_sort"), NULL, 
-            value = TRUE), "Sort sets by size?"), checkboxInput(ns("bar_numbers"), "Show bar numbers?", value = FALSE), checkboxInput(ns("show_empty_intersections"), 
+        checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("set_sort"), "Sort sets by size?", value = TRUE), checkboxInput(ns("bar_numbers"), "Show bar numbers?", value = FALSE), checkboxInput(ns("show_empty_intersections"), 
             label = "Show empty intersections?", value = TRUE), selectInput(ns("intersection_assignment_type"), "Intersection assignment type", choices = c(`Highest-order (UpSet)` = "upset", 
             `All associated intersections` = "all"), selected = "upset"))
     
@@ -316,10 +315,8 @@ upset <- function(input, output, session, eselist, setlimit = 18) {
         grid <- upsetGrid()
         set_size_chart <- upsetSetSizeBarChart()
         intersect_size_chart <- upsetIntersectSizeBarChart()
-        
+
         # Hide tick labels on the grid
-        
-        grid <- grid %>% layout(xaxis = list(showticklabels = FALSE), yaxis = list(showticklabels = FALSE), margin = list(t = 0, b = 40))
         
         # Unfortunately axis titles get hidden on the subplot. Not sure why.
         
@@ -367,9 +364,10 @@ upset <- function(input, output, session, eselist, setlimit = 18) {
         }))
         
         plot_ly(type = "scatter", mode = "markers", marker = list(color = "lightgrey", size = 8)) %>% add_trace(type = "scatter", x = rep(1:nintersections, 
-            length(selected_sets)), y = unlist(lapply(1:length(selected_sets), function(x) rep(x, nintersections))), hoverinfo = "none") %>% add_trace(type = "scatter", 
-            data = group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y, line = list(color = "black", width = 3), marker = list(color = "black", 
-                size = 10), hoverinfo = "text", text = ~name)
+            length(selected_sets)), y = unlist(lapply(1:length(selected_sets), function(x) rep(x-0.5, nintersections))), hoverinfo = "none") %>% add_trace(type = "scatter", 
+            data = group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y-0.5, line = list(color = "black", width = 3), marker = list(color = "black", 
+                size = 10), hoverinfo = "text", text = ~name) %>%
+          layout(xaxis = list(showticklabels = FALSE, showgrid = FALSE, zeroline = FALSE), yaxis = list(showticklabels = FALSE, showgrid = FALSE, range = c(0, nsets), zeroline = FALSE, range = 1:nsets), margin = list(t = 0, b = 40))
         
     })
     
@@ -380,7 +378,7 @@ upset <- function(input, output, session, eselist, setlimit = 18) {
         setnames <- getSetNames()
         selected_sets <- getSets()
         
-        plot_ly(x = unlist(lapply(selected_sets, length)), y = setnames, type = "bar", orientation = "h", marker = list(color = "black"))
+        plot_ly(x = unlist(lapply(selected_sets, length)), y = setnames, type = "bar", orientation = "h", marker = list(color = "black"))%>% layout(bargap = 0.4, yaxis = list(categoryarray = rev(setnames), categoryorder = "array"))
     })
     
     # Make the bar chart illustrating intersect size
