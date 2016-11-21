@@ -104,7 +104,7 @@ upsetOutput <- function(id, eselist) {
 #' @examples
 #' callModule(upstart, 'myid', eselist)
 
-upset <- function(input, output, session, eselist, setlimit = 18) {
+upset <- function(input, output, session, eselist, setlimit = 16) {
     
     ns <- session$ns
     
