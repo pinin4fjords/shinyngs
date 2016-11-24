@@ -19,8 +19,6 @@ knitr::opts_chunk$set(
 
 This is a package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots. It's a work in progress, with new features added on a regular basis.
 
-[Test link]({{site.github.url}}/screenshots/gene_page.png)
-
 # Screenshot
 
 ![Example: the gene page](screenshots/gene_page.png)
