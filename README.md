@@ -4,6 +4,8 @@ Synopsis
 
 This is a package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots. It's a work in progress, with new features added on a regular basis.
 
+[Test link](%7B%7Bsite.github.url%7D%7D/screenshots/gene_page.png)
+
 Screenshot
 ==========
 
