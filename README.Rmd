@@ -17,7 +17,23 @@ knitr::opts_chunk$set(
 
 # Synopsis
 
-This is a package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots. It's a work in progress, with new features added on a regular basis.
+Shinyngs is an R package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots and data mining tools. It is unrelated to the recently published [Shiny Transcritome Analysis Resource Tool](https://github.com/jminnier/STARTapp) (START), though it was probably developed at the same time as that work.
+
+# Rationale
+
+Shinyngs differs to START and other similar applications (see also [Degust](http://www.vicbioinformatics.com/degust/)), in that no effort is made to provide analysis capabilities. The envisaged process is:
+
+* RNA-seq data is analysed, producing a set of matrices, and p/q values generated for a given set of comparisons.
+* Matrix and comparison data is loaded into the modified [SummarizedExperiment](http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) structure provided by Shinyngs, and serialised. This is easily automated.
+* Serialised object used as input to autmoatically produce the Shiny app using Shinyngs.
+
+There are a great many experimental designs and analysis methods, and in building Shinyngs I've taken the view that analysis is best left to the analyst. The envisaged use case is that of a bioinformatician attempting to convey results of analysis to non-experts.
+
+ShinyNGS provides a number of capabilities you may not find in other applications:
+
+* Simple selection of gene sets by name/ annotation to modify the plots and tables shown.
+* Progressive filters for differential analysis: "Show me all genes differential in these contrasts but NOT in these other contrasts"
+* Large variety of visualisations: row-wise clustering, UpSet-style intersection plots, gene set enrichment barcode plots etc.
 
 # Screenshot
 
@@ -38,6 +54,10 @@ This is a package designed to facilitate downstream analysis of RNA-seq and simi
     * If a list of `ExploratorySummarizedExperiment`s is supplied (useful in situiations where the features are different beween matrices - e.g. from transcript- and gene- level analyses), a selection field will be provided.
     * If a selected experiment contains more than one assay, a selector will again be provided.
 * For me: leveraging of [Shiny modules](http://shiny.rstudio.com/articles/modules.html). This makes re-using complex UI components much easier, and maintaining application code is orders of magnitude simpler as a result.
+
+# Modularisation
+
+Shinyngs is built on Shiny 'modules'- most of which are in single files in the package code. As a consequence code is highly re-usable. Documentation forthcoming, but take a look at how the `selectmatrix` module is called by the PCA plots, boxplots etc. 
 
 # Installation
 
