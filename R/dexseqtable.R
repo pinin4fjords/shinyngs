@@ -241,7 +241,7 @@ dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE,
         # Add labels
         
         ese <- getExperiment()
-        labelMatrix(deu_table, ese, "groupID")
+        labelMatrix(deu_table, ese, "groupID", metafields = getMetafields())
     })
     
     # Make a linked version of the table for display. Override the label links so they point to DEU plots rather than gene pages
