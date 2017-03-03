@@ -64,6 +64,43 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), 
     assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
+
+    # Reset NULLs to empty 
+  
+    if (is.null(entrezgenefield)){
+      entrezgenefield <- character()
+    }
+  
+    # The assays slot of a summarised experiment needs the same dimensions for every matrix
+    
+    all_rows <- Reduce(union, lapply(assays, rownames))
+    add_missing_rows <- function(x){
+      missing_rows <- all_rows[! all_rows %in% rownames(x)]
+      empty_rows <- data.frame(matrix(NA, nrow = length(missing_rows), ncol = ncol(x)), row.names = missing_rows)
+      colnames(empty_rows) <- colnames(x)
+      rbind(x, empty_rows)[all_rows,]
+    }
+
+    assays <- SimpleList(lapply(assays, function(as){
+      round(add_missing_rows(as)[, rownames(colData)], 2)
+    }))  
+    
+    # The same fix for tests
+    
+    if (length(tests) > 0){
+      
+      tests <- lapply(tests, function(stats){
+        lapply(stats, function(test){
+          add_missing_rows(test)
+        })
+      })
+    }
+    
+    # Annotations need to be strings
+    
+    annotation <- data.frame(lapply(annotation, as.character), stringsAsFactors = FALSE, check.names = FALSE)
+    
+    # Build the object
     
     sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
     mcols(sumexp) <- annotation
