@@ -81,6 +81,10 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
       rbind(x, empty_rows)[all_rows,]
     }
 
+    # Subset colData to remove any samples not present in the first assay
+    
+    colData <- colData[rownames(colData) %in% colnames(assays[[1]]),]
+    
     assays <- SimpleList(lapply(assays, function(as){
       round(add_missing_rows(as)[, rownames(colData)], 2)
     }))  
