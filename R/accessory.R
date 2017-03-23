@@ -361,3 +361,140 @@ evaluateCardinalFilter <- function(values, cardinality, limit) {
     }
     
 } 
+
+#' Build an ExploratorySummarisedExperimentList from a YAML description
+#' 
+#' Building ExploratorySummarisedExperimentList objects can be a bit fiddly. 
+#' This function makes automates object construction based on a descriptor
+#' in yaml format. 
+#' 
+#' For a simple study with one 'experiement' for Gene-level results, and three
+#' 'assays' describing raw, filtered and normalised expression you might make 
+#' a YAML like:
+#' ```
+#' title: My RNA seq experiment
+#' author: Joe Blogs
+#' report: report.md
+#' group_vars:
+#'   - Group
+#'   - Replicate
+#' default_groupvar: Group
+#' experiments:
+#'   Gene:
+#'     coldata:
+#'       file: my.experiment.csv
+#'       id: External
+#'     annotation:
+#'       file: my.annotation.csv
+#'       id: gene_id
+#'       entrez: ~
+#'       label: gene_id
+#'     expression_matrices:
+#'       Raw:
+#'         file: raw_counts.csv
+#'         measure: counts
+#'       Filtered:
+#'         file: filtered_counts.csv
+#'         measure: Counts per million
+#'       Normalised:
+#'         file: normalised_counts.csv
+#'         measure: Counts per million
+#'     read_reports:
+#'       read_attrition: read_attrition.csv
+#' contrasts:
+#'   comparisons:
+#'   - Variable: Group
+#'     Group.1: control
+#'     Group.2: TreatmentA
+#'   - Variable: Group
+#'     Group.1: control
+#'     Group.2: TreatmentB
+#' tests:
+#'   Gene:
+#'     Normalised:
+#'       pvals: pvals.csv
+#'       qvals: qvals.csv
+#' ```
+#' @param configfile A YAML-format config file describing the data to be
+#'   compiled into an ExploratorySummarizedExperimentList object
+#'
+#' @import yaml
+#' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
+#' @export
+#'
+#' @md
+#' @examples
+#' eselist <- eselistFromYAML('my.yaml')
+
+eselistFromYAML <- function(configfile){
+  
+  config <- yaml.load_file(configfile)
+  
+  # 'Experiments' are sets of results from a common set of samples
+  
+  experiments <- config$experiments
+  
+  # Make the basic objects
+  
+  print("Constructing ExploratorySummarizedExperiments")
+  
+  expsumexps <- lapply(structure(names(experiments), names = names(experiments)), function(expname){
+    
+    exp <- experiments[[expname]]
+    
+    # Read the expression data
+    
+    assays <- rev(lapply(exp$expression_matrices, function(mat){
+      print(paste("Reading", mat$file))
+      as.matrix(read.csv(mat$file, row.names=1, check.names = FALSE))
+    }))
+    
+    # Add tests where available. 
+    
+    tests <- list()
+    if (expname %in% names(config$contrasts$tests )){
+      tests <- lapply(config$contrasts$tests[[expname]], function(assaytests){
+        lapply(assaytests, function(at){
+          print(paste("Reading test stats file", at))
+          read.csv(at, row.names = 1, header = FALSE)
+        })
+      })
+    }
+    
+    # Make the object
+    
+    print(paste('coldata:', exp$coldata$file))
+    print(paste('annotation:', exp$annotation$file))
+    
+    ese <- ExploratorySummarizedExperiment(
+      assays = assays,
+      colData = read.csv(exp$coldata$file, row.names = 1),
+      annotation = read.csv(exp$annotation$file, row.names = 1, stringsAsFactors = FALSE),
+      idfield = exp$annotation$id,
+      entrezgenefield = exp$annotation$entrez,
+      labelfield = exp$annotation$label,
+      assay_measures = lapply(exp$expression_matrices, function(mat){mat$measure}),
+      tests = tests
+    )
+    
+    if ('read_reports' %in% names(exp)){
+      ese@read_reports = lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE))
+    }
+    
+    ese
+  })
+  
+  print("Creating ExploratorySummarizedExperimentList")
+  
+  expsumexpslist <- ExploratorySummarizedExperimentList(
+    expsumexps,
+    title = config$title,
+    author = config$author,
+    description = as.character(includeMarkdown(config$report)),
+    group_vars = config$group_vars,
+    default_groupvar = config$default_groupvar,
+    contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))#,
+    #url_roots = as.list(config$url_roots),
+    #gene_sets = gene_sets_for_object
+  )
+}
