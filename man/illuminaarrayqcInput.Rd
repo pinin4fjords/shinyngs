@@ -27,4 +27,3 @@ library(shinyngs)
 illuminaarrayqcInput('myid', eselist)
 }
 \keyword{shiny}
-

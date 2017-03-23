@@ -19,4 +19,3 @@ Capitalise the first letter of a string
 > ucfirst('Example')
 [1] 'Example'
 }
-

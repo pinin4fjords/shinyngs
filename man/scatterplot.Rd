@@ -90,4 +90,3 @@ module, which is automatically called if reactives are not supplied to the
 server function. This setup allows the same set of controls to power 
 multiple scatter plots.
 }
-

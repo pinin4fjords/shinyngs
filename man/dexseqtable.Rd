@@ -53,4 +53,3 @@ example).
 callModule(dexseqtable, 'dexseqtable', eselist)
 }
 \keyword{shiny}
-

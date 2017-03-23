@@ -24,4 +24,3 @@ output Named list of \code{shiny.tag} objects
 Make input fields for producing a table of differential exon usage.
 Separated here for re-use by the dexseqplot module
 }
-

@@ -39,4 +39,3 @@ Leverages the \code{simpletable} module
 dexseqtableInput('experiment', eselist)
 }
 \keyword{shiny}
-

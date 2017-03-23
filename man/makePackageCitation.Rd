@@ -16,4 +16,3 @@ citation A string that can be put in markdown doucments etc.
 Adds just the tiny bit of wrapping code to make the output of
 \code{citation()} printable.
 }
-

@@ -21,4 +21,3 @@ apps.
 simpleApp(ses, 'heatmap', 'My study name')
 }
 \keyword{shiny}
-

@@ -36,4 +36,3 @@ standard select field.
 \examples{
 labelselectfieldInput('myid')
 }
-

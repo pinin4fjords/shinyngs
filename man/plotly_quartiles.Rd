@@ -26,4 +26,3 @@ outliers beyond that
 data(airway, package = 'airway')
 plotly_quartiles(assays(airway)[[1]], as(airway, 'ExploratorySummarizedExperiment'))
 }
-

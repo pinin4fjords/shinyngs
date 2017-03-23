@@ -26,4 +26,3 @@ mymatrix <- assays(airway)[[1]]
 calculateDendrogram(mymatrix)
 }
 \keyword{keywords}
-

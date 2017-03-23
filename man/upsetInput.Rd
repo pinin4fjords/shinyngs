@@ -36,4 +36,3 @@ Lex and Gehlenborg (2014). Points of view: Sets and intersections. <em>Nature Me
 Gehlenborg N (2016). <em>UpSetR: A More Scalable Alternative to Venn and Euler Diagrams for Visualizing Intersecting Sets</em>. R package version 1.3.0, \url{https://CRAN.R-project.org/package=UpSetR}
 }
 \keyword{shiny}
-

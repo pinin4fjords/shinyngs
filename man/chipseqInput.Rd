@@ -28,4 +28,3 @@ etc) to form a comprehensive analysis application.
 chipseqInput('chipseq', eselist)
 }
 \keyword{shiny}
-

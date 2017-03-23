@@ -31,4 +31,3 @@ app <- prepareApp('maplot', zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
-

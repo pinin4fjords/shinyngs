@@ -53,4 +53,3 @@ standard select field.
 \examples{
 callModule(labelselectfield, 'myid', eselist)
 }
-

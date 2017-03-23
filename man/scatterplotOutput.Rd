@@ -26,4 +26,3 @@ multiple scatter plots.
 \examples{
 scatterplotOutput('pca')
 }
-

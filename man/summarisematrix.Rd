@@ -21,4 +21,3 @@ how a summary statistic is calculated (probably by mean).
 callModule(summarisematrix)
 }
 \keyword{shiny}
-

@@ -23,4 +23,3 @@ Create row labels based on the settings of \code{labelfield} in the
 \code{ExploratorySummarizedExperiment} object and the annotation data in 
 \code{mcols}.
 }
-

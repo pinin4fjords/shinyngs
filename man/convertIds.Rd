@@ -22,4 +22,3 @@ output Vector of converted ids
 \description{
 Convert row names to metadata identifiers
 }
-

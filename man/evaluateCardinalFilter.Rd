@@ -23,4 +23,3 @@ Evaluate a vector of values with respect to a limit and a cardinality, being
 '>', '<' , '> or <-' (e.g. a fold change above a limit in + or - 
 directions), or '< and >-' (not a above a limit in + or -).
 }
-

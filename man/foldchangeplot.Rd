@@ -32,4 +32,3 @@ app <- prepareApp('foldchangeplot', zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
-

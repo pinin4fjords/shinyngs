@@ -22,4 +22,3 @@ Wrap a Shiny input so its label is displayed inline
 \examples{
 inlineField(numericInput('foo', label = NULL, min = 0, max = 100, value = 50), 'FOO') 
 }
-

@@ -21,4 +21,3 @@ output Table with links added
 \description{
 Root URLs must be present in the \code{url_roots} slot of \code{se}
 }
-

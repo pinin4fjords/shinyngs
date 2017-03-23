@@ -39,4 +39,3 @@ example).
 callModule(simpletable, 'simpletable', my_data_frame)
 }
 \keyword{shiny}
-

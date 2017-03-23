@@ -25,4 +25,3 @@ of the matrix, so \code{colMeans()}, for example, is appropriate.
 \examples{
 summarizeMatrix(mymatrix, myfactor)
 }
-

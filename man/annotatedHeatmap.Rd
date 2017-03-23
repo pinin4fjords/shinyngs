@@ -41,4 +41,3 @@ set to be consistent with one another.
 R code here showing how your function works
 }
 \keyword{keywords}
-

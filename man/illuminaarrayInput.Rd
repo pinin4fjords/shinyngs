@@ -27,4 +27,3 @@ etc) to form a comprehensive analysis application.
 illuminaarrayInput('illuminaarray', eselist)
 }
 \keyword{shiny}
-

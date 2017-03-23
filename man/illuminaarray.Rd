@@ -24,4 +24,3 @@ example).
 callModule(illuminaarray, 'illuminaarray', eselist)
 }
 \keyword{shiny}
-

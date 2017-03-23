@@ -24,4 +24,3 @@ Leverages the \code{simpletable} module
 differentialtableOutput('experiment')
 }
 \keyword{shiny}
-

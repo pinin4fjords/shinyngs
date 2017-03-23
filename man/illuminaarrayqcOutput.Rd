@@ -25,4 +25,3 @@ This provides actual plot element for display by applications
 illuminaarrayqcOutput('myid')
 }
 \keyword{shiny}
-

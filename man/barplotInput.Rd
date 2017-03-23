@@ -19,4 +19,3 @@ A list of controls that can be added to a UI definition
 \description{
 Generic module to isplay grouped, stacked or overlaid bars for a matrix
 }
-

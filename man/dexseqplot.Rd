@@ -36,4 +36,3 @@ to the contrasts listed in the \code{contrasts} slot of the
 callModule(dexseqplot, 'dexseqplot', eselist)
 }
 \keyword{shiny}
-

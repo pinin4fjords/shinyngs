@@ -15,4 +15,3 @@ A numeric value
 \description{
 Geometric mean
 }
-

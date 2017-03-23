@@ -17,4 +17,3 @@ output Table with columns added
 \description{
 Labels only added if \code{labelfield} is specified in \code{ese}
 }
-

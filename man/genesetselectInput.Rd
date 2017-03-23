@@ -24,4 +24,3 @@ standard select field.
 genesetselectInput('myid')
 }
 \keyword{shiny}
-

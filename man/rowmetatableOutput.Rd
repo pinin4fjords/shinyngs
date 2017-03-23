@@ -26,4 +26,3 @@ Leverages the \code{simpletable} module
 rowmetatableOutput('experiment')
 }
 \keyword{shiny}
-

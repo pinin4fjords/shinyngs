@@ -26,4 +26,3 @@ This provides actual dendrogram plot element for display by applications
 dendroOutput('myid')
 }
 \keyword{shiny}
-

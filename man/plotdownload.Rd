@@ -30,4 +30,3 @@ This will generally not be called directly, but by other modules
 callModule(plotdownload, 'heatmap', makePlot = plotHeatmap, filename = 'heatmap.png', plotHeight = plotHeight, plotWidth = plotWidth)
 }
 \keyword{shiny}
-

@@ -81,12 +81,14 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 Airway provides some info about the dataset, which we can add in to the object before we build the app:
 
 ```{r eval = FALSE}
-expinfo <- packageDescription('airway')
+data(airway, package = 'airway')
+expinfo <- metadata(airway)[[1]]
+
 eselist <- ExploratorySummarizedExperimentList(
   ese,
-  title = expinfo$Title,
-  author = expinfo$Author,
-  description = expinfo$Description
+  title = expinfo@title,
+  author = expinfo@name,
+  description = abstract(expinfo)
 )
 app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
@@ -156,6 +158,57 @@ app <- prepareApp("heatmap", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 
+# Building an application from a YAML file
+
+The `eselistFromYAML()` function is provided to help construct an ExploratorySummarizedExperiment object. You might make a file like:
+
+```
+title: My RNA seq experiment
+author: Joe Blogs
+report: report.md
+group_vars:
+  - Group
+  - Replicate
+default_groupvar: Group
+experiments:
+  Gene:
+    coldata:
+      file: my.experiment.csv
+      id: External
+    annotation:
+      file: my.annotation.csv
+      id: gene_id
+      entrez: ~
+      label: gene_id
+    expression_matrices:
+      Raw:
+        file: raw_counts.csv
+        measure: counts
+      Filtered:
+        file: filtered_counts.csv
+        measure: Counts per million
+      Normalised:
+        file: normalised_counts.csv
+        measure: Counts per million
+    read_reports:
+      read_attrition: read_attrition.csv
+contrasts:
+  comparisons:
+  - Variable: Group
+    Group.1: control
+    Group.2: TreatmentA
+  - Variable: Group
+    Group.1: control
+    Group.2: TreatmentB
+tests:
+  Gene:
+    Normalised:
+      pvals: pvals.csv
+      qvals: qvals.csv
+```
+
+You can then generate the object with a command like `eselist <- eselistFromYAML('my.yaml')`. This function is in development and does not yet fill all slots in the ExploratorySummarizedExperiment object.
+
 # Building an application from scratch
 
 To demonstrate this, let's break down `zhangneurons` into simple datatypes and put it back together again. 
@@ -164,6 +217,7 @@ To demonstrate this, let's break down `zhangneurons` into simple datatypes and p
 
 ```{r eval=TRUE}
 # Assays is a list of matrices
+data(zhangneurons, envir = environment())
 myassays <- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])
 ```

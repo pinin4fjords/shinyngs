@@ -71,4 +71,3 @@ example).
 selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 }
 \keyword{shiny}
-

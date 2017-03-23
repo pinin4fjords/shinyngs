@@ -27,4 +27,3 @@ as.character()
 \description{
 Make a select field for picking one or more contrasts
 }
-

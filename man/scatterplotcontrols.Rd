@@ -40,4 +40,3 @@ may then be used by one or more instances of the scatterplot module.
 \examples{
 unpack.list(callModule(scatterplotcontrols, 'pca', pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
 }
-

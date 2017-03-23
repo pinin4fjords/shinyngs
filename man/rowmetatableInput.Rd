@@ -28,4 +28,3 @@ Leverages the \code{simpletable} module
 experimentableInput('experiment', eselist)
 }
 \keyword{shiny}
-

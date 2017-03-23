@@ -23,4 +23,3 @@ how a summary statistic is calculated (probably by mean).
 contrastsInput('test')
 }
 \keyword{shiny}
-

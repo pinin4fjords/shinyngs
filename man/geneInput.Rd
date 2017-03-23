@@ -27,4 +27,3 @@ Inputs are a gene label and a variable to color by (where available)
 geneInput(ns('gene'), eselist)
 }
 \keyword{shiny}
-

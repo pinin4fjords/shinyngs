@@ -51,4 +51,3 @@ criteria such as variance and gene set.
 geneselect_functions <- callModule(geneselect, 'heatmap', getExperiments)
 }
 \keyword{shiny}
-

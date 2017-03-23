@@ -31,4 +31,3 @@ This provides actual plot element for display by applications
 clusteringOutput('myid')
 }
 \keyword{shiny}
-

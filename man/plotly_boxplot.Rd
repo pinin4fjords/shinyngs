@@ -23,4 +23,3 @@ A simple function using \code{plotly} to make a sample boxplot.
 NOT CURRENTLY USED DUE TO RESOURCE REQUIREMENTS ON LARGE MATRICES
 }
 \keyword{keywords}
-

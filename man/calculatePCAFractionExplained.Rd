@@ -19,4 +19,3 @@ Extract the percent variance from a PCA analysis
 calculatePCAFractionExplained(pca)
 }
 \keyword{shiny}
-

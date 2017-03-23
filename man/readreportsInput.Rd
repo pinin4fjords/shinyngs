@@ -19,4 +19,3 @@ A list of controls that can be added to a UI definition
 Display plots and tables relating to read mapping, attrition during 
 analysis etc.
 }
-

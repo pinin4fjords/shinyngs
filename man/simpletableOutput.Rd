@@ -22,4 +22,3 @@ This provides actual datatable element for display by applications
 simpletableOutput('simpletable', 'my title')
 }
 \keyword{shiny}
-

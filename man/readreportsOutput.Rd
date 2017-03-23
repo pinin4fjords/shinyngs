@@ -19,4 +19,3 @@ A list of elements that can be included in a panel
 Display plots and tables relating to read mapping, attrition during 
 analysis etc.
 }
-

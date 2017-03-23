@@ -17,4 +17,3 @@ Vector or factor with NAs replaced
 \description{
 Replace NAs with a string for convenience
 }
-

@@ -34,4 +34,3 @@ to the contrasts listed in the \code{contrasts} slot of the
 dexseqplotOutput('experiment', eselist)
 }
 \keyword{shiny}
-

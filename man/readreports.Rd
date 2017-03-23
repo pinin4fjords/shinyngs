@@ -22,4 +22,3 @@ slot filled}
 Display plots and tables relating to read mapping, attrition during 
 analysis etc.
 }
-

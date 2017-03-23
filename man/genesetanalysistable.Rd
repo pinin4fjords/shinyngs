@@ -62,4 +62,3 @@ applied to the specified SummarizedExperiment object to the
 callModule(genesetanalysistable, 'genesetanalysistable', eselist)
 }
 \keyword{shiny}
-

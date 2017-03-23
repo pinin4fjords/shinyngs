@@ -44,4 +44,3 @@ as.character()
 Make a complete set of filters for a contrast: the contrast itself, fold
 change, and where applicable p- and q- values.
 }
-

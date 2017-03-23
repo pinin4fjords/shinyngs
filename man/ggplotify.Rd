@@ -24,4 +24,3 @@ Reshape data to the way \code{ggplot2} likes it
 \examples{
 plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 }
-

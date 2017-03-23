@@ -15,4 +15,3 @@ output Logical value
 \description{
 Convenience function for deciding how to construct filters
 }
-

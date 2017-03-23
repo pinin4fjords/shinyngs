@@ -25,4 +25,3 @@ example).
 callModule(chipseq, 'chipseq', eselist)
 }
 \keyword{shiny}
-

@@ -27,4 +27,3 @@ fields in either a \code{bsCollapse} from \code{shinyBS} (if installed) or
 a simple div element with a title and class 'shinyngsFieldset' (which can 
 then be used for styling)
 }
-

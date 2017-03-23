@@ -23,10 +23,10 @@ Imports:
     shinythemes,
     SummarizedExperiment
 Suggests:
+    yaml,
     shinyBS,
     BiocStyle,
     knitr,
     rmarkdown
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 VignetteBuilder: knitr
-

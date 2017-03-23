@@ -34,4 +34,3 @@ data(zhangneurons)
 clusteringInput('myid', zhangneurons)
 }
 \keyword{shiny}
-

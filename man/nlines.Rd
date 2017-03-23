@@ -19,4 +19,3 @@ Count the number of lines in a string
 > nlines('foo\\nbar')
 [1] 2
 }
-

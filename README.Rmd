@@ -73,10 +73,7 @@ Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
 ## Install with devtools
 
-At time of writing, the most recent CRAN version of Plotly [was problematic](http://community.plot.ly/t/evaluate-broken-in-recent-versions-of-r-api/1060). I recommend using [the most recent dev version from GitHub](https://github.com/ropensci/plotly)
-
 ```{r eval=FALSE}
-devtools::install_github("ropensci/plotly", upgrade_dependencies = FALSE)
 devtools::install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
 ```
 
@@ -91,6 +88,8 @@ data("zhangneurons")
 app <- prepareApp("rnaseq", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
+
+The function `eselistFromYAML()` is provided to help build your own objects given a config file. 
 
 # Documentation
 
@@ -118,4 +117,4 @@ I can be reached on @pinin4fjords with any queries. Other contributors welcome.
 
 # License
 
-MIT
+[GNU Affero General Public License v3.0](LICENSE.txt)

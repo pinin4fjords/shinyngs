@@ -23,4 +23,3 @@ This will generally not be called directly, but by other modules
 plotdownloadInput(ns('heatmap'))
 }
 \keyword{shiny}
-

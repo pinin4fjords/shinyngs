@@ -32,4 +32,3 @@ app <- prepareApp('volcanoplot', zhangneurons)
 shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}
-

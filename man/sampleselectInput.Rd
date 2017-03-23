@@ -35,4 +35,3 @@ selectmatrix module.
 sampleselectInput(ns('heatmap'))
 }
 \keyword{shiny}
-

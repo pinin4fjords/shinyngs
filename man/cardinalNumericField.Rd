@@ -33,4 +33,3 @@ A wrapper around \code{\link[shiny]{numericInput}}, providing an inline
 label and an associated field specifying how the value should be applied,
 i.e. 'greater than this value' etc.
 }
-

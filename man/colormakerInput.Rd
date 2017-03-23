@@ -25,4 +25,3 @@ This funcion provides the form elements to control the display
 colormakerInput('myid')
 }
 \keyword{shiny}
-

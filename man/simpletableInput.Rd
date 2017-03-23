@@ -28,4 +28,3 @@ This module produces a simple datatable output with a download button.
 simpletableInput('mytable', 'this is a table')
 }
 \keyword{shiny}
-

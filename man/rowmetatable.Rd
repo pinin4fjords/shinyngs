@@ -26,4 +26,3 @@ applied to the specified SummarizedExperiment object to the
 callModule(rowmetatable, 'rowmetatable', eselist)
 }
 \keyword{shiny}
-

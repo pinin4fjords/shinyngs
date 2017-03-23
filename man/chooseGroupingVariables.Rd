@@ -32,4 +32,3 @@ colData(airway)
 
 chooseGroupingVariables(data.frame(colData(airway)))
 }
-

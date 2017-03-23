@@ -27,4 +27,3 @@ etc) to form a comprehensive analysis application.
 rnaseqInput('rnaseq', eselist)
 }
 \keyword{shiny}
-

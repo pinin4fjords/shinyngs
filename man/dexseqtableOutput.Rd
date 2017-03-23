@@ -32,4 +32,3 @@ Leverages the \code{simpletable} module
 dexseqtableOutput('experiment')
 }
 \keyword{shiny}
-

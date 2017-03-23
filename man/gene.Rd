@@ -28,4 +28,3 @@ example).
 callModule(gene, 'gene', eselist)
 }
 \keyword{shiny}
-

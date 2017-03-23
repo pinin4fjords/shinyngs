@@ -31,4 +31,3 @@ and calculate fold changes, adding test statistics where available.
 callModule(differentialtable, 'differentialtable', eselist)
 }
 \keyword{shiny}
-

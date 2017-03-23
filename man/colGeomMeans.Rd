@@ -15,4 +15,3 @@ Vector with column geometric means
 \description{
 Geometric means by matrix column
 }
-

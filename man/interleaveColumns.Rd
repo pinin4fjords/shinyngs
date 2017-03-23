@@ -17,4 +17,3 @@ output Interleaved matrix
 \description{
 Interleave the columns of two matrices of equal dimensions
 }
-

@@ -27,4 +27,3 @@ heatmap module.
 geneselectInput('myid')
 }
 \keyword{shiny}
-

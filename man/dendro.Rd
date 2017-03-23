@@ -30,4 +30,3 @@ example).
 callModule(dendro, 'myid', eselist)
 }
 \keyword{shiny}
-

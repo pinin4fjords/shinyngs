@@ -21,4 +21,3 @@ by calling modules using the provided reactives.
 \examples{
 contrastsOutput('myid')
 }
-

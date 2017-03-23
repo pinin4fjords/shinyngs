@@ -39,4 +39,3 @@ users to add filters to progressively refine a query.
 contrastsInput('test')
 }
 \keyword{shiny}
-

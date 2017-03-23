@@ -40,4 +40,3 @@ Uses bootstrapping to return the standard error/ deviation of the median.
 tg <- ToothGrowth
 summarySE(tg, measurevar='len', groupvars=c('supp','dose'))
 }
-

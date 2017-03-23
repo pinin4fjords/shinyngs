@@ -37,4 +37,3 @@ The groupby module provides a UI element to choose from the
 geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
 }
 \keyword{shiny}
-

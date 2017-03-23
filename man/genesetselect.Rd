@@ -35,4 +35,3 @@ standard select field.
 geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment)
 }
 \keyword{shiny}
-

@@ -36,4 +36,3 @@ experiment data in the form of a frame, \code{d3heatmap()}.
 R code here showing how your function works
 }
 \keyword{keywords}
-

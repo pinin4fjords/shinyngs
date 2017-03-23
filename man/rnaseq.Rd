@@ -24,4 +24,3 @@ example).
 callModule(rnaseq, 'rnaseq', eselist)
 }
 \keyword{shiny}
-

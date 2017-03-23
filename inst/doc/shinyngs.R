@@ -18,12 +18,14 @@
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
 ## ----eval = FALSE--------------------------------------------------------
-#  expinfo <- packageDescription('airway')
+#  data(airway, package = 'airway')
+#  expinfo <- metadata(airway)[[1]]
+#  
 #  eselist <- ExploratorySummarizedExperimentList(
 #    ese,
-#    title = expinfo$Title,
-#    author = expinfo$Author,
-#    description = expinfo$Description
+#    title = expinfo@title,
+#    author = expinfo@name,
+#    description = abstract(expinfo)
 #  )
 #  app <- prepareApp('rnaseq', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
@@ -74,6 +76,7 @@
 
 ## ----eval=TRUE-----------------------------------------------------------
 # Assays is a list of matrices
+data(zhangneurons, envir = environment())
 myassays <- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])
 

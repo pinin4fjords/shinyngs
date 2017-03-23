@@ -35,4 +35,3 @@ example).
 selectSamples <- callModule(sampleselect, 'selectmatrix', getExperiment)
 }
 \keyword{shiny}
-

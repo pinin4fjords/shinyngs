@@ -20,4 +20,3 @@ for each column, than can be used as the 'annotation_colors' argment to
 \examples{
 colors <- makeAnnotationColors(sample_annotation)
 }
-

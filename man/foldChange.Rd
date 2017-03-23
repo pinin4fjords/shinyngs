@@ -20,4 +20,3 @@ Calculate fold change between two vectors
 \examples{
 foldChange(c(2,2,2), c(2,4,8))
 }
-

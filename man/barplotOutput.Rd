@@ -17,4 +17,3 @@ A list of elements that can be included in a panel
 \description{
 Generic module to isplay grouped, stacked or overlaid bars for a matrix
 }
-

@@ -29,4 +29,3 @@ example).
 callModule(colormaker, 'myid', getNumberCategories)
 }
 \keyword{shiny}
-

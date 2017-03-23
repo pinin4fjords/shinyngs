@@ -43,4 +43,3 @@ example).
 callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 }
 \keyword{shiny}
-

@@ -27,4 +27,3 @@ Leverages the \code{simpletable} module
 differentialtableInput('experiment', eselist)
 }
 \keyword{shiny}
-

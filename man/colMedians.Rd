@@ -15,4 +15,3 @@ Vector with column medians
 \description{
 Medians by matrix column
 }
-

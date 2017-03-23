@@ -19,4 +19,3 @@ geneModelPlot(ensembl_species, chromosome, start, end)
 Uses the Gviz module to show transcripts and exon locations for a given gene
 id.
 }
-

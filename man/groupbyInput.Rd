@@ -23,4 +23,3 @@ The groupby module provides a UI element to choose from the
 groupbyInput(ns('heatmap'))
 }
 \keyword{shiny}
-

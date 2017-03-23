@@ -25,4 +25,3 @@ This is handy, for example when adding help text.
 \examples{
 modalOutput(ns('dendro'), 'Sample clustering dendrogram', includeMarkdown(system.file('inlinehelp', 'dendro.Rmd', package = packageName())))
 }
-

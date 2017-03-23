@@ -39,4 +39,3 @@ heatmap module.
 selectmatrixInput(ns('heatmap'), eselist)
 }
 \keyword{shiny}
-

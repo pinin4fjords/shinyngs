@@ -19,4 +19,3 @@ Common function for PCA-using parts of the app
 runPCA(mymatrix)
 }
 \keyword{shiny}
-

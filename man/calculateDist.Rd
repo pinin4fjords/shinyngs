@@ -23,4 +23,3 @@ mymatrix <- assays(airway)[[1]]
 calculateDist(mymatrix)
 }
 \keyword{keywords}
-

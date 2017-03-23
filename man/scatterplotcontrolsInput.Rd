@@ -22,4 +22,3 @@ may then be used by one or more instances of the scatterplot module.
 \examples{
 scatterplotcontrolsInput('pca', allow_3d = FALSE) # for a 2D plot
 }
-

@@ -27,4 +27,3 @@ example).
 callModule(illuminaarayqc, 'myid', eselist)
 }
 \keyword{shiny}
-

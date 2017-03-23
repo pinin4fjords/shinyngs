@@ -31,4 +31,3 @@ data(zhangneurons)
 dendroInput('myid', zhangneurons)
 }
 \keyword{shiny}
-

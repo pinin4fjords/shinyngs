@@ -60,4 +60,3 @@ Leverages the \code{simpletable} module
 genesetanalysistableInput('experiment', eselist)
 }
 \keyword{shiny}
-

@@ -14,4 +14,3 @@ unpack.list(object)
 Unpack a list to the environment. Handy when many reactive functions are 
 returned by a call to a module's server function
 }
-

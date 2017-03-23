@@ -27,4 +27,3 @@ Outputs are a bar plot and a table contrast data for this gene
 geneOutput('gene', eselist)
 }
 \keyword{shiny}
-

@@ -58,4 +58,3 @@ to all experiments such as gene sets and contrasts.
 It's clear that the structure of this class and that of SummarizedExperimentList
 will need to be refined in future.
 }
-

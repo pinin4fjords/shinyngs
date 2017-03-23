@@ -22,4 +22,3 @@ vn <- 'ugly_name_of_thing'
 > prettyifyVariablename(vn)
 [1] 'Ugly name of thing'
 }
-

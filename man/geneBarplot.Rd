@@ -31,4 +31,3 @@ for every row of the input matrix.
 callModule(gene, 'gene', ses)
 }
 \keyword{shiny}
-

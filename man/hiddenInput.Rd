@@ -22,4 +22,3 @@ selects etc
 \examples{
 hiddenInput('myid', 'iamavalue')
 }
-

@@ -18,4 +18,3 @@ barcode_plot(fold_changes, gene_ids, set_gene_ids, plot_title)
 \description{
 Make a gene set barcode plot using Limma
 }
-

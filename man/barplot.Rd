@@ -22,4 +22,3 @@ barplot(input, output, session, getPlotmatrix, getYLabel, barmode = "stack")
 \description{
 Display grouped, stacked or overlaid bars for a matrix
 }
-

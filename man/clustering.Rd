@@ -33,4 +33,3 @@ example).
 callModule(clustering, 'myid', eselist)
 }
 \keyword{shiny}
-

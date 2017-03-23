@@ -58,4 +58,3 @@ Leverages the \code{simpletable} module
 genesetanalysistableOutput('experiment')
 }
 \keyword{shiny}
-

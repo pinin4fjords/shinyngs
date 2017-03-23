@@ -17,4 +17,3 @@ out The bootstrap estimate of the median
 \description{
 Bootstrap the standard error of the median
 }
-

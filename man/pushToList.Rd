@@ -20,4 +20,3 @@ Simple list push
 \examples{
 mylist <- pushToList(mylist, 'new element')
 }
-
