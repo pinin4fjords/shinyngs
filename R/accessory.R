@@ -428,7 +428,7 @@ evaluateCardinalFilter <- function(values, cardinality, limit) {
 
 eselistFromYAML <- function(configfile){
   
-  config <- yaml.load_file(configfile)
+  config <- yaml::yaml.load_file(configfile)
   
   # 'Experiments' are sets of results from a common set of samples
   
@@ -486,7 +486,7 @@ eselistFromYAML <- function(configfile){
   
   print("Creating ExploratorySummarizedExperimentList")
   
-  expsumexpslist <- ExploratorySummarizedExperimentList(
+  ExploratorySummarizedExperimentList(
     expsumexps,
     title = config$title,
     author = config$author,
@@ -497,4 +497,6 @@ eselistFromYAML <- function(configfile){
     #url_roots = as.list(config$url_roots),
     #gene_sets = gene_sets_for_object
   )
+  
+  
 }
