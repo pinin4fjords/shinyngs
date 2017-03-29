@@ -78,7 +78,7 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
       missing_rows <- all_rows[! all_rows %in% rownames(x)]
       empty_rows <- data.frame(matrix(NA, nrow = length(missing_rows), ncol = ncol(x)), row.names = missing_rows)
       colnames(empty_rows) <- colnames(x)
-      rbind(x, empty_rows)[all_rows,]
+      rbind(x, empty_rows)[all_rows, , drop = FALSE]
     }
 
     # Subset colData to remove any samples not present in the first assay
