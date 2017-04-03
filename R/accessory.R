@@ -486,7 +486,7 @@ eselistFromYAML <- function(configfile){
   
   print("Creating ExploratorySummarizedExperimentList")
   
-  ExploratorySummarizedExperimentList(
+  eselist <- ExploratorySummarizedExperimentList(
     expsumexps,
     title = config$title,
     author = config$author,
@@ -498,5 +498,12 @@ eselistFromYAML <- function(configfile){
     #gene_sets = gene_sets_for_object
   )
   
+  # Optional things
+  
+  if ('url_roots' %in% names(config)){
+    eselist@url_roots <- config$url_roots
+  }
+  
+  eselist
   
 }
