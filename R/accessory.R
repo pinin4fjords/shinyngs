@@ -466,7 +466,9 @@ eselistFromYAML <- function(configfile){
     print(paste('coldata:', exp$coldata$file))
     print(paste('annotation:', exp$annotation$file))
     
-    ese <- ExploratorySummarizedExperiment(
+    # Basic list to pass to object creation
+    
+    ese_list <- list(
       assays = assays,
       colData = read.csv(exp$coldata$file, row.names = 1),
       annotation = read.csv(exp$annotation$file, row.names = 1, stringsAsFactors = FALSE),
@@ -478,31 +480,46 @@ eselistFromYAML <- function(configfile){
     )
     
     if ('read_reports' %in% names(exp)){
-      ese@read_reports = lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE))
+      ese_list$read_reports = lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE))
     }
     
-    ese
+    if ('gene_set_analyses' %in% names(exp)){
+      ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay){
+        lapply(assay, function(gene_set_type){
+          lapply(gene_set_type, function(contrast){
+              read.csv(contrast, check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+          })
+        })
+      })
+    }
+    
+    do.call(ExploratorySummarizedExperiment, ese_list)
   })
   
   print("Creating ExploratorySummarizedExperimentList")
   
-  eselist <- ExploratorySummarizedExperimentList(
+  eselist_args <- list(
     expsumexps,
     title = config$title,
     author = config$author,
     description = as.character(includeMarkdown(config$report)),
     group_vars = config$group_vars,
     default_groupvar = config$default_groupvar,
-    contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))#,
-    #url_roots = as.list(config$url_roots),
-    #gene_sets = gene_sets_for_object
+    contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))
   )
   
   # Optional things
   
   if ('url_roots' %in% names(config)){
-    eselist@url_roots <- config$url_roots
+    eselist_args$url_roots <- config$url_roots
   }
+  
+  if ('gene_set_id_type' %in% names(config) && 'gene_sets' %in% names(config)){
+    eselist_args$gene_set_id_type <- config$gene_set_id_type
+    eselist_args$gene_sets <- lapply(config$gene_sets, GSEABase::getGmt)
+  }
+  
+  eselist <- do.call(ExploratorySummarizedExperimentList, eselist_args)
   
   eselist
   

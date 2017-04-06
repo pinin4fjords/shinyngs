@@ -69,7 +69,8 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     useGenesets <- reactive({
         ese <- getExperiment()
         
-        length(eselist@gene_sets) > 0 & all(unlist(lapply(c("entrezgenefield", "labelfield"), function(x) length(slot(ese, x)) > 0)))
+        #length(eselist@gene_sets) > 0 & all(unlist(lapply(c("gene_set_id_type", "labelfield"), function(x) length(slot(ese, x)) > 0)))
+        length(eselist@gene_set_id_type) > 0 && eselist@gene_set_id_type %in% colnames(mcols(ese))
     })
     
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results

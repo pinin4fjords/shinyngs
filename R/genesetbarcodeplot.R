@@ -186,7 +186,7 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     # Get gene IDs of the same type as used for gene sets
     
     getGeneIDs <- reactive({
-        convertIds(rownames(filteredContrastsTables()[[1]][[1]]), getExperiment(), getExperiment()@entrezgenefield)
+        convertIds(rownames(filteredContrastsTables()[[1]][[1]]), getExperiment(), eselist@gene_set_id_type)
     })
     
     # Make the barcode plot using limma for download

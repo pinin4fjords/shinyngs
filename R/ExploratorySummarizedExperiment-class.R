@@ -48,8 +48,7 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' @param labelfield Which column from \code{annotation} should be used to
 #' label features (e.g. a gene name field)? 
 #' @param entrezgenefield Which column from \code{annotation} is the Entrez 
-#' gene ID? Important mostly for gene sets where members are commonly indicated
-#' by that identifier type.
+#' gene ID? 
 #' @param tests List of matrices keyed by 'pvals' and 'qvals', with columns
 #' corresponding to 'contrasts' set in the containing SummarizedExperimentList
 #' @param gene_set_analyses List of lists of gene set tables keyed first by gene set

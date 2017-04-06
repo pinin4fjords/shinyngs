@@ -8,7 +8,8 @@ ExploratorySummarizedExperiments}
 ExploratorySummarizedExperimentList(eses, title = "", author = "",
   description = "", group_vars = character(),
   default_groupvar = character(), contrasts = list(), url_roots = list(),
-  gene_sets = list(), ensembl_species = character())
+  gene_sets = list(), gene_set_id_type = character(),
+  ensembl_species = character())
 }
 \arguments{
 \item{eses}{List of ExploratorySummarizedExperiments}
@@ -34,8 +35,12 @@ metadata column names of the experiments. Exploratory tools displayed via
 
 \item{gene_sets}{A named list of GeneSetCollections as might be produced by
 reading .gmt format gene sets (for example from MSigDB) using 
-GSEABase::getGmt(). \code{shinyngs} modules currently assume genes
-represented by Entrez ID (not symbol).}
+GSEABase::getGmt(). These must contain identifiers of the type specified
+in \code{gene_set_id_type}.}
+
+\item{gene_set_id_type}{A column found in the metadata of the component 
+ExploratorySummarizedExperiment objects via \code{mcols()}. Used to relate
+the rows of assays to gene sets.}
 
 \item{ensembl_species}{Ensembl species definition like 'mmusculus'. Used to
 interface with BiomaRt e.g. to make gene model plots in the \code{gene} 

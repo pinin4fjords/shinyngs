@@ -27,8 +27,7 @@ correspond?}
 label features (e.g. a gene name field)?}
 
 \item{entrezgenefield}{Which column from \code{annotation} is the Entrez 
-gene ID? Important mostly for gene sets where members are commonly indicated
-by that identifier type.}
+gene ID?}
 
 \item{tests}{List of matrices keyed by 'pvals' and 'qvals', with columns
 corresponding to 'contrasts' set in the containing SummarizedExperimentList}

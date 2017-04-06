@@ -26,6 +26,8 @@ The ExploratorySummaizedExperimentList class
 
 \item{\code{gene_sets}}{list.}
 
+\item{\code{gene_set_id_type}}{character.}
+
 \item{\code{ensembl_species}}{character.}
 }}
 
