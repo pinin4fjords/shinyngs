@@ -510,11 +510,11 @@ eselistFromYAML <- function(configfile){
   # Optional things
   
   if ('static_pdf' %in% names(config)){
-      eselist$static_pdf <- config$static_pdf
+      eselist_args$static_pdf <- config$static_pdf
   }
   
   if ('report' %in% names(config)){
-    eselist$description = as.character(includeMarkdown(config$report))
+    eselist_args$description = as.character(includeMarkdown(config$report))
   }
   
   if ('url_roots' %in% names(config)){
