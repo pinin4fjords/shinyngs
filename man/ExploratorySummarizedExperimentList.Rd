@@ -6,7 +6,7 @@
 ExploratorySummarizedExperiments}
 \usage{
 ExploratorySummarizedExperimentList(eses, title = "", author = "",
-  description = "", group_vars = character(),
+  description = "", static_pdf = character(), group_vars = character(),
   default_groupvar = character(), contrasts = list(), url_roots = list(),
   gene_sets = list(), gene_set_id_type = character(),
   ensembl_species = character())

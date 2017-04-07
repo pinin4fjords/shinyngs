@@ -16,6 +16,8 @@ The ExploratorySummaizedExperimentList class
 
 \item{\code{description}}{character.}
 
+\item{\code{static_pdf}}{character.}
+
 \item{\code{group_vars}}{character.}
 
 \item{\code{default_groupvar}}{character.}

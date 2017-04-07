@@ -2,7 +2,8 @@
 #'
 #' @slot title character. 
 #' @slot author character. 
-#' @slot description character. 
+#' @slot description character.
+#' @slot static_pdf character. 
 #' @slot group_vars character. 
 #' @slot default_groupvar character. 
 #' @slot contrasts list. 
@@ -13,27 +14,27 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", description = "character", 
+setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", description = "character", static_pdf = "character", 
     group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", gene_set_id_type = "character", ensembl_species = "character"))
 
 # Subset operator for integer type like 1:2
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "ANY", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, static_pdf = "character", group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
         contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species)
 })
 
 # Subset operator for numeric type like 1
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "numeric", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
         contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species)
 })
 
 # And one for logicals. Do I really need to repeat these? Must look into it....
 
 setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
+    initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
         contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species)
 })
 
@@ -79,7 +80,7 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
 
-ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", group_vars = character(), default_groupvar = character(), 
+ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", static_pdf = character(), group_vars = character(), default_groupvar = character(), 
     contrasts = list(), url_roots = list(), gene_sets = list(), gene_set_id_type = character(), ensembl_species = character()) {
     
     if (!is.list(eses)) {
@@ -150,6 +151,6 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
     
     print("Creating ExploratorySummarizedExperimentList object")
   
-    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, group_vars = group_vars, default_groupvar = default_groupvar, 
+    new("ExploratorySummarizedExperimentList", eses, title = title, author = author, description = description, static_pdf = static_pdf, group_vars = group_vars, default_groupvar = default_groupvar, 
         contrasts = contrasts, url_roots = url_roots, gene_set_id_type = gene_set_id_type, gene_sets = gene_sets, ensembl_species = ensembl_species)
 } 
