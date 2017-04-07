@@ -58,7 +58,7 @@ contrasts:
   - Variable: Group
     Group.1: control
     Group.2: TreatmentB
-tests:
+contrast_stats:
   Gene:
     Normalised:
       pvals: pvals.csv

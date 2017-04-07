@@ -18,7 +18,7 @@ otherwise of SummarizedExperiment0.
 
 \item{\code{labelfield}}{character.}
 
-\item{\code{tests}}{}
+\item{\code{contrast_stats}}{list.}
 
 \item{\code{read_reports}}{list.}
 }}

@@ -85,7 +85,7 @@ maplotOutput <- function(id) {
 #' The server function of the \code{maplot} module
 #' 
 #' This module is for making scatter plots comparing pairs of groups defined in
-#' a 'tests' slot of the ExploratorySummarizedExperiment
+#' a 'contrasts' slot of the ExploratorySummarizedExperiment
 #' 
 #' This function is not called directly, but rather via callModule() (see 
 #' example).

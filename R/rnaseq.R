@@ -86,10 +86,10 @@ rnaseqInput <- function(id, eselist) {
             eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("line-chart")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
             eselist), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9)), icon = icon("line-chart")))
         
-        # If any of the experiments in the list have assays with associated tests, add a volcano plot
+        # If any of the experiments in the list have assays with associated contrast_stats, add a volcano plot
         
         if (any(unlist(lapply(eselist, function(ese) {
-            length(ese@tests) > 0
+            length(ese@contrast_stats) > 0
         })))) {
             differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), 
                 width = 3), mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("line-chart")))

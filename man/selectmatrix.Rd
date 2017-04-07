@@ -7,7 +7,7 @@
 selectmatrix(input, output, session, eselist, var_n = 50, var_max = NULL,
   select_assays = TRUE, select_samples = TRUE, select_genes = TRUE,
   provide_all_genes = FALSE, default_gene_select = NULL,
-  require_tests = FALSE, rounding = 2, select_meta = TRUE)
+  require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE)
 }
 \arguments{
 \item{input}{Input object}
@@ -39,8 +39,8 @@ idea for e.g. heatmaps where the visual scales by the numbre of rows.}
 
 \item{default_gene_select}{The default method to use for selecting genes}
 
-\item{require_tests}{Only use elements of \code{eselist} that have a 
-populated \code{tests} slot. For plots using p value data etc, this is 
+\item{require_contrast_stats}{Only use elements of \code{eselist} that have a 
+populated \code{contrast_stats} slot. For plots using p value data etc, this is 
 used to hide experiments that don't have the necessary data.}
 
 \item{rounding}{Number of decimal places to show in results (Default 2)}

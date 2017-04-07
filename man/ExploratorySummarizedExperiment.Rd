@@ -5,9 +5,10 @@
 \title{ExploratorySummarizedExperiments}
 \usage{
 ExploratorySummarizedExperiment(assays, colData, annotation, idfield,
-  labelfield = character(), entrezgenefield = character(), tests = list(),
-  assay_measures = list(), gene_set_analyses = list(),
-  dexseq_results = list(), read_reports = list())
+  labelfield = character(), entrezgenefield = character(),
+  contrast_stats = list(), assay_measures = list(),
+  gene_set_analyses = list(), dexseq_results = list(),
+  read_reports = list())
 }
 \arguments{
 \item{assays}{An object of class SimpleList as would be supplied to the 
@@ -29,8 +30,10 @@ label features (e.g. a gene name field)?}
 \item{entrezgenefield}{Which column from \code{annotation} is the Entrez 
 gene ID?}
 
-\item{tests}{List of matrices keyed by 'pvals' and 'qvals', with columns
-corresponding to 'contrasts' set in the containing SummarizedExperimentList}
+\item{contrast_stats}{List of matrices containing contrast-related 
+statistics. Only 'pvals', 'qvals' and 'fold_changes' are currently used. 
+Fold changes are calculated on the fly where not supplied. Matrix columns
+correspond to 'contrasts' set in the containing SummarizedExperimentList.}
 
 \item{gene_set_analyses}{List of lists of gene set tables keyed first by gene set
 type and secondly by contrast}

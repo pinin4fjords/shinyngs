@@ -409,7 +409,7 @@ evaluateCardinalFilter <- function(values, cardinality, limit) {
 #'   - Variable: Group
 #'     Group.1: control
 #'     Group.2: TreatmentB
-#' tests:
+#' contrast_stats:
 #'   Gene:
 #'     Normalised:
 #'       pvals: pvals.csv
@@ -449,11 +449,11 @@ eselistFromYAML <- function(configfile){
       as.matrix(read.csv(mat$file, row.names=1, check.names = FALSE))
     }))
     
-    # Add tests where available. 
+    # Add contrast_stats where available. 
     
-    tests <- list()
-    if (expname %in% names(config$contrasts$tests )){
-      tests <- lapply(config$contrasts$tests[[expname]], function(assaytests){
+    contrast_stats <- list()
+    if (expname %in% names(config$contrasts$stats )){
+      contrast_stats <- lapply(config$contrasts$stats[[expname]], function(assaytests){
         lapply(assaytests, function(at){
           print(paste("Reading test stats file", at))
           read.csv(at, row.names = 1, header = FALSE)
@@ -476,7 +476,7 @@ eselistFromYAML <- function(configfile){
       entrezgenefield = exp$annotation$entrez,
       labelfield = exp$annotation$label,
       assay_measures = lapply(exp$expression_matrices, function(mat){mat$measure}),
-      tests = tests
+      contrast_stats = contrast_stats
     )
     
     if ('read_reports' %in% names(exp)){

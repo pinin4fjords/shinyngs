@@ -4,7 +4,7 @@
 \alias{selectmatrixInput}
 \title{The UI input function of the selectmarix module}
 \usage{
-selectmatrixInput(id, eselist, require_tests = FALSE)
+selectmatrixInput(id, eselist, require_contrast_stats = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -12,8 +12,8 @@ selectmatrixInput(id, eselist, require_tests = FALSE)
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 
-\item{require_tests}{Only use elements of \code{eselist} that have a 
-populated \code{tests} slot. For plots using p value data etc, this is 
+\item{require_contrast_stats}{Only use elements of \code{eselist} that have a 
+populated \code{contrast_stats} slot. For plots using p value data etc, this is 
 used to hide experiments that don't have the necessary data.}
 }
 \value{

@@ -7,13 +7,13 @@
 #' @slot idfield character. 
 #' @slot entrezgenefield character. 
 #' @slot labelfield character. 
-#' @slot tests 
+#' @slot contrast_stats list.
 #' @slot read_reports list.
 #' 
 #' @export
 
 setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", 
-    "SummarizedExperiment0"), representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", tests = "list", 
+    "SummarizedExperiment0"), representation = representation(idfield = "character", entrezgenefield = "character", labelfield = "character", contrast_stats = "list", 
     assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
@@ -49,8 +49,10 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' label features (e.g. a gene name field)? 
 #' @param entrezgenefield Which column from \code{annotation} is the Entrez 
 #' gene ID? 
-#' @param tests List of matrices keyed by 'pvals' and 'qvals', with columns
-#' corresponding to 'contrasts' set in the containing SummarizedExperimentList
+#' @param contrast_stats List of matrices containing contrast-related 
+#' statistics. Only 'pvals', 'qvals' and 'fold_changes' are currently used. 
+#' Fold changes are calculated on the fly where not supplied. Matrix columns
+#' correspond to 'contrasts' set in the containing SummarizedExperimentList.
 #' @param gene_set_analyses List of lists of gene set tables keyed first by gene set
 #' type and secondly by contrast
 #' @param read_reports A named list of matrices with read counts in columns
@@ -61,7 +63,7 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' @import SummarizedExperiment
 #' @export
 
-ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), tests = list(), 
+ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(), 
     assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
 
     # Reset NULLs to empty 
@@ -88,11 +90,11 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
       round(add_missing_rows(as)[, rownames(colData)], 2)
     }))  
     
-    # The same fix for tests
+    # The same fix for contrast_stats
     
-    if (length(tests) > 0){
+    if (length(contrast_stats) > 0){
       
-      tests <- lapply(tests, function(stats){
+      contrast_stats <- lapply(contrast_stats, function(stats){
         lapply(stats, function(test){
           add_missing_rows(test)
         })
@@ -109,5 +111,5 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
     mcols(sumexp) <- annotation
     
     new("ExploratorySummarizedExperiment", sumexp, idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures, 
-        tests = tests, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports)
+        contrast_stats = contrast_stats, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports)
 } 

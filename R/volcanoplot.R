@@ -31,11 +31,11 @@ volcanoplotInput <- function(id, eselist) {
     # Only consider experiments that actually have p-values to use in a volcano plot
     
     eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-        length(ese@tests) > 0
+        length(ese@contrast_stats) > 0
     })))]
-    expression_filters <- selectmatrixInput(ns("expression"), eselist, require_tests = TRUE)
+    expression_filters <- selectmatrixInput(ns("expression"), eselist, require_contrast_stats = TRUE)
     
-    # If there's only one experiment with tests, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for
+    # If there's only one experiment with contrast_stats, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for
     # them
     
     fieldsets <- list()
@@ -124,7 +124,7 @@ volcanoplot <- function(input, output, session, eselist) {
     # Call the selectmatrix module and unpack the reactives it sends back
     
     selectmatrix_reactives = callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE, 
-        require_tests = TRUE)
+        require_contrast_stats = TRUE)
     unpack.list(selectmatrix_reactives)
     
     # Pass the matrix to the contrasts module for processing

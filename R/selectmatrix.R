@@ -17,8 +17,8 @@
 #' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
-#' @param require_tests Only use elements of \code{eselist} that have a 
-#'   populated \code{tests} slot. For plots using p value data etc, this is 
+#' @param require_contrast_stats Only use elements of \code{eselist} that have a 
+#'   populated \code{contrast_stats} slot. For plots using p value data etc, this is 
 #'   used to hide experiments that don't have the necessary data.
 #'   
 #' @return output An HTML tag object that can be rendered as HTML using 
@@ -29,15 +29,15 @@
 #' @examples
 #' selectmatrixInput(ns('heatmap'), eselist)
 
-selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
+selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
     
     ns <- NS(id)
     
     # Restrict to valid experiments
     
-    if (require_tests) {
+    if (require_contrast_stats) {
         eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-            length(ese@tests) > 0
+            length(ese@contrast_stats) > 0
         })))]
     }
     inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")), uiOutput(ns("samples")), uiOutput(ns("rows")), uiOutput(ns("meta")))
@@ -88,8 +88,8 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #'   don't have to calculate variance so the display is quicker, but it's a bad 
 #'   idea for e.g. heatmaps where the visual scales by the numbre of rows.
 #' @param default_gene_select The default method to use for selecting genes
-#' @param require_tests Only use elements of \code{eselist} that have a 
-#'   populated \code{tests} slot. For plots using p value data etc, this is 
+#' @param require_contrast_stats Only use elements of \code{eselist} that have a 
+#'   populated \code{contrast_stats} slot. For plots using p value data etc, this is 
 #'   used to hide experiments that don't have the necessary data.
 #' @param rounding Number of decimal places to show in results (Default 2)
 #'   
@@ -102,7 +102,7 @@ selectmatrixInput <- function(id, eselist, require_tests = FALSE) {
 #' selectSamples <- callModule(sampleselect, 'selectmatrix', eselist)
 
 selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, 
-    default_gene_select = NULL, require_tests = FALSE, rounding = 2, select_meta = TRUE) {
+    default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE) {
     
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
     
@@ -166,8 +166,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
     validAssays <- reactive({
         ese <- getExperiment()
         
-        if (require_tests) {
-            valid_assays <- names(ese@tests)
+        if (require_contrast_stats) {
+            valid_assays <- names(ese@contrast_stats)
         } else {
             names(SummarizedExperiment::assays(ese))
         }

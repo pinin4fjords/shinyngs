@@ -18,7 +18,7 @@ ExploratorySummarizedExperiment objects}
 }
 \description{
 This module is for making scatter plots comparing pairs of groups defined in
-a 'tests' slot of the ExploratorySummarizedExperiment
+a 'contrasts' slot of the ExploratorySummarizedExperiment
 }
 \details{
 This function is not called directly, but rather via callModule() (see 

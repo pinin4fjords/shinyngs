@@ -356,7 +356,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         })
     })
     
-    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'tests' slot
+    # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'contrast_stats' slot
     # of the ExploratorySummarizedExperiment. Make a summary table for every contrast. This data can then be re-used when processing filter sets.
     
     contrastsTables <- reactive({
@@ -384,12 +384,12 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
                 names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2", "Fold change")
                 
                 if (pvalsAvailable()) {
-                  pvals <- ese@tests[[assay]]$pvals
+                  pvals <- ese@contrast_stats[[assay]]$pvals
                   ct[["p value"]] <- signif(pvals[match(rownames(ct), rownames(pvals)), as.numeric(c)], 5)
                 }
                 
                 if (qvalsAvailable()) {
-                  qvals <- ese@tests[[assay]]$qvals
+                  qvals <- ese@contrast_stats[[assay]]$qvals
                   ct[["q value"]] <- signif(qvals[match(rownames(ct), rownames(qvals)), as.numeric(c)], 5)
                 }
                 ct
@@ -406,7 +406,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         assay <- getAssay()
         ese <- getExperiment()
         
-        length(ese@tests) > 0 && assay %in% names(ese@tests) && "pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)
+        length(ese@contrast_stats) > 0 && assay %in% names(ese@contrast_stats) && "pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)
     })
     
     # Test for the presence of q values in the input object
@@ -415,7 +415,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
         assay <- getAssay()
         ese <- getExperiment()
         
-        length(ese@tests) > 0 && assay %in% names(ese@tests) && "qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)
+        length(ese@contrast_stats) > 0 && assay %in% names(ese@contrast_stats) && "qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)
     })
     
     ########################################################################### Subsetting using the rows in the input matrix. This does NOT involve the filters from this module, but simply subsets the base data to the rows pertinent
@@ -800,7 +800,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
         
         # p value field
         
-        if ("pvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$pvals)) {
+        if ("pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)) {
             pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)), value = default_pval, label = "p value", min = 0, 
                 max = 1, step = 0.01)
             
@@ -812,7 +812,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
         
         # q value field
         
-        if ("qvals" %in% names(ese@tests[[assay]]) && !is.null(ese@tests[[assay]]$qvals)) {
+        if ("qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)) {
             qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)), value = default_qval, label = "q value", min = 0, 
                 max = 1, step = 0.01)
         } else {
