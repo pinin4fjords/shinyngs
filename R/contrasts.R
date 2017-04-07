@@ -380,8 +380,17 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
                 smry1 <- summaries[[cont[1]]][, cont[2], drop = FALSE]
                 smry2 <- summaries[[cont[1]]][, cont[3], drop = FALSE]
                 
-                ct <- data.frame(cont[1], cont[2], cont[3], round(smry1, 2), round(smry2, 2), round(foldChange(smry1, smry2), 2))
-                names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2", "Fold change")
+                ct <- data.frame(cont[1], cont[2], cont[3], round(smry1, 2), round(smry2, 2))
+                names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2")
+                
+                # Use pre-computed fold changes where provided. 
+                
+                if (fcsAvailable()) {
+                  fcs <- ese@contrast_stats[[assay]]$fold_changes
+                  ct[["Fold change"]] <- round(fcs[match(rownames(ct), rownames(fcs)), as.numeric(c)], 2)
+                }else{
+                  ct[["Fold change"]] <- round(foldChange(smry1, smry2), 2) 
+                }
                 
                 if (pvalsAvailable()) {
                   pvals <- ese@contrast_stats[[assay]]$pvals
@@ -392,12 +401,22 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
                   qvals <- ese@contrast_stats[[assay]]$qvals
                   ct[["q value"]] <- signif(qvals[match(rownames(ct), rownames(qvals)), as.numeric(c)], 5)
                 }
+
                 ct
             })
         })
         
         names(contrast_tables) <- getAllContrastsNumbers()
         contrast_tables
+    })
+    
+    # Test for the presence of pre-computed fold changes (e.g. from modelling)
+    
+    fcsAvailable <- reactive({
+      assay <- getAssay()
+      ese <- getExperiment()
+      
+      length(ese@contrast_stats) > 0 && assay %in% names(ese@contrast_stats) && "fold_changes" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$fold_changes)
     })
     
     # Test for the presence of p values in the input object
