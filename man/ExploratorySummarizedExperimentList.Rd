@@ -20,6 +20,9 @@ ExploratorySummarizedExperimentList(eses, title = "", author = "",
 
 \item{description}{Study summary to displayed on front page}
 
+\item{static_pdf}{A URL to a static PDF document to be displayed on the
+front page.}
+
 \item{group_vars}{Variables by which a user will be allowed to group the 
 samples of individual experiments, must correspond to their \code{colData}}
 

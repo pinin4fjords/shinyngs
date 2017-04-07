@@ -509,7 +509,11 @@ eselistFromYAML <- function(configfile){
   
   # Optional things
   
-  if ('report' %in% config$report){
+  if ('static_pdf' %in% names(config)){
+      eselist$static_pdf <- config$static_pdf
+  }
+  
+  if ('report' %in% names(config)){
     eselist$description = as.character(includeMarkdown(config$report))
   }
   

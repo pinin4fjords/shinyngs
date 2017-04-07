@@ -57,6 +57,8 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' @param title Study title 
 #' @param author Study authors
 #' @param description Study summary to displayed on front page
+#' @param static_pdf A URL to a static PDF document to be displayed on the
+#' front page.
 #' @param group_vars Variables by which a user will be allowed to group the 
 #' samples of individual experiments, must correspond to their \code{colData}
 #' @param default_groupvar Default \code{group_var}
