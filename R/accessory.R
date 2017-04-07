@@ -502,13 +502,16 @@ eselistFromYAML <- function(configfile){
     expsumexps,
     title = config$title,
     author = config$author,
-    description = as.character(includeMarkdown(config$report)),
     group_vars = config$group_vars,
     default_groupvar = config$default_groupvar,
     contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))
   )
   
   # Optional things
+  
+  if ('report' %in% config$report){
+    eselist$description = as.character(includeMarkdown(config$report))
+  }
   
   if ('url_roots' %in% names(config)){
     eselist_args$url_roots <- config$url_roots
