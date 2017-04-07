@@ -20,20 +20,24 @@
 rnaseqInput <- function(id, eselist) {
     ns <- NS(id)
     
+    intro_text <- "This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages. Use the various panels provided to mine data, adjusting the thresholds as required to produce useful insights. Most pages have a 'help' link to help you find your way."
+    
     desc <- HTML(eselist@description)
     
     # See if static PDF report has been provided
     
     if (length(eselist@static_pdf) > 0){
       pdf <- tags$iframe(style="height:800px; width:100%; scrolling=yes", src=eselist@static_pdf)
+      sidebar_pdf_desc <- 'The report shown to the right is a static set of results based on fixed thresholds and assumptions.'
     }else{
       pdf <- ''
+      sidebar_pdf_desc <- ''
     }
     
     # Build menu structure based on available information
     
     navbar_menus <- list(id = ns("rnaseq"), title = paste0("RNA-seq explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home", sidebarLayout(sidebarPanel(column(12, 
-        offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")), 
+        offset = 0, p(HTML(intro_text)), p(sidebar_pdf_desc), 
         p(HTML(paste0(icon("github"), "&nbsp;Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>"))), 
         p(HTML(paste0(icon("chrome"), "&nbsp;This app is best viewed with the Chrome browser.")))), width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), 
         h3(eselist@author), p(desc, pdf)  )), width = 9)), icon = icon("home")), navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), 
