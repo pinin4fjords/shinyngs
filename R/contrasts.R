@@ -377,8 +377,8 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
                 
                 cont <- contrasts[[c]]
                 
-                smry1 <- summaries[[cont[1]]][, cont[2], drop = FALSE]
-                smry2 <- summaries[[cont[1]]][, cont[3], drop = FALSE]
+                smry1 <- summaries[[cont[1]]][, cont[2]]
+                smry2 <- summaries[[cont[1]]][, cont[3]]
                 
                 ct <- data.frame(cont[1], cont[2], cont[3], round(smry1, 2), round(smry2, 2))
                 names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2")
