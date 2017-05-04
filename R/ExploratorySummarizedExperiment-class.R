@@ -103,7 +103,7 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
     
     # Annotations need to be strings
     
-    annotation <- data.frame(lapply(annotation, as.character), stringsAsFactors = FALSE, check.names = FALSE)
+    annotation <- data.frame(lapply(annotation, as.character), stringsAsFactors = FALSE, check.names = FALSE, row.names = rownames(annotation))[all_rows, ]
     
     # Build the object
     
