@@ -417,8 +417,8 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
                 }
                 
                 # Use a simple column paste for single-value columns. Different aproach for multi-value columns
-                
-                if (any(grepl(" ", matrix[[fieldname]]))) {
+
+                if (any(grepl(" ", matrix[[fieldname]])) && ! fieldname %in% 'gene_set_id') {
                   fvs_for_href <- strsplit(fvs_for_href, " ")
                   fvs_for_display <- strsplit(fvs_for_display, " ")
                   
