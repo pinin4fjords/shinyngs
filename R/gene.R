@@ -296,8 +296,6 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
 #' @param chromosome Chromosome number
 #' @param start Chromosome start coordinate
 #' @param end Chromosome end coordinate
-#'
-#' @import Gviz
 
 geneModelPlot <- function(ensembl_species, chromosome, start, end) {
     
@@ -309,23 +307,23 @@ geneModelPlot <- function(ensembl_species, chromosome, start, end) {
     
     # Create a basic axis
     
-    gtrack <- GenomeAxisTrack()
+    gtrack <- Gviz::GenomeAxisTrack()
     
     # We should know the start_position and end_position. Fetch a track showing genes in the region
     
-    geneTrack <- BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol", 
+    geneTrack <- Gviz::BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol", 
         collapseTranscripts = TRUE, shape = "arrow")
     
     # Move gene labels to above
     
-    displayPars(geneTrack) = list(showId = TRUE, fontcolor.title = "black", just.group = "above")
+    Gviz::displayPars(geneTrack) = list(showId = TRUE, fontcolor.title = "black", just.group = "above")
     
-    transcriptTrack <- BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Transcripts", biomart = ensembl, transcriptAnnotation = "transcript")
+    transcriptTrack <- Gviz::BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Transcripts", biomart = ensembl, transcriptAnnotation = "transcript")
     
     # Move transcript labels to above
     
-    displayPars(transcriptTrack) = list(showId = TRUE, fontcolor.title = "black", just.group = "above")
+    Gviz::displayPars(transcriptTrack) = list(showId = TRUE, fontcolor.title = "black", just.group = "above")
     
-    plotTracks(list(gtrack, geneTrack, transcriptTrack), from = start, to = end, extend.left = 1000, extend.right = 1000, cex = 1, cex.legend = 0.8, cex.group = 0.8, 
+    Gviz::plotTracks(list(gtrack, geneTrack, transcriptTrack), from = start, to = end, extend.left = 1000, extend.right = 1000, cex = 1, cex.legend = 0.8, cex.group = 0.8, 
         cex.title = 0.8)
 } 
