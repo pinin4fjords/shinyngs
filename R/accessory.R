@@ -434,11 +434,15 @@ eselistFromYAML <- function(configfile){
   
   experiments <- config$experiments
   
-  # Use the order if specified (it should be- YML spec says it's unordered)
+  # Establish ordering. Ordering of YAML file shouldn't be relied upon
   
   if ('experiment_order' %in% names(config)){
-    experiments <- experiments[config$experiment_order]
+    experiment_order <- config$experiment_order
+  }else{
+    experiment_order <- names(experiments)
   }
+
+  experiments <- experiments[config$experiment_order]
   
   # Make the basic objects
   
@@ -457,19 +461,23 @@ eselistFromYAML <- function(configfile){
     
     # Apply ordering if provided
     
-    if ('assay_order' %in% names(config)){
-      assays <- assays[config$assay_order]
+    if ('assay_order' %in% names(exp)){
+      assay_order <- exp$assay_order
+    }else{
+      assay_order <- names(assays)
     }
+    assays <- assays[assay_order]
     
     # Add contrast_stats where available. 
     
     contrast_stats <- list()
     if (expname %in% names(config$contrasts$stats )){
       contrast_stats <- lapply(config$contrasts$stats[[expname]], function(assaytests){
-        lapply(assaytests, function(at){
+        ats <- lapply(assaytests, function(at){
           print(paste("Reading test stats file", at))
           read.csv(at, row.names = 1, header = FALSE)
         })
+        ats[assay_order]
       })
     }
     
@@ -488,7 +496,7 @@ eselistFromYAML <- function(configfile){
       entrezgenefield = exp$annotation$entrez,
       labelfield = exp$annotation$label,
       assay_measures = lapply(exp$expression_matrices, function(mat){mat$measure}),
-      contrast_stats = contrast_stats
+      contrast_stats = contrast_stats[experiment_order]
     )
     
     if ('read_reports' %in% names(exp)){
