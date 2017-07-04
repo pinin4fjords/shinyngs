@@ -841,7 +841,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
         contrast_field_set <- c(contrast_field_set, list(qval_field))
         
         fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)), value = default_foldchange, label = "fold change", 
-            cardinality = "> or <-", step = 0.5)
+            cardinality = ">= or <= -", step = 0.5)
         contrast_field_set <- c(contrast_field_set, list(fold_change_field))
     }
     

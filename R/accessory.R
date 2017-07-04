@@ -330,9 +330,9 @@ inlineField <- function(field_def, label, labelwidth = 6) {
 #' @return out An HTML tag object that can be rendered as HTML using 
 #' as.character() 
 
-cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<", step = NA, min = NA, max = NA) {
-    tags$div(fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(3, selectInput(cardinal_id, label = NULL, choices = c("<", ">", "> or <-", 
-        "< and >-"), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))), 
+cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<=", step = NA, min = NA, max = NA) {
+    tags$div(fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(3, selectInput(cardinal_id, label = NULL, choices = c("<=", ">=", ">= or <= -", 
+        "<= and >= -"), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))), 
         class = "shinyngs-cardinalfield")
 }
 
@@ -348,14 +348,14 @@ cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<
 
 evaluateCardinalFilter <- function(values, cardinality, limit) {
     
-    if (cardinality == "<") {
-        values < limit
-    } else if (cardinality == ">") {
-        values > limit
-    } else if (cardinality == "> or <-") {
-        abs(values) > limit
-    } else if (cardinality == "< and >-") {
-        values < limit & values > -limit
+    if (cardinality == "<=") {
+        values <= limit
+    } else if (cardinality == ">=") {
+        values >= limit
+    } else if (cardinality == ">= or <= -") {
+        abs(values) >= limit
+    } else if (cardinality == "<= and >= -") {
+        values <= limit & values >= -limit
     } else {
         stop("invalid cardinality")
     }
