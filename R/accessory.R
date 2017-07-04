@@ -434,6 +434,12 @@ eselistFromYAML <- function(configfile){
   
   experiments <- config$experiments
   
+  # Use the order if specified (it should be- YML spec says it's unordered)
+  
+  if ('experiment_order' %in% names(config)){
+    experiments <- experiments[config$experiment_order]
+  }
+  
   # Make the basic objects
   
   print("Constructing ExploratorySummarizedExperiments")
@@ -448,6 +454,12 @@ eselistFromYAML <- function(configfile){
       print(paste("Reading", mat$file))
       as.matrix(read.csv(mat$file, row.names=1, check.names = FALSE))
     }))
+    
+    # Apply ordering if provided
+    
+    if ('assay_order' %in% names(config)){
+      assays <- assays[config$assay_order]
+    }
     
     # Add contrast_stats where available. 
     
