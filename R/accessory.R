@@ -473,11 +473,10 @@ eselistFromYAML <- function(configfile){
     contrast_stats <- list()
     if (expname %in% names(config$contrasts$stats )){
       contrast_stats <- lapply(config$contrasts$stats[[expname]], function(assaytests){
-        ats <- lapply(assaytests, function(at){
+        lapply(assaytests, function(at){
           print(paste("Reading test stats file", at))
           read.csv(at, row.names = 1, header = FALSE)
         })
-        ats[assay_order]
       })
     }
     
@@ -496,7 +495,7 @@ eselistFromYAML <- function(configfile){
       entrezgenefield = exp$annotation$entrez,
       labelfield = exp$annotation$label,
       assay_measures = lapply(exp$expression_matrices, function(mat){mat$measure}),
-      contrast_stats = contrast_stats[experiment_order]
+      contrast_stats = contrast_stats[assay_order]
     )
     
     if ('read_reports' %in% names(exp)){
