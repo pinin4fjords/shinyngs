@@ -442,7 +442,7 @@ eselistFromYAML <- function(configfile){
     experiment_order <- names(experiments)
   }
 
-  experiments <- experiments[config$experiment_order]
+  experiments <- experiments[experiment_order]
   
   # Make the basic objects
   
