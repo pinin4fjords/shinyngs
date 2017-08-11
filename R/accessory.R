@@ -532,8 +532,12 @@ eselistFromYAML <- function(configfile){
       eselist_args$static_pdf <- config$static_pdf
   }
   
+  # If 'report' is specified with assume a mardown document to be parsed. Otherwise just text
+  
   if ('report' %in% names(config)){
     eselist_args$description = as.character(includeMarkdown(config$report))
+  }else if ('description' %in% names(config)){
+    eselist_args$description <- config$description
   }
   
   if ('url_roots' %in% names(config)){
