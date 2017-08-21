@@ -163,9 +163,9 @@ foldchangeplot <- function(input, output, session, eselist) {
         # Use lines dependent on how the fold change filter is applied
         
         fccard <- getFoldChangeCard()
-        if (fccard %in% c("> or <-", "< and >-")) {
+        if (fccard %in% c(">= or <= -", "<= and >= -")) {
             lines
-        } else if (fccard == "<" && sign(fclim) == "-1") {
+        } else if (fccard == "<=" && sign(fclim) == "-1") {
             droplevels(lines[1:4, ])
         } else {
             droplevels(lines[c(1, 2, 5, 6), ])

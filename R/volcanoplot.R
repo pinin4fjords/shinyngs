@@ -166,20 +166,28 @@ volcanoplot <- function(input, output, session, eselist) {
             xmax <- max(vt[normal_x, 1], na.rm = TRUE)
             xmin <- min(vt[normal_x, 1], na.rm = TRUE)
             
-            lines <- data.frame(name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2), rep(paste("q <", qvallim), 2)), 
-                x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax), y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2)))
+            lines <- data.frame(
+              name = c(
+                  rep(paste0(abs(fclim), "-fold down"), 2), 
+                  rep(paste0(abs(fclim), "-fold up"), 2), 
+                  rep(paste("q <", qvallim), 2)
+              ), 
+              x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax), 
+              y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2))
+            )
             
             # Use lines dependent on how the fold change filter is applied
             
             fccard <- getFoldChangeCard()
-            if (fccard %in% c("> or <-", "< and >-")) {
-                lines
-            } else if (fccard == "<" && sign(fclim) == "-1") {
-                droplevels(lines[1, 2, 5, 6, ])
+
+            if (fccard %in% c(">= or <= -", "<= and >= -")) {
+                lines = lines
+            } else if (fccard == "<=" && sign(fclim) == "-1") {
+              lines = droplevels(lines[1, 2, 5, 6, ])
             } else {
-                droplevels(lines[1:4, ])
+                lines = droplevels(lines[1:4, ])
             }
-            
+            lines
         })
         
     })
