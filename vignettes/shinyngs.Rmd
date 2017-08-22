@@ -121,9 +121,9 @@ ese@labelfield <- 'external_gene_name'
 
 eselist <- ExploratorySummarizedExperimentList(
   ese,
-  title = expinfo$Title,
-  author = expinfo$Author,
-  description = expinfo$Description
+  title = expinfo@title,
+  author = expinfo@name,
+  description = abstract(expinfo)
 )
 app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
@@ -135,7 +135,7 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 
 An example `ExploratorySummarizedExperimentList` based on the Zhang et al study of neurons and glia (http://www.jneurosci.org/content/34/36/11929.long) is included in the package, and this can be used to demonstrate available features. The dataset includes transcript- and gene- level quantification estimates (as `ExporatorySummarizedExperiment`s within an `ExploratorySummarizedExperimentList`, and three levels of processing (raw, filtered, normalised) in the `assays` slots of each.  
 
-Note: this data was generated while testing Kallisto (https://pachterlab.github.io/kallisto/) for quantification, and results may therefore be slightly different to the authors' online tool (which did not use Kallisto).
+Note: this data was generated using Salmon (https://combine-lab.github.io/salmon/) for quantification, and results may therefore be slightly different to the authors' online tool (which did not use Salmon).
 
 ```{r eval=FALSE}
 library(shinyngs)
@@ -194,20 +194,22 @@ experiments:
       read_attrition: read_attrition.csv
 contrasts:
   comparisons:
-  - Variable: Group
-    Group.1: control
-    Group.2: TreatmentA
-  - Variable: Group
-    Group.1: control
-    Group.2: TreatmentB
-tests:
+    0:
+    - Group
+      control
+      TreatmentA
+    1:
+    - Group
+      control
+      TreatmentB
+stats:
   Gene:
     Normalised:
       pvals: pvals.csv
       qvals: qvals.csv
 ```
 
-You can then generate the object with a command like `eselist <- eselistFromYAML('my.yaml')`. This function is in development and does not yet fill all slots in the ExploratorySummarizedExperiment object.
+You can then generate the object with a command like `eselist <- eselistFromYAML('my.yaml')`. 
 
 # Building an application from scratch
 
@@ -251,9 +253,8 @@ myese <- ExploratorySummarizedExperiment(
     ),
     colData = DataFrame(mycoldata),
     annotation <- myannotation,
-    idfield = 'ensembl_gene_id',
-    entrezgenefield = "entrezgene",
-    labelfield = "external_gene_name"
+    idfield = 'gene_id',
+    labelfield = "gene_name"
   )
 print(myese)
 ```
@@ -283,7 +284,7 @@ shiny::shinyApp(app$ui, app$server)
 ... but it's of limited usefulness because the sample groupings are not highlighted. We need to specify `group_vars` for that to happen, picking column names from the `colData`:
 
 ```{r eval=TRUE}
-myesel@group_vars <- c('cell_type', 'source_name')
+myesel@group_vars <- c('Group', 'Tissue')
 ```
 
 .. then if we re-make the app you should see group highlighting.
@@ -313,16 +314,16 @@ app <- prepareApp("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 
-But without information on the significance of the fold changes, we can't make things like volcano plots. For those we need to populate the `tests` slot. Tests is a list of lists of matrices in the `ExploratorySummarizedExperiment` objects, with list names matching one or more of the names in `assays`, second-level names being 'pvals' and 'qvals' and the columns of each matrix corresponding the the `contrasts` slot of the containing `ExploratorySummarizedExperimentList`:
+But without information on the significance of the fold changes, we can't make things like volcano plots. For those we need to populate the `contrast_stats` slot. contrast_stats is a list of lists of matrices in the `ExploratorySummarizedExperiment` objects, with list names matching one or more of the names in `assays`, second-level names being 'pvals' and 'qvals' and the columns of each matrix corresponding the the `contrasts` slot of the containing `ExploratorySummarizedExperimentList`:
 
 ```{r eval=TRUE}
-head(zhangneurons[[1]]@tests[[1]]$pvals, n = 10)
+head(zhangneurons[[1]]@contrast_stats[[1]]$pvals, n = 10)
 ```
 
 Again, we'll just copy those data from `zhangneurons` for demonstration purposes:
 
 ```{r eval=TRUE}
-myesel[[1]]@tests <- zhangneurons[[1]]@tests
+myesel[[1]]@contrast_stats <- zhangneurons[[1]]@contrast_stats
 ```
 
 Now the RNA-seq app is more or less complete, and you should see volcano plots under 'Differential':
@@ -338,7 +339,7 @@ Many displays are more useful if they can be limited to biologically meaningful 
 
 ## Adding gene sets to enable gene set filtering
 
-The constructor for `ExploratorySummarizedExperimentList` assumes that gene sets are represented by Entrez IDs, as is common with resources such as the Molecular Signatures Database, and that they are specified as a list of `GeneSetCollection`s. You might generate such a list as follows:
+The constructor for `ExploratorySummarizedExperimentList` assumes that gene sets are represented by the ID type specified in the `gene_set_id_type_slot`, and that they are specified as a list of `GeneSetCollection`s. You might generate such a list as follows:
 
 ```{r eval=FALSE}
 genesets_files = list(
@@ -367,22 +368,22 @@ myesel <- ExploratorySummarizedExperimentList(
 
 These are then converted internally to a list of lists of character vectors of gene IDs. The top level is keyed by the type of gene ID to be used for labelling (stored in `labelfield' on `ExploratorySummarisedExperiments`, the next level by the type of gene set.
 
-For the `zhangneurons` example, gene sets are stored by `external_gene_name`:
+For the `zhangneurons` example, gene sets are stored by `gene_name`:
 
 ```{r eval = TRUE}
 names(zhangneurons@gene_sets)
 ```
 
-6 types of gene set are used. For example, KEGG:
+4 types of gene set are used. For example, GO Biological Processes (GOBP):
 
 ```{r eval = TRUE}
-names(zhangneurons@gene_sets$external_gene_name$KEGG)[1:10]
+names(zhangneurons@gene_sets$gene_name$GOBP)[1:10]
 ```
 
-We can find the list of KEGG gluconeogenesis genes, keyed by the original Entrez ID:
+We can find the list of GO lactate transport genes, keyed by gene symbol:
 
 ```{r eval = TRUE}
-zhangneurons@gene_sets$external_gene_name$KEGG$KEGG_GLYCOLYSIS_GLUCONEOGENESIS
+zhangneurons@gene_sets$gene_name$GOBP$GO_LACTATE_TRANSPORT
 ```
 
 Of course if you want to avoid the constructor, you can replicate that data structure and set the `@gene_sets` directly.
@@ -393,9 +394,9 @@ Gene set analyses can be stored as a list of tables in the `@gene_set_analyses` 
 
 ```{r eval = TRUE}
 names(zhangneurons$gene@gene_set_analyses)
-names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG)
-head(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG$`myelinating_oligodendrocytes:0-1`)
+names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`)
+names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP)
+head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)
 ```
 
 This data struture is a bit cumbersome, and I'm thinking of ways of better representing such data and the associated contrasts.

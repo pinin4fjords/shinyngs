@@ -55,9 +55,9 @@
 #  
 #  eselist <- ExploratorySummarizedExperimentList(
 #    ese,
-#    title = expinfo$Title,
-#    author = expinfo$Author,
-#    description = expinfo$Description
+#    title = expinfo@title,
+#    author = expinfo@name,
+#    description = abstract(expinfo)
 #  )
 #  app <- prepareApp('rnaseq', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
@@ -95,9 +95,8 @@ myese <- ExploratorySummarizedExperiment(
     ),
     colData = DataFrame(mycoldata),
     annotation <- myannotation,
-    idfield = 'ensembl_gene_id',
-    entrezgenefield = "entrezgene",
-    labelfield = "external_gene_name"
+    idfield = 'gene_id',
+    labelfield = "gene_name"
   )
 print(myese)
 
@@ -114,7 +113,7 @@ myesel <- ExploratorySummarizedExperimentList(
 #  shiny::shinyApp(app$ui, app$server)
 
 ## ----eval=TRUE-----------------------------------------------------------
-myesel@group_vars <- c('cell_type', 'source_name')
+myesel@group_vars <- c('Group', 'Tissue')
 
 ## ----eval=FALSE----------------------------------------------------------
 #  app <- prepareApp("rnaseq", myesel)
@@ -129,10 +128,10 @@ myesel@contrasts <- zhangneurons@contrasts
 #  shiny::shinyApp(app$ui, app$server)
 
 ## ----eval=TRUE-----------------------------------------------------------
-head(zhangneurons[[1]]@tests[[1]]$pvals, n = 10)
+head(zhangneurons[[1]]@contrast_stats[[1]]$pvals, n = 10)
 
 ## ----eval=TRUE-----------------------------------------------------------
-myesel[[1]]@tests <- zhangneurons[[1]]@tests
+myesel[[1]]@contrast_stats <- zhangneurons[[1]]@contrast_stats
 
 ## ----eval=FALSE----------------------------------------------------------
 #  app <- prepareApp("rnaseq", myesel)
@@ -163,16 +162,16 @@ myesel[[1]]@tests <- zhangneurons[[1]]@tests
 names(zhangneurons@gene_sets)
 
 ## ----eval = TRUE---------------------------------------------------------
-names(zhangneurons@gene_sets$external_gene_name$KEGG)[1:10]
+names(zhangneurons@gene_sets$gene_name$GOBP)[1:10]
 
 ## ----eval = TRUE---------------------------------------------------------
-zhangneurons@gene_sets$external_gene_name$KEGG$KEGG_GLYCOLYSIS_GLUCONEOGENESIS
+zhangneurons@gene_sets$gene_name$GOBP$GO_LACTATE_TRANSPORT
 
 ## ----eval = TRUE---------------------------------------------------------
 names(zhangneurons$gene@gene_set_analyses)
-names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG)
-head(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG$`myelinating_oligodendrocytes:0-1`)
+names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`)
+names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP)
+head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)
 
 ## ----eval = FALSE--------------------------------------------------------
 #  app <- prepareApp('dendro', eselist)

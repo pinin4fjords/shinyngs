@@ -10,7 +10,7 @@
 
 <meta name="author" content="Jonathan Manning" />
 
-<meta name="date" content="2017-03-23" />
+<meta name="date" content="2017-08-22" />
 
 <title>Interactive downstream analysis with ShinyNGS</title>
 
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <div id="header">
 <h1 class="title">Interactive downstream analysis with ShinyNGS</h1>
 <h4 class="author"><em>Jonathan Manning</em></h4>
-<h4 class="date"><em>2017-03-23</em></h4>
+<h4 class="date"><em>2017-08-22</em></h4>
 </div>
 
 <h1>Contents</h1>
@@ -182,9 +182,9 @@ ese@labelfield &lt;- 'external_gene_name'
 
 eselist &lt;- ExploratorySummarizedExperimentList(
   ese,
-  title = expinfo$Title,
-  author = expinfo$Author,
-  description = expinfo$Description
+  title = expinfo@title,
+  author = expinfo@name,
+  description = abstract(expinfo)
 )
 app &lt;- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)</code></pre>
@@ -193,7 +193,7 @@ shiny::shinyApp(ui = app$ui, server = app$server)</code></pre>
 <h1><span class="header-section-number">7</span> More complex use case: the <code>zhangneurons</code> Example dataset</h1>
 <p><code>airway</code> is fine, but it contains no information on differential expression. <code>shinyngs</code> provides extra slots for differential analyses, among other things.</p>
 <p>An example <code>ExploratorySummarizedExperimentList</code> based on the Zhang et al study of neurons and glia (<a href="http://www.jneurosci.org/content/34/36/11929.long" class="uri">http://www.jneurosci.org/content/34/36/11929.long</a>) is included in the package, and this can be used to demonstrate available features. The dataset includes transcript- and gene- level quantification estimates (as <code>ExporatorySummarizedExperiment</code>s within an <code>ExploratorySummarizedExperimentList</code>, and three levels of processing (raw, filtered, normalised) in the <code>assays</code> slots of each.</p>
-<p>Note: this data was generated while testing Kallisto (<a href="https://pachterlab.github.io/kallisto/" class="uri">https://pachterlab.github.io/kallisto/</a>) for quantification, and results may therefore be slightly different to the authors’ online tool (which did not use Kallisto).</p>
+<p>Note: this data was generated using Salmon (<a href="https://combine-lab.github.io/salmon/" class="uri">https://combine-lab.github.io/salmon/</a>) for quantification, and results may therefore be slightly different to the authors’ online tool (which did not use Salmon).</p>
 <pre class="r"><code>library(shinyngs)
 data(&quot;zhangneurons&quot;)</code></pre>
 <div id="use-example-data-to-make-some-applications" class="section level2">
@@ -240,18 +240,20 @@ experiments:
       read_attrition: read_attrition.csv
 contrasts:
   comparisons:
-  - Variable: Group
-    Group.1: control
-    Group.2: TreatmentA
-  - Variable: Group
-    Group.1: control
-    Group.2: TreatmentB
-tests:
+    0:
+    - Group
+      control
+      TreatmentA
+    1:
+    - Group
+      control
+      TreatmentB
+stats:
   Gene:
     Normalised:
       pvals: pvals.csv
       qvals: qvals.csv</code></pre>
-<p>You can then generate the object with a command like <code>eselist &lt;- eselistFromYAML('my.yaml')</code>. This function is in development and does not yet fill all slots in the ExploratorySummarizedExperiment object.</p>
+<p>You can then generate the object with a command like <code>eselist &lt;- eselistFromYAML('my.yaml')</code>.</p>
 </div>
 <div id="building-an-application-from-scratch" class="section level1">
 <h1><span class="header-section-number">9</span> Building an application from scratch</h1>
@@ -262,114 +264,70 @@ tests:
 data(zhangneurons, envir = environment())
 myassays &lt;- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])</code></pre>
-<pre><code>##                    SRR1033791 SRR1033797 SRR1033793 SRR1033786 SRR1033799
-## ENSMUSG00000000001      66.55      93.42      49.04      82.14      85.29
-## ENSMUSG00000000028       3.70       5.63       4.03       2.07       7.38
-## ENSMUSG00000000031       0.62       7.10       1.10       0.67       7.08
-## ENSMUSG00000000037       0.54       6.08       1.52       4.69       6.60
-## ENSMUSG00000000056      77.67      33.23      43.62      29.81      34.58
-## ENSMUSG00000000058       2.25      27.20       0.96       7.19      26.55
-##                    SRR1033788 SRR1033783 SRR1033784 SRR1033787 SRR1033792
-## ENSMUSG00000000001      52.57      80.94     102.30      77.46      58.48
-## ENSMUSG00000000028      13.97       6.17       6.41       8.20       1.96
-## ENSMUSG00000000031       1.51       2.63       7.71       1.38       0.48
-## ENSMUSG00000000037       5.79       5.72      13.14      12.52       1.09
-## ENSMUSG00000000056      21.33      23.00      17.60      23.62      72.15
-## ENSMUSG00000000058      39.83      15.29      25.56      58.80       3.26
-##                    SRR1033785 SRR1033798 SRR1033796 SRR1033794 SRR1033789
-## ENSMUSG00000000001      58.85      79.33     160.54      29.84     113.04
-## ENSMUSG00000000028       2.11       5.58      14.17       0.77       2.93
-## ENSMUSG00000000031       2.36       6.06       5.99       1.04       0.47
-## ENSMUSG00000000037       6.02       6.07       1.08       0.18       3.07
-## ENSMUSG00000000056      38.68      38.94      44.87      31.35      40.60
-## ENSMUSG00000000058       7.42      26.48     144.01       1.92      18.45
-##                    SRR1033795 SRR1033790
-## ENSMUSG00000000001     174.29      65.92
-## ENSMUSG00000000028      11.94       2.87
-## ENSMUSG00000000031       4.16       0.62
-## ENSMUSG00000000037       1.27       1.21
-## ENSMUSG00000000056      46.06      44.69
-## ENSMUSG00000000058     150.93      10.22</code></pre>
+<pre><code>##                    Astrocyte1 Astrocyte2 Neuron1 Neuron2  OPC1  OPC2
+## ENSMUSG00000000001      91.14     116.81   75.21   90.94 88.17 58.44
+## ENSMUSG00000000028       6.64       6.33    2.52    1.77 10.57 13.14
+## ENSMUSG00000000031       3.16       7.86    1.96    0.59  0.65  0.99
+## ENSMUSG00000000037       5.67       9.10    6.66    3.62 13.89  5.33
+## ENSMUSG00000000049       0.32       0.66    1.12    0.96  1.96  1.63
+## ENSMUSG00000000056      20.58      21.62   39.11   27.95 23.41 26.28
+##                      NFO1  NFO2   MO1   MO2 Microglia1 Microglia2
+## ENSMUSG00000000001 111.05 64.78 66.05 57.73      47.16      27.54
+## ENSMUSG00000000028   2.69  2.73  4.06  1.86       3.08       0.68
+## ENSMUSG00000000031   0.00  0.28  0.47  0.29       0.71       0.82
+## ENSMUSG00000000037   2.78  1.41  0.47  0.57       0.12       0.00
+## ENSMUSG00000000049   1.18  1.13  1.87  0.29       1.07       1.23
+## ENSMUSG00000000056  45.63 43.13 81.97 70.30      45.03      33.13
+##                    Endothelial1 Endothelial2    WC1   WC2   WC3
+## ENSMUSG00000000001       163.62       158.89 103.08 84.30 97.45
+## ENSMUSG00000000028        12.02        16.32   5.57  5.64  7.84
+## ENSMUSG00000000031         3.56         5.62   8.15  7.74  7.57
+## ENSMUSG00000000037         0.76         1.14   6.11  4.41  6.67
+## ENSMUSG00000000049         0.17         0.09   0.88  1.08  0.41
+## ENSMUSG00000000056        48.00        46.06  38.03 47.57 43.67</code></pre>
 </div>
 <div id="coldata" class="section level2">
 <h2><span class="header-section-number">9.2</span> colData</h2>
 <p>colData is your sample information defining groups etc</p>
 <pre class="r"><code>mycoldata &lt;- data.frame(SummarizedExperiment::colData(zhangneurons[[1]]))
 head(mycoldata)</code></pre>
-<pre><code>##                source_name    strain          tissue
-## SRR1033791 cerebral cortex FVN/Swiss cerebral cortex
-## SRR1033797    whole cortex FVN/Swiss cerebral cortex
-## SRR1033793 cerebral cortex FVN/Swiss cerebral cortex
-## SRR1033786 cerebral cortex FVN/Swiss cerebral cortex
-## SRR1033799    whole cortex FVN/Swiss cerebral cortex
-## SRR1033788 cerebral cortex FVN/Swiss cerebral cortex
-##                                  cell_type BioSampleModel
-## SRR1033791    myelinating oligodendrocytes           &lt;NA&gt;
-## SRR1033797                            &lt;NA&gt;   whole cortex
-## SRR1033793                       microglia           &lt;NA&gt;
-## SRR1033786                          neuron           &lt;NA&gt;
-## SRR1033799                            &lt;NA&gt;   whole cortex
-## SRR1033788 oligodendrocyte precursor cells           &lt;NA&gt;
-##            myelinating_oligodendrocytes microglia neuron
-## SRR1033791                            1         0      0
-## SRR1033797                           NA        NA     NA
-## SRR1033793                            0         1      0
-## SRR1033786                            0         0      1
-## SRR1033799                           NA        NA     NA
-## SRR1033788                            0         0      0
-##            oligodendrocyte_precursor_cells Astrocyte endothelial_cells
-## SRR1033791                               0         0                 0
-## SRR1033797                              NA        NA                NA
-## SRR1033793                               0         0                 0
-## SRR1033786                               0         0                 0
-## SRR1033799                              NA        NA                NA
-## SRR1033788                               1         0                 0
-##            newly_formed_oligodendrocytes
-## SRR1033791                             0
-## SRR1033797                            NA
-## SRR1033793                             0
-## SRR1033786                             0
-## SRR1033799                            NA
-## SRR1033788                             0</code></pre>
+<pre><code>##             Internal   External Astrocyte Neuron OPC NFO MO Microglia
+## Astrocyte1 SRS504825 Astrocyte1       yes     no  no  no no        no
+## Astrocyte2 SRS504826 Astrocyte2       yes     no  no  no no        no
+## Neuron1    SRS504827    Neuron1        no    yes  no  no no        no
+## Neuron2    SRS504828    Neuron2        no    yes  no  no no        no
+## OPC1       SRS504829       OPC1        no     no yes  no no        no
+## OPC2       SRS504830       OPC2        no     no yes  no no        no
+##            Endothelial WC     Group          Tissue
+## Astrocyte1          no no Astrocyte cerebral_cortex
+## Astrocyte2          no no Astrocyte cerebral_cortex
+## Neuron1             no no    Neuron cerebral_cortex
+## Neuron2             no no    Neuron cerebral_cortex
+## OPC1                no no       OPC cerebral_cortex
+## OPC2                no no       OPC cerebral_cortex</code></pre>
 </div>
 <div id="annotation" class="section level2">
 <h2><span class="header-section-number">9.3</span> Annotation</h2>
 <p>Annotation is important to `shinyngs’. You need a data frame with rows corresonding to those in the assays</p>
 <pre class="r"><code>myannotation &lt;- SummarizedExperiment::mcols(zhangneurons[[1]])
 head(myannotation)</code></pre>
-<pre><code>## DataFrame with 6 rows and 9 columns
-##      ensembl_gene_id entrezgene chromosome_name start_position
-##          &lt;character&gt;  &lt;integer&gt;     &lt;character&gt;      &lt;integer&gt;
-## 1 ENSMUSG00000000001      14679               3      108107280
-## 2 ENSMUSG00000000028      12544              16       18780447
-## 3 ENSMUSG00000000031         NA               7      142575529
-## 4 ENSMUSG00000000037     107815               X      161117193
-## 5 ENSMUSG00000000056      67608              11      121237253
-## 6 ENSMUSG00000000058      12390               6       17281185
-##   end_position    strand external_gene_name
-##      &lt;integer&gt; &lt;integer&gt;        &lt;character&gt;
-## 1    108146146        -1              Gnai3
-## 2     18811987        -1              Cdc45
-## 3    142578143        -1                H19
-## 4    161258213         1              Scml2
-## 5    121255856         1               Narf
-## 6     17289115         1               Cav2
-##                                                                                            description
-##                                                                                            &lt;character&gt;
-## 1 guanine nucleotide binding protein (G protein), alpha inhibiting 3 [Source:MGI Symbol;Acc:MGI:95773]
-## 2                                           cell division cycle 45 [Source:MGI Symbol;Acc:MGI:1338073]
-## 3                     H19, imprinted maternally expressed transcript [Source:MGI Symbol;Acc:MGI:95891]
-## 4                           sex comb on midleg-like 2 (Drosophila) [Source:MGI Symbol;Acc:MGI:1340042]
-## 5                            nuclear prelamin A recognition factor [Source:MGI Symbol;Acc:MGI:1914858]
-## 6                                                        caveolin 2 [Source:MGI Symbol;Acc:MGI:107571]
-##     gene_biotype
-##      &lt;character&gt;
-## 1 protein_coding
-## 2 protein_coding
-## 3        lincRNA
-## 4 protein_coding
-## 5 protein_coding
-## 6 protein_coding</code></pre>
+<pre><code>## DataFrame with 6 rows and 6 columns
+##              gene_id         source gene_version   gene_name
+##          &lt;character&gt;    &lt;character&gt;  &lt;character&gt; &lt;character&gt;
+## 1 ENSMUSG00000000001 ensembl_havana            4       Gnai3
+## 2 ENSMUSG00000000028 ensembl_havana           14       Cdc45
+## 3 ENSMUSG00000000031 ensembl_havana           15         H19
+## 4 ENSMUSG00000000037 ensembl_havana           16       Scml2
+## 5 ENSMUSG00000000049 ensembl_havana           11        Apoh
+## 6 ENSMUSG00000000056 ensembl_havana            7        Narf
+##     gene_biotype       phase
+##      &lt;character&gt; &lt;character&gt;
+## 1 protein_coding          NA
+## 2 protein_coding          NA
+## 3        lincRNA          NA
+## 4 protein_coding          NA
+## 5 protein_coding          NA
+## 6 protein_coding          NA</code></pre>
 </div>
 <div id="making-an-exploratorysummarizedexperiment" class="section level2">
 <h2><span class="header-section-number">9.4</span> Making an <code>ExploratorySummarizedExperiment</code></h2>
@@ -380,22 +338,20 @@ head(myannotation)</code></pre>
     ),
     colData = DataFrame(mycoldata),
     annotation &lt;- myannotation,
-    idfield = 'ensembl_gene_id',
-    entrezgenefield = &quot;entrezgene&quot;,
-    labelfield = &quot;external_gene_name&quot;
+    idfield = 'gene_id',
+    labelfield = &quot;gene_name&quot;
   )
 print(myese)</code></pre>
 <pre><code>## class: ExploratorySummarizedExperiment 
-## dim: 44563 17 
+## dim: 47729 17 
 ## metadata(0):
-## assays(3): normalised-filtered filtered raw
-## rownames(44563): ENSMUSG00000000001 ENSMUSG00000000028 ...
-##   ENSMUSG00000108813 ENSMUSG00000108814
-## rowData names(9): ensembl_gene_id entrezgene ... description
-##   gene_biotype
-## colnames(17): SRR1033791 SRR1033797 ... SRR1033795 SRR1033790
-## colData names(12): source_name strain ... endothelial_cells
-##   newly_formed_oligodendrocytes</code></pre>
+## assays(4): Filtered normalised Unfiltered normalised Filtered
+##   Unfiltered
+## rownames(47729): ENSMUSG00000000001 ENSMUSG00000000028 ...
+##   ENSMUSG00000109577 ENSMUSG00000109578
+## rowData names(6): gene_id source ... gene_biotype phase
+## colnames(17): Astrocyte1 Astrocyte2 ... WC2 WC3
+## colData names(12): Internal External ... Group Tissue</code></pre>
 <p>Note the extra fields that mostly tell <code>shinyngs</code> about annotation to help with labelling etc.</p>
 </div>
 <div id="making-an-exploratorysummarizedexperimentlist" class="section level2">
@@ -407,11 +363,12 @@ print(myese)</code></pre>
   author = &quot;My Authors&quot;,
   description = 'Look what I gone done'
 )</code></pre>
+<pre><code>## [1] &quot;Creating ExploratorySummarizedExperimentList object&quot;</code></pre>
 <p>You can use this object to make an app straight away:</p>
 <pre class="r"><code>app &lt;- prepareApp(&quot;rnaseq&quot;, myesel)
 shiny::shinyApp(app$ui, app$server)</code></pre>
 <p>… but it’s of limited usefulness because the sample groupings are not highlighted. We need to specify <code>group_vars</code> for that to happen, picking column names from the <code>colData</code>:</p>
-<pre class="r"><code>myesel@group_vars &lt;- c('cell_type', 'source_name')</code></pre>
+<pre class="r"><code>myesel@group_vars &lt;- c('Group', 'Tissue')</code></pre>
 <p>.. then if we re-make the app you should see group highlighting.</p>
 <pre class="r"><code>app &lt;- prepareApp(&quot;rnaseq&quot;, myesel)
 shiny::shinyApp(app$ui, app$server)</code></pre>
@@ -422,81 +379,59 @@ shiny::shinyApp(app$ui, app$server)</code></pre>
 <h2><span class="header-section-number">9.6</span> Specifying contrasts for differential outputs</h2>
 <p>But where are the extra plots for looking at differential expression? For those, we need to supply contrasts. Contrasts are supplied as a list of character vectors describing the variable in <code>colData</code> upon the contrast is based, and the two values of that variable to use in the comparison. We’ll just copy the one over from the original <code>zhangneurons</code>:</p>
 <pre class="r"><code>zhangneurons@contrasts</code></pre>
-<pre><code>## [[1]]
-## [1] &quot;myelinating_oligodendrocytes&quot; &quot;0&quot;                           
-## [3] &quot;1&quot;                           
+<pre><code>## $`0`
+## [1] &quot;Astrocyte&quot; &quot;no&quot;        &quot;yes&quot;      
 ## 
-## [[2]]
-## [1] &quot;microglia&quot; &quot;0&quot;         &quot;1&quot;        
+## $`1`
+## [1] &quot;Neuron&quot; &quot;no&quot;     &quot;yes&quot;   
 ## 
-## [[3]]
-## [1] &quot;neuron&quot; &quot;0&quot;      &quot;1&quot;     
+## $`2`
+## [1] &quot;OPC&quot; &quot;no&quot;  &quot;yes&quot;
 ## 
-## [[4]]
-## [1] &quot;oligodendrocyte_precursor_cells&quot; &quot;0&quot;                              
-## [3] &quot;1&quot;                              
+## $`3`
+## [1] &quot;NFO&quot; &quot;no&quot;  &quot;yes&quot;
 ## 
-## [[5]]
-## [1] &quot;Astrocyte&quot; &quot;0&quot;         &quot;1&quot;        
+## $`4`
+## [1] &quot;MO&quot;  &quot;no&quot;  &quot;yes&quot;
 ## 
-## [[6]]
-## [1] &quot;endothelial_cells&quot; &quot;0&quot;                 &quot;1&quot;                
+## $`5`
+## [1] &quot;Microglia&quot; &quot;no&quot;        &quot;yes&quot;      
 ## 
-## [[7]]
-## [1] &quot;newly_formed_oligodendrocytes&quot; &quot;0&quot;                            
-## [3] &quot;1&quot;</code></pre>
+## $`6`
+## [1] &quot;Endothelial&quot; &quot;no&quot;          &quot;yes&quot;        
+## 
+## $`7`
+## [1] &quot;WC&quot;  &quot;no&quot;  &quot;yes&quot;</code></pre>
 <pre class="r"><code>myesel@contrasts &lt;- zhangneurons@contrasts</code></pre>
 <p>Run the app again and you should see tables of differential expression, and scatter plots between pairs of conditions.</p>
 <pre class="r"><code>app &lt;- prepareApp(&quot;rnaseq&quot;, myesel)
 shiny::shinyApp(app$ui, app$server)</code></pre>
-<p>But without information on the significance of the fold changes, we can’t make things like volcano plots. For those we need to populate the <code>tests</code> slot. Tests is a list of lists of matrices in the <code>ExploratorySummarizedExperiment</code> objects, with list names matching one or more of the names in <code>assays</code>, second-level names being ‘pvals’ and ‘qvals’ and the columns of each matrix corresponding the the <code>contrasts</code> slot of the containing <code>ExploratorySummarizedExperimentList</code>:</p>
-<pre class="r"><code>head(zhangneurons[[1]]@tests[[1]]$pvals, n = 10)</code></pre>
-<pre><code>##                    myelinating_oligodendrocytes.0.1 microglia.0.1
-## ENSMUSG00000000001                       0.47850750   0.056743653
-## ENSMUSG00000000028                       0.24991847   0.154576531
-## ENSMUSG00000000031                       0.05048976   0.295389334
-## ENSMUSG00000000037                       0.06771807   0.070583137
-## ENSMUSG00000000056                       0.02208216   0.878797647
-## ENSMUSG00000000058                       0.02362989   0.004614716
-## ENSMUSG00000000078                       0.03436371   0.734388412
-## ENSMUSG00000000085                       0.37694576   0.300080726
-## ENSMUSG00000000088                       0.38053520   0.945134257
-## ENSMUSG00000000093                       0.13918142   0.303400238
-##                    neuron.0.1 oligodendrocyte_precursor_cells.0.1
-## ENSMUSG00000000001  0.6733486                           0.5506333
-## ENSMUSG00000000028  0.1024362                           0.1627799
-## ENSMUSG00000000031  0.5761710                           0.5357782
-## ENSMUSG00000000037  0.7145292                           0.1768704
-## ENSMUSG00000000056  0.7048541                           0.1674586
-## ENSMUSG00000000058  0.1374017                           0.6492619
-## ENSMUSG00000000078  0.1504584                           0.1626477
-## ENSMUSG00000000085  0.3802327                           0.8644854
-## ENSMUSG00000000088  0.9487188                           0.3213803
-## ENSMUSG00000000093  0.5392341                           0.2456431
-##                    Astrocyte.0.1 endothelial_cells.0.1
-## ENSMUSG00000000001    0.81475266          1.160932e-02
-## ENSMUSG00000000028    0.88684704          4.710562e-02
-## ENSMUSG00000000031    0.06844833          7.588844e-02
-## ENSMUSG00000000037    0.15221201          1.441416e-01
-## ENSMUSG00000000056    0.09094363          6.958057e-01
-## ENSMUSG00000000058    0.56709919          3.825394e-04
-## ENSMUSG00000000078    0.14563145          1.195709e-02
-## ENSMUSG00000000085    0.88522425          7.467989e-01
-## ENSMUSG00000000088    0.05432401          1.076220e-01
-## ENSMUSG00000000093    0.46805628          4.528361e-11
-##                    newly_formed_oligodendrocytes.0.1
-## ENSMUSG00000000001                        0.86714613
-## ENSMUSG00000000028                        0.26892526
-## ENSMUSG00000000031                        0.04616106
-## ENSMUSG00000000037                        0.43090656
-## ENSMUSG00000000056                        0.84652660
-## ENSMUSG00000000058                        0.36493392
-## ENSMUSG00000000078                        0.10386860
-## ENSMUSG00000000085                        0.61100807
-## ENSMUSG00000000088                        0.90073790
-## ENSMUSG00000000093                        0.21124484</code></pre>
+<p>But without information on the significance of the fold changes, we can’t make things like volcano plots. For those we need to populate the <code>contrast_stats</code> slot. contrast_stats is a list of lists of matrices in the <code>ExploratorySummarizedExperiment</code> objects, with list names matching one or more of the names in <code>assays</code>, second-level names being ‘pvals’ and ‘qvals’ and the columns of each matrix corresponding the the <code>contrasts</code> slot of the containing <code>ExploratorySummarizedExperimentList</code>:</p>
+<pre class="r"><code>head(zhangneurons[[1]]@contrast_stats[[1]]$pvals, n = 10)</code></pre>
+<pre><code>##                             V2         V3        V4         V5          V6
+## ENSMUSG00000000001 0.586030877 0.84498822 0.5673927 0.98672434 0.272399281
+## ENSMUSG00000000028 0.906395212 0.09797273 0.1378932 0.18994762 0.235241919
+## ENSMUSG00000000031 0.401702023 0.39814151 0.2285715 0.01866014 0.084128528
+## ENSMUSG00000000037 0.389266298 0.75801965 0.1771392 0.47209507 0.064103734
+## ENSMUSG00000000049 0.281221784 0.85146018 0.1564616 0.69978856 0.806074731
+## ENSMUSG00000000056 0.027498812 0.48764558 0.1020115 0.79890483 0.005386168
+## ENSMUSG00000000058 0.698612812 0.20434902 0.5795506 0.40301214 0.019737298
+## ENSMUSG00000000078 0.059807639 0.22150654 0.2129938 0.12088429 0.041341727
+## ENSMUSG00000000085 0.823694705 0.48085383 0.6971970 0.11785267 0.055598141
+## ENSMUSG00000000088 0.008818937 0.85134311 0.2578795 0.65618737 0.351266333
+##                             V7          V8         V9
+## ENSMUSG00000000001 0.007268013 0.014482929 0.76795731
+## ENSMUSG00000000028 0.062699736 0.038611616 0.92266100
+## ENSMUSG00000000031 0.206739603 0.574816649 0.04220802
+## ENSMUSG00000000037 0.001994354 0.151371792 0.55476196
+## ENSMUSG00000000049 0.705459607 0.003950034 0.69820504
+## ENSMUSG00000000056 0.847349211 0.632997504 0.84687193
+## ENSMUSG00000000058 0.008962438 0.007555128 0.87396571
+## ENSMUSG00000000078 0.754019089 0.020733738 0.39253517
+## ENSMUSG00000000085 0.031156391 0.812487737 0.46471286
+## ENSMUSG00000000088 0.593773361 0.168765117 0.28538218</code></pre>
 <p>Again, we’ll just copy those data from <code>zhangneurons</code> for demonstration purposes:</p>
-<pre class="r"><code>myesel[[1]]@tests &lt;- zhangneurons[[1]]@tests</code></pre>
+<pre class="r"><code>myesel[[1]]@contrast_stats &lt;- zhangneurons[[1]]@contrast_stats</code></pre>
 <p>Now the RNA-seq app is more or less complete, and you should see volcano plots under ‘Differential’:</p>
 <pre class="r"><code>app &lt;- prepareApp(&quot;rnaseq&quot;, myesel)
 shiny::shinyApp(app$ui, app$server)</code></pre>
@@ -507,7 +442,7 @@ shiny::shinyApp(app$ui, app$server)</code></pre>
 <p>Many displays are more useful if they can be limited to biologically meaningful sets of genes. The <code>gene_sets</code> slot is designed to allow that. Gene sets are stored as lists of character vectors of gene identifiers, each list keyed by the name of the metadata column to which they pertain.</p>
 <div id="adding-gene-sets-to-enable-gene-set-filtering" class="section level2">
 <h2><span class="header-section-number">10.1</span> Adding gene sets to enable gene set filtering</h2>
-<p>The constructor for <code>ExploratorySummarizedExperimentList</code> assumes that gene sets are represented by Entrez IDs, as is common with resources such as the Molecular Signatures Database, and that they are specified as a list of <code>GeneSetCollection</code>s. You might generate such a list as follows:</p>
+<p>The constructor for <code>ExploratorySummarizedExperimentList</code> assumes that gene sets are represented by the ID type specified in the <code>gene_set_id_type_slot</code>, and that they are specified as a list of <code>GeneSetCollection</code>s. You might generate such a list as follows:</p>
 <pre class="r"><code>genesets_files = list(
   'KEGG' =  &quot;/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt&quot;,
   'MSigDB canonical pathway' = &quot;/path/to/MSigDB/c2.cp.v5.0.entrez.gmt&quot;,
@@ -527,80 +462,83 @@ gene_sets &lt;- lapply(genesets_files, GSEABase::getGmt)</code></pre>
   gene_sets = gene_sets
 )</code></pre>
 <p>These are then converted internally to a list of lists of character vectors of gene IDs. The top level is keyed by the type of gene ID to be used for labelling (stored in <code>labelfield' on</code>ExploratorySummarisedExperiments`, the next level by the type of gene set.</p>
-<p>For the <code>zhangneurons</code> example, gene sets are stored by <code>external_gene_name</code>:</p>
+<p>For the <code>zhangneurons</code> example, gene sets are stored by <code>gene_name</code>:</p>
 <pre class="r"><code>names(zhangneurons@gene_sets)</code></pre>
-<pre><code>## [1] &quot;external_gene_name&quot;</code></pre>
-<p>6 types of gene set are used. For example, KEGG:</p>
-<pre class="r"><code>names(zhangneurons@gene_sets$external_gene_name$KEGG)[1:10]</code></pre>
-<pre><code>##  [1] &quot;KEGG_GLYCOLYSIS_GLUCONEOGENESIS&quot;              
-##  [2] &quot;KEGG_CITRATE_CYCLE_TCA_CYCLE&quot;                 
-##  [3] &quot;KEGG_PENTOSE_PHOSPHATE_PATHWAY&quot;               
-##  [4] &quot;KEGG_PENTOSE_AND_GLUCURONATE_INTERCONVERSIONS&quot;
-##  [5] &quot;KEGG_FRUCTOSE_AND_MANNOSE_METABOLISM&quot;         
-##  [6] &quot;KEGG_GALACTOSE_METABOLISM&quot;                    
-##  [7] &quot;KEGG_ASCORBATE_AND_ALDARATE_METABOLISM&quot;       
-##  [8] &quot;KEGG_FATTY_ACID_METABOLISM&quot;                   
-##  [9] &quot;KEGG_STEROID_BIOSYNTHESIS&quot;                    
-## [10] &quot;KEGG_PRIMARY_BILE_ACID_BIOSYNTHESIS&quot;</code></pre>
-<p>We can find the list of KEGG gluconeogenesis genes, keyed by the original Entrez ID:</p>
-<pre class="r"><code>zhangneurons@gene_sets$external_gene_name$KEGG$KEGG_GLYCOLYSIS_GLUCONEOGENESIS</code></pre>
-<pre><code>##     13382     14751     68263    110695     18534     72157     74551 
-##     &quot;Dld&quot;    &quot;Gpi1&quot;    &quot;Pdhb&quot; &quot;Aldh7a1&quot;    &quot;Pck1&quot;    &quot;Pgm2&quot;    &quot;Pck2&quot; 
-##     60525     66681    235339    230163     14377     18642     26876 
-##   &quot;Acss2&quot;    &quot;Pgm1&quot;    &quot;Dlat&quot;   &quot;Aldob&quot;    &quot;G6pc&quot;    &quot;Pfkm&quot;    &quot;Adh4&quot; 
-##     11670     56421     11676     18655     16833     15277     18770 
-## &quot;Aldh3a1&quot;    &quot;Pfkp&quot;   &quot;Aldoc&quot;    &quot;Pgk1&quot;    &quot;Ldhc&quot;     &quot;Hk2&quot;    &quot;Pklr&quot; 
-##     11529     18648     18746     14378    103988     11671     14121 
-##    &quot;Adh7&quot;   &quot;Pgam1&quot;     &quot;Pkm&quot;   &quot;G6pc2&quot;     &quot;Gck&quot; &quot;Aldh3a2&quot;    &quot;Fbp1&quot; 
-##     11669     56752     12183    212032     16832     18641     14120 
-##   &quot;Aldh2&quot; &quot;Aldh9a1&quot;    &quot;Bpgm&quot;     &quot;Hk3&quot;    &quot;Ldhb&quot;    &quot;Pfkl&quot;    &quot;Fbp2&quot; 
-##     68738     56012     16828     18663     11532     56847     13808 
-##   &quot;Acss1&quot;   &quot;Pgam2&quot;    &quot;Ldha&quot;    &quot;Pgk2&quot;    &quot;Adh5&quot; &quot;Aldh1a3&quot;    &quot;Eno3&quot; 
-##    106557    319625     11522     67689     13807     58810     15275 
-## &quot;Ldhal6b&quot;    &quot;Galm&quot;    &quot;Adh1&quot; &quot;Aldh3b1&quot;    &quot;Eno2&quot;  &quot;Akr1a1&quot;     &quot;Hk1&quot; 
-##     14433     72535     18597     11674     21991     13806 
-##   &quot;Gapdh&quot; &quot;Aldh1b1&quot;   &quot;Pdha1&quot;   &quot;Aldoa&quot;    &quot;Tpi1&quot;   &quot;Eno1b&quot;</code></pre>
+<pre><code>## [1] &quot;gene_name&quot;</code></pre>
+<p>4 types of gene set are used. For example, GO Biological Processes (GOBP):</p>
+<pre class="r"><code>names(zhangneurons@gene_sets$gene_name$GOBP)[1:10]</code></pre>
+<pre><code>##  [1] &quot;GO_REGULATION_OF_DOPAMINE_METABOLIC_PROCESS&quot;                 
+##  [2] &quot;GO_LACTATE_TRANSPORT&quot;                                        
+##  [3] &quot;GO_POSITIVE_REGULATION_OF_VIRAL_TRANSCRIPTION&quot;               
+##  [4] &quot;GO_DETECTION_OF_LIGHT_STIMULUS_INVOLVED_IN_VISUAL_PERCEPTION&quot;
+##  [5] &quot;GO_CARDIAC_CHAMBER_DEVELOPMENT&quot;                              
+##  [6] &quot;GO_CALCIUM_ION_TRANSMEMBRANE_IMPORT_INTO_CYTOSOL&quot;            
+##  [7] &quot;GO_DNA_DEPENDENT_DNA_REPLICATION_MAINTENANCE_OF_FIDELITY&quot;    
+##  [8] &quot;GO_TRNA_AMINOACYLATION&quot;                                      
+##  [9] &quot;GO_CIRCADIAN_RHYTHM&quot;                                         
+## [10] &quot;GO_PHOSPHATIDYLSERINE_ACYL_CHAIN_REMODELING&quot;</code></pre>
+<p>We can find the list of GO lactate transport genes, keyed by gene symbol:</p>
+<pre class="r"><code>zhangneurons@gene_sets$gene_name$GOBP$GO_LACTATE_TRANSPORT</code></pre>
+<pre><code>##    Slc16a8    Slc16a5    Slc16a4    Slc5a12        Emb    Slc16a1 
+##  &quot;Slc16a8&quot;  &quot;Slc16a5&quot;  &quot;Slc16a4&quot;  &quot;Slc5a12&quot;      &quot;Emb&quot;  &quot;Slc16a1&quot; 
+##    Slc16a7   Slc16a12   Slc16a13    Slc16a6    Slc16a3   Slc16a11 
+##  &quot;Slc16a7&quot; &quot;Slc16a12&quot; &quot;Slc16a13&quot;  &quot;Slc16a6&quot;  &quot;Slc16a3&quot; &quot;Slc16a11&quot;</code></pre>
 <p>Of course if you want to avoid the constructor, you can replicate that data structure and set the <code>@gene_sets</code> directly.</p>
 </div>
 <div id="gene-set-analysis" class="section level2">
 <h2><span class="header-section-number">10.2</span> Gene set analysis</h2>
 <p>Gene set analyses can be stored as a list of tables in the <code>@gene_set_analyses</code> slot of an <code>ExploratorySummarizedExperiment</code>, supplied via the <code>gene_set_analyses</code> argument to its constructor. The list is keyed at three levels representing the assay, the gene set type and contrast involved. Illustrated with <code>zhangneurons</code> again:</p>
 <pre class="r"><code>names(zhangneurons$gene@gene_set_analyses)</code></pre>
-<pre><code>## [1] &quot;normalised-filtered&quot;</code></pre>
-<pre class="r"><code>names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)</code></pre>
-<pre><code>## [1] &quot;KEGG&quot;                     &quot;MSigDB canonical pathway&quot;
-## [3] &quot;GO biological process&quot;    &quot;GO cellular component&quot;   
-## [5] &quot;GO molecular function&quot;    &quot;MSigDB hallmark&quot;</code></pre>
-<pre class="r"><code>names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG)</code></pre>
-<pre><code>## [1] &quot;myelinating_oligodendrocytes:0-1&quot;   
-## [2] &quot;microglia:0-1&quot;                      
-## [3] &quot;neuron:0-1&quot;                         
-## [4] &quot;oligodendrocyte_precursor_cells:0-1&quot;
-## [5] &quot;Astrocyte:0-1&quot;                      
-## [6] &quot;endothelial_cells:0-1&quot;              
-## [7] &quot;newly_formed_oligodendrocytes:0-1&quot;</code></pre>
-<pre class="r"><code>head(zhangneurons$gene@gene_set_analyses$`normalised-filtered`$KEGG$`myelinating_oligodendrocytes:0-1`)</code></pre>
-<pre><code>##                                                   NGenes PropDown PropUp
-## KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450     36     0.14   0.36
-## KEGG_P53_SIGNALING_PATHWAY                            62     0.44   0.05
-## KEGG_PYRUVATE_METABOLISM                              37     0.11   0.35
-## KEGG_REGULATION_OF_AUTOPHAGY                          19     0.11   0.37
-## KEGG_COLORECTAL_CANCER                                61     0.25   0.10
-## KEGG_MTOR_SIGNALING_PATHWAY                           51     0.24   0.06
-##                                                   Direction PValue
-## KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450        Up 0.0003
-## KEGG_P53_SIGNALING_PATHWAY                             Down 0.0004
-## KEGG_PYRUVATE_METABOLISM                                 Up 0.0006
-## KEGG_REGULATION_OF_AUTOPHAGY                             Up 0.0009
-## KEGG_COLORECTAL_CANCER                                 Down 0.0009
-## KEGG_MTOR_SIGNALING_PATHWAY                            Down 0.0016
-##                                                          FDR
-## KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450 0.03162000
-## KEGG_P53_SIGNALING_PATHWAY                        0.03162000
-## KEGG_PYRUVATE_METABOLISM                          0.03162000
-## KEGG_REGULATION_OF_AUTOPHAGY                      0.03162000
-## KEGG_COLORECTAL_CANCER                            0.03162000
-## KEGG_MTOR_SIGNALING_PATHWAY                       0.04480909</code></pre>
+<pre><code>## [1] &quot;Filtered normalised&quot;   &quot;Unfiltered normalised&quot;</code></pre>
+<pre class="r"><code>names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`)</code></pre>
+<pre><code>## [1] &quot;CP&quot;   &quot;GOBP&quot; &quot;GOCC&quot; &quot;GOMF&quot;</code></pre>
+<pre class="r"><code>names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP)</code></pre>
+<pre><code>## [1] &quot;Astrocyte-no-yes&quot;   &quot;Endothelial-no-yes&quot; &quot;MO-no-yes&quot;         
+## [4] &quot;Microglia-no-yes&quot;   &quot;NFO-no-yes&quot;         &quot;Neuron-no-yes&quot;     
+## [7] &quot;OPC-no-yes&quot;         &quot;WC-no-yes&quot;</code></pre>
+<pre class="r"><code>head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)</code></pre>
+<pre><code>##                                                                                NGenes
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                            48
+## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                              9
+## GO_LATERAL_VENTRICLE_DEVELOPMENT                                                   11
+## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR     24
+## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                                   23
+## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                      10
+##                                                                                  PropDown
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                        0.04166667
+## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                         0.66666667
+## GO_LATERAL_VENTRICLE_DEVELOPMENT                                               0.63636364
+## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR 0.62500000
+## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                               0.60869565
+## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                  0.60000000
+##                                                                                    PropUp
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                        0.68750000
+## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                         0.00000000
+## GO_LATERAL_VENTRICLE_DEVELOPMENT                                               0.00000000
+## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR 0.08333333
+## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                               0.17391304
+## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                  0.10000000
+##                                                                                Direction
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                               Up
+## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                              Down
+## GO_LATERAL_VENTRICLE_DEVELOPMENT                                                    Down
+## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR      Down
+## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                                    Down
+## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                       Down
+##                                                                                PValue
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                         0.001
+## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                          0.001
+## GO_LATERAL_VENTRICLE_DEVELOPMENT                                                0.001
+## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR  0.001
+## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                                0.001
+## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                   0.001
+##                                                                                       FDR
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                        0.01173232
+## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                         0.01173232
+## GO_LATERAL_VENTRICLE_DEVELOPMENT                                               0.01173232
+## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR 0.01173232
+## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                               0.01173232
+## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                  0.01173232</code></pre>
 <p>This data struture is a bit cumbersome, and I’m thinking of ways of better representing such data and the associated contrasts.</p>
 </div>
 </div>
