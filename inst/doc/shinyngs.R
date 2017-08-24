@@ -62,6 +62,10 @@
 #  app <- prepareApp('rnaseq', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
+## ---- eval=FALSE---------------------------------------------------------
+#  library(devtools)
+#  install_github('pinin4fjords/zhangneurons')
+
 ## ----eval=FALSE----------------------------------------------------------
 #  library(shinyngs)
 #  data("zhangneurons")
@@ -76,6 +80,7 @@
 
 ## ----eval=TRUE-----------------------------------------------------------
 # Assays is a list of matrices
+library(zhangneurons)
 data(zhangneurons, envir = environment())
 myassays <- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])

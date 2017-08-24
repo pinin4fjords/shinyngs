@@ -10,7 +10,7 @@
 
 <meta name="author" content="Jonathan Manning" />
 
-<meta name="date" content="2017-08-22" />
+<meta name="date" content="2017-08-24" />
 
 <title>Interactive downstream analysis with ShinyNGS</title>
 
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <div id="header">
 <h1 class="title">Interactive downstream analysis with ShinyNGS</h1>
 <h4 class="author"><em>Jonathan Manning</em></h4>
-<h4 class="date"><em>2017-08-22</em></h4>
+<h4 class="date"><em>2017-08-24</em></h4>
 </div>
 
 <h1>Contents</h1>
@@ -65,10 +65,8 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#install-with-devtools"><span class="toc-section-number">4.2</span> Install with devtools</a></li>
 </ul></li>
 <li><a href="#concepts-and-data-structures"><span class="toc-section-number">5</span> Concepts and data structures</a></li>
-<li><a href="#quickstart-working-from-a-summarizedexperiment"><span class="toc-section-number">6</span> Quickstart: working from a SummarizedExperiment</a></li>
-<li><a href="#more-complex-use-case-the-zhangneurons-example-dataset"><span class="toc-section-number">7</span> More complex use case: the <code>zhangneurons</code> Example dataset</a><ul>
-<li><a href="#use-example-data-to-make-some-applications"><span class="toc-section-number">7.1</span> Use example data to make some applications</a></li>
-</ul></li>
+<li><a href="#simple-example-working-from-a-summarizedexperiment"><span class="toc-section-number">6</span> Simple example working from a SummarizedExperiment</a></li>
+<li><a href="#more-complex-use-case-the-zhangneurons-example-dataset"><span class="toc-section-number">7</span> More complex use case: the <code>zhangneurons</code> Example dataset</a></li>
 <li><a href="#building-an-application-from-a-yaml-file"><span class="toc-section-number">8</span> Building an application from a YAML file</a></li>
 <li><a href="#building-an-application-from-scratch"><span class="toc-section-number">9</span> Building an application from scratch</a><ul>
 <li><a href="#assays"><span class="toc-section-number">9.1</span> Assays</a></li>
@@ -131,8 +129,8 @@ install_github('pinin4fjords/shinyngs')</code></pre>
 <p>The data structures used by Shinyngs build on <code>SummarizedExperiment</code>. One <code>SummarizedExperiment</code> can have multiple ‘assays’, essentially matrices with samples in columns and ‘features’ (transcripts or genes) in rows, representing different results for the same features and samples. This is handy to compare results before and after processing, for example. <code>ExploratorySummarizedExperiment</code> extends <code>SummarizedExperiment</code> to include slots relating to annotation, and associated results of ‘tests’, providing p values and q values.</p>
 <p><code>ExploratorySummarizedExperimentList</code> is a container for one or more <code>ExploratorySummarizedExperiment</code> objects, and is intented to describe an overall study, i.e. one or more experiments the same set of samples, but different sets of features in each experiment. The <code>ExploratorySummarizedExperimentListList</code> therefore is used to supply study-wide things such as contrasts, gene sets, url roots for creating links etc.</p>
 </div>
-<div id="quickstart-working-from-a-summarizedexperiment" class="section level1">
-<h1><span class="header-section-number">6</span> Quickstart: working from a SummarizedExperiment</h1>
+<div id="simple-example-working-from-a-summarizedexperiment" class="section level1">
+<h1><span class="header-section-number">6</span> Simple example working from a SummarizedExperiment</h1>
 <p>To see how to quickly build an RNA-seq app from a simple SummarizedExperiment, we can use the example data in the <code>airway</code> package. We just convert the RangedSummarizedExperiment to an ExploratorySummarizedExperiment, and add it to a list of such objects, which represent a study.</p>
 <pre class="r"><code>library(shinyngs)
 
@@ -142,7 +140,8 @@ eselist &lt;- ExploratorySummarizedExperimentList(ese)</code></pre>
 <p>Then we build and run the app. For example, a basic app just for heatmaps:</p>
 <pre class="r"><code>app &lt;- prepareApp('heatmap', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)</code></pre>
-<p>… or a more comprehensive one with multiple panels aimed at RNA-seq:</p>
+<p>Note the use of <code>prepareApp</code> to generate the proper <code>ui</code> and <code>server</code>, which are then passed to Shiny.</p>
+<p>We can build a more comprehensive app with multiple panels aimed at RNA-seq:</p>
 <pre class="r"><code>app &lt;- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)</code></pre>
 <p>Airway provides some info about the dataset, which we can add in to the object before we build the app:</p>
@@ -192,22 +191,24 @@ shiny::shinyApp(ui = app$ui, server = app$server)</code></pre>
 <div id="more-complex-use-case-the-zhangneurons-example-dataset" class="section level1">
 <h1><span class="header-section-number">7</span> More complex use case: the <code>zhangneurons</code> Example dataset</h1>
 <p><code>airway</code> is fine, but it contains no information on differential expression. <code>shinyngs</code> provides extra slots for differential analyses, among other things.</p>
-<p>An example <code>ExploratorySummarizedExperimentList</code> based on the Zhang et al study of neurons and glia (<a href="http://www.jneurosci.org/content/34/36/11929.long" class="uri">http://www.jneurosci.org/content/34/36/11929.long</a>) is included in the package, and this can be used to demonstrate available features. The dataset includes transcript- and gene- level quantification estimates (as <code>ExporatorySummarizedExperiment</code>s within an <code>ExploratorySummarizedExperimentList</code>, and three levels of processing (raw, filtered, normalised) in the <code>assays</code> slots of each.</p>
+<p>An example <code>ExploratorySummarizedExperimentList</code> based on the Zhang et al study of neurons and glia (<a href="http://www.jneurosci.org/content/34/36/11929.long" class="uri">http://www.jneurosci.org/content/34/36/11929.long</a>) is included in the <code>zhangneurons</code> package, and this can be used to demonstrate available features. The dataset includes transcript- and gene- level quantification estimates (as <code>ExporatorySummarizedExperiment</code>s within an <code>ExploratorySummarizedExperimentList</code>, and three levels of processing (raw, filtered, normalised) in the <code>assays</code> slots of each.</p>
 <p>Note: this data was generated using Salmon (<a href="https://combine-lab.github.io/salmon/" class="uri">https://combine-lab.github.io/salmon/</a>) for quantification, and results may therefore be slightly different to the authors’ online tool (which did not use Salmon).</p>
+<p>Install the data package:</p>
+<pre class="r"><code>library(devtools)
+install_github('pinin4fjords/zhangneurons')</code></pre>
+<p>… and load the data.</p>
 <pre class="r"><code>library(shinyngs)
 data(&quot;zhangneurons&quot;)</code></pre>
-<div id="use-example-data-to-make-some-applications" class="section level2">
-<h2><span class="header-section-number">7.1</span> Use example data to make some applications</h2>
-<p>An example <code>ExploratorySummarizedExperimentList</code> based on the Zhang et al study of neurons and glia (<a href="http://www.jneurosci.org/content/34/36/11929.long" class="uri">http://www.jneurosci.org/content/34/36/11929.long</a>) is included in the package, and this can be used to demonstrate available features.</p>
+<p>The data can then be used to build an application:</p>
 <pre class="r"><code>app &lt;- prepareApp(&quot;rnaseq&quot;, zhangneurons)
 shiny::shinyApp(app$ui, app$server)</code></pre>
-<p>Note the use of <code>prepareApp</code> to generate the proper <code>ui</code> and <code>server</code>, which are then passed to Shiny. This example generates the full application designed for RNA-seq analysis. But apps with just individual components can be created too:</p>
+<p>This example generates the full application designed for RNA-seq analysis. Remember that individual components can be created too:</p>
 <pre class="r"><code>app &lt;- prepareApp(&quot;heatmap&quot;, zhangneurons)
 shiny::shinyApp(app$ui, app$server)</code></pre>
 </div>
-</div>
 <div id="building-an-application-from-a-yaml-file" class="section level1">
 <h1><span class="header-section-number">8</span> Building an application from a YAML file</h1>
+<p>An alternative and simple way to create an application is to describe your experiment using a YAML file, and pass the YAML file to Shinyngs. This has advantages where a pipeline produces many outputs outside of R which then have to be read and compiled.</p>
 <p>The <code>eselistFromYAML()</code> function is provided to help construct an ExploratorySummarizedExperiment object. You might make a file like:</p>
 <pre><code>title: My RNA seq experiment
 author: Joe Blogs
@@ -253,7 +254,7 @@ stats:
     Normalised:
       pvals: pvals.csv
       qvals: qvals.csv</code></pre>
-<p>You can then generate the object with a command like <code>eselist &lt;- eselistFromYAML('my.yaml')</code>.</p>
+<p>You can then generate the object with a command like <code>eselist &lt;- eselistFromYAML('my.yaml')</code>. This is how the <code>zhangneurons</code> dataset was generated- see <code>vignette(zhangneurons)</code> for details, and for the component input files themselves.</p>
 </div>
 <div id="building-an-application-from-scratch" class="section level1">
 <h1><span class="header-section-number">9</span> Building an application from scratch</h1>
@@ -261,30 +262,31 @@ stats:
 <div id="assays" class="section level2">
 <h2><span class="header-section-number">9.1</span> Assays</h2>
 <pre class="r"><code># Assays is a list of matrices
+library(zhangneurons)
 data(zhangneurons, envir = environment())
 myassays &lt;- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])</code></pre>
 <pre><code>##                    Astrocyte1 Astrocyte2 Neuron1 Neuron2  OPC1  OPC2
-## ENSMUSG00000000001      91.14     116.81   75.21   90.94 88.17 58.44
-## ENSMUSG00000000028       6.64       6.33    2.52    1.77 10.57 13.14
-## ENSMUSG00000000031       3.16       7.86    1.96    0.59  0.65  0.99
-## ENSMUSG00000000037       5.67       9.10    6.66    3.62 13.89  5.33
-## ENSMUSG00000000049       0.32       0.66    1.12    0.96  1.96  1.63
-## ENSMUSG00000000056      20.58      21.62   39.11   27.95 23.41 26.28
+## ENSMUSG00000000001      81.36      93.35   58.59   82.92 77.56 57.51
+## ENSMUSG00000000028       6.19       6.08    1.90    1.75  8.47 14.66
+## ENSMUSG00000000031       2.67       8.56    1.92    0.46  1.27  1.29
+## ENSMUSG00000000037       5.54      12.45    6.51    4.02 13.37  6.49
+## ENSMUSG00000000049       0.00       0.05    0.13    0.12  0.05  0.00
+## ENSMUSG00000000056      27.55      21.67   34.60   29.68 24.78 20.36
 ##                      NFO1  NFO2   MO1   MO2 Microglia1 Microglia2
-## ENSMUSG00000000001 111.05 64.78 66.05 57.73      47.16      27.54
-## ENSMUSG00000000028   2.69  2.73  4.06  1.86       3.08       0.68
-## ENSMUSG00000000031   0.00  0.28  0.47  0.29       0.71       0.82
-## ENSMUSG00000000037   2.78  1.41  0.47  0.57       0.12       0.00
-## ENSMUSG00000000049   1.18  1.13  1.87  0.29       1.07       1.23
-## ENSMUSG00000000056  45.63 43.13 81.97 70.30      45.03      33.13
-##                    Endothelial1 Endothelial2    WC1   WC2   WC3
-## ENSMUSG00000000001       163.62       158.89 103.08 84.30 97.45
-## ENSMUSG00000000028        12.02        16.32   5.57  5.64  7.84
-## ENSMUSG00000000031         3.56         5.62   8.15  7.74  7.57
-## ENSMUSG00000000037         0.76         1.14   6.11  4.41  6.67
-## ENSMUSG00000000049         0.17         0.09   0.88  1.08  0.41
-## ENSMUSG00000000056        48.00        46.06  38.03 47.57 43.67</code></pre>
+## ENSMUSG00000000001 107.30 69.97 69.86 62.43      63.40      40.07
+## ENSMUSG00000000028   2.86  2.67  3.72  1.87       3.77       0.49
+## ENSMUSG00000000031   0.43  0.43  0.26  0.23       1.29       0.94
+## ENSMUSG00000000037   3.24  1.18  0.34  0.91       2.43       0.00
+## ENSMUSG00000000049   0.14  0.00  0.07  0.12       0.00       0.00
+## ENSMUSG00000000056  44.82 41.08 75.28 67.80      49.19      35.42
+##                    Endothelial1 Endothelial2   WC1   WC2   WC3
+## ENSMUSG00000000001       184.40       163.79 90.48 76.10 81.63
+## ENSMUSG00000000028        11.81        13.49  5.63  5.48  7.51
+## ENSMUSG00000000031         3.58         5.61  6.64  5.85  6.90
+## ENSMUSG00000000037         1.34         0.84  5.56  5.77  6.41
+## ENSMUSG00000000049         0.04         0.00  0.03  0.00  0.03
+## ENSMUSG00000000056        44.85        47.95 33.69 38.41 33.54</code></pre>
 </div>
 <div id="coldata" class="section level2">
 <h2><span class="header-section-number">9.2</span> colData</h2>
@@ -343,11 +345,11 @@ head(myannotation)</code></pre>
   )
 print(myese)</code></pre>
 <pre><code>## class: ExploratorySummarizedExperiment 
-## dim: 47729 17 
+## dim: 45294 17 
 ## metadata(0):
 ## assays(4): Filtered normalised Unfiltered normalised Filtered
 ##   Unfiltered
-## rownames(47729): ENSMUSG00000000001 ENSMUSG00000000028 ...
+## rownames(45294): ENSMUSG00000000001 ENSMUSG00000000028 ...
 ##   ENSMUSG00000109577 ENSMUSG00000109578
 ## rowData names(6): gene_id source ... gene_biotype phase
 ## colnames(17): Astrocyte1 Astrocyte2 ... WC2 WC3
@@ -408,28 +410,28 @@ shiny::shinyApp(app$ui, app$server)</code></pre>
 shiny::shinyApp(app$ui, app$server)</code></pre>
 <p>But without information on the significance of the fold changes, we can’t make things like volcano plots. For those we need to populate the <code>contrast_stats</code> slot. contrast_stats is a list of lists of matrices in the <code>ExploratorySummarizedExperiment</code> objects, with list names matching one or more of the names in <code>assays</code>, second-level names being ‘pvals’ and ‘qvals’ and the columns of each matrix corresponding the the <code>contrasts</code> slot of the containing <code>ExploratorySummarizedExperimentList</code>:</p>
 <pre class="r"><code>head(zhangneurons[[1]]@contrast_stats[[1]]$pvals, n = 10)</code></pre>
-<pre><code>##                             V2         V3        V4         V5          V6
-## ENSMUSG00000000001 0.586030877 0.84498822 0.5673927 0.98672434 0.272399281
-## ENSMUSG00000000028 0.906395212 0.09797273 0.1378932 0.18994762 0.235241919
-## ENSMUSG00000000031 0.401702023 0.39814151 0.2285715 0.01866014 0.084128528
-## ENSMUSG00000000037 0.389266298 0.75801965 0.1771392 0.47209507 0.064103734
-## ENSMUSG00000000049 0.281221784 0.85146018 0.1564616 0.69978856 0.806074731
-## ENSMUSG00000000056 0.027498812 0.48764558 0.1020115 0.79890483 0.005386168
-## ENSMUSG00000000058 0.698612812 0.20434902 0.5795506 0.40301214 0.019737298
-## ENSMUSG00000000078 0.059807639 0.22150654 0.2129938 0.12088429 0.041341727
-## ENSMUSG00000000085 0.823694705 0.48085383 0.6971970 0.11785267 0.055598141
-## ENSMUSG00000000088 0.008818937 0.85134311 0.2578795 0.65618737 0.351266333
-##                             V7          V8         V9
-## ENSMUSG00000000001 0.007268013 0.014482929 0.76795731
-## ENSMUSG00000000028 0.062699736 0.038611616 0.92266100
-## ENSMUSG00000000031 0.206739603 0.574816649 0.04220802
-## ENSMUSG00000000037 0.001994354 0.151371792 0.55476196
-## ENSMUSG00000000049 0.705459607 0.003950034 0.69820504
-## ENSMUSG00000000056 0.847349211 0.632997504 0.84687193
-## ENSMUSG00000000058 0.008962438 0.007555128 0.87396571
-## ENSMUSG00000000078 0.754019089 0.020733738 0.39253517
-## ENSMUSG00000000085 0.031156391 0.812487737 0.46471286
-## ENSMUSG00000000088 0.593773361 0.168765117 0.28538218</code></pre>
+<pre><code>##                             V2         V3         V4         V5
+## ENSMUSG00000000001 0.954431381 0.52147727 0.43574987 0.91618099
+## ENSMUSG00000000028 0.914714978 0.07287955 0.12323387 0.23224803
+## ENSMUSG00000000031 0.270039596 0.30775045 0.34745593 0.05009022
+## ENSMUSG00000000037 0.277990289 0.83350132 0.20125550 0.41396914
+## ENSMUSG00000000049 0.593616803 0.10741614 0.59510659 0.58478266
+## ENSMUSG00000000056 0.102437202 0.47232933 0.05920835 0.75564050
+## ENSMUSG00000000058 0.609392261 0.17102381 0.63752895 0.41654501
+## ENSMUSG00000000078 0.141945850 0.17365133 0.20196946 0.12591044
+## ENSMUSG00000000085 0.816976216 0.19272012 0.77991512 0.29710357
+## ENSMUSG00000000088 0.009059623 0.96477540 0.15211473 0.76805602
+##                             V6         V7           V8         V9
+## ENSMUSG00000000001 0.382451244 0.09171343 0.0006796002 0.87130628
+## ENSMUSG00000000028 0.234844305 0.11039497 0.0658679387 0.87024342
+## ENSMUSG00000000031 0.016689453 0.27735521 0.4636852879 0.06015139
+## ENSMUSG00000000037 0.052248656 0.16137641 0.1334435621 0.62878553
+## ENSMUSG00000000049 0.383455060 0.11474475 0.4398216660 0.27476860
+## ENSMUSG00000000056 0.004653788 0.78948071 0.5307721742 0.61044766
+## ENSMUSG00000000058 0.030722983 0.00979094 0.0014196904 0.63315044
+## ENSMUSG00000000078 0.049893259 0.92278271 0.0091160229 0.29632487
+## ENSMUSG00000000085 0.161795584 0.26399034 0.5824472718 0.52928034
+## ENSMUSG00000000088 0.292066004 0.82786995 0.0527881219 0.66241873</code></pre>
 <p>Again, we’ll just copy those data from <code>zhangneurons</code> for demonstration purposes:</p>
 <pre class="r"><code>myesel[[1]]@contrast_stats &lt;- zhangneurons[[1]]@contrast_stats</code></pre>
 <p>Now the RNA-seq app is more or less complete, and you should see volcano plots under ‘Differential’:</p>
@@ -497,48 +499,27 @@ gene_sets &lt;- lapply(genesets_files, GSEABase::getGmt)</code></pre>
 ## [4] &quot;Microglia-no-yes&quot;   &quot;NFO-no-yes&quot;         &quot;Neuron-no-yes&quot;     
 ## [7] &quot;OPC-no-yes&quot;         &quot;WC-no-yes&quot;</code></pre>
 <pre class="r"><code>head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)</code></pre>
-<pre><code>##                                                                                NGenes
-## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                            48
-## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                              9
-## GO_LATERAL_VENTRICLE_DEVELOPMENT                                                   11
-## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR     24
-## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                                   23
-## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                      10
-##                                                                                  PropDown
-## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                        0.04166667
-## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                         0.66666667
-## GO_LATERAL_VENTRICLE_DEVELOPMENT                                               0.63636364
-## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR 0.62500000
-## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                               0.60869565
-## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                  0.60000000
-##                                                                                    PropUp
-## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                        0.68750000
-## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                         0.00000000
-## GO_LATERAL_VENTRICLE_DEVELOPMENT                                               0.00000000
-## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR 0.08333333
-## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                               0.17391304
-## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                  0.10000000
-##                                                                                Direction
-## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                               Up
-## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                              Down
-## GO_LATERAL_VENTRICLE_DEVELOPMENT                                                    Down
-## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR      Down
-## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                                    Down
-## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                       Down
-##                                                                                PValue
-## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                         0.001
-## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                          0.001
-## GO_LATERAL_VENTRICLE_DEVELOPMENT                                                0.001
-## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR  0.001
-## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                                0.001
-## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                   0.001
-##                                                                                       FDR
-## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_BIOGENESIS                        0.01173232
-## GO_PROTEIN_LOCALIZATION_TO_KINETOCHORE                                         0.01173232
-## GO_LATERAL_VENTRICLE_DEVELOPMENT                                               0.01173232
-## GO_REGULATION_OF_DNA_DAMAGE_RESPONSE_SIGNAL_TRANSDUCTION_BY_P53_CLASS_MEDIATOR 0.01173232
-## GO_POSITIVE_REGULATION_OF_CHROMOSOME_SEGREGATION                               0.01173232
-## GO_NEGATIVE_REGULATION_OF_CELLULAR_SENESCENCE                                  0.01173232</code></pre>
+<pre><code>##                                                        NGenes   PropDown
+## GO_MITOCHONDRIAL_ELECTRON_TRANSPORT_NADH_TO_UBIQUINONE     38 0.00000000
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_ASSEMBLY      48 0.02083333
+## GO_NADH_DEHYDROGENASE_COMPLEX_ASSEMBLY                     48 0.02083333
+## GO_REGULATION_OF_NUCLEAR_CELL_CYCLE_DNA_REPLICATION        10 0.70000000
+## GO_OXIDATIVE_PHOSPHORYLATION                               73 0.00000000
+## GO_DISTAL_TUBULE_DEVELOPMENT                               10 0.60000000
+##                                                           PropUp Direction
+## GO_MITOCHONDRIAL_ELECTRON_TRANSPORT_NADH_TO_UBIQUINONE 0.7631579        Up
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_ASSEMBLY  0.7291667        Up
+## GO_NADH_DEHYDROGENASE_COMPLEX_ASSEMBLY                 0.7291667        Up
+## GO_REGULATION_OF_NUCLEAR_CELL_CYCLE_DNA_REPLICATION    0.0000000      Down
+## GO_OXIDATIVE_PHOSPHORYLATION                           0.6575342        Up
+## GO_DISTAL_TUBULE_DEVELOPMENT                           0.0000000      Down
+##                                                        PValue        FDR
+## GO_MITOCHONDRIAL_ELECTRON_TRANSPORT_NADH_TO_UBIQUINONE  0.001 0.01284807
+## GO_MITOCHONDRIAL_RESPIRATORY_CHAIN_COMPLEX_I_ASSEMBLY   0.001 0.01284807
+## GO_NADH_DEHYDROGENASE_COMPLEX_ASSEMBLY                  0.001 0.01284807
+## GO_REGULATION_OF_NUCLEAR_CELL_CYCLE_DNA_REPLICATION     0.001 0.01284807
+## GO_OXIDATIVE_PHOSPHORYLATION                            0.001 0.01284807
+## GO_DISTAL_TUBULE_DEVELOPMENT                            0.001 0.01284807</code></pre>
 <p>This data struture is a bit cumbersome, and I’m thinking of ways of better representing such data and the associated contrasts.</p>
 </div>
 </div>
