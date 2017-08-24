@@ -1,0 +1,235 @@
+# Basic information for the front page
+
+title: An RNA-Seq transcriptome and splicing database of neurons, glia, and vascular
+  cells of the cerebral cortex
+author: Ye Zhang
+description: "<p>This is a re-analysis of a <a href=\"http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52564\">public dataset</a>.</p>\n\n<p><strong>From the source publication:</strong> The major cell classes of the brain differ in their developmental processes, metabolism, signaling, and function. To better understand the functions and interactions of the cell types that comprise these classes, we acutely purified representative populations of neurons, astrocytes, oligodendrocyte precursor cells, newly formed oligodendrocytes, myelinating oligodendrocytes, microglia, endothelial cells, and pericytes from mouse cerebral cortex. We generated a transcriptome database for these eight cell types by RNA sequencing and used a sensitive algorithm to detect alternative splicing events in each cell type. Bioinformatic analyses identified thousands of new cell type-enriched genes and splicing isoforms that will provide novel markers for cell identification, tools for genetic manipulation, and insights into the biology of the brain. For example, our data provide clues as to how neurons and astrocytes differ in their ability to dynamically regulate glycolytic flux and lactate generation attributable to unique splicing of PKM2, the gene encoding the glycolytic enzyme pyruvate kinase. This dataset will provide a powerful new resource for understanding the development and function of the brain. To ensure the widespread distribution of these datasets, we have created a <a href=\"http://web.stanford.edu/group/barres_lab/brain_rnaseq.html\">user-friendly website</a> that provides a platform for analyzing and comparing transciption and alternative splicing profiles for various cell classes in the brain.</p>\n"
+
+# Specify how samples can be grouped
+
+group_vars:
+- Group
+- Tissue
+default_groupvar: Group
+
+# Specify links to apply to identifiers
+
+url_roots:
+  gene_id: http://www.ensembl.org/Mus_musculus/Gene/Summary?db=core;g=
+
+# Gene set information
+
+gene_set_id_type: gene_name
+gene_sets:
+  CP: gene_sets/c2.cp.v5.2.symbols.mmusculus.gmt
+  GOBP: gene_sets/c5.bp.v5.2.symbols.mmusculus.gmt
+  GOCC: gene_sets/c5.cc.v5.2.symbols.mmusculus.gmt
+  GOMF: gene_sets/c5.mf.v5.2.symbols.mmusculus.gmt
+
+# Experiments are different sets of features (genes, transcripts) for the same samples
+
+experiment_order:
+- gene
+- transcript
+
+# Experiment definitions contain 'assays' with different measurements for the same sets of features
+
+experiments:
+  gene:
+    annotation:
+      entrez: null
+      file: counts/salmon+gene+final+annotation.csv
+      id: gene_id
+      label: gene_name
+    assay_order:
+    - Filtered normalised
+    - Unfiltered normalised
+    - Filtered
+    - Unfiltered
+    coldata:
+      file: zhang_sample_data.csv
+      id: External
+    expression_matrices:
+      Filtered:
+        file: counts/salmon+gene+final+filtered.csv
+        measure: Estimated count
+      Filtered normalised:
+        file: counts/salmon+gene+final+filtered+normalised.csv
+        measure: Estimated count (per million)
+      Unfiltered:
+        file: counts/salmon+gene+final.csv
+        measure: Estimated count
+      Unfiltered normalised:
+        file: counts/salmon+gene+final+normalised.csv
+        measure: Estimated count (per million)
+    read_reports:
+      read_attrition: counts/salmon+read_attrition.csv
+    gene_set_analyses:
+      Filtered normalised:
+        CP:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+filtered+Astrocyte-no-yes+CP+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+filtered+Endothelial-no-yes+CP+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+filtered+MO-no-yes+CP+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+filtered+Microglia-no-yes+CP+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+filtered+NFO-no-yes+CP+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+filtered+Neuron-no-yes+CP+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+filtered+OPC-no-yes+CP+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+filtered+WC-no-yes+CP+nogenes.csv
+        GOBP:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+filtered+Astrocyte-no-yes+GOBP+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+filtered+Endothelial-no-yes+GOBP+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+filtered+MO-no-yes+GOBP+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+filtered+Microglia-no-yes+GOBP+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+filtered+NFO-no-yes+GOBP+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+filtered+Neuron-no-yes+GOBP+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+filtered+OPC-no-yes+GOBP+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+filtered+WC-no-yes+GOBP+nogenes.csv
+        GOCC:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+filtered+Astrocyte-no-yes+GOCC+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+filtered+Endothelial-no-yes+GOCC+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+filtered+MO-no-yes+GOCC+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+filtered+Microglia-no-yes+GOCC+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+filtered+NFO-no-yes+GOCC+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+filtered+Neuron-no-yes+GOCC+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+filtered+OPC-no-yes+GOCC+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+filtered+WC-no-yes+GOCC+nogenes.csv
+        GOMF:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+filtered+Astrocyte-no-yes+GOMF+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+filtered+Endothelial-no-yes+GOMF+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+filtered+MO-no-yes+GOMF+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+filtered+Microglia-no-yes+GOMF+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+filtered+NFO-no-yes+GOMF+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+filtered+Neuron-no-yes+GOMF+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+filtered+OPC-no-yes+GOMF+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+filtered+WC-no-yes+GOMF+nogenes.csv
+      Unfiltered normalised:
+        CP:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+Astrocyte-no-yes+CP+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+Endothelial-no-yes+CP+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+MO-no-yes+CP+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+Microglia-no-yes+CP+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+NFO-no-yes+CP+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+Neuron-no-yes+CP+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+OPC-no-yes+CP+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+WC-no-yes+CP+nogenes.csv
+        GOBP:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+Astrocyte-no-yes+GOBP+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+Endothelial-no-yes+GOBP+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+MO-no-yes+GOBP+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+Microglia-no-yes+GOBP+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+NFO-no-yes+GOBP+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+Neuron-no-yes+GOBP+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+OPC-no-yes+GOBP+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+WC-no-yes+GOBP+nogenes.csv
+        GOCC:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+Astrocyte-no-yes+GOCC+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+Endothelial-no-yes+GOCC+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+MO-no-yes+GOCC+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+Microglia-no-yes+GOCC+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+NFO-no-yes+GOCC+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+Neuron-no-yes+GOCC+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+OPC-no-yes+GOCC+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+WC-no-yes+GOCC+nogenes.csv
+        GOMF:
+          Astrocyte-no-yes: diffgs/salmon+gene+final+Astrocyte-no-yes+GOMF+nogenes.csv
+          Endothelial-no-yes: diffgs/salmon+gene+final+Endothelial-no-yes+GOMF+nogenes.csv
+          MO-no-yes: diffgs/salmon+gene+final+MO-no-yes+GOMF+nogenes.csv
+          Microglia-no-yes: diffgs/salmon+gene+final+Microglia-no-yes+GOMF+nogenes.csv
+          NFO-no-yes: diffgs/salmon+gene+final+NFO-no-yes+GOMF+nogenes.csv
+          Neuron-no-yes: diffgs/salmon+gene+final+Neuron-no-yes+GOMF+nogenes.csv
+          OPC-no-yes: diffgs/salmon+gene+final+OPC-no-yes+GOMF+nogenes.csv
+          WC-no-yes: diffgs/salmon+gene+final+WC-no-yes+GOMF+nogenes.csv
+  transcript:
+    annotation:
+      entrez: null
+      file: counts/salmon+transcript+final+annotation.csv
+      id: transcript_id
+      label: gene_name
+    assay_order:
+    - Filtered normalised
+    - Unfiltered normalised
+    - Filtered
+    - Unfiltered
+    coldata:
+      file: zhang_sample_data.csv
+      id: External
+    expression_matrices:
+      Filtered:
+        file: counts/salmon+transcript+final+filtered.csv
+        measure: Estimated count
+      Filtered normalised:
+        file: counts/salmon+transcript+final+filtered+normalised.csv
+        measure: Estimated count (per million)
+      Unfiltered:
+        file: counts/salmon+transcript+final.csv
+        measure: Estimated count
+      Unfiltered normalised:
+        file: counts/salmon+transcript+final+normalised.csv
+        measure: Estimated count (per million)
+    read_reports:
+      read_attrition: counts/salmon+read_attrition.csv
+
+# Specify the comaparisons that were made and the associated statistics
+
+contrasts:
+  comparisons:
+    0:
+    - Astrocyte
+    - 'no'
+    - 'yes'
+    - ''
+    1:
+    - Neuron
+    - 'no'
+    - 'yes'
+    - ''
+    2:
+    - OPC
+    - 'no'
+    - 'yes'
+    - ''
+    3:
+    - NFO
+    - 'no'
+    - 'yes'
+    - ''
+    4:
+    - MO
+    - 'no'
+    - 'yes'
+    - ''
+    5:
+    - Microglia
+    - 'no'
+    - 'yes'
+    - ''
+    6:
+    - Endothelial
+    - 'no'
+    - 'yes'
+    - ''
+    7:
+    - WC
+    - 'no'
+    - 'yes'
+    - ''
+  stats:
+    gene:
+      Filtered normalised:
+        fold_changes: diffexp/salmon+gene+final+filtered+absFC.csv
+        pvals: diffexp/salmon+gene+final+filtered+colsetPValue.csv
+        qvals: diffexp/salmon+gene+final+filtered+colsetFDR.csv
+      Unfiltered normalised:
+        fold_changes: diffexp/salmon+gene+final+absFC.csv
+        pvals: diffexp/salmon+gene+final+colsetPValue.csv
+        qvals: diffexp/salmon+gene+final+colsetFDR.csv
+    transcript:
+      Filtered normalised:
+        fold_changes: diffexp/salmon+transcript+final+filtered+absFC.csv
+        pvals: diffexp/salmon+transcript+final+filtered+colsetPValue.csv
+        qvals: diffexp/salmon+transcript+final+filtered+colsetFDR.csv
+      Unfiltered normalised:
+        fold_changes: diffexp/salmon+transcript+final+absFC.csv
+        pvals: diffexp/salmon+transcript+final+colsetPValue.csv
+        qvals: diffexp/salmon+transcript+final+colsetFDR.csv
+
