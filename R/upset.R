@@ -29,10 +29,10 @@
 upsetInput <- function(id, eselist) {
     ns <- NS(id)
     
-    upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, value = 20), 
+    upset_fields <- list(uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, value = 20), uiOutput(ns("minorder")), 
         checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("set_sort"), "Sort sets by size?", value = TRUE), checkboxInput(ns("bar_numbers"), "Show bar numbers?", value = FALSE), checkboxInput(ns("show_empty_intersections"), 
-            label = "Show empty intersections?", value = TRUE), selectInput(ns("intersection_assignment_type"), "Intersection assignment type", choices = c(`Highest-order (UpSet)` = "upset", 
-            `All associated intersections` = "all"), selected = "upset"))
+            label = "Show empty intersections?", value = TRUE), selectInput(ns("intersection_assignment_type"), "Intersection type", choices = c(`Highest-order (UpSet)` = "upset", 
+            `Complete` = "all"), selected = "upset"))
     
     fieldSets(ns("fieldset"), list(intersections = upset_fields, expression = selectmatrixInput(ns("upset"), eselist), contrasts = contrastsInput(ns("upset")), 
         export = plotdownloadInput(ns("upset"), "UpSet Plot")))
@@ -121,10 +121,23 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
     ############################################################################# Render dynamic fields
     
     output$nsets <- renderUI({
-        
-        valid_sets <- getValidSets()
-        max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
+        max_sets <- getMaxSets()
         sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
+    })
+    
+    output$minorder <- renderUI({
+      assignment_type <- getIntersectionAssignmentType()
+      max_order <- getMaxIntersectionOrder()
+      
+      # No point starting at size 1 in a non-upset plot, since the areas associated with each individual set will be the same size as the sets themselves
+      
+      if (assignment_type == "upset"){
+        startsize <- 1
+      }else{
+        startsize <- 2
+      }
+      
+      sliderInput(ns("minorder"), label = "Minimum number of sets in an intersection", min = 1, max = max_order, step = 1, value = startsize)
     })
     
     output$differential_parameters <- renderUI({
@@ -149,11 +162,19 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
     
     ############################################################################# Form accessors
     
+    
     # Accessor for the nsets parameter
     
     getNsets <- reactive({
         validate(need(!is.null(input$nsets), "Waiting for nsets"))
         input$nsets
+    })
+    
+    # Accessor for the minorder parameter
+    
+    getMinOrder <- reactive({
+      validate(need(!is.null(input$minorder), "Waiting for minorder"))
+      input$minorder
     })
     
     # Accessor for the nintersections parameter
@@ -232,6 +253,13 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
         })
     })
     
+    # Get the maximum number of sets
+    
+    getMaxSets <- reactive({
+      valid_sets <- getValidSets()
+      ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
+    })
+    
     # Get the sets we're going to use based on nsets
     
     getSets <- reactive({
@@ -255,13 +283,7 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
                 lapply(seq_len(ncol(x)), function(i) x[, i])
             }
             
-            assignment_type <- getIntersectionAssignmentType()
-            
-            # No point starting at size 1 in a non-upset plot
-            
-            startsize <- ifelse(assignment_type == "upset", 1, 2)
-            
-            combos <- lapply(startsize:nsets, function(x) {
+            combos <- lapply(1:nsets, function(x) {
                 combinations(1:length(selected_sets), x)
             })
             
@@ -275,7 +297,9 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
                 })
             })
             
-            # For UpSet-ness, membership of higher-order intersections takes priority Otherwise just return the number of entries in each intersection
+            # For UpSet-ness, membership of higher-order intersections takes priority. Otherwise just return the number of entries in each intersection
+            
+            assignment_type <- getIntersectionAssignmentType()
             
             intersects <- lapply(1:length(intersects), function(i) {
                 intersectno <- intersects[[i]]
@@ -308,6 +332,16 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
         
     })
     
+    # Post-process intersections to remove lower-order interactions from display if requested
+    
+    getIntersections <- reactive({
+      minorder <- getMinOrder()
+      ints <- calculateIntersections()
+      
+      selected <- unlist(lapply(ints$combinations, length)) >= minorder
+      lapply(ints, function(x) x[selected])
+    })
+    
     ########################################################################### Render the plot with it separate components
     
     output$plotly_upset <- renderPlotly({
@@ -315,22 +349,21 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
         grid <- upsetGrid()
         set_size_chart <- upsetSetSizeBarChart()
         intersect_size_chart <- upsetIntersectSizeBarChart()
-
-        # Hide tick labels on the grid
-        
-        # Unfortunately axis titles get hidden on the subplot. Not sure why.
         
         intersect_size_chart <- intersect_size_chart %>% layout(yaxis = list(title = "Intersections size"))
-        
-        # The y axis labels of the
         
         s1 <- subplot(plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"), 
             set_size_chart, nrows = 2, widths = c(0.6, 0.4))
         s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE) %>% layout(showlegend = FALSE)
         
         subplot(s1, s2, widths = c(0.3, 0.7))
-        
-        
+    })
+    
+    # Calculate the maximum number of sets in an intersection
+    
+    getMaxIntersectionOrder <- reactive({
+      ints <- calculateIntersections()
+      max(unlist(lapply(ints$combinations[ints$intersections > 0], length)))
     })
     
     # Add some line returns to contrast names
@@ -344,7 +377,7 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
     
     upsetGrid <- reactive({
         selected_sets <- getSets()
-        ints <- calculateIntersections()
+        ints <- getIntersections()
         
         intersects <- ints$intersections
         combos <- ints$combinations
@@ -385,7 +418,7 @@ upset <- function(input, output, session, eselist, setlimit = 16) {
     
     upsetIntersectSizeBarChart <- reactive({
         
-        ints <- calculateIntersections()
+        ints <- getIntersections()
         intersects <- ints$intersections
         combos <- ints$combinations
         nintersections <- getNintersections()
