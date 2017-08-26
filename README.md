@@ -4,6 +4,19 @@ Synopsis
 
 Shinyngs is an R package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots and data mining tools. It is unrelated to the recently published [Shiny Transcritome Analysis Resource Tool](https://github.com/jminnier/STARTapp) (START), though it was probably developed at the same time as that work.
 
+Examples
+========
+
+Data structure
+--------------
+
+A companion R package, [zhangneurons](https://github.com/pinin4fjords/zhangneurons), contains an example dataset to illustrate the features of Shinyngs, as well as the code required to produce it.
+
+Running application
+-------------------
+
+A Shinyngs example is running at <https://pinin4fjords.shinyapps.io/shinyngs_example/> and contains a subset of the example data (due to limited resources on shinyapps.io).
+
 Rationale
 =========
 
