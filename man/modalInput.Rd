@@ -12,6 +12,8 @@ modalInput(id, label, class, icon = "info-circle")
 \item{label}{A label to use for the link}
 
 \item{class}{A class to apply to the link}
+
+\item{icon}{Icon used to activate modal}
 }
 \description{
 This module uses modals from \code{shinyBS} to create overlaid text for the

@@ -39,6 +39,8 @@ names of the input matrix? (default: FALSE)}
 
 \item{show_controls}{Show search box, controls etc on resulting data table? 
 (default: TRUE)}
+
+\item{filter}{Passed to \code{DT::renderDataTable()}}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

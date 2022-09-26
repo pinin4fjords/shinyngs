@@ -31,11 +31,11 @@ scatterplot(
 )
 }
 \arguments{
-\item{input}{}
+\item{input}{Input object}
 
-\item{output}{}
+\item{output}{Output object}
 
-\item{session}{}
+\item{session}{Session object}
 
 \item{getDatamatrix}{Reactive supplying a matrix. If using external controls
 this should match the one supplied to \code{scatterplotcontrols}}

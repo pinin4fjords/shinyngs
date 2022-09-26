@@ -100,6 +100,8 @@ contrastsOutput <- function(id) {
 #' @param select_all_contrasts Select all contrasts by default?
 #' @param show_controls Show the controls for contrast selection? 
 #' @param default_foldchange default value for the fold change filter
+#' @param default_pval Default value for the p value field
+#' @param default_qval Default value for the q value field 
 #'
 #' @keywords shiny
 #' 
@@ -802,9 +804,12 @@ foldChange <- function(vec1, vec2) {
 #' @param show_controls Show controls? Setting to false will cause them to be 
 #' hidden.
 #' @param default_foldchange Default value for the fold change field 
+#' @param default_pval Default value for the p value field
+#' @param default_qval Default value for the q value field 
 #' @param index Index. Will be used to differentiate mutiple copies of the
 #' field set.
 #' @param filter_rows Use fold change and p value etc to filter values? 
+#' @param select_all_contrasts Select all contrasts by default?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -858,6 +863,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
 #' @param multiple Allow multiple contrasts to be selected?
 #' @param show_controls Show controls? Setting to false will cause them to be 
 #' hidden.
+#' @param select_all Select all contrasts by default?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -891,7 +897,7 @@ makeContrastControl <- function(id, contrasts, contrast_numbers, multiple = FALS
 #' this make the table overly cumbersome, an we can simplify it by simply 
 #' naming the average column to the values of the contrast variable.
 #'
-#' @param table 
+#' @param table Three-column contrast table 
 #'
 #' @return output Simplified table
 

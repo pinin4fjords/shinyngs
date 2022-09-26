@@ -7,9 +7,9 @@
 interleaveColumns(mat1, mat2)
 }
 \arguments{
-\item{mat1}{}
+\item{mat1}{First numeric matrix}
 
-\item{mat2}{}
+\item{mat2}{Second numeric matrix}
 }
 \value{
 output Interleaved matrix

@@ -25,6 +25,8 @@ makeContrastControl(
 
 \item{show_controls}{Show controls? Setting to false will cause them to be 
 hidden.}
+
+\item{select_all}{Select all contrasts by default?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

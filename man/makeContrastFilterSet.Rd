@@ -42,10 +42,16 @@ hidden.}
 
 \item{default_foldchange}{Default value for the fold change field}
 
+\item{default_pval}{Default value for the p value field}
+
+\item{default_qval}{Default value for the q value field}
+
 \item{index}{Index. Will be used to differentiate mutiple copies of the
 field set.}
 
 \item{filter_rows}{Use fold change and p value etc to filter values?}
+
+\item{select_all_contrasts}{Select all contrasts by default?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

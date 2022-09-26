@@ -92,6 +92,7 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #'   populated \code{contrast_stats} slot. For plots using p value data etc, this is 
 #'   used to hide experiments that don't have the necessary data.
 #' @param rounding Number of decimal places to show in results (Default 2)
+#' @param select_meta Boolean- add metadata controls?
 #'   
 #' @return output A list of reactive functions for fetching the derived matrix 
 #'   and making a title based on its properties.
@@ -491,7 +492,8 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
 #' 
 #' Convenience function for deciding how to construct filters
 #'
-#' @param eselist 
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'
 #' @return output Logical value
 #' @export

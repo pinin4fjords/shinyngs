@@ -32,6 +32,8 @@ variables}
 \item{add_medians}{Logical indicating whether medians should be added to the
 output. Standard error estimates for the median require bootstrapping, so 
 TRUE for this variables make summary statistic calculation take longer.}
+
+\item{.drop}{Logical passed to ddply()}
 }
 \value{
 out Data frame with summary statistics

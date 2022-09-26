@@ -39,6 +39,10 @@ gain access to the data provided by those reaactive.}
 \item{show_controls}{Show the controls for contrast selection?}
 
 \item{default_foldchange}{default value for the fold change filter}
+
+\item{default_pval}{Default value for the p value field}
+
+\item{default_qval}{Default value for the q value field}
 }
 \description{
 This module provides the form elements to control contrasts used in e.g. 

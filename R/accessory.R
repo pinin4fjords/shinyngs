@@ -75,7 +75,7 @@ hiddenInput <- function(id, values) {
 
 #' Simple list push 
 #'
-#' @param list A list to push to
+#' @param input_list A list to push to
 #' @param element The element to push
 #'
 #' @return list with element pushed
@@ -165,7 +165,7 @@ ggplotify <- function(matrix, experiment, colorby = NULL) {
 #' \code{linewidth} characters
 #'
 #' @param string A string with spaces
-#' @param width The maximum line length in characters (default: 20)
+#' @param linewidth The maximum line length in characters (default: 20)
 #'
 #' @return A string with newline characters added where appropriate
 #'
@@ -209,8 +209,8 @@ unpack.list <- function(object) {
 
 #' Interleave the columns of two matrices of equal dimensions
 #'
-#' @param mat1 
-#' @param mat2 
+#' @param mat1 First numeric matrix
+#' @param mat2 Second numeric matrix
 #'
 #' @return output Interleaved matrix
 #' @export
@@ -270,7 +270,7 @@ chooseGroupingVariables <- function(df) {
 #' Replace NAs with a string for convenience
 #'
 #' @param vec Character vector or factor containing NAs
-#' @param replacment Character replacement (default: 'NA')
+#' @param replacement Character replacement (default: 'NA')
 #' 
 #' @return Vector or factor with NAs replaced
 #'
@@ -340,9 +340,9 @@ cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<
 #' '>', '<' , '> or <-' (e.g. a fold change above a limit in + or - 
 #' directions), or '< and >-' (not a above a limit in + or -).  
 #'
-#' @param values 
-#' @param cardinality 
-#' @param limit 
+#' @param values Vector of numeric values
+#' @param cardinality Cardinality: '>', '<' , '> or <-'
+#' @param limit Numeric limit
 #'
 #' @return out A logical vector
 

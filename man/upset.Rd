@@ -15,6 +15,8 @@ upset(input, output, session, eselist, setlimit = 16)
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
+
+\item{setlimit}{Maximum number of sets}
 }
 \description{
 This module illustrates the intersection of differential sets using a 

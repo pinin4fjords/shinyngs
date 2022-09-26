@@ -10,6 +10,8 @@ summarisematrixInput(id, allow_none = TRUE, select_summary_type = TRUE)
 \item{id}{Submodule namespace}
 
 \item{allow_none}{Allow a 'no summarisation' selection.}
+
+\item{select_summary_type}{Allow user to select summary type (e.g. mean)?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

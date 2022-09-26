@@ -12,7 +12,7 @@ plotly_quartiles(
 )
 }
 \arguments{
-\item{matrix}{}
+\item{matrix}{Numeric matrix}
 
 \item{ese}{ExploratorySummarizedExperiment}
 

@@ -93,6 +93,7 @@ upsetOutput <- function(id, eselist) {
 #' @param session Session object
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
+#' @param setlimit Maximum number of sets 
 #'   
 #' @keywords shiny
 #'   

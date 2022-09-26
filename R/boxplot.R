@@ -223,9 +223,9 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NUL
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expression") {
+plotly_boxplot <- function(plotmatrix, experiment, colorby, expressiontype = "expression") {
     
-    plotdata <- ggplotify(as.matrix(matrix), experiment, colorby)
+    plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
     plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>% layout(yaxis = list(title = expressiontype), xaxis = list(title = NULL), 
         evaluate = TRUE) %>% config(showLink = TRUE)
 }
@@ -236,7 +236,7 @@ plotly_boxplot <- function(matrix, experiment, colorby, expressiontype = "expres
 #' plots lines at the median, quartiles, and whiskers, plotting points for 
 #' outliers beyond that
 #'
-#' @param matrix 
+#' @param matrix Numeric matrix
 #' @param ese ExploratorySummarizedExperiment
 #' @param expressiontype Y axis label
 #' @param whisker_distance IQR multiplier for whiskers, and beyond which to 

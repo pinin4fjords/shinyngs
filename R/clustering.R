@@ -326,6 +326,7 @@ clustering <- function(input, output, session, eselist, ncolors) {
 #' @param add_medians Logical indicating whether medians should be added to the
 #'   output. Standard error estimates for the median require bootstrapping, so 
 #'   TRUE for this variables make summary statistic calculation take longer.
+#' @param .drop Logical passed to ddply()
 #'   
 #' @return out Data frame with summary statistics
 #' @import plyr

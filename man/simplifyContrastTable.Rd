@@ -7,7 +7,7 @@
 simplifyContrastTable(table)
 }
 \arguments{
-\item{table}{}
+\item{table}{Three-column contrast table}
 }
 \value{
 output Simplified table

@@ -9,7 +9,7 @@ na.replace(vec, replacement = "NA")
 \arguments{
 \item{vec}{Character vector or factor containing NAs}
 
-\item{replacment}{Character replacement (default: 'NA')}
+\item{replacement}{Character replacement (default: 'NA')}
 }
 \value{
 Vector or factor with NAs replaced

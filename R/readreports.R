@@ -56,7 +56,6 @@ readreportsOutput <- function(id, eselist) {
 #' @param input Input object
 #' @param output Output object
 #' @param session Session object
-#' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperiment with \code{read_distribution}
 #' slot filled
 

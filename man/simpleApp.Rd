@@ -8,16 +8,18 @@ shiny \code{sideBarLayout()}.}
 simpleApp(eselist, module = NULL, ui_only = FALSE, ...)
 }
 \arguments{
+\item{eselist}{List of ExploratorySummarizedExperiment objects with assay and experimental
+data}
+
 \item{module}{Character string specifying the module to use}
 
-\item{ses}{List of ExploratorySummarizedExperiment objects with assay and experimental
-data}
+\item{ui_only}{Don't add server components (for UI testing)}
 }
 \description{
 Internal function called by prepareApp() to make simple single-function 
 apps.
 }
 \examples{
-simpleApp(ses, 'heatmap', 'My study name')
+simpleApp(eselist, 'heatmap', 'My study name')
 }
 \keyword{shiny}

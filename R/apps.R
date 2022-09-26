@@ -12,6 +12,7 @@
 #'   using \code{Input} and \code{Output} functions of the same module.
 #' @param eselist An ExploratorySummarizedExperimentList object containing assay
 #'   data (expression, counts...), sample data and annotation data for the rows.
+#' @param ui_only Don't add server components (for UI testing)
 #'
 #' @return output A list of length 2 containing: the UI and server components
 #'
@@ -122,14 +123,15 @@ prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
 #' Internal function called by prepareApp() to make simple single-function 
 #' apps.
 #'
-#' @param ses List of ExploratorySummarizedExperiment objects with assay and experimental
+#' @param eselist List of ExploratorySummarizedExperiment objects with assay and experimental
 #' data
 #' @param module Character string specifying the module to use
+#' @param ui_only Don't add server components (for UI testing)
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' simpleApp(ses, 'heatmap', 'My study name')
+#' simpleApp(eselist, 'heatmap', 'My study name')
 
 simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     

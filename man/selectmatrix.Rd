@@ -56,6 +56,8 @@ populated \code{contrast_stats} slot. For plots using p value data etc, this is
 used to hide experiments that don't have the necessary data.}
 
 \item{rounding}{Number of decimal places to show in results (Default 2)}
+
+\item{select_meta}{Boolean- add metadata controls?}
 }
 \value{
 output A list of reactive functions for fetching the derived matrix 

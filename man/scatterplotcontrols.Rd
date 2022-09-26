@@ -37,6 +37,8 @@ the user to select axes (default: NA)}
 \item{z}{A value supplied for this parameter will cause a hidden field to 
 be generated instead of a select, useful for scatter plots that don't need
 the user to select axes (default: NA)}
+
+\item{makeColors}{Boolean: use controls for coloring?}
 }
 \value{
 output A list of reactives for accessing input values

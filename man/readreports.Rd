@@ -15,8 +15,6 @@ readreports(input, output, session, eselist)
 
 \item{eselist}{ExploratorySummarizedExperiment with \code{read_distribution}
 slot filled}
-
-\item{id}{Submodule namespace}
 }
 \description{
 Display plots and tables relating to read mapping, attrition during 
