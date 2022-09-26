@@ -7,7 +7,7 @@ Description: Provides Shiny applications for various array and NGS applications.
 Depends:
     R (>= 3.2.2),
     SummarizedExperiment
-License: AGPL-3.0
+License: AGPL-3.0 + file LICENSE
 LazyData: true
 Imports:
     data.table,
