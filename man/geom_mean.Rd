@@ -8,6 +8,8 @@ geom_mean(x, na.rm = TRUE)
 }
 \arguments{
 \item{x}{A vector}
+
+\item{na.rm}{Passed to \code{sum()}}
 }
 \value{
 A numeric value

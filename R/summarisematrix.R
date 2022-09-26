@@ -111,7 +111,7 @@ colGeomMeans <- function(x) {
 #' Geometric mean 
 #'
 #' @param x A vector
-#' @param na.rm Passed to \code(sum()}
+#' @param na.rm Passed to \code{sum()}
 #'
 #' @return A numeric value
 #'
