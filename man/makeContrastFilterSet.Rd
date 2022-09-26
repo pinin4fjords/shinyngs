@@ -5,10 +5,21 @@
 \title{Make a complete set of filters for a contrast: the contrast itself, fold
 change, and where applicable p- and q- values.}
 \usage{
-makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers, multiple,
-  show_controls, default_foldchange = 2, default_pval = 0.05,
-  default_qval = 0.1, index = "", filter_rows = TRUE,
-  select_all_contrasts = FALSE)
+makeContrastFilterSet(
+  ns,
+  ese,
+  assay,
+  contrasts,
+  contrast_numbers,
+  multiple,
+  show_controls,
+  default_foldchange = 2,
+  default_pval = 0.05,
+  default_qval = 0.1,
+  index = "",
+  filter_rows = TRUE,
+  select_all_contrasts = FALSE
+)
 }
 \arguments{
 \item{ns}{A namespace function (created with \code{\link[shiny]{NS}} to be 

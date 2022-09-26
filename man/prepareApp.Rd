@@ -68,7 +68,7 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 library(biomaRt)
 attributes <- c(
   'ensembl_gene_id', # The sort of ID your results are keyed by
-  'entrezgene', # Could be used for gene sets keyed by Entrez ID (must set \\code{gene_set_id_type} correctly on the containing \\code{ExploratorySummarizedExperimentList})
+  'entrezgene', # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
   'external_gene_name' # Used to annotate gene names on the plot
 )
 

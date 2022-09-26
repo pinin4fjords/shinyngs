@@ -20,6 +20,10 @@ otherwise of SummarizedExperiment0.
 
 \item{\code{contrast_stats}}{list.}
 
+\item{\code{assay_measures}}{list.}
+
+\item{\code{dexseq_results}}{list.}
+
 \item{\code{read_reports}}{list.}
 }}
 

@@ -4,8 +4,14 @@
 \alias{ggplot_boxplot}
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
-ggplot_boxplot(plotmatrix, experiment, colorby = NULL, palette = NULL,
-  expressiontype = "expression", whisker_distance = 1.5)
+ggplot_boxplot(
+  plotmatrix,
+  experiment,
+  colorby = NULL,
+  palette = NULL,
+  expressiontype = "expression",
+  whisker_distance = 1.5
+)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}

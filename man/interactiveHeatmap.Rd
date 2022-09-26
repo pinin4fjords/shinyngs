@@ -4,10 +4,19 @@
 \alias{interactiveHeatmap}
 \title{Make a ineractive heatmap with d3heatmap}
 \usage{
-interactiveHeatmap(plotmatrix, displaymatrix, sample_annotation,
-  cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels,
-  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name =
-  "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...)
+interactiveHeatmap(
+  plotmatrix,
+  displaymatrix,
+  sample_annotation,
+  cluster_rows = TRUE,
+  cluster_cols = FALSE,
+  scale = "row",
+  row_labels,
+  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100),
+  cexCol = 0.7,
+  cexRow = 0.7,
+  ...
+)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
@@ -31,8 +40,5 @@ output A plot as produced by pheatmap()
 This is a generic function which may be useful outside of this package. It
 produces a heatmap based on an expression matrix and accompanying 
 experiment data in the form of a frame, \code{d3heatmap()}.
-}
-\examples{
-R code here showing how your function works
 }
 \keyword{keywords}

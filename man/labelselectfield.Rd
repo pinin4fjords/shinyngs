@@ -4,10 +4,20 @@
 \alias{labelselectfield}
 \title{The server function of the \code{labelselectfield} module}
 \usage{
-labelselectfield(input, output, session, eselist, getExperiment = NULL,
-  labels_from_all_experiments = FALSE, url_field = "label", max_items = 1,
-  field_selection = FALSE, id_selection = FALSE, getNonEmptyRows = NULL,
-  list_input = FALSE)
+labelselectfield(
+  input,
+  output,
+  session,
+  eselist,
+  getExperiment = NULL,
+  labels_from_all_experiments = FALSE,
+  url_field = "label",
+  max_items = 1,
+  field_selection = FALSE,
+  id_selection = FALSE,
+  getNonEmptyRows = NULL,
+  list_input = FALSE
+)
 }
 \arguments{
 \item{input}{Input object}

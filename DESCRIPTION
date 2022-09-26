@@ -36,5 +36,5 @@ Suggests:
 Remotes:
     talgalili/d3heatmap,
     pinin4fjords/zhangneurons
-RoxygenNote: 6.0.1
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr

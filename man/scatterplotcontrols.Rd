@@ -4,8 +4,16 @@
 \alias{scatterplotcontrols}
 \title{Server function for scatterplotcontrols module}
 \usage{
-scatterplotcontrols(input, output, session, getDatamatrix, x = NA, y = NA,
-  z = NA, makeColors = NULL)
+scatterplotcontrols(
+  input,
+  output,
+  session,
+  getDatamatrix,
+  x = NA,
+  y = NA,
+  z = NA,
+  makeColors = NULL
+)
 }
 \arguments{
 \item{input}{Input object}

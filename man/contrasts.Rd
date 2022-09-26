@@ -4,9 +4,19 @@
 \alias{contrasts}
 \title{The server function of the contrasts module}
 \usage{
-contrasts(input, output, session, eselist, selectmatrix_reactives = list(),
-  multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE,
-  default_foldchange = 2, default_pval = 0.05, default_qval = 0.1)
+contrasts(
+  input,
+  output,
+  session,
+  eselist,
+  selectmatrix_reactives = list(),
+  multiple = FALSE,
+  select_all_contrasts = FALSE,
+  show_controls = TRUE,
+  default_foldchange = 2,
+  default_pval = 0.05,
+  default_qval = 0.1
+)
 }
 \arguments{
 \item{input}{Input object}

@@ -4,8 +4,12 @@
 \alias{plotly_quartiles}
 \title{Make a line-based alternative to boxplots}
 \usage{
-plotly_quartiles(matrix, ese, expressiontype = "expression",
-  whisker_distance = 1.5)
+plotly_quartiles(
+  matrix,
+  ese,
+  expressiontype = "expression",
+  whisker_distance = 1.5
+)
 }
 \arguments{
 \item{matrix}{}
