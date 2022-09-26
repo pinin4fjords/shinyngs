@@ -29,5 +29,7 @@ Suggests:
     knitr,
     rmarkdown,
     Gviz
+Remotes:
+    talgalili/d3heatmap
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
