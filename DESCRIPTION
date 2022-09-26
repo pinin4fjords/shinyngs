@@ -17,6 +17,7 @@ Imports:
     GSEABase,
     pheatmap,
     plotly (>= 4.3.4),
+    plyr,
     RColorBrewer,
     shiny,
     shinyjs,
