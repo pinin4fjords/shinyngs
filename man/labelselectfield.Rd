@@ -44,6 +44,10 @@ use labels (or row ids if the label field is not set)?}
 
 \item{id_selection}{Allow users to pick specific ID from those that relate 
 to the specified label? (default: FALSE)}
+
+\item{getNonEmptyRows}{Optional reactive providing non empty matrix rows}
+
+\item{list_input}{Boolean: will input be a list of values?}
 }
 \description{
 This module provides an input which allows filtering on the basis of data in

@@ -14,6 +14,8 @@ data}
 \item{module}{Character string specifying the module to use}
 
 \item{ui_only}{Don't add server components (for UI testing)}
+
+\item{...}{Additional arguments passed to the module output function}
 }
 \description{
 Internal function called by prepareApp() to make simple single-function 

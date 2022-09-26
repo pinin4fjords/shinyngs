@@ -43,6 +43,8 @@ Default = 500}
 \item{selectSamples}{A reactive expression that provides a vector of samples 
 to use, e.g. in row-wise variance calculation}
 
+\item{getAssay}{A reactive expression providing the current assay selection.}
+
 \item{provide_all}{Allow the 'all rows' selection in the UI? Means we don't
 have to calculate variance so the display is quicker, but it's a bad idea
 for e.g. heatmaps where the visual scales by the number of rows.}

@@ -97,7 +97,7 @@ clusteringOutput <- function(id) {
 #' @examples
 #' callModule(clustering, 'myid', eselist)
 
-clustering <- function(input, output, session, eselist, ncolors) {
+clustering <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
     

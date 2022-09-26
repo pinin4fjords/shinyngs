@@ -8,6 +8,8 @@ heatmapOutput(id, type = "")
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{type}{Heatmap type: 'pca', 'samples' or 'expression'}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

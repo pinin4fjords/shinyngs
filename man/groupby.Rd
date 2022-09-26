@@ -33,6 +33,9 @@ ExploratorySummarizedExperiment objects}
 
 \item{selectColData}{Reactive returning an experiment matrix, probably 
 derived from the \code{\link{selectmatrix}} module.}
+
+\item{isDynamic}{Reactive expression providing a boolean. A FALSE value
+causes the groupby option to be placed in a hidden field.}
 }
 \value{
 output A list of reactive functions which will be used by other 

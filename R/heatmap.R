@@ -77,6 +77,7 @@ heatmapInput <- function(id, eselist, type = "expression") {
 #' associations between principal components and experimental variables.
 #'
 #' @param id Submodule namespace
+#' @param type Heatmap type: 'pca', 'samples' or 'expression'
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -467,9 +468,12 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param displaymatrix A matrix of values that might be displayed in cells
+#' @param sample_annotation A data frame with sample metadata
 #' @param cluster_cols Cluster columns?
 #' @param cluster_rows Cluster rows?
 #' @param scale 'row', 'column' or none 
+#' @param colors A vector of colors for the heatmap
+#' @param display_numbers Boolean, should values be displayed in the heatmap? 
 #' @param row_labels Vector labels to use for rows
 #' @param row_height The height to use for each row
 #'
@@ -510,11 +514,14 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param displaymatrix A matrix of values that might be displayed in cells
+#' @param sample_annotation A data frame with sample metadata
 #' @param cluster_cols Cluster columns?
 #' @param cluster_rows Cluster rows?
 #' @param scale 'row', 'column' or none 
+#' @param colors A vector of colors for the heatmap
 #' @param row_labels Vector labels to use for rows
-#' @param row_height The height to use for each row
+#' @param cexCol Character expansion factor passed to \code{d3heatmap()}
+#' @param cexRow Character expansion factor passed to \code{d3heatmap()}
 #'
 #' @return output A plot as produced by pheatmap() 
 #'
@@ -584,7 +591,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 #' for each column, than can be used as the 'annotation_colors' argment to 
 #' \code{pheatmap()}. Uses \code{RColorBrewer}.
 #'
-#' @param sample_annotation A data frame
+#' @param sample_annotation A data frame with sample metadata
 #'
 #' @return output A list object with colors 
 #'

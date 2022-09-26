@@ -23,6 +23,8 @@ interactiveHeatmap(
 
 \item{displaymatrix}{A matrix of values that might be displayed in cells}
 
+\item{sample_annotation}{A data frame with sample metadata}
+
 \item{cluster_rows}{Cluster rows?}
 
 \item{cluster_cols}{Cluster columns?}
@@ -31,7 +33,11 @@ interactiveHeatmap(
 
 \item{row_labels}{Vector labels to use for rows}
 
-\item{row_height}{The height to use for each row}
+\item{colors}{A vector of colors for the heatmap}
+
+\item{cexCol}{Character expansion factor passed to \code{d3heatmap()}}
+
+\item{cexRow}{Character expansion factor passed to \code{d3heatmap()}}
 }
 \value{
 output A plot as produced by pheatmap()

@@ -53,7 +53,7 @@ nlines <- function(string) {
 #' Make a hidden input field. Handy for replacing superfluous single-value 
 #' selects etc
 #'
-#' @param string An HTML id
+#' @param id An HTML id
 #' @param values The value the input should return
 #'
 #' @return output HTML as output by Shiny's \code{HTML()}

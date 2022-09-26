@@ -23,7 +23,7 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
 #' Generic module to isplay grouped, stacked or overlaid bars for a matrix
 #' 
 #' @param id Submodule namespace
-#' @param heigth Height of the plotting space in px
+#' @param height Height of the plotting space in px
 #'
 #' @return A list of elements that can be included in a panel
 

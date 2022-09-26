@@ -7,6 +7,7 @@
 #' standard select field.  
 #'
 #' @param id Submodule namespace
+#' @param multiple Boolean: should it be possible to select multiple gene sets?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -38,6 +39,9 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #' slot set
 #' @param getExperiment Accessor for returning an
 #'   ExploratorySummarizedExperiment object, with 'labelfield' set in its slots
+#' @param multiple Boolean: should it be possible to select multiple gene sets?
+#' @param filter_by_type Provide a filter for gene set type? 
+#' @param require_select Require a gene set selection?
 #'
 #' @return output A list of two reactive functions which will be used by other 
 #' modules.

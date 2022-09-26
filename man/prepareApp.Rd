@@ -18,6 +18,8 @@ using \code{Input} and \code{Output} functions of the same module.}
 data (expression, counts...), sample data and annotation data for the rows.}
 
 \item{ui_only}{Don't add server components (for UI testing)}
+
+\item{...}{Additional argments passed to \code{simpleApp()}}
 }
 \value{
 output A list of length 2 containing: the UI and server components

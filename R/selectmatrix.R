@@ -347,6 +347,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
 #'
 #' @param matrix The input table
 #' @param ese An ExploratorySummarizedExperiment object
+#' @param idcol ID column in the matrix, NULL to use row names
+#' @param metafields Vector of metadata columns to add (via \code{mcols()})
 #'
 #' @return output Table with columns added
 
@@ -439,7 +441,7 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 #' \code{ExploratorySummarizedExperiment} object and the annotation data in 
 #' \code{mcols}.
 #'
-#' @param list of ids
+#' @param ids list of ids
 #' @param ese An ExploratorySummarizedExperiment
 #' @param sep Separator for ID and label fields
 #'

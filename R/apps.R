@@ -13,7 +13,8 @@
 #' @param eselist An ExploratorySummarizedExperimentList object containing assay
 #'   data (expression, counts...), sample data and annotation data for the rows.
 #' @param ui_only Don't add server components (for UI testing)
-#'
+#' @param ... Additional argments passed to \code{simpleApp()}
+#' 
 #' @return output A list of length 2 containing: the UI and server components
 #'
 #' @keywords shiny
@@ -127,6 +128,7 @@ prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
 #' data
 #' @param module Character string specifying the module to use
 #' @param ui_only Don't add server components (for UI testing)
+#' @param ... Additional arguments passed to the module output function
 #'
 #' @keywords shiny
 #'

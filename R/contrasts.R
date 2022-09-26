@@ -5,14 +5,13 @@
 #' users to add filters to progressively refine a query.
 #'
 #' @param id Submodule namespace
-#' @param default_max_q default value for the q value filter
 #' @param allow_filtering Provide the filtering fields? Can be disabled to
 #' produce unfiltered contrasts tables.
 #' @param summarise Provide summarisation controls? Allow user to control how 
 #'   how values are summarised per group. Disabling this disables 
 #'   summarisation, which may be the desired result for modules that just need
 #'   to use the contrasts drop-down. 
-#' @param dyanamic_filters Logical indicating whether the user should be able 
+#' @param dynamic_filters Logical indicating whether the user should be able 
 #'   to add progressive filters.
 #' @param select_summary_type Allow user to select summary type (e.g. mean)?
 #'   Passed to \code{\link{summarisematrixInput}}.

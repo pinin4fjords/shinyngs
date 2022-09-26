@@ -34,7 +34,9 @@ colormakerInput <- function(id) {
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
 #' 
-#' @param id Submodule namespace
+#' @param input Input object
+#' @param output Output object
+#' @param session Session object
 #' @param getNumberCategories A reactive supplying the number of categories 
 #' that require a color.
 #'   
