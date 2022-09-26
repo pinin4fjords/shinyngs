@@ -14,6 +14,7 @@ Imports:
     d3heatmap,
     DT (>= 0.2),
     ggdendro,
+    ggplot2,
     GSEABase,
     pheatmap,
     plotly (>= 4.3.4),
@@ -22,7 +23,8 @@ Imports:
     shiny,
     shinyjs,
     shinythemes,
-    SummarizedExperiment
+    SummarizedExperiment,
+    yaml
 Suggests:
     yaml,
     shinyBS,
