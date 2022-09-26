@@ -90,7 +90,7 @@
 #' app <- prepareApp('rnaseq', eselist)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #' 
-#' 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
+#' # 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
 #' 
 #' # See vignette for more info. However, the included sample 
 #' # ExploratorySummarizedExperimentList has the appopriate slots populated 
