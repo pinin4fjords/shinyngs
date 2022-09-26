@@ -141,6 +141,8 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' that will be used to set a color column in the reshaped output.
 #'
 #' @return A reshaped data frame
+#'
+#' @export
 #' 
 #' @examples
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
