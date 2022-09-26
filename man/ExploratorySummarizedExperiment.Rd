@@ -4,11 +4,19 @@
 \alias{ExploratorySummarizedExperiment}
 \title{ExploratorySummarizedExperiments}
 \usage{
-ExploratorySummarizedExperiment(assays, colData, annotation, idfield,
-  labelfield = character(), entrezgenefield = character(),
-  contrast_stats = list(), assay_measures = list(),
-  gene_set_analyses = list(), dexseq_results = list(),
-  read_reports = list())
+ExploratorySummarizedExperiment(
+  assays,
+  colData,
+  annotation,
+  idfield,
+  labelfield = character(),
+  entrezgenefield = character(),
+  contrast_stats = list(),
+  assay_measures = list(),
+  gene_set_analyses = list(),
+  dexseq_results = list(),
+  read_reports = list()
+)
 }
 \arguments{
 \item{assays}{An object of class SimpleList as would be supplied to the 
@@ -55,7 +63,7 @@ and the type of identifiers used in rows.
 It is intended that one or more ExploratorySummarizedExperiments with the
 same samples (columns) are contained within an 
 ExploratorySumarizedExperimentList, which will contain information relevant
-to all experiments such as gene sets and contrasts.
+to all experiments such as gene sets and contrasts. 
 
 It's clear that the structure of this class and that of SummarizedExperimentList
 will need to be refined in future.

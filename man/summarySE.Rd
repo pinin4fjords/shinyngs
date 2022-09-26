@@ -4,8 +4,15 @@
 \alias{summarySE}
 \title{Summarise an input matrix}
 \usage{
-summarySE(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE,
-  conf.interval = 0.95, add_medians = FALSE, .drop = TRUE)
+summarySE(
+  data = NULL,
+  measurevar,
+  groupvars = NULL,
+  na.rm = FALSE,
+  conf.interval = 0.95,
+  add_medians = FALSE,
+  .drop = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame. Expects all values for summarisation to be in one 

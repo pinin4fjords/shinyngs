@@ -22,11 +22,11 @@ example).
 }
 \details{
 This module produces a differential exon usage plot using the \code{plotDEXSeq} 
-function of the DEXSeq package.
+function of the DEXSeq package. 
 
 For the plot to be displayed, the \code{dexseq_results} slot must be filled
 on at least one of the component \code{ExploratorySummarizedExperiment} objects
-of the input \code{ExploratorySummarizedExperimentList}.
+of the input \code{ExploratorySummarizedExperimentList}. 
 
 \code{dexseq_results} must be a list of \code{DEXSeqResults} objects corresponding
 to the contrasts listed in the \code{contrasts} slot of the 
