@@ -11,7 +11,7 @@
 #' 
 #' @examples
 #' vn <- 'ugly_name_of_thing'
-#' > prettyifyVariablename(vn)
+#' prettyifyVariablename(vn)
 #' [1] 'Ugly name of thing'
 
 prettifyVariablename <- function(vn, tolower = FALSE) {
@@ -30,7 +30,7 @@ prettifyVariablename <- function(vn, tolower = FALSE) {
 #' @export
 #' 
 #' @examples
-#' > ucfirst('Example')
+#' ucfirst('Example')
 #' [1] 'Example'
 
 ucfirst <- function(string) {
@@ -46,7 +46,7 @@ ucfirst <- function(string) {
 #' @export
 #' 
 #' @examples
-#' > nlines('foo\nbar')
+#' nlines('foo\nbar')
 #' [1] 2
 
 nlines <- function(string) {
@@ -172,7 +172,7 @@ ggplotify <- function(matrix, experiment, colorby = NULL) {
 #' @export
 #' 
 #' @examples
-#' > splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
+#' splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
 #' [1] 'once upon a time there\nwas a giant and a beanstalk\nand a pot of gold and\nsome beans'
 
 splitStringToFixedwidthLines <- function(string, linewidth = 20) {
