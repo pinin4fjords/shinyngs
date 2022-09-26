@@ -478,9 +478,6 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #' @keywords keywords
 #'
 #' @export
-#' 
-#' @examples
-#' R code here showing how your function works
 
 annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
     name = "RdYlBu")))(100), display_numbers = FALSE) {
@@ -524,9 +521,6 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 #' @keywords keywords
 #'
 #' @export
-#' 
-#' @examples
-#' R code here showing how your function works
 
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
     name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...) {
