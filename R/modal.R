@@ -13,7 +13,7 @@
 #' @param icon Icon used to activate modal
 #'
 #' @examples
-#' modalInput(ns('dendro'), 'help'),
+#' modalInput(ns('dendro'), 'help')
 
 modalInput <- function(id, label, class, icon = "info-circle") {
     ns <- NS(id)
