@@ -17,5 +17,4 @@ Count the number of lines in a string
 }
 \examples{
 nlines('foo\nbar')
-[1] 2
 }

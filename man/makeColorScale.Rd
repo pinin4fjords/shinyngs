@@ -20,5 +20,4 @@ palettes from RColorBrewer, and interpolation where necessary.
 }
 \examples{
 makeColorScale(10)
-[1] '#999999' '#EC83BA' '#B75F49' '#E1C62F' '#FFB716' '#D16948' '#7E6E85' '#48A462' '#4A72A6' '#E41A1C'
 }

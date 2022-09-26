@@ -36,14 +36,11 @@ Leverages the \code{simpletable} module
 
 data(zhangneurons)
 names(assays(zhangneurons$gene))
-[1] 'normalised-filtered' 'filtered'            'raw' 
 
 # The normalised matrix was used to perform gene set analysis, using 6 types
 # of gene set
 
 names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-[1] 'KEGG'                     'MSigDB canonical pathway' 'GO biological process'    'GO cellular component'    'GO molecular function'   
-[6] 'MSigDB hallmark'  
 
 # Gene set can be related back to individual genes via information in the
 # containing object's 'gene_sets' slot. These are keyed first to indicate 
@@ -51,7 +48,6 @@ names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
 # set type. 
 
 names(zhangneurons@gene_sets)
-[1] 'external_gene_name'
 
 # Module output function called like:
 
