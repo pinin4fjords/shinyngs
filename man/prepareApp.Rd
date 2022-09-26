@@ -37,7 +37,7 @@ library(shinyngs)
 
 data(airway, package = 'airway')
 
-Get some information about these data from the package description
+# Get some information about these data from the package description
 
 expinfo <- packageDescription('airway')
 
