@@ -29,5 +29,5 @@ Suggests:
     knitr,
     rmarkdown,
     Gviz
-RoxygenNote: 6.0.1
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr
