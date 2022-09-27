@@ -331,6 +331,9 @@ clustering <- function(input, output, session, eselist) {
 #' @return out Data frame with summary statistics
 #' @rawNamespace import(plyr, except = c('mutate', 'arrange', 'rename',
 #' 'summarise'))
+#'
+#' @import plyr
+#'
 #' @export
 #' 
 #' @examples 
@@ -338,7 +341,6 @@ clustering <- function(input, output, session, eselist) {
 #' summarySE(tg, measurevar='len', groupvars=c('supp','dose'))
 
 summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
-    require(plyr)
     
     # New version of length which can handle NA's: if na.rm==T, don't count them
     length2 <- function(x, na.rm = FALSE) {
