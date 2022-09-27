@@ -828,8 +828,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
                 max = 1, step = 0.01)
             
         } else {
-            pval_field <- hiddenInput(ns(paste0("p_value", index)), value = "NULL")
-            pval_field <- hiddenInput(ns(paste0("p_value_card", index)), value = "NULL")
+            pval_field <- hiddenInput(ns(paste0("p_value", index)), values = "NULL")
+            pval_field <- hiddenInput(ns(paste0("p_value_card", index)), values = "NULL")
         }
         contrast_field_set <- c(contrast_field_set, list(pval_field))
         
@@ -839,8 +839,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
             qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)), value = default_qval, label = "q value", min = 0, 
                 max = 1, step = 0.01)
         } else {
-            qval_field <- hiddenInput(ns(paste0("q_value", index)), value = "NULL")
-            qval_field <- hiddenInput(ns(paste0("q_value_card", index)), value = "NULL")
+            qval_field <- hiddenInput(ns(paste0("q_value", index)), values = "NULL")
+            qval_field <- hiddenInput(ns(paste0("q_value_card", index)), values = "NULL")
         }
         contrast_field_set <- c(contrast_field_set, list(qval_field))
         
