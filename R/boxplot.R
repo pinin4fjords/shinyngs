@@ -164,7 +164,7 @@ boxplot <- function(input, output, session, eselist) {
 #'
 #' @keywords keywords
 #'
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @export
 #' 
 #' @examples

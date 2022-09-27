@@ -329,7 +329,8 @@ clustering <- function(input, output, session, eselist) {
 #' @param .drop Logical passed to ddply()
 #'   
 #' @return out Data frame with summary statistics
-#' @import plyr
+#' @rawNamespace import(plyr, except = c('mutate', 'arrange', 'rename',
+#' 'summarise'))
 #' @export
 #' 
 #' @examples 

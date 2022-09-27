@@ -67,7 +67,7 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' corresponding to the contrasts listed in the \code{contrasts} slot..
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
-#' @import SummarizedExperiment
+#' @rawNamespace import(SummarizedExperiment, except = 'shift')
 #' @export
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(), 
