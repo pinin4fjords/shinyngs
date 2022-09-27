@@ -332,8 +332,6 @@ clustering <- function(input, output, session, eselist) {
 #' @rawNamespace import(plyr, except = c('mutate', 'arrange', 'rename',
 #' 'summarise'))
 #'
-#' @import plyr
-#'
 #' @export
 #' 
 #' @examples 

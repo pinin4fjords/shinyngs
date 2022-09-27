@@ -43,7 +43,6 @@ import(data.table)
 import(ggdendro)
 import(ggplot2, except = 'last_plot')
 import(plotly)
-import(plyr)
 import(plyr, except = c('mutate', 'arrange', 'rename',
 'summarise'))
 
