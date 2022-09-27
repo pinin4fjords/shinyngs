@@ -30,7 +30,6 @@ Imports:
 Suggests:
     DEXSeq,
     biomaRt,
-    yaml,
     shinyBS,
     BiocStyle,
     knitr,
