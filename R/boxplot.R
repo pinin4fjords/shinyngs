@@ -168,6 +168,7 @@ boxplot <- function(input, output, session, eselist) {
 #' @export
 #' 
 #' @examples
+#' require(airway)
 #' data(airway, package = 'airway')
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
 

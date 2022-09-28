@@ -36,6 +36,7 @@ output A \code{ggplot} output
 A simple function using \code{ggplot2} to make a sample boxplot
 }
 \examples{
+require(airway)
 data(airway, package = 'airway')
 ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
 }

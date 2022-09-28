@@ -146,6 +146,7 @@ dendro <- function(input, output, session, eselist) {
 #' @examples
 #' # Make a dendrogram with the data in airway
 #' 
+#' require(airway)
 #' data(airway, pakckage = 'airway')
 #' clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
 #' 

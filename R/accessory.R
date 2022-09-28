@@ -244,6 +244,7 @@ makePackageCitation <- function(package) {
 #' @examples
 #' # `airway` contains info on the samples it's based on
 #' 
+#' require(airway)
 #' data(airway, package = 'airway')
 #' 
 #' # However, not all variables are useful for grouping data. Some have a 
