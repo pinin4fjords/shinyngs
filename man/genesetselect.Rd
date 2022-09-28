@@ -4,8 +4,16 @@
 \alias{genesetselect}
 \title{The server function of the genesetselect module}
 \usage{
-genesetselect(input, output, session, eselist, getExperiment, multiple = TRUE,
-  filter_by_type = FALSE, require_select = TRUE)
+genesetselect(
+  input,
+  output,
+  session,
+  eselist,
+  getExperiment,
+  multiple = TRUE,
+  filter_by_type = FALSE,
+  require_select = TRUE
+)
 }
 \arguments{
 \item{input}{Input object}
@@ -19,6 +27,12 @@ slot set}
 
 \item{getExperiment}{Accessor for returning an
 ExploratorySummarizedExperiment object, with 'labelfield' set in its slots}
+
+\item{multiple}{Boolean: should it be possible to select multiple gene sets?}
+
+\item{filter_by_type}{Provide a filter for gene set type?}
+
+\item{require_select}{Require a gene set selection?}
 }
 \value{
 output A list of two reactive functions which will be used by other 

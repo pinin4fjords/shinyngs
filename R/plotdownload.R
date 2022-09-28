@@ -35,6 +35,7 @@ plotdownloadInput <- function(id, label = "Plot") {
 #' @param plotWidth A number or reactive for calculating the width of the plot
 #'
 #' @keywords shiny
+#' @importFrom grDevices dev.off png  
 #' 
 #' @examples
 #' callModule(plotdownload, 'heatmap', makePlot = plotHeatmap, filename = 'heatmap.png', plotHeight = plotHeight, plotWidth = plotWidth)

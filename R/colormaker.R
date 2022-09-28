@@ -34,7 +34,9 @@ colormakerInput <- function(id) {
 #' This function is not called directly, but rather via callModule() (see 
 #' example).
 #' 
-#' @param id Submodule namespace
+#' @param input Input object
+#' @param output Output object
+#' @param session Session object
 #' @param getNumberCategories A reactive supplying the number of categories 
 #' that require a color.
 #'   
@@ -70,11 +72,11 @@ colormaker <- function(input, output, session, getNumberCategories) {
 #' @param palette RColorBrewer palette name. (default: 'Set1')
 #'
 #' @return output Character vector of colors
+#' @importFrom grDevices colorRampPalette 
 #' @export
 #'
 #' @examples
 #' makeColorScale(10)
-#' [1] '#999999' '#EC83BA' '#B75F49' '#E1C62F' '#FFB716' '#D16948' '#7E6E85' '#48A462' '#4A72A6' '#E41A1C'
 
 makeColorScale <- function(ncolors, palette = "Dark2") {
     

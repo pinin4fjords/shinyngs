@@ -5,10 +5,21 @@
 \title{Make a complete set of filters for a contrast: the contrast itself, fold
 change, and where applicable p- and q- values.}
 \usage{
-makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers, multiple,
-  show_controls, default_foldchange = 2, default_pval = 0.05,
-  default_qval = 0.1, index = "", filter_rows = TRUE,
-  select_all_contrasts = FALSE)
+makeContrastFilterSet(
+  ns,
+  ese,
+  assay,
+  contrasts,
+  contrast_numbers,
+  multiple,
+  show_controls,
+  default_foldchange = 2,
+  default_pval = 0.05,
+  default_qval = 0.1,
+  index = "",
+  filter_rows = TRUE,
+  select_all_contrasts = FALSE
+)
 }
 \arguments{
 \item{ns}{A namespace function (created with \code{\link[shiny]{NS}} to be 
@@ -31,10 +42,16 @@ hidden.}
 
 \item{default_foldchange}{Default value for the fold change field}
 
+\item{default_pval}{Default value for the p value field}
+
+\item{default_qval}{Default value for the q value field}
+
 \item{index}{Index. Will be used to differentiate mutiple copies of the
 field set.}
 
 \item{filter_rows}{Use fold change and p value etc to filter values?}
+
+\item{select_all_contrasts}{Select all contrasts by default?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

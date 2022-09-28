@@ -5,6 +5,7 @@
 #'
 #' @param id Submodule namespace
 #' @param allow_none Allow a 'no summarisation' selection.
+#' @param select_summary_type Allow user to select summary type (e.g. mean)?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -110,6 +111,7 @@ colGeomMeans <- function(x) {
 #' Geometric mean 
 #'
 #' @param x A vector
+#' @param na.rm Passed to \code{sum()}
 #'
 #' @return A numeric value
 #'

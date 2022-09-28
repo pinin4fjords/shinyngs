@@ -4,15 +4,26 @@
 \alias{interactiveHeatmap}
 \title{Make a ineractive heatmap with d3heatmap}
 \usage{
-interactiveHeatmap(plotmatrix, displaymatrix, sample_annotation,
-  cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels,
-  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name =
-  "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...)
+interactiveHeatmap(
+  plotmatrix,
+  displaymatrix,
+  sample_annotation,
+  cluster_rows = TRUE,
+  cluster_cols = FALSE,
+  scale = "row",
+  row_labels,
+  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100),
+  cexCol = 0.7,
+  cexRow = 0.7,
+  ...
+)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
 
 \item{displaymatrix}{A matrix of values that might be displayed in cells}
+
+\item{sample_annotation}{A data frame with sample metadata}
 
 \item{cluster_rows}{Cluster rows?}
 
@@ -22,7 +33,13 @@ interactiveHeatmap(plotmatrix, displaymatrix, sample_annotation,
 
 \item{row_labels}{Vector labels to use for rows}
 
-\item{row_height}{The height to use for each row}
+\item{colors}{A vector of colors for the heatmap}
+
+\item{cexCol}{Character expansion factor passed to \code{d3heatmap()}}
+
+\item{cexRow}{Character expansion factor passed to \code{d3heatmap()}}
+
+\item{...}{Additional argments passed to \code{d3heatmap()}}
 }
 \value{
 output A plot as produced by pheatmap()
@@ -31,8 +48,5 @@ output A plot as produced by pheatmap()
 This is a generic function which may be useful outside of this package. It
 produces a heatmap based on an expression matrix and accompanying 
 experiment data in the form of a frame, \code{d3heatmap()}.
-}
-\examples{
-R code here showing how your function works
 }
 \keyword{keywords}

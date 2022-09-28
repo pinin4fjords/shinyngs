@@ -19,6 +19,5 @@ Just split out words using '_' and capitalise first letter
 }
 \examples{
 vn <- 'ugly_name_of_thing'
-> prettyifyVariablename(vn)
-[1] 'Ugly name of thing'
+prettyifyVariablename(vn)
 }

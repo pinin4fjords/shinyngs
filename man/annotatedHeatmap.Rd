@@ -4,15 +4,25 @@
 \alias{annotatedHeatmap}
 \title{Make a heatmap with annotations by experimental variable}
 \usage{
-annotatedHeatmap(plotmatrix, displaymatrix, sample_annotation, cluster_cols,
-  cluster_rows, scale, row_labels, row_height = 12,
-  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name =
-  "RdYlBu")))(100), display_numbers = FALSE)
+annotatedHeatmap(
+  plotmatrix,
+  displaymatrix,
+  sample_annotation,
+  cluster_cols,
+  cluster_rows,
+  scale,
+  row_labels,
+  row_height = 12,
+  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100),
+  display_numbers = FALSE
+)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
 
 \item{displaymatrix}{A matrix of values that might be displayed in cells}
+
+\item{sample_annotation}{A data frame with sample metadata}
 
 \item{cluster_cols}{Cluster columns?}
 
@@ -23,6 +33,10 @@ annotatedHeatmap(plotmatrix, displaymatrix, sample_annotation, cluster_cols,
 \item{row_labels}{Vector labels to use for rows}
 
 \item{row_height}{The height to use for each row}
+
+\item{colors}{A vector of colors for the heatmap}
+
+\item{display_numbers}{Boolean, should values be displayed in the heatmap?}
 }
 \value{
 output A plot as produced by pheatmap()
@@ -36,8 +50,5 @@ experiment data in the form of a frame, using \code{pheatmap()} or
 \details{
 The clustering parameters for \code{pheatmap()} and \code{d3heatmap()} are 
 set to be consistent with one another.
-}
-\examples{
-R code here showing how your function works
 }
 \keyword{keywords}

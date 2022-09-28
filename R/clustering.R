@@ -97,7 +97,7 @@ clusteringOutput <- function(id) {
 #' @examples
 #' callModule(clustering, 'myid', eselist)
 
-clustering <- function(input, output, session, eselist, ncolors) {
+clustering <- function(input, output, session, eselist) {
     
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
     
@@ -326,9 +326,12 @@ clustering <- function(input, output, session, eselist, ncolors) {
 #' @param add_medians Logical indicating whether medians should be added to the
 #'   output. Standard error estimates for the median require bootstrapping, so 
 #'   TRUE for this variables make summary statistic calculation take longer.
+#' @param .drop Logical passed to ddply()
 #'   
 #' @return out Data frame with summary statistics
-#' @import plyr
+#' @rawNamespace import(plyr, except = c('mutate', 'arrange', 'rename',
+#' 'summarise'))
+#'
 #' @export
 #' 
 #' @examples 
@@ -336,7 +339,6 @@ clustering <- function(input, output, session, eselist, ncolors) {
 #' summarySE(tg, measurevar='len', groupvars=c('supp','dose'))
 
 summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
-    require(plyr)
     
     # New version of length which can handle NA's: if na.rm==T, don't count them
     length2 <- function(x, na.rm = FALSE) {

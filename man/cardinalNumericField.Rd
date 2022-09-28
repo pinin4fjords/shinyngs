@@ -4,8 +4,16 @@
 \alias{cardinalNumericField}
 \title{Make a numeric field with selectable associated cardinality (>, < ..).}
 \usage{
-cardinalNumericField(id, cardinal_id, label, value, cardinality = "<=",
-  step = NA, min = NA, max = NA)
+cardinalNumericField(
+  id,
+  cardinal_id,
+  label,
+  value,
+  cardinality = "<=",
+  step = NA,
+  min = NA,
+  max = NA
+)
 }
 \arguments{
 \item{id}{ID to use for the numeric field}

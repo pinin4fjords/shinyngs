@@ -4,8 +4,14 @@
 \alias{makeContrastControl}
 \title{Make a select field for picking one or more contrasts}
 \usage{
-makeContrastControl(id, contrasts, contrast_numbers, multiple = FALSE,
-  show_controls = TRUE, select_all = FALSE)
+makeContrastControl(
+  id,
+  contrasts,
+  contrast_numbers,
+  multiple = FALSE,
+  show_controls = TRUE,
+  select_all = FALSE
+)
 }
 \arguments{
 \item{id}{An id to apply to form elements}
@@ -19,6 +25,8 @@ makeContrastControl(id, contrasts, contrast_numbers, multiple = FALSE,
 
 \item{show_controls}{Show controls? Setting to false will cause them to be 
 hidden.}
+
+\item{select_all}{Select all contrasts by default?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

@@ -10,6 +10,10 @@ labelMatrix(matrix, ese, idcol = NULL, metafields = c())
 \item{matrix}{The input table}
 
 \item{ese}{An ExploratorySummarizedExperiment object}
+
+\item{idcol}{ID column in the matrix, NULL to use row names}
+
+\item{metafields}{Vector of metadata columns to add (via \code{mcols()})}
 }
 \value{
 output Table with columns added

@@ -57,9 +57,9 @@ scatterplotOutput <- function(id) {
 #' server function. This setup allows the same set of controls to power 
 #' multiple scatter plots.
 #'
-#' @param input 
-#' @param output 
-#' @param session 
+#' @param input Input object
+#' @param output Output object
+#' @param session Session object
 #' @param getDatamatrix Reactive supplying a matrix. If using external controls
 #' this should match the one supplied to \code{scatterplotcontrols}
 #' @param getThreedee A reactive defining whether to plot in 3D. If set to NULL

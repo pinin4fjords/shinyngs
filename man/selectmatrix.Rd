@@ -4,10 +4,22 @@
 \alias{selectmatrix}
 \title{The server function of the selectmatrix module}
 \usage{
-selectmatrix(input, output, session, eselist, var_n = 50, var_max = NULL,
-  select_assays = TRUE, select_samples = TRUE, select_genes = TRUE,
-  provide_all_genes = FALSE, default_gene_select = NULL,
-  require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE)
+selectmatrix(
+  input,
+  output,
+  session,
+  eselist,
+  var_n = 50,
+  var_max = NULL,
+  select_assays = TRUE,
+  select_samples = TRUE,
+  select_genes = TRUE,
+  provide_all_genes = FALSE,
+  default_gene_select = NULL,
+  require_contrast_stats = FALSE,
+  rounding = 2,
+  select_meta = TRUE
+)
 }
 \arguments{
 \item{input}{Input object}
@@ -44,6 +56,8 @@ populated \code{contrast_stats} slot. For plots using p value data etc, this is
 used to hide experiments that don't have the necessary data.}
 
 \item{rounding}{Number of decimal places to show in results (Default 2)}
+
+\item{select_meta}{Boolean- add metadata controls?}
 }
 \value{
 output A list of reactive functions for fetching the derived matrix 

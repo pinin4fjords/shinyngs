@@ -1,7 +1,7 @@
 ---
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -81,6 +81,31 @@ Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
 **Strong recommendation for Chrome over Firefox** - everything renders much more nicely.
 
+## Conda
+
+shinyngs is available as a Conda packge in Bioconda, as always it's recommended to use a clean environment. With the Bioconda channel [appropriately configured](https://bioconda.github.io/#usage) you can just do:
+
+```{r, engine = 'bash', eval = FALSE}
+conda create -n shinyngs r-shinyngs
+conda activate shinyngs
+```
+
+(though I always recommend the `mamba` command in place of `conda`).
+
+### Note on M1 Macs
+
+At the time of writing the dependency tree for `arm64` was a bit problematic. So just make and use Conda envs specifiying intel architecture:
+
+```{r, engine = 'bash', eval = FALSE}
+CONDA_SUBDIR=osx-64 conda create -n shinyngs r-shinyngs
+conda activate shinyngs
+conda config --env --set subdir osx-64
+```
+
+## Docker container
+
+Through the magic of the Bioconda and Biocontainers teams there is also a [Docker image](https://quay.io/repository/biocontainers/r-shinyngs) available.
+
 ## Install with devtools
 
 ```{r eval=FALSE}
@@ -89,7 +114,16 @@ devtools::install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
 
 # Example
 
-An example `ExploratorySummarizedExperimentList` based on the Zhang et al study of neurons and glia (http://www.jneurosci.org/content/34/36/11929.long) is included in the package, and this can be used to demonstrate available features.
+An example `ExploratorySummarizedExperimentList` based on the Zhang et al study of neurons and glia (http://www.jneurosci.org/content/34/36/11929.long) is available in a separate package, and this can be used to demonstrate available features.
+
+Install the package like:
+
+```{r, eval=FALSE}
+library(devtools)
+install_github('pinin4fjords/zhangneurons')
+```
+
+... and load and use the data like:
 
 ```{r eval=FALSE}
 library(shinyngs)

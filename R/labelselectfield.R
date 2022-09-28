@@ -67,6 +67,8 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #'   use labels (or row ids if the label field is not set)?
 #' @param id_selection Allow users to pick specific ID from those that relate 
 #'   to the specified label? (default: FALSE)
+#' @param getNonEmptyRows Optional reactive providing non empty matrix rows 
+#' @param list_input Boolean: will input be a list of values?
 #'
 #' @examples
 #' callModule(labelselectfield, 'myid', eselist)

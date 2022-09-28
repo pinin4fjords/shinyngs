@@ -7,7 +7,8 @@
 singleValidMatrix(eselist)
 }
 \arguments{
-\item{eselist}{}
+\item{eselist}{ExploratorySummarizedExperimentList object containing
+ExploratorySummarizedExperiment objects}
 }
 \value{
 output Logical value

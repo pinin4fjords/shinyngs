@@ -4,9 +4,22 @@
 \alias{geneselect}
 \title{The server function of the geneselect module}
 \usage{
-geneselect(input, output, session, eselist, getExperiment, var_n = 50,
-  var_max = 500, selectSamples = reactive({     colnames(getExperiment())
-  }), getAssay, provide_all = TRUE, provide_none = FALSE, default = NULL)
+geneselect(
+  input,
+  output,
+  session,
+  eselist,
+  getExperiment,
+  var_n = 50,
+  var_max = 500,
+  selectSamples = reactive({
+     colnames(getExperiment())
+ }),
+  getAssay,
+  provide_all = TRUE,
+  provide_none = FALSE,
+  default = NULL
+)
 }
 \arguments{
 \item{input}{Input object}
@@ -29,6 +42,8 @@ Default = 500}
 
 \item{selectSamples}{A reactive expression that provides a vector of samples 
 to use, e.g. in row-wise variance calculation}
+
+\item{getAssay}{A reactive expression providing the current assay selection.}
 
 \item{provide_all}{Allow the 'all rows' selection in the UI? Means we don't
 have to calculate variance so the display is quicker, but it's a bad idea

@@ -77,6 +77,7 @@ heatmapInput <- function(id, eselist, type = "expression") {
 #' associations between principal components and experimental variables.
 #'
 #' @param id Submodule namespace
+#' @param type Heatmap type: 'pca', 'samples' or 'expression'
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -135,6 +136,7 @@ heatmapOutput <- function(id, type = "") {
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
 #'   'pca' (default: 'expression')
 #'   
+#' @importFrom grDevices colorRampPalette
 #' @keywords shiny
 #'   
 #' @examples
@@ -467,9 +469,12 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param displaymatrix A matrix of values that might be displayed in cells
+#' @param sample_annotation A data frame with sample metadata
 #' @param cluster_cols Cluster columns?
 #' @param cluster_rows Cluster rows?
 #' @param scale 'row', 'column' or none 
+#' @param colors A vector of colors for the heatmap
+#' @param display_numbers Boolean, should values be displayed in the heatmap? 
 #' @param row_labels Vector labels to use for rows
 #' @param row_height The height to use for each row
 #'
@@ -477,10 +482,8 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #'
 #' @keywords keywords
 #'
+#' @importFrom grDevices colorRampPalette  
 #' @export
-#' 
-#' @examples
-#' R code here showing how your function works
 
 annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
     name = "RdYlBu")))(100), display_numbers = FALSE) {
@@ -513,20 +516,22 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param displaymatrix A matrix of values that might be displayed in cells
+#' @param sample_annotation A data frame with sample metadata
 #' @param cluster_cols Cluster columns?
 #' @param cluster_rows Cluster rows?
 #' @param scale 'row', 'column' or none 
+#' @param colors A vector of colors for the heatmap
 #' @param row_labels Vector labels to use for rows
-#' @param row_height The height to use for each row
+#' @param cexCol Character expansion factor passed to \code{d3heatmap()}
+#' @param cexRow Character expansion factor passed to \code{d3heatmap()}
+#' @param ... Additional argments passed to \code{d3heatmap()}
 #'
 #' @return output A plot as produced by pheatmap() 
 #'
 #' @keywords keywords
 #'
+#' @importFrom grDevices colorRampPalette
 #' @export
-#' 
-#' @examples
-#' R code here showing how your function works
 
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
     name = "RdYlBu")))(100), cexCol = 0.7, cexRow = 0.7, ...) {
@@ -590,10 +595,11 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 #' for each column, than can be used as the 'annotation_colors' argment to 
 #' \code{pheatmap()}. Uses \code{RColorBrewer}.
 #'
-#' @param sample_annotation A data frame
+#' @param sample_annotation A data frame with sample metadata
 #'
 #' @return output A list object with colors 
 #'
+#' @importFrom grDevices colorRampPalette
 #' @export
 #' 
 #' @examples

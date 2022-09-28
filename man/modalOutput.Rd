@@ -11,7 +11,7 @@ modalOutput(id, title, content)
 
 \item{title}{Title to show on the help modal}
 
-\item{prefix}{Prefix for the markdown file in \code{shinyngs} to display}
+\item{content}{String with content to inlude in modal}
 }
 \description{
 This module uses modals from \code{shinyBS} to create overlaid text for the

@@ -9,7 +9,7 @@ barplotOutput(id, height = "400")
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{heigth}{Height of the plotting space in px}
+\item{height}{Height of the plotting space in px}
 }
 \value{
 A list of elements that can be included in a panel

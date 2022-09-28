@@ -16,6 +16,10 @@ using \code{Input} and \code{Output} functions of the same module.}
 
 \item{eselist}{An ExploratorySummarizedExperimentList object containing assay
 data (expression, counts...), sample data and annotation data for the rows.}
+
+\item{ui_only}{Don't add server components (for UI testing)}
+
+\item{...}{Additional argments passed to \code{simpleApp()}}
 }
 \value{
 output A list of length 2 containing: the UI and server components
@@ -35,7 +39,7 @@ library(shinyngs)
 
 data(airway, package = 'airway')
 
-Get some information about these data from the package description
+# Get some information about these data from the package description
 
 expinfo <- packageDescription('airway')
 
@@ -68,7 +72,7 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 library(biomaRt)
 attributes <- c(
   'ensembl_gene_id', # The sort of ID your results are keyed by
-  'entrezgene', # Could be used for gene sets keyed by Entrez ID (must set \\code{gene_set_id_type} correctly on the containing \\code{ExploratorySummarizedExperimentList})
+  'entrezgene', # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
   'external_gene_name' # Used to annotate gene names on the plot
 )
 
@@ -92,7 +96,7 @@ eselist <- ExploratorySummarizedExperimentList(
 app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 
-3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
+# 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
 
 # See vignette for more info. However, the included sample 
 # ExploratorySummarizedExperimentList has the appopriate slots populated 
