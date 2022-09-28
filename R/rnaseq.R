@@ -40,20 +40,20 @@ rnaseqInput <- function(id, eselist) {
         offset = 0, p(HTML(intro_text)), p(sidebar_pdf_desc), 
         p(HTML(paste0(icon("github"), "&nbsp;Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>"))), 
         p(HTML(paste0(icon("chrome"), "&nbsp;This app is best viewed with the Chrome browser.")))), width = 3), mainPanel(fluidRow(column(12, offset = 0, h2(eselist@title), 
-        h3(eselist@author), p(desc, pdf)  )), width = 9)), icon = icon("home")), navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), 
+        h3(eselist@author), p(desc, pdf)  )), width = 9)), icon = icon("house")), navbarMenu("Sample data", tabPanel("Experiment", sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), 
         eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)), icon = icon("table")), tabPanel("Annotation", sidebarLayout(sidebarPanel(rowmetatableInput(ns("rowmetatable"), 
         eselist), width = 2), mainPanel(rowmetatableOutput(ns("rowmetatable")), width = 10)), icon = icon("table")), icon = icon("flask")))
     
     # Add in the QC/ exploratory menu
     
     exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")), 
-        width = 9)), icon = icon("bar-chart-o")), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), 
+        width = 9)), icon = icon("bar-chart-o", verify_fa = FALSE)), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")), 
         width = 9)), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"), 
         width = 3), mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(ns("dendro"), 
         eselist), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)), icon = icon("sitemap")), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"), 
-        eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = "samples"), width = 9)), icon = icon("th")), tabPanel("Feature-wise clustering", 
+        eselist, type = "samples"), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = "samples"), width = 9)), icon = icon("th", verify_fa = FALSE)), tabPanel("Feature-wise clustering", 
         sidebarLayout(sidebarPanel(clusteringInput(ns("feature-clustering"), eselist), width = 3), mainPanel(clusteringOutput(ns("feature-clustering")), width = 9)), 
-        icon = icon("line-chart")))
+        icon = icon("chart-line")))
     
     # Add read reports if provided
     
@@ -61,7 +61,7 @@ rnaseqInput <- function(id, eselist) {
         length(ese@read_reports) > 0
     })))) {
         exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read reports", sidebarLayout(sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3), 
-            mainPanel(readreportsOutput(ns("readrep")), width = 9)), icon = icon("bar-chart-o")))
+            mainPanel(readreportsOutput(ns("readrep")), width = 9)), icon = icon("bar-chart-o", verify_fa = FALSE)))
     }
     exploratory_menu$icon <- icon("binoculars")
     
@@ -71,7 +71,7 @@ rnaseqInput <- function(id, eselist) {
     
     assaydata_menu <- list("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")), 
         width = 9)), icon = icon("table")), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"), 
-        width = 3), mainPanel(heatmapOutput(ns("heatmap-expression"), type = "expression"), width = 9)), icon = icon("th")))
+        width = 3), mainPanel(heatmapOutput(ns("heatmap-expression"), type = "expression"), width = 9)), icon = icon("th", verify_fa = FALSE)))
     
     assaydata_menu$icon <- icon("table")
     
@@ -83,8 +83,8 @@ rnaseqInput <- function(id, eselist) {
         
         differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3), 
             mainPanel(differentialtableOutput(ns("differential")), width = 9)), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(ns("foldchange"), 
-            eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("line-chart")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
-            eselist), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9)), icon = icon("line-chart")))
+            eselist), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("chart-line")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(ns("ma"), 
+            eselist), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9)), icon = icon("chart-line")))
         
         # If any of the experiments in the list have assays with associated contrast_stats, add a volcano plot
         
@@ -92,7 +92,7 @@ rnaseqInput <- function(id, eselist) {
             length(ese@contrast_stats) > 0
         })))) {
             differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist), 
-                width = 3), mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("line-chart")))
+                width = 3), mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("chart-line")))
         }
         
         # If any of the experiments have gene set analyses, add this table to the menu
@@ -101,7 +101,7 @@ rnaseqInput <- function(id, eselist) {
             length(ese@gene_set_analyses) > 0
         })))) {
             differential_menu <- pushToList(differential_menu, tabPanel("Gene set analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(ns("genesetanalysis"), 
-                eselist), width = 3), mainPanel(genesetanalysistableOutput(ns("genesetanalysis")), width = 9)), icon = icon("tasks")))
+                eselist), width = 3), mainPanel(genesetanalysistableOutput(ns("genesetanalysis")), width = 9)), icon = icon("tasks", verify_fa = FALSE)))
             
             differential_menu <- pushToList(differential_menu, tabPanel("Gene set barcode plots", value = "genesetbarcode", sidebarLayout(sidebarPanel(genesetbarcodeplotInput(ns("rnaseq"), 
                 eselist), width = 3), mainPanel(genesetbarcodeplotOutput(ns("rnaseq")), width = 9)), icon = icon("barcode")))
@@ -123,10 +123,10 @@ rnaseqInput <- function(id, eselist) {
         
         if (length(eselist@contrasts) > 1) {
             differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(ns("upset"), 
-                eselist), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o")))
+                eselist), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o", verify_fa = FALSE)))
         }
         
-        differential_menu$icon <- icon("line-chart")
+        differential_menu$icon <- icon("chart-line")
         
         navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", differential_menu))
         
@@ -135,7 +135,7 @@ rnaseqInput <- function(id, eselist) {
     # Add the gene info plots
     
     navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(sidebarPanel(geneInput(ns("gene"), eselist), width = 3), 
-        mainPanel(geneOutput(ns("gene"), eselist), width = 9)), icon = icon("bar-chart-o")))
+        mainPanel(geneOutput(ns("gene"), eselist), width = 9)), icon = icon("bar-chart-o", verify_fa = FALSE)))
     
     # Add the final wrappers
     
