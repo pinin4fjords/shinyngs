@@ -9,6 +9,7 @@
 #' @slot labelfield character. 
 #' @slot contrast_stats list.
 #' @slot assay_measures list.
+#' @slot gene_set_analyses list.
 #' @slot dexseq_results list.
 #' @slot read_reports list.
 #' 

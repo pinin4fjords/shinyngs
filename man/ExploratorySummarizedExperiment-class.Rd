@@ -22,6 +22,8 @@ otherwise of SummarizedExperiment0.
 
 \item{\code{assay_measures}}{list.}
 
+\item{\code{gene_set_analyses}}{list.}
+
 \item{\code{dexseq_results}}{list.}
 
 \item{\code{read_reports}}{list.}

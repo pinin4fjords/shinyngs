@@ -1,5 +1,6 @@
 #' The ExploratorySummaizedExperimentList class
 #'
+#' @slot .Data list.
 #' @slot title character. 
 #' @slot author character. 
 #' @slot description character.
@@ -17,22 +18,43 @@
 setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(title = "character", author = "character", description = "character", static_pdf = "character", 
     group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", gene_set_id_type = "character", ensembl_species = "character"))
 
-#' Extract parts of ExploratorySummarizedExperimentList with integers like 1:2
+#' Extract parts of ExploratorySummarizedExperimentList.
 #'
+#' @param x \code{ExploratorySummarizedExperimentList} object
+#' @param i index for the ExploratorySummarizedExperimentList list
+#' @param j not used
+#' @param drop not used
+#' @param ... additional arguments not used here
+#' @rdname ExploratorySummarizedExperimentList-class
+#' @export
 setMethod("[", c("ExploratorySummarizedExperimentList", "ANY", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
     initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, static_pdf = "character", group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
         contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species)
 })
 
-#' Extract parts of ExploratorySummarizedExperimentList with integers like 1
+#' Extract parts of ExploratorySummarizedExperimentList.
 #'
+#' @param x \code{ExploratorySummarizedExperimentList} object
+#' @param i numeric index for the ExploratorySummarizedExperimentList list
+#' @param j not used
+#' @param drop not used
+#' @param ... additional arguments not used here
+#' @rdname ExploratorySummarizedExperimentList-class
+#' @export
 setMethod("[", c("ExploratorySummarizedExperimentList", "numeric", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
     initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
         contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species)
 })
 
-#' Extract parts of ExploratorySummarizedExperimentList with booleans
+#' Extract parts of ExploratorySummarizedExperimentList.
 #'
+#' @param x \code{ExploratorySummarizedExperimentList} object
+#' @param i boolean index for the ExploratorySummarizedExperimentList list
+#' @param j not used
+#' @param drop not used
+#' @param ... additional arguments not used here
+#' @rdname ExploratorySummarizedExperimentList-class
+#' @export
 setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
     initialize(x, x@.Data[i], title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar, 
         contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species)
