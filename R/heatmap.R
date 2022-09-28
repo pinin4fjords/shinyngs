@@ -136,6 +136,7 @@ heatmapOutput <- function(id, type = "") {
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
 #'   'pca' (default: 'expression')
 #'   
+#' @importFrom grDevices colorRampPalette
 #' @keywords shiny
 #'   
 #' @examples
@@ -481,6 +482,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 #'
 #' @keywords keywords
 #'
+#' @importFrom grDevices colorRampPalette  
 #' @export
 
 annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_cols, cluster_rows, scale, row_labels, row_height = 12, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
@@ -522,11 +524,13 @@ annotatedHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clust
 #' @param row_labels Vector labels to use for rows
 #' @param cexCol Character expansion factor passed to \code{d3heatmap()}
 #' @param cexRow Character expansion factor passed to \code{d3heatmap()}
+#' @param ... Additional argments passed to \code{d3heatmap()}
 #'
 #' @return output A plot as produced by pheatmap() 
 #'
 #' @keywords keywords
 #'
+#' @importFrom grDevices colorRampPalette
 #' @export
 
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, 
@@ -595,6 +599,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 #'
 #' @return output A list object with colors 
 #'
+#' @importFrom grDevices colorRampPalette
 #' @export
 #' 
 #' @examples

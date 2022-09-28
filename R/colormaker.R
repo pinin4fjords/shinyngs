@@ -72,6 +72,7 @@ colormaker <- function(input, output, session, getNumberCategories) {
 #' @param palette RColorBrewer palette name. (default: 'Set1')
 #'
 #' @return output Character vector of colors
+#' @importFrom grDevices colorRampPalette 
 #' @export
 #'
 #' @examples

@@ -249,6 +249,7 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
 #' @param set_gene_ids Gene IDs for the gene set
 #' @param plot_title A title for the plot
 #'
+#' @importFrom graphics par 
 #' @export
 
 barcode_plot <- function(fold_changes, gene_ids, set_gene_ids, plot_title) {

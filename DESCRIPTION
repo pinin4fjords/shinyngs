@@ -18,6 +18,7 @@ Imports:
     ggplot2,
     limma,
     GSEABase,
+    methods,
     pheatmap,
     plotly (>= 4.3.4),
     plyr,
@@ -26,6 +27,8 @@ Imports:
     shiny,
     shinyjs,
     shinythemes,
+    stats,
+    utils,
     yaml
 Suggests:
     DEXSeq,

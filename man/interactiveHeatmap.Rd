@@ -38,6 +38,8 @@ interactiveHeatmap(
 \item{cexCol}{Character expansion factor passed to \code{d3heatmap()}}
 
 \item{cexRow}{Character expansion factor passed to \code{d3heatmap()}}
+
+\item{...}{Additional argments passed to \code{d3heatmap()}}
 }
 \value{
 output A plot as produced by pheatmap()

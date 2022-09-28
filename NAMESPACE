@@ -48,3 +48,7 @@ import(plyr, except = c('mutate', 'arrange', 'rename',
 
 import(shiny)
 import(yaml)
+importFrom(grDevices,colorRampPalette)
+importFrom(grDevices,dev.off)
+importFrom(grDevices,png)
+importFrom(graphics,par)
