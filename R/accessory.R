@@ -134,6 +134,8 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #'
 #' @return A reshaped data frame
 #'
+#' @export
+#' 
 #' @examples
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 #'
