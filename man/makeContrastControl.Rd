@@ -4,14 +4,8 @@
 \alias{makeContrastControl}
 \title{Make a select field for picking one or more contrasts}
 \usage{
-makeContrastControl(
-  id,
-  contrasts,
-  contrast_numbers,
-  multiple = FALSE,
-  show_controls = TRUE,
-  select_all = FALSE
-)
+makeContrastControl(id, contrasts, contrast_numbers, multiple = FALSE,
+  show_controls = TRUE, select_all = FALSE)
 }
 \arguments{
 \item{id}{An id to apply to form elements}

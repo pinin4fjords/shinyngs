@@ -3,6 +3,7 @@
 \docType{package}
 \name{shinyngs}
 \alias{shinyngs}
+\alias{shinyngs-package}
 \title{Interactive downstream analysis with ShinyNGS.}
 \description{
 shinyngs is a package for downstream visualisation of data stored in 

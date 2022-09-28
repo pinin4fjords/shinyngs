@@ -4,15 +4,8 @@
 \alias{plotdownload}
 \title{The server function of the gene set module}
 \usage{
-plotdownload(
-  input,
-  output,
-  session,
-  makePlot,
-  filename = "plot.png",
-  plotHeight,
-  plotWidth
-)
+plotdownload(input, output, session, makePlot, filename = "plot.png",
+  plotHeight, plotWidth)
 }
 \arguments{
 \item{input}{Input object}

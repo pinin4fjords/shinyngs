@@ -4,11 +4,8 @@
 \alias{calculateDendrogram}
 \title{Calculate a clustering dendgrogram based on correlation}
 \usage{
-calculateDendrogram(
-  plotmatrix,
-  cor_method = "spearman",
-  cluster_method = "ward.D2"
-)
+calculateDendrogram(plotmatrix, cor_method = "spearman",
+  cluster_method = "ward.D2")
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}

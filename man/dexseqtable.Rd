@@ -4,17 +4,9 @@
 \alias{dexseqtable}
 \title{The server function of the dexseqtable module}
 \usage{
-dexseqtable(
-  input,
-  output,
-  session,
-  eselist,
-  allow_filtering = TRUE,
-  getDEUGeneID = NULL,
-  show_controls = TRUE,
-  page_length = 15,
-  link_to_deu_plot = TRUE
-)
+dexseqtable(input, output, session, eselist, allow_filtering = TRUE,
+  getDEUGeneID = NULL, show_controls = TRUE, page_length = 15,
+  link_to_deu_plot = TRUE)
 }
 \arguments{
 \item{input}{Input object}
@@ -48,7 +40,7 @@ This module produces a differential exon usage table based on the output
 \details{
 For the table to be displayed, the \code{dexseq_results} slot must be filled
 on at least one of the component \code{ExploratorySummarizedExperiment} objects
-of the input \code{ExploratorySummarizedExperimentList}. 
+of the input \code{ExploratorySummarizedExperimentList}.
 
 \code{dexseq_results} must be a list of \code{DEXSeqResults} objects corresponding
 to the contrasts listed in the \code{contrasts} slot of the 

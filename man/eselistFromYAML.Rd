@@ -21,9 +21,7 @@ in yaml format.
 \details{
 For a simple study with one 'experiement' for Gene-level results, and three
 'assays' describing raw, filtered and normalised expression you might make
-a YAML like:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{title: My RNA seq experiment
+a YAML like:\preformatted{title: My RNA seq experiment
 author: Joe Blogs
 report: report.md
 group_vars:
@@ -65,7 +63,7 @@ contrast_stats:
     Normalised:
       pvals: pvals.csv
       qvals: qvals.csv
-}\if{html}{\out{</div>}}
+}
 }
 \examples{
 eselist <- eselistFromYAML('my.yaml')

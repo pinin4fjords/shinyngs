@@ -4,13 +4,8 @@
 \alias{geneBarplot}
 \title{Main function for drawing the bar plot with plotly}
 \usage{
-geneBarplot(
-  expression,
-  experiment,
-  colorby,
-  expressionmeasure = "Expression",
-  palette = NULL
-)
+geneBarplot(expression, experiment, colorby, expressionmeasure = "Expression",
+  palette = NULL)
 }
 \arguments{
 \item{expression}{Matrix of values}

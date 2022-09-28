@@ -21,5 +21,5 @@ Given a string with spaces, try to split into multiple lines of <
 }
 \examples{
 > splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
-[1] 'once upon a time there\nwas a giant and a beanstalk\nand a pot of gold and\nsome beans'
+[1] 'once upon a time there\\nwas a giant and a beanstalk\\nand a pot of gold and\\nsome beans'
 }

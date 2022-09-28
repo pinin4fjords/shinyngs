@@ -4,16 +4,8 @@
 \alias{genesetselect}
 \title{The server function of the genesetselect module}
 \usage{
-genesetselect(
-  input,
-  output,
-  session,
-  eselist,
-  getExperiment,
-  multiple = TRUE,
-  filter_by_type = FALSE,
-  require_select = TRUE
-)
+genesetselect(input, output, session, eselist, getExperiment, multiple = TRUE,
+  filter_by_type = FALSE, require_select = TRUE)
 }
 \arguments{
 \item{input}{Input object}

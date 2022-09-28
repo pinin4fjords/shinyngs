@@ -4,18 +4,9 @@
 \alias{groupby}
 \title{The server function of the groupby module}
 \usage{
-groupby(
-  input,
-  output,
-  session,
-  eselist,
-  group_label = "Group by",
-  multiple = FALSE,
-  selectColData = NULL,
-  isDynamic = reactive({
-     TRUE
- })
-)
+groupby(input, output, session, eselist, group_label = "Group by",
+  multiple = FALSE, selectColData = NULL, isDynamic = reactive({     TRUE
+  }))
 }
 \arguments{
 \item{input}{Input object}

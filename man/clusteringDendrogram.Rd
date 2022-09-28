@@ -4,16 +4,9 @@
 \alias{clusteringDendrogram}
 \title{Make a clustering dendrogram with coloring by experimental variable}
 \usage{
-clusteringDendrogram(
-  plotmatrix,
-  experiment,
-  colorby = NULL,
-  cor_method = "pearson",
-  cluster_method = "ward.D",
-  plot_title = "",
-  labelspace = 0.2,
-  palette = NULL
-)
+clusteringDendrogram(plotmatrix, experiment, colorby = NULL,
+  cor_method = "pearson", cluster_method = "ward.D", plot_title = "",
+  labelspace = 0.2, palette = NULL)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}

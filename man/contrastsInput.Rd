@@ -4,13 +4,8 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(
-  id,
-  allow_filtering = TRUE,
-  summarise = TRUE,
-  dynamic_filters = FALSE,
-  select_summary_type = FALSE
-)
+contrastsInput(id, allow_filtering = TRUE, summarise = TRUE,
+  dynamic_filters = FALSE, select_summary_type = FALSE)
 }
 \arguments{
 \item{id}{Submodule namespace}
