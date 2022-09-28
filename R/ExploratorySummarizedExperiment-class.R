@@ -8,6 +8,9 @@
 #' @slot entrezgenefield character. 
 #' @slot labelfield character. 
 #' @slot contrast_stats list.
+#' @slot assay_measures list.
+#' @slot gene_set_analyses list.
+#' @slot dexseq_results list.
 #' @slot read_reports list.
 #' 
 #' @export
@@ -53,14 +56,19 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' statistics. Only 'pvals', 'qvals' and 'fold_changes' are currently used. 
 #' Fold changes are calculated on the fly where not supplied. Matrix columns
 #' correspond to 'contrasts' set in the containing SummarizedExperimentList.
-#' @param gene_set_analyses List of lists of gene set tables keyed first by gene set
+#' @param assay_measures Optional List of measures to display related to each
+#' assay.
+#' @param gene_set_analyses List of lists of gene set tables keyed first by
+#' gene set
 #' type and secondly by contrast
 #' @param read_reports A named list of matrices with read counts in columns
 #' and sample names in rows. Useful for providing mapped read counts, 
 #' counts per gene type etc
+#' @param dexseq_results An optional list of \code{DEXSeqResults} objects
+#' corresponding to the contrasts listed in the \code{contrasts} slot..
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
-#' @import SummarizedExperiment
+#' @rawNamespace import(SummarizedExperiment, except = 'shift')
 #' @export
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(), 

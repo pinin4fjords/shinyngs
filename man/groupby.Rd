@@ -4,9 +4,18 @@
 \alias{groupby}
 \title{The server function of the groupby module}
 \usage{
-groupby(input, output, session, eselist, group_label = "Group by",
-  multiple = FALSE, selectColData = NULL, isDynamic = reactive({     TRUE
-  }))
+groupby(
+  input,
+  output,
+  session,
+  eselist,
+  group_label = "Group by",
+  multiple = FALSE,
+  selectColData = NULL,
+  isDynamic = reactive({
+     TRUE
+ })
+)
 }
 \arguments{
 \item{input}{Input object}
@@ -24,6 +33,9 @@ ExploratorySummarizedExperiment objects}
 
 \item{selectColData}{Reactive returning an experiment matrix, probably 
 derived from the \code{\link{selectmatrix}} module.}
+
+\item{isDynamic}{Reactive expression providing a boolean. A FALSE value
+causes the groupby option to be placed in a hidden field.}
 }
 \value{
 output A list of reactive functions which will be used by other 

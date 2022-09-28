@@ -7,27 +7,43 @@ Description: Provides Shiny applications for various array and NGS applications.
 Depends:
     R (>= 3.2.2),
     SummarizedExperiment
-License: AGPL-3.0
+License: AGPL (>= 3)
 LazyData: true
 Imports:
+    cluster,
     data.table,
     d3heatmap,
     DT (>= 0.2),
     ggdendro,
+    ggplot2,
+    limma,
     GSEABase,
+    methods,
     pheatmap,
     plotly (>= 4.3.4),
+    plyr,
     RColorBrewer,
+    reshape2,
     shiny,
     shinyjs,
     shinythemes,
-    SummarizedExperiment
+    stats,
+    utils,
+    yaml
 Suggests:
-    yaml,
+    airway,
+    DEXSeq,
+    biomaRt,
     shinyBS,
     BiocStyle,
     knitr,
     rmarkdown,
-    Gviz
+    Gviz,
+    zhangneurons,
+    testthat (>= 3.0.0)
+Remotes:
+    talgalili/d3heatmap,
+    pinin4fjords/zhangneurons
 RoxygenNote: 7.2.1
 VignetteBuilder: knitr
+Config/testthat/edition: 3

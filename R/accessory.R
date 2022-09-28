@@ -11,8 +11,7 @@
 #' 
 #' @examples
 #' vn <- 'ugly_name_of_thing'
-#' > prettyifyVariablename(vn)
-#' [1] 'Ugly name of thing'
+#' prettyifyVariablename(vn)
 
 prettifyVariablename <- function(vn, tolower = FALSE) {
     if (tolower) {
@@ -30,8 +29,7 @@ prettifyVariablename <- function(vn, tolower = FALSE) {
 #' @export
 #' 
 #' @examples
-#' > ucfirst('Example')
-#' [1] 'Example'
+#' ucfirst('Example')
 
 ucfirst <- function(string) {
     paste0(toupper(substr(string, 1, 1)), substr(string, 2, nchar(string)))
@@ -46,8 +44,7 @@ ucfirst <- function(string) {
 #' @export
 #' 
 #' @examples
-#' > nlines('foo\nbar')
-#' [1] 2
+#' nlines('foo\nbar')
 
 nlines <- function(string) {
     length(unlist(strsplit(string, "\n")))
@@ -56,7 +53,7 @@ nlines <- function(string) {
 #' Make a hidden input field. Handy for replacing superfluous single-value 
 #' selects etc
 #'
-#' @param string An HTML id
+#' @param id An HTML id
 #' @param values The value the input should return
 #'
 #' @return output HTML as output by Shiny's \code{HTML()}
@@ -75,7 +72,7 @@ hiddenInput <- function(id, values) {
 
 #' Simple list push 
 #'
-#' @param list A list to push to
+#' @param input_list A list to push to
 #' @param element The element to push
 #'
 #' @return list with element pushed
@@ -167,15 +164,14 @@ ggplotify <- function(matrix, experiment, colorby = NULL) {
 #' \code{linewidth} characters
 #'
 #' @param string A string with spaces
-#' @param width The maximum line length in characters (default: 20)
+#' @param linewidth The maximum line length in characters (default: 20)
 #'
 #' @return A string with newline characters added where appropriate
 #'
 #' @export
 #' 
 #' @examples
-#' > splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
-#' [1] 'once upon a time there\nwas a giant and a beanstalk\nand a pot of gold and\nsome beans'
+#' splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
 
 splitStringToFixedwidthLines <- function(string, linewidth = 20) {
     words <- unlist(strsplit(string, " "))
@@ -211,8 +207,8 @@ unpack.list <- function(object) {
 
 #' Interleave the columns of two matrices of equal dimensions
 #'
-#' @param mat1 
-#' @param mat2 
+#' @param mat1 First numeric matrix
+#' @param mat2 Second numeric matrix
 #'
 #' @return output Interleaved matrix
 #' @export
@@ -250,6 +246,7 @@ makePackageCitation <- function(package) {
 #' @examples
 #' # `airway` contains info on the samples it's based on
 #' 
+#' require(airway)
 #' data(airway, package = 'airway')
 #' 
 #' # However, not all variables are useful for grouping data. Some have a 
@@ -272,7 +269,7 @@ chooseGroupingVariables <- function(df) {
 #' Replace NAs with a string for convenience
 #'
 #' @param vec Character vector or factor containing NAs
-#' @param replacment Character replacement (default: 'NA')
+#' @param replacement Character replacement (default: 'NA')
 #' 
 #' @return Vector or factor with NAs replaced
 #'
@@ -342,9 +339,9 @@ cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<
 #' '>', '<' , '> or <-' (e.g. a fold change above a limit in + or - 
 #' directions), or '< and >-' (not a above a limit in + or -).  
 #'
-#' @param values 
-#' @param cardinality 
-#' @param limit 
+#' @param values Vector of numeric values
+#' @param cardinality Cardinality: '>', '<' , '> or <-'
+#' @param limit Numeric limit
 #'
 #' @return out A logical vector
 

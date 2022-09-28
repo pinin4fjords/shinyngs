@@ -7,10 +7,14 @@
 colormaker(input, output, session, getNumberCategories)
 }
 \arguments{
+\item{input}{Input object}
+
+\item{output}{Output object}
+
+\item{session}{Session object}
+
 \item{getNumberCategories}{A reactive supplying the number of categories 
 that require a color.}
-
-\item{id}{Submodule namespace}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

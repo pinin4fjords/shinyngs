@@ -7,9 +7,9 @@
 pushToList(input_list, element)
 }
 \arguments{
-\item{element}{The element to push}
+\item{input_list}{A list to push to}
 
-\item{list}{A list to push to}
+\item{element}{The element to push}
 }
 \value{
 list with element pushed

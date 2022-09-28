@@ -8,6 +8,8 @@ genesetselectInput(id, multiple = TRUE)
 }
 \arguments{
 \item{id}{Submodule namespace}
+
+\item{multiple}{Boolean: should it be possible to select multiple gene sets?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

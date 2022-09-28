@@ -4,8 +4,14 @@
 \alias{ggplot_boxplot}
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
-ggplot_boxplot(plotmatrix, experiment, colorby = NULL, palette = NULL,
-  expressiontype = "expression", whisker_distance = 1.5)
+ggplot_boxplot(
+  plotmatrix,
+  experiment,
+  colorby = NULL,
+  palette = NULL,
+  expressiontype = "expression",
+  whisker_distance = 1.5
+)
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
@@ -30,6 +36,7 @@ output A \code{ggplot} output
 A simple function using \code{ggplot2} to make a sample boxplot
 }
 \examples{
+require(airway)
 data(airway, package = 'airway')
 ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
 }

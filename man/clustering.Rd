@@ -4,7 +4,7 @@
 \alias{clustering}
 \title{The server function of the clustering module}
 \usage{
-clustering(input, output, session, eselist, ncolors)
+clustering(input, output, session, eselist)
 }
 \arguments{
 \item{input}{Input object}

@@ -4,7 +4,8 @@
 #' may then be used by one or more instances of the scatterplot module.
 #'
 #' @param id Submodule namespace
-#' @param allow_3d Allow user to choose 3D plotting?
+#' @param allow_3d Boolean: allow user to choose 3D plotting?
+#' @param make_colors Boolean: add controls for coloring?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character()
@@ -50,6 +51,7 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE) {
 #' @param z A value supplied for this parameter will cause a hidden field to 
 #' be generated instead of a select, useful for scatter plots that don't need
 #' the user to select axes (default: NA)
+#' @param makeColors Boolean: use controls for coloring?
 #'
 #' @return output A list of reactives for accessing input values
 #'

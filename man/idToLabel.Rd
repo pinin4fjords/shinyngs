@@ -9,11 +9,11 @@
 idToLabel(ids, ese, sep = " / ")
 }
 \arguments{
+\item{ids}{list of ids}
+
 \item{ese}{An ExploratorySummarizedExperiment}
 
 \item{sep}{Separator for ID and label fields}
-
-\item{list}{of ids}
 }
 \value{
 String vector of same length as \code{ids}

@@ -32,7 +32,7 @@ simpletableInput <- function(id, tabletitle = "", description = NULL) {
 #' This provides actual datatable element for display by applications
 #'
 #' @param id Module namespace
-#' @param title (optional) Title to display with the table
+#' @param tabletitle (optional) Title to display with the table
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -73,6 +73,7 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' names of the input matrix? (default: FALSE)
 #' @param show_controls Show search box, controls etc on resulting data table? 
 #' (default: TRUE)
+#' @param filter Passed to \code{DT::renderDataTable()}
 #'
 #' @keywords shiny
 #' 

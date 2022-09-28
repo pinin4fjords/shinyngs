@@ -5,14 +5,13 @@
 #' users to add filters to progressively refine a query.
 #'
 #' @param id Submodule namespace
-#' @param default_max_q default value for the q value filter
 #' @param allow_filtering Provide the filtering fields? Can be disabled to
 #' produce unfiltered contrasts tables.
 #' @param summarise Provide summarisation controls? Allow user to control how 
 #'   how values are summarised per group. Disabling this disables 
 #'   summarisation, which may be the desired result for modules that just need
 #'   to use the contrasts drop-down. 
-#' @param dyanamic_filters Logical indicating whether the user should be able 
+#' @param dynamic_filters Logical indicating whether the user should be able 
 #'   to add progressive filters.
 #' @param select_summary_type Allow user to select summary type (e.g. mean)?
 #'   Passed to \code{\link{summarisematrixInput}}.
@@ -100,6 +99,8 @@ contrastsOutput <- function(id) {
 #' @param select_all_contrasts Select all contrasts by default?
 #' @param show_controls Show the controls for contrast selection? 
 #' @param default_foldchange default value for the fold change filter
+#' @param default_pval Default value for the p value field
+#' @param default_qval Default value for the q value field 
 #'
 #' @keywords shiny
 #' 
@@ -802,9 +803,12 @@ foldChange <- function(vec1, vec2) {
 #' @param show_controls Show controls? Setting to false will cause them to be 
 #' hidden.
 #' @param default_foldchange Default value for the fold change field 
+#' @param default_pval Default value for the p value field
+#' @param default_qval Default value for the q value field 
 #' @param index Index. Will be used to differentiate mutiple copies of the
 #' field set.
 #' @param filter_rows Use fold change and p value etc to filter values? 
+#' @param select_all_contrasts Select all contrasts by default?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -824,8 +828,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
                 max = 1, step = 0.01)
             
         } else {
-            pval_field <- hiddenInput(ns(paste0("p_value", index)), value = "NULL")
-            pval_field <- hiddenInput(ns(paste0("p_value_card", index)), value = "NULL")
+            pval_field <- hiddenInput(ns(paste0("p_value", index)), values = "NULL")
+            pval_field <- hiddenInput(ns(paste0("p_value_card", index)), values = "NULL")
         }
         contrast_field_set <- c(contrast_field_set, list(pval_field))
         
@@ -835,8 +839,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
             qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)), value = default_qval, label = "q value", min = 0, 
                 max = 1, step = 0.01)
         } else {
-            qval_field <- hiddenInput(ns(paste0("q_value", index)), value = "NULL")
-            qval_field <- hiddenInput(ns(paste0("q_value_card", index)), value = "NULL")
+            qval_field <- hiddenInput(ns(paste0("q_value", index)), values = "NULL")
+            qval_field <- hiddenInput(ns(paste0("q_value_card", index)), values = "NULL")
         }
         contrast_field_set <- c(contrast_field_set, list(qval_field))
         
@@ -858,6 +862,7 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
 #' @param multiple Allow multiple contrasts to be selected?
 #' @param show_controls Show controls? Setting to false will cause them to be 
 #' hidden.
+#' @param select_all Select all contrasts by default?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using 
 #' as.character() 
@@ -891,7 +896,7 @@ makeContrastControl <- function(id, contrasts, contrast_numbers, multiple = FALS
 #' this make the table overly cumbersome, an we can simplify it by simply 
 #' naming the average column to the values of the contrast variable.
 #'
-#' @param table 
+#' @param table Three-column contrast table 
 #'
 #' @return output Simplified table
 

@@ -7,7 +7,7 @@
 makeAnnotationColors(sample_annotation)
 }
 \arguments{
-\item{sample_annotation}{A data frame}
+\item{sample_annotation}{A data frame with sample metadata}
 }
 \value{
 output A list object with colors

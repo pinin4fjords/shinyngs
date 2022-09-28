@@ -9,7 +9,7 @@ simpletableOutput(id, tabletitle = NULL)
 \arguments{
 \item{id}{Module namespace}
 
-\item{title}{(optional) Title to display with the table}
+\item{tabletitle}{(optional) Title to display with the table}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 

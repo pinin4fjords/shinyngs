@@ -1,23 +1,23 @@
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  library(devtools)
 #  install_github('pinin4fjords/shinyngs')
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(shinyngs)
 #  
 #  data(airway, package = 'airway')
 #  ese <- as(airway, 'ExploratorySummarizedExperiment')
 #  eselist <- ExploratorySummarizedExperimentList(ese)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  app <- prepareApp('heatmap', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  app <- prepareApp('rnaseq', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  data(airway, package = 'airway')
 #  expinfo <- metadata(airway)[[1]]
 #  
@@ -30,7 +30,7 @@
 #  app <- prepareApp('rnaseq', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # Use Biomart to retrieve some annotation, and add it to the object
 #  
 #  library(biomaRt)
@@ -62,38 +62,38 @@
 #  app <- prepareApp('rnaseq', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  library(devtools)
 #  install_github('pinin4fjords/zhangneurons')
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(shinyngs)
 #  data("zhangneurons")
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  app <- prepareApp("rnaseq", zhangneurons)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  app <- prepareApp("heatmap", zhangneurons)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 # Assays is a list of matrices
 library(zhangneurons)
 data(zhangneurons, envir = environment())
 myassays <- as.list(SummarizedExperiment::assays(zhangneurons[[1]]))
 head(myassays[[1]])
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 mycoldata <- data.frame(SummarizedExperiment::colData(zhangneurons[[1]]))
 head(mycoldata)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 myannotation <- SummarizedExperiment::mcols(zhangneurons[[1]])
 head(myannotation)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 myese <- ExploratorySummarizedExperiment(
     assays = SimpleList(
       myassays
@@ -105,7 +105,7 @@ myese <- ExploratorySummarizedExperiment(
   )
 print(myese)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 myesel <- ExploratorySummarizedExperimentList(
   eses = list(expression = myese),
   title = "My title",
@@ -113,36 +113,36 @@ myesel <- ExploratorySummarizedExperimentList(
   description = 'Look what I gone done'
 )
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 myesel@group_vars <- c('Group', 'Tissue')
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 zhangneurons@contrasts
 myesel@contrasts <- zhangneurons@contrasts
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 head(zhangneurons[[1]]@contrast_stats[[1]]$pvals, n = 10)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 myesel[[1]]@contrast_stats <- zhangneurons[[1]]@contrast_stats
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  app <- prepareApp("rnaseq", myesel)
 #  shiny::shinyApp(app$ui, app$server)
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  genesets_files = list(
 #    'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
 #    'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
@@ -154,7 +154,7 @@ myesel[[1]]@contrast_stats <- zhangneurons[[1]]@contrast_stats
 #  
 #  gene_sets <- lapply(genesets_files, GSEABase::getGmt)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  myesel <- ExploratorySummarizedExperimentList(
 #    eses = list(expression = myese),
 #    title = "My title",
@@ -163,29 +163,29 @@ myesel[[1]]@contrast_stats <- zhangneurons[[1]]@contrast_stats
 #    gene_sets = gene_sets
 #  )
 
-## ----eval = TRUE---------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 names(zhangneurons@gene_sets)
 
-## ----eval = TRUE---------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 names(zhangneurons@gene_sets$gene_name$GOBP)[1:10]
 
-## ----eval = TRUE---------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 zhangneurons@gene_sets$gene_name$GOBP$GO_LACTATE_TRANSPORT
 
-## ----eval = TRUE---------------------------------------------------------
+## ----eval = TRUE--------------------------------------------------------------
 names(zhangneurons$gene@gene_set_analyses)
 names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`)
 names(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP)
 head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  app <- prepareApp('dendro', eselist)
 #  shiny::shinyApp(ui = app$ui, server = app$server)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  ?shinyngs
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(shinyngs)
 #  
 #  mydata <- readRDS("data.rds")

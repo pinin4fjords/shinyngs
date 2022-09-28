@@ -4,8 +4,15 @@
 \alias{summarySE}
 \title{Summarise an input matrix}
 \usage{
-summarySE(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE,
-  conf.interval = 0.95, add_medians = FALSE, .drop = TRUE)
+summarySE(
+  data = NULL,
+  measurevar,
+  groupvars = NULL,
+  na.rm = FALSE,
+  conf.interval = 0.95,
+  add_medians = FALSE,
+  .drop = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame. Expects all values for summarisation to be in one 
@@ -25,6 +32,8 @@ variables}
 \item{add_medians}{Logical indicating whether medians should be added to the
 output. Standard error estimates for the median require bootstrapping, so 
 TRUE for this variables make summary statistic calculation take longer.}
+
+\item{.drop}{Logical passed to ddply()}
 }
 \value{
 out Data frame with summary statistics

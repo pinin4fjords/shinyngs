@@ -9,11 +9,11 @@ directions), or '< and >-' (not a above a limit in + or -).}
 evaluateCardinalFilter(values, cardinality, limit)
 }
 \arguments{
-\item{values}{}
+\item{values}{Vector of numeric values}
 
-\item{cardinality}{}
+\item{cardinality}{Cardinality: '>', '<' , '> or <-'}
 
-\item{limit}{}
+\item{limit}{Numeric limit}
 }
 \value{
 out A logical vector

@@ -22,7 +22,7 @@ defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 }
 \details{
 This function is not called directly, but rather via callModule() (see 
-example).
+example). 
 
 Essentially this funnction uses the \code{contrasts} module to group samples
 and calculate fold changes, adding test statistics where available.

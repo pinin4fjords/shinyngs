@@ -8,9 +8,9 @@ selects etc}
 hiddenInput(id, values)
 }
 \arguments{
-\item{values}{The value the input should return}
+\item{id}{An HTML id}
 
-\item{string}{An HTML id}
+\item{values}{The value the input should return}
 }
 \value{
 output HTML as output by Shiny's \code{HTML()}

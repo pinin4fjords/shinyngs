@@ -92,6 +92,7 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #'   populated \code{contrast_stats} slot. For plots using p value data etc, this is 
 #'   used to hide experiments that don't have the necessary data.
 #' @param rounding Number of decimal places to show in results (Default 2)
+#' @param select_meta Boolean- add metadata controls?
 #'   
 #' @return output A list of reactive functions for fetching the derived matrix 
 #'   and making a title based on its properties.
@@ -346,6 +347,8 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
 #'
 #' @param matrix The input table
 #' @param ese An ExploratorySummarizedExperiment object
+#' @param idcol ID column in the matrix, NULL to use row names
+#' @param metafields Vector of metadata columns to add (via \code{mcols()})
 #'
 #' @return output Table with columns added
 
@@ -438,7 +441,7 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 #' \code{ExploratorySummarizedExperiment} object and the annotation data in 
 #' \code{mcols}.
 #'
-#' @param list of ids
+#' @param ids list of ids
 #' @param ese An ExploratorySummarizedExperiment
 #' @param sep Separator for ID and label fields
 #'
@@ -491,7 +494,8 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
 #' 
 #' Convenience function for deciding how to construct filters
 #'
-#' @param eselist 
+#' @param eselist ExploratorySummarizedExperimentList object containing
+#'   ExploratorySummarizedExperiment objects
 #'
 #' @return output Logical value
 #' @export

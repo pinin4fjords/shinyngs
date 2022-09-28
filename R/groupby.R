@@ -40,6 +40,8 @@ groupbyInput <- function(id, color = TRUE) {
 #' @param multiple Produces a checkbox group if true, a select box if false
 #' @param selectColData Reactive returning an experiment matrix, probably 
 #'   derived from the \code{\link{selectmatrix}} module.
+#' @param isDynamic Reactive expression providing a boolean. A FALSE value
+#'   causes the groupby option to be placed in a hidden field.  
 #'   
 #' @return output A list of reactive functions which will be used by other 
 #' modules.

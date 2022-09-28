@@ -4,16 +4,16 @@
 \alias{plotly_boxplot}
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
-plotly_boxplot(matrix, experiment, colorby, expressiontype = "expression")
+plotly_boxplot(plotmatrix, experiment, colorby, expressiontype = "expression")
 }
 \arguments{
+\item{plotmatrix}{Expression/ other data matrix}
+
 \item{experiment}{Annotation for the columns of plotmatrix}
 
 \item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
 
 \item{expressiontype}{Expression type for use in y axis label}
-
-\item{plotmatrix}{Expression/ other data matrix}
 }
 \value{
 output A \code{plotly} output

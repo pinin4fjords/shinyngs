@@ -10,9 +10,10 @@
 #' @param id Modal ID. Must match that passed to \code{inlinehelpOutput} 
 #' @param label A label to use for the link
 #' @param class A class to apply to the link
+#' @param icon Icon used to activate modal
 #'
 #' @examples
-#' modalInput(ns('dendro'), 'help'),
+#' modalInput(ns('dendro'), 'help')
 
 modalInput <- function(id, label, class, icon = "info-circle") {
     ns <- NS(id)
@@ -34,8 +35,8 @@ modalInput <- function(id, label, class, icon = "info-circle") {
 #' This is handy, for example when adding help text.
 #'
 #' @param id Modal ID. Must match that passed to \code{inlinehelpInput} 
-#' @param prefix Prefix for the markdown file in \code{shinyngs} to display
 #' @param title Title to show on the help modal
+#' @param content String with content to inlude in modal
 #'
 #' @examples
 #' modalOutput(ns('dendro'), 'Sample clustering dendrogram', includeMarkdown(system.file('inlinehelp', 'dendro.Rmd', package = packageName())))

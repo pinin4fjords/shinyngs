@@ -4,9 +4,18 @@
 \alias{simpletable}
 \title{The server function of the simpletable module}
 \usage{
-simpletable(input, output, session, downloadMatrix = NULL, displayMatrix,
-  pageLength = 15, filename, rownames = FALSE, show_controls = TRUE,
-  filter = "none")
+simpletable(
+  input,
+  output,
+  session,
+  downloadMatrix = NULL,
+  displayMatrix,
+  pageLength = 15,
+  filename,
+  rownames = FALSE,
+  show_controls = TRUE,
+  filter = "none"
+)
 }
 \arguments{
 \item{input}{Input object}
@@ -30,6 +39,8 @@ names of the input matrix? (default: FALSE)}
 
 \item{show_controls}{Show search box, controls etc on resulting data table? 
 (default: TRUE)}
+
+\item{filter}{Passed to \code{DT::renderDataTable()}}
 }
 \description{
 This function is not called directly, but rather via callModule() (see 

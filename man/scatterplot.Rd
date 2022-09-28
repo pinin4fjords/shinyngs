@@ -4,19 +4,38 @@
 \alias{scatterplot}
 \title{Server function for the scatterplot module}
 \usage{
-scatterplot(input, output, session, getDatamatrix, getThreedee = NULL,
-  getXAxis = NULL, getYAxis = NULL, getZAxis = NULL,
-  getShowLabels = NULL, getPointSize = NULL, getPalette = NULL,
-  colorBy = NULL, getTitle = reactive({     "" }), getLabels = reactive({ 
-     rownames(getDatamatrix()) }), allow_3d = TRUE, x = NA, y = NA,
-  z = NA, getLines = NULL)
+scatterplot(
+  input,
+  output,
+  session,
+  getDatamatrix,
+  getThreedee = NULL,
+  getXAxis = NULL,
+  getYAxis = NULL,
+  getZAxis = NULL,
+  getShowLabels = NULL,
+  getPointSize = NULL,
+  getPalette = NULL,
+  colorBy = NULL,
+  getTitle = reactive({
+     ""
+ }),
+  getLabels = reactive({
+     rownames(getDatamatrix())
+ }),
+  allow_3d = TRUE,
+  x = NA,
+  y = NA,
+  z = NA,
+  getLines = NULL
+)
 }
 \arguments{
-\item{input}{}
+\item{input}{Input object}
 
-\item{output}{}
+\item{output}{Output object}
 
-\item{session}{}
+\item{session}{Session object}
 
 \item{getDatamatrix}{Reactive supplying a matrix. If using external controls
 this should match the one supplied to \code{scatterplotcontrols}}

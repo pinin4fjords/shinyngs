@@ -4,8 +4,13 @@
 \alias{contrastsInput}
 \title{The input function of the contrasts module}
 \usage{
-contrastsInput(id, allow_filtering = TRUE, summarise = TRUE,
-  dynamic_filters = FALSE, select_summary_type = FALSE)
+contrastsInput(
+  id,
+  allow_filtering = TRUE,
+  summarise = TRUE,
+  dynamic_filters = FALSE,
+  select_summary_type = FALSE
+)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -18,13 +23,11 @@ how values are summarised per group. Disabling this disables
 summarisation, which may be the desired result for modules that just need
 to use the contrasts drop-down.}
 
+\item{dynamic_filters}{Logical indicating whether the user should be able 
+to add progressive filters.}
+
 \item{select_summary_type}{Allow user to select summary type (e.g. mean)?
 Passed to \code{\link{summarisematrixInput}}.}
-
-\item{default_max_q}{default value for the q value filter}
-
-\item{dyanamic_filters}{Logical indicating whether the user should be able 
-to add progressive filters.}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using 
