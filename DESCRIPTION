@@ -39,9 +39,11 @@ Suggests:
     knitr,
     rmarkdown,
     Gviz,
-    zhangneurons
+    zhangneurons,
+    testthat (>= 3.0.0)
 Remotes:
     talgalili/d3heatmap,
     pinin4fjords/zhangneurons
 RoxygenNote: 7.2.1
 VignetteBuilder: knitr
+Config/testthat/edition: 3
