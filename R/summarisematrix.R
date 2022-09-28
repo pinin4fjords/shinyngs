@@ -1,5 +1,5 @@
 #' The input function of the summarizematrix module
-#' 
+#'
 #' This module provides a form element and associated get function for defining
 #' how a summary statistic is calculated (probably by mean).
 #'
@@ -7,35 +7,35 @@
 #' @param allow_none Allow a 'no summarisation' selection.
 #' @param select_summary_type Allow user to select summary type (e.g. mean)?
 #'
-#' @return output An HTML tag object that can be rendered as HTML using 
-#' as.character() 
+#' @return output An HTML tag object that can be rendered as HTML using
+#' as.character()
 #'
 #' @keywords shiny
-#' 
+#'
 #' @examples
-#' contrastsInput('test')
-
+#' contrastsInput("test")
+#'
 summarisematrixInput <- function(id, allow_none = TRUE, select_summary_type = TRUE) {
-    
-    ns <- NS(id)
-    
-    summaryoptions <- c()
-    if (allow_none) {
-        summaryoptions <- c(None = "none")
-    }
-    
-    field <- inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"), 
-        selected = "none"), label = "Average type")
-    
-    if (!select_summary_type) {
-        field <- shinyjs::hidden(field)
-    }
-    
-    field
+  ns <- NS(id)
+
+  summaryoptions <- c()
+  if (allow_none) {
+    summaryoptions <- c(None = "none")
+  }
+
+  field <- inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"),
+    selected = "none"
+  ), label = "Average type")
+
+  if (!select_summary_type) {
+    field <- shinyjs::hidden(field)
+  }
+
+  field
 }
 
 #' The server function of the summarisematrix module
-#' 
+#'
 #' This module provides a form element and associated get function for defining
 #' how a summary statistic is calculated (probably by mean).
 #'
@@ -44,18 +44,17 @@ summarisematrixInput <- function(id, allow_none = TRUE, select_summary_type = TR
 #' @param session Session object
 #'
 #' @keywords shiny
-#' 
+#'
 #' @examples
 #' callModule(summarisematrix)
-
+#'
 summarisematrix <- function(input, output, session) {
-    
-    getSummaryType <- reactive({
-        input$summaryType
-    })
+  getSummaryType <- reactive({
+    input$summaryType
+  })
 }
 
-#' Summarise the rows of a matrix, applying a function to groups of cells 
+#' Summarise the rows of a matrix, applying a function to groups of cells
 #' defined by a factor
 #'
 #' Note that the specified function will be applied to a tranformed version
@@ -63,40 +62,40 @@ summarisematrix <- function(input, output, session) {
 #'
 #' @param matrix Numeric matrix
 #' @param treatment_factor a factor defining column groups
-#' @param summaryFunc A Function to apply to a transformed version of 
+#' @param summaryFunc A Function to apply to a transformed version of
 #' \code{matrix} (default: colMeans)
 #'
 #' @return Summarized matrix, with e.g. means in columns
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' summarizeMatrix(mymatrix, myfactor)
-
+#'
 summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
 
-    # We need a factor
-    
-    if (!is.factor(treatment_factor)) {
-        treatment_factor = factor(treatment_factor)
-    }
-    
-    # Deal with missing values
-    
-    treatment_factor <- na.replace(treatment_factor)
-    
-    summaryFunc <- get(summaryFunc)
-    t_matrix <- t(matrix)
-    
-    treatments <- levels(treatment_factor)
-    sm <- do.call(cbind, lapply(treatments, function(lev) {
-        summaryFunc(t_matrix[treatment_factor == lev, , drop = FALSE])
-    }))
-    colnames(sm) <- treatments
-    sm
+  # We need a factor
+
+  if (!is.factor(treatment_factor)) {
+    treatment_factor <- factor(treatment_factor)
+  }
+
+  # Deal with missing values
+
+  treatment_factor <- na.replace(treatment_factor)
+
+  summaryFunc <- get(summaryFunc)
+  t_matrix <- t(matrix)
+
+  treatments <- levels(treatment_factor)
+  sm <- do.call(cbind, lapply(treatments, function(lev) {
+    summaryFunc(t_matrix[treatment_factor == lev, , drop = FALSE])
+  }))
+  colnames(sm) <- treatments
+  sm
 }
 
-#' Geometric means by matrix column 
+#' Geometric means by matrix column
 #'
 #' @param x A matrix
 #'
@@ -105,10 +104,10 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
 #' @export
 
 colGeomMeans <- function(x) {
-    apply(x, 2, geom_mean)
+  apply(x, 2, geom_mean)
 }
 
-#' Geometric mean 
+#' Geometric mean
 #'
 #' @param x A vector
 #' @param na.rm Passed to \code{sum()}
@@ -118,10 +117,10 @@ colGeomMeans <- function(x) {
 #' @export
 
 geom_mean <- function(x, na.rm = TRUE) {
-    exp(sum(log(x[x > 0]), na.rm = na.rm)/length(x))
+  exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
 }
 
-#' Medians by matrix column 
+#' Medians by matrix column
 #'
 #' @param x A matrix
 #'
@@ -130,5 +129,5 @@ geom_mean <- function(x, na.rm = TRUE) {
 #' @export
 
 colMedians <- function(x) {
-    apply(x, 2, median)
-} 
+  apply(x, 2, median)
+}

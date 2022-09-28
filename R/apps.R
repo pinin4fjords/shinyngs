@@ -1,4 +1,4 @@
-#' Make UI and server functions for Shiny apps based on data supplied as 
+#' Make UI and server functions for Shiny apps based on data supplied as
 #' modfied SummarizedExperiments
 #'
 #' Draws on various components (heatmaps, tables etc) to produce the UI and server
@@ -14,7 +14,7 @@
 #'   data (expression, counts...), sample data and annotation data for the rows.
 #' @param ui_only Don't add server components (for UI testing)
 #' @param ... Additional argments passed to \code{simpleApp()}
-#' 
+#'
 #' @return output A list of length 2 containing: the UI and server components
 #'
 #' @keywords shiny
@@ -26,24 +26,24 @@
 #' @examples
 #' require(airway)
 #' library(shinyngs)
-#' 
-#' # 1: BASIC RNA-SEQ APP 
-#' 
+#'
+#' # 1: BASIC RNA-SEQ APP
+#'
 #' # Get an example RNA-seq dataset from the `airway` package
 #'
-#' data(airway, package = 'airway')
+#' data(airway, package = "airway")
 #'
 #' # Get some information about these data from the package description
 #'
-#' expinfo <- packageDescription('airway')
+#' expinfo <- packageDescription("airway")
 #'
 #' # Convert to an ExploratorySummarizedExperiment (with extra slots)
 #'
-#' ese <- as(airway, 'ExploratorySummarizedExperiment')
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
 #'
-#' # Make the ExploratorySummarizedExperimentList that represents the study as a 
+#' # Make the ExploratorySummarizedExperimentList that represents the study as a
 #' # whole.
-#' 
+#'
 #' eselist <- ExploratorySummarizedExperimentList(
 #'   ese,
 #'   title = expinfo$Title,
@@ -53,75 +53,71 @@
 #'
 #' # Make the app
 #'
-#' app <- prepareApp('rnaseq', eselist)
-#' 
+#' app <- prepareApp("rnaseq", eselist)
+#'
 #' # Run the app
-#' 
+#'
 #' shiny::shinyApp(ui = app$ui, server = app$server)
-#' 
+#'
 #' # 2: AUGMENT WITH ANNOTATION INFO FOR MORE INFORMATIVE APP
-#' 
+#'
 #' # Use Biomart to retrieve some annotation, and add it to the object
-#' 
+#'
 #' library(biomaRt)
 #' attributes <- c(
-#'   'ensembl_gene_id', # The sort of ID your results are keyed by
-#'   'entrezgene', # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
-#'   'external_gene_name' # Used to annotate gene names on the plot
+#'   "ensembl_gene_id", # The sort of ID your results are keyed by
+#'   "entrezgene", # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
+#'   "external_gene_name" # Used to annotate gene names on the plot
 #' )
-#' 
-#' mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
-#' annotation <- getBM(attributes = attributes, mart = mart)
-#' annotation <- annotation[order(annotation$entrezgene),]
-#' 
-#' mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id),]
-#' ese@labelfield <- 'external_gene_name'
 #'
-#' # Re-do app creation etc, choose to use a different grouping variable by 
+#' mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org")
+#' annotation <- getBM(attributes = attributes, mart = mart)
+#' annotation <- annotation[order(annotation$entrezgene), ]
+#'
+#' mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
+#' ese@labelfield <- "external_gene_name"
+#'
+#' # Re-do app creation etc, choose to use a different grouping variable by
 #' # default
-#' 
+#'
 #' eselist <- ExploratorySummarizedExperimentList(
 #'   ese,
 #'   title = expinfo$Title,
 #'   author = expinfo$Author,
 #'   description = expinfo$Description,
-#'   default_groupvar <- 'dex' 
+#'   default_groupvar <- "dex"
 #' )
-#' app <- prepareApp('rnaseq', eselist)
+#' app <- prepareApp("rnaseq", eselist)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
-#' 
+#'
 #' # 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
-#' 
-#' # See vignette for more info. However, the included sample 
-#' # ExploratorySummarizedExperimentList has the appopriate slots populated 
-#' # to demonstrate contrasts, gene set annotations etc. The app produced in 
+#'
+#' # See vignette for more info. However, the included sample
+#' # ExploratorySummarizedExperimentList has the appopriate slots populated
+#' # to demonstrate contrasts, gene set annotations etc. The app produced in
 #' # this way will have more panels for differential analyses.
-#' 
-#' data('zhangneurons')
-#' app <- prepareApp('rnaseq', zhangneurons)
+#'
+#' data("zhangneurons")
+#' app <- prepareApp("rnaseq", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
-
 prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
-    
-    if (type %in% c("rnaseq", "chipseq", "illuminaarray")) {
-        
-        inputFunc <- get(paste0(type, "Input"))
-        
-        app <- list(ui = inputFunc(type, eselist), server = function(input, output, session) {
-            callModule(get(type), type, eselist)
-        })
-        
-    } else {
-        app <- simpleApp(eselist, type, ui_only = ui_only, ...)
-    }
-    
-    app
+  if (type %in% c("rnaseq", "chipseq", "illuminaarray")) {
+    inputFunc <- get(paste0(type, "Input"))
+
+    app <- list(ui = inputFunc(type, eselist), server = function(input, output, session) {
+      callModule(get(type), type, eselist)
+    })
+  } else {
+    app <- simpleApp(eselist, type, ui_only = ui_only, ...)
+  }
+
+  app
 }
 
 #' Produce a simple app with controls and layout for a single module, in a
-#' shiny \code{sideBarLayout()}. 
-#' 
-#' Internal function called by prepareApp() to make simple single-function 
+#' shiny \code{sideBarLayout()}.
+#'
+#' Internal function called by prepareApp() to make simple single-function
 #' apps.
 #'
 #' @param eselist List of ExploratorySummarizedExperiment objects with assay and experimental
@@ -133,31 +129,33 @@ prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
 #' @keywords shiny
 #'
 #' @examples
-#' simpleApp(eselist, 'heatmap', 'My study name')
-
+#' simpleApp(eselist, "heatmap", "My study name")
+#'
 simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
-    
-    inputFunc <- get(paste0(module, "Input"))
-    outputFunc <- get(paste0(module, "Output"))
-    
-    moduletitle <- prettifyVariablename(module)
-    
-    cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
-    
-    if (!is.null(module)) {
-        
-        ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(id = "pages", title = moduletitle, 
-            windowTitle = moduletitle, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(module, 
-                ...), width = 9)))))
-        
-        if (ui_only) {
-            server <- function(input, output, session) {
-            }
-        } else {
-            server = function(input, output, session) {
-                callModule(get(module), module, eselist, ...)
-            }
-        }
-        list(ui = ui, server = server)
+  inputFunc <- get(paste0(module, "Input"))
+  outputFunc <- get(paste0(module, "Output"))
+
+  moduletitle <- prettifyVariablename(module)
+
+  cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
+
+  if (!is.null(module)) {
+    ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(
+      id = "pages", title = moduletitle,
+      windowTitle = moduletitle, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(
+        module,
+        ...
+      ), width = 9)))
+    ))
+
+    if (ui_only) {
+      server <- function(input, output, session) {
+      }
+    } else {
+      server <- function(input, output, session) {
+        callModule(get(module), module, eselist, ...)
+      }
     }
-} 
+    list(ui = ui, server = server)
+  }
+}
