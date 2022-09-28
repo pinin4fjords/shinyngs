@@ -157,8 +157,18 @@ devtools::install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
 
 An example `ExploratorySummarizedExperimentList` based on the Zhang et
 al study of neurons and glia
-(<http://www.jneurosci.org/content/34/36/11929.long>) is included in the
-package, and this can be used to demonstrate available features.
+(<http://www.jneurosci.org/content/34/36/11929.long>) is available in a
+separate package, and this can be used to demonstrate available
+features.
+
+Install the package like:
+
+``` r
+library(devtools)
+install_github('pinin4fjords/zhangneurons')
+```
+
+… and load and use the data like:
 
 ``` r
 library(shinyngs)
