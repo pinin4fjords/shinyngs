@@ -172,6 +172,7 @@ install_github('pinin4fjords/zhangneurons')
 
 ``` r
 library(shinyngs)
+library(zhangneurons)
 data("zhangneurons")
 
 app <- prepareApp("rnaseq", zhangneurons)
