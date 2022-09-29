@@ -131,6 +131,9 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' \code{matrix}
 #' @param colorby An optional string specifying a column from \code{experiment}
 #' that will be used to set a color column in the reshaped output.
+#' @param value_type Type of data to assemble. By default this is just expression
+#'   values, but can be 'density' to calculate expression densities.
+#' @param annotate_samples Add a suffix to sample labels reflecting their group?
 #'
 #' @return A reshaped data frame
 #'
@@ -139,7 +142,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' @examples
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 #'
-ggplotify <- function(plotmatrices, experiment, colorby = NULL) {
+ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = 'expression', annotate_samples = FALSE) {
 
   # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
 
@@ -161,16 +164,26 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL) {
   }
 
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
-    plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
-    plotdata <- plotdata[which(plotdata$value > 0), ]
-    if (max(plotdata$value) > 20) {
-      plotdata$value <- log2(plotdata$value)
+    
+    if (value_type == 'density'){
+      plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s){
+        dens <- density(plotmatrices[[pm]][,s])
+        data.frame(name=s, expression=dens$x, density=dens$y)
+      }))
+    }else{
+      plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
+      plotdata <- plotdata[which(plotdata$value > 0), ]
+      if (max(plotdata$value) > 20) {
+        plotdata$value <- log2(plotdata$value)
+      }
+      colnames(plotdata) <- c("gene", "name", "log2_count")
     }
-
-    colnames(plotdata) <- c("gene", "name", "log2_count")
 
     if (!is.null(colorby)) {
       plotdata$colorby <- factor(experiment[[colorby]][match(plotdata$name, rownames(experiment))], levels = unique(experiment[[colorby]]))
+      if (annotate_samples){
+        plotdata$name <- paste0(plotdata$name, ' (', plotdata$colorby, ')')
+      }
     }
     plotdata$type <- prettifyVariablename(pm)
     plotdata

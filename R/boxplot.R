@@ -277,6 +277,101 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
     )
 }
 
+#' Make a static density plot with ggplot2
+#'
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
+#' @param experiment Annotation for the columns of plotmatrix
+#' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from
+#' \code{colorby}.
+#' @param expressiontype Expression type for use in y axis label
+#' 
+#' @export
+#'
+#' @return output A \code{ggplot} output
+
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = 'density', annotate_samples = TRUE)
+  ncats <- length(unique(plotdata$name))
+  palette <- makeColorScale(ncats)
+  
+  p <- ggplot(data = plotdata ) +  
+    geom_area(aes(x=expression, y = density, fill=name, color=name), alpha = 0.4) +
+    scale_fill_manual(name = prettifyVariablename(colorby), values = makeColorScale(ncats, palette = "Set1")) +
+    scale_color_manual(name = prettifyVariablename(colorby), values = makeColorScale(ncats, palette = "Set1")) +
+    ylab("Density") + 
+    xlab(prettifyVariablename(expressiontype)) + 
+    guides(fill=guide_legend(title=prettifyVariablename(colorby))) +
+    theme(legend.position="bottom")
+  
+  if (is.list(plotmatrices) && length(plotmatrices) > 1) {
+    p <- p + facet_wrap(~ type, ncol = 1, scales = "free_y")
+  }
+  
+  p + theme_bw(base_size = 16) + theme(
+      legend.position = "bottom"
+    )
+}
+
+#' Make a dynamic density plot with plotly
+#' 
+#' A simple function using \code{plotly} to make a sample density plot. 
+#'
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
+#' @param experiment Annotation for the columns of plotmatrix
+#' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from
+#' \code{colorby}.
+#' @param expressiontype Expression type for use in y axis label
+#' 
+#' @export
+#'
+#' @return output A \code{plotly} output
+
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
+
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = 'density', annotate_samples = TRUE)
+  ncats <- length(unique(plotdata$name))
+  palette <- makeColorScale(ncats)
+  
+  plotdata %>%
+    group_by(type) %>%
+    group_map(
+      ~ plot_ly(
+        data = .,
+        x = ~ expression,
+        y = ~ density,
+        color = ~ name,
+        type = "scatter",
+        mode = "lines",
+        fill = 'tozeroy',
+        legendgroup = ~ name,
+        colors = palette,
+        showlegend = (.y == "Raw"),
+        alpha = 0.2
+      ) %>% layout(
+        hoverlabel = list(namelength = -1),
+        xaxis = list(title = prettifyVariablename(expressiontype)),
+        yaxis = list(title = paste(.x$type[1])),
+        legend = list(
+          title = list(text = 'Sample'),
+          orientation = "h",
+          xanchor = "center",
+          x = 0.5,
+          y = -0.2
+        )
+      ) %>% config(showLink = TRUE),
+      .keep = TRUE
+    ) %>%
+    subplot(
+      nrows = length(unique(plotdata$type)),
+      shareX = TRUE,
+      shareY = FALSE,
+      titleX = TRUE,
+      titleY = TRUE
+    )
+}
+
 #' Make a line-based alternative to boxplots
 #'
 #' Box-plots become unmanagable with large numbers of samples. This function
