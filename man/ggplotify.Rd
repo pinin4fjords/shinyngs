@@ -7,13 +7,13 @@
 ggplotify(plotmatrices, experiment, colorby = NULL)
 }
 \arguments{
+\item{plotmatrices}{A matrix of values, e.g. expression data}
+
 \item{experiment}{A data frame with rows matching the columns of
 \code{matrix}}
 
 \item{colorby}{An optional string specifying a column from \code{experiment}
 that will be used to set a color column in the reshaped output.}
-
-\item{matrix}{A matrix of values, e.g. expression data}
 }
 \value{
 A reshaped data frame

@@ -126,7 +126,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 
 #' Reshape data to the way \code{ggplot2} likes it
 #'
-#' @param matrix A matrix of values, e.g. expression data
+#' @param plotmatrices A matrix of values, e.g. expression data
 #' @param experiment A data frame with rows matching the columns of
 #' \code{matrix}
 #' @param colorby An optional string specifying a column from \code{experiment}
