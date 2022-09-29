@@ -157,7 +157,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL) {
   # Allow for a list of matrices, likely for faceting
 
   if (!is.list(plotmatrices)) {
-    plotmatrices <- list("all" = plotmatrices)
+    plotmatrices <- list(" " = plotmatrices)
   }
 
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
