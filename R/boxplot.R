@@ -263,7 +263,8 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
   })
 
   outliers <- lapply(samples, function(x) {
-    y <- matrix[, x]
+    print(x)
+    y <- structure(matrix[, x], names = rownames(matrix))
     ol <- y[which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)]
     if (length(ol) > 0) {
       data.frame(x = x, y = ol, label = idToLabel(names(ol), ese), stringsAsFactors = FALSE)
@@ -300,7 +301,9 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
       dash = "longdash"
     ), name = paste0("25%<br />- (IQR * ", whisker_distance, ")")) %>%
     layout(xaxis = list(
-      title = NULL, categoryarray = samples,
-      categoryorder = "array"
-    ), yaxis = list(title = paste0("log2(", expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL)
+      title = NULL
+    ), yaxis = list(
+      title = paste0("log2(", expressiontype, ")"),
+      zeroline = FALSE
+    ), margin = list(b = 150), hovermode = "closest", title = NULL)
 }
