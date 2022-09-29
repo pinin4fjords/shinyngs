@@ -157,7 +157,7 @@ boxplot <- function(input, output, session, eselist) {
 #'
 #' A simple function using \code{ggplot2} to make a sample boxplot
 #'
-#' @param plotmatrix Expression/ other data matrix
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how boxes should be colored
 #' @param palette Palette of colors, one for each unique value derived from
@@ -217,23 +217,64 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' A simple function using \code{plotly} to make a sample boxplot.
 #' NOT CURRENTLY USED DUE TO RESOURCE REQUIREMENTS ON LARGE MATRICES
 #'
-#' @param plotmatrix Expression/ other data matrix
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from
+#' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #'
+#' @export
 #' @return output A \code{plotly} output
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(plotmatrix, experiment, colorby, expressiontype = "expression") {
-  plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
-  plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>%
-    layout(
-      yaxis = list(title = expressiontype), xaxis = list(title = NULL),
-      evaluate = TRUE
+plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression") {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby)
+
+  ncats <- length(unique(plotdata$colorby))
+  if (is.null(palette)) {
+    palette <- makeColorScale(ncats)
+  }
+
+  plotdata %>%
+    group_by(type) %>%
+    group_map(
+      ~ plot_ly(
+        data = .,
+        x = ~name,
+        y = ~log2_count,
+        color = ~colorby,
+        text = ~gene,
+        type = "box",
+        legendgroup = ~colorby,
+        colors = palette,
+        showlegend = (.y == "Raw")
+      ) %>%
+        layout(
+          xaxis = list(title = paste(.x$type[1])),
+          yaxis = list(title = splitStringToFixedwidthLines(paste0(
+            "log2(",
+            expressiontype, ")"
+          ), 15)),
+          legend = list(
+            title = list(text = prettifyVariablename(colorby)),
+            orientation = "h",
+            xanchor = "center",
+            x = 0.5,
+            y = -0.3
+          )
+        ) %>%
+        config(showLink = TRUE),
+      .keep = TRUE
     ) %>%
-    config(showLink = TRUE)
+    subplot(
+      nrows = 1,
+      shareX = TRUE,
+      shareY = TRUE,
+      titleX = TRUE,
+      titleY = TRUE
+    )
 }
 
 #' Make a line-based alternative to boxplots
