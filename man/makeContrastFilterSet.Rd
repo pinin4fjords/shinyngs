@@ -22,7 +22,7 @@ makeContrastFilterSet(
 )
 }
 \arguments{
-\item{ns}{A namespace function (created with \code{\link[shiny]{NS}} to be 
+\item{ns}{A namespace function (created with \code{\link[shiny]{NS}} to be
 used in creating field IDs.}
 
 \item{ese}{ExploratorySummarizedExperiment object}
@@ -31,13 +31,13 @@ used in creating field IDs.}
 
 \item{contrasts}{A list of lists specifying contrasts.}
 
-\item{contrast_numbers}{A named vector of indices corresponding to 
+\item{contrast_numbers}{A named vector of indices corresponding to
 \code{contrasts}.}
 
-\item{multiple}{Allow multiple contrasts to be selected? Passed to 
+\item{multiple}{Allow multiple contrasts to be selected? Passed to
 \code{\link{makeContrastControl}}.}
 
-\item{show_controls}{Show controls? Setting to false will cause them to be 
+\item{show_controls}{Show controls? Setting to false will cause them to be
 hidden.}
 
 \item{default_foldchange}{Default value for the fold change field}
@@ -54,7 +54,7 @@ field set.}
 \item{select_all_contrasts}{Select all contrasts by default?}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{

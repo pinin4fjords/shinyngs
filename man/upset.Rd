@@ -19,22 +19,23 @@ ExploratorySummarizedExperiment objects}
 \item{setlimit}{Maximum number of sets}
 }
 \description{
-This module illustrates the intersection of differential sets using a 
-reimplementation of the \code{\link[UpSetR]{upset}} tool of Lex, 
+This module illustrates the intersection of differential sets using a
+reimplementation of the \code{\link[UpSetR]{upset}} tool of Lex,
 Gehlenborg et al. The reimplementation was done to allow use of more dynamic
-components, and to allow plotting of all elements in given intersections 
-(rather than assigning every item to its highest-order intersection). It 
+components, and to allow plotting of all elements in given intersections
+(rather than assigning every item to its highest-order intersection). It
 also seems to have sped things up.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(upstart, 'myid', eselist)
+callModule(upstart, "myid", eselist)
+
 }
 \references{
-Lex and Gehlenborg (2014). Points of view: Sets and intersections. <em>Nature Methods</em> 11, 779 (2014). \url{http://www.nature.com/nmeth/journal/v11/n8/abs/nmeth.3033.html} 
+Lex and Gehlenborg (2014). Points of view: Sets and intersections. <em>Nature Methods</em> 11, 779 (2014). \url{http://www.nature.com/nmeth/journal/v11/n8/abs/nmeth.3033.html}
 
 Gehlenborg N (2016). <em>UpSetR: A More Scalable Alternative to Venn and Euler Diagrams for Visualizing Intersecting Sets</em>. R package version 1.3.0, \url{https://CRAN.R-project.org/package=UpSetR}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessory.R
 \name{unpack.list}
 \alias{unpack.list}
-\title{Unpack a list to the environment. Handy when many reactive functions are 
+\title{Unpack a list to the environment. Handy when many reactive functions are
 returned by a call to a module's server function}
 \usage{
 unpack.list(object)
@@ -11,6 +11,6 @@ unpack.list(object)
 \item{object}{A named list of objects to unpack}
 }
 \description{
-Unpack a list to the environment. Handy when many reactive functions are 
+Unpack a list to the environment. Handy when many reactive functions are
 returned by a call to a module's server function
 }

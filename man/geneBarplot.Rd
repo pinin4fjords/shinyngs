@@ -21,18 +21,19 @@ geneBarplot(
 
 \item{expressionmeasure}{String to use for labelling y axis in plots}
 
-\item{palette}{Palette of colors, one for each unique value derived from 
+\item{palette}{Palette of colors, one for each unique value derived from
 \code{colorby}.}
 }
 \description{
-The gene module picks specified rows out the assay data, either simply by 
+The gene module picks specified rows out the assay data, either simply by
 id or label. This is used to create a gene-centric info page.
 }
 \details{
-This function does the actual plotting with plotly. It will produce a plot 
+This function does the actual plotting with plotly. It will produce a plot
 for every row of the input matrix.
 }
 \examples{
-callModule(gene, 'gene', ses)
+callModule(gene, "gene", ses)
+
 }
 \keyword{shiny}

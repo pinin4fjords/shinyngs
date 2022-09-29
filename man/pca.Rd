@@ -18,23 +18,24 @@ ExploratorySummarizedExperiment objects}
 }
 \description{
 This module calculates a PCA and formats components and loadings for display.
-It uses a common set of controls, generated with the 
+It uses a common set of controls, generated with the
 \code{scatterplotcontrols} module, to power scatter plots for both components
 and loadings produced by the \code{scatterplots} module.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 
 Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
-callModule(pca, 'pca', eselist)
+callModule(pca, "pca", eselist)
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('pca', zhangneurons)
+app <- prepareApp("pca", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

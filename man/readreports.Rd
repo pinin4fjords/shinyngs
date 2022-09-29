@@ -17,6 +17,6 @@ readreports(input, output, session, eselist)
 slot filled}
 }
 \description{
-Display plots and tables relating to read mapping, attrition during 
+Display plots and tables relating to read mapping, attrition during
 analysis etc.
 }

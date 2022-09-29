@@ -10,11 +10,11 @@ experimenttableOutput(id)
 \item{id}{Module namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module produces a simple table of the \code{colData()} in an 
+This module produces a simple table of the \code{colData()} in an
 ExploratorySummarizedExperiment object. If more than one of these objects
 were specified, a select box should appear to pick the desired one for
 display.
@@ -23,12 +23,13 @@ display.
 Leverages the \code{simpletable} module
 }
 \examples{
-experimenttableOutput('experiment')
+experimenttableOutput("experiment")
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('experimenttable', zhangneurons)
+app <- prepareApp("experimenttable", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

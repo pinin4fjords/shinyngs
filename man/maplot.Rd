@@ -21,16 +21,17 @@ This module is for making scatter plots comparing pairs of groups defined in
 a 'contrasts' slot of the ExploratorySummarizedExperiment
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(maplot, 'maplot', eselist)
+callModule(maplot, "maplot", eselist)
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('maplot', zhangneurons)
+app <- prepareApp("maplot", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

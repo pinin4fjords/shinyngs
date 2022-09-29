@@ -34,6 +34,7 @@ The plotdownload module provides export functionality for panels with plots.
 This will generally not be called directly, but by other modules
 }
 \examples{
-callModule(plotdownload, 'heatmap', makePlot = plotHeatmap, filename = 'heatmap.png', plotHeight = plotHeight, plotWidth = plotWidth)
+callModule(plotdownload, "heatmap", makePlot = plotHeatmap, filename = "heatmap.png", plotHeight = plotHeight, plotWidth = plotWidth)
+
 }
 \keyword{shiny}

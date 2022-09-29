@@ -20,20 +20,21 @@ ExploratorySummarizedExperiment objects}
 This module leverages gene sets stored in the \code{gene_sets} slot of an
 \code{ExploratorySummarizedExperimentList} object to produce barcode plots
 using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
-fold changes calculated with the \code{contrasts} module, and FDR values 
-from the \code{gene_set_analyses} slot of the selected 
+fold changes calculated with the \code{contrasts} module, and FDR values
+from the \code{gene_set_analyses} slot of the selected
 \code{ExploratorySummarizedExperiment} are displayed where provided.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(genesetbarcodeplot, 'genesetbarcodeplot', eselist)
+callModule(genesetbarcodeplot, "genesetbarcodeplot", eselist)
 
 # Almost certainly used via application creation
 
-app <- prepareApp('genesetbarcodeplot', zhangneurons)
+app <- prepareApp("genesetbarcodeplot", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

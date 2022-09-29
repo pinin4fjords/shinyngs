@@ -10,22 +10,23 @@ boxplotOutput(id)
 \item{id}{Submodule namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module produces displays of the quartiles of the values in the 
-selected assay matrix. For low sample numbers (<= 20) the default is a 
+This module produces displays of the quartiles of the values in the
+selected assay matrix. For low sample numbers (<= 20) the default is a
 boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 a line-based alternative using \code{plotly}.
 }
 \examples{
-boxplotOutput('boxplot')
+boxplotOutput("boxplot")
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('boxplot', zhangneurons)
+app <- prepareApp("boxplot", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

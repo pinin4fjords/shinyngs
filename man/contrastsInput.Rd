@@ -18,27 +18,28 @@ contrastsInput(
 \item{allow_filtering}{Provide the filtering fields? Can be disabled to
 produce unfiltered contrasts tables.}
 
-\item{summarise}{Provide summarisation controls? Allow user to control how 
-how values are summarised per group. Disabling this disables 
+\item{summarise}{Provide summarisation controls? Allow user to control how
+how values are summarised per group. Disabling this disables
 summarisation, which may be the desired result for modules that just need
 to use the contrasts drop-down.}
 
-\item{dynamic_filters}{Logical indicating whether the user should be able 
+\item{dynamic_filters}{Logical indicating whether the user should be able
 to add progressive filters.}
 
 \item{select_summary_type}{Allow user to select summary type (e.g. mean)?
 Passed to \code{\link{summarisematrixInput}}.}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module provides the form elements to control contrasts used in e.g. 
-differential expression panels. In particular it provides the ability for 
+This module provides the form elements to control contrasts used in e.g.
+differential expression panels. In particular it provides the ability for
 users to add filters to progressively refine a query.
 }
 \examples{
-contrastsInput('test')
+contrastsInput("test")
+
 }
 \keyword{shiny}

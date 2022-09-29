@@ -12,7 +12,7 @@ plotdownloadInput(id, label = "Plot")
 \item{label}{Label for the download button}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
@@ -20,6 +20,7 @@ The plotdownload module provides export functionality for panels with plots.
 This will generally not be called directly, but by other modules
 }
 \examples{
-plotdownloadInput(ns('heatmap'))
+plotdownloadInput(ns("heatmap"))
+
 }
 \keyword{shiny}

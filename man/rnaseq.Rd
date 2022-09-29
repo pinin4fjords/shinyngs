@@ -17,10 +17,11 @@ rnaseq(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(rnaseq, 'rnaseq', eselist)
+callModule(rnaseq, "rnaseq", eselist)
+
 }
 \keyword{shiny}

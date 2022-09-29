@@ -68,5 +68,6 @@ contrast_stats:
 }\if{html}{\out{</div>}}
 }
 \examples{
-eselist <- eselistFromYAML('my.yaml')
+eselist <- eselistFromYAML("my.yaml")
+
 }

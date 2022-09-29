@@ -12,13 +12,14 @@ simpletableOutput(id, tabletitle = NULL)
 \item{tabletitle}{(optional) Title to display with the table}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
 This provides actual datatable element for display by applications
 }
 \examples{
-simpletableOutput('simpletable', 'my title')
+simpletableOutput("simpletable", "my title")
+
 }
 \keyword{shiny}

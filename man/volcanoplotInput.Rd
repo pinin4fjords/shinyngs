@@ -13,24 +13,25 @@ volcanoplotInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-A volcano plot displays -log(10) of a p value/ FDR against a log(2) fold 
-change on the x axis. This module produces such a plot using the 
-\code{\link{scatterplot}} module (which uses 
-\code{\link[plotly]{plot_ly}})), using data provided by the 
-\code{\link{contrasts}} module based on the setting of \code{contrasts} in 
+A volcano plot displays -log(10) of a p value/ FDR against a log(2) fold
+change on the x axis. This module produces such a plot using the
+\code{\link{scatterplot}} module (which uses
+\code{\link[plotly]{plot_ly}})), using data provided by the
+\code{\link{contrasts}} module based on the setting of \code{contrasts} in
 \code{eselist}.
 }
 \examples{
-volcanoplotInput('myid', eselist)
+volcanoplotInput("myid", eselist)
 
 # However, almost certainly called via application creation:
 
 data(zhangneurons)
-app <- prepareApp('volcanoplot', zhangneurons)
+app <- prepareApp("volcanoplot", zhangneurons)
 shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

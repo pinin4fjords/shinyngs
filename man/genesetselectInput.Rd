@@ -12,17 +12,18 @@ genesetselectInput(id, multiple = TRUE)
 \item{multiple}{Boolean: should it be possible to select multiple gene sets?}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
 The gene set module is for adding a gene set filter to displays. A
-\code{\link[shiny]{selectizeInput}} is used for performance reasons, 
-providing an autocomplete field for selecting from a list that could stretch 
-to thousands of entries. This would be difficult to do client-side using a 
+\code{\link[shiny]{selectizeInput}} is used for performance reasons,
+providing an autocomplete field for selecting from a list that could stretch
+to thousands of entries. This would be difficult to do client-side using a
 standard select field.
 }
 \examples{
-genesetselectInput('myid')
+genesetselectInput("myid")
+
 }
 \keyword{shiny}

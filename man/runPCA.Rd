@@ -17,5 +17,6 @@ Common function for PCA-using parts of the app
 }
 \examples{
 runPCA(mymatrix)
+
 }
 \keyword{shiny}

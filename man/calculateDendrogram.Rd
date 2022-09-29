@@ -24,8 +24,9 @@ output Object of class 'dist'
 Calculate a clustering dendgrogram based on correlation
 }
 \examples{
-data(airway, package = 'airway')
+data(airway, package = "airway")
 mymatrix <- assays(airway)[[1]]
 calculateDendrogram(mymatrix)
+
 }
 \keyword{keywords}

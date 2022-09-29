@@ -9,11 +9,11 @@ geneOutput(id, eselist)
 \arguments{
 \item{id}{Submodule namespace}
 
-\item{eselist}{List of structuredExperiment objects with assay and experimental 
+\item{eselist}{List of structuredExperiment objects with assay and experimental
 data}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
@@ -24,6 +24,7 @@ or label. This is used to create a gene-centric info page.
 Outputs are a bar plot and a table contrast data for this gene
 }
 \examples{
-geneOutput('gene', eselist)
+geneOutput("gene", eselist)
+
 }
 \keyword{shiny}

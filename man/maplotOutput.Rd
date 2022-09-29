@@ -10,24 +10,25 @@ maplotOutput(id)
 \item{id}{Module namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
 This module produces an MA plot of log(10) expression vs log(2) fold change
-for contrasts defined in the `contrasts` slot of an 
+for contrasts defined in the `contrasts` slot of an
 'ExploratorySummarizedExperimentList` object.
 }
 \details{
 Leverages the \code{contrasts} and \code{scatterplot} modules
 }
 \examples{
-maplotOutput('experiment')
+maplotOutput("experiment")
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('maplot', zhangneurons)
+app <- prepareApp("maplot", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

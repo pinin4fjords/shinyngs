@@ -24,14 +24,14 @@ clusteringDendrogram(
 
 \item{cor_method}{Correlation method, passed to cor() (default: pearson).}
 
-\item{cluster_method}{Clustering method, passed to hclust() (default: 
+\item{cluster_method}{Clustering method, passed to hclust() (default:
 ward.D).}
 
 \item{plot_title}{Plot title}
 
 \item{labelspace}{Vertical fraction of plot to be used for labels (default: 0.2).}
 
-\item{palette}{Palette of colors, one for each unique value derived from 
+\item{palette}{Palette of colors, one for each unique value derived from
 \code{colorby}.}
 }
 \value{
@@ -44,14 +44,15 @@ A simple function using \code{ggdendro} to make a sample dendrogram
 # Make a dendrogram with the data in airway
 
 require(airway)
-data(airway, pakckage = 'airway')
-clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
+data(airway, pakckage = "airway")
+clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 
 # Do the same, but only usig the 1000 most variant rows and see how the
-# clustering improves. 
+# clustering improves.
 
 mymatrix <- assays(airway)[[1]]
-mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000],]
-clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = 'dex')
+mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000], ]
+clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
+
 }
 \keyword{keywords}

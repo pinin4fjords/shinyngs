@@ -3,7 +3,7 @@
 \name{evaluateCardinalFilter}
 \alias{evaluateCardinalFilter}
 \title{Evaluate a vector of values with respect to a limit and a cardinality, being
-'>', '<' , '> or <-' (e.g. a fold change above a limit in + or - 
+'>', '<' , '> or <-' (e.g. a fold change above a limit in + or -
 directions), or '< and >-' (not a above a limit in + or -).}
 \usage{
 evaluateCardinalFilter(values, cardinality, limit)
@@ -20,6 +20,6 @@ out A logical vector
 }
 \description{
 Evaluate a vector of values with respect to a limit and a cardinality, being
-'>', '<' , '> or <-' (e.g. a fold change above a limit in + or - 
+'>', '<' , '> or <-' (e.g. a fold change above a limit in + or -
 directions), or '< and >-' (not a above a limit in + or -).
 }

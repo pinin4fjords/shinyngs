@@ -2,7 +2,7 @@
 % Please edit documentation in R/apps.R
 \name{prepareApp}
 \alias{prepareApp}
-\title{Make UI and server functions for Shiny apps based on data supplied as 
+\title{Make UI and server functions for Shiny apps based on data supplied as
 modfied SummarizedExperiments}
 \usage{
 prepareApp(type, eselist, ui_only = FALSE, ...)
@@ -33,21 +33,21 @@ using modularised Shiny components.
 require(airway)
 library(shinyngs)
 
-# 1: BASIC RNA-SEQ APP 
+# 1: BASIC RNA-SEQ APP
 
 # Get an example RNA-seq dataset from the `airway` package
 
-data(airway, package = 'airway')
+data(airway, package = "airway")
 
 # Get some information about these data from the package description
 
-expinfo <- packageDescription('airway')
+expinfo <- packageDescription("airway")
 
 # Convert to an ExploratorySummarizedExperiment (with extra slots)
 
-ese <- as(airway, 'ExploratorySummarizedExperiment')
+ese <- as(airway, "ExploratorySummarizedExperiment")
 
-# Make the ExploratorySummarizedExperimentList that represents the study as a 
+# Make the ExploratorySummarizedExperimentList that represents the study as a
 # whole.
 
 eselist <- ExploratorySummarizedExperimentList(
@@ -59,7 +59,7 @@ eselist <- ExploratorySummarizedExperimentList(
 
 # Make the app
 
-app <- prepareApp('rnaseq', eselist)
+app <- prepareApp("rnaseq", eselist)
 
 # Run the app
 
@@ -71,19 +71,19 @@ shiny::shinyApp(ui = app$ui, server = app$server)
 
 library(biomaRt)
 attributes <- c(
-  'ensembl_gene_id', # The sort of ID your results are keyed by
-  'entrezgene', # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
-  'external_gene_name' # Used to annotate gene names on the plot
+  "ensembl_gene_id", # The sort of ID your results are keyed by
+  "entrezgene", # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
+  "external_gene_name" # Used to annotate gene names on the plot
 )
 
-mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
+mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org")
 annotation <- getBM(attributes = attributes, mart = mart)
-annotation <- annotation[order(annotation$entrezgene),]
+annotation <- annotation[order(annotation$entrezgene), ]
 
-mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id),]
-ese@labelfield <- 'external_gene_name'
+mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
+ese@labelfield <- "external_gene_name"
 
-# Re-do app creation etc, choose to use a different grouping variable by 
+# Re-do app creation etc, choose to use a different grouping variable by
 # default
 
 eselist <- ExploratorySummarizedExperimentList(
@@ -91,20 +91,20 @@ eselist <- ExploratorySummarizedExperimentList(
   title = expinfo$Title,
   author = expinfo$Author,
   description = expinfo$Description,
-  default_groupvar <- 'dex' 
+  default_groupvar <- "dex"
 )
-app <- prepareApp('rnaseq', eselist)
+app <- prepareApp("rnaseq", eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 
 # 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
 
-# See vignette for more info. However, the included sample 
-# ExploratorySummarizedExperimentList has the appopriate slots populated 
-# to demonstrate contrasts, gene set annotations etc. The app produced in 
+# See vignette for more info. However, the included sample
+# ExploratorySummarizedExperimentList has the appopriate slots populated
+# to demonstrate contrasts, gene set annotations etc. The app produced in
 # this way will have more panels for differential analyses.
 
-data('zhangneurons')
-app <- prepareApp('rnaseq', zhangneurons)
+data("zhangneurons")
+app <- prepareApp("rnaseq", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
 }
 \keyword{shiny}

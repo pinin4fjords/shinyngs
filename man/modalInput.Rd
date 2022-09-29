@@ -25,5 +25,6 @@ example).
 This is handy, for example when adding help text.
 }
 \examples{
-modalInput(ns('dendro'), 'help')
+modalInput(ns("dendro"), "help")
+
 }

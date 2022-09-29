@@ -20,4 +20,5 @@ palettes from RColorBrewer, and interpolation where necessary.
 }
 \examples{
 makeColorScale(10)
+
 }

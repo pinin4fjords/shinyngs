@@ -16,5 +16,6 @@ output String with capitalised first letter
 Capitalise the first letter of a string
 }
 \examples{
-ucfirst('Example')
+ucfirst("Example")
+
 }

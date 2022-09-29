@@ -13,7 +13,7 @@ geneInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
@@ -24,6 +24,7 @@ or label. This is used to create a gene-centric info page.
 Inputs are a gene label and a variable to color by (where available)
 }
 \examples{
-geneInput(ns('gene'), eselist)
+geneInput(ns("gene"), eselist)
+
 }
 \keyword{shiny}

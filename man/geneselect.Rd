@@ -31,7 +31,7 @@ geneselect(
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 
-\item{getExperiment}{Reactive expression which returns a 
+\item{getExperiment}{Reactive expression which returns a
 ExploratorySummarizedExperiment object with assay and experimental data}
 
 \item{var_n}{The number of rows to select when doing so by variance. Default
@@ -40,7 +40,7 @@ ExploratorySummarizedExperiment object with assay and experimental data}
 \item{var_max}{The maximum umber of rows to select when doing so by variance.
 Default = 500}
 
-\item{selectSamples}{A reactive expression that provides a vector of samples 
+\item{selectSamples}{A reactive expression that provides a vector of samples
 to use, e.g. in row-wise variance calculation}
 
 \item{getAssay}{A reactive expression providing the current assay selection.}
@@ -55,14 +55,15 @@ selection optional.}
 \item{default}{Default gene selection method}
 }
 \value{
-output A list of reactive functions for interrogating the selected 
+output A list of reactive functions for interrogating the selected
   rows.
 }
 \description{
-This module provides controls for selecting genes (matrix rows) by various 
+This module provides controls for selecting genes (matrix rows) by various
 criteria such as variance and gene set.
 }
 \examples{
-geneselect_functions <- callModule(geneselect, 'heatmap', getExperiments)
+geneselect_functions <- callModule(geneselect, "heatmap", getExperiments)
+
 }
 \keyword{shiny}

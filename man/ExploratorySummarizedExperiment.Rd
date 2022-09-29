@@ -19,7 +19,7 @@ ExploratorySummarizedExperiment(
 )
 }
 \arguments{
-\item{assays}{An object of class SimpleList as would be supplied to the 
+\item{assays}{An object of class SimpleList as would be supplied to the
 SummarizedExperiment constructor}
 
 \item{colData}{An object of class DataFrame as would be supplied to the
@@ -35,11 +35,11 @@ correspond?}
 \item{labelfield}{Which column from \code{annotation} should be used to
 label features (e.g. a gene name field)?}
 
-\item{entrezgenefield}{Which column from \code{annotation} is the Entrez 
+\item{entrezgenefield}{Which column from \code{annotation} is the Entrez
 gene ID?}
 
-\item{contrast_stats}{List of matrices containing contrast-related 
-statistics. Only 'pvals', 'qvals' and 'fold_changes' are currently used. 
+\item{contrast_stats}{List of matrices containing contrast-related
+statistics. Only 'pvals', 'qvals' and 'fold_changes' are currently used.
 Fold changes are calculated on the fly where not supplied. Matrix columns
 correspond to 'contrasts' set in the containing SummarizedExperimentList.}
 
@@ -54,7 +54,7 @@ type and secondly by contrast}
 corresponding to the contrasts listed in the \code{contrasts} slot..}
 
 \item{read_reports}{A named list of matrices with read counts in columns
-and sample names in rows. Useful for providing mapped read counts, 
+and sample names in rows. Useful for providing mapped read counts,
 counts per gene type etc}
 }
 \value{
@@ -68,9 +68,9 @@ and the type of identifiers used in rows.
 }
 \details{
 It is intended that one or more ExploratorySummarizedExperiments with the
-same samples (columns) are contained within an 
+same samples (columns) are contained within an
 ExploratorySumarizedExperimentList, which will contain information relevant
-to all experiments such as gene sets and contrasts. 
+to all experiments such as gene sets and contrasts.
 
 It's clear that the structure of this class and that of SummarizedExperimentList
 will need to be refined in future.

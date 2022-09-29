@@ -16,6 +16,6 @@ slot filled}
 A list of elements that can be included in a panel
 }
 \description{
-Display plots and tables relating to read mapping, attrition during 
+Display plots and tables relating to read mapping, attrition during
 analysis etc.
 }

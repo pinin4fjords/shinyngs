@@ -10,8 +10,8 @@ contrastsOutput(id)
 \item{id}{Submodule namespace}
 }
 \description{
-This module provides the form elements to control contrasts used in e.g. 
-differential expression panels. In particular it provides the ability for 
+This module provides the form elements to control contrasts used in e.g.
+differential expression panels. In particular it provides the ability for
 users to add filters to progressively refine a query.
 }
 \details{
@@ -19,5 +19,6 @@ This function provides a summary. Actual output should be rendered
 by calling modules using the provided reactives.
 }
 \examples{
-contrastsOutput('myid')
+contrastsOutput("myid")
+
 }

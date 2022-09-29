@@ -14,7 +14,7 @@ chooseGroupingVariables(df)
 out A list of valid column names
 }
 \description{
-To be useful for grouping a variable needs to be a character or a factor, 
+To be useful for grouping a variable needs to be a character or a factor,
 and to have a number of values greater than one but less than the number of
 samples.
 }
@@ -22,9 +22,9 @@ samples.
 # `airway` contains info on the samples it's based on
 
 require(airway)
-data(airway, package = 'airway')
+data(airway, package = "airway")
 
-# However, not all variables are useful for grouping data. Some have a 
+# However, not all variables are useful for grouping data. Some have a
 # different value for every sample, one has the same value for all of them.
 
 colData(airway)
@@ -32,4 +32,5 @@ colData(airway)
 # So just pick the variables that ARE useful
 
 chooseGroupingVariables(data.frame(colData(airway)))
+
 }

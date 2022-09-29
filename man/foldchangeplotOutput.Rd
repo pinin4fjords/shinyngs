@@ -10,7 +10,7 @@ foldchangeplotOutput(id)
 \item{id}{Module namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
@@ -21,10 +21,11 @@ a 'contrasts' slot of the ExploratorySummarizedExperimentList
 Leverages the \code{scatterplot} module
 }
 \examples{
-foldchangeplotOutput('myid')
+foldchangeplotOutput("myid")
 
 data(zhangneurons)
-app <- prepareApp('foldchangeplot', zhangneurons)
+app <- prepareApp("foldchangeplot", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

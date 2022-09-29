@@ -10,19 +10,20 @@ scatterplotOutput(id)
 \item{id}{Module namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module uses \href{https://plot.ly/}{Plotly} to create scatter plots 
+This module uses \href{https://plot.ly/}{Plotly} to create scatter plots
 (see \code{\link[plotly]{plot_ly}}), of both 2D and 3D varieties.
 }
 \details{
 Controls for this module are provided by the \code{scatterplotcontrols}
-module, which is automatically called if reactives are not supplied to the 
-server function. This setup allows the same set of controls to power 
+module, which is automatically called if reactives are not supplied to the
+server function. This setup allows the same set of controls to power
 multiple scatter plots.
 }
 \examples{
-scatterplotOutput('pca')
+scatterplotOutput("pca")
+
 }

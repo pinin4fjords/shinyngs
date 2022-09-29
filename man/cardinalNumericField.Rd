@@ -33,11 +33,11 @@ cardinalNumericField(
 \item{max}{Passed to \code{\link[shiny]{numericInput}}}
 }
 \value{
-out An HTML tag object that can be rendered as HTML using 
+out An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-A wrapper around \code{\link[shiny]{numericInput}}, providing an inline 
+A wrapper around \code{\link[shiny]{numericInput}}, providing an inline
 label and an associated field specifying how the value should be applied,
 i.e. 'greater than this value' etc.
 }

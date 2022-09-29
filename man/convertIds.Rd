@@ -7,7 +7,7 @@
 convertIds(ids, ese, to, remove_na = FALSE)
 }
 \arguments{
-\item{ids}{IDs found as row names in the 
+\item{ids}{IDs found as row names in the
 \code{ExploratorySummarizedExperiment}}
 
 \item{ese}{The \code{ExploratorySummarizedExperiment}}

@@ -17,18 +17,19 @@ experimenttable(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
-example). Essentially this just passes the results of \code{colData()} 
-applied to the specified SummarizedExperiment object to the 
+This function is not called directly, but rather via callModule() (see
+example). Essentially this just passes the results of \code{colData()}
+applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(experimenttable, 'experimenttable', eselist)
+callModule(experimenttable, "experimenttable", eselist)
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('experimenttable', zhangneurons)
+app <- prepareApp("experimenttable", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}
