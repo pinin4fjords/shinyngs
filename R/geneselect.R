@@ -256,16 +256,15 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
 #'
 #' @return output A vector of integers
 
-selectVariableGenes <- function(ntop, matrix=NULL, row_variances=NULL ){
-  
-  if (is.null(row_variances)){
-    if (is.null(matrix)){
+selectVariableGenes <- function(ntop, matrix = NULL, row_variances = NULL) {
+  if (is.null(row_variances)) {
+    if (is.null(matrix)) {
       stop("selctVariableGenes(): a value must be provided for either matrix or row_variances")
-    }else{
+    } else {
       row_variances <- rowVars(matrix)
     }
   }
-  
+
   # select the ntop genes by variance
-  order(row_variances, decreasing=TRUE)[seq_len(min(ntop, length(row_variances)))]
+  order(row_variances, decreasing = TRUE)[seq_len(min(ntop, length(row_variances)))]
 }

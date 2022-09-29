@@ -142,7 +142,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' @examples
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 #'
-ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = 'expression', annotate_samples = FALSE) {
+ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "expression", annotate_samples = FALSE) {
 
   # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
 
@@ -164,13 +164,12 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = 'ex
   }
 
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
-    
-    if (value_type == 'density'){
-      plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s){
-        dens <- density(plotmatrices[[pm]][,s])
-        data.frame(name=s, expression=dens$x, density=dens$y)
+    if (value_type == "density") {
+      plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s) {
+        dens <- density(plotmatrices[[pm]][, s])
+        data.frame(name = s, expression = dens$x, density = dens$y)
       }))
-    }else{
+    } else {
       plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
       plotdata <- plotdata[which(plotdata$value > 0), ]
       if (max(plotdata$value) > 20) {
@@ -181,8 +180,8 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = 'ex
 
     if (!is.null(colorby)) {
       plotdata$colorby <- factor(experiment[[colorby]][match(plotdata$name, rownames(experiment))], levels = unique(experiment[[colorby]]))
-      if (annotate_samples){
-        plotdata$name <- paste0(plotdata$name, ' (', plotdata$colorby, ')')
+      if (annotate_samples) {
+        plotdata$name <- paste0(plotdata$name, " (", plotdata$colorby, ")")
       }
     }
     plotdata$type <- prettifyVariablename(pm)
