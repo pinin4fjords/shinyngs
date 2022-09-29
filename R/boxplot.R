@@ -179,38 +179,26 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5) {
-
-  # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
-
-  if (!is.null(colorby)) {
-    colnames(experiment)[colnames(experiment) == colorby] <- prettifyVariablename(colorby)
-    colorby <- prettifyVariablename(colorby)
-
-    experiment[[colorby]] <- na.replace(experiment[[colorby]], "N/A")
-
-    # Group samples by the coloring variable while maintaining ordering as much as possible
-
-    experiment <- experiment[order(factor(experiment[[colorby]], levels = unique(experiment[[colorby]]))), , drop = FALSE]
-    plotmatrix <- plotmatrix[, rownames(experiment)]
-  }
-
-  # Reshape the data for ggplot2
-
-  plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
-
-  # Make sure name is a factor to 1) stop ggplot re-ordering the axis and 2) stop it interpreting it as numeric
-
-  plotdata$name <- factor(plotdata$name, levels = unique(plotdata$name))
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby)
 
   if (!is.null(colorby)) {
+    ncats <- length(unique(experiment[[colorby]]))
+    if (is.null(palette)) {
+      palette <- makeColorScale(ncats)
+    }
+
     p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) +
       geom_boxplot(coef = whisker_distance) +
-      scale_fill_manual(name = colorby, values = palette) +
-      guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]])) / 2)))
+      scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
+      guides(fill = guide_legend(nrow = ceiling(ncats / 2)))
   } else {
     p <- ggplot(plotdata, aes(name, log2_count)) +
       geom_boxplot()
+  }
+
+  if (is.list(plotmatrices) && length(plotmatrices) > 1) {
+    p <- p + facet_wrap(~type)
   }
 
   p <- p + theme_bw() + theme(
