@@ -160,7 +160,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     nonempty <- getNonEmptyRows()
     withProgress(message = "Calculating row variances", value = 0, {
       mfs <- matrixFromSamples()
-      apply(mfs, 1, var)
+      rowVars(mfs)
     })
   })
 
@@ -193,7 +193,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
         return(nonempty)
       } else if (input$geneSelect == "variance") {
         vars <- rowVariances()
-        return(names(vars)[order(vars, decreasing = TRUE)][1:input$obs])
+        return(names(vars)[selectVariableGenes(input$obs, row_variances = vars)])
       } else if (input$geneSelect == "metadata_pick") {
         selected_rows <- lsf_picked_methods$getSelectedIds()
         return(intersect(selected_rows, nonempty))
@@ -243,4 +243,29 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
   })
 
   geneselect_functions
+}
+
+#' Generate an integer ordering to select the n most variable genes out of a matrix
+#'
+#' @param n_top Number of genes to select
+#' @param matrix Matrix with genes by row and samples by column
+#' @param row_variances Numeric vector of variances, in case a precalculated set
+#'   of values should be used
+#'
+#' @export
+#'
+#' @return output A vector of integers
+
+selectVariableGenes <- function(ntop, matrix=NULL, row_variances=NULL ){
+  
+  if (is.null(row_variances)){
+    if (is.null(matrix)){
+      stop("selctVariableGenes(): a value must be provided for either matrix or row_variances")
+    }else{
+      row_variances <- rowVars(matrix)
+    }
+  }
+  
+  # select the ntop genes by variance
+  order(row_variances, decreasing=TRUE)[seq_len(min(ntop, length(row_variances)))]
 }
