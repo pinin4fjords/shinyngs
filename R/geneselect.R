@@ -247,7 +247,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
 
 #' Generate an integer ordering to select the n most variable genes out of a matrix
 #'
-#' @param n_top Number of genes to select
+#' @param ntop Number of genes to select
 #' @param matrix Matrix with genes by row and samples by column
 #' @param row_variances Numeric vector of variances, in case a precalculated set
 #'   of values should be used

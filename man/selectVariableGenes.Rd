@@ -7,12 +7,12 @@
 selectVariableGenes(ntop, matrix = NULL, row_variances = NULL)
 }
 \arguments{
+\item{ntop}{Number of genes to select}
+
 \item{matrix}{Matrix with genes by row and samples by column}
 
 \item{row_variances}{Numeric vector of variances, in case a precalculated set
 of values should be used}
-
-\item{n_top}{Number of genes to select}
 }
 \value{
 output A vector of integers
