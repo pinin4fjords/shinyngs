@@ -2,8 +2,8 @@
 % Please edit documentation in R/selectmatrix.R
 \name{idToLabel}
 \alias{idToLabel}
-\title{Create row labels based on the settings of \code{labelfield} in the 
-\code{ExploratorySummarizedExperiment} object and the annotation data in 
+\title{Create row labels based on the settings of \code{labelfield} in the
+\code{ExploratorySummarizedExperiment} object and the annotation data in
 \code{mcols}.}
 \usage{
 idToLabel(ids, ese, sep = " / ")
@@ -19,7 +19,7 @@ idToLabel(ids, ese, sep = " / ")
 String vector of same length as \code{ids}
 }
 \description{
-Create row labels based on the settings of \code{labelfield} in the 
-\code{ExploratorySummarizedExperiment} object and the annotation data in 
+Create row labels based on the settings of \code{labelfield} in the
+\code{ExploratorySummarizedExperiment} object and the annotation data in
 \code{mcols}.
 }

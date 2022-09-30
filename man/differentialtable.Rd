@@ -17,17 +17,18 @@ differentialtable(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This module provides information on the comparison betwen pairs of groups 
+This module provides information on the comparison betwen pairs of groups
 defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
-example). 
+This function is not called directly, but rather via callModule() (see
+example).
 
 Essentially this funnction uses the \code{contrasts} module to group samples
 and calculate fold changes, adding test statistics where available.
 }
 \examples{
-callModule(differentialtable, 'differentialtable', eselist)
+callModule(differentialtable, "differentialtable", eselist)
+
 }
 \keyword{shiny}

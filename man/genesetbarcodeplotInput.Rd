@@ -13,24 +13,25 @@ genesetbarcodeplotInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
 This module leverages gene sets stored in the \code{gene_sets} slot of an
 \code{ExploratorySummarizedExperimentList} object to produce barcode plots
 using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
-fold changes calculated with the \code{contrasts} module, and FDR values 
-from the \code{gene_set_analyses} slot of the selected 
+fold changes calculated with the \code{contrasts} module, and FDR values
+from the \code{gene_set_analyses} slot of the selected
 \code{ExploratorySummarizedExperiment} are displayed where provided.
 }
 \examples{
 data(zhangneurons)
-genesetbarcodeplotInput('myid', zhangneurons)
+genesetbarcodeplotInput("myid", zhangneurons)
 
 # Almost certainly used via application creation
 
-app <- prepareApp('genesetbarcodeplot', zhangneurons)
+app <- prepareApp("genesetbarcodeplot", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

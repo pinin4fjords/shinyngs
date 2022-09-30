@@ -32,13 +32,13 @@ gene-specific results.}
 
 \item{getDEUGeneID}{Reactive expression returning a gene ID.}
 
-\item{show_controls}{Passed to \code{\link{simpletable}}, spcifies whether 
+\item{show_controls}{Passed to \code{\link{simpletable}}, spcifies whether
 the various \code{datatables} controls are displayed (default: TRUE).}
 
-\item{page_length}{Passed to \code{\link{simpletable}}, spcifies the number 
+\item{page_length}{Passed to \code{\link{simpletable}}, spcifies the number
 of rows to display (default: 15).}
 
-\item{link_to_deu_plot}{Link label fields to the plots produced by 
+\item{link_to_deu_plot}{Link label fields to the plots produced by
 \code{\link{dexseqplot}}? (default: TRUE)}
 }
 \description{
@@ -48,16 +48,17 @@ This module produces a differential exon usage table based on the output
 \details{
 For the table to be displayed, the \code{dexseq_results} slot must be filled
 on at least one of the component \code{ExploratorySummarizedExperiment} objects
-of the input \code{ExploratorySummarizedExperimentList}. 
+of the input \code{ExploratorySummarizedExperimentList}.
 
 \code{dexseq_results} must be a list of \code{DEXSeqResults} objects corresponding
-to the contrasts listed in the \code{contrasts} slot of the 
+to the contrasts listed in the \code{contrasts} slot of the
 \code{ExploratorySummarizedExperiment}.
 
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(dexseqtable, 'dexseqtable', eselist)
+callModule(dexseqtable, "dexseqtable", eselist)
+
 }
 \keyword{shiny}

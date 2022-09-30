@@ -25,7 +25,7 @@ simpletable(
 \item{session}{Session object}
 
 \item{downloadMatrix}{Reactive expression for retrieving the plot to supply
-for download (default: NULL, in which case \code{displayMatrix()} will be 
+for download (default: NULL, in which case \code{displayMatrix()} will be
 used)}
 
 \item{displayMatrix}{Reactive expression for retrieving the plot for display}
@@ -34,19 +34,20 @@ used)}
 
 \item{filename}{A string to use in the name of the table download}
 
-\item{rownames}{Passed to \code{\link[DT]{renderDataTable}}. Display the row 
+\item{rownames}{Passed to \code{\link[DT]{renderDataTable}}. Display the row
 names of the input matrix? (default: FALSE)}
 
-\item{show_controls}{Show search box, controls etc on resulting data table? 
+\item{show_controls}{Show search box, controls etc on resulting data table?
 (default: TRUE)}
 
 \item{filter}{Passed to \code{DT::renderDataTable()}}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(simpletable, 'simpletable', my_data_frame)
+callModule(simpletable, "simpletable", my_data_frame)
+
 }
 \keyword{shiny}

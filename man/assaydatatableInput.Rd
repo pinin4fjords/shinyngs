@@ -13,23 +13,24 @@ assaydatatableInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module displays the content of the currently selected experiment and 
+This module displays the content of the currently selected experiment and
 assay, also allowing grouping by mean etc.
 }
 \details{
 Leverages the \code{simpletable} module
 }
 \examples{
-assaydatatableInput('experiment', eselist)
+assaydatatableInput("experiment", eselist)
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('assaydatatable', zhangneurons)
+app <- prepareApp("assaydatatable", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

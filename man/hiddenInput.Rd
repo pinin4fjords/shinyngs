@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessory.R
 \name{hiddenInput}
 \alias{hiddenInput}
-\title{Make a hidden input field. Handy for replacing superfluous single-value 
+\title{Make a hidden input field. Handy for replacing superfluous single-value
 selects etc}
 \usage{
 hiddenInput(id, values)
@@ -16,9 +16,10 @@ hiddenInput(id, values)
 output HTML as output by Shiny's \code{HTML()}
 }
 \description{
-Make a hidden input field. Handy for replacing superfluous single-value 
+Make a hidden input field. Handy for replacing superfluous single-value
 selects etc
 }
 \examples{
-hiddenInput('myid', 'iamavalue')
+hiddenInput("myid", "iamavalue")
+
 }

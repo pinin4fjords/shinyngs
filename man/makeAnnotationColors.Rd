@@ -13,10 +13,11 @@ makeAnnotationColors(sample_annotation)
 output A list object with colors
 }
 \description{
-Given a data frame of experimental variables, generate sets of colors, one 
-for each column, than can be used as the 'annotation_colors' argment to 
+Given a data frame of experimental variables, generate sets of colors, one
+for each column, than can be used as the 'annotation_colors' argment to
 \code{pheatmap()}. Uses \code{RColorBrewer}.
 }
 \examples{
 colors <- makeAnnotationColors(sample_annotation)
+
 }

@@ -18,5 +18,6 @@ list with element pushed
 Simple list push
 }
 \examples{
-mylist <- pushToList(mylist, 'new element')
+mylist <- pushToList(mylist, "new element")
+
 }

@@ -1,6 +1,6 @@
 #' The input function of the boxplot module
 #'
-#' This module produces displays of the quartiles of the values in the
+#' This module produces displays of the distributions of the values in the
 #' selected assay matrix. For low sample numbers (<= 20) the default is a
 #' boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 #' a line-based alternative using \code{plotly}.
@@ -32,7 +32,7 @@ boxplotInput <- function(id, eselist) {
   }
 
   expression_filters <- selectmatrixInput(ns("sampleBoxplot"), eselist)
-  quartile_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines"), selected = default_type), numericInput(ns("whiskerDistance"),
+  distribution_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines", "density"), selected = default_type), numericInput(ns("whiskerDistance"),
     "Whisker distance in multiples of IQR",
     value = 1.5
   ), groupbyInput(ns("boxplot")))
@@ -43,9 +43,9 @@ boxplotInput <- function(id, eselist) {
   # Don't create an empty field set if we're not grouping
 
   if (length(eselist@group_vars) > 0) {
-    field_sets$quartile_plot_filters <- quartile_plot_filters
+    field_sets$distribution_plot_filters <- distribution_plot_filters
   } else {
-    naked_fields[[1]] <- quartile_plot_filters
+    naked_fields[[1]] <- distribution_plot_filters
   }
 
   field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns("boxplot"), "box plot")))
@@ -55,7 +55,7 @@ boxplotInput <- function(id, eselist) {
 
 #' The output function of the boxplot module
 #'
-#' This module produces displays of the quartiles of the values in the
+#' This module produces displays of the distributions of the values in the
 #' selected assay matrix. For low sample numbers (<= 20) the default is a
 #' boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 #' a line-based alternative using \code{plotly}.
@@ -79,8 +79,8 @@ boxplotInput <- function(id, eselist) {
 boxplotOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Quartile plots", includeMarkdown(system.file("inlinehelp", "boxplot.md", package = packageName()))),
-    h3("Quartile plots"), uiOutput(ns("quartilesPlot"))
+    modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Value distributions", includeMarkdown(system.file("inlinehelp", "boxplot.md", package = packageName()))),
+    h3("Value distributions"), uiOutput(ns("quartilesPlot"))
   )
 }
 
@@ -124,6 +124,8 @@ boxplot <- function(input, output, session, eselist) {
     ns <- session$ns
     if (input$plotType == "boxes") {
       plotOutput(ns("sampleBoxplot"))
+    } else if (input$plotType == "density") {
+      plotlyOutput(ns("densityPlotly"), height = "600px")
     } else {
       plotlyOutput(ns("quartilesPlotly"), height = "600px")
     }
@@ -131,6 +133,10 @@ boxplot <- function(input, output, session, eselist) {
 
   output$quartilesPlotly <- renderPlotly({
     plotly_quartiles(selectMatrix(), getExperiment(), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+  })
+
+  output$densityPlotly <- renderPlotly({
+    plotly_densityplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), palette = getPalette())
   })
 
   output$sampleBoxplot <- renderPlot(
@@ -157,7 +163,7 @@ boxplot <- function(input, output, session, eselist) {
 #'
 #' A simple function using \code{ggplot2} to make a sample boxplot
 #'
-#' @param plotmatrix Expression/ other data matrix
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how boxes should be colored
 #' @param palette Palette of colors, one for each unique value derived from
@@ -179,38 +185,26 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5) {
-
-  # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby)
 
   if (!is.null(colorby)) {
-    colnames(experiment)[colnames(experiment) == colorby] <- prettifyVariablename(colorby)
-    colorby <- prettifyVariablename(colorby)
+    ncats <- length(unique(experiment[[colorby]]))
+    if (is.null(palette)) {
+      palette <- makeColorScale(ncats)
+    }
 
-    experiment[[colorby]] <- na.replace(experiment[[colorby]], "N/A")
-
-    # Group samples by the coloring variable while maintaining ordering as much as possible
-
-    experiment <- experiment[order(factor(experiment[[colorby]], levels = unique(experiment[[colorby]]))), , drop = FALSE]
-    plotmatrix <- plotmatrix[, rownames(experiment)]
+    p <- ggplot(plotdata, aes(name, value, fill = colorby)) +
+      geom_boxplot(coef = whisker_distance) +
+      scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
+      guides(fill = guide_legend(nrow = ceiling(ncats / 2)))
+  } else {
+    p <- ggplot(plotdata, aes(name, value)) +
+      geom_boxplot()
   }
 
-  # Reshape the data for ggplot2
-
-  plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
-
-  # Make sure name is a factor to 1) stop ggplot re-ordering the axis and 2) stop it interpreting it as numeric
-
-  plotdata$name <- factor(plotdata$name, levels = unique(plotdata$name))
-
-  if (!is.null(colorby)) {
-    p <- ggplot(plotdata, aes(name, log2_count, fill = colorby)) +
-      geom_boxplot(coef = whisker_distance) +
-      scale_fill_manual(name = colorby, values = palette) +
-      guides(fill = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]])) / 2)))
-  } else {
-    p <- ggplot(plotdata, aes(name, log2_count)) +
-      geom_boxplot()
+  if (is.list(plotmatrices) && length(plotmatrices) > 1) {
+    p <- p + facet_wrap(~type)
   }
 
   p <- p + theme_bw() + theme(
@@ -218,7 +212,7 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NUL
     axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))
   ) + ylab(splitStringToFixedwidthLines(paste0(
     "log2(",
-    expressiontype, ")"
+    prettifyVariablename(expressiontype), ")"
   ), 15))
 
   print(p)
@@ -229,23 +223,166 @@ ggplot_boxplot <- function(plotmatrix, experiment, colorby = NULL, palette = NUL
 #' A simple function using \code{plotly} to make a sample boxplot.
 #' NOT CURRENTLY USED DUE TO RESOURCE REQUIREMENTS ON LARGE MATRICES
 #'
-#' @param plotmatrix Expression/ other data matrix
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from
+#' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #'
+#' @export
 #' @return output A \code{plotly} output
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(plotmatrix, experiment, colorby, expressiontype = "expression") {
-  plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
-  plot_ly(plotdata, type = "box", y = log2_count, x = name, color = colorby, evaluate = TRUE) %>%
-    layout(
-      yaxis = list(title = expressiontype), xaxis = list(title = NULL),
-      evaluate = TRUE
+plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression") {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby)
+
+  ncats <- length(unique(plotdata$colorby))
+  if (is.null(palette)) {
+    palette <- makeColorScale(ncats)
+  }
+
+  plotdata %>%
+    group_by(type) %>%
+    group_map(
+      ~ plot_ly(
+        data = .,
+        x = ~name,
+        y = ~value,
+        color = ~colorby,
+        text = ~gene,
+        type = "box",
+        legendgroup = ~colorby,
+        colors = palette,
+        showlegend = (.y == "Raw")
+      ) %>%
+        layout(
+          xaxis = list(title = paste(.x$type[1])),
+          yaxis = list(title = splitStringToFixedwidthLines(paste0(
+            "log2(",
+            prettifyVariablename(expressiontype), ")"
+          ), 15)),
+          legend = list(
+            title = list(text = prettifyVariablename(colorby)),
+            orientation = "h",
+            xanchor = "center",
+            x = 0.5,
+            y = -0.3
+          )
+        ) %>%
+        config(showLink = TRUE),
+      .keep = TRUE
     ) %>%
-    config(showLink = TRUE)
+    subplot(
+      nrows = 1,
+      shareX = TRUE,
+      shareY = TRUE,
+      titleX = TRUE,
+      titleY = TRUE
+    )
+}
+
+#' Make a static density plot with ggplot2
+#'
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
+#' @param experiment Annotation for the columns of plotmatrix
+#' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from
+#' \code{colorby}.
+#' @param expressiontype Expression type for use in y axis label
+#'
+#' @export
+#'
+#' @return output A \code{ggplot} output
+
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
+  ncats <- length(unique(plotdata$name))
+  palette <- makeColorScale(ncats)
+
+  p <- ggplot(data = plotdata) +
+    geom_area(aes(x = value, y = density, fill = name, color = name), alpha = 0.4) +
+    scale_fill_manual(name = prettifyVariablename(colorby), values = makeColorScale(ncats, palette = "Set1")) +
+    scale_color_manual(name = prettifyVariablename(colorby), values = makeColorScale(ncats, palette = "Set1")) +
+    ylab("Density") +
+    xlab(splitStringToFixedwidthLines(paste0(
+      "log2(",
+      prettifyVariablename(expressiontype), ")"
+    ), 15)) +
+    guides(fill = guide_legend(title = prettifyVariablename(colorby))) +
+    theme(legend.position = "bottom")
+
+  if (is.list(plotmatrices) && length(plotmatrices) > 1) {
+    p <- p + facet_wrap(~type, ncol = 1, scales = "free_y")
+  }
+
+  p + theme_bw(base_size = 16) + theme(
+    legend.position = "bottom"
+  )
+}
+
+#' Make a dynamic density plot with plotly
+#'
+#' A simple function using \code{plotly} to make a sample density plot.
+#'
+#' @param plotmatrices Expression/ other data matrix, or named list thereof
+#' @param experiment Annotation for the columns of plotmatrix
+#' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param palette Palette of colors, one for each unique value derived from
+#' \code{colorby}.
+#' @param expressiontype Expression type for use in y axis label
+#'
+#' @export
+#'
+#' @return output A \code{plotly} output
+
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
+  ncats <- length(unique(plotdata$name))
+  palette <- makeColorScale(ncats)
+
+  plotdata %>%
+    group_by(type) %>%
+    group_map(
+      ~ plot_ly(
+        data = .,
+        x = ~value,
+        y = ~density,
+        color = ~name,
+        type = "scatter",
+        mode = "lines",
+        fill = "tozeroy",
+        legendgroup = ~name,
+        colors = palette,
+        showlegend = (.y == "Raw"),
+        alpha = 0.2
+      ) %>%
+        layout(
+          hoverlabel = list(namelength = -1),
+          xaxis = list(title = splitStringToFixedwidthLines(paste0(
+            "log2(",
+            prettifyVariablename(expressiontype), ")"
+          ), 15)),
+          yaxis = list(title = paste(.x$type[1])),
+          legend = list(
+            title = list(text = "Sample"),
+            orientation = "h",
+            xanchor = "center",
+            x = 0.5,
+            y = -0.2
+          )
+        ) %>%
+        config(showLink = TRUE),
+      .keep = TRUE
+    ) %>%
+    subplot(
+      nrows = length(unique(plotdata$type)),
+      shareX = TRUE,
+      shareY = FALSE,
+      titleX = TRUE,
+      titleY = TRUE
+    )
 }
 
 #' Make a line-based alternative to boxplots
@@ -275,7 +412,7 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
   })
 
   outliers <- lapply(samples, function(x) {
-    y <- matrix[, x]
+    y <- structure(matrix[, x], names = rownames(matrix))
     ol <- y[which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)]
     if (length(ol) > 0) {
       data.frame(x = x, y = ol, label = idToLabel(names(ol), ese), stringsAsFactors = FALSE)
@@ -312,7 +449,9 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
       dash = "longdash"
     ), name = paste0("25%<br />- (IQR * ", whisker_distance, ")")) %>%
     layout(xaxis = list(
-      title = NULL, categoryarray = samples,
-      categoryorder = "array"
-    ), yaxis = list(title = paste0("log2(", expressiontype, ")")), margin = list(b = 150), hovermode = "closest", title = NULL)
+      title = NULL
+    ), yaxis = list(
+      title = paste0("log2(", expressiontype, ")"),
+      zeroline = FALSE
+    ), margin = list(b = 150), hovermode = "closest", title = NULL)
 }

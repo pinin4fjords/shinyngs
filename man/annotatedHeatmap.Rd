@@ -43,12 +43,12 @@ output A plot as produced by pheatmap()
 }
 \description{
 This is a generic function which may be useful outside of this package. It
-produces a heatmap based on an expression matrix and accompanying 
-experiment data in the form of a frame, using \code{pheatmap()} or 
+produces a heatmap based on an expression matrix and accompanying
+experiment data in the form of a frame, using \code{pheatmap()} or
 \code{d3heatmap()}.
 }
 \details{
-The clustering parameters for \code{pheatmap()} and \code{d3heatmap()} are 
+The clustering parameters for \code{pheatmap()} and \code{d3heatmap()} are
 set to be consistent with one another.
 }
 \keyword{keywords}

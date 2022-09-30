@@ -17,10 +17,11 @@ illuminaarray(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(illuminaarray, 'illuminaarray', eselist)
+callModule(illuminaarray, "illuminaarray", eselist)
+
 }
 \keyword{shiny}

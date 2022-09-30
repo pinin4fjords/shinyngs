@@ -21,10 +21,11 @@ The gene module picks specified rows out the assay data, either simply by id
 or label. This is used to create a gene-centric info page.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(gene, 'gene', eselist)
+callModule(gene, "gene", eselist)
+
 }
 \keyword{shiny}

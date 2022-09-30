@@ -29,7 +29,7 @@ labelselectfield(
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 
-\item{getExperiment}{Reactive supplying 
+\item{getExperiment}{Reactive supplying
 an \code{ExploratorySummarizedExperiment}}
 
 \item{labels_from_all_experiments}{Derive valid labels from all experiments?}
@@ -39,10 +39,10 @@ select field}
 
 \item{max_items}{Maximum number of metadata values that can be selected}
 
-\item{field_selection}{Allow selection of the meta field to use (TRUE), or 
+\item{field_selection}{Allow selection of the meta field to use (TRUE), or
 use labels (or row ids if the label field is not set)?}
 
-\item{id_selection}{Allow users to pick specific ID from those that relate 
+\item{id_selection}{Allow users to pick specific ID from those that relate
 to the specified label? (default: FALSE)}
 
 \item{getNonEmptyRows}{Optional reactive providing non empty matrix rows}
@@ -56,14 +56,15 @@ be called by other modules requiring that input.
 }
 \details{
 Where metadata is present, the user can select which field to select on, and
-the value of that field (populated conditionall on field selction). If 
+the value of that field (populated conditionall on field selction). If
 specified, checkboxes are provided to allow selection of specific row IDs.
 
-A \code{\link[shiny]{selectizeInput}} is used for performance reasons, 
-providing an autocomplete field for selecting from a list that could stretch 
-to thousands of entries. This would be difficult to do client-side using a 
+A \code{\link[shiny]{selectizeInput}} is used for performance reasons,
+providing an autocomplete field for selecting from a list that could stretch
+to thousands of entries. This would be difficult to do client-side using a
 standard select field.
 }
 \examples{
-callModule(labelselectfield, 'myid', eselist)
+callModule(labelselectfield, "myid", eselist)
+
 }

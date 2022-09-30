@@ -45,15 +45,16 @@ gain access to the data provided by those reaactive.}
 \item{default_qval}{Default value for the q value field}
 }
 \description{
-This module provides the form elements to control contrasts used in e.g. 
-differential expression panels. In particular it provides the ability for 
+This module provides the form elements to control contrasts used in e.g.
+differential expression panels. In particular it provides the ability for
 users to add filters to progressively refine a query.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(contrasts, 'differential', getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
+callModule(contrasts, "differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
+
 }
 \keyword{shiny}

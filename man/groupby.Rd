@@ -31,21 +31,22 @@ ExploratorySummarizedExperiment objects}
 
 \item{multiple}{Produces a checkbox group if true, a select box if false}
 
-\item{selectColData}{Reactive returning an experiment matrix, probably 
+\item{selectColData}{Reactive returning an experiment matrix, probably
 derived from the \code{\link{selectmatrix}} module.}
 
 \item{isDynamic}{Reactive expression providing a boolean. A FALSE value
 causes the groupby option to be placed in a hidden field.}
 }
 \value{
-output A list of reactive functions which will be used by other 
+output A list of reactive functions which will be used by other
 modules.
 }
 \description{
-The groupby module provides a UI element to choose from the 
+The groupby module provides a UI element to choose from the
 \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA etc
 }
 \examples{
-geneset_functions <- callModule(groupby, 'heatmap', getExperiment)
+geneset_functions <- callModule(groupby, "heatmap", getExperiment)
+
 }
 \keyword{shiny}

@@ -35,17 +35,18 @@ ExploratorySummarizedExperiment object, with 'labelfield' set in its slots}
 \item{require_select}{Require a gene set selection?}
 }
 \value{
-output A list of two reactive functions which will be used by other 
+output A list of two reactive functions which will be used by other
 modules.
 }
 \description{
 The gene set module is for adding a gene set filter to displays. A
-\code{\link[shiny]{selectizeInput}} is used for performance reasons, 
-providing an autocomplete field for selecting from a list that could stretch 
-to thousands of entries. This would be difficult to do client-side using a 
+\code{\link[shiny]{selectizeInput}} is used for performance reasons,
+providing an autocomplete field for selecting from a list that could stretch
+to thousands of entries. This would be difficult to do client-side using a
 standard select field.
 }
 \examples{
-geneset_functions <- callModule(genesetselect, 'heatmap', getExperiment)
+geneset_functions <- callModule(genesetselect, "heatmap", getExperiment)
+
 }
 \keyword{shiny}

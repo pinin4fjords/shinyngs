@@ -11,11 +11,11 @@ labelselectfieldInput(id, max_items = 1, id_selection = FALSE)
 
 \item{max_items}{Maximum number of items that can be selected}
 
-\item{id_selection}{Allow users to pick specific ID from those that relate 
+\item{id_selection}{Allow users to pick specific ID from those that relate
 to the specified label? (default: FALSE)}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
@@ -25,14 +25,15 @@ be called by other modules requiring that input.
 }
 \details{
 Where metadata is present, the user can select which field to select on, and
-the value of that field (populated conditionall on field selction). If 
+the value of that field (populated conditionall on field selction). If
 specified, checkboxes are provided to allow selection of specific row IDs.
 
-A \code{\link[shiny]{selectizeInput}} is used for performance reasons, 
-providing an autocomplete field for selecting from a list that could stretch 
-to thousands of entries. This would be difficult to do client-side using a 
+A \code{\link[shiny]{selectizeInput}} is used for performance reasons,
+providing an autocomplete field for selecting from a list that could stretch
+to thousands of entries. This would be difficult to do client-side using a
 standard select field.
 }
 \examples{
-labelselectfieldInput('myid')
+labelselectfieldInput("myid")
+
 }

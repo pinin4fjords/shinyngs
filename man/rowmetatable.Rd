@@ -17,12 +17,13 @@ rowmetatable(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
-example). Essentially this just passes the results of \code{colData()} 
-applied to the specified SummarizedExperiment object to the 
+This function is not called directly, but rather via callModule() (see
+example). Essentially this just passes the results of \code{colData()}
+applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(rowmetatable, 'rowmetatable', eselist)
+callModule(rowmetatable, "rowmetatable", eselist)
+
 }
 \keyword{shiny}

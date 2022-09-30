@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessory.R
 \name{splitStringToFixedwidthLines}
 \alias{splitStringToFixedwidthLines}
-\title{Given a string with spaces, try to split into multiple lines of < 
+\title{Given a string with spaces, try to split into multiple lines of <
 \code{linewidth} characters}
 \usage{
 splitStringToFixedwidthLines(string, linewidth = 20)
@@ -16,9 +16,10 @@ splitStringToFixedwidthLines(string, linewidth = 20)
 A string with newline characters added where appropriate
 }
 \description{
-Given a string with spaces, try to split into multiple lines of < 
+Given a string with spaces, try to split into multiple lines of <
 \code{linewidth} characters
 }
 \examples{
-splitStringToFixedwidthLines('once upon a time there was a giant and a beanstalk and a pot of gold and some beans')
+splitStringToFixedwidthLines("once upon a time there was a giant and a beanstalk and a pot of gold and some beans")
+
 }

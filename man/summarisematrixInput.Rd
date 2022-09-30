@@ -14,7 +14,7 @@ summarisematrixInput(id, allow_none = TRUE, select_summary_type = TRUE)
 \item{select_summary_type}{Allow user to select summary type (e.g. mean)?}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
@@ -22,6 +22,7 @@ This module provides a form element and associated get function for defining
 how a summary statistic is calculated (probably by mean).
 }
 \examples{
-contrastsInput('test')
+contrastsInput("test")
+
 }
 \keyword{shiny}

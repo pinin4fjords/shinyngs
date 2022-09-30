@@ -13,22 +13,22 @@ genesetanalysistableInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module displays gene set analysis tables stored as a list in the 
+This module displays gene set analysis tables stored as a list in the
 \code{gene_set_analyses} slot of an \code{ExploratorySummarizedExperiment}.
 }
 \details{
-The \code{gene_set_analyses} slot must be keyed first by the name of the 
-assay to which it pertains, and second by the gene set type (e.g. 'KEGG'). 
+The \code{gene_set_analyses} slot must be keyed first by the name of the
+assay to which it pertains, and second by the gene set type (e.g. 'KEGG').
 The containing \code{ExploratorySummarizedExperiment} must have a populated
-\code{gene_sets} slot, keyed first by metadata column used to define the 
+\code{gene_sets} slot, keyed first by metadata column used to define the
 gene sets and secondly by the gene set type.
 
-The module is based on the output of roast() from \code{limma}, but it's 
-fairly generic, and assumes only the presence of a 'p value' and 'FDR' 
+The module is based on the output of roast() from \code{limma}, but it's
+fairly generic, and assumes only the presence of a 'p value' and 'FDR'
 column, so the output of other methods should be easily adapted to suit.
 
 Leverages the \code{simpletable} module
@@ -45,14 +45,15 @@ names(assays(zhangneurons$gene))
 names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
 
 # Gene set can be related back to individual genes via information in the
-# containing object's 'gene_sets' slot. These are keyed first to indicate 
+# containing object's 'gene_sets' slot. These are keyed first to indicate
 # which metadata field gene set members pertain to, and secondly by gene
-# set type. 
+# set type.
 
 names(zhangneurons@gene_sets)
 
 # Module input produced like:
 
-genesetanalysistableInput('experiment', eselist)
+genesetanalysistableInput("experiment", eselist)
+
 }
 \keyword{shiny}

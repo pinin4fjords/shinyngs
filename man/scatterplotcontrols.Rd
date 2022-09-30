@@ -22,19 +22,19 @@ scatterplotcontrols(
 
 \item{session}{Session object}
 
-\item{getDatamatrix}{Reactive expression that returns a matrix from which 
-coulumn headers will be used to create axis select drop-downs. The same 
+\item{getDatamatrix}{Reactive expression that returns a matrix from which
+coulumn headers will be used to create axis select drop-downs. The same
 reactive should be supplied to the scatterplot module}
 
-\item{x}{A value supplied for this parameter will cause a hidden field to 
+\item{x}{A value supplied for this parameter will cause a hidden field to
 be generated instead of a select, useful for scatter plots that don't need
 the user to select axes (default: NA)}
 
-\item{y}{A value supplied for this parameter will cause a hidden field to 
+\item{y}{A value supplied for this parameter will cause a hidden field to
 be generated instead of a select, useful for scatter plots that don't need
 the user to select axes (default: NA)}
 
-\item{z}{A value supplied for this parameter will cause a hidden field to 
+\item{z}{A value supplied for this parameter will cause a hidden field to
 be generated instead of a select, useful for scatter plots that don't need
 the user to select axes (default: NA)}
 
@@ -48,5 +48,6 @@ This module provides controls (2D/3D, axes etc) for scatter plots, which
 may then be used by one or more instances of the scatterplot module.
 }
 \examples{
-unpack.list(callModule(scatterplotcontrols, 'pca', pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
+unpack.list(callModule(scatterplotcontrols, "pca", pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
+
 }

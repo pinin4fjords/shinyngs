@@ -44,55 +44,55 @@ this should match the one supplied to \code{scatterplotcontrols}}
 (default), the \code{scatterplotcontrols} module will be called to create
 a set of inputs to supply this value and the axes etc.}
 
-\item{getXAxis}{NULL, or if \code{getThreedee} is a reactive, a reactive 
-supplying an integer specifying which column of the matrix supplied by 
+\item{getXAxis}{NULL, or if \code{getThreedee} is a reactive, a reactive
+supplying an integer specifying which column of the matrix supplied by
 \code{getDatamatrix} should be used for this axis.}
 
-\item{getYAxis}{NULL, or if \code{getThreedee} is a reactive, a reactive 
-supplying an integer specifying which column of the matrix supplied by 
+\item{getYAxis}{NULL, or if \code{getThreedee} is a reactive, a reactive
+supplying an integer specifying which column of the matrix supplied by
 \code{getDatamatrix} should be used for this axis.}
 
-\item{getZAxis}{NULL, or if \code{getThreedee} is a reactive, a reactive 
-supplying an integer specifying which column of the matrix supplied by 
+\item{getZAxis}{NULL, or if \code{getThreedee} is a reactive, a reactive
+supplying an integer specifying which column of the matrix supplied by
 \code{getDatamatrix} should be used for this axis.}
 
-\item{getShowLabels}{NULL, or if \code{getThreedee} is a reactive, a 
-reactive supplying a logical defining whether labels should be shown on 
+\item{getShowLabels}{NULL, or if \code{getThreedee} is a reactive, a
+reactive supplying a logical defining whether labels should be shown on
 points.}
 
-\item{getPointSize}{NULL, or if \code{getThreedee} is a reactive, a 
+\item{getPointSize}{NULL, or if \code{getThreedee} is a reactive, a
 reactive supplying an integer point size to pass to plotly.}
 
-\item{getPalette}{An optional palette of colors, one for each level of 
+\item{getPalette}{An optional palette of colors, one for each level of
 colorBy.}
 
-\item{colorBy}{A reactive returning a factor definining the groups in which 
+\item{colorBy}{A reactive returning a factor definining the groups in which
 points should be colored.}
 
 \item{getTitle}{A reactive expression supplying a title.}
 
-\item{getLabels}{A reactive supplying a list of labels to use instead of row 
+\item{getLabels}{A reactive supplying a list of labels to use instead of row
 names from \code{getDatamatrix()}}
 
-\item{allow_3d}{Passed to \code{\link{scatterplotcontrolsInput}} to dermine 
+\item{allow_3d}{Passed to \code{\link{scatterplotcontrolsInput}} to dermine
 if the user will be allowed to create 3D plots.}
 
 \item{x}{Passed to \code{\link{scatterplotcontrolsInput}} to determine how
-it produces an input field for selecting the x axis. A value supplied for 
-this parameter will cause a hidden field to be generated instead of a 
-select, useful for scatter plots that don't need the user to select axes 
+it produces an input field for selecting the x axis. A value supplied for
+this parameter will cause a hidden field to be generated instead of a
+select, useful for scatter plots that don't need the user to select axes
 (default: NA).}
 
 \item{y}{Passed to \code{\link{scatterplotcontrolsInput}} to determine how
-it produces an input field for selecting the y axis. A value supplied for 
-this parameter will cause a hidden field to be generated instead of a 
-select, useful for scatter plots that don't need the user to select axes 
+it produces an input field for selecting the y axis. A value supplied for
+this parameter will cause a hidden field to be generated instead of a
+select, useful for scatter plots that don't need the user to select axes
 (default: NA).}
 
 \item{z}{Passed to \code{\link{scatterplotcontrolsInput}} to determine how
-it produces an input field for selecting the z axis. A value supplied for 
-this parameter will cause a hidden field to be generated instead of a 
-select, useful for scatter plots that don't need the user to select axes 
+it produces an input field for selecting the z axis. A value supplied for
+this parameter will cause a hidden field to be generated instead of a
+select, useful for scatter plots that don't need the user to select axes
 (default: NA).}
 
 \item{getLines}{Reactive returning a data frame defining lines to be drawn.
@@ -100,12 +100,12 @@ Three columns required: name, x and y, with two rows for every value of
 name. These two rows represent the start and end of a line.}
 }
 \description{
-This module uses \href{https://plot.ly/}{Plotly} to create scatter plots 
+This module uses \href{https://plot.ly/}{Plotly} to create scatter plots
 (see \code{\link[plotly]{plot_ly}}), of both 2D and 3D varieties.
 }
 \details{
 Controls for this module are provided by the \code{scatterplotcontrols}
-module, which is automatically called if reactives are not supplied to the 
-server function. This setup allows the same set of controls to power 
+module, which is automatically called if reactives are not supplied to the
+server function. This setup allows the same set of controls to power
 multiple scatter plots.
 }

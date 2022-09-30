@@ -15,7 +15,7 @@ summarySE(
 )
 }
 \arguments{
-\item{data}{A data frame. Expects all values for summarisation to be in one 
+\item{data}{A data frame. Expects all values for summarisation to be in one
 column, which may requie judicious use of \code{\link[reshape2]{melt}}.}
 
 \item{measurevar}{The name of a column that contains the variable to be
@@ -30,7 +30,7 @@ variables}
 95 percent)}
 
 \item{add_medians}{Logical indicating whether medians should be added to the
-output. Standard error estimates for the median require bootstrapping, so 
+output. Standard error estimates for the median require bootstrapping, so
 TRUE for this variables make summary statistic calculation take longer.}
 
 \item{.drop}{Logical passed to ddply()}
@@ -39,7 +39,7 @@ TRUE for this variables make summary statistic calculation take longer.}
 out Data frame with summary statistics
 }
 \description{
-Matrix summarization function adapted from 
+Matrix summarization function adapted from
 \url{http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)}{the R cookbook}.
 }
 \details{
@@ -47,5 +47,6 @@ Uses bootstrapping to return the standard error/ deviation of the median.
 }
 \examples{
 tg <- ToothGrowth
-summarySE(tg, measurevar='len', groupvars=c('supp','dose'))
+summarySE(tg, measurevar = "len", groupvars = c("supp", "dose"))
+
 }

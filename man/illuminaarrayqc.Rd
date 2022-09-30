@@ -20,10 +20,11 @@ ExploratorySummarizedExperiment objects}
 This module plots control probes from an illumina microarray experiment.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(illuminaarayqc, 'myid', eselist)
+callModule(illuminaarayqc, "myid", eselist)
+
 }
 \keyword{shiny}

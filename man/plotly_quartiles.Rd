@@ -18,15 +18,16 @@ plotly_quartiles(
 
 \item{expressiontype}{Y axis label}
 
-\item{whisker_distance}{IQR multiplier for whiskers, and beyond which to 
+\item{whisker_distance}{IQR multiplier for whiskers, and beyond which to
 show outliers (see \code{coef} in \code{\link[ggplot2]{geom_boxplot}})}
 }
 \description{
 Box-plots become unmanagable with large numbers of samples. This function
-plots lines at the median, quartiles, and whiskers, plotting points for 
+plots lines at the median, quartiles, and whiskers, plotting points for
 outliers beyond that
 }
 \examples{
-data(airway, package = 'airway')
-plotly_quartiles(assays(airway)[[1]], as(airway, 'ExploratorySummarizedExperiment'))
+data(airway, package = "airway")
+plotly_quartiles(assays(airway)[[1]], as(airway, "ExploratorySummarizedExperiment"))
+
 }

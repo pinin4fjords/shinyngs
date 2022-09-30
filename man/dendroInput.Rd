@@ -13,13 +13,13 @@ dendroInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module will produce a sample clustering dendrogram based on 
-user-selected parameters of row (e.g. gene) and column (sample) selection 
-provided by the \code{selectmatrix} module, as well distance matrix 
+This module will produce a sample clustering dendrogram based on
+user-selected parameters of row (e.g. gene) and column (sample) selection
+provided by the \code{selectmatrix} module, as well distance matrix
 generation and clustering method.
 }
 \details{
@@ -28,6 +28,7 @@ This funcion provides the form elements to control the display
 \examples{
 library(shinyngs)
 data(zhangneurons)
-dendroInput('myid', zhangneurons)
+dendroInput("myid", zhangneurons)
+
 }
 \keyword{shiny}

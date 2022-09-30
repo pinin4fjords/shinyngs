@@ -10,18 +10,19 @@ colormakerInput(id)
 \item{id}{Submodule namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
 This module provides a drop-down for picking an RColorBrewer color palette
-and provides that palette given a reactive which supplied the required 
+and provides that palette given a reactive which supplied the required
 number of colors.
 }
 \details{
 This funcion provides the form elements to control the display
 }
 \examples{
-colormakerInput('myid')
+colormakerInput("myid")
+
 }
 \keyword{shiny}

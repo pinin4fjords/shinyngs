@@ -20,5 +20,6 @@ output A UI definition that can be passed to the shinyUI function.
 Wrap a Shiny input so its label is displayed inline
 }
 \examples{
-inlineField(numericInput('foo', label = NULL, min = 0, max = 100, value = 50), 'FOO') 
+inlineField(numericInput("foo", label = NULL, min = 0, max = 100, value = 50), "FOO")
+
 }

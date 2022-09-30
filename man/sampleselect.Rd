@@ -2,10 +2,7 @@
 % Please edit documentation in R/sampleselect.R
 \name{sampleselect}
 \alias{sampleselect}
-\title{The server function of the sampleselect module
- 
-This module provides controls for selecting matrix columns by sample or 
-group name.}
+\title{The server function of the sampleselect module}
 \usage{
 sampleselect(input, output, session, eselist, getExperiment)
 }
@@ -20,7 +17,7 @@ sampleselect(input, output, session, eselist, getExperiment)
 ExploratorySummarizedExperiment objects}
 
 \item{getExperiment}{Reactive expression that returns a
-\code{ExploratorySummarizedExperiment} with assays and metadata. Usually a 
+\code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 result of a user selection}
 }
 \value{
@@ -28,10 +25,15 @@ output A list of reactive functions for interrogating the selected
 samples/ columns.
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
+This module provides controls for selecting matrix columns by sample or
+group name.
+}
+\details{
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, 'selectmatrix', getExperiment)
+selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
+
 }
 \keyword{shiny}

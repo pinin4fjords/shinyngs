@@ -13,18 +13,19 @@ rowmetatableInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module produces a simple table of the row metadata (accessed via 
-\code{mcols}) in a SummarizedExperiment object. If more than one of these 
+This module produces a simple table of the row metadata (accessed via
+\code{mcols}) in a SummarizedExperiment object. If more than one of these
 objects were specified, a select box should appear to pick the desired one for display.
 }
 \details{
 Leverages the \code{simpletable} module
 }
 \examples{
-experimentableInput('experiment', eselist)
+experimentableInput("experiment", eselist)
+
 }
 \keyword{shiny}

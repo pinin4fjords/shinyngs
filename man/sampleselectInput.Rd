@@ -13,14 +13,14 @@ sampleselectInput(id, eselist, getExperiment, select_samples = TRUE)
 ExploratorySummarizedExperiment objects}
 
 \item{getExperiment}{Reactive expression that returns a
-\code{ExploratorySummarizedExperiment} with assays and metadata. Usually a 
+\code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 result of a user selection}
 
 \item{select_samples}{Select samples at all? If set to false, a hidden input
 indicating the selection of all samples is produced.}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
@@ -28,10 +28,11 @@ This module provides controls for selecting matrix columns by sample or group
 name.
 }
 \details{
-This will generally not be called directly, but by other modules such as the 
+This will generally not be called directly, but by other modules such as the
 selectmatrix module.
 }
 \examples{
-sampleselectInput(ns('heatmap'))
+sampleselectInput(ns("heatmap"))
+
 }
 \keyword{shiny}

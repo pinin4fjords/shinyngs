@@ -2,7 +2,7 @@
 % Please edit documentation in R/dexseqplot.R
 \name{dexseqplotOutput}
 \alias{dexseqplotOutput}
-\title{The UI output function of the dexseqplot Shiny module. Produces a plot and a 
+\title{The UI output function of the dexseqplot Shiny module. Produces a plot and a
 table of values.}
 \usage{
 dexseqplotOutput(id, eselist)
@@ -14,23 +14,24 @@ dexseqplotOutput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module produces a differential exon usage plot using the \code{plotDEXSeq} 
+This module produces a differential exon usage plot using the \code{plotDEXSeq}
 function of the DEXSeq package.
 }
 \details{
 For the plot to be displayed, the \code{dexseq_results} slot must be filled
 on at least one of the component \code{ExploratorySummarizedExperiment} objects
-of the input \code{ExploratorySummarizedExperimentList}. 
+of the input \code{ExploratorySummarizedExperimentList}.
 
 \code{dexseq_results} must be a list of \code{DEXSeqResults} objects corresponding
-to the contrasts listed in the \code{contrasts} slot of the 
+to the contrasts listed in the \code{contrasts} slot of the
 \code{ExploratorySummarizedExperiment}.
 }
 \examples{
-dexseqplotOutput('experiment', eselist)
+dexseqplotOutput("experiment", eselist)
+
 }
 \keyword{shiny}

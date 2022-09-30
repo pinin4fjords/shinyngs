@@ -10,7 +10,7 @@ illuminaarrayqcOutput(id)
 \item{id}{Submodule namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
@@ -22,6 +22,7 @@ This funcion provides the form elements to control the display
 This provides actual plot element for display by applications
 }
 \examples{
-illuminaarrayqcOutput('myid')
+illuminaarrayqcOutput("myid")
+
 }
 \keyword{shiny}

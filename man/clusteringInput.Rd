@@ -13,16 +13,16 @@ clusteringInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This module plots the expression profiles (scaled for comparison) of the 
+This module plots the expression profiles (scaled for comparison) of the
 selected rows of the input matrix provided by the \code{selectmatrix} module.
 }
 \details{
-The \code{\link[clustering]{clara}} method, a fast approximation of 
-partitioning about medoids, is used to produce the clusters. As well as 
+The \code{\link[clustering]{clara}} method, a fast approximation of
+partitioning about medoids, is used to produce the clusters. As well as
 defining the input matrix users can decide how the clusters are drawn and how
 many clusters should be generated.
 
@@ -31,6 +31,7 @@ This funcion provides the form elements to control the display
 \examples{
 library(shinyngs)
 data(zhangneurons)
-clusteringInput('myid', zhangneurons)
+clusteringInput("myid", zhangneurons)
+
 }
 \keyword{shiny}

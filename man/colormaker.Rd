@@ -13,23 +13,24 @@ colormaker(input, output, session, getNumberCategories)
 
 \item{session}{Session object}
 
-\item{getNumberCategories}{A reactive supplying the number of categories 
+\item{getNumberCategories}{A reactive supplying the number of categories
 that require a color.}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
 This module provides a drop-down for picking an RColorBrewer color palette
-and provides that palette given a reactive which supplied the required 
+and provides that palette given a reactive which supplied the required
 number of colors.
 }
 \details{
-This function is not called directly, but rather via callModule() (see 
+This function is not called directly, but rather via callModule() (see
 example).
 }
 \examples{
-callModule(colormaker, 'myid', getNumberCategories)
+callModule(colormaker, "myid", getNumberCategories)
+
 }
 \keyword{shiny}

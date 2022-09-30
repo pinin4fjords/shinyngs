@@ -13,7 +13,7 @@ illuminaarrayqcInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
@@ -24,6 +24,7 @@ This funcion provides the form elements to control the display
 }
 \examples{
 library(shinyngs)
-illuminaarrayqcInput('myid', eselist)
+illuminaarrayqcInput("myid", eselist)
+
 }
 \keyword{shiny}

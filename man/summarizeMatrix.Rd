@@ -2,7 +2,7 @@
 % Please edit documentation in R/summarisematrix.R
 \name{summarizeMatrix}
 \alias{summarizeMatrix}
-\title{Summarise the rows of a matrix, applying a function to groups of cells 
+\title{Summarise the rows of a matrix, applying a function to groups of cells
 defined by a factor}
 \usage{
 summarizeMatrix(matrix, treatment_factor, summaryFunc = "colMeans")
@@ -12,7 +12,7 @@ summarizeMatrix(matrix, treatment_factor, summaryFunc = "colMeans")
 
 \item{treatment_factor}{a factor defining column groups}
 
-\item{summaryFunc}{A Function to apply to a transformed version of 
+\item{summaryFunc}{A Function to apply to a transformed version of
 \code{matrix} (default: colMeans)}
 }
 \value{
@@ -24,4 +24,5 @@ of the matrix, so \code{colMeans()}, for example, is appropriate.
 }
 \examples{
 summarizeMatrix(mymatrix, myfactor)
+
 }

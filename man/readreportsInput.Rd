@@ -16,6 +16,6 @@ slot filled}
 A list of controls that can be added to a UI definition
 }
 \description{
-Display plots and tables relating to read mapping, attrition during 
+Display plots and tables relating to read mapping, attrition during
 analysis etc.
 }

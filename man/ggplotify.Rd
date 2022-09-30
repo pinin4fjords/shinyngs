@@ -4,16 +4,27 @@
 \alias{ggplotify}
 \title{Reshape data to the way \code{ggplot2} likes it}
 \usage{
-ggplotify(matrix, experiment, colorby = NULL)
+ggplotify(
+  plotmatrices,
+  experiment,
+  colorby = NULL,
+  value_type = "expression",
+  annotate_samples = FALSE
+)
 }
 \arguments{
-\item{matrix}{A matrix of values, e.g. expression data}
+\item{plotmatrices}{A matrix of values, e.g. expression data}
 
-\item{experiment}{A data frame with rows matching the columns of 
+\item{experiment}{A data frame with rows matching the columns of
 \code{matrix}}
 
 \item{colorby}{An optional string specifying a column from \code{experiment}
 that will be used to set a color column in the reshaped output.}
+
+\item{value_type}{Type of data to assemble. By default this is just expression
+values, but can be 'density' to calculate expression densities.}
+
+\item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 }
 \value{
 A reshaped data frame
@@ -23,4 +34,5 @@ Reshape data to the way \code{ggplot2} likes it
 }
 \examples{
 plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
+
 }

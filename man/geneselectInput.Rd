@@ -12,7 +12,7 @@ geneselectInput(id, select_genes = TRUE)
 \item{select_genes}{Disable gene (row) - wise selection if set to FALSE}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
@@ -24,6 +24,7 @@ This will generally not be called directly, but by other modules such as the
 heatmap module.
 }
 \examples{
-geneselectInput('myid')
+geneselectInput("myid")
+
 }
 \keyword{shiny}

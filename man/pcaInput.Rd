@@ -13,21 +13,22 @@ pcaInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This provides the form elements to control the pca display, derived from the 
-\code{selectmatrix}, \code{scatterplotcontrols}, and \code{scatterplot} 
+This provides the form elements to control the pca display, derived from the
+\code{selectmatrix}, \code{scatterplotcontrols}, and \code{scatterplot}
 modules.
 }
 \examples{
-pcaInput('pca', ese, group_vars, default_groupvar, tructure(1:10, names=paste0('PC', 1:10)))
+pcaInput("pca", ese, group_vars, default_groupvar, tructure(1:10, names = paste0("PC", 1:10)))
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('pca', zhangneurons)
+app <- prepareApp("pca", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

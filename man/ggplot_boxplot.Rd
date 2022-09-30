@@ -5,7 +5,7 @@
 \title{Make a boxplot with coloring by experimental variable}
 \usage{
 ggplot_boxplot(
-  plotmatrix,
+  plotmatrices,
   experiment,
   colorby = NULL,
   palette = NULL,
@@ -14,19 +14,19 @@ ggplot_boxplot(
 )
 }
 \arguments{
-\item{plotmatrix}{Expression/ other data matrix}
+\item{plotmatrices}{Expression/ other data matrix, or named list thereof}
 
 \item{experiment}{Annotation for the columns of plotmatrix}
 
 \item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
 
-\item{palette}{Palette of colors, one for each unique value derived from 
+\item{palette}{Palette of colors, one for each unique value derived from
 \code{colorby}.}
 
 \item{expressiontype}{Expression type for use in y axis label}
 
-\item{whisker_distance}{Passed to \code{\link[ggplot2]{geom_boxplot}} as 
-\code{coef}, controlling the length of the whiskers. See documentation of 
+\item{whisker_distance}{Passed to \code{\link[ggplot2]{geom_boxplot}} as
+\code{coef}, controlling the length of the whiskers. See documentation of
 that function for more info (default: 1.5).}
 }
 \value{
@@ -37,7 +37,8 @@ A simple function using \code{ggplot2} to make a sample boxplot
 }
 \examples{
 require(airway)
-data(airway, package = 'airway')
-ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = 'dex')
+data(airway, package = "airway")
+ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
+
 }
 \keyword{keywords}

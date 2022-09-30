@@ -17,18 +17,19 @@ volcanoplot(input, output, session, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see 
-example). Essentially this just passes the results of \code{colData()} 
-applied to the specified SummarizedExperiment object to the 
+This function is not called directly, but rather via callModule() (see
+example). Essentially this just passes the results of \code{colData()}
+applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(differentialtable, 'differentialtable', eselist)
+callModule(differentialtable, "differentialtable", eselist)
 
 # However, almost certainly called via application creation:
 
 data(zhangneurons)
-app <- prepareApp('volcanoplot', zhangneurons)
+app <- prepareApp("volcanoplot", zhangneurons)
 shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

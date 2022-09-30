@@ -13,17 +13,18 @@ rnaseqInput(id, eselist)
 ExploratorySummarizedExperiment objects}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
 This provides the form elements to control the RNA-seq display
 }
 \details{
-The rnaseq module is a combination of output from many modules (pca, boxplot 
+The rnaseq module is a combination of output from many modules (pca, boxplot
 etc) to form a comprehensive analysis application.
 }
 \examples{
-rnaseqInput('rnaseq', eselist)
+rnaseqInput("rnaseq", eselist)
+
 }
 \keyword{shiny}

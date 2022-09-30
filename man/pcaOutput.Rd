@@ -10,20 +10,21 @@ pcaOutput(id)
 \item{id}{Module namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This provides a shiny \code{tabsetPanel} with \code{tabPanel}s for both 
+This provides a shiny \code{tabsetPanel} with \code{tabPanel}s for both
 components and loading plots.
 }
 \examples{
-pcaOutput('pca')
+pcaOutput("pca")
 
 # Almost certainly used via application creation
 
 data(zhangneurons)
-app <- prepareApp('pca', zhangneurons)
+app <- prepareApp("pca", zhangneurons)
 shiny::shinyApp(ui = app$ui, server = app$server)
+
 }
 \keyword{shiny}

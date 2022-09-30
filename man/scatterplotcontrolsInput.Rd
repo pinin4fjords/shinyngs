@@ -14,7 +14,7 @@ scatterplotcontrolsInput(id, allow_3d = TRUE, make_colors = FALSE)
 \item{make_colors}{Boolean: add controls for coloring?}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
@@ -22,5 +22,6 @@ This module provides controls (2D/3D, axes etc) for scatter plots, which
 may then be used by one or more instances of the scatterplot module.
 }
 \examples{
-scatterplotcontrolsInput('pca', allow_3d = FALSE) # for a 2D plot
+scatterplotcontrolsInput("pca", allow_3d = FALSE) # for a 2D plot
+
 }

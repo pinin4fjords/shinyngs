@@ -9,7 +9,7 @@ fieldSets(id, fieldset_list, open = NULL, use_shinybs = TRUE)
 \arguments{
 \item{id}{ID field to apply to the overall container}
 
-\item{fieldset_list}{A named list, each element containing one or more 
+\item{fieldset_list}{A named list, each element containing one or more
 fields.}
 
 \item{open}{Only applicable for output with shinyBS, controls which panels
@@ -24,6 +24,6 @@ list
 \description{
 Shiny apps can get cluttered with many inputs. This method wraps sets of
 fields in either a \code{bsCollapse} from \code{shinyBS} (if installed) or
-a simple div element with a title and class 'shinyngsFieldset' (which can 
+a simple div element with a title and class 'shinyngsFieldset' (which can
 then be used for styling)
 }

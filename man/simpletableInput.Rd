@@ -2,9 +2,7 @@
 % Please edit documentation in R/simpletable.R
 \name{simpletableInput}
 \alias{simpletableInput}
-\title{The UI input function of the simpletable module
- 
-This module produces a simple datatable output with a download button.}
+\title{The UI input function of the simpletable module}
 \usage{
 simpletableInput(id, tabletitle = "", description = NULL)
 }
@@ -16,15 +14,14 @@ simpletableInput(id, tabletitle = "", description = NULL)
 \item{description}{A string to display in the side bar to explain the table.}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-The UI input function of the simpletable module
- 
 This module produces a simple datatable output with a download button.
 }
 \examples{
-simpletableInput('mytable', 'this is a table')
+simpletableInput("mytable", "this is a table")
+
 }
 \keyword{shiny}

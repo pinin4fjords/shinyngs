@@ -10,19 +10,20 @@ dendroOutput(id)
 \item{id}{Submodule namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using 
+output An HTML tag object that can be rendered as HTML using
 as.character()
 }
 \description{
-This module will produce a sample clustering dendrogram based on 
-user-selected parameters of row (e.g. gene) and column (sample) selection 
-provided by the \code{selectmatrix} module, as well distance matrix 
+This module will produce a sample clustering dendrogram based on
+user-selected parameters of row (e.g. gene) and column (sample) selection
+provided by the \code{selectmatrix} module, as well distance matrix
 generation and clustering method.
 }
 \details{
 This provides actual dendrogram plot element for display by applications
 }
 \examples{
-dendroOutput('myid')
+dendroOutput("myid")
+
 }
 \keyword{shiny}
