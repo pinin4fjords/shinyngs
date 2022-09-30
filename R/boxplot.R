@@ -55,7 +55,7 @@ boxplotInput <- function(id, eselist) {
 
 #' The output function of the boxplot module
 #'
-#' This module produces displays of the distributionss of the values in the
+#' This module produces displays of the distributions of the values in the
 #' selected assay matrix. For low sample numbers (<= 20) the default is a
 #' boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 #' a line-based alternative using \code{plotly}.
