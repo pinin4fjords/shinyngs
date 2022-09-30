@@ -163,19 +163,29 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
     plotmatrices <- list(" " = plotmatrices)
   }
 
+  ensureLog <- function(vals, condition, rmzeros = FALSE) {
+    if (rmzeros) {
+      vals <- vals[vals > 0]
+    }
+
+    if (condition) {
+      log2(vals)
+    } else {
+      vals
+    }
+  }
+
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
     if (value_type == "density") {
       plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s) {
-        dens <- density(plotmatrices[[pm]][, s])
-        data.frame(name = s, expression = dens$x, density = dens$y)
+        dens <- density(ensureLog(plotmatrices[[pm]][, s], condition = max(plotmatrices[[pm]]) > 20, rmzeros = TRUE))
+        data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {
       plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
       plotdata <- plotdata[which(plotdata$value > 0), ]
-      if (max(plotdata$value) > 20) {
-        plotdata$value <- log2(plotdata$value)
-      }
-      colnames(plotdata) <- c("gene", "name", "log2_count")
+      colnames(plotdata) <- c("gene", "name", "value")
+      plotdata$value <- ensureLog(plotdata$value, max(plotdata$value) > 20)
     }
 
     if (!is.null(colorby)) {

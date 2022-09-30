@@ -53,7 +53,7 @@ rnaseqInput <- function(id, eselist) {
 
   # Add in the QC/ exploratory menu
 
-  exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")),
+  exploratory_menu <- list("QC/ exploratory", tabPanel("Distribution plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")),
     width = 9
   )), icon = icon("bar-chart-o", verify_fa = FALSE)), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
     width = 9
