@@ -27,7 +27,9 @@ scatterplot(
   x = NA,
   y = NA,
   z = NA,
-  getLines = NULL
+  getLines = reactive({
+     NULL
+ })
 )
 }
 \arguments{

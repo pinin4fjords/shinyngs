@@ -111,7 +111,9 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                           ""
                         }), getLabels = reactive({
                           rownames(getDatamatrix())
-                        }), allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = NULL) {
+                        }), allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = reactive({
+                          NULL
+                        })) {
 
   # If inputs are not provided, render controls to provide them
 
@@ -188,129 +190,272 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
     }
   })
 
-  # Unlabelled points will be plotted without hovers etc.
-
-  unlabelled <- reactive(is.na(getLabels()))
-
-  addUnlabelledPoints <- function(p) {
-    if (any(unlabelled())) {
-      withProgress(message = "Adding unlabelled points", value = 0, {
-        plotargs <- list(p,
-          x = xdata()[unlabelled()], y = ydata()[unlabelled()], z = zdata()[unlabelled()], mode = "markers", hoverinfo = "none",
-          type = plotType(), showlegend = showLegend(), name = "unselected rows", marker = list(size = getPointSize() - 2, color = "gray")
-        )
-
-        p <- do.call(plotly::add_trace, plotargs)
-      })
-    }
-    p
-  }
-
-  # makeColorScale <- reactive({ ncolors <- nlevels(factor(colorBy())) if (ncolors > brewer.pal.info['Set1', 'maxcolors']){ cols <-
-  # colorRampPalette(brewer.pal(brewer.pal.info['Set1', 'maxcolors'], 'Set1'))(ncolors) }else{ cols <- RColorBrewer::brewer.pal(ncolors, 'Set1') } rev(cols)
-  # })
-
-  # Labelled points plotted with hovers, colors as specified in groupings
-
-  addLabelledPoints <- function(p) {
-    if (any(!unlabelled())) {
-      withProgress(message = "Adding labelled points", value = 0, {
-        plotargs <- list(p,
-          x = xdata()[!unlabelled()], y = ydata()[!unlabelled()], z = zdata()[!unlabelled()], mode = "markers", hoverinfo = "text",
-          text = getLabels()[!unlabelled()], type = plotType(), showlegend = showLegend(), marker = list(size = getPointSize())
-        )
-
-        if (!is.null(colorBy)) {
-          plotargs$color <- colorBy()[!unlabelled()]
-        }
-
-        p <- do.call(plotly::add_trace, plotargs)
-      })
-    }
-    p
-  }
-
-  # Show actual text labels if specified
-
-  addTextLabels <- function(p) {
-    if (getShowLabels()) {
-      labelargs <- list(p,
-        x = xdata()[!unlabelled()], y = yLabData()[!unlabelled()], z = zdata()[!unlabelled()], mode = "text", text = getLabels()[!unlabelled()],
-        type = plotType(), hoverinfo = "none", showlegend = FALSE
-      )
-
-      if (!is.null(colorBy)) {
-        labelargs$color <- colorBy()[!unlabelled()]
-        labelargs$colors <- getPalette()
-      }
-
-      p <- do.call(add_trace, labelargs)
-    }
-    p
-  }
-
-  # Do the layout
-
-  adjustLayout <- function(p, title = "") {
-    withProgress(message = "Adjusting axis display", value = 0, {
-      axis_layouts <- list(
-        xaxis = list(title = colnames(getDatamatrix())[getXAxis()]), yaxis = list(title = colnames(getDatamatrix())[getYAxis()]),
-        legend = list(y = 0.8)
-      )
-
-      layoutArgs <- reactive({
-        la <- c(list(p, hovermode = "closest", title = title), axis_layouts)
-
-        if (getThreedee()) {
-          axis_layouts$zaxis <- list(title = colnames(getDatamatrix())[getZAxis()])
-          la$scene <- axis_layouts
-        }
-        la
-      })
-
-      p <- do.call(plotly::layout, layoutArgs())
-    })
-    p
-  }
-
-  # Draw any speicfied lines on the plot
-
-  drawLines <- function(p) {
-    if (!is.null(getLines)) {
-      withProgress(message = "Drawing lines", value = 0, {
-        lines <- getLines()
-        lines <- group_by(lines, name)
-
-        p <- add_lines(p, data = lines, x = ~x, y = ~y, linetype = ~name, line = list(color = "black"))
-      })
-    }
-    p
-  }
-
   # Chain the various steps together.
 
   output$scatter <- renderPlotly({
     withProgress(message = "Drawing scatter plot", value = 0, {
-      plotargs <- list(type = plotType(), mode = "markers")
-
       if (!is.null(colorBy)) {
 
         # If a palette was supplied, or if we made our own...
 
         if (is.null(getPalette)) {
-          plotargs$colors <- getScatterPalette()
+          palette <- getScatterPalette()
         } else {
-          plotargs$colors <- getPalette()
+          palette <- getPalette()
         }
       }
 
-      do.call(plot_ly, plotargs) %>%
-        addUnlabelledPoints() %>%
-        addLabelledPoints() %>%
-        drawLines() %>%
-        addTextLabels() %>%
-        adjustLayout(title = getTitle()) %>%
-        config(showLink = TRUE)
+      plotly_scatterplot(
+        x = xdata(), y = ydata(), z = zdata(), colorby = colorBy(), plot_type = plotType(), title = getTitle(),
+        xlab = colnames(getDatamatrix())[getXAxis()], ylab = colnames(getDatamatrix())[getYAxis()],
+        zlab = colnames(getDatamatrix())[geZXAxis()], palette = palette, labels = getLabels(),
+        show_labels = getShowLabels(), lines = getLines(), showlegend = showLegend()
+      )
     })
   })
+}
+
+#' Add points to a plotly object
+#'
+#' @param p Previously generated plotly object
+#' @param x Vector of numeric x values
+#' @param y Vector of numeric y values
+#' @param z Optional vector of numeric z values
+#' @param colorby String vector or factor specifying value groups
+#' @param name Name for the series
+#' @param label Boolean- should points be colored and labelled?
+#' @param plot_type Plot type: 'scatter' or 'scatter3d'
+#' @param point_size Main point size
+#' @param labels Vector of labels to apply (if 'label' is TRUE)
+#'
+#' @return output Plotly plot object
+
+addPoints <- function(p, x, y, z = NULL, colorby = NULL, name = NULL, label = FALSE, plot_type = "scatter", point_size = 5, labels = NULL, showlegend = FALSE) {
+  plotargs <- list(
+    p,
+    x = x,
+    y = y,
+    z = z,
+    mode = "markers",
+    type = plot_type,
+    showlegend = showlegend,
+    name = name
+  )
+
+  if (label) {
+    plotargs$hoverinfo <- "text"
+    plotargs$marker <- list(size = point_size)
+    plotargs$text <- labels
+  } else {
+    plotargs$hoverinfo <- "none"
+    plotargs$marker <- list(size = point_size - 2, color = "gray")
+  }
+
+  if (!is.null(colorby)) {
+    plotargs$color <- colorby
+  }
+
+  do.call(plotly::add_trace, plotargs)
+}
+
+#' Add permanent text labels to points in a plotly graph
+#'
+#' @param p Previously generated plotly object
+#' @param x Vector of numeric x values
+#' @param y Vector of numeric y values
+#' @param z Optional vector of numeric z values
+#' @param colorby String vector or factor specifying value groups
+#' @param labels Vector of labels to apply
+#' @param plot_type Plot type: 'scatter' or 'scatter3d'
+#' @param show_abels If FALSE, pass through without applying labels
+#'
+#' @return output Plotly object
+
+addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_labels = TRUE) {
+  if (show_labels) {
+    labelargs <- list(
+      p,
+      x = x,
+      y = y,
+      z = z,
+      mode = "text",
+      text = labels,
+      type = plot_type,
+      hoverinfo = "none",
+      showlegend = FALSE
+    )
+
+    if (!is.null(colorby)) {
+      labelargs$color <- colorby
+    }
+
+    p <- do.call(add_trace, labelargs)
+  }
+  p
+}
+
+#' Overlay lines on a plotly-generated plot
+#'
+#' @param p Previously generated plotly object
+#' @param x X coordinates of points, used to determine x range
+#' @param y Y coordinates of points, used to determine y range
+#' @param lines 3 column data-frame (name, x, y) with two rows, one for the
+#'   start and end of each named line
+#' @param hline_thresholds Alternatively or in addition to 'lines', just specify
+#'   a named list of y values at which to place hlines
+#' @param vline_thresholds Alternatively or in addition to 'lines', just specify
+#'   a named list of x values at which to place vlines
+#'
+#' @return output Plotly object
+
+drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_thresholds = list()) {
+  line_coords <- list()
+  if (!is.null(lines)) {
+    line_coords[["specified"]] <- lines
+  }
+
+  if (length(hline_thresholds) > 0) {
+    line_coords$h <- do.call(rbind, lapply(names(hline_thresholds), function(hl) {
+      data.frame(x = c(min(x), max(x)), y = c(rep(hline_thresholds[[hl]], 2)), name = hl)
+    }))
+  }
+  if (length(vline_thresholds) > 0) {
+    line_coords$v <- do.call(rbind, lapply(names(vline_thresholds), function(vl) {
+      data.frame(x = rep(vline_thresholds[[vl]], 2), y = c(min(y), max(y)), name = vl)
+    }))
+  }
+
+  if (length(line_coords) > 0) {
+    lines <- group_by(do.call(rbind, line_coords), name)
+
+    p <- add_lines(p, data = lines, x = ~x, y = ~y, linetype = ~name, line = list(color = "black"))
+  }
+  p
+}
+
+#' Apply layout adjustments to plotly object
+#'
+#' @param p Previously generated plotly object
+#' @param title Plot title
+#' @param legend_title Legend title
+#' @param xlab X axis label
+#' @param ylab Y axis label
+#' @param zlab Z axis label
+#' @param plot_type Plot type: 'scatter' or 'scatter3d'
+#'
+#' @return output Plotly object
+
+adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y", zlab = "z", plot_type = "scatter") {
+  axis_layouts <- list(
+    xaxis = list(title = xlab), yaxis = list(title = ylab),
+    legend = list(title = list(text = legend_title), y = 0.8)
+  )
+
+  layout_args <- c(list(p, hovermode = "closest", title = title), axis_layouts)
+
+  if (plot_type == "scatter3d") {
+    axis_layouts$zaxis <- list(title = ylab)
+    layout_args$scene <- axis_layouts
+  }
+
+  p <- do.call(plotly::layout, layout_args)
+  p
+}
+
+#' Make scatterplots with \code{plot_ly()}
+#'
+#' @param x X coordinates
+#' @param y Y coordinates
+#' @param z Optional Z coordinates
+#' @param colorby String vector or factor specifying value groups
+#' @param plot_type Plot type: 'scatter' or 'scatter3d'
+#' @param title Plot title
+#' @param legend_title Legend title
+#' @param xlab X label
+#' @param ylab Y label
+#' @param zlab Z label
+#' @param palette Color palette correct for the number of groups in 'colorby'
+#' @param point_size Main point size
+#' @param labels Point labels
+#' @param show_labels Permanently show labels for labelled points (default is just on hoverover)
+#' @param lines 3-colum data frame with and and y coordinates for start and ends of lines
+#' @param hline_thresholds Named list of horizontal lines with y coordinates
+#' @param vline_thresholds Named list of vertical lines x coordinates
+#'
+#' @return output Plotly plot object
+#' @export
+
+plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
+                               xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
+                               show_labels, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = FALSE) {
+
+  # We'll only label and color points with non-NA labels
+
+  if (is.null(labels)) {
+    labelled <- rep(FALSE, length(x))
+  } else {
+    labelled <- !is.na(labels)
+  }
+
+  if ((!is.null(colorby)) && !is.factor(colorby)) {
+    colorby <- factor(colorby)
+  }
+
+  if (any(labelled) && is.null(palette) && !is.null(colorby)) {
+    palette <- makeColorScale(length(unique(colorby[labelled])))
+  }
+
+  plotargs <- list(
+    type = plot_type,
+    mode = "markers",
+    colors = palette
+  )
+
+  do.call(plot_ly, plotargs) %>%
+    addPoints(
+      x = x[!labelled],
+      y = y[!labelled],
+      z = z[!labelled],
+      name = "unselected rows",
+      label = FALSE,
+      plot_type = plot_type,
+      point_size = point_size,
+      colorby = NULL,
+      showlegend = showlegend
+    ) %>%
+    addPoints(
+      x = x[labelled],
+      y = y[labelled],
+      z = z[labelled],
+      label = TRUE,
+      plot_type = plot_type,
+      point_size = point_size,
+      labels = labels[labelled],
+      colorby = colorby[labelled],
+      showlegend = showlegend
+    ) %>%
+    drawLines(
+      x = x,
+      y = y,
+      lines = lines,
+      hline_thresholds = hline_thresholds,
+      vline_thresholds = vline_thresholds
+    ) %>%
+    addTextLabels(
+      x = x[labelled],
+      y = y[labelled],
+      z = z[labelled],
+      plot_type = plot_type,
+      labels = labels[labelled],
+      colorby = colorby[labelled],
+      show_labels = show_labels
+    ) %>%
+    adjustLayout(
+      title = title,
+      legend_title = legend_title,
+      xlab = xlab,
+      ylab = ylab,
+      zlab = zlab
+    ) %>%
+    config(showLink = TRUE)
 }
