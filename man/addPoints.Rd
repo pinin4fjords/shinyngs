@@ -38,6 +38,8 @@ addPoints(
 \item{point_size}{Main point size}
 
 \item{labels}{Vector of labels to apply (if 'label' is TRUE)}
+
+\item{showlegend}{Boolean: show this set of points in the legend?}
 }
 \value{
 output Plotly plot object

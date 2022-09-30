@@ -30,7 +30,7 @@ addTextLabels(
 
 \item{plot_type}{Plot type: 'scatter' or 'scatter3d'}
 
-\item{show_abels}{If FALSE, pass through without applying labels}
+\item{show_labels}{If false, simpy pass through input plot object}
 }
 \value{
 output Plotly object

@@ -22,7 +22,7 @@ plotly_scatterplot(
   lines = NULL,
   hline_thresholds = NULL,
   vline_thresholds = NULL,
-  showlegend = FALSE
+  showlegend = TRUE
 )
 }
 \arguments{
@@ -59,6 +59,8 @@ plotly_scatterplot(
 \item{hline_thresholds}{Named list of horizontal lines with y coordinates}
 
 \item{vline_thresholds}{Named list of vertical lines x coordinates}
+
+\item{showlegend}{Boolean: show a legend?}
 }
 \value{
 output Plotly plot object

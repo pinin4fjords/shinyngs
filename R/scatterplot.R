@@ -227,6 +227,7 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
 #' @param plot_type Plot type: 'scatter' or 'scatter3d'
 #' @param point_size Main point size
 #' @param labels Vector of labels to apply (if 'label' is TRUE)
+#' @param showlegend Boolean: show this set of points in the legend?
 #'
 #' @return output Plotly plot object
 
@@ -266,8 +267,8 @@ addPoints <- function(p, x, y, z = NULL, colorby = NULL, name = NULL, label = FA
 #' @param z Optional vector of numeric z values
 #' @param colorby String vector or factor specifying value groups
 #' @param labels Vector of labels to apply
+#' @param show_labels If false, simpy pass through input plot object
 #' @param plot_type Plot type: 'scatter' or 'scatter3d'
-#' @param show_abels If FALSE, pass through without applying labels
 #'
 #' @return output Plotly object
 
@@ -381,13 +382,14 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 #' @param lines 3-colum data frame with and and y coordinates for start and ends of lines
 #' @param hline_thresholds Named list of horizontal lines with y coordinates
 #' @param vline_thresholds Named list of vertical lines x coordinates
+#' @param showlegend Boolean: show a legend?
 #'
 #' @return output Plotly plot object
 #' @export
 
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
-                               show_labels, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = FALSE) {
+                               show_labels, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
 
   # We'll only label and color points with non-NA labels
 
