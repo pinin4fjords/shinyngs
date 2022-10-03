@@ -379,7 +379,6 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 #' @param point_size Main point size
 #' @param labels Point labels
 #' @param show_labels Permanently show labels for labelled points (default is just on hoverover)
-#' @param lines 3-colum data frame with and and y coordinates for start and ends of lines
 #' @param hline_thresholds Named list of horizontal lines with y coordinates
 #' @param vline_thresholds Named list of vertical lines x coordinates
 #' @param showlegend Boolean: show a legend?
@@ -389,7 +388,7 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
-                               show_labels, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
+                               show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
 
   # We'll only label and color points with non-NA labels
 
@@ -460,4 +459,143 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
       zlab = zlab
     ) %>%
     config(showLink = TRUE)
+}
+
+#' Make scatterplots with \code{ggplot()} or \code{scatterplot3d}
+#' 
+#' These are not used in the shinyngs UI, but are provided here to be fairly
+#' consistent with the plotly-driven display, and provide a static alternative
+#' for external users.
+#'
+#' @param x X coordinates
+#' @param y Y coordinates
+#' @param z Optional Z coordinates
+#' @param colorby String vector or factor specifying value groups
+#' @param plot_type Plot type: 'scatter' (ggplot) or 'scatter3d' (scatterplot3d)
+#' @param title Plot title
+#' @param legend_title Legend title
+#' @param xlab X label
+#' @param ylab Y label
+#' @param zlab Z label
+#' @param palette Color palette correct for the number of groups in 'colorby'
+#' @param point_size Main point size
+#' @param labels Point labels
+#' @param show_labels Permanently show labels for labelled points 
+#' @param hline_thresholds Named list of horizontal lines with y coordinates
+#' @param vline_thresholds Named list of vertical lines x coordinates
+#' @param showlegend Boolean: show a legend?
+#'
+#' @return output Ouput object from ggplot or scatterplot3d.
+#' @export
+
+static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = NULL,
+                               xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 1, labels = colorby,
+                               show_labels = FALSE, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
+  labelled <- !is.na(labels)
+
+  if ((!is.null(colorby)) && !is.factor(colorby)) {
+    colorby <- factor(colorby)
+  }
+
+  if (any(labelled) && is.null(palette) && !is.null(colorby)) {
+    palette <- makeColorScale(length(unique(colorby[labelled])))
+  }
+
+  if (plot_type == "scatter") {
+    plotdata <- data.frame(
+      x = x,
+      y = y,
+      colorby = colorby
+    )
+
+    if (!is.null(labels)) {
+      plotdata$label <- labels
+    }
+
+    p <- ggplot(
+      plotdata,
+      aes(
+        x = x,
+        y = y,
+        color = colorby,
+        label = label
+      )
+    ) +
+      geom_point(size = point_size) +
+      scale_color_manual(name = legend_title, values = palette)
+
+
+    if (show_labels) {
+      p <- p + geom_text(
+        data = subset(plotdata, !is.na(labels)),
+        hjust = "inward",
+        show.legend = FALSE,
+        nudge_y = (max(y) - min(y)) / 50
+      )
+    }
+
+    if (!is.null(hline_thresholds)) {
+      p <- p +
+        geom_hline(
+          data = data.frame(
+            type = names(hline_thresholds),
+            yintercept = unlist(hline_thresholds)
+          ),
+          aes(
+            yintercept = yintercept,
+            linetype = type
+          )
+        )
+    }
+
+    if (!is.null(vline_thresholds)) {
+      p <- p +
+        geom_vline(
+          data = data.frame(
+            type = names(vline_thresholds),
+            xintercept = unlist(vline_thresholds)
+          ),
+          aes(
+            xintercept = xintercept,
+            linetype = type
+          )
+        )
+    }
+
+    if ((!is.null(vline_thresholds)) || !is.null(hline_thresholds)) {
+      p <- p + guides(linetype = guide_legend(title = "Lines"))
+    }
+
+    p + theme_bw() +
+      xlab(xlab) +
+      ylab(ylab)
+  } else if (plot_type == "scatter3d") {
+    
+    colorby_idx <- as.numeric(colorby)
+
+    s3d <- scatterplot3d(
+      x = x,
+      y = y,
+      z = z,
+      xlab = xlab,
+      ylab = ylab,
+      zlab = zlab,
+      pch = 16,
+      color = unlist(lapply(colorby_idx, function(c) palette[c]))
+    )
+    if (showlegend) {
+      legend("topright", s3d$xyz.convert(18, 0, 12),
+        pch = 16, yjust = 0, col = palette[unique(colorby_idx)],
+        legend = c(unique(colorby)), cex = 1.1, title = legend_title
+      )
+    }
+    if (show_labels) {
+      s3d.coords <- s3d$xyz.convert(x, y, z)
+      text(s3d.coords$x,
+        s3d.coords$y,
+        labels = labels,
+        pos = 4
+      )
+    }
+  }
 }
