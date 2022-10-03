@@ -18,7 +18,7 @@ plotly_scatterplot(
   palette = NULL,
   point_size = 5,
   labels = NULL,
-  show_labels,
+  show_labels = FALSE,
   lines = NULL,
   hline_thresholds = NULL,
   vline_thresholds = NULL,
@@ -53,8 +53,6 @@ plotly_scatterplot(
 \item{labels}{Point labels}
 
 \item{show_labels}{Permanently show labels for labelled points (default is just on hoverover)}
-
-\item{lines}{3-colum data frame with and and y coordinates for start and ends of lines}
 
 \item{hline_thresholds}{Named list of horizontal lines with y coordinates}
 
