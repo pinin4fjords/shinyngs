@@ -411,6 +411,9 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     mode = "markers",
     colors = palette
   )
+  
+  # Nudge to be used with text labels
+  nudge_y = (max(y) - min(y)) / 50
 
   do.call(plot_ly, plotargs) %>%
     addPoints(
@@ -444,7 +447,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     ) %>%
     addTextLabels(
       x = x[labelled],
-      y = y[labelled],
+      y = y[labelled] + nudge_y,
       z = z[labelled],
       plot_type = plot_type,
       labels = labels[labelled],
@@ -566,7 +569,7 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
       p <- p + guides(linetype = guide_legend(title = "Lines"))
     }
 
-    p + theme_bw() +
+    p + theme_bw(base_size = 16) +
       xlab(xlab) +
       ylab(ylab)
   } else if (plot_type == "scatter3d") {
