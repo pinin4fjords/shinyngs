@@ -160,7 +160,7 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     nonempty <- getNonEmptyRows()
     withProgress(message = "Calculating row variances", value = 0, {
       mfs <- matrixFromSamples()
-      rowVars(mfs)
+      apply(mfs, 1, var)
     })
   })
 
@@ -261,7 +261,7 @@ selectVariableGenes <- function(ntop, matrix = NULL, row_variances = NULL) {
     if (is.null(matrix)) {
       stop("selctVariableGenes(): a value must be provided for either matrix or row_variances")
     } else {
-      row_variances <- rowVars(matrix)
+      row_variances <- apply(matrix, 1, var)
     }
   }
 
