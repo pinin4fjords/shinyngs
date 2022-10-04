@@ -54,6 +54,9 @@ plotly_scatterplot(
 
 \item{show_labels}{Permanently show labels for labelled points (default is just on hoverover)}
 
+\item{lines}{3 column data-frame (name, x, y) with two rows, one for the
+start and end of each named line}
+
 \item{hline_thresholds}{Named list of horizontal lines with y coordinates}
 
 \item{vline_thresholds}{Named list of vertical lines x coordinates}

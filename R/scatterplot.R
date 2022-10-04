@@ -379,6 +379,8 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 #' @param point_size Main point size
 #' @param labels Point labels
 #' @param show_labels Permanently show labels for labelled points (default is just on hoverover)
+#' @param lines 3 column data-frame (name, x, y) with two rows, one for the
+#'   start and end of each named line
 #' @param hline_thresholds Named list of horizontal lines with y coordinates
 #' @param vline_thresholds Named list of vertical lines x coordinates
 #' @param showlegend Boolean: show a legend?
