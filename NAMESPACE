@@ -55,8 +55,10 @@ import(plotly)
 import(plyr, except = c('mutate', 'arrange', 'rename',
 'summarise'))
 
+import(scatterplot3d)
 import(shiny)
 import(yaml)
+importFrom(dplyr,group_map)
 importFrom(grDevices,colorRampPalette)
 importFrom(grDevices,dev.off)
 importFrom(grDevices,png)

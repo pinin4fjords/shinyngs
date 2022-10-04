@@ -490,8 +490,10 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 #' @param vline_thresholds Named list of vertical lines x coordinates
 #' @param showlegend Boolean: show a legend?
 #'
-#' @return output Ouput object from ggplot or scatterplot3d.
+#' @import scatterplot3d
 #' @export
+#'
+#' @return output Ouput object from ggplot or scatterplot3d.
 
 static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = NULL,
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 1, labels = colorby,

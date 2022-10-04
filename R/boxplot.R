@@ -230,6 +230,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #'
+#' @importFrom dplyr group_map
 #' @export
 #' @return output A \code{plotly} output
 #'
@@ -333,6 +334,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #'
+#' @importFrom dplyr group_map
 #' @export
 #'
 #' @return output A \code{plotly} output
