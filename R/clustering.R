@@ -426,7 +426,7 @@ bootstrapMedian <- function(data, num) {
 #' outliers for investigation
 #'
 #' @param matrix Matrix with samples by column
-#' @param sample.sheet Sample sheet with samples by row
+#' @param sample_sheet Sample sheet with samples by row
 #' @param groupby Sample sheet column that can be used to group samples
 #' @param outlier_threshold Value below which points should be flagged as
 #'   outliers, conventionally -5

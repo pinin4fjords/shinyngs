@@ -9,12 +9,12 @@ madScore(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5)
 \arguments{
 \item{matrix}{Matrix with samples by column}
 
+\item{sample_sheet}{Sample sheet with samples by row}
+
 \item{groupby}{Sample sheet column that can be used to group samples}
 
 \item{outlier_threshold}{Value below which points should be flagged as
 outliers, conventionally -5}
-
-\item{sample.sheet}{Sample sheet with samples by row}
 }
 \value{
 mad_score A data frame with columns for group name, MAD score and outlier status. A
