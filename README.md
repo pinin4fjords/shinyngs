@@ -192,7 +192,7 @@ Technical information can be accessed via the package documentation:
 
 More user-oriented documentation and examples of how to build your own
 apps in the
-[vignette](https://rawgit.com/pinin4fjords/shinyngs/master/inst/doc/shinyngs.html).
+[vignette](https://rawgit.com/pinin4fjords/shinyngs/master/vignettes/shinyngs.html).
 
 This is also accessible via the `vignette` command:
 
