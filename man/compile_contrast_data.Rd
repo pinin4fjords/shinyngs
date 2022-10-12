@@ -11,7 +11,7 @@ compile_contrast_data(
   pval_column = NULL,
   qval_column = NULL,
   fc_column = NULL,
-  unlog_folchanges = FALSE
+  unlog_foldchanges = FALSE
 )
 }
 \arguments{
@@ -19,13 +19,15 @@ compile_contrast_data(
 
 \item{sep}{Separator in stats files}
 
+\item{feature_id_column}{Feature identifier column in stats files}
+
 \item{pval_column}{P value column in stats files}
 
 \item{qval_column}{Q value column in stats files}
 
 \item{fc_column}{Fold change column in stats files}
 
-\item{feature_id_col}{Column in stats files identifiying features (e.g. genes)}
+\item{unlog_foldchanges}{Should fold change values be unlogged?}
 }
 \value{
 output A named list of data frames by statistic, number of columns equal to input file number

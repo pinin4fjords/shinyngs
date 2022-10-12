@@ -746,10 +746,11 @@ read_metadata <- function(filename, id_col, sep = ",", stringsAsFactors = FALSE)
 #'
 #' @param differential_stats_files Tabular files with differential stats
 #' @param sep Separator in stats files
-#' @param feature_id_col Column in stats files identifiying features (e.g. genes)
 #' @param pval_column P value column in stats files
 #' @param qval_column Q value column in stats files
 #' @param fc_column Fold change column in stats files
+#' @param feature_id_column Feature identifier column in stats files
+#' @param unlog_foldchanges Should fold change values be unlogged?
 #'
 #' @return output A named list of data frames by statistic, number of columns equal to input file number
 
