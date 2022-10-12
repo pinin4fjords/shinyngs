@@ -12,6 +12,8 @@ read_metadata(filename, id_col, sep = ",", stringsAsFactors = FALSE)
 \item{id_col}{Identifier column in the file}
 
 \item{sep}{File separator}
+
+\item{stringsAsFactors}{Passed to \code{read.delim}}
 }
 \value{
 output Data frame

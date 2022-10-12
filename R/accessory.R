@@ -702,6 +702,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata, sep = ",
 #' @param filename File name
 #' @param id_col Identifier column in the file
 #' @param sep File separator
+#' @param stringsAsFactors Passed to \code{read.delim}
 #'
 #' @return output Data frame
 
