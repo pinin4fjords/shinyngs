@@ -418,10 +418,10 @@ bootstrapMedian <- function(data, num) {
 }
 
 #' Calculate MAD scores as per OmicSoft
-#' 
+#'
 #' Folllows description at
 #' https://wiki.arrayserver.com/wiki/index.php?title=CorrelationQC.pdf.
-#' 
+#'
 #' Not currently deployed anywhere in shinyngs, but a potential way of flagging
 #' outliers for investigation
 #'
@@ -436,30 +436,30 @@ bootstrapMedian <- function(data, num) {
 #' @return mad_score A data frame with columns for group name, MAD score and outlier status. A
 #'   threshold of < -5 usually indicates outliers
 
-madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5){
-  
+madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5) {
+
   # Double-check the matrix/ sample sheet synch
-  matrix <- matrix[,rownames(sample_sheet)]
-  
-  if (is.null(groupby)){
-    matrices <- list(all=matrix) 
-  }else{
-    matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[,x])
+  matrix <- matrix[, rownames(sample_sheet)]
+
+  if (is.null(groupby)) {
+    matrices <- list(all = matrix)
+  } else {
+    matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[, x])
   }
-  
+
   # The following intentionally verbose to highlight logic
-  
-  mads <- do.call(rbind, lapply(names(matrices), function(g){
-    corrs <- cor(matrices[[g]])  
+
+  mads <- do.call(rbind, lapply(names(matrices), function(g) {
+    corrs <- cor(matrices[[g]])
     corrs_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[x, -x])))
-    corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])  ))
-    
+    corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
+
     correlation_difference <- structure(corrs_involving - corrs_not_involving, names = colnames(corrs))
     median_correlation_differences <- median(correlation_difference)
     median_absolute_deviation <- median(abs(correlation_difference - median_correlation_differences))
     data.frame(group = g, mad = (correlation_difference - median_correlation_differences) / (median_absolute_deviation * 1.4826))
   }))
-  
+
   mads$outlier <- mads$mad < outlier_threshold
   mads
 }
