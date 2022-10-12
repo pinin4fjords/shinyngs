@@ -114,7 +114,7 @@ option_list <- list(
     help = "Serialized R object which can be used to generate a shiny app."
   ),
   make_option(
-    c("-l", "--deploy-app"),
+    c("-l", "--deploy_app"),
     action = "store_true",
     default = FALSE,
     help = "Set this option if fold changes should be unlogged."
@@ -261,11 +261,7 @@ myesel <- eselistfromConfig(shiny_config)
 
 # Write output
 
-saveRDS(myesel, file = opt$output_file)
-
-rsconnect::setAccountInfo(name = account, token = token, secret = secret)
-
-dir.create(opt$output_directory)
+dir.create(opt$output_directory, showWarnings = FALSE)
 saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
 writeLines(
   c(
@@ -282,6 +278,7 @@ writeLines(
 # installed via devtools, and conda doesn't do that
 
 if (opt$deploy_app) {
+  library(rsconnect)
   mandatory <- c(
     "shinyapps_account",
     "shinyapps_token",
@@ -295,6 +292,6 @@ if (opt$deploy_app) {
 
   library(BiocManager)
   options(repos = BiocManager::repositories())
-  rsconnect::setAccountInfo(name = opt$shinyngs_account, token = opt$shinyngs_token, secret = opt$shinyapps_secret)
+  rsconnect::setAccountInfo(name = opt$shinyapps_account, token = opt$shinyapps_token, secret = opt$shinyapps_secret)
   deployApp(appDir = opt$output_directory, appName = opt$shinyapps_name, forceUpdate = TRUE, launch.browser = FALSE)
 }

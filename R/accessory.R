@@ -798,6 +798,5 @@ compile_contrast_data <-
     if (!is.null(qval_column)) {
       contrast_stats_rearranged[["qvals"]] <- add_to_stats(source = qval_column)
     }
-    saveRDS(contrast_stats_rearranged, "csr.rds")
     contrast_stats_rearranged
   }
