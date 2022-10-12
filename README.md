@@ -189,10 +189,10 @@ complements:
 
     make_app_from_files.R \
         --assay_files raw.tsv,normalised_counts.tsv \
-        --sample_metadata testdata/samplesheet.csv \
-        --feature_metadata testdata/gene_meta.tsv \
-        --contrast_file testdata/contrasts.csv \
-        --differential_results testdata/treatment-saline-drug.deseq2.results.tsv \
+        --sample_metadata samplesheet.csv \
+        --feature_metadata gene_meta.tsv \
+        --contrast_file contrasts.csv \
+        --differential_results treatment-saline-drug.deseq2.results.tsv \
         --output_dir app \
         --contrast_stats_assay 2 \
         --unlog_foldchanges \
@@ -204,7 +204,17 @@ complements:
 
 (This script can be found under `exec`).
 
-This is designed to take a regular file complement and produce an app.R.
+This is designed to take a regular file complement of
+
+- Expression matrices
+- Metadata (samples and features)
+- Contrasts (which sample groups to compare)
+- Differential resutls (e.g. from DESeq2) containing P values and fold
+  changes
+
+.. and produce an app.R. This currently covers the basic use cases and I
+haven’t go to the gene sets etc, that will be future work.
+
 It even deploys to shinyapps.io (see
 [here](https://shiny.rstudio.com/articles/shinyapps.html) for more info,
 provide the correct information, and **provided you install `shinyngs`
