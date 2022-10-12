@@ -136,6 +136,44 @@ shiny::shinyApp(app$ui, app$server)
 
 The function `eselistFromYAML()` is provided to help build your own objects given a config file. 
 
+# New: CLI interface to create application from files
+
+A new feature (may be buggy) is the creation of Shiny apps from file complements:
+
+```
+make_app_from_files.R \
+    --assay_files raw.tsv,normalised_counts.tsv \
+    --sample_metadata samplesheet.csv \
+    --feature_metadata gene_meta.tsv \
+    --contrast_file contrasts.csv \
+    --differential_results treatment-saline-drug.deseq2.results.tsv \
+    --output_dir app \
+    --contrast_stats_assay 2 \
+    --unlog_foldchanges \
+    --deploy_app \
+    --shinyapps_account ACCOUNT \
+    --shinyapps_token "TOKEN" \
+    --shinyapps_secret "SECRET" \
+    --shinyapps_name APP_NAME
+```
+
+(This script can be found under `exec`).
+
+This is designed to take a regular file complement of 
+
+ - Expression matrices
+ - Metadata (samples and features)
+ - Contrasts (which sample groups to compare)
+ - Differential resutls (e.g. from DESeq2) containing P values and fold changes
+
+.. and produce an app.R. This currently covers the basic use cases and I haven't go to the gene sets etc, that will be future work.
+
+It even deploys to shinyapps.io (see [here](https://shiny.rstudio.com/articles/shinyapps.html) for more info, provide the correct information, and **provided you install `shinyngs` from devtools, rather than Conda**.
+
+Without the shinyapps deployment, you can still start the resulting app locally, by executing the `app.R` resulting from the above command.
+
+See `make_app_from_files.R --help` for more info.
+
 # Documentation
 
 Technical information can be accessed via the package documentation:

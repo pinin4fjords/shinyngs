@@ -413,9 +413,9 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     mode = "markers",
     colors = palette
   )
-  
+
   # Nudge to be used with text labels
-  nudge_y = (max(y) - min(y)) / 50
+  nudge_y <- (max(y) - min(y)) / 50
 
   do.call(plot_ly, plotargs) %>%
     addPoints(
@@ -467,7 +467,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 }
 
 #' Make scatterplots with \code{ggplot()} or \code{scatterplot3d}
-#' 
+#'
 #' These are not used in the shinyngs UI, but are provided here to be fairly
 #' consistent with the plotly-driven display, and provide a static alternative
 #' for external users.
@@ -485,7 +485,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 #' @param palette Color palette correct for the number of groups in 'colorby'
 #' @param point_size Main point size
 #' @param labels Point labels
-#' @param show_labels Permanently show labels for labelled points 
+#' @param show_labels Permanently show labels for labelled points
 #' @param hline_thresholds Named list of horizontal lines with y coordinates
 #' @param vline_thresholds Named list of vertical lines x coordinates
 #' @param showlegend Boolean: show a legend?
@@ -577,7 +577,6 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
       xlab(xlab) +
       ylab(ylab)
   } else if (plot_type == "scatter3d") {
-    
     colorby_idx <- as.numeric(colorby)
 
     s3d <- scatterplot3d(

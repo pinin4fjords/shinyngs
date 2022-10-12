@@ -397,13 +397,13 @@ cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<
 
 evaluateCardinalFilter <- function(values, cardinality, limit) {
   if (cardinality == "<=") {
-    values <= limit
+    (!is.na(values)) & values <= limit
   } else if (cardinality == ">=") {
-    values >= limit
+    (!is.na(values)) & values >= limit
   } else if (cardinality == ">= or <= -") {
-    abs(values) >= limit
+    (!is.na(values)) & abs(values) >= limit
   } else if (cardinality == "<= and >= -") {
-    values <= limit & values >= -limit
+    (!is.na(values)) & values <= limit & values >= -limit
   } else {
     stop("invalid cardinality")
   }
@@ -476,127 +476,329 @@ evaluateCardinalFilter <- function(values, cardinality, limit) {
 eselistFromYAML <- function(configfile) {
   config <- yaml::yaml.load_file(configfile)
 
-  # 'Experiments' are sets of results from a common set of samples
+  eselistFromList(config)
+}
 
-  experiments <- config$experiments
+#' Build an ExploratorySummarisedExperimentList from a description provided in a list
+#'
+#' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
+#'
+#' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
+#' @export
 
-  # Establish ordering. Ordering of YAML file shouldn't be relied upon
+eselistfromConfig <-
+  function(config) {
 
-  if ("experiment_order" %in% names(config)) {
-    experiment_order <- config$experiment_order
-  } else {
-    experiment_order <- names(experiments)
-  }
+    # 'Experiments' are sets of results from a common set of samples
 
-  experiments <- experiments[experiment_order]
+    experiments <- config$experiments
 
-  # Make the basic objects
+    # Establish ordering. Ordering of YAML file shouldn't be relied upon
 
-  print("Constructing ExploratorySummarizedExperiments")
-
-  expsumexps <- lapply(structure(names(experiments), names = names(experiments)), function(expname) {
-    exp <- experiments[[expname]]
-
-    # Read the expression data
-
-    assays <- rev(lapply(exp$expression_matrices, function(mat) {
-      print(paste("Reading", mat$file))
-      as.matrix(read.csv(mat$file, row.names = 1, check.names = FALSE))
-    }))
-
-    # Apply ordering if provided
-
-    if ("assay_order" %in% names(exp)) {
-      assay_order <- exp$assay_order
+    if ("experiment_order" %in% names(config)) {
+      experiment_order <- config$experiment_order
     } else {
-      assay_order <- names(assays)
+      experiment_order <- names(experiments)
     }
-    assays <- assays[assay_order]
 
-    # Add contrast_stats where available.
+    experiments <- experiments[experiment_order]
 
-    contrast_stats <- list()
-    if (expname %in% names(config$contrasts$stats)) {
-      contrast_stats <- lapply(config$contrasts$stats[[expname]], function(assaytests) {
-        lapply(assaytests, function(at) {
-          print(paste("Reading test stats file", at))
-          read.csv(at, row.names = 1, header = FALSE)
+    # Make the basic objects
+
+    print("Constructing ExploratorySummarizedExperiments")
+
+    expsumexps <- lapply(structure(names(experiments), names = names(experiments)), function(expname) {
+      exp <- experiments[[expname]]
+
+      # Read feature metadata
+
+      colData <- read_metadata(
+        filename = exp$coldata$file,
+        id_col = exp$coldata$id,
+        sep = exp$coldata$sep
+      )
+      annotation <-
+        read_metadata(
+          exp$annotation$file,
+          id_col = exp$annotation$id,
+          sep = exp$annotation$sep,
+          stringsAsFactors = FALSE
+        )
+
+      # Read the expression data
+
+      assays <- rev(lapply(exp$expression_matrices, function(mat) {
+        print(paste("Reading", mat$file))
+        read_matrix(
+          mat$file,
+          sample_metadata = colData,
+          feature_metadata = annotation,
+          sep = mat$sep,
+          row.names = 1
+        )
+      }))
+
+      # Apply ordering if provided
+
+      if ("assay_order" %in% names(exp)) {
+        assay_order <- exp$assay_order
+      } else {
+        assay_order <- names(assays)
+      }
+      assays <- assays[assay_order]
+
+      # Add contrast_stats where available.
+
+      contrast_stats <- list()
+      if (expname %in% names(config$contrasts$stats)) {
+        contrast_stats <- lapply(config$contrasts$stats[[expname]], function(assaytests) {
+
+          # 'Uncompiled' means that stats are still stored in separate files for
+          # each contrast, as they might come from DESeq etc. We just have to
+          # separate them and compile ourselves.
+
+          if ("type" %in% names(assaytests) && assaytests$type == "uncompiled") {
+            compile_contrast_data(
+              differential_stats_files = assaytests$files,
+              sep = assaytests$sep,
+              feature_id_column = assaytests$feature_id_column,
+              fc_column = assaytests$fc_column,
+              pval_column = assaytests$pval_column, qval_column = assaytests$qval_column,
+              unlog_foldchanges = assaytests$unlog_foldchanges
+            )
+          } else {
+            lapply(assaytests, function(at) {
+              print(paste("Reading test stats file", at))
+              read.csv(at, row.names = 1, header = FALSE)
+            })
+          }
         })
-      })
-    }
+      }
 
-    # Make the object
+      # Basic list to pass to object creation
 
-    print(paste("coldata:", exp$coldata$file))
-    print(paste("annotation:", exp$annotation$file))
+      ese_list <- list(
+        assays = assays,
+        colData = colData,
+        annotation = annotation,
+        idfield = exp$annotation$id,
+        entrezgenefield = exp$annotation$entrez,
+        labelfield = exp$annotation$label,
+        assay_measures = lapply(exp$expression_matrices, function(mat) {
+          mat$measure
+        }),
+        contrast_stats = contrast_stats[assay_order]
+      )
 
-    # Basic list to pass to object creation
+      if ("read_reports" %in% names(exp)) {
+        ese_list$read_reports <- lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE))
+      }
 
-    ese_list <- list(
-      assays = assays,
-      colData = read.csv(exp$coldata$file, row.names = 1),
-      annotation = read.csv(exp$annotation$file, row.names = 1, stringsAsFactors = FALSE),
-      idfield = exp$annotation$id,
-      entrezgenefield = exp$annotation$entrez,
-      labelfield = exp$annotation$label,
-      assay_measures = lapply(exp$expression_matrices, function(mat) {
-        mat$measure
-      }),
-      contrast_stats = contrast_stats[assay_order]
-    )
-
-    if ("read_reports" %in% names(exp)) {
-      ese_list$read_reports <- lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE))
-    }
-
-    if ("gene_set_analyses" %in% names(exp)) {
-      ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
-        lapply(assay, function(gene_set_type) {
-          lapply(gene_set_type, function(contrast) {
-            read.csv(contrast, check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+      if ("gene_set_analyses" %in% names(exp)) {
+        ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
+          lapply(assay, function(gene_set_type) {
+            lapply(gene_set_type, function(contrast) {
+              read.csv(contrast, check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+            })
           })
         })
-      })
+      }
+
+      do.call(ExploratorySummarizedExperiment, ese_list)
+    })
+
+    print("Creating ExploratorySummarizedExperimentList")
+
+    eselist_args <- list(
+      expsumexps,
+      title = config$title,
+      author = config$author,
+      group_vars = config$group_vars,
+      default_groupvar = config$default_groupvar,
+      contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))
+    )
+
+    # Optional things
+
+    if ("static_pdf" %in% names(config)) {
+      eselist_args$static_pdf <- config$static_pdf
     }
 
-    do.call(ExploratorySummarizedExperiment, ese_list)
-  })
+    # If 'report' is specified with assume a mardown document to be parsed. Otherwise just text
 
-  print("Creating ExploratorySummarizedExperimentList")
+    if ("report" %in% names(config)) {
+      eselist_args$description <- as.character(includeMarkdown(config$report))
+    } else if ("description" %in% names(config)) {
+      eselist_args$description <- config$description
+    }
 
-  eselist_args <- list(
-    expsumexps,
-    title = config$title,
-    author = config$author,
-    group_vars = config$group_vars,
-    default_groupvar = config$default_groupvar,
-    contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))
-  )
+    if ("url_roots" %in% names(config)) {
+      eselist_args$url_roots <- config$url_roots
+    }
 
-  # Optional things
+    if ("gene_set_id_type" %in% names(config) && "gene_sets" %in% names(config)) {
+      eselist_args$gene_set_id_type <- config$gene_set_id_type
+      eselist_args$gene_sets <- lapply(config$gene_sets, GSEABase::getGmt)
+    }
 
-  if ("static_pdf" %in% names(config)) {
-    eselist_args$static_pdf <- config$static_pdf
+    eselist <- do.call(ExploratorySummarizedExperimentList, eselist_args)
+
+    eselist
   }
 
-  # If 'report' is specified with assume a mardown document to be parsed. Otherwise just text
+#' Read an expression matrix file and match to specified samples and features
+#'
+#' @param matrix_file Matrix file
+#' @param sample_metadata Data frame of sample metadata
+#' @param feature_metadata Data fraome of feature metadata
+#' @param sep Sepaarator in matrix file
+#' @param row.names Matrix column number or name containing feature identifiers
+#'
+#' @return output Numeric matrix
+#' @export
 
-  if ("report" %in% names(config)) {
-    eselist_args$description <- as.character(includeMarkdown(config$report))
-  } else if ("description" %in% names(config)) {
-    eselist_args$description <- config$description
+read_matrix <- function(matrix_file, sample_metadata, feature_metadata, sep = ",", row.names = 1) {
+  if (is.null(sep)) {
+    sep <- ","
+  }
+  matrix_data <-
+    read.delim(
+      matrix_file,
+      check.names = FALSE,
+      header = TRUE,
+      sep = sep,
+      row.names = row.names
+    )
+
+  if (any(!rownames(sample_metadata) %in% colnames(matrix_data))) {
+    missing <-
+      rownames(sample_metadata)[(!rownames(sample_metadata) %in% colnames(matrix_data))]
+    stop(
+      paste0(
+        "Some sample metadata names (",
+        paste(missing, collapse = ","),
+        ") are absent from the matrix in ",
+        matrix_file,
+        ", columns are: ",
+        paste(colnames(matrix_data), collapse = ",")
+      )
+    )
   }
 
-  if ("url_roots" %in% names(config)) {
-    eselist_args$url_roots <- config$url_roots
+  # Allow for feature names appearing in the first column
+
+  if (!any(rownames(feature_metadata) %in% rownames(matrix_data))) {
+    rownames(matrix_data) <- matrix_data[, 1]
+    if (!any(rownames(feature_metadata) %in% rownames(matrix_data))) {
+      stop(paste("All feature metadata names are absent from the matrix in", matrix_file))
+    }
   }
 
-  if ("gene_set_id_type" %in% names(config) && "gene_sets" %in% names(config)) {
-    eselist_args$gene_set_id_type <- config$gene_set_id_type
-    eselist_args$gene_sets <- lapply(config$gene_sets, GSEABase::getGmt)
-  }
-
-  eselist <- do.call(ExploratorySummarizedExperimentList, eselist_args)
-
-  eselist
+  as.matrix(matrix_data[, rownames(sample_metadata)])
 }
+
+#' Read a metadata file
+#'
+#' @param filename File name
+#' @param id_col Identifier column in the file
+#' @param sep File separator
+#' @param stringsAsFactors Passed to \code{read.delim}
+#'
+#' @return output Data frame
+
+read_metadata <- function(filename, id_col, sep = ",", stringsAsFactors = FALSE) {
+  if (is.null(sep)) {
+    sep <- ","
+  }
+
+  if (!file.exists(filename)) {
+    stop(paste("Metadata file", filename, "does not exist."))
+  } else {
+    metadata <-
+      read.delim(
+        filename,
+        sep = sep,
+        check.names = FALSE,
+        header = TRUE,
+        stringsAsFactors = stringsAsFactors
+      )
+  }
+
+  if (is.character(id_col) && !id_col %in% colnames(metadata)) {
+    stop(
+      paste0(
+        "Metadata ID column (",
+        id_col,
+        ") does not exist in metadata ",
+        paste(colnames(metadata), collapse = ","),
+        " from file ",
+        filename
+      )
+    )
+  }
+
+  metadata <- metadata[match(unique(metadata[[id_col]]), metadata[[id_col]]), ]
+  rownames(metadata) <- metadata[[id_col]]
+  return(metadata)
+}
+
+
+#' Compile contrast stats for inclusion in shinyngs
+#'
+#' @param differential_stats_files Tabular files with differential stats
+#' @param sep Separator in stats files
+#' @param pval_column P value column in stats files
+#' @param qval_column Q value column in stats files
+#' @param fc_column Fold change column in stats files
+#' @param feature_id_column Feature identifier column in stats files
+#' @param unlog_foldchanges Should fold change values be unlogged?
+#'
+#' @return output A named list of data frames by statistic, number of columns equal to input file number
+
+compile_contrast_data <-
+  function(differential_stats_files,
+           sep = "\t",
+           feature_id_column = NULL,
+           pval_column = NULL,
+           qval_column = NULL,
+           fc_column = NULL,
+           unlog_foldchanges = FALSE) {
+
+    # Read stats and make sure they're numeric
+
+    contrast_stats <- lapply(differential_stats_files, function(dsf) {
+      st <- read.delim(dsf, sep = sep)[, c(feature_id_column, pval_column, qval_column, fc_column), drop = FALSE]
+      for (c in colnames(st)) {
+        st[[c]][grep("^ *NA$", st[[c]])] <- NA
+        if (c %in% c(pval_column, qval_column, fc_column)) {
+          st[[c]] <- as.numeric(st[[c]])
+        }
+      }
+      st
+    })
+
+    contrast_stats_rearranged <- list()
+
+    add_to_stats <- function(source) {
+      df <- do.call(cbind, lapply(contrast_stats, function(x) {
+        x[, source, drop = FALSE]
+      }))
+      names(df) <- paste0("V", 1:ncol(df))
+      rownames(df) <- contrast_stats[[1]][[feature_id_column]]
+      df
+    }
+
+    if (!is.null(fc_column)) {
+      contrast_stats_rearranged[["fold_changes"]] <- add_to_stats(source = fc_column)
+      if (unlog_foldchanges) {
+        contrast_stats_rearranged[["fold_changes"]] <- 2^contrast_stats_rearranged[["fold_changes"]]
+      }
+    }
+    if (!is.null(pval_column)) {
+      contrast_stats_rearranged[["pvals"]] <- add_to_stats(source = pval_column)
+    }
+    if (!is.null(qval_column)) {
+      contrast_stats_rearranged[["qvals"]] <- add_to_stats(source = qval_column)
+    }
+    contrast_stats_rearranged
+  }
