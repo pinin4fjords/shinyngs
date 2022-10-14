@@ -252,14 +252,40 @@ pca <- function(input, output, session, eselist) {
 #' @examples
 #' runPCA(mymatrix)
 #'
-runPCA <- function(matrix) {
+runPCA <- function(matrix, do_log = TRUE) {
   withProgress(message = "Running principal component analysis", value = 0, {
-    pcavals <- log2(matrix + 1)
+    
+    if ( do_log ){
+        pcavals <- log2(matrix + 1)
+    }
 
     pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
 
     prcomp(as.matrix(t(pcavals), scale = T))
   })
+}
+
+#' Run PCA on a given matrix, expected to be variance stabilised (at least
+#' log-transformed)
+#'
+#' @param matrix Simple matrix with genes by row and samples by column
+#' @param ntop Number of most variable genes to use
+#'
+#' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
+#'   and fractional variance contributions, respectively.
+
+compilePCAData <- function(matrix, ntop = opt$n_genes, sample.sheet, colorby){
+  
+  select <- selectVariableGenes(matrix = matrix, ntop = ntop)
+  
+  # perform a PCA on the data in assay(x) for the selected genes
+  pca <- runPCA(matrix, do_log = FALSE)  
+  
+  # the contribution to the total variance for each component
+  percentVar <- calculatePCAFractionExplained(pca)
+  
+  list(coords = data.frame(pca$x), percentVar = percentVar)
+  
 }
 
 #' Extract the percent variance from a PCA analysis
