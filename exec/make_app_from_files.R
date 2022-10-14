@@ -39,7 +39,7 @@ option_list <- list(
     c("-f", "--feature_metadata"),
     type = "character",
     default = NULL,
-    help = "CSV-format feature (often gene) metadata file."
+    help = "TSV-format feature (often gene) metadata file."
   ),
   make_option(
     c("-j", "--feature_id_col"),
