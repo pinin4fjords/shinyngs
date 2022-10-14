@@ -126,18 +126,6 @@ option_list <- list(
     help = "Account name for shinyapp deploment."
   ),
   make_option(
-    c("-m", "--shinyapps_token"),
-    type = "character",
-    default = NULL,
-    help = "Token for shinyapp deploment."
-  ),
-  make_option(
-    c("-n", "--shinyapps_secret"),
-    type = "character",
-    default = NULL,
-    help = "Secret for shinyapp deploment."
-  ),
-  make_option(
     c("-v", "--shinyapps_name"),
     type = "character",
     default = NULL,
@@ -274,15 +262,13 @@ writeLines(
   file.path(opt$output_directory, "app.R")
 )
 
-# Broken with Conda install: shinyapps needs the package to have been
-# installed via devtools, and conda doesn't do that
+# If deployment has been indicated, try to do that. Needs SHINYAPPS_SECRET AND
+# SHINYAPPS_TOKEN to be set in the evironment
 
 if (opt$deploy_app) {
   library(rsconnect)
   mandatory <- c(
     "shinyapps_account",
-    "shinyapps_token",
-    "shinyapps_secret",
     "shinyapps_name"
   )
   missing_args <- mandatory[!mandatory %in% names(opt)]
@@ -290,8 +276,18 @@ if (opt$deploy_app) {
     stop(paste("Missing mandatory arguments for shinyapps deployment:", paste(missing_args, collapse = ", ")))
   }
 
+  mandatory <- c(
+    'SHINYAPPS_SECRET',
+    'SHINYAPPS_TOKEN'
+  )
+  missing_secrets <- mandatory[!mandatory %in% names(Sys.getenv())]
+  if (length(missing_secrets) > 0) {
+    stop(paste("Environment variables not defined for shinyapps deployment:", paste(missing_secrets, collapse = ", ")))
+  }
+
   library(BiocManager)
-  options(repos = BiocManager::repositories())
-  rsconnect::setAccountInfo(name = opt$shinyapps_account, token = opt$shinyapps_token, secret = opt$shinyapps_secret)
+  options(repos = BiocManager::repositories(version = "3.14"))
+  options(BiocManager.check_repositories = FALSE)
+  rsconnect::setAccountInfo(name = opt$shinyapps_account, token = Sys.getenv('SHINYAPPS_TOKEN'), secret = Sys.getenv('SHINYAPPS_SECRET'))
   deployApp(appDir = opt$output_directory, appName = opt$shinyapps_name, forceUpdate = TRUE, launch.browser = FALSE)
 }
