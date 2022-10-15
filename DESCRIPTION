@@ -46,8 +46,8 @@ Suggests:
     markdown,
     rmarkdown,
     rsconnect,
-    testthat (>= 3.0.0)
-    zhangneurons,
+    testthat (>= 3.0.0),
+    zhangneurons
 Remotes:
     talgalili/d3heatmap,
     pinin4fjords/zhangneurons
