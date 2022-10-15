@@ -96,7 +96,7 @@ option_list <- list(
 opt_parser <- OptionParser(option_list = option_list)
 opt        <- parse_args(opt_parser)
 
-for (input in c('raw_count_file', 'sample_file', 'contrast_variable', 'outdir')){
+for (input in c('raw_count_file', 'sample_file', 'feature_metadata', 'contrast_variable', 'outdir')){
   if (is.null(opt[[input]])) {
     print_help(opt_parser)
     stop(paste0("Please provide a ", input), call. = FALSE)
