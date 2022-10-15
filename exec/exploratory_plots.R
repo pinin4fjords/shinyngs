@@ -127,7 +127,7 @@ sample.sheet <- read_metadata(
 
 feature.metadata <-
   read_metadata(
-    opt$feature_metadata,,
+    opt$feature_metadata,
     id_col = opt$feature_id_col,
     sep = "\t",
     stringsAsFactors = FALSE
@@ -176,7 +176,11 @@ for (od in c(png_outdir, html_outdir)){
 
 # Take gene metadata from the raw matrix (if we assume the nf-core workflow there should be symbols)
 
-gene_meta <- read_matrix(expression_files$raw, sample_sheet = sample.sheet, type = 'meta')
+gene_meta <- read_metadata(
+  filename = expression_files$raw,
+  id_col = opt$feature_id_col,
+  sep = "\t"
+)
 
 # Add symbols to matrix rows for display purposes
 
