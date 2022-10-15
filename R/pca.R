@@ -257,12 +257,12 @@ pca <- function(input, output, session, eselist) {
 #'
 runPCA <- function(matrix, do_log = TRUE) {
   if ( do_log ){
-      pcavals <- log2(matrix + 1)
+      matrix <- log2(matrix + 1)
   }
 
-  pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
+  matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, ]
 
-  prcomp(as.matrix(t(pcavals), scale = T))
+  prcomp(as.matrix(t(matrix), scale = T))
 }
 
 #' Run PCA on a given matrix, expected to be variance stabilised (at least
