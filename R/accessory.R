@@ -704,6 +704,8 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata, sep = ",
 #' @param sep File separator
 #' @param stringsAsFactors Passed to \code{read.delim}
 #'
+#' @export
+#'
 #' @return output Data frame
 
 read_metadata <- function(filename, id_col, sep = ",", stringsAsFactors = FALSE) {
