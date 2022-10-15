@@ -160,7 +160,9 @@ pca <- function(input, output, session, eselist) {
 
   pca <- reactive({
     pcamatrix <- selectMatrix()
-    runPCA(pcamatrix)
+    withProgress(message = "Running principal component analysis", value = 0, {
+      runPCA(pcamatrix)
+    })
   })
 
   # Fractional variance for each component
@@ -254,16 +256,13 @@ pca <- function(input, output, session, eselist) {
 #' runPCA(mymatrix)
 #'
 runPCA <- function(matrix, do_log = TRUE) {
-  withProgress(message = "Running principal component analysis", value = 0, {
-    
-    if ( do_log ){
-        pcavals <- log2(matrix + 1)
-    }
+  if ( do_log ){
+      pcavals <- log2(matrix + 1)
+  }
 
-    pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
+  pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
 
-    prcomp(as.matrix(t(pcavals), scale = T))
-  })
+  prcomp(as.matrix(t(pcavals), scale = T))
 }
 
 #' Run PCA on a given matrix, expected to be variance stabilised (at least
