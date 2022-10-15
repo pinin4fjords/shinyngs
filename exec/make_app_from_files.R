@@ -39,7 +39,7 @@ option_list <- list(
     c("-f", "--feature_metadata"),
     type = "character",
     default = NULL,
-    help = "CSV-format feature (often gene) metadata file."
+    help = "TSV-format feature (often gene) metadata file."
   ),
   make_option(
     c("-j", "--feature_id_col"),
@@ -52,6 +52,12 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "Comma-separated list of TSV-format file expression matrix files."
+  ),
+  make_option(
+    c("-w", "--assay_names"),
+    type = "character",
+    default = NULL,
+    help = "Comma-separated list of names of same length as --assay-files."
   ),
   make_option(
     c("-x", "--assay_entity_name"),
@@ -166,11 +172,13 @@ library(shinyngs)
 
 # Name assay data
 
-assay_files <- unlist(strsplit(opt$assay_files, ","))
-names(assay_files) <-
-  unlist(lapply(assay_files, function(x) {
-    prettifyVariablename(tools::file_path_sans_ext(gsub("_", " ", basename(x))))
-  }))
+assay_files <-
+  stringsToNamedVector(
+    elements_string = opt$assay_files,
+    opt$assay_names,
+    simplify_files = TRUE,
+    prettify_names = TRUE
+  )
 
 # Contrasts
 
@@ -240,7 +248,7 @@ shiny_config <- list(
 )
 
 if (!is.null(opt$group_vars)) {
-  opt$group_vars <- unlist(strsplit(opt$group_vars, ","))
+  opt$group_vars <- simpleSplit(opt$group_vars, ",")
   shiny_config[["group_vars"]] <- opt$group_vars
   shiny_config[["default_groupvar"]] <- opt$group_vars[1]
 }

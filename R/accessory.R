@@ -1,3 +1,55 @@
+#' Convenience interface to strsplit()
+#'
+#' @param string Input string
+#' @param sep Separator
+#'
+#' @return output Character vector of strings
+#' @export
+
+simpleSplit <- function(string, sep=','){
+  unlist(strsplit(string, sep))
+}
+
+#' Take two delimiter-separated strings and generate a named vector
+#'
+#' @param elements_string String to be converted to vector elements
+#' @param names_string String to be converted to vector names by default taken
+#'   from elements_string.
+#' @param sep Separator to use
+#' @param prettify_names Boolean. Prettify element names?
+#' @param simplify_files If elements are file and to be used to generate names,
+#'   should we simplify by striping path and extension?
+#'
+#' @return output Named character vector
+#' @export
+
+stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ',', prettify_names = TRUE, simplify_files = FALSE){
+  elements <- simpleSplit(elements_string, sep = sep)
+  
+  if (is.null(names_string)){
+    element_names <- elements
+    if (simplify_files){
+     element_names <- tools::file_path_sans_ext(gsub("_", " ", basename(element_names)))
+    }
+    
+  }else{
+    element_names <- simpleSplit(names_string, sep = sep)
+  }
+  
+  if (length(elements) != length(element_names)){
+    stop(paste("List in", elements_string, 'a different length to', names_string))
+  }
+  if (prettify_names){
+    element_names <- prettifyVariablename(element_names)
+  }
+  
+  names(elements) <- element_names
+  
+  elements
+  
+}
+
+
 #' Make machine variable names pretty for display
 #'
 #' Just split out words using '_' and capitalise first letter
@@ -46,7 +98,7 @@ ucfirst <- function(string) {
 #' @examples
 #' nlines("foo\nbar")
 nlines <- function(string) {
-  length(unlist(strsplit(string, "\n")))
+  length(simpleSplit(string, "\n"))
 }
 
 #' Make a hidden input field. Handy for replacing superfluous single-value
@@ -222,7 +274,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
 #' splitStringToFixedwidthLines("once upon a time there was a giant and a beanstalk and a pot of gold and some beans")
 #'
 splitStringToFixedwidthLines <- function(string, linewidth = 20) {
-  words <- unlist(strsplit(string, " "))
+  words <- simpleSplit(string, " ")
 
   strings <- list()
   string <- words[1]
@@ -703,6 +755,8 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata, sep = ",
 #' @param id_col Identifier column in the file
 #' @param sep File separator
 #' @param stringsAsFactors Passed to \code{read.delim}
+#'
+#' @export
 #'
 #' @return output Data frame
 

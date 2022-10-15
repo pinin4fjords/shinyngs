@@ -160,7 +160,9 @@ pca <- function(input, output, session, eselist) {
 
   pca <- reactive({
     pcamatrix <- selectMatrix()
-    runPCA(pcamatrix)
+    withProgress(message = "Running principal component analysis", value = 0, {
+      runPCA(pcamatrix)
+    })
   })
 
   # Fractional variance for each component
@@ -244,6 +246,7 @@ pca <- function(input, output, session, eselist) {
 #' Common function for PCA-using parts of the app
 #'
 #' @param matrix Matrix (not logged)
+#' @param do_log Boolean- apply log transform to input matrix?
 #'
 #' @return pca Output of the prcomp function
 #'
@@ -252,14 +255,39 @@ pca <- function(input, output, session, eselist) {
 #' @examples
 #' runPCA(mymatrix)
 #'
-runPCA <- function(matrix) {
-  withProgress(message = "Running principal component analysis", value = 0, {
-    pcavals <- log2(matrix + 1)
+runPCA <- function(matrix, do_log = TRUE) {
+  if ( do_log ){
+      matrix <- log2(matrix + 1)
+  }
 
-    pcavals <- pcavals[apply(pcavals, 1, function(x) length(unique(x))) > 1, ]
+  matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, ]
 
-    prcomp(as.matrix(t(pcavals), scale = T))
-  })
+  prcomp(as.matrix(t(matrix), scale = T))
+}
+
+#' Run PCA on a given matrix, expected to be variance stabilised (at least
+#' log-transformed)
+#'
+#' @param matrix Simple matrix with genes by row and samples by column
+#' @param ntop Number of most variable genes to use
+#'
+#' @export
+#'
+#' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
+#'   and fractional variance contributions, respectively.
+
+compilePCAData <- function(matrix, ntop = opt$n_genes){
+  
+  select <- selectVariableGenes(matrix = matrix, ntop = ntop)
+  
+  # perform a PCA on the data in assay(x) for the selected genes
+  pca <- runPCA(matrix, do_log = FALSE)  
+  
+  # the contribution to the total variance for each component
+  percentVar <- calculatePCAFractionExplained(pca)
+  
+  list(coords = data.frame(pca$x), percentVar = percentVar)
+  
 }
 
 #' Extract the percent variance from a PCA analysis
