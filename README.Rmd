@@ -136,7 +136,9 @@ shiny::shinyApp(app$ui, app$server)
 
 The function `eselistFromYAML()` is provided to help build your own objects given a config file. 
 
-# New: CLI interface to create application from files
+# New: command-line interfaces
+
+## App creation
 
 A new feature (may be buggy) is the creation of Shiny apps from file complements:
 
@@ -149,12 +151,7 @@ make_app_from_files.R \
     --differential_results treatment-saline-drug.deseq2.results.tsv \
     --output_dir app \
     --contrast_stats_assay 2 \
-    --unlog_foldchanges \
-    --deploy_app \
-    --shinyapps_account ACCOUNT \
-    --shinyapps_token "TOKEN" \
-    --shinyapps_secret "SECRET" \
-    --shinyapps_name APP_NAME
+    --unlog_foldchanges
 ```
 
 (This script can be found under `exec`).
@@ -168,11 +165,47 @@ This is designed to take a regular file complement of
 
 .. and produce an app.R. This currently covers the basic use cases and I haven't go to the gene sets etc, that will be future work.
 
-It even deploys to shinyapps.io (see [here](https://shiny.rstudio.com/articles/shinyapps.html) for more info, provide the correct information, and **provided you install `shinyngs` from devtools, rather than Conda**.
-
-Without the shinyapps deployment, you can still start the resulting app locally, by executing the `app.R` resulting from the above command.
+You can start the resulting app locally, by running the `app.R` resulting from the above command.
 
 See `make_app_from_files.R --help` for more info.
+
+### shinyapps.io deployment
+
+The following specified to `make_app_from_files.R` in addition to the above will trigger a deployment to shinyapps.io where the app can be viewed:
+
+```
+    --deploy_app \
+    --shinyapps_account ACCOUNT \
+    --shinyapps_name APP_NAME
+```
+
+You must derive your token and secret from your shinyapps.io account and set them in the environment variables `SHINYAPPS_TOKEN` and `SHINYAPPS_SECRET`, respectively.
+
+This is currently dependent on shinyngs having been installed via devtools, which doesn't happen in the Conda install, but I'm trying to address that.
+
+## Static plot generation
+
+I've found it useful to reuse some of the plotting components in shinyngs to produce non-Shiny plot outputs for use in static reporting.
+
+### Exploratory analysis
+
+A generic complement of explortory plots can be generated like:
+
+```
+exploratory_plots.R \
+    --assay_files salmon.merged.gene_counts.tsv,normalised_counts.tsv,variance_stabilised_counts.tsv \
+    --assay_names raw,normalised,variance_stabilised \
+    --sample_metadata samplesheet.csv \
+    --contrast_variable treatment \
+    --outdir plots \
+    --feature_metadata gene_meta.tsv
+```
+
+See `exploratory_plots.R  --help` for more info.
+
+### Differential analysis
+
+Differential analysis plots, currently just volcano plots, can be generated with `differential_plots.R`. See `exploratory_plots.R  --help` for more info.
 
 # Documentation
 
