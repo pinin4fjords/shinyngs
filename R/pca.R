@@ -272,6 +272,8 @@ runPCA <- function(matrix, do_log = TRUE) {
 #' @param matrix Simple matrix with genes by row and samples by column
 #' @param ntop Number of most variable genes to use
 #'
+#' @export
+#'
 #' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
 #'   and fractional variance contributions, respectively.
 
