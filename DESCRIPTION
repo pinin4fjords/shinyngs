@@ -9,16 +9,18 @@ Depends:
     SummarizedExperiment
 License: AGPL (>= 3)
 LazyData: true
+
 Imports:
     cluster,
+    cpp11,
     data.table,
     d3heatmap,
     dplyr,
     DT (>= 0.2),
     ggdendro,
-    ggplot2,
-    limma,
+    ggplot2,i
     GSEABase,
+    limma,
     methods,
     pheatmap,
     plotly (>= 4.3.4),
@@ -35,14 +37,18 @@ Imports:
     yaml
 Suggests:
     airway,
-    DEXSeq,
-    biomaRt,
     BiocStyle,
-    knitr,
-    rmarkdown,
+    BiocManager,
+    biomaRt,
+    devtools,
+    DEXSeq,
     Gviz,
-    zhangneurons,
+    knitr,
+    markdown,
+    rmarkdown,
+    rsconnect,
     testthat (>= 3.0.0)
+    zhangneurons,
 Remotes:
     talgalili/d3heatmap,
     pinin4fjords/zhangneurons
