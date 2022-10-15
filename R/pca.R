@@ -244,6 +244,7 @@ pca <- function(input, output, session, eselist) {
 #' Common function for PCA-using parts of the app
 #'
 #' @param matrix Matrix (not logged)
+#' @param do_log Boolean- apply log transform to input matrix?
 #'
 #' @return pca Output of the prcomp function
 #'
@@ -274,7 +275,7 @@ runPCA <- function(matrix, do_log = TRUE) {
 #' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
 #'   and fractional variance contributions, respectively.
 
-compilePCAData <- function(matrix, ntop = opt$n_genes, sample.sheet, colorby){
+compilePCAData <- function(matrix, ntop = opt$n_genes){
   
   select <- selectVariableGenes(matrix = matrix, ntop = ntop)
   

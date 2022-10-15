@@ -4,10 +4,12 @@
 \alias{runPCA}
 \title{Run a simple PCA analysis}
 \usage{
-runPCA(matrix)
+runPCA(matrix, do_log = TRUE)
 }
 \arguments{
 \item{matrix}{Matrix (not logged)}
+
+\item{do_log}{Boolean- apply log transform to input matrix?}
 }
 \value{
 pca Output of the prcomp function
