@@ -13,7 +13,7 @@ Imports:
     cluster,
     cpp11,
     data.table,
-    d3heatmap,
+    d3heatmap (>= 0.6.1.2),
     dplyr,
     DT (>= 0.2),
     ggdendro,
@@ -49,7 +49,7 @@ Suggests:
     testthat (>= 3.0.0),
     zhangneurons
 Remotes:
-    talgalili/d3heatmap,
+    cran/d3heatmap,
     pinin4fjords/zhangneurons
 RoxygenNote: 7.2.1
 VignetteBuilder: knitr
