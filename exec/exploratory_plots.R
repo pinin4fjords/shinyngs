@@ -256,7 +256,7 @@ plotdata$colorby <- factor(sample_metadata[[opt$contrast_variable]], levels = un
 
 plotdata$name <- rownames(plotdata)
 percentVar <- pca_data$percentVar
-labels <- paste0(colnames(plotdata), " (", sprintf("%.1f", (percentVar * 100)), "%)")
+labels <- paste0(colnames(plotdata), " (", sprintf("%.1f", percentVar), "%)")
 ncats <- length(unique(plotdata$colorby))
 
 plot_types <- list("2" = "scatter", "3" = "scatter3d")
