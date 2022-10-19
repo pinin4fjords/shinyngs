@@ -285,8 +285,8 @@ for (d in names(plot_types)) {
     plot_args$zlab <- labels[3]
   }
 
-  p <- do.call("static_scatterplot", plot_args)
   png(filename = file.path(png_outdir, paste0("pca", d, "d.png")), width = 800, height = 600)
+  p <- do.call("static_scatterplot", plot_args)
   print(p)
   dev.off()
 
