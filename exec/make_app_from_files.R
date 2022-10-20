@@ -238,9 +238,9 @@ shiny_config <- list(
   "contrasts" = list(
     "comparisons" = apply(contrasts, 1, function(x) {
       list(
-        "Variable" = x[1],
-        "Group.1" = x[2],
-        "Group.2" = x[3]
+        "Variable" = x['variable'],
+        "Group.1" = x['reference'],
+        "Group.2" = x['target']
       )
     }),
     "stats" = contrast_stats
