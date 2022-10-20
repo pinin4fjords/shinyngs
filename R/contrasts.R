@@ -259,7 +259,11 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
   getFoldChangeCard <- reactive({
     req(length(filterset_values) > 0)
-    unlist(lapply(filterset_values, function(x) x$fold_change_card))
+    card <- unlist(lapply(filterset_values, function(x) x$fold_change_card))
+    if (fcsAvailable()) {
+      req(length(card) > 0)
+    }
+    card
   })
 
   # Get current value of the q value filter
@@ -273,7 +277,11 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
   getQvalCard <- reactive({
     req(length(filterset_values) > 0)
-    unlist(lapply(filterset_values, function(x) x$q_value_card))
+    card <- unlist(lapply(filterset_values, function(x) x$q_value_card))
+    if (qvalsAvailable()) {
+      req(length(card) > 0)
+    }
+    card
   })
 
   # Get current value of the p value filter
@@ -287,7 +295,11 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
   getPvalCard <- reactive({
     req(length(filterset_values) > 0)
-    unlist(lapply(filterset_values, function(x) x$p_value_card))
+    card <- unlist(lapply(filterset_values, function(x) x$p_value_card))
+    if (pvalsAvailable()) {
+      req(length(card) > 0)
+    }
+    card
   })
 
   # Get method for combining filters
