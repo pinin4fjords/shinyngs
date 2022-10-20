@@ -68,7 +68,7 @@ option_list <- list(
   make_option(
     c("-y", "--contrast_stats_assay"),
     type = "numeric",
-    default = 1,
+    default = NULL,
     help = "Integer indicating which element of --assay_files should be associated in displays with contrast statistics. Usually a normalised matrix useful for relating stats to assay values."
   ),
   make_option(
@@ -185,6 +185,12 @@ assay_files <-
 contrasts <- read.csv(file = opt$contrast_file)
 contrast_stats_files <- strsplit(opt$differential_results, ",")
 contrast_stats_assay <- opt$contrast_stats_assay
+
+# Pick last assay by default to relate the stats to
+
+if (is.null(contrast_stats_assay)){
+    contrast_stats_assay <- length(assay_files)
+}
 names(contrast_stats_files) <- names(assay_files)[contrast_stats_assay]
 
 contrast_stats <- list()
