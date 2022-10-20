@@ -639,7 +639,7 @@ eselistfromConfig <-
         assay_measures = lapply(exp$expression_matrices, function(mat) {
           mat$measure
         }),
-        contrast_stats = contrast_stats[assay_order]
+        contrast_stats = contrast_stats
       )
 
       if ("read_reports" %in% names(exp)) {
