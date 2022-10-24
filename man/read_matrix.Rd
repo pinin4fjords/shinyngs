@@ -7,8 +7,8 @@
 read_matrix(
   matrix_file,
   sample_metadata,
-  feature_metadata,
-  sep = ",",
+  feature_metadata = NULL,
+  sep = NULL,
   row.names = 1
 )
 }
