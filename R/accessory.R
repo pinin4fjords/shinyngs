@@ -23,7 +23,7 @@ simpleSplit <- function(string, sep = ",") {
 
 getExtension <- function(file) {
   ex <- strsplit(basename(file), split = "\\.")[[1]]
-  return(tolower(ex[-1]))
+  return(tolower(tail(ex, 1)))
 }
 
 #' Infer a separator from the extension of an input file
@@ -42,6 +42,7 @@ getSeparator <- function(file) {
   } else {
     stop(paste("Unknown separator for", ext))
   }
+  separator
 }
 
 #' Take two delimiter-separated strings and generate a named vector
@@ -1058,19 +1059,25 @@ compile_contrast_data <-
 #' @param contrasts_file Contrasts definition file
 #' @param sample_id_col Column of sample metadata used for identifiers
 #' @param feature_id_col Column of feature metadata used for identifiers
+#' @param assay_names Optional comma-separated list of assay names
+#' @param differential_results Optional list of differential stats files
+#' @param pval_column P value column if differential stats files specified
+#' @param qval_column Q value column if differential stats files specified
+#' @param fc_column Fold change column if differential stats files specified
+#' @param unlog_foldchanges Boolean- should fold changes in stats files be
+#'   unlogged?
 #'
 #' @return output A named list with feature/ observation components
 #' @export
 
 validate_inputs <- function(samples_metadata,
-                            features_metadata,
                             assay_files,
-                            contrasts_file,
-                            sample_id_col,
-                            feature_id_col,
+                            contrasts_file = NULL,
+                            features_metadata = NULL,
+                            sample_id_col = 'sample',
                             assay_names = NULL,
                             differential_results = NULL,
-                            feature_id_column = "gene_id",
+                            feature_id_col = "gene_id",
                             pval_column = "pval_column",
                             qval_column = "qval_column",
                             fc_column = "log2FoldChange",
@@ -1079,46 +1086,69 @@ validate_inputs <- function(samples_metadata,
 
   # Read the sample (observation) - wise metadata
 
-  validated_parts[samples_metadata] <- read_metadata(
+  print(paste(
+    "Reading sample sheet at",
+    samples_metadata,
+    'with ID col',
+    sample_id_col
+  ))
+  
+  samples <- read_metadata(
     filename = samples_metadata,
     id_col = sample_id_col
   )
+  validated_parts[[samples_metadata]] <- samples
 
   # Read feature-wise metadata if provided
 
+  features <- NULL
   if (!is.null(features_metadata)) {
-    validated_parts[features_metadata] <- read_metadata(
+    
+    print(paste(
+      "Reading feature metadata at",
+      features_metadata,
+      'with ID col',
+      feature_id_col
+    ))
+    
+    features <- read_metadata(
       filename = features_metadata,
       id_col = features_id_col
     )
+    validated_parts[[features_metadata]] <- features
   }
-
+  
   # Read the assay matrices
 
   assay_files <-
     stringsToNamedVector(
       elements_string = assay_files,
-      names_string = assay_names,
-      assay_names,
       simplify_files = FALSE,
       prettify_names = FALSE
     )
 
   # Read the matrices while checking samples and features match columns and rows
-
-  assays <-
-    validated_parts["assays"] <- lapply(assay_files, function(x) {
-      read_matrix(
-        matrix_file = x,
-        sample_metadata = samples,
-        feature_metadata = features
-      )
-    })
-
+  
+  validated_parts[["assays"]] <- lapply(assay_files, function(x) {
+    print(paste("Reading assay matrix", x, "and validating against samples and features (if supplied)"))
+  
+    mat <- read_matrix(
+      matrix_file = x,
+      sample_metadata = samples,
+      feature_metadata = features
+    )
+    print(paste('... ', x,'matrix good'))
+    mat
+  })
+  
   # Read contrasts and check against sample info
 
-  validated_parts[contrasts_file] <- read_contrasts(contrasts_file, samples)
-
+  if (! is.null(contrasts_file)){
+    print("Reading contrast definitions and validating against sample sheet")
+    validated_parts[[contrasts_file]] <- read_contrasts(contrasts_file, samples)
+    print("... contrasts good")
+  }
+  
   if (!is.null(differential_results)) {
     contrast_stats_files <-
       stringsToNamedVector(differential_results,
@@ -1126,7 +1156,7 @@ validate_inputs <- function(samples_metadata,
         prettify_names = FALSE
       )
 
-    validated_parts["differential_stats"] <- lapply(contrast_stats_files, function(dsf) {
+    validated_parts[["differential_stats"]] <- lapply(contrast_stats_files, function(dsf) {
       read_differential(
         filename = dsf,
         feature_id_column = feature_id_column,

@@ -6,14 +6,13 @@
 \usage{
 validate_inputs(
   samples_metadata,
-  features_metadata,
   assay_files,
-  contrasts_file,
-  sample_id_col,
-  feature_id_col,
+  contrasts_file = NULL,
+  features_metadata = NULL,
+  sample_id_col = "sample",
   assay_names = NULL,
   differential_results = NULL,
-  feature_id_column = "gene_id",
+  feature_id_col = "gene_id",
   pval_column = "pval_column",
   qval_column = "qval_column",
   fc_column = "log2FoldChange",
@@ -23,15 +22,28 @@ validate_inputs(
 \arguments{
 \item{samples_metadata}{Sample metadata data frame}
 
-\item{features_metadata}{Feature metadata data frame}
-
 \item{assay_files}{List of assay matrices}
 
 \item{contrasts_file}{Contrasts definition file}
 
+\item{features_metadata}{Feature metadata data frame}
+
 \item{sample_id_col}{Column of sample metadata used for identifiers}
 
+\item{assay_names}{Optional comma-separated list of assay names}
+
+\item{differential_results}{Optional list of differential stats files}
+
 \item{feature_id_col}{Column of feature metadata used for identifiers}
+
+\item{pval_column}{P value column if differential stats files specified}
+
+\item{qval_column}{Q value column if differential stats files specified}
+
+\item{fc_column}{Fold change column if differential stats files specified}
+
+\item{unlog_foldchanges}{Boolean- should fold changes in stats files be
+unlogged?}
 }
 \value{
 output A named list with feature/ observation components
