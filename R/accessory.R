@@ -692,12 +692,20 @@ eselistfromConfig <-
 
     # Parse contrasts if they weren't provided as a list directly
 
-    if ("comparisons_file" %in% config$contrasts) {
+    if ("comparisons_file" %in% names(config$contrasts)) {
       config$contrasts$comparisons <-
         read_contrasts(config$contrasts$comparisons_file,
           colData(expsumexps[[1]]),
           convert_to_list = TRUE
         )
+    }
+
+    # Check that number of differential results sets is equal to number of contrasts
+
+    for (ese in expsumexps) {
+      if (length(ese@contrast_stats) != length(config$contrasts$comparisons)) {
+        stop(paste0("Number of supplied contrasts (", length(config$contrasts$comparisons), ") not equal to number of contrast stats files (", length(ese@contrast_stats), ")"))
+      }
     }
 
     print("Creating ExploratorySummarizedExperimentList")
@@ -971,7 +979,7 @@ read_differential <- function(filename,
                               fc_column = NULL,
                               unlog_foldchanges = FALSE) {
   st <- read_metadata(filename, id_col = feature_id_column)
-  stats_cols <- c(pval_column, qval_column, fc_column)
+  stats_cols <- c(feature_id_column, pval_column, qval_column, fc_column)
 
   success <-
     checkListIsSubset(
@@ -1022,7 +1030,7 @@ compile_contrast_data <-
         filename = dsf,
         feature_id_column = feature_id_column,
         pval_column = pval_column,
-        qval_column = qval_columns,
+        qval_column = qval_column,
         fc_column = fc_column,
         unlog_foldchanges = unlog_foldchanges
       )
@@ -1160,7 +1168,7 @@ validate_inputs <- function(samples_metadata,
         filename = dsf,
         feature_id_column = feature_id_column,
         pval_column = pval_column,
-        qval_column = qval_columns,
+        qval_column = qval_column,
         fc_column = fc_column,
         unlog_foldchanges = unlog_foldchanges
       )
