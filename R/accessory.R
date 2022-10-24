@@ -1060,6 +1060,7 @@ compile_contrast_data <-
 #' @param feature_id_col Column of feature metadata used for identifiers
 #'
 #' @return output A named list with feature/ observation components
+#' @export
 
 validate_inputs <- function(samples_metadata,
                             features_metadata,
