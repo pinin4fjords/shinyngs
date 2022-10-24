@@ -11,11 +11,13 @@ validate_inputs(
   contrasts_file,
   sample_id_col,
   feature_id_col,
-  differential_files = NULL,
+  assay_names = NULL,
+  differential_results = NULL,
   feature_id_column = "gene_id",
   pval_column = "pval_column",
   qval_column = "qval_column",
-  fc_column = "log2FoldChange"
+  fc_column = "log2FoldChange",
+  unlog_foldchanges = FALSE
 )
 }
 \arguments{

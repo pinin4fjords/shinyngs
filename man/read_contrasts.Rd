@@ -10,7 +10,8 @@ read_contrasts(
   variable_column = "variable",
   reference_column = "reference",
   target_column = "target",
-  blocking_column = "blocking"
+  blocking_column = "blocking",
+  convert_to_list = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ sample sheet variable}
 
 \item{blocking_column}{Colon-separated column in contrast file referencing
 sample sheet variables to be used as blocking factors}
+
+\item{convert_to_list}{Convert output to a list as used internally by
+shinyngs?}
 }
 \value{
 output Validated contrasts data frame

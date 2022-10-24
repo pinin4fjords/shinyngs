@@ -9,7 +9,8 @@ read_differential(
   feature_id_column = NULL,
   pval_column = NULL,
   qval_column = NULL,
-  fc_column = NULL
+  fc_column = NULL,
+  unlog_foldchanges = FALSE
 )
 }
 \arguments{
