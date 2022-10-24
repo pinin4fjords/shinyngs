@@ -73,7 +73,6 @@ differentialtableOutput <- function(id) {
 #' callModule(differentialtable, "differentialtable", eselist)
 #'
 differentialtable <- function(input, output, session, eselist) {
-
   # Render the output area - and provide an input-dependent title
 
   output$differentialtable <- renderUI({

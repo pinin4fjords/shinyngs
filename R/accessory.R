@@ -6,10 +6,10 @@
 #' @return output Character vector of strings
 #' @export
 
-simpleSplit <- function(string, sep=','){
-  if (is.na(string)){
+simpleSplit <- function(string, sep = ",") {
+  if (is.na(string)) {
     NA
-  }else{
+  } else {
     unlist(strsplit(string, sep))
   }
 }
@@ -21,10 +21,10 @@ simpleSplit <- function(string, sep=','){
 #' @return extension Extension like 'csv' or 'tsv'
 #' @export
 
-getExtension <- function(file){ 
-  ex <- strsplit(basename(file), split="\\.")[[1]]
+getExtension <- function(file) {
+  ex <- strsplit(basename(file), split = "\\.")[[1]]
   return(tolower(ex[-1]))
-} 
+}
 
 #' Infer a separator from the extension of an input file
 #'
@@ -33,13 +33,13 @@ getExtension <- function(file){
 #' @return output Separator character like '\t' or ','
 #' @export
 
-getSeparator <- function(file){
+getSeparator <- function(file) {
   ext <- getExtension(file)
-  if (ext == 'tsv' || ext == 'txt'){
-    separator <- '\t'
-  }else if (ext == 'csv'){
-    separator <- ','
-  }else{
+  if (ext == "tsv" || ext == "txt") {
+    separator <- "\t"
+  } else if (ext == "csv") {
+    separator <- ","
+  } else {
     stop(paste("Unknown separator for", ext))
   }
 }
@@ -57,30 +57,28 @@ getSeparator <- function(file){
 #' @return output Named character vector
 #' @export
 
-stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ',', prettify_names = TRUE, simplify_files = FALSE){
+stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ",", prettify_names = TRUE, simplify_files = FALSE) {
   elements <- simpleSplit(elements_string, sep = sep)
-  
-  if (is.null(names_string)){
+
+  if (is.null(names_string)) {
     element_names <- elements
-    if (simplify_files){
-     element_names <- tools::file_path_sans_ext(gsub("_", " ", basename(element_names)))
+    if (simplify_files) {
+      element_names <- tools::file_path_sans_ext(gsub("_", " ", basename(element_names)))
     }
-    
-  }else{
+  } else {
     element_names <- simpleSplit(names_string, sep = sep)
   }
-  
-  if (length(elements) != length(element_names)){
-    stop(paste("List in", elements_string, 'a different length to', names_string))
+
+  if (length(elements) != length(element_names)) {
+    stop(paste("List in", elements_string, "a different length to", names_string))
   }
-  if (prettify_names){
+  if (prettify_names) {
     element_names <- prettifyVariablename(element_names)
   }
-  
+
   names(elements) <- element_names
-  
+
   elements
-  
 }
 
 
@@ -229,7 +227,6 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 #'
 ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "expression", annotate_samples = FALSE) {
-
   # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
 
   if (!is.null(colorby)) {
@@ -463,11 +460,12 @@ inlineField <- function(field_def, label, labelwidth = 6) {
 #' as.character()
 
 cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<=", step = NA, min = NA, max = NA) {
-  tags$div(fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(3, selectInput(cardinal_id, label = NULL, choices = c(
-    "<=", ">=", ">= or <= -",
-    "<= and >= -"
-  ), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))),
-  class = "shinyngs-cardinalfield"
+  tags$div(
+    fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(3, selectInput(cardinal_id, label = NULL, choices = c(
+      "<=", ">=", ">= or <= -",
+      "<= and >= -"
+    ), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))),
+    class = "shinyngs-cardinalfield"
   )
 }
 
@@ -574,7 +572,6 @@ eselistFromYAML <- function(configfile) {
 
 eselistfromConfig <-
   function(config) {
-
     # 'Experiments' are sets of results from a common set of samples
 
     experiments <- config$experiments
@@ -597,7 +594,7 @@ eselistfromConfig <-
       exp <- experiments[[expname]]
 
       # Read feature metadata
-      
+
       colData <- read_metadata(
         filename = exp$coldata$file,
         id_col = exp$coldata$id,
@@ -638,7 +635,6 @@ eselistfromConfig <-
       contrast_stats <- list()
       if (expname %in% names(config$contrasts$stats)) {
         contrast_stats <- lapply(config$contrasts$stats[[expname]], function(assaytests) {
-
           # 'Uncompiled' means that stats are still stored in separate files for
           # each contrast, as they might come from DESeq etc. We just have to
           # separate them and compile ourselves.
@@ -694,14 +690,15 @@ eselistfromConfig <-
     })
 
     # Parse contrasts if they weren't provided as a list directly
-    
-    if ('comparisons_file' %in% config$contrasts){
+
+    if ("comparisons_file" %in% config$contrasts) {
       config$contrasts$comparisons <-
         read_contrasts(config$contrasts$comparisons_file,
-                       colData(expsumexps[[1]]),
-                       convert_to_list = TRUE)
+          colData(expsumexps[[1]]),
+          convert_to_list = TRUE
+        )
     }
-    
+
     print("Creating ExploratorySummarizedExperimentList")
 
     eselist_args <- list(
@@ -782,7 +779,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
 
   # Allow for feature names appearing in the first column
 
-  if (! is.null(feature_metadata)){
+  if (!is.null(feature_metadata)) {
     if (!any(rownames(feature_metadata) %in% rownames(matrix_data))) {
       rownames(matrix_data) <- matrix_data[, 1]
       if (!any(rownames(feature_metadata) %in% rownames(matrix_data))) {
@@ -823,7 +820,7 @@ read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors 
       )
   }
 
-  if (! is.null(id_col)){
+  if (!is.null(id_col)) {
     if (is.character(id_col) && !id_col %in% colnames(metadata)) {
       stop(
         paste0(
@@ -836,7 +833,7 @@ read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors 
         )
       )
     }
-    
+
     metadata <- metadata[match(unique(metadata[[id_col]]), metadata[[id_col]]), ]
     rownames(metadata) <- metadata[[id_col]]
   }
@@ -855,21 +852,21 @@ read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors 
 #' @export
 
 checkListIsSubset <- function(test_list,
-                         reference_list,
-                         test_list_name,
-                         reference_list_name) {
+                              reference_list,
+                              test_list_name,
+                              reference_list_name) {
   if (!all(test_list %in% reference_list)) {
     stop(
       paste0(
-        'Not all ',
+        "Not all ",
         test_list_name,
-        ' (',
-        paste(test_list, collapse = ','),
-        ') are available in the ',
+        " (",
+        paste(test_list, collapse = ","),
+        ") are available in the ",
         reference_list_name,
-        ' (',
-        paste(reference_list, collapse = ','),
-        ')'
+        " (",
+        paste(reference_list, collapse = ","),
+        ")"
       )
     )
   }
@@ -898,62 +895,61 @@ checkListIsSubset <- function(test_list,
 read_contrasts <-
   function(filename,
            samples,
-           variable_column = 'variable',
-           reference_column = 'reference',
-           target_column = 'target',
-           blocking_column = 'blocking',
+           variable_column = "variable",
+           reference_column = "reference",
+           target_column = "target",
+           blocking_column = "blocking",
            convert_to_list = FALSE) {
-    
-  # Read the contrasts
-  
-  contrasts <- read_metadata(filename)
-  contrast_cols <- c(variable_column, reference_column, target_column, blocking_column)
-  
-  # Check contrast headers are as expected
-  
-  if (! all(contrast_cols %in% colnames(contrasts))){
-    stop(paste('Contrasts file must contain all of', paste(contrast_cols, collapse = ', ')))
-  }
-  
-  # Check contrast content is appropriate to sample sheet
-  
-  ## 'variable' values should be sample sheet columns
-  
-  success <- checkListIsSubset(contrasts$variable, colnames(samples), 'contrast variables', 'sample metadata')
-  
-  blocking <- unlist(lapply(contrasts$blocking, function(x) simpleSplit(x, ';')))
-  blocking <- blocking[ ! is.na(blocking) ]
-  if (length(blocking > 0)){
-    success <- checkListIsSubset(blocking, colnames(samples), 'blocking variables', 'sample metadata')
-  }
-  
-  ## 'reference', 'target', and 'blocking' should be values of their variable
-  ## columns
-  
-  for (i in 1:nrow(contrasts)) {
-    var <- contrasts[i, variable_column]
-    for (col in c(reference_column, target_column)) {
-      val <- contrasts[i, col]
-      if (is.na(val) || val == ''){
-        stop(paste('Missing value for', col, 'in sample sheet'))
-      }else{
-        success <- checkListIsSubset(val, samples[[var]], 'contrast levels', 'sample metadata variable')
+    # Read the contrasts
+
+    contrasts <- read_metadata(filename)
+    contrast_cols <- c(variable_column, reference_column, target_column, blocking_column)
+
+    # Check contrast headers are as expected
+
+    if (!all(contrast_cols %in% colnames(contrasts))) {
+      stop(paste("Contrasts file must contain all of", paste(contrast_cols, collapse = ", ")))
+    }
+
+    # Check contrast content is appropriate to sample sheet
+
+    ## 'variable' values should be sample sheet columns
+
+    success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
+
+    blocking <- unlist(lapply(contrasts$blocking, function(x) simpleSplit(x, ";")))
+    blocking <- blocking[!is.na(blocking)]
+    if (length(blocking > 0)) {
+      success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+    }
+
+    ## 'reference', 'target', and 'blocking' should be values of their variable
+    ## columns
+
+    for (i in 1:nrow(contrasts)) {
+      var <- contrasts[i, variable_column]
+      for (col in c(reference_column, target_column)) {
+        val <- contrasts[i, col]
+        if (is.na(val) || val == "") {
+          stop(paste("Missing value for", col, "in sample sheet"))
+        } else {
+          success <- checkListIsSubset(val, samples[[var]], "contrast levels", "sample metadata variable")
+        }
       }
     }
-  } 
-  
-  if (convert_to_list){
-    contrasts <- apply(contrasts, 1, function(x) {
-      list(
-        "Variable" = x['variable'],
-        "Group.1" = x['reference'],
-        "Group.2" = x['target']
-      )
-    })
-  } 
 
-  contrasts
-}
+    if (convert_to_list) {
+      contrasts <- apply(contrasts, 1, function(x) {
+        list(
+          "Variable" = x["variable"],
+          "Group.1" = x["reference"],
+          "Group.2" = x["target"]
+        )
+      })
+    }
+
+    contrasts
+  }
 
 #' Read tables of differential statistics
 #'
@@ -973,24 +969,25 @@ read_differential <- function(filename,
                               qval_column = NULL,
                               fc_column = NULL,
                               unlog_foldchanges = FALSE) {
-  
   st <- read_metadata(filename, id_col = feature_id_column)
   stats_cols <- c(pval_column, qval_column, fc_column)
-  
+
   success <-
-    checkListIsSubset(stats_cols,
-                      colnames(st),
-                      'stats variables',
-                      'available stats columns')
+    checkListIsSubset(
+      stats_cols,
+      colnames(st),
+      "stats variables",
+      "available stats columns"
+    )
   st <- st[, stats_cols]
-  
+
   for (c in colnames(st)) {
     st[[c]][grep("^ *NA$", st[[c]])] <- NA
     if (c %in% c(pval_column, qval_column, fc_column)) {
       st[[c]] <- as.numeric(st[[c]])
     }
   }
-  
+
   if (unlog_foldchanges) {
     st[[fc_column]] <- 2^st[[fc_column]]
   }
@@ -1017,7 +1014,6 @@ compile_contrast_data <-
            qval_column = NULL,
            fc_column = NULL,
            unlog_foldchanges = FALSE) {
-
     # Read stats and make sure they're numeric
 
     contrast_stats <- lapply(differential_stats_files, function(dsf) {
@@ -1065,41 +1061,39 @@ compile_contrast_data <-
 #'
 #' @return output A named list with feature/ observation components
 
-validate_inputs <- function(
-  samples_metadata,
-  features_metadata,
-  assay_files,
-  contrasts_file,
-  sample_id_col,
-  feature_id_col,
-  assay_names = NULL,
-  differential_results = NULL,
-  feature_id_column = "gene_id",
-  pval_column = "pval_column",
-  qval_column = "qval_column",
-  fc_column = "log2FoldChange",
-  unlog_foldchanges = FALSE) {
-  
+validate_inputs <- function(samples_metadata,
+                            features_metadata,
+                            assay_files,
+                            contrasts_file,
+                            sample_id_col,
+                            feature_id_col,
+                            assay_names = NULL,
+                            differential_results = NULL,
+                            feature_id_column = "gene_id",
+                            pval_column = "pval_column",
+                            qval_column = "qval_column",
+                            fc_column = "log2FoldChange",
+                            unlog_foldchanges = FALSE) {
   validated_parts <- list()
-  
+
   # Read the sample (observation) - wise metadata
-  
-  validated_parts['samples'] <- read_metadata(
-    filename = samples_metadata, 
+
+  validated_parts[samples_metadata] <- read_metadata(
+    filename = samples_metadata,
     id_col = sample_id_col
   )
-  
+
   # Read feature-wise metadata if provided
-  
-  if (! is.null(features_metadata)){
-    validated_parts['features'] <- read_metadata(
-      filename = features_metadata, 
+
+  if (!is.null(features_metadata)) {
+    validated_parts[features_metadata] <- read_metadata(
+      filename = features_metadata,
       id_col = features_id_col
     )
   }
-  
+
   # Read the assay matrices
-  
+
   assay_files <-
     stringsToNamedVector(
       elements_string = assay_files,
@@ -1108,23 +1102,30 @@ validate_inputs <- function(
       simplify_files = FALSE,
       prettify_names = FALSE
     )
-  
+
   # Read the matrices while checking samples and features match columns and rows
-  
+
   assays <-
-    validated_parts['assays'] <- lapply(assay_files, function(x)
+    validated_parts["assays"] <- lapply(assay_files, function(x) {
       read_matrix(
         matrix_file = x,
         sample_metadata = samples,
         feature_metadata = features
-      ))
-  
+      )
+    })
+
   # Read contrasts and check against sample info
-  
-  validated_parts['contrasts'] <- read_contrasts(contrasts_file, samples)
-  
-  if (! is.null(differential_results)){
-    validated_parts['differential_stats'] <- lapply(differential_results, function(dsf){
+
+  validated_parts[contrasts_file] <- read_contrasts(contrasts_file, samples)
+
+  if (!is.null(differential_results)) {
+    contrast_stats_files <-
+      stringsToNamedVector(differential_results,
+        simplify_files = FALSE,
+        prettify_names = FALSE
+      )
+
+    validated_parts["differential_stats"] <- lapply(contrast_stats_files, function(dsf) {
       read_differential(
         filename = dsf,
         feature_id_column = feature_id_column,
@@ -1134,8 +1135,7 @@ validate_inputs <- function(
         unlog_foldchanges = unlog_foldchanges
       )
     })
-  } 
-  
+  }
+
   validated_parts
-  
 }

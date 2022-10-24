@@ -88,7 +88,6 @@ dendroOutput <- function(id) {
 #' callModule(dendro, "myid", eselist)
 #'
 dendro <- function(input, output, session, eselist) {
-
   # Get the expression matrix - no need for a gene selection
 
   unpack.list(callModule(selectmatrix, "dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))

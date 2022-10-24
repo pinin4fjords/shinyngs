@@ -147,7 +147,6 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
       if (!gene_set_id_type %in% colnames(annotation)) {
         next
       } else {
-
         # Numeric IDs (like entrez will be cast to integers)
 
         is_numeric <- all(!is.na(as.numeric(annotation[[gene_set_id_type]])))
@@ -156,7 +155,6 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
       print("Processing gene sets")
 
       gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
-
         # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named properly
 
         gsc <- lapply(gene_set_collection, function(gene_set) {

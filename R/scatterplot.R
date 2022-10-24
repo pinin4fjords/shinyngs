@@ -114,7 +114,6 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
                         }), allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = reactive({
                           NULL
                         })) {
-
   # If inputs are not provided, render controls to provide them
 
   ns <- session$ns
@@ -195,7 +194,6 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
   output$scatter <- renderPlotly({
     withProgress(message = "Drawing scatter plot", value = 0, {
       if (!is.null(colorBy)) {
-
         # If a palette was supplied, or if we made our own...
 
         if (is.null(getPalette)) {
@@ -391,7 +389,6 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
                                show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
-
   # We'll only label and color points with non-NA labels
 
   if (is.null(labels)) {

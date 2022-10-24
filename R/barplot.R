@@ -45,7 +45,6 @@ barplotOutput <- function(id, height = "400") {
 #' @param barmode Bar mode: 'stack', 'group' or 'overlay'
 
 barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = "stack") {
-
   # If we're doing an overlay plot, let's re-order the rows such that we've a better chance of seeing each group
 
   formatPlotMatrix <- reactive({

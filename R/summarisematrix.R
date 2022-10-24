@@ -73,7 +73,6 @@ summarisematrix <- function(input, output, session) {
 #' summarizeMatrix(mymatrix, myfactor)
 #'
 summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
-
   # We need a factor
 
   if (!is.factor(treatment_factor)) {

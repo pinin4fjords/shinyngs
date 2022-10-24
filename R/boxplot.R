@@ -112,7 +112,6 @@ boxplotOutput <- function(id) {
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
 boxplot <- function(input, output, session, eselist) {
-
   # Get the expression matrix - no need for a gene selection
 
   unpack.list(callModule(selectmatrix, "sampleBoxplot", eselist, select_genes = FALSE))

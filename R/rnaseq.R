@@ -195,7 +195,6 @@ rnaseqInput <- function(id, eselist) {
 #' callModule(rnaseq, "rnaseq", eselist)
 #'
 rnaseq <- function(input, output, session, eselist) {
-
   # Add internal links to the tables with gene labels
 
   for (esen in names(eselist)) {

@@ -91,7 +91,6 @@ geneOutput <- function(id, eselist) {
 #' callModule(gene, "gene", eselist)
 #'
 gene <- function(input, output, session, eselist) {
-
   # Call all the required modules and unpack their reactives
 
   selectmatrix_reactives <- callModule(selectmatrix, "gene", eselist, var_n = 1000, select_samples = TRUE, select_genes = FALSE, provide_all_genes = FALSE)
@@ -308,7 +307,6 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
 #' @param end Chromosome end coordinate
 
 geneModelPlot <- function(ensembl_species, chromosome, start, end) {
-
   # Initialise a connection to Ensembl
 
   ensembl <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = paste0(ensembl_species, "_gene_ensembl"), host = "www.ensembl.org")

@@ -256,8 +256,8 @@ pca <- function(input, output, session, eselist) {
 #' runPCA(mymatrix)
 #'
 runPCA <- function(matrix, do_log = TRUE) {
-  if ( do_log ){
-      matrix <- log2(matrix + 1)
+  if (do_log) {
+    matrix <- log2(matrix + 1)
   }
 
   matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, ]
@@ -276,18 +276,16 @@ runPCA <- function(matrix, do_log = TRUE) {
 #' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
 #'   and fractional variance contributions, respectively.
 
-compilePCAData <- function(matrix, ntop = opt$n_genes){
-  
+compilePCAData <- function(matrix, ntop = opt$n_genes) {
   select <- selectVariableGenes(matrix = matrix, ntop = ntop)
-  
+
   # perform a PCA on the data in assay(x) for the selected genes
-  pca <- runPCA(matrix, do_log = FALSE)  
-  
+  pca <- runPCA(matrix, do_log = FALSE)
+
   # the contribution to the total variance for each component
   percentVar <- calculatePCAFractionExplained(pca)
-  
+
   list(coords = data.frame(pca$x), percentVar = percentVar)
-  
 }
 
 #' Extract the percent variance from a PCA analysis
