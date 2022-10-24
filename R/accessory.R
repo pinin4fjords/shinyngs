@@ -1074,7 +1074,7 @@ validate_inputs <- function(samples_metadata,
                             assay_files,
                             contrasts_file = NULL,
                             features_metadata = NULL,
-                            sample_id_col = 'sample',
+                            sample_id_col = "sample",
                             assay_names = NULL,
                             differential_results = NULL,
                             feature_id_col = "gene_id",
@@ -1089,10 +1089,10 @@ validate_inputs <- function(samples_metadata,
   print(paste(
     "Reading sample sheet at",
     samples_metadata,
-    'with ID col',
+    "with ID col",
     sample_id_col
   ))
-  
+
   samples <- read_metadata(
     filename = samples_metadata,
     id_col = sample_id_col
@@ -1103,21 +1103,20 @@ validate_inputs <- function(samples_metadata,
 
   features <- NULL
   if (!is.null(features_metadata)) {
-    
     print(paste(
       "Reading feature metadata at",
       features_metadata,
-      'with ID col',
+      "with ID col",
       feature_id_col
     ))
-    
+
     features <- read_metadata(
       filename = features_metadata,
       id_col = features_id_col
     )
     validated_parts[[features_metadata]] <- features
   }
-  
+
   # Read the assay matrices
 
   assay_files <-
@@ -1128,27 +1127,27 @@ validate_inputs <- function(samples_metadata,
     )
 
   # Read the matrices while checking samples and features match columns and rows
-  
+
   validated_parts[["assays"]] <- lapply(assay_files, function(x) {
     print(paste("Reading assay matrix", x, "and validating against samples and features (if supplied)"))
-  
+
     mat <- read_matrix(
       matrix_file = x,
       sample_metadata = samples,
       feature_metadata = features
     )
-    print(paste('... ', x,'matrix good'))
+    print(paste("... ", x, "matrix good"))
     mat
   })
-  
+
   # Read contrasts and check against sample info
 
-  if (! is.null(contrasts_file)){
+  if (!is.null(contrasts_file)) {
     print("Reading contrast definitions and validating against sample sheet")
     validated_parts[[contrasts_file]] <- read_contrasts(contrasts_file, samples)
     print("... contrasts good")
   }
-  
+
   if (!is.null(differential_results)) {
     contrast_stats_files <-
       stringsToNamedVector(differential_results,
