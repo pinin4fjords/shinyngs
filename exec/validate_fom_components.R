@@ -36,7 +36,7 @@ option_list <- list(
     help = "Comma-separated list of TSV-format file expression matrix files."
   ),
   make_option(
-    c("-c", "--contrast_file"),
+    c("-c", "--contrasts_file"),
     type = "character",
     default = NULL,
     help = "CSV-format contrast file with variable,reference and target in the first 3 columns."
@@ -82,7 +82,7 @@ option_list <- list(
     type = "character",
     default = "\t",
     help = "Consistent separator for re-written files."
-  ),
+  )
 )
 
 opt_parser <- OptionParser(option_list = option_list)
@@ -93,9 +93,6 @@ opt <- parse_args(opt_parser)
 mandatory <-
   c(
     "sample_metadata",
-    "sample_id_col",
-    "feature_metadata",
-    "feature_id_col",
     "assay_files"
   )
 
@@ -119,7 +116,6 @@ validated_parts <- validate_inputs(
   sample_id_col = opt$sample_id_col,
   feature_id_col = opt$feature_id_col,
   differential_results = opt$differential_results,
-  feature_id_column = opt$feature_id_col,
   pval_column = opt$feature_id_col,
   qval_column = opt$qval_column,
   fc_column = opt$fold_change_column,
@@ -135,26 +131,37 @@ if (! is.null(opt$output_directory)){
   
   # Write the files back, but using the supplied separator
   
-  write_table <- function(x, infile){
+  write_table <- function(x, infile, suffix){
     file_basename <- tools::file_path_sans_ext(basename(infile))
-    outfile <- file.path(opt$output_directory, paste0(file_basename, '.tsv'))
+    outfile <- file.path(opt$output_directory, paste(file_basename, suffix, 'tsv', sep = '.'))
     
-    write.table(x, file = file, sep = opt$separator, quote = FALSE)
+    print(paste("...... writing", outfile))
+    write.table(x, file = outfile, sep = opt$separator, quote = FALSE, row.names = FALSE)
   }
   
   # Write back the sample sheet, feature metadata and contrasts
   
+  print("Writing basic data...")
   for (infile in c('sample_metadata', 'feature_metadata', 'contrasts_file')){
-    if (infile %in% names(validated_parts)){
-      write_table(validated_parts[[infile]], infile)
+    filename <- opt[[infile]]
+    if ((! is.null(filename)) && filename %in% names(validated_parts)){
+      write(paste("...", infile))
+      write_table(validated_parts[[filename]], filename, infile)
     }
   }
   
   # Write back the matrices
   
+  print("Writing matrices...")
   if ('assays' %in% names(validated_parts)){
     for (assay in names(validated_parts[['assays']])){
-      write_table(validated_parts[['assays']][[assay]], assay)
+      mat <- validated_parts[['assays']][[assay]]
+      
+      # Add a column for row names
+      mat <- data.frame(feature_name = rownames(mat), mat)
+      colnames(mat)[1] <- opt$feature_id_col
+      
+      write_table(mat, assay, 'assay')
     }
   }
   
