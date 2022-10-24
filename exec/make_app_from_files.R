@@ -235,12 +235,15 @@ shiny_config <- list(
   "author" = opt$author,
   "group_vars" = opt$group_vars,
   "default_groupvar" = opt$group_vars[1],
-  "experiments" = experiments,
-  "contrasts" = list(
+  "experiments" = experiments
+)
+
+if (! is.null(opt$contrast_file)){
+  shiny_config$contrasts = list(
     "comparisons_file" = opt$contrast_file,
     "stats" = contrast_stats
-  )
-)
+  )  
+}
 
 if (!is.null(opt$group_vars)) {
   opt$group_vars <- simpleSplit(opt$group_vars, ",")
