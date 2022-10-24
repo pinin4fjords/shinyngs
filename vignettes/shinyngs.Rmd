@@ -43,7 +43,7 @@ Graphical enhancements are provided by `shinyBS` and `shinyjs`
 
 ```{r, eval=FALSE}
 library(devtools)
-install_github("pinin4fjords/shinyngs")
+install_github('pinin4fjords/shinyngs')
 ```
 
 # Concepts and data structures
@@ -59,15 +59,15 @@ To see how to quickly build an RNA-seq app from a simple SummarizedExperiment, w
 ```{r eval = FALSE}
 library(shinyngs)
 
-data(airway, package = "airway")
-ese <- as(airway, "ExploratorySummarizedExperiment")
+data(airway, package = 'airway')
+ese <- as(airway, 'ExploratorySummarizedExperiment')
 eselist <- ExploratorySummarizedExperimentList(ese)
 ```
 
 Then we build and run the app. For example, a basic app just for heatmaps:
 
 ```{r eval = FALSE}
-app <- prepareApp("heatmap", eselist)
+app <- prepareApp('heatmap', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
@@ -76,14 +76,14 @@ Note the use of `prepareApp` to generate the proper `ui` and `server`, which are
 We can build a more comprehensive app with multiple panels aimed at RNA-seq:
 
 ```{r eval = FALSE}
-app <- prepareApp("rnaseq", eselist)
+app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
 Airway provides some info about the dataset, which we can add in to the object before we build the app:
 
 ```{r eval = FALSE}
-data(airway, package = "airway")
+data(airway, package = 'airway')
 expinfo <- metadata(airway)[[1]]
 
 eselist <- ExploratorySummarizedExperimentList(
@@ -92,7 +92,7 @@ eselist <- ExploratorySummarizedExperimentList(
   author = expinfo@name,
   description = abstract(expinfo)
 )
-app <- prepareApp("rnaseq", eselist)
+app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
@@ -103,21 +103,21 @@ All this app knows about is gene IDs, however, which aren't all that informative
 
 library(biomaRt)
 attributes <- c(
-  "ensembl_gene_id", # The sort of ID your results are keyed by
-  "entrezgene", # Will be used mostly for gene set based stuff
-  "external_gene_name" # Used to annotate gene names on the plot
+  'ensembl_gene_id', # The sort of ID your results are keyed by
+  'entrezgene', # Will be used mostly for gene set based stuff
+  'external_gene_name' # Used to annotate gene names on the plot
 )
 
-mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org")
+mart <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl', host='www.ensembl.org')
 annotation <- getBM(attributes = attributes, mart = mart)
-annotation <- annotation[order(annotation$entrezgene), ]
+annotation <- annotation[order(annotation$entrezgene),]
 
-mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
+mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id),]
 
 # Tell shinyngs what the ids are, and what field to use as a label
 
-ese@idfield <- "ensembl_gene_id"
-ese@labelfield <- "external_gene_name"
+ese@idfield <- 'ensembl_gene_id'
+ese@labelfield <- 'external_gene_name'
 
 # Re-build the app
 
@@ -127,7 +127,7 @@ eselist <- ExploratorySummarizedExperimentList(
   author = expinfo@name,
   description = abstract(expinfo)
 )
-app <- prepareApp("rnaseq", eselist)
+app <- prepareApp('rnaseq', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
@@ -143,7 +143,7 @@ Install the data package:
 
 ```{r, eval=FALSE}
 library(devtools)
-install_github("pinin4fjords/zhangneurons")
+install_github('pinin4fjords/zhangneurons')
 ```
 
 ... and load the data.
@@ -260,14 +260,14 @@ Now we can put these things together to create an 'ExploratorySummarizedExperime
 
 ```{r eval=TRUE}
 myese <- ExploratorySummarizedExperiment(
-  assays = SimpleList(
-    myassays
-  ),
-  colData = DataFrame(mycoldata),
-  annotation <- myannotation,
-  idfield = "gene_id",
-  labelfield = "gene_name"
-)
+    assays = SimpleList(
+      myassays
+    ),
+    colData = DataFrame(mycoldata),
+    annotation <- myannotation,
+    idfield = 'gene_id',
+    labelfield = "gene_name"
+  )
 print(myese)
 ```
 
@@ -282,7 +282,7 @@ myesel <- ExploratorySummarizedExperimentList(
   eses = list(expression = myese),
   title = "My title",
   author = "My Authors",
-  description = "Look what I gone done"
+  description = 'Look what I gone done'
 )
 ```
 
@@ -296,7 +296,7 @@ shiny::shinyApp(app$ui, app$server)
 ... but it's of limited usefulness because the sample groupings are not highlighted. We need to specify `group_vars` for that to happen, picking column names from the `colData`:
 
 ```{r eval=TRUE}
-myesel@group_vars <- c("Group", "Tissue")
+myesel@group_vars <- c('Group', 'Tissue')
 ```
 
 .. then if we re-make the app you should see group highlighting.
@@ -354,13 +354,13 @@ Many displays are more useful if they can be limited to biologically meaningful 
 The constructor for `ExploratorySummarizedExperimentList` assumes that gene sets are represented by the ID type specified in the `gene_set_id_type_slot`, and that they are specified as a list of `GeneSetCollection`s. You might generate such a list as follows:
 
 ```{r eval=FALSE}
-genesets_files <- list(
-  "KEGG" = "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
-  "MSigDB canonical pathway" = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
-  "GO biological process" = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
-  "GO cellular component" = "/path/to/MSigDB/c5.cc.v5.0.entrez.gmt",
-  "GO molecular function" = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
-  "MSigDB hallmark" = "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
+genesets_files = list(
+  'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
+  'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
+  'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",
+  'GO cellular component' = "/path/to/MSigDB/c5.cc.v5.0.entrez.gmt",
+  'GO molecular function' = "/path/to/MSigDB/c5.mf.v5.0.entrez.gmt",
+  'MSigDB hallmark'= "/path/to/MSigDB/h.all.v5.0.entrez.gmt"
 )
 
 gene_sets <- lapply(genesets_files, GSEABase::getGmt)
@@ -373,7 +373,7 @@ myesel <- ExploratorySummarizedExperimentList(
   eses = list(expression = myese),
   title = "My title",
   author = "My Authors",
-  description = "Look what I gone done",
+  description = 'Look what I gone done',
   gene_sets = gene_sets
 )
 ```
@@ -442,7 +442,7 @@ So for example `heatmap` uses `selectmatrix` to provide the UI controls to subse
 Many of these can be called individually, for example to make an app for dendrograms only:
 
 ```{r eval = FALSE}
-app <- prepareApp("dendro", eselist)
+app <- prepareApp('dendro', eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
