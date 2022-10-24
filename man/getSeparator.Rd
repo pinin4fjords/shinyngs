@@ -10,7 +10,7 @@ getSeparator(file)
 \item{file}{Input file path}
 }
 \value{
-output Separator character like '\t' or ','
+output Separator character like tab or ','
 }
 \description{
 Infer a separator from the extension of an input file

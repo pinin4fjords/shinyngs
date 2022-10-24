@@ -30,7 +30,7 @@ getExtension <- function(file) {
 #'
 #' @param file Input file path
 #'
-#' @return output Separator character like '\t' or ','
+#' @return output Separator character like tab or ','
 #' @export
 
 getSeparator <- function(file) {
