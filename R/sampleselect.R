@@ -29,7 +29,6 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
   ese <- getExperiment()
 
   if (select_samples) {
-
     # If grouping variables have been supplied we can use them to define sample selection
 
     selectby <- "name"
@@ -142,7 +141,6 @@ sampleselect <- function(input, output, session, eselist, getExperiment) {
         if (input$sampleSelect == "name") {
           return(input$samples)
         } else {
-
           # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
 
           samplegroups <- as.character(ese[[isolate(input$sampleGroupVar)]])

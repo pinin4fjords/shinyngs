@@ -122,7 +122,6 @@ genesetbarcodeplotOutput <- function(id) {
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
 genesetbarcodeplot <- function(input, output, session, eselist) {
-
   # Only use experiments with gene set analyses available
 
   eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]

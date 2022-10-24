@@ -4,7 +4,7 @@
 \alias{read_metadata}
 \title{Read a metadata file}
 \usage{
-read_metadata(filename, id_col, sep = ",", stringsAsFactors = FALSE)
+read_metadata(filename, id_col = NULL, sep = NULL, stringsAsFactors = FALSE)
 }
 \arguments{
 \item{filename}{File name}

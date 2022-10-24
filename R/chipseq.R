@@ -163,7 +163,6 @@ chipseqInput <- function(id, eselist) {
 #' callModule(chipseq, "chipseq", eselist)
 #'
 chipseq <- function(input, output, session, eselist) {
-
   # Add internal links to the tables with gene labels
 
   for (esen in names(eselist)) {

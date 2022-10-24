@@ -78,7 +78,6 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(),
                                             assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
-
   # Reset NULLs to empty
 
   if (is.null(entrezgenefield)) {

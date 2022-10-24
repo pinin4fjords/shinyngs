@@ -194,7 +194,6 @@ illuminaarrayInput <- function(id, eselist) {
 #' callModule(illuminaarray, "illuminaarray", eselist)
 #'
 illuminaarray <- function(input, output, session, eselist) {
-
   # Add internal links to the tables with gene labels
 
   for (esen in names(eselist)) {

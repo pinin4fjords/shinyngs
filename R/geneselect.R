@@ -64,7 +64,6 @@ geneselectInput <- function(id, select_genes = TRUE) {
 geneselect <- function(input, output, session, eselist, getExperiment, var_n = 50, var_max = 500, selectSamples = reactive({
                          colnames(getExperiment())
                        }), getAssay, provide_all = TRUE, provide_none = FALSE, default = NULL) {
-
   # Check if we have the nessary component for gene sets
 
   useGenesets <- reactive({

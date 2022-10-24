@@ -74,7 +74,6 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #'
 labelselectfield <- function(input, output, session, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1,
                              field_selection = FALSE, id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
-
   # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols
   # etc.  But if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it
   # will depend on the value of any experiment-selecting field.
@@ -107,12 +106,10 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
       metaFields <- getMetaFields()
       selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettifyVariablename(metaFields)), selected = ese@labelfield)
     } else {
-
       # 'id' means use the row IDs
 
       mf <- "id"
       if (length(ese@labelfield) == 0) {
-
         # If the idfield slot has been set, use its value instead of 'id'
 
         if (length(ese@idfield) > 0) {
@@ -213,7 +210,6 @@ labelselectfield <- function(input, output, session, eselist, getExperiment = NU
   # Get the row or rows of the data that correspond to the input metadata
 
   getSelectedIds <- reactive({
-
     # If the user has been allowed to select IDs, fetch the value of the input field. Othewise return all IDs associated with the selected label
 
     if (id_selection) {

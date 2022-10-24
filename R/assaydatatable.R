@@ -87,7 +87,6 @@ assaydatatableOutput <- function(id) {
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
 assaydatatable <- function(input, output, session, eselist) {
-
   # Render the output area - and provide an input-dependent title
 
   output$assaydatatable <- renderUI({

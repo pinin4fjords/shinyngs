@@ -207,6 +207,22 @@ See `exploratory_plots.R  --help` for more info.
 
 Differential analysis plots, currently just volcano plots, can be generated with `differential_plots.R`. See `exploratory_plots.R  --help` for more info.
 
+### Validation
+
+shinyngs has some good validation when building objects, to make sure that matrices are consistent with sample and feature annotations, and that the specified contrasts make sense. Accessing that logic by itself can be useful when writing FOM (feature/ observation matrix) workflows, so that is available separately like:
+
+```
+validate_fom_components.R \
+    --sample_metadata=testdata/samplesheet.csv \
+    --assay_files=testdata/SRP254919.salmon.merged.gene_counts.top1000cov.tsv \
+    --contrasts_file testdata/contrasts.csv \
+    --output_directory output
+```
+
+If `--output_directory` is specified, results are re-written (in a consistent format, TSV by default) the specified location.
+
+This script will error if there are inconsistencies between sample sheets, feature sets, matrices, and contrast specifications. 
+
 # Documentation
 
 Technical information can be accessed via the package documentation:

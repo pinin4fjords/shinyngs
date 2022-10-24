@@ -190,7 +190,6 @@ genesetanalysistableOutput <- function(id) {
 #' callModule(genesetanalysistable, "genesetanalysistable", eselist)
 #'
 genesetanalysistable <- function(input, output, session, eselist) {
-
   # Only use experiments with gene set analyses available
 
   eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
@@ -264,7 +263,6 @@ genesetanalysistable <- function(input, output, session, eselist) {
     validate(need(nrow(gst) > 0, "No results matching specified filters"))
 
     if (nrow(gst) > 0) {
-
       # Add in the differential genes
 
       ct <- filteredContrastsTables()[[1]][[1]]

@@ -138,7 +138,6 @@ dexseqtableOutput <- function(id) {
 #' callModule(dexseqtable, "dexseqtable", eselist)
 #'
 dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, link_to_deu_plot = TRUE) {
-
   # Only use experiments with gene set analyses available
 
   eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]

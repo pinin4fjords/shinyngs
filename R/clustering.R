@@ -105,7 +105,6 @@ clusteringOutput <- function(id) {
 #' callModule(clustering, "myid", eselist)
 #'
 clustering <- function(input, output, session, eselist) {
-
   # Call the selectmatrix module to get the expression matrix - no need for a gene selection
 
   unpack.list(callModule(selectmatrix, "clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
@@ -363,7 +362,6 @@ clustering <- function(input, output, session, eselist) {
 #' summarySE(tg, measurevar = "len", groupvars = c("supp", "dose"))
 #'
 summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
-
   # New version of length which can handle NA's: if na.rm==T, don't count them
   length2 <- function(x, na.rm = FALSE) {
     if (na.rm) {
@@ -437,7 +435,6 @@ bootstrapMedian <- function(data, num) {
 #'   threshold of < -5 usually indicates outliers
 
 madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5) {
-
   # Double-check the matrix/ sample sheet synch
   matrix <- matrix[, rownames(sample_sheet)]
 

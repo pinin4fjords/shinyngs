@@ -829,7 +829,6 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
   ))
 
   if (filter_rows) {
-
     # p value field
 
     if ("pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)) {

@@ -208,7 +208,6 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
       anno_fields <- getGroupby()
 
       if (!is.null(anno_fields)) {
-
         # Prettify the factor levels for display
 
         colnames(ed)[match(anno_fields, colnames(ed))] <- prettifyVariablename(anno_fields)
@@ -560,7 +559,6 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
                                  n = 7,
                                  name = "RdYlBu"
                                )))(100), cexCol = 0.7, cexRow = 0.7, ...) {
-
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels

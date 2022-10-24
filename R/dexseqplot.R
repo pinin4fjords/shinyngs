@@ -110,7 +110,6 @@ dexseqplotOutput <- function(id, eselist) {
 #' callModule(dexseqplot, "dexseqplot", eselist)
 #'
 dexseqplot <- function(input, output, session, eselist) {
-
   # Fetch the table of values for the gene
 
   unpack.list(callModule(dexseqtable, "deuPlotTable",

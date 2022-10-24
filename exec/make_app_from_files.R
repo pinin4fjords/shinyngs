@@ -155,8 +155,6 @@ mandatory <-
     "feature_id_col",
     "assay_files",
     "assay_entity_name",
-    "contrast_file",
-    "differential_results",
     "output_directory",
     "contrast_stats_assay"
   )
@@ -167,8 +165,6 @@ if (length(missing_args) > 0) {
 }
 
 library(shinyngs)
-
-# Parse inputs
 
 # Name assay data
 
@@ -182,7 +178,6 @@ assay_files <-
 
 # Contrasts
 
-contrasts <- read.csv(file = opt$contrast_file)
 contrast_stats_files <- strsplit(opt$differential_results, ",")
 contrast_stats_assay <- opt$contrast_stats_assay
 
@@ -240,18 +235,15 @@ shiny_config <- list(
   "author" = opt$author,
   "group_vars" = opt$group_vars,
   "default_groupvar" = opt$group_vars[1],
-  "experiments" = experiments,
-  "contrasts" = list(
-    "comparisons" = apply(contrasts, 1, function(x) {
-      list(
-        "Variable" = x['variable'],
-        "Group.1" = x['reference'],
-        "Group.2" = x['target']
-      )
-    }),
-    "stats" = contrast_stats
-  )
+  "experiments" = experiments
 )
+
+if (! is.null(opt$contrast_file)){
+  shiny_config$contrasts = list(
+    "comparisons_file" = opt$contrast_file,
+    "stats" = contrast_stats
+  )  
+}
 
 if (!is.null(opt$group_vars)) {
   opt$group_vars <- simpleSplit(opt$group_vars, ",")

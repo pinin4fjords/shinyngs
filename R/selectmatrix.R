@@ -103,7 +103,6 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #'
 selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE,
                          default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE) {
-
   # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
   unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
@@ -405,7 +404,6 @@ labelMatrix <- function(matrix, ese, idcol = NULL, metafields = c()) {
 
 linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
   withProgress(message = "Adding links", value = 0, {
-
     # Add prettified version of each field in URL roots in case matrix column names are prettified
 
     for (fieldname in names(url_roots)) {

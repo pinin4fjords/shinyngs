@@ -54,7 +54,6 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #' geneset_functions <- callModule(genesetselect, "heatmap", getExperiment)
 #'
 genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
-
   # Allow user to select the type of gene set
 
   output$geneSetTypes <- renderUI({
@@ -163,12 +162,10 @@ genesetselect <- function(input, output, session, eselist, getExperiment, multip
     })
 
     if (input$overlapType == "union") {
-
       # Use c to preserve names
 
       Reduce(c, path_gene_sets)
     } else {
-
       # Again- this is more than a simple Reduce(intersect because of the need to preserve names
 
       path_gene_sets[[1]][Reduce(intersect, lapply(path_gene_sets, names))]
