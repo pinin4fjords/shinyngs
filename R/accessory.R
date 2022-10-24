@@ -967,6 +967,8 @@ read_contrasts <-
 #' @param pval_column Column of stats file with p values
 #' @param qval_column Column of stats file with adjust p values/ q values
 #' @param fc_column Column of stats with fold changes
+#' @param unlog_foldchanges Reverse a log on fold changes? Set to TRUE if values
+#'   are logged.
 #'
 #' @return output Validated selected columns of differential stats files as a
 #'   data frame

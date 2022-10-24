@@ -23,6 +23,9 @@ read_differential(
 \item{qval_column}{Column of stats file with adjust p values/ q values}
 
 \item{fc_column}{Column of stats with fold changes}
+
+\item{unlog_foldchanges}{Reverse a log on fold changes? Set to TRUE if values
+are logged.}
 }
 \value{
 output Validated selected columns of differential stats files as a
