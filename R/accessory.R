@@ -1122,7 +1122,7 @@ validate_inputs <- function(samples_metadata,
 
     features <- read_metadata(
       filename = features_metadata,
-      id_col = features_id_col
+      id_col = feature_id_col
     )
     validated_parts[[features_metadata]] <- features
   }
