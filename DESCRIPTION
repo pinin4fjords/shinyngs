@@ -1,6 +1,6 @@
 Package: shinyngs
 Title: Shiny apps for NGS data
-Version: 1.4.1
+Version: 1.4.2
 Authors@R: person("Jonathan", "Manning", email = "jonathan.manning@healx.io", role = c("aut", "cre"))
 Description: Provides Shiny applications for various array and NGS applications.
     Currently very RNA-seq centric, with plans for expansion.
