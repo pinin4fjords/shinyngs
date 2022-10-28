@@ -17,24 +17,24 @@ option_list <- list(
     help = "TSV file containing a tabe of differential analysis outputs."
   ),
   make_option(
-    c("-e", "--gene_metadata_file"),
+    c("-e", "--feature_metadata"),
     type = "character",
     default = NULL,
     metavar = "path",
-    help = "TSV file containing gene identifiers and symbols."
+    help = "TSV file containing feature identifiers and symbols."
   ),
   make_option(
-    c("-g", "--gene_id_col"),
+    c("-g", "--feature_id_col"),
     type = "character",
     metavar = "string",
-    help = "Count file column containing gene identifiers.",
+    help = "Count file column containing feature identifiers.",
     default = "gene_id"
   ),
   make_option(
-    c("-m", "--gene_name_col"),
+    c("-m", "--feature_name_col"),
     type = "character",
     metavar = "string",
-    help = "Count file column containing gene names.",
+    help = "Count file column containing feature names.",
     default = "gene_name"
   ),
   make_option(
@@ -59,10 +59,10 @@ option_list <- list(
     default = "padj"
   ),
   make_option(
-    c("-n", "--diff_gene_id_col"),
+    c("-n", "--diff_feature_id_col"),
     type = "character",
     metavar = "string",
-    help = "Differential file column name containing gene identifiers.",
+    help = "Differential file column name containing feature identifiers.",
     default = "padj"
   ),
   make_option(
@@ -96,7 +96,7 @@ option_list <- list(
 opt_parser <- OptionParser(option_list = option_list)
 opt        <- parse_args(opt_parser)
 
-for (input in c('differential_file', 'gene_metadata_file', 'outdir', 'reference_level', 'treatment_level')){
+for (input in c('differential_file', 'feature_metadata', 'outdir', 'reference_level', 'treatment_level')){
   if (is.null(opt[[input]])) {
     print_help(opt_parser)
     stop(paste0("Please provide a ", input), call. = FALSE)
@@ -131,13 +131,13 @@ library(plotly)
 
 differential <- read.table(opt$differential_file, header = TRUE)
 differential <- subset(differential, (! is.na(differential[[opt$fold_change_col]])) & (! is.na(differential[[opt$p_value_column]])) )
-gene_meta <- read.table(opt$gene_metadata_file, header = TRUE, row.names = c(opt$gene_id_col))[, opt$gene_name_col, drop = FALSE]
+feature_meta <- read.table(opt$feature_metadata, header = TRUE, row.names = c(opt$feature_id_col))[, opt$feature_name_col, drop = FALSE]
 
-# Label genes with symbol as well as identifier
+# Label features with symbol as well as identifier
 
-differential$label <- gene_meta[differential[[opt$gene_id_col]],opt$gene_name_col]
+differential$label <- feature_meta[differential[[opt$feature_id_col]],opt$feature_name_col]
 
-# We'll color by whether genes are differential according to supplied thresholds
+# We'll color by whether features are differential according to supplied thresholds
 
 differential$differential_status <- FALSE
 differential$differential_status[abs(differential[[opt$fold_change_col]]) > opt$fold_change_threshold & differential[opt$p_value_column] < opt$p_value_threshold] <- TRUE
@@ -170,7 +170,7 @@ htmlwidgets::saveWidget(as_widget(interactive_volcanoplot), file.path(html_outdi
 
 print("... static")
 
-# Let's show labels for significant genes in the static plot
+# Let's show labels for significant features in the static plot
 
 plot_args$show_labels <- TRUE
 plot_args$labels[! differential$differential_status] <- NA
