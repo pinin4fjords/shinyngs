@@ -22,7 +22,7 @@ option_list <- list(
     help = "Comma-separated list of names of same length as --assay-files."
   ),
   make_option(
-    c("-i", "--final-assay"),
+    c("-i", "--final_assay"),
     type = "character",
     default = NULL,
     help = "String or integer indicating final assay to be used in plot assuming minimal normalisation etc has occured- e.g. PCA. Default is last element specified in --assay_files"
