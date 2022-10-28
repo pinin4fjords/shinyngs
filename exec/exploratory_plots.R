@@ -61,7 +61,7 @@ option_list <- list(
     default = "gene_id"
   ),
   make_option(
-    c("-m", "--gene_name_col"),
+    c("-m", "--feature_name_col"),
     type = "character",
     metavar = "string",
     help = "Count file column containing gene names.",
@@ -118,15 +118,13 @@ print("Reading inputs...")
 
 sample_metadata <- read_metadata(
   filename = opt$sample_metadata,
-  id_col = opt$sample_id_col,
-  sep = ","
+  id_col = opt$sample_id_col
 )
 
 feature_metadata <-
   read_metadata(
     opt$feature_metadata,
     id_col = opt$feature_id_col,
-    sep = "\t",
     stringsAsFactors = FALSE
   )
 
@@ -147,7 +145,6 @@ assay_data <- lapply(assay_files, function(x) {
     x,
     sample_metadata = sample_metadata,
     feature_metadata = feature_metadata,
-    sep = "\t",
     row.names = 1
   )
 })
@@ -189,18 +186,11 @@ for (od in c(png_outdir, html_outdir)) {
   dir.create(path = od, recursive = TRUE, showWarnings = FALSE)
 }
 
-# Take gene metadata from the raw matrix (if we assume the nf-core workflow there should be symbols)
-
-gene_meta <- read_metadata(
-  filename = opt$feature_metadata,
-  id_col = opt$feature_id_col,
-  sep = "\t"
-)
-
 # Add symbols to matrix rows for display purposes
 
 assay_data <- lapply(assay_data, function(x) {
-  rownames(x) <- paste(gene_meta[rownames(x), "gene_name"], "/", rownames(x))
+  gene_symbols <- feature_metadata[match(rownames(x), feature_metadata[[opt$feature_id_col]]), opt$feature_name_col]
+  rownames(x) <- paste(gene_symbols, "/", rownames(x))
   x
 })
 
