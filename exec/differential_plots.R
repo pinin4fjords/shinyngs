@@ -63,7 +63,7 @@ option_list <- list(
     type = "character",
     metavar = "string",
     help = "Differential file column name containing feature identifiers.",
-    default = "padj"
+    default = "gene_id"
   ),
   make_option(
     c("-c", "--fold_change_threshold"),
@@ -90,6 +90,12 @@ option_list <- list(
     type = "character",
     metavar = "string",
     help = "For differential plot annotation. Postitive fold changes will be annotated as being higher in this group. "
+  ),
+  make_option(
+    c("-s", "--unlog_foldchanges"),
+    action = "store_true",
+    default = FALSE,
+    help = "Set this option if fold changes should be unlogged."
   )
 )
 
@@ -129,13 +135,27 @@ library(plotly)
 ################################################
 ################################################
 
-differential <- read.table(opt$differential_file, header = TRUE)
+differential <- read_differential(
+    filename = opt$differential_file,
+    feature_id_column = opt$diff_feature_id_col,
+    pval_column = opt$p_value_column,
+    qval_column = opt$p_value_column,
+    fc_column = opt$fold_change_col,
+    unlog_foldchanges = opt$unlog_foldchanges
+)
+
 differential <- subset(differential, (! is.na(differential[[opt$fold_change_col]])) & (! is.na(differential[[opt$p_value_column]])) )
-feature_meta <- read.table(opt$feature_metadata, header = TRUE, row.names = c(opt$feature_id_col))[, opt$feature_name_col, drop = FALSE]
+
+feature_metadata <-
+  read_metadata(
+    opt$feature_metadata,
+    id_col = opt$feature_id_col,
+    stringsAsFactors = FALSE
+  )
 
 # Label features with symbol as well as identifier
 
-differential$label <- feature_meta[differential[[opt$feature_id_col]],opt$feature_name_col]
+differential$label <- feature_metadata[differential[[opt$feature_id_col]],opt$feature_name_col]
 
 # We'll color by whether features are differential according to supplied thresholds
 
