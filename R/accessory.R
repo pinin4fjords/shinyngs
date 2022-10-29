@@ -599,13 +599,11 @@ eselistfromConfig <-
       colData <- read_metadata(
         filename = exp$coldata$file,
         id_col = exp$coldata$id,
-        sep = exp$coldata$sep
       )
       annotation <-
         read_metadata(
           exp$annotation$file,
           id_col = exp$annotation$id,
-          sep = exp$annotation$sep,
           stringsAsFactors = FALSE
         )
 
@@ -617,7 +615,6 @@ eselistfromConfig <-
           mat$file,
           sample_metadata = colData,
           feature_metadata = annotation,
-          sep = mat$sep,
           row.names = 1
         )
       }))
@@ -643,7 +640,6 @@ eselistfromConfig <-
           if ("type" %in% names(assaytests) && assaytests$type == "uncompiled") {
             compile_contrast_data(
               differential_stats_files = assaytests$files,
-              sep = assaytests$sep,
               feature_id_column = assaytests$feature_id_column,
               fc_column = assaytests$fc_column,
               pval_column = assaytests$pval_column, qval_column = assaytests$qval_column,
@@ -1019,7 +1015,6 @@ read_differential <- function(filename,
 
 compile_contrast_data <-
   function(differential_stats_files,
-           sep = "\t",
            feature_id_column = NULL,
            pval_column = NULL,
            qval_column = NULL,

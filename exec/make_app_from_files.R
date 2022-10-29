@@ -51,7 +51,7 @@ option_list <- list(
     c("-e", "--assay_files"),
     type = "character",
     default = NULL,
-    help = "Comma-separated list of TSV-format file expression matrix files."
+    help = "Comma-separated list of CSV or TSV-format file expression matrix files."
   ),
   make_option(
     c("-w", "--assay_names"),
@@ -87,7 +87,7 @@ option_list <- list(
     c("-d", "--differential_results"),
     type = "character",
     default = NULL,
-    help = "Tab-separated files containing at least fold change and p value, one for each row of the contrast file."
+    help = "Comma-separated list of CSV or TSV-format files containing at least fold change and p value, one for each row of the contrast file."
   ),
   make_option(
     c("-k", "--fold_change_column"),
@@ -198,7 +198,6 @@ contrast_stats[[opt$assay_entity_name]] <- lapply(contrast_stats_files, function
     "pval_column" = opt$pval_column,
     "qval_column" = opt$qval_column,
     "unlog_foldchanges" = opt$unlog_foldchanges,
-    "sep" = "\t"
   )
 })
 
@@ -213,19 +212,16 @@ experiments[[opt$assay_entity_name]] <- list(
   "coldata" = list(
     "file" = opt$sample_metadata,
     "id" = opt$sample_id_col,
-    "sep" = ","
   ),
   "annotation" = list(
     "file" = opt$feature_metadata,
     "id" = opt$feature_id_col,
-    "sep" = "\t",
     "label" = "gene_name"
   ),
   "expression_matrices" = lapply(assay_files, function(x) {
     list(
       file = x,
       measure = "counts",
-      sep = "\t"
     )
   })
 )
