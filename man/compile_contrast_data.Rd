@@ -6,7 +6,6 @@
 \usage{
 compile_contrast_data(
   differential_stats_files,
-  sep = "\\t",
   feature_id_column = NULL,
   pval_column = NULL,
   qval_column = NULL,
@@ -16,8 +15,6 @@ compile_contrast_data(
 }
 \arguments{
 \item{differential_stats_files}{Tabular files with differential stats}
-
-\item{sep}{Separator in stats files}
 
 \item{feature_id_column}{Feature identifier column in stats files}
 
