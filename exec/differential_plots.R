@@ -170,7 +170,7 @@ vline_thresholds[[paste(opt$fold_change_col, '<-', opt$fold_change_threshold)]] 
 vline_thresholds[[paste(opt$fold_change_col, '>', opt$fold_change_threshold)]] = opt$fold_change_threshold
 
 plot_args <- list(
-  x = differential[[opt$fold_change_col]],
+  x = log2(differential[[opt$fold_change_col]]),
   y = -log10(differential[[opt$p_value_column]]),
   colorby = differential$differential_status,
   ylab = paste("-log(10)", opt$p_value_column),
