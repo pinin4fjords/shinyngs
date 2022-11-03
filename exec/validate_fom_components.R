@@ -131,12 +131,12 @@ if (! is.null(opt$output_directory)){
   
   # Write the files back, but using the supplied separator
   
-  write_table <- function(x, infile, suffix){
+  write_table <- function(x, infile, suffix, na = 'NA'){
     file_basename <- tools::file_path_sans_ext(basename(infile))
     outfile <- file.path(opt$output_directory, paste(file_basename, suffix, 'tsv', sep = '.'))
     
     print(paste("...... writing", outfile))
-    write.table(x, file = outfile, sep = opt$separator, quote = FALSE, row.names = FALSE)
+    write.table(x, file = outfile, sep = opt$separator, quote = FALSE, row.names = FALSE, na = na)
   }
   
   # Write back the sample sheet, feature metadata and contrasts
@@ -146,7 +146,9 @@ if (! is.null(opt$output_directory)){
     filename <- opt[[infile]]
     if ((! is.null(filename)) && filename %in% names(validated_parts)){
       write(paste("...", infile))
-      write_table(validated_parts[[filename]], filename, infile)
+
+      # Write contrasts file with empty strings for NAs in blocking
+      write_table(validated_parts[[filename]], filename, infile, na = ifelse(infile == 'contrasts_file', '', 'NA'))
     }
   }
   
