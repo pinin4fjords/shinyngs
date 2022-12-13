@@ -25,8 +25,6 @@ compile_contrast_data(
 \item{fc_column}{Fold change column in stats files}
 
 \item{unlog_foldchanges}{Should fold change values be unlogged?}
-
-\item{sep}{Separator in stats files}
 }
 \value{
 output A named list of data frames by statistic, number of columns equal to input file number
