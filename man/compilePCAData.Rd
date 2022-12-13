@@ -5,7 +5,7 @@
 \title{Run PCA on a given matrix, expected to be variance stabilised (at least
 log-transformed)}
 \usage{
-compilePCAData(matrix, ntop = opt$n_genes)
+compilePCAData(matrix, ntop = NULL)
 }
 \arguments{
 \item{matrix}{Simple matrix with genes by row and samples by column}
