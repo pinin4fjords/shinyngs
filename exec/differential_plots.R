@@ -96,6 +96,12 @@ option_list <- list(
     action = "store_true",
     default = FALSE,
     help = "Set this option if fold changes should be unlogged."
+  ),
+  make_option(
+    c("-x", "--write_html"),
+    action = "store_true",
+    default = FALSE,
+    help = "Set this option to produce HTML outputs as well as PNGs."
   )
 )
 
@@ -184,9 +190,6 @@ plot_args <- list(
 )
 
 print("Writing volcano plots...")
-print("...interactive")
-interactive_volcanoplot <- do.call(plotly_scatterplot, plot_args)
-htmlwidgets::saveWidget(as_widget(interactive_volcanoplot), file.path(html_outdir, "volcano.html"), selfcontained = TRUE)
 
 print("... static")
 
@@ -198,3 +201,9 @@ plot_args$labels[! differential$differential_status] <- NA
 png(filename = file.path(png_outdir, "volcano.png"), width=800, height=600)
 do.call(static_scatterplot, plot_args)
 dev.off()
+
+if (opt$write_html){
+    print("...interactive")
+    interactive_volcanoplot <- do.call(plotly_scatterplot, plot_args)
+    htmlwidgets::saveWidget(as_widget(interactive_volcanoplot), file.path(html_outdir, "volcano.html"), selfcontained = TRUE)
+}

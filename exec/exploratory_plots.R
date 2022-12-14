@@ -87,6 +87,12 @@ option_list <- list(
     metavar = "float",
     help = "Threshold on MAD score used to derive outlier status.",
     default = -5
+  ),
+  make_option(
+    c("-x", "--write_html"),
+    action = "store_true",
+    default = FALSE,
+    help = "Set this option to produce HTML outputs as well as PNGs."
   )
 )
 
@@ -202,9 +208,11 @@ assay_data <- lapply(assay_data, function(x) {
 
 print("Writing boxplots...")
 
-print("... interactive")
-interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette = makeColorScale(2, "Set1"))
-htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
+if (opt$write_html){
+  print("... interactive")
+  interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette = makeColorScale(2, "Set1"))
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
+}
 
 print("... static")
 static_boxplot <- ggplot_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette = makeColorScale(2, "Set1"))
@@ -220,9 +228,11 @@ dev.off()
 
 print("Writing density plots...")
 
-print("...interactive")
-interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette = makeColorScale(2, "Set1"))
-htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
+if (opt$write_html){
+  print("...interactive")
+  interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette = makeColorScale(2, "Set1"))
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
+}
 
 print("... static")
 static_densityplot <- ggplot_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette = makeColorScale(2, "Set1"))
@@ -280,9 +290,11 @@ for (d in names(plot_types)) {
   print(p)
   dev.off()
 
-  print(paste0("...interactive (", d, "d)"))
-  interactive_pcaplot <- do.call("plotly_scatterplot", plot_args)
-  htmlwidgets::saveWidget(plotly::as_widget(interactive_pcaplot), file.path(html_outdir, paste0("pca", d, "d.html")), selfcontained = TRUE)
+  if (opt$write_html){
+    print(paste0("...interactive (", d, "d)"))
+    interactive_pcaplot <- do.call("plotly_scatterplot", plot_args)
+    htmlwidgets::saveWidget(plotly::as_widget(interactive_pcaplot), file.path(html_outdir, paste0("pca", d, "d.html")), selfcontained = TRUE)
+  }
 }
 
 ################################################
@@ -335,9 +347,11 @@ mad_plot_args <- list(
 )
 
 print("MAD correlation plots...")
-print("...interactive")
-interactive_madplot <- do.call(plotly_scatterplot, mad_plot_args)
-htmlwidgets::saveWidget(plotly::as_widget(interactive_madplot), file.path(html_outdir, "mad_correlation.html"), selfcontained = TRUE)
+if (opt$write_html){
+  print("...interactive")
+  interactive_madplot <- do.call(plotly_scatterplot, mad_plot_args)
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_madplot), file.path(html_outdir, "mad_correlation.html"), selfcontained = TRUE)
+}
 
 print("... static")
 static_madplot <- do.call(static_scatterplot, mad_plot_args)
