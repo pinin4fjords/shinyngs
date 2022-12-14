@@ -122,8 +122,10 @@ print("Creating output paths...")
 png_outdir <- file.path(opt$outdir, 'png')
 html_outdir <- file.path(opt$outdir, 'html') 
 
-for (od in c(png_outdir, html_outdir)){
-  dir.create(path = od, recursive = TRUE, showWarnings = FALSE)
+dir.create(path = png_outdir, recursive = TRUE, showWarnings = FALSE)
+
+if (opt$write_html){
+    dir.create(path = html_outdir, recursive = TRUE, showWarnings = FALSE)
 }
 
 ################################################
