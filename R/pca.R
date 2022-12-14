@@ -276,8 +276,13 @@ runPCA <- function(matrix, do_log = TRUE) {
 #' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
 #'   and fractional variance contributions, respectively.
 
-compilePCAData <- function(matrix, ntop = opt$n_genes) {
-  select <- selectVariableGenes(matrix = matrix, ntop = ntop)
+compilePCAData <- function(matrix, ntop = NULL) {
+
+  if (is.null(ntop)){
+    select <- selectVariableGenes(matrix = matrix, ntop = ntop)
+  }else{
+    select <- 1:nrow(matrix)
+  }
 
   # perform a PCA on the data in assay(x) for the selected genes
   pca <- runPCA(matrix, do_log = FALSE)

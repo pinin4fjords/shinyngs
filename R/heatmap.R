@@ -286,42 +286,12 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 
   getPCAMatrix <- reactive({
     pcameta <- getExperimentData()
-
-    # Take out anything with less than 2 unique values or the below won't work
-
-    pcameta <- pcameta[, chooseGroupingVariables(pcameta), drop = FALSE]
-
     pcavals <- selectMatrix()[, rownames(pcameta)]
 
     pca <- runPCA(pcavals)
     fraction_explained <- calculatePCAFractionExplained(pca)
-
-    # Use 10 components or however many fewer is produced by the PCA
-
-    last_pc <- 10
-    if (ncol(pca$x) < last_pc) {
-      last_pc <- ncol(pca$x)
-    }
-
-    # Make a blank matrix to hold the p values
-
-    pvals <- matrix(data = NA, nrow = ncol(pcameta), ncol = last_pc, dimnames = list(colnames(pcameta), paste(paste("PC", 1:last_pc, sep = ""), " (", fraction_explained[1:last_pc],
-      "%)",
-      sep = ""
-    )))
-
-    # Fill the matrix with anova p values
-
-    for (i in 1:ncol(pcameta)) {
-      for (j in 1:last_pc) {
-        fit <- aov(pca$x[, j] ~ factor(pcameta[, i]))
-        if ("Pr(>F)" %in% names(summary(fit)[[1]])) {
-          pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]
-        }
-      }
-    }
-
-    pvals
+    
+    anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
   })
 
   # Calculate heights for the the various types of heatmap
@@ -660,4 +630,64 @@ makeAnnotationColors <- function(sample_annotation) {
     colors[[colnames(sample_annotation)[i]]] <- colcolors
   }
   colors
+}
+
+
+#' Generate a matrix of anova values for associating principal components with
+#' categorical covariates.
+#'
+#' @param pca_coords Data frame of PCA coordinates, with samples by row and
+#'   components by column.
+#' @param pcameta Data frame of sample metadata with sample identifiers by row
+#'   and variables by column.
+#' @param fraction_explained Numeric vector containing the percent contribution
+#'   to variance of each component
+#'
+#' @return output A numeric matrix of p values
+#' @export
+
+anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained){
+  # Use 10 components or however many fewer is produced by the PCA
+  
+  last_pc <- 10
+  if (ncol(pca_coords) < last_pc) {
+    last_pc <- ncol(pca_coords)
+  }
+  
+  # Remove non-useful variables (those with 1 value, or N values where N is the
+  # number of samples)
+  
+  pcameta <- pcameta[, chooseGroupingVariables(pcameta), drop = FALSE]
+  
+  # Make a blank matrix to hold the p values
+  
+  pvals <-
+    matrix(
+      data = NA,
+      nrow = ncol(pcameta),
+      ncol = last_pc,
+      dimnames = list(
+        colnames(pcameta),
+        paste(
+          paste("PC", 1:last_pc, sep = ""),
+          " (",
+          fraction_explained[1:last_pc],
+          "%)",
+          sep = ""
+        )
+      )
+    )
+  
+  # Fill the matrix with anova p values
+  
+  for (i in 1:ncol(pcameta)) {
+    for (j in 1:last_pc) {
+      fit <- aov(pca_coords[, j] ~ factor(pcameta[, i]))
+      if ("Pr(>F)" %in% names(summary(fit)[[1]])) {
+        pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]
+      }
+    }
+  }
+  
+  pvals
 }

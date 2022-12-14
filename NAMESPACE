@@ -3,6 +3,7 @@
 export(ExploratorySummarizedExperiment)
 export(ExploratorySummarizedExperimentList)
 export(annotatedHeatmap)
+export(anova_pca_metadata)
 export(barcode_plot)
 export(bootstrapMedian)
 export(calculateDendrogram)

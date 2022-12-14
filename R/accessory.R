@@ -1004,7 +1004,6 @@ read_differential <- function(filename,
 #' Compile contrast stats for inclusion in shinyngs
 #'
 #' @param differential_stats_files Tabular files with differential stats
-#' @param sep Separator in stats files
 #' @param pval_column P value column in stats files
 #' @param qval_column Q value column in stats files
 #' @param fc_column Fold change column in stats files
