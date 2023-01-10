@@ -197,7 +197,7 @@ contrast_stats[[opt$assay_entity_name]] <- lapply(contrast_stats_files, function
     "fc_column" = opt$fold_change_column,
     "pval_column" = opt$pval_column,
     "qval_column" = opt$qval_column,
-    "unlog_foldchanges" = opt$unlog_foldchanges,
+    "unlog_foldchanges" = opt$unlog_foldchanges
   )
 })
 
@@ -221,7 +221,7 @@ experiments[[opt$assay_entity_name]] <- list(
   "expression_matrices" = lapply(assay_files, function(x) {
     list(
       file = x,
-      measure = "counts",
+      measure = "counts"
     )
   })
 )
