@@ -209,6 +209,28 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
   }
 }
 
+#' Ensure a matrix is in log scale
+#'
+#' @param vals Numberic matrix or vector
+#' @param condition Boolean- apply log transform?
+#' @param rmzeros Remove zeros before applying transform?
+#'
+#' @return output Object of same type as vals with tranform applied where
+#'   specified
+#' @export
+
+ensureLog <- function(vals, condition, rmzeros = FALSE) {
+  if (rmzeros) {
+    vals <- vals[vals > 0]
+  }
+  
+  if (condition) {
+    log2(vals)
+  } else {
+    vals
+  }
+}
+
 #' Reshape data to the way \code{ggplot2} likes it
 #'
 #' @param plotmatrices A matrix of values, e.g. expression data
@@ -245,18 +267,6 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
 
   if (!is.list(plotmatrices)) {
     plotmatrices <- list(" " = plotmatrices)
-  }
-
-  ensureLog <- function(vals, condition, rmzeros = FALSE) {
-    if (rmzeros) {
-      vals <- vals[vals > 0]
-    }
-
-    if (condition) {
-      log2(vals)
-    } else {
-      vals
-    }
   }
 
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {

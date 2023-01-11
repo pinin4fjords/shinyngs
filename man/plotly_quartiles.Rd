@@ -6,7 +6,7 @@
 \usage{
 plotly_quartiles(
   matrix,
-  ese,
+  labels = rownames(matrix),
   expressiontype = "expression",
   whisker_distance = 1.5
 )
@@ -14,7 +14,7 @@ plotly_quartiles(
 \arguments{
 \item{matrix}{Numeric matrix}
 
-\item{ese}{ExploratorySummarizedExperiment}
+\item{labels}{String vector of labels to be used for each matrix row}
 
 \item{expressiontype}{Y axis label}
 
