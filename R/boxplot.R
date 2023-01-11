@@ -131,7 +131,7 @@ boxplot <- function(input, output, session, eselist) {
   })
 
   output$quartilesPlotly <- renderPlotly({
-    plotly_quartiles(selectMatrix(), getExperiment(), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+    plotly_quartiles(selectMatrix(), idToLabel(rownames(selectMatrix()), getExperiment()), getAssayMeasure(), whisker_distance = input$whiskerDistance)
   })
 
   output$densityPlotly <- renderPlotly({
@@ -394,7 +394,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' outliers beyond that
 #'
 #' @param matrix Numeric matrix
-#' @param ese ExploratorySummarizedExperiment
+#' @param labels String vector of labels to be used for each matrix row
 #' @param expressiontype Y axis label
 #' @param whisker_distance IQR multiplier for whiskers, and beyond which to
 #' show outliers (see \code{coef} in \code{\link[ggplot2]{geom_boxplot}})
@@ -404,8 +404,8 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' data(airway, package = "airway")
 #' plotly_quartiles(assays(airway)[[1]], as(airway, "ExploratorySummarizedExperiment"))
 #'
-plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker_distance = 1.5) {
-  matrix <- log2(matrix + 1)
+plotly_quartiles <- function(matrix, labels = rownames(matrix), expressiontype = "expression", whisker_distance = 1.5) {
+  matrix <- ensureLog(matrix + 1, max(matrix) > 20)
 
   quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)
   samples <- structure(colnames(matrix), names = colnames(matrix))
@@ -415,9 +415,10 @@ plotly_quartiles <- function(matrix, ese, expressiontype = "expression", whisker
 
   outliers <- lapply(samples, function(x) {
     y <- structure(matrix[, x], names = rownames(matrix))
-    ol <- y[which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)]
+    outlier_rows <- which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)
+    ol <- y[outlier_rows]
     if (length(ol) > 0) {
-      data.frame(x = x, y = ol, label = idToLabel(names(ol), ese), stringsAsFactors = FALSE)
+      data.frame(x = x, y = ol, label = labels[outlier_rows], stringsAsFactors = FALSE)
     } else {
       NULL
     }
