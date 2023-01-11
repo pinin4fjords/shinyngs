@@ -203,7 +203,8 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   }
 
   if (is.list(plotmatrices) && length(plotmatrices) > 1) {
-    p <- p + facet_wrap(~type)
+    n_col <- ifelse(sum(unlist(lapply(plotmatrices, ncol))) < 20, length(plotmatrices), 1)
+    p <- p + facet_wrap(~ type, ncol = n_col)
   }
 
   p <- p + theme_bw() + theme(
