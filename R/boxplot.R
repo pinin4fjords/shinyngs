@@ -141,7 +141,8 @@ boxplot <- function(input, output, session, eselist) {
   output$sampleBoxplot <- renderPlot(
     {
       withProgress(message = "Making sample boxplot", value = 0, {
-        ggplot_boxplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance, palette = getPalette())
+        p <- ggplot_boxplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance, palette = getPalette())
+        print(p)
       })
     },
     height = 600
@@ -150,7 +151,8 @@ boxplot <- function(input, output, session, eselist) {
   # Provide the plot for download
 
   plotSampleBoxplot <- reactive({
-    ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+    p <- ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+    print(p)
   })
 
   # Call to plotdownload module
@@ -184,7 +186,7 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5) {
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby)
 
   if (!is.null(colorby)) {
@@ -207,15 +209,14 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
     p <- p + facet_wrap(~ type, ncol = n_col)
   }
 
-  p <- p + theme_bw() + theme(
+  p <- p + theme_bw(base_size=base_size) + theme(
     axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom",
-    axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3))
+    axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3)),
+    strip.text.x = element_text(size = 10)
   ) + ylab(splitStringToFixedwidthLines(paste0(
     "log2(",
     prettifyVariablename(expressiontype), ")"
   ), 15))
-
-  print(p)
 }
 
 #' Make a boxplot with coloring by experimental variable
