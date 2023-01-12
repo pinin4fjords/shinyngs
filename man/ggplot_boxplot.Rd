@@ -30,7 +30,7 @@ ggplot_boxplot(
 \code{coef}, controlling the length of the whiskers. See documentation of
 that function for more info (default: 1.5).}
 
-\item{base_size}{Passed to ggplot's \code(theme())}
+\item{base_size}{Passed to ggplot's \code{theme()}}
 }
 \value{
 output A \code{ggplot} output

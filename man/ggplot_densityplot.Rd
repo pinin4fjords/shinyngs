@@ -25,7 +25,7 @@ ggplot_densityplot(
 
 \item{expressiontype}{Expression type for use in y axis label}
 
-\item{base_size}{Passed to ggplot's \code(theme())}
+\item{base_size}{Passed to ggplot's \code{theme()}}
 }
 \value{
 output A \code{ggplot} output

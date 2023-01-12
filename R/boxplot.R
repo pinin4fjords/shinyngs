@@ -173,7 +173,7 @@ boxplot <- function(input, output, session, eselist) {
 #' @param whisker_distance Passed to \code{\link[ggplot2]{geom_boxplot}} as
 #' \code{coef}, controlling the length of the whiskers. See documentation of
 #' that function for more info (default: 1.5).
-#' @param base_size Passed to ggplot's \code(theme())
+#' @param base_size Passed to ggplot's \code{theme()}
 #'
 #' @return output A \code{ggplot} output
 #'
@@ -294,7 +294,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #' @param palette Palette of colors, one for each unique value derived from
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
-#' @param base_size Passed to ggplot's \code(theme())
+#' @param base_size Passed to ggplot's \code{theme()}
 #'
 #' @export
 #'
