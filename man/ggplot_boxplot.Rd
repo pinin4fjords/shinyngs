@@ -10,7 +10,8 @@ ggplot_boxplot(
   colorby = NULL,
   palette = NULL,
   expressiontype = "expression",
-  whisker_distance = 1.5
+  whisker_distance = 1.5,
+  base_size = 11
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ ggplot_boxplot(
 \item{whisker_distance}{Passed to \code{\link[ggplot2]{geom_boxplot}} as
 \code{coef}, controlling the length of the whiskers. See documentation of
 that function for more info (default: 1.5).}
+
+\item{base_size}{Passed to ggplot's \code(theme())}
 }
 \value{
 output A \code{ggplot} output
