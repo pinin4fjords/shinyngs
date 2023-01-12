@@ -546,6 +546,9 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 
   if (nrow(plotmatrix) < 2) {
     cluster_rows <- FALSE
+    
+    # This is a little hack to work around a bug in d3heatmap with single-row data
+    plotmatrix <- rbind(plotmatrix, plotmatrix)
   }
 
   # Specify how the dendrogram should be created

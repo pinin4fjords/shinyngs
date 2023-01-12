@@ -55,7 +55,7 @@ rnaseqInput <- function(id, eselist) {
 
   exploratory_menu <- list("QC/ exploratory", tabPanel("Distribution plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")),
     width = 9
-  )), icon = icon("bar-chart-o", verify_fa = FALSE)), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
+  )), icon = icon("chart-column", verify_fa = FALSE)), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
     width = 9
   )), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"),
     width = 3
