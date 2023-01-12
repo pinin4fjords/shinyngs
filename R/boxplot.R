@@ -131,7 +131,9 @@ boxplot <- function(input, output, session, eselist) {
   })
 
   output$quartilesPlotly <- renderPlotly({
-    plotly_quartiles(selectMatrix(), idToLabel(rownames(selectMatrix()), getExperiment()), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+    selected_matrix <- selectMatrix()
+    ese <- getExperiment()
+    plotly_quartiles(selectMatrix(), idToLabel(rownames(selected_matrix), ese), getAssayMeasure(), whisker_distance = input$whiskerDistance)
   })
 
   output$densityPlotly <- renderPlotly({
