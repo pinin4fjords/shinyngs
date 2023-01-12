@@ -298,7 +298,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
   ncats <- length(unique(plotdata$name))
   palette <- makeColorScale(ncats)
@@ -319,7 +319,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
     p <- p + facet_wrap(~type, ncol = 1, scales = "free_y")
   }
 
-  p + theme_bw(base_size = 16) + theme(
+  p + theme_bw(base_size = base_size) + theme(
     legend.position = "bottom"
   )
 }
