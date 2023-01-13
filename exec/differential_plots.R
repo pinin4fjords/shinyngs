@@ -174,8 +174,8 @@ differential$differential_status[abs(differential[[opt$fold_change_col]]) > opt$
 
 hline_thresholds = vline_thresholds = list()
 hline_thresholds[[paste(opt$p_value_column, '=', opt$p_value_threshold)]] = -log10(opt$p_value_threshold)
-vline_thresholds[[paste(opt$fold_change_col, '<-', opt$fold_change_threshold)]] = -opt$fold_change_threshold
-vline_thresholds[[paste(opt$fold_change_col, '>', opt$fold_change_threshold)]] = opt$fold_change_threshold
+vline_thresholds[[paste(opt$fold_change_col, '<-', opt$fold_change_threshold)]] = -log2(opt$fold_change_threshold)
+vline_thresholds[[paste(opt$fold_change_col, '>', opt$fold_change_threshold)]] = log2(opt$fold_change_threshold)
 
 plot_args <- list(
   x = log2(differential[[opt$fold_change_col]]),
