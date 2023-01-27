@@ -187,8 +187,7 @@ plot_args <- list(
   hline_thresholds = hline_thresholds,
   vline_thresholds = vline_thresholds,
   show_labels = FALSE,
-  legend_title = "Differential status",
-  palette = makeColorScale(2, 'Set1')
+  legend_title = "Differential status"
 )
 
 print("Writing volcano plots...")

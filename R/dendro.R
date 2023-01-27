@@ -189,6 +189,9 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 
     p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0), size = 4)
   } else {
+    if (is.null(palette)) {
+        palette <- makeColorScale(length(unique(experiment[[colorby]])))
+    }
     labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
     labs[[colorby]] <- na.replace(labs[[colorby]], replacement = "N/A")
 

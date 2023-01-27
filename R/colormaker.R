@@ -76,7 +76,7 @@ colormaker <- function(input, output, session, getNumberCategories) {
 #' @examples
 #' makeColorScale(10)
 #'
-makeColorScale <- function(ncolors, palette = "Dark2") {
+makeColorScale <- function(ncolors, palette = "Set1") {
   paletteinfo <- RColorBrewer::brewer.pal.info
 
   if (ncolors > paletteinfo["Set1", "maxcolors"]) {
