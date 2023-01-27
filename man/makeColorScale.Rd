@@ -4,7 +4,7 @@
 \alias{makeColorScale}
 \title{Make a color palette of a specified length}
 \usage{
-makeColorScale(ncolors, palette = "Dark2")
+makeColorScale(ncolors, palette = "Set1")
 }
 \arguments{
 \item{ncolors}{Integer specifying the number of colors}
