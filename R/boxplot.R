@@ -305,12 +305,14 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
   ncats <- length(unique(plotdata$name))
-  palette <- makeColorScale(ncats)
+  if (is.null(palette)) {
+    palette <- makeColorScale(ncats)
+  }
 
   p <- ggplot(data = plotdata) +
     geom_area(aes(x = value, y = density, fill = name, color = name), alpha = 0.4) +
-    scale_fill_manual(name = prettifyVariablename(colorby), values = makeColorScale(ncats, palette = "Set1")) +
-    scale_color_manual(name = prettifyVariablename(colorby), values = makeColorScale(ncats, palette = "Set1")) +
+    scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
+    scale_color_manual(name = prettifyVariablename(colorby), values = palette) +
     ylab("Density") +
     xlab(splitStringToFixedwidthLines(paste0(
       "log2(",
@@ -347,7 +349,9 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
   ncats <- length(unique(plotdata$name))
-  palette <- makeColorScale(ncats)
+  if (is.null(palette)) {
+    palette <- makeColorScale(ncats)
+  }
 
   plotdata %>%
     group_by(type) %>%
