@@ -403,6 +403,8 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 
   if (any(labelled) && is.null(palette) && !is.null(colorby)) {
     palette <- makeColorScale(length(unique(colorby[labelled])))
+  }else{
+    palette <- makeColorScale(1)
   }
 
   plotargs <- list(
@@ -500,11 +502,13 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
   if ((!is.null(colorby)) && !is.factor(colorby)) {
     colorby <- factor(colorby)
   }
-
+  
   if (any(labelled) && is.null(palette) && !is.null(colorby)) {
     palette <- makeColorScale(length(unique(colorby[labelled])))
+  }else{
+    palette <- makeColorScale(1)
   }
-
+  
   if (plot_type == "scatter") {
     plotdata <- data.frame(
       x = x,

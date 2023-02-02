@@ -79,7 +79,7 @@ colormaker <- function(input, output, session, getNumberCategories) {
 makeColorScale <- function(ncolors, palette = "Set1") {
   paletteinfo <- RColorBrewer::brewer.pal.info
 
-  if (ncolors > paletteinfo["Set1", "maxcolors"]) {
+  if (ncolors > paletteinfo[palette, "maxcolors"]) {
     cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
   } else if (ncolors < 3) {
     cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
