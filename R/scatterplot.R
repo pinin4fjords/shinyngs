@@ -490,6 +490,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 #' @param hline_thresholds Named list of horizontal lines with y coordinates
 #' @param vline_thresholds Named list of vertical lines x coordinates
 #' @param showlegend Boolean: show a legend?
+#' @param palette_name Valid R color palette name
 #'
 #' @import scatterplot3d
 #' @export
@@ -498,7 +499,8 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 
 static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = NULL,
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 1, labels = colorby,
-                               show_labels = FALSE, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
+                               show_labels = FALSE, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE,
+                               palette_name = 'Set1') {
   labelled <- !is.na(labels)
 
   if ((!is.null(colorby)) && !is.factor(colorby)) {
@@ -506,7 +508,7 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
   }
   
   if (any(labelled) && is.null(palette) && !is.null(colorby)) {
-    palette <- makeColorScale(length(unique(colorby[labelled])))
+    palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
   }else{
     palette <- makeColorScale(1)
   }
