@@ -21,7 +21,8 @@ static_scatterplot(
   show_labels = FALSE,
   hline_thresholds = NULL,
   vline_thresholds = NULL,
-  showlegend = TRUE
+  showlegend = TRUE,
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ static_scatterplot(
 \item{vline_thresholds}{Named list of vertical lines x coordinates}
 
 \item{showlegend}{Boolean: show a legend?}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output Ouput object from ggplot or scatterplot3d.

@@ -12,7 +12,8 @@ clusteringDendrogram(
   cluster_method = "ward.D",
   plot_title = "",
   labelspace = 0.2,
-  palette = NULL
+  palette = NULL,
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ ward.D).}
 
 \item{palette}{Palette of colors, one for each unique value derived from
 \code{colorby}.}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output A \code{ggplot} output

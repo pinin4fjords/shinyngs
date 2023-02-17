@@ -22,7 +22,8 @@ plotly_scatterplot(
   lines = NULL,
   hline_thresholds = NULL,
   vline_thresholds = NULL,
-  showlegend = TRUE
+  showlegend = TRUE,
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -62,6 +63,8 @@ start and end of each named line}
 \item{vline_thresholds}{Named list of vertical lines x coordinates}
 
 \item{showlegend}{Boolean: show a legend?}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output Plotly plot object

@@ -11,7 +11,8 @@ ggplot_boxplot(
   palette = NULL,
   expressiontype = "expression",
   whisker_distance = 1.5,
-  base_size = 11
+  base_size = 11,
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ ggplot_boxplot(
 that function for more info (default: 1.5).}
 
 \item{base_size}{Passed to ggplot's \code{theme()}}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output A \code{ggplot} output

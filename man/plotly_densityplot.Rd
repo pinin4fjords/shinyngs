@@ -9,7 +9,8 @@ plotly_densityplot(
   experiment,
   colorby = NULL,
   palette = NULL,
-  expressiontype = "expression"
+  expressiontype = "expression",
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ plotly_densityplot(
 \code{colorby}.}
 
 \item{expressiontype}{Expression type for use in y axis label}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output A \code{plotly} output

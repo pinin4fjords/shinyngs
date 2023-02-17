@@ -9,7 +9,8 @@ plotly_boxplot(
   experiment,
   colorby,
   palette = NULL,
-  expressiontype = "expression"
+  expressiontype = "expression",
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ plotly_boxplot(
 \code{colorby}.}
 
 \item{expressiontype}{Expression type for use in y axis label}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output A \code{plotly} output
