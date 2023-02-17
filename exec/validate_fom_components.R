@@ -160,7 +160,7 @@ if (! is.null(opt$output_directory)){
       mat <- validated_parts[['assays']][[assay]]
       
       # Add a column for row names
-      mat <- data.frame(feature_name = rownames(mat), mat)
+      mat <- data.frame(feature_name = rownames(mat), mat, check.names = FALSE)
       colnames(mat)[1] <- opt$feature_id_col
       
       write_table(mat, assay, 'assay')
