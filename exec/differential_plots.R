@@ -102,6 +102,13 @@ option_list <- list(
     action = "store_true",
     default = FALSE,
     help = "Set this option to produce HTML outputs as well as PNGs."
+  ),
+  make_option(
+    c("-p", "--palette_name"),
+    type = "character",
+    metavar = "string",
+    help = "A valid R palette name.",
+    default = "Set1"
   )
 )
 
@@ -187,7 +194,8 @@ plot_args <- list(
   hline_thresholds = hline_thresholds,
   vline_thresholds = vline_thresholds,
   show_labels = FALSE,
-  legend_title = "Differential status"
+  legend_title = "Differential status",
+  palette_name = opt$palette_name
 )
 
 print("Writing volcano plots...")

@@ -93,6 +93,13 @@ option_list <- list(
     action = "store_true",
     default = FALSE,
     help = "Set this option to produce HTML outputs as well as PNGs."
+  ),
+  make_option(
+    c("-p", "--palette_name"),
+    type = "character",
+    metavar = "string",
+    help = "A valid R palette name.",
+    default = "Set1"
   )
 )
 
@@ -212,12 +219,12 @@ print("Writing boxplots...")
 
 if (opt$write_html){
   print("... interactive")
-  interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene")
+  interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
   htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
 }
 
 print("... static")
-static_boxplot <- ggplot_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene")
+static_boxplot <- ggplot_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
 png(filename = file.path(png_outdir, "boxplot.png"), width = 800, height = 600)
 static_boxplot
 dev.off()
@@ -232,12 +239,12 @@ print("Writing density plots...")
 
 if (opt$write_html){
   print("...interactive")
-  interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene")
+  interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
   htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
 }
 
 print("... static")
-static_densityplot <- ggplot_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene")
+static_densityplot <- ggplot_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
 png(filename = file.path(png_outdir, "density.png"), width = 800, height = 600)
 static_densityplot
 dev.off()
@@ -276,7 +283,8 @@ for (d in names(plot_types)) {
     plot_type = plot_types[[d]],
     legend_title = prettifyVariablename(opt$contrast_variable),
     labels = plotdata$name,
-    show_labels = TRUE
+    show_labels = TRUE,
+    palette_name = opt$palette_name
   )
 
   print(paste0("...static (", d, "d)"))
@@ -316,7 +324,8 @@ clusteringDendrogram(
   colorby = opt$contrast_variable,
   cor_method = "spearman",
   plot_title = paste0("Sample clustering dendrogram, ", opt$n_genes, " most variable genes"),
-  cluster_method = "ward.D2"
+  cluster_method = "ward.D2",
+  palette_name = opt$palette_name
 )
 dev.off()
 
@@ -342,7 +351,8 @@ mad_plot_args <- list(
   labels = rownames(plotdata),
   show_labels = TRUE,
   xlab = "Sample group",
-  ylab = "MAD score"
+  ylab = "MAD score",
+  palette_name = opt$palette_name
 )
 
 print("MAD correlation plots...")

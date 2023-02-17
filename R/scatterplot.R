@@ -382,13 +382,15 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 #' @param hline_thresholds Named list of horizontal lines with y coordinates
 #' @param vline_thresholds Named list of vertical lines x coordinates
 #' @param showlegend Boolean: show a legend?
+#' @param palette_name Valid R color palette name
 #'
 #' @return output Plotly plot object
 #' @export
 
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
-                               show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE) {
+                               show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, 
+                               showlegend = TRUE, palette_name = 'Set1') {
   # We'll only label and color points with non-NA labels
 
   if (is.null(labels)) {
@@ -402,7 +404,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
   }
 
   if (any(labelled) && is.null(palette) && !is.null(colorby)) {
-    palette <- makeColorScale(length(unique(colorby[labelled])))
+    palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
   }else{
     palette <- makeColorScale(1)
   }

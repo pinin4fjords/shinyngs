@@ -141,6 +141,7 @@ dendro <- function(input, output, session, eselist) {
 #' ward.D).
 #' @param plot_title Plot title
 #' @param labelspace Vertical fraction of plot to be used for labels (default: 0.2).
+#' @param palette_name Valid R color palette name
 #'
 #' @return output A \code{ggplot} output
 #'
@@ -166,7 +167,7 @@ dendro <- function(input, output, session, eselist) {
 #' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 #'
 clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2,
-                                 palette = NULL) {
+                                 palette = NULL, palette_name = 'Set1') {
   plotmatrix <- log2(plotmatrix + 1)
 
   hcd <- calculateDendrogram(plotmatrix, cor_method, cluster_method)
@@ -190,7 +191,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0), size = 4)
   } else {
     if (is.null(palette)) {
-        palette <- makeColorScale(length(unique(experiment[[colorby]])))
+        palette <- makeColorScale(length(unique(experiment[[colorby]])), palette = palette_name)
     }
     labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
     labs[[colorby]] <- na.replace(labs[[colorby]], replacement = "N/A")
