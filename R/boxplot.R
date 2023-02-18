@@ -176,6 +176,7 @@ boxplot <- function(input, output, session, eselist) {
 #' \code{coef}, controlling the length of the whiskers. See documentation of
 #' that function for more info (default: 1.5).
 #' @param base_size Passed to ggplot's \code{theme()}
+#' @param palette_name Valid R color palette name
 #'
 #' @return output A \code{ggplot} output
 #'
@@ -189,13 +190,13 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11) {
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = 'Set1') {
   plotdata <- ggplotify(plotmatrices, experiment, colorby)
 
   if (!is.null(colorby)) {
     ncats <- length(unique(experiment[[colorby]]))
     if (is.null(palette)) {
-      palette <- makeColorScale(ncats)
+      palette <- makeColorScale(ncats, palette = palette_name)
     }
 
     p <- ggplot(plotdata, aes(name, value, fill = colorby)) +
@@ -233,6 +234,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' @param palette Palette of colors, one for each unique value derived from
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
+#' @param palette_name Valid R color palette name
 #'
 #' @importFrom dplyr group_map
 #' @export
@@ -240,12 +242,12 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression") {
+plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = 'Set1') {
   plotdata <- ggplotify(plotmatrices, experiment, colorby)
 
   ncats <- length(unique(plotdata$colorby))
   if (is.null(palette)) {
-    palette <- makeColorScale(ncats)
+    palette <- makeColorScale(ncats, palette = palette_name)
   }
 
   plotdata %>%
@@ -297,16 +299,17 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #' @param base_size Passed to ggplot's \code{theme()}
+#' @param palette_name Valid R color palette name
 #'
 #' @export
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16) {
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1') {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
   ncats <- length(unique(plotdata$name))
   if (is.null(palette)) {
-    palette <- makeColorScale(ncats)
+    palette <- makeColorScale(ncats, palette = palette_name)
   }
 
   p <- ggplot(data = plotdata) +
@@ -340,17 +343,18 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' @param palette Palette of colors, one for each unique value derived from
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
+#' @param palette_name Valid R color palette name
 #'
 #' @importFrom dplyr group_map
 #' @export
 #'
 #' @return output A \code{plotly} output
 
-plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression") {
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = 'Set1') {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
   ncats <- length(unique(plotdata$name))
   if (is.null(palette)) {
-    palette <- makeColorScale(ncats)
+    palette <- makeColorScale(ncats, palette = palette_name)
   }
 
   plotdata %>%

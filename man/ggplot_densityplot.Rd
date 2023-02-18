@@ -10,7 +10,8 @@ ggplot_densityplot(
   colorby = NULL,
   palette = NULL,
   expressiontype = "expression",
-  base_size = 16
+  base_size = 16,
+  palette_name = "Set1"
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ ggplot_densityplot(
 \item{expressiontype}{Expression type for use in y axis label}
 
 \item{base_size}{Passed to ggplot's \code{theme()}}
+
+\item{palette_name}{Valid R color palette name}
 }
 \value{
 output A \code{ggplot} output
