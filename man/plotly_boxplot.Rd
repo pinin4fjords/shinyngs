@@ -10,7 +10,8 @@ plotly_boxplot(
   colorby,
   palette = NULL,
   expressiontype = "expression",
-  palette_name = "Set1"
+  palette_name = "Set1",
+  annotate_samples = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ plotly_boxplot(
 \item{expressiontype}{Expression type for use in y axis label}
 
 \item{palette_name}{Valid R color palette name}
+
+\item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 }
 \value{
 output A \code{plotly} output

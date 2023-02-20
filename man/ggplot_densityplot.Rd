@@ -11,7 +11,8 @@ ggplot_densityplot(
   palette = NULL,
   expressiontype = "expression",
   base_size = 16,
-  palette_name = "Set1"
+  palette_name = "Set1",
+  annotate_samples = RALSE
 )
 }
 \arguments{
@@ -19,7 +20,7 @@ ggplot_densityplot(
 
 \item{experiment}{Annotation for the columns of plotmatrix}
 
-\item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
+\item{colorby}{Column name in \code{experiment} specifying how lines should be colored}
 
 \item{palette}{Palette of colors, one for each unique value derived from
 \code{colorby}.}
@@ -29,6 +30,8 @@ ggplot_densityplot(
 \item{base_size}{Passed to ggplot's \code{theme()}}
 
 \item{palette_name}{Valid R color palette name}
+
+\item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 }
 \value{
 output A \code{ggplot} output

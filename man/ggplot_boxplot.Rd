@@ -12,7 +12,8 @@ ggplot_boxplot(
   expressiontype = "expression",
   whisker_distance = 1.5,
   base_size = 11,
-  palette_name = "Set1"
+  palette_name = "Set1",
+  annotate_samples = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ that function for more info (default: 1.5).}
 \item{base_size}{Passed to ggplot's \code{theme()}}
 
 \item{palette_name}{Valid R color palette name}
+
+\item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 }
 \value{
 output A \code{ggplot} output
