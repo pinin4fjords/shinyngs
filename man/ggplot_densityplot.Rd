@@ -12,7 +12,7 @@ ggplot_densityplot(
   expressiontype = "expression",
   base_size = 16,
   palette_name = "Set1",
-  annotate_samples = RALSE
+  annotate_samples = FALSE
 )
 }
 \arguments{
