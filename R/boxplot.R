@@ -308,7 +308,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1', annotate_samples = RALSE) {
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1', annotate_samples = FALSE) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))
