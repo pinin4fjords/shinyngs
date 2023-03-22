@@ -10,7 +10,8 @@ plotly_densityplot(
   colorby = NULL,
   palette = NULL,
   expressiontype = "expression",
-  palette_name = "Set1"
+  palette_name = "Set1",
+  annotate_samples = FALSE
 )
 }
 \arguments{
@@ -18,7 +19,7 @@ plotly_densityplot(
 
 \item{experiment}{Annotation for the columns of plotmatrix}
 
-\item{colorby}{Column name in \code{experiment} specifying how boxes should be colored}
+\item{colorby}{Column name in \code{experiment} specifying how lines should be colored}
 
 \item{palette}{Palette of colors, one for each unique value derived from
 \code{colorby}.}
@@ -26,6 +27,8 @@ plotly_densityplot(
 \item{expressiontype}{Expression type for use in y axis label}
 
 \item{palette_name}{Valid R color palette name}
+
+\item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 }
 \value{
 output A \code{plotly} output

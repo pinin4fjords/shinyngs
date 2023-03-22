@@ -177,6 +177,7 @@ boxplot <- function(input, output, session, eselist) {
 #' that function for more info (default: 1.5).
 #' @param base_size Passed to ggplot's \code{theme()}
 #' @param palette_name Valid R color palette name
+#' @param annotate_samples Add a suffix to sample labels reflecting their group?
 #'
 #' @return output A \code{ggplot} output
 #'
@@ -190,8 +191,8 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = 'Set1') {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby)
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = 'Set1', annotate_samples = FALSE) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples)
 
   if (!is.null(colorby)) {
     ncats <- length(unique(experiment[[colorby]]))
@@ -235,6 +236,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #' @param palette_name Valid R color palette name
+#' @param annotate_samples Add a suffix to sample labels reflecting their group?
 #'
 #' @importFrom dplyr group_map
 #' @export
@@ -242,8 +244,8 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = 'Set1') {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby)
+plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples = annotate_samples)
 
   ncats <- length(unique(plotdata$colorby))
   if (is.null(palette)) {
@@ -294,26 +296,27 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
-#' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param colorby Column name in \code{experiment} specifying how lines should be colored
 #' @param palette Palette of colors, one for each unique value derived from
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #' @param base_size Passed to ggplot's \code{theme()}
 #' @param palette_name Valid R color palette name
+#' @param annotate_samples Add a suffix to sample labels reflecting their group?
 #'
 #' @export
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1') {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
-  ncats <- length(unique(plotdata$name))
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1', annotate_samples = FALSE) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples)
   if (is.null(palette)) {
+    ncats <- length(unique(plotdata$colorby))
     palette <- makeColorScale(ncats, palette = palette_name)
   }
 
   p <- ggplot(data = plotdata) +
-    geom_area(aes(x = value, y = density, fill = name, color = name), alpha = 0.4) +
+    geom_area(aes(x = value, y = density, fill = colorby, color = colorby), alpha = 0.4) +
     scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
     scale_color_manual(name = prettifyVariablename(colorby), values = palette) +
     ylab("Density") +
@@ -339,22 +342,23 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
-#' @param colorby Column name in \code{experiment} specifying how boxes should be colored
+#' @param colorby Column name in \code{experiment} specifying how lines should be colored
 #' @param palette Palette of colors, one for each unique value derived from
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #' @param palette_name Valid R color palette name
+#' @param annotate_samples Add a suffix to sample labels reflecting their group?
 #'
 #' @importFrom dplyr group_map
 #' @export
 #'
 #' @return output A \code{plotly} output
 
-plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = 'Set1') {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = TRUE)
-  ncats <- length(unique(plotdata$name))
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples)
   if (is.null(palette)) {
-    palette <- makeColorScale(ncats, palette = palette_name)
+    ncats <- length(unique(plotdata$colorby))
+    palette <- makeColorScale(ncats, palette = palette_colorby)
   }
 
   plotdata %>%
@@ -364,7 +368,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
         data = .,
         x = ~value,
         y = ~density,
-        color = ~name,
+        color = ~colorby,
         type = "scatter",
         mode = "lines",
         fill = "tozeroy",
