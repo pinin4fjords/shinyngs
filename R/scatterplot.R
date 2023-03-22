@@ -315,12 +315,12 @@ drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_th
 
   if (length(hline_thresholds) > 0) {
     line_coords$h <- do.call(rbind, lapply(names(hline_thresholds), function(hl) {
-      data.frame(x = c(min(x), max(x)), y = c(rep(hline_thresholds[[hl]], 2)), name = hl)
+      data.frame(x = c(min(x[is.finite(x)]), max(x[is.finite(x)])), y = c(rep(hline_thresholds[[hl]], 2)), name = hl)
     }))
   }
   if (length(vline_thresholds) > 0) {
     line_coords$v <- do.call(rbind, lapply(names(vline_thresholds), function(vl) {
-      data.frame(x = rep(vline_thresholds[[vl]], 2), y = c(min(y), max(y)), name = vl)
+      data.frame(x = rep(vline_thresholds[[vl]], 2), y = c(min(y[is.finite(y)]), max(y[is.finite(y)])), name = vl)
     }))
   }
 
