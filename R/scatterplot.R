@@ -403,10 +403,12 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     colorby <- factor(colorby)
   }
 
-  if (any(labelled) && is.null(palette) && !is.null(colorby)) {
-    palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
-  }else{
-    palette <- makeColorScale(1)
+  if (is.null(palette)){
+    if (any(labelled) && !is.null(colorby)) {
+      palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
+    }else{
+      palette <- makeColorScale(1)
+    }
   }
 
   plotargs <- list(
@@ -507,10 +509,12 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     colorby <- factor(colorby)
   }
   
-  if (any(labelled) && is.null(palette) && !is.null(colorby)) {
-    palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
-  }else{
-    palette <- makeColorScale(1)
+  if (is.null(palette)){
+    if (any(labelled) && !is.null(colorby)) {
+      palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
+    }else{
+      palette <- makeColorScale(1)
+    }
   }
   
   if (plot_type == "scatter") {
