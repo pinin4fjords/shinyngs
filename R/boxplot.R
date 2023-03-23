@@ -358,7 +358,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))
-    palette <- makeColorScale(ncats, palette = palette_colorby)
+    palette <- makeColorScale(ncats, palette = palette_name)
   }
 
   plotdata %>%
