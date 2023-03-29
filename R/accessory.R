@@ -708,9 +708,11 @@ eselistfromConfig <-
 
     # Check that number of differential results sets is equal to number of contrasts
 
+    saveRDS(expsumexps, file="expsumexps.rds")
+
     for (ese in expsumexps) {
-      if (length(ese@contrast_stats) != length(config$contrasts$comparisons)) {
-        stop(paste0("Number of supplied contrasts (", length(config$contrasts$comparisons), ") not equal to number of contrast stats files (", length(ese@contrast_stats), ")"))
+      if (ncol(ese@contrast_stats[[1]]$fold_changes) != length(config$contrasts$comparisons)) {
+        stop(paste0("Number of supplied contrasts (", length(config$contrasts$comparisons), ") not equal to the number of sets of differential statistics supplied (", ncol(ese@contrast_stats[[1]]$fold_changes), ")"))
       }
     }
 

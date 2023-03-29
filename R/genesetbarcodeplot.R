@@ -194,13 +194,23 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
   # Make the barcode plot using limma for download
 
   plotGenesetBarcodeplot <- reactive({
-    barcode_plot(getFoldChanges(), getGeneIDs(), names(getPathwayGenes()), barcodeplotTitle())
+    set_genes <- getPathwayGenes()
+    fold_changes <- getFoldChanges()
+    gene_ids <- getGeneIDs()
+    title <- barcodeplotTitle()
+
+    barcode_plot(fold_changes, gene_ids, names(set_genes), title)
   })
 
   # Render the barcode plot
 
   output$genesetbarcodeplot <- renderPlot({
-    barcode_plot(getFoldChanges(), getGeneIDs(), names(getPathwayGenes()), barcodeplotTitle())
+    set_genes <- getPathwayGenes()
+    fold_changes <- getFoldChanges()
+    gene_ids <- getGeneIDs()
+    title <- barcodeplotTitle()
+
+    barcode_plot(fold_changes, gene_ids, names(set_genes), title)
   })
 
   # Make a table of contrast data for the gene set Subset the linked contrasts table for the gene set genes

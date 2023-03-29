@@ -172,6 +172,11 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     rownames(mfs)[complete]
   })
 
+  getGeneSelect <- reactive({
+      validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
+      input$geneSelect
+  })
+
   # Make all the reactive expressions that will be needed by calling modules.
 
   geneselect_functions <- list(getNonEmptyRows = getNonEmptyRows)
@@ -182,25 +187,25 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
     ese <- getExperiment()
 
     withProgress(message = "Selecting rows", value = 0, {
-      validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
 
+      gene_select <- getGeneSelect()
       nonempty <- getNonEmptyRows()
 
-      if (input$geneSelect == "none") {
+      if (gene_select == "none") {
         return(c())
-      } else if (input$geneSelect == "all") {
+      } else if (gene_select == "all") {
         return(nonempty)
-      } else if (input$geneSelect == "variance") {
+      } else if (gene_select == "variance") {
         vars <- rowVariances()
         return(names(vars)[selectVariableGenes(input$obs, row_variances = vars)])
-      } else if (input$geneSelect == "metadata_pick") {
+      } else if (gene_select == "metadata_pick") {
         selected_rows <- lsf_picked_methods$getSelectedIds()
         return(intersect(selected_rows, nonempty))
-      } else if (input$geneSelect == "metadata_list") {
+      } else if (gene_select == "metadata_list") {
         selected_rows <- lsf_listed_methods$getSelectedIds()
         return(intersect(selected_rows, nonempty))
       } else {
-        if (input$geneSelect == "gene set") {
+        if (gene_select == "gene set") {
           selected_genes <- getPathwayGenes()
         } else {
           selected_genes <- unlist(strsplit(input$geneList, "\\n"))
@@ -223,19 +228,19 @@ geneselect <- function(input, output, session, eselist, getExperiment, var_n = 5
   # Make a title
 
   geneselect_functions$title <- reactive({
-    validate(need(!is.null(input$geneSelect), "Waiting for form to provide geneSelect"))
+    gene_select <- getGeneSelect()
 
     title <- ""
-    if (input$geneSelect == "all") {
+    if (gene_select == "all") {
       title <- "All rows"
-    } else if (input$geneSelect == "variance") {
+    } else if (gene_select == "variance") {
       title <- paste(paste("Top", input$obs, "rows"), "by variance")
-    } else if (input$geneSelect == "gene set") {
+    } else if (gene_select == "gene set") {
       title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
-      # } else if (input$geneSelect == 'list') { title <- 'Rows for specifified gene list'
-    } else if (input$geneSelect == "metadata_pick") {
+      # } else if (gene_select == 'list') { title <- 'Rows for specifified gene list'
+    } else if (gene_select == "metadata_pick") {
       title <- "Rows by picked metadata field value"
-    } else if (input$geneSelect == "metadata_list") {
+    } else if (gene_select == "metadata_list") {
       title <- "Rows by metadata field value list"
     }
     title
