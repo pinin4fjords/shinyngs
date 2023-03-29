@@ -211,7 +211,7 @@ experiments <- list()
 experiments[[opt$assay_entity_name]] <- list(
   "coldata" = list(
     "file" = opt$sample_metadata,
-    "id" = opt$sample_id_col,
+    "id" = opt$sample_id_col
   ),
   "annotation" = list(
     "file" = opt$feature_metadata,
