@@ -34,7 +34,7 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
     selectby <- "name"
     if (length(eselist@group_vars) > 0) {
       selectby <- c(selectby, "group")
-      default_groupvar <- ese$group_vars[1]
+      default_groupvar <- eselist@group_vars[1]
       if (length(eselist@group_vars) > 0) {
         default_groupvar <- eselist@default_groupvar
       }
@@ -125,11 +125,11 @@ sampleselect <- function(input, output, session, eselist, getExperiment) {
 
   selectSamples <- reactive({
     withProgress(message = "Selecting samples", value = 0, {
+
+      validate(need(!is.null(getSampleSelect()), "Waiting for form to provide sampleSelect"))
       ese <- getExperiment()
 
-      validate(need(!is.null(input$sampleSelect), "Waiting for form to provide sampleSelect"))
-
-      if (input$sampleSelect == "all") {
+      if (getSampleSelect() == "all") {
         return(colnames(ese))
       } else {
         validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
@@ -138,7 +138,7 @@ sampleselect <- function(input, output, session, eselist, getExperiment) {
           validate(need(!is.null(input$sampleGroupVal), FALSE))
         }
 
-        if (input$sampleSelect == "name") {
+        if (getSampleSelect() == "name") {
           return(input$samples)
         } else {
           # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching

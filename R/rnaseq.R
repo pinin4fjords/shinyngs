@@ -78,13 +78,13 @@ rnaseqInput <- function(id, eselist) {
     exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read reports", sidebarLayout(
       sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3),
       mainPanel(readreportsOutput(ns("readrep")), width = 9)
-    ), icon = icon("bar-chart-o", verify_fa = FALSE)))
+    ), icon = icon("chart-bar", verify_fa = FALSE)))
   }
   exploratory_menu$icon <- icon("binoculars")
 
   navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", exploratory_menu))
 
-  # Add the assay data menu
+#  # Add the assay data menu
 
   assaydata_menu <- list("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")),
     width = 9
@@ -157,7 +157,7 @@ rnaseqInput <- function(id, eselist) {
       differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(
         ns("upset"),
         eselist
-      ), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o", verify_fa = FALSE)))
+      ), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("chart-bar", verify_fa = FALSE)))
     }
 
     differential_menu$icon <- icon("chart-line")
@@ -170,7 +170,7 @@ rnaseqInput <- function(id, eselist) {
   navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(
     sidebarPanel(geneInput(ns("gene"), eselist), width = 3),
     mainPanel(geneOutput(ns("gene"), eselist), width = 9)
-  ), icon = icon("bar-chart-o", verify_fa = FALSE)))
+  ), icon = icon("chart-bar", verify_fa = FALSE)))
 
   # Add the final wrappers
 

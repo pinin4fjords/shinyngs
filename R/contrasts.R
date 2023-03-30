@@ -238,6 +238,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
   # Get current value of field which determines if the table should be filtered at all.
 
   getFilterRows <- reactive({
+    req(! is.null(input$filterRows))
     as.logical(input$filterRows)
   })
 
@@ -611,6 +612,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
   selectFilterFinalFeatures <- reactive({
     filtered_contrasts_tables <- filteredContrastsTables()
+    validate(need(length(filtered_contrasts_tables) > 0, "Waiting for filtered contrasts tables"))
 
     lapply(filtered_contrasts_tables, function(fcts) {
       Reduce(intersect, lapply(fcts, function(fct) {
@@ -623,7 +625,8 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     filter_final_features <- selectFilterFinalFeatures()
 
     withProgress(message = "Selecting final feature set", value = 0, {
-      Reduce(get(getFilterSetCombinationOperator()), filter_final_features)
+        comb_op <- getFilterSetCombinationOperator()
+        Reduce(get(comb_op), filter_final_features)
     })
   })
 
@@ -652,11 +655,10 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
   # Use labelledContrastsTable to get the labelled matrix and add some links.
 
   linkedLabelledContrastsTable <- reactive({
+    lct <- labelledContrastsTable()
     if (length(eselist@url_roots) > 0) {
-      lct <- linkMatrix(labelledContrastsTable(), eselist@url_roots)
-    } else {
-      lct <- labelledContrastsTable()
-    }
+      lct <- linkMatrix(lct, eselist@url_roots)
+    } 
     lct
   })
 
@@ -713,7 +715,8 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
     query_summary <- data.frame(filter = filters, features = unlist(lapply(filter_final_features, length)), stringsAsFactors = FALSE)
 
-    colnames(query_summary)[2] <- paste0(getExperimentId(), "s")
+    exp_id <- getExperimentId()
+    colnames(query_summary)[2] <- paste0(exp_id, "s")
 
     # Convert to labels
 
@@ -732,7 +735,8 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
   output$summary <- renderUI({
     query_summary <- makeQuerySummary()
-    operator <- ifelse(getFilterSetCombinationOperator() == "intersect", "AND", "OR")
+    comb_op <- getFilterSetCombinationOperator()
+    operator <- ifelse(comb_op == "intersect", "AND", "OR")
     query_summary[-1, 1] <- paste0("<p><b>", operator, "</b></p>", query_summary[-1, 1])
 
     if (ncol(query_summary) == 2) {
@@ -750,10 +754,11 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     summary_bits <- list(h4("Query Summary"), makeFluidRow(prettifyVariablename(colnames(query_summary))), br(), apply(query_summary, 1, makeFluidRow))
 
     if (nrow(query_summary) > 1) {
-      sff <- unique(selectFinalFeatures())
+      sff_in <- selectFinalFeatures()
+      sff <- unique(sff_in)
       ese <- getExperiment()
 
-      summary_row <- c(getFilterSetCombinationOperator(), length(sff))
+      summary_row <- c(comb_op, length(sff))
 
       labelfield <- getLabelField()
       if (!is.null(labelfield)) {

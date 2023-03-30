@@ -214,7 +214,6 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
         group_vars <- prettifyVariablename(anno_fields)
 
         # Make factors from the specified grouping variables
-
         sm <- selectMatrix()
         ed <- ed[colnames(sm), , drop = FALSE]
 
@@ -297,7 +296,8 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
   # Calculate heights for the the various types of heatmap
 
   plotHeight <- reactive({
-    (nrow(getDisplayMatrix()) * rowHeight()) + dendroHeight() + annotationsHeight() + xAxisLabelsHeight()
+    display_matrix <- getDisplayMatrix()
+    (nrow(display_matrix) * rowHeight()) + dendroHeight() + annotationsHeight() + xAxisLabelsHeight()
   })
 
   # Add an allowance for the axis labels. Interactive view doesn't have annotations, so we use the labels, so need more space

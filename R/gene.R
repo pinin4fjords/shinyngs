@@ -141,8 +141,9 @@ gene <- function(input, output, session, eselist) {
     sm <- selectMatrix()
     rowids <- rowids[rowids %in% rownames(sm)]
     gene_labels <- getSelectedLabels()
+    assay <- getAssay()
 
-    validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", getAssay(), "'")))
+    validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", assay, "'")))
 
     rowids
   })
@@ -153,14 +154,19 @@ gene <- function(input, output, session, eselist) {
     withProgress(message = "Making bar plot", value = 0, {
       ese <- getExperiment()
       rows <- getSelectedIdsWithData()
-
-      barplot_expression <- selectMatrix()[rows, , drop = FALSE]
+      barplot_expression <- selectMatrix()
+      barplot_expression <- barplot_expression[rows, , drop = FALSE]
 
       if (length(ese@labelfield) > 0) {
         rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
       }
 
-      p <- geneBarplot(barplot_expression, selectColData(), getGroupby(), getAssayMeasure(), palette = getPalette())
+      coldata <- selectColData()
+      groupby <- getGroupby()
+      assaymeasure <- getAssayMeasure()
+      palette <- getPalette()
+
+      p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette)
     })
   })
 
@@ -205,14 +211,16 @@ gene <- function(input, output, session, eselist) {
   getGeneContrastsTable <- reactive({
     rows <- getSelectedIdsWithData()
     contrasts_table <- labelledContrastsTable()
+    id_field <- getIdField()
 
-    contrasts_table[contrasts_table[[prettifyVariablename(getIdField())]] %in% rows, , drop = FALSE]
+    contrasts_table[contrasts_table[[prettifyVariablename(id_field)]] %in% rows, , drop = FALSE]
   })
 
   # Link the contrasts table for display
 
   getLinkedGeneContrastsTable <- reactive({
-    linkMatrix(getGeneContrastsTable(), url_roots = eselist@url_roots)
+    gene_contrasts_table <- getGeneContrastsTable()
+    linkMatrix(gene_contrasts_table, url_roots = eselist@url_roots)
   })
 
   # Render the contrasts table- when a valid label is supplied
