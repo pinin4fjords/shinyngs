@@ -166,6 +166,26 @@ if (length(missing_args) > 0) {
 
 if (opt$deploy_app) {
   
+  # Check we have what we need for an app deployment
+  
+  mandatory <- c(
+    "shinyapps_account",
+    "shinyapps_name"
+  )
+  missing_args <- mandatory[!mandatory %in% names(opt)]
+  if (length(missing_args) > 0) {
+    stop(paste("Missing mandatory arguments for shinyapps deployment:", paste(missing_args, collapse = ", ")))
+  }
+  
+  mandatory <- c(
+    'SHINYAPPS_SECRET',
+    'SHINYAPPS_TOKEN'
+  )
+  missing_secrets <- mandatory[!mandatory %in% names(Sys.getenv())]
+  if (length(missing_secrets) > 0) {
+    stop(paste("Environment variables not defined for shinyapps deployment:", paste(missing_secrets, collapse = ", ")))
+  }
+  
   # The app deployment will often fail if BioC packages are out of date, but we
   # can't assume we have access to the system R directories. So re-install
   # outdated ones to a local dir before any important library calls.
@@ -288,23 +308,6 @@ writeLines(
 
 if (opt$deploy_app) {
   library(rsconnect)
-  mandatory <- c(
-    "shinyapps_account",
-    "shinyapps_name"
-  )
-  missing_args <- mandatory[!mandatory %in% names(opt)]
-  if (length(missing_args) > 0) {
-    stop(paste("Missing mandatory arguments for shinyapps deployment:", paste(missing_args, collapse = ", ")))
-  }
-
-  mandatory <- c(
-    'SHINYAPPS_SECRET',
-    'SHINYAPPS_TOKEN'
-  )
-  missing_secrets <- mandatory[!mandatory %in% names(Sys.getenv())]
-  if (length(missing_secrets) > 0) {
-    stop(paste("Environment variables not defined for shinyapps deployment:", paste(missing_secrets, collapse = ", ")))
-  }
 
   options(BiocManager.check_repositories = FALSE)
   rsconnect::setAccountInfo(name = opt$shinyapps_account, token = Sys.getenv('SHINYAPPS_TOKEN'), secret = Sys.getenv('SHINYAPPS_SECRET'))
