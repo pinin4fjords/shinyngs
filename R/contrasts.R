@@ -238,6 +238,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
   # Get current value of field which determines if the table should be filtered at all.
 
   getFilterRows <- reactive({
+    req(! is.null(input$filterRows))
     as.logical(input$filterRows)
   })
 
@@ -654,11 +655,10 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
   # Use labelledContrastsTable to get the labelled matrix and add some links.
 
   linkedLabelledContrastsTable <- reactive({
+    lct <- labelledContrastsTable()
     if (length(eselist@url_roots) > 0) {
-      lct <- linkMatrix(labelledContrastsTable(), eselist@url_roots)
-    } else {
-      lct <- labelledContrastsTable()
-    }
+      lct <- linkMatrix(lct, eselist@url_roots)
+    } 
     lct
   })
 

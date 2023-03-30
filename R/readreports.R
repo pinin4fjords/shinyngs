@@ -74,28 +74,32 @@ readreports <- function(input, output, session, eselist) {
   # Render bar plot controls with default behaviour dependent on report type
 
   output$barplotControls <- renderUI({
-    barplotInput(ns("barplot"), default_mode = getDefaultMode())
+    default_mode <- getDefaultMode()
+    barplotInput(ns("barplot"), default_mode = default_mode)
   })
 
   # Render the bar plot with height dependent on the number of columns in the report (so that the legend fits)
 
   output$barplotOutput <- renderUI({
     ese <- getExperiment()
+    report_type <- getReportType()
     min_height <- 400
-    height <- max(min_height, ncol(ese@read_reports[[getReportType()]]) * 20)
+    height <- max(min_height, ncol(ese@read_reports[[report_type]]) * 20)
     barplotOutput(ns("barplot"), height)
   })
 
   # Dynamic title for the plot
 
   output$plotTitle <- renderUI({
-    h3(paste(prettifyVariablename(getReportType()), "plot"))
+    report_type <- getReportType()
+    h3(paste(prettifyVariablename(report_type), "plot"))
   })
 
   # Dynamic title for the table
 
   output$tableTitle <- renderUI({
-    h4(paste(prettifyVariablename(getReportType()), "data"))
+    report_type <- getReportType()
+    h4(paste(prettifyVariablename(report_type), "data"))
   })
 
   # Return the selected plot type when available
@@ -109,7 +113,8 @@ readreports <- function(input, output, session, eselist) {
   # makes sense to use overlapped bars.
 
   getDefaultMode <- reactive({
-    if (getReportType() == "read_attrition") {
+    report_type <- getReportType()
+    if (report_type == "read_attrition") {
       "overlay"
     } else {
       "stack"
@@ -119,14 +124,16 @@ readreports <- function(input, output, session, eselist) {
   # The barplot module expects data in columns by sample, so transform the table.
 
   getPlotmatrix <- reactive({
-    t(getReportTable())
+    report_table <- getReportTable()
+    t(report_table)
   })
 
   # Get the report table from the slot
 
   getReportTable <- reactive({
     ese <- getExperiment()
-    plotmatrix <- ese@read_reports[[getReportType()]]
+    report_type <- getReportType()
+    plotmatrix <- ese@read_reports[[report_type]]
     plotmatrix <- plotmatrix[, apply(plotmatrix, 2, function(x) sum(x > 10) > 0)]
     plotmatrix <- plotmatrix[, order(colMeans(plotmatrix), decreasing = TRUE)]
     colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
