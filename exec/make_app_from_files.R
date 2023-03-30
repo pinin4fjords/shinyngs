@@ -164,6 +164,25 @@ if (length(missing_args) > 0) {
   stop(paste("Missing mandatory arguments:", paste(missing_args, collapse = ", ")))
 }
 
+if (opt$deploy_app) {
+  
+  # The app deployment will often fail if BioC packages are out of date, but we
+  # can't assume we have access to the system R directories. So re-install
+  # outdated ones to a local dir before any important library calls.
+  
+  print("Updating BioC packages as will be required for shinyapps.io deployment")
+  
+  library(BiocManager)
+  options(repos = BiocManager::repositories(version = '3.16'))
+  ood <- data.frame(BiocManager::valid()$out_of_date)
+  ood_packages <- ood[grep('bioconductor', ood$Repository), 'Package']
+  
+  dir.create('libs', showWarnings = FALSE) 
+  .libPaths('libs')
+  
+  BiocManager::install(ood_packages, version = "3.16", update = TRUE, ask = FALSE, lib = 'libs')
+}
+
 library(shinyngs)
 
 # Name assay data
@@ -286,15 +305,6 @@ if (opt$deploy_app) {
   if (length(missing_secrets) > 0) {
     stop(paste("Environment variables not defined for shinyapps deployment:", paste(missing_secrets, collapse = ", ")))
   }
-
-  library(BiocManager)
-  options(repos = BiocManager::repositories())
-  
-  # The app deployment will often fail if packages are out of date, but we can't
-  # assume we have access to the system R directories
-  dir.create('libs', showWarnings = FALSE) 
-  .libPaths('libs')
-  BiocManager::install(update = TRUE, ask = FALSE, force = TRUE, lib = 'libs')
 
   options(BiocManager.check_repositories = FALSE)
   rsconnect::setAccountInfo(name = opt$shinyapps_account, token = Sys.getenv('SHINYAPPS_TOKEN'), secret = Sys.getenv('SHINYAPPS_SECRET'))
