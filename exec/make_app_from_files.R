@@ -288,7 +288,14 @@ if (opt$deploy_app) {
   }
 
   library(BiocManager)
-  options(repos = BiocManager::repositories(version = "3.14"))
+  options(repos = BiocManager::repositories())
+  
+  # The app deployment will often fail if packages are out of date, but we can't
+  # assume we have access to the system R directories
+  dir.create('libs', showWarnings = FALSE) 
+  .libPaths('libs')
+  BiocManager::install(update = TRUE, ask = FALSE, force = TRUE, lib = 'libs')
+
   options(BiocManager.check_repositories = FALSE)
   rsconnect::setAccountInfo(name = opt$shinyapps_account, token = Sys.getenv('SHINYAPPS_TOKEN'), secret = Sys.getenv('SHINYAPPS_SECRET'))
   deployApp(appDir = opt$output_directory, appName = opt$shinyapps_name, forceUpdate = TRUE, launch.browser = FALSE)
