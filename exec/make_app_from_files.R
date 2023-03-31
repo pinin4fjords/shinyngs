@@ -20,8 +20,14 @@ option_list <- list(
   make_option(
     c("-r", "--description"),
     type = "character",
-    default = "Look what  gone done",
-    help = "Joe Bloggs."
+    default = NULL,
+    help = "A description to display in the app."
+  ),
+  make_option(
+    c("-m", "--report_markdown_file"),
+    type = "character",
+    default = NULL,
+    help = "Path to file with descripion/ reporting in markdown. Alternative to 'description' for more extensive description content."
   ),
   make_option(
     c("-s", "--sample_metadata"),
@@ -46,6 +52,13 @@ option_list <- list(
     type = "character",
     default = "gene_id",
     help = "Column in feature metadata used as feature identifier. Should be used to name columns of expression matrices."
+  ),
+  make_option(
+    c("-n", "--diff_feature_id_col"),
+    type = "character",
+    metavar = "string",
+    help = "Differential file column name containing feature identifiers.",
+    default = "gene_id"
   ),
   make_option(
     c("-e", "--assay_files"),
@@ -148,11 +161,11 @@ mandatory <-
   c(
     "title",
     "author",
-    "description",
     "sample_metadata",
     "sample_id_col",
     "feature_metadata",
     "feature_id_col",
+    "diff_feature_id_col",
     "assay_files",
     "assay_entity_name",
     "output_directory",
@@ -232,7 +245,7 @@ contrast_stats[[opt$assay_entity_name]] <- lapply(contrast_stats_files, function
   list(
     "files" = x,
     "type" = "uncompiled",
-    "feature_id_column" = opt$feature_id_col,
+    "feature_id_column" = opt$diff_feature_id_col,
     "fc_column" = opt$fold_change_column,
     "pval_column" = opt$pval_column,
     "qval_column" = opt$qval_column,
@@ -284,6 +297,12 @@ if (!is.null(opt$group_vars)) {
   opt$group_vars <- simpleSplit(opt$group_vars, ",")
   shiny_config[["group_vars"]] <- opt$group_vars
   shiny_config[["default_groupvar"]] <- opt$group_vars[1]
+}
+
+if (!is.null(opt$description)) {
+  shiny_config[['description']] <- opt$description
+} else if (!is.null(opt$report_markdown_file)) {
+  shiny_config[['report']] <- opt$report_markdown_file
 }
 
 myesel <- eselistfromConfig(shiny_config)
