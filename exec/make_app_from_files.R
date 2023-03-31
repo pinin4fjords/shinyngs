@@ -161,7 +161,6 @@ mandatory <-
   c(
     "title",
     "author",
-    "description",
     "sample_metadata",
     "sample_id_col",
     "feature_metadata",
