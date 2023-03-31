@@ -20,8 +20,14 @@ option_list <- list(
   make_option(
     c("-r", "--description"),
     type = "character",
-    default = "Look what  gone done",
-    help = "Joe Bloggs."
+    default = NULL,
+    help = "A description to display in the app."
+  ),
+  make_option(
+    c("-m", "--report_markdown_file"),
+    type = "character",
+    default = NULL,
+    help = "Path to file with descripion/ reporting in markdown. Alternative to 'description' for more extensive description content."
   ),
   make_option(
     c("-s", "--sample_metadata"),
@@ -292,6 +298,12 @@ if (!is.null(opt$group_vars)) {
   opt$group_vars <- simpleSplit(opt$group_vars, ",")
   shiny_config[["group_vars"]] <- opt$group_vars
   shiny_config[["default_groupvar"]] <- opt$group_vars[1]
+}
+
+if (!is.null(opt$description)) {
+  shiny_config[['description']] <- opt$description
+} else if (!is.null(opt$report_markdown_file)) {
+  shiny_config[['report']] <- opt$report_markdown_file
 }
 
 myesel <- eselistfromConfig(shiny_config)
