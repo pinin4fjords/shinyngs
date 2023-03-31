@@ -36,13 +36,6 @@ option_list <- list(
     help = "Column in sample metadata used as sample identifier. Should be used to name columns of expression matrices, and duplicate rows will be removed based on this column."
   ),
   make_option(
-    c("-n", "--diff_feature_id_col"),
-    type = "character",
-    metavar = "string",
-    help = "Differential file column name containing feature identifiers.",
-    default = "gene_id"
-  ),
-  make_option(
     c("-f", "--feature_metadata"),
     type = "character",
     default = NULL,
@@ -53,6 +46,13 @@ option_list <- list(
     type = "character",
     default = "gene_id",
     help = "Column in feature metadata used as feature identifier. Should be used to name columns of expression matrices."
+  ),
+  make_option(
+    c("-n", "--diff_feature_id_col"),
+    type = "character",
+    metavar = "string",
+    help = "Differential file column name containing feature identifiers.",
+    default = "gene_id"
   ),
   make_option(
     c("-e", "--assay_files"),
