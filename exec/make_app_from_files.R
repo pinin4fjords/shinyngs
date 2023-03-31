@@ -36,6 +36,13 @@ option_list <- list(
     help = "Column in sample metadata used as sample identifier. Should be used to name columns of expression matrices, and duplicate rows will be removed based on this column."
   ),
   make_option(
+    c("-n", "--diff_feature_id_col"),
+    type = "character",
+    metavar = "string",
+    help = "Differential file column name containing feature identifiers.",
+    default = "gene_id"
+  ),
+  make_option(
     c("-f", "--feature_metadata"),
     type = "character",
     default = NULL,
@@ -153,6 +160,7 @@ mandatory <-
     "sample_id_col",
     "feature_metadata",
     "feature_id_col",
+    "diff_feature_id_col",
     "assay_files",
     "assay_entity_name",
     "output_directory",
@@ -232,7 +240,7 @@ contrast_stats[[opt$assay_entity_name]] <- lapply(contrast_stats_files, function
   list(
     "files" = x,
     "type" = "uncompiled",
-    "feature_id_column" = opt$feature_id_col,
+    "feature_id_column" = opt$diff_feature_id_col,
     "fc_column" = opt$fold_change_column,
     "pval_column" = opt$pval_column,
     "qval_column" = opt$qval_column,
