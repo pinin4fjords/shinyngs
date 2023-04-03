@@ -577,12 +577,14 @@ eselistFromYAML <- function(configfile) {
 #' Build an ExploratorySummarisedExperimentList from a description provided in a list
 #'
 #' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
+#' @param guess_unlog_matrices Should we guess the log status of matrices and
+#'   unlog where things seem logged?
 #'
 #' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
 #' @export
 
 eselistfromConfig <-
-  function(config) {
+  function(config, guess_unlog_matrices = FALSE) {
     # 'Experiments' are sets of results from a common set of samples
 
     experiments <- config$experiments
@@ -626,6 +628,7 @@ eselistfromConfig <-
           sample_metadata = colData,
           feature_metadata = annotation,
           row.names = 1
+          guess_unlog = guess_unlog_matrices
         )
       }))
 
@@ -760,11 +763,13 @@ eselistfromConfig <-
 #' @param feature_metadata Data fraome of feature metadata
 #' @param sep Sepaarator in matrix file
 #' @param row.names Matrix column number or name containing feature identifiers
+#' @param guess_unlog Should we guess the log status of matrices and unlog where
+#'   things seem logged?
 #'
 #' @return output Numeric matrix
 #' @export
 
-read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, sep = NULL, row.names = 1) {
+read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, sep = NULL, row.names = 1, guess_unlog = FALSE) {
   if (is.null(sep)) {
     sep <- getSeparator(matrix_file)
   }
@@ -803,7 +808,16 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  as.matrix(matrix_data[, rownames(sample_metadata)])
+  matrix_data <- as.matrix(matrix_data[, rownames(sample_metadata)])
+  
+  # Guess the log status
+
+  if (guess_unlog && max(matrix_data) <= 20){
+    2^matrix_data
+  }else{
+    matrix_data
+  }
+
 }
 
 #' Read a metadata file

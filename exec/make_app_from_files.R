@@ -115,6 +115,12 @@ option_list <- list(
     help = "Set this option if fold changes should be unlogged."
   ),
   make_option(
+    c("-gum", "--guess_unlog_matrices"),
+    action = "store_true",
+    default = FALSE,
+    help = "Should we guess the log status of matrices and unlog where things seem logged?"
+  ),
+  make_option(
     c("-p", "--pval_column"),
     type = "character",
     default = "padj",
