@@ -4,10 +4,13 @@
 \alias{eselistfromConfig}
 \title{Build an ExploratorySummarisedExperimentList from a description provided in a list}
 \usage{
-eselistfromConfig(config)
+eselistfromConfig(config, guess_unlog_matrices = FALSE)
 }
 \arguments{
 \item{config}{Hierachical named list with input components. See \code{eselistFromYAML} for detail.}
+
+\item{guess_unlog_matrices}{Should we guess the log status of matrices and
+unlog where things seem logged?}
 }
 \value{
 out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
