@@ -9,7 +9,8 @@ read_matrix(
   sample_metadata,
   feature_metadata = NULL,
   sep = NULL,
-  row.names = 1
+  row.names = 1,
+  guess_unlog = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ read_matrix(
 \item{sep}{Sepaarator in matrix file}
 
 \item{row.names}{Matrix column number or name containing feature identifiers}
+
+\item{guess_unlog}{Should we guess the log status of matrices and unlog where
+things seem logged?}
 }
 \value{
 output Numeric matrix

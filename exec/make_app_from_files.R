@@ -115,6 +115,12 @@ option_list <- list(
     help = "Set this option if fold changes should be unlogged."
   ),
   make_option(
+    "--guess_unlog_matrices",
+    action = "store_true",
+    default = FALSE,
+    help = "Should we guess the log status of matrices and unlog where things seem logged?"
+  ),
+  make_option(
     c("-p", "--pval_column"),
     type = "character",
     default = "padj",
@@ -305,7 +311,7 @@ if (!is.null(opt$description)) {
   shiny_config[['report']] <- opt$report_markdown_file
 }
 
-myesel <- eselistfromConfig(shiny_config)
+myesel <- eselistfromConfig(shiny_config, guess_unlog_matrices = opt$guess_unlog_matrices)
 
 # Write output
 
