@@ -627,7 +627,7 @@ eselistfromConfig <-
           mat$file,
           sample_metadata = colData,
           feature_metadata = annotation,
-          row.names = 1
+          row.names = 1,
           guess_unlog = guess_unlog_matrices
         )
       }))
