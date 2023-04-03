@@ -311,7 +311,7 @@ if (!is.null(opt$description)) {
   shiny_config[['report']] <- opt$report_markdown_file
 }
 
-myesel <- eselistfromConfig(shiny_config)
+myesel <- eselistfromConfig(shiny_config, guess_unlog_matrices = opt$guess_unlog_matrices)
 
 # Write output
 
