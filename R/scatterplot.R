@@ -194,6 +194,8 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
   output$scatter <- renderPlotly({
     withProgress(message = "Drawing scatter plot", value = 0, {
       if (!is.null(colorBy)) {
+        cb = colorBy()
+          
         # If a palette was supplied, or if we made our own...
 
         if (is.null(getPalette)) {
@@ -201,10 +203,12 @@ scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NUL
         } else {
           palette <- getPalette()
         }
+      }else{
+        cb = NULL
       }
 
       plotly_scatterplot(
-        x = xdata(), y = ydata(), z = zdata(), colorby = colorBy(), plot_type = plotType(), title = getTitle(),
+        x = xdata(), y = ydata(), z = zdata(), colorby = cb, plot_type = plotType(), title = getTitle(),
         xlab = colnames(getDatamatrix())[getXAxis()], ylab = colnames(getDatamatrix())[getYAxis()],
         zlab = colnames(getDatamatrix())[geZXAxis()], palette = palette, labels = getLabels(),
         show_labels = getShowLabels(), lines = getLines(), showlegend = showLegend()
