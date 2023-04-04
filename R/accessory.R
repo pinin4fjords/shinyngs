@@ -725,7 +725,7 @@ eselistfromConfig <-
       author = config$author,
       group_vars = config$group_vars,
       default_groupvar = config$default_groupvar,
-      contrasts = lapply(config$contrasts$comparisons, function(x) as.character(x[1:3]))
+      contrasts = lapply(config$contrasts$comparisons, function(x) unlist(x))
     )
 
     # Optional things
@@ -969,11 +969,12 @@ read_contrasts <-
 
     if (convert_to_list) {
       contrasts <- apply(contrasts, 1, function(x) {
-        list(
-          "Variable" = x["variable"],
-          "Group.1" = x["reference"],
-          "Group.2" = x["target"]
-        )
+        conlist <- split(unname(x),names(x))[names(x)]
+        rename <- c('variable' = 'Variable', 'reference' = 'Group.1', 'target' = 'Group.2')
+        rename_ind <- match(names(rename), names(conlist))
+        names(conlist)[rename_ind] <- rename
+        nonempty <- unlist(lapply(conlist, function(y) ! (is.na(y) || is.null(y) || grepl("^\\s*$", y))))
+        conlist[nonempty]
       })
     }
 

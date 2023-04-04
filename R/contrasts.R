@@ -143,7 +143,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
       # Restrict contrasts to those valid for the input matrix
 
       valid_contrasts <- unlist(lapply(contrasts, function(cont) {
-        all(cont[-1] %in% coldata[[cont[1]]])
+        all(c(cont['Group.1'], cont['Group.2']) %in% coldata[[cont['Variable']]])
       }))
       contrasts <- contrasts[valid_contrasts]
       contrast_numbers <- contrast_numbers[valid_contrasts]
@@ -332,7 +332,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
 
       validate(need(nrow(matrix) > 0, "Waiting for input matrix"))
 
-      contrast_variables <- unique(unlist(lapply(contrasts, function(x) x[1])))
+      contrast_variables <- unique(unlist(lapply(contrasts, function(x) x['Variable'])))
       names(contrast_variables) <- contrast_variables
 
       withProgress(message = paste("Calculating summaries by", getSummaryType()), value = 0, {
@@ -348,6 +348,14 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
   getAllContrasts <- reactive({
     if (length(eselist@contrasts) > 0) {
       contrasts <- eselist@contrasts
+      
+      contrasts <- lapply(contrasts, function(cont){
+        if (is.null(names(cont))){
+            names(cont) <- c('Variable', 'Group.1', 'Group.2')
+        }
+        cont
+      })
+    
       names(contrasts) <- as.character(1:length(contrasts))
       contrasts
     } else {
@@ -376,7 +384,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
     contrasts <- getAllContrasts()
 
     lapply(contrasts, function(c) {
-      list(colnames(ese)[coldata[c[1]] == c[2]], colnames(ese)[coldata[c[1]] == c[3]])
+      list(colnames(ese)[coldata[c['Variable']] == c['Group.1']], colnames(ese)[coldata[c['Variable']] == c['Group.2']])
     })
   })
 
@@ -399,10 +407,10 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
       contrast_tables <- lapply(names(contrasts), function(c) {
         cont <- contrasts[[c]]
 
-        smry1 <- summaries[[cont[1]]][, cont[2]]
-        smry2 <- summaries[[cont[1]]][, cont[3]]
+        smry1 <- summaries[[cont['Variable']]][, cont['Group.1']]
+        smry2 <- summaries[[cont['Variable']]][, cont['Group.2']]
 
-        ct <- data.frame(cont[1], cont[2], cont[3], round(smry1, 2), round(smry2, 2))
+        ct <- data.frame(cont['Variable'], cont['Group.1'], cont['Group.2'], round(smry1, 2), round(smry2, 2), row.names = names(smry1))
         names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2")
 
         # Use pre-computed fold changes where provided.
@@ -480,14 +488,23 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
   makeContrastNames <- reactive({
     contrasts <- getAllContrasts()
 
-    lapply(contrasts, function(x) paste(prettifyVariablename(x[1]), paste(x[3], x[2], sep = " vs "), sep = ": "))
+    lapply(contrasts, function(x){
+        x <- x[! names(x) %in% 'id']
+        contrast_name <- paste(prettifyVariablename(x['Variable']), paste(x['Group.2'], x['Group.1'], sep = " vs "), sep = ": ")
+        extras <- setdiff(names(x), c('Variable', 'Group.1', 'Group.2'))
+        if (length(extras) > 0 ){
+          suffix <- paste0('(', paste(paste(extras, x[extras], sep = ':'), collapse = ','), ')')
+          contrast_name <- paste(contrast_name, suffix)
+        }
+        contrast_name
+      })
   })
 
   # Make safe set of names to be used where spaces etc not allowed
 
   makeSafeContrastNames <- reactive({
     contrasts <- getAllContrasts()
-    names <- lapply(contrasts, function(x) paste(ucfirst(prettifyVariablename(x[1])), paste(ucfirst(x[3]), ucfirst(x[2]), sep = "_vs_"), sep = "."))
+    names <- lapply(contrasts, function(x) paste(ucfirst(prettifyVariablename(x['Variable'])), paste(ucfirst(x['Group.2']), ucfirst(x['Group.1']), sep = "_vs_"), sep = "."))
     names <- lapply(names, function(name) {
       name <- sub("\\+", "_POS_", name)
       name <- sub("\\-", "_NEG_", name)
