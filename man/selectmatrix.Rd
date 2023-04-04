@@ -18,7 +18,8 @@ selectmatrix(
   default_gene_select = NULL,
   require_contrast_stats = FALSE,
   rounding = 2,
-  select_meta = TRUE
+  select_meta = TRUE,
+  allow_summarise = TRUE
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ used to hide experiments that don't have the necessary data.}
 \item{rounding}{Number of decimal places to show in results (Default 2)}
 
 \item{select_meta}{Boolean- add metadata controls?}
+
+\item{allow_summarise}{Boolean, show controls for matrix summarisation?}
 }
 \value{
 output A list of reactive functions for fetching the derived matrix

@@ -92,6 +92,7 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #'   used to hide experiments that don't have the necessary data.
 #' @param rounding Number of decimal places to show in results (Default 2)
 #' @param select_meta Boolean- add metadata controls?
+#' @param allow_summarise Boolean, show controls for matrix summarisation?
 #'
 #' @return output A list of reactive functions for fetching the derived matrix
 #'   and making a title based on its properties.

@@ -83,6 +83,7 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @param getExperiment Reactive expression that returns a
 #'   \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 #'   result of a user selection
+#' @param allow_summarise Boolean, show controls for matrix summarisation?
 #'
 #' @return output A list of reactive functions for interrogating the selected
 #' samples/ columns.
