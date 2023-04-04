@@ -298,7 +298,6 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
     validate(
         need(length(informative_variables) > 0, "Warning: supplied filters have reduced sample metadata selections so as to render all variables uninformative (number of unique values = 1 or N)")
     )
-    print(paste("informative variables:", length(informative_variables)))
 
     anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
   })
