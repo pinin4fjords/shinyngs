@@ -170,7 +170,7 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
   if (type == "expression") {
     unpack.list(callModule(selectmatrix, "heatmap", eselist, var_max = 500))
   } else {
-    unpack.list(callModule(selectmatrix, "heatmap", eselist, var_n = 1000))
+    unpack.list(callModule(selectmatrix, "heatmap", eselist, var_n = 1000, select_meta = FALSE, allow_summarise = FALSE))
   }
 
   # Plot interactive / non-interactive version of heatmap dependent on input
@@ -289,7 +289,17 @@ heatmap <- function(input, output, session, eselist, type = "expression") {
 
     pca <- runPCA(pcavals)
     fraction_explained <- calculatePCAFractionExplained(pca)
-    
+  
+    # Check for non-useful variables (those with 1 value, or N values where N is the
+    # number of samples)
+  
+    informative_variables <- chooseGroupingVariables(pcameta)
+
+    validate(
+        need(length(informative_variables) > 0, "Warning: supplied filters have reduced sample metadata selections so as to render all variables uninformative (number of unique values = 1 or N)")
+    )
+    print(paste("informative variables:", length(informative_variables)))
+
     anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
   })
 
@@ -657,11 +667,8 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained){
     last_pc <- ncol(pca_coords)
   }
   
-  # Remove non-useful variables (those with 1 value, or N values where N is the
-  # number of samples)
-  
   pcameta <- pcameta[, chooseGroupingVariables(pcameta), drop = FALSE]
-  
+
   # Make a blank matrix to hold the p values
   
   pvals <-

@@ -102,10 +102,10 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #' selectSamples <- callModule(sampleselect, "selectmatrix", eselist)
 #'
 selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE,
-                         default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE) {
+                         default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
   # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
-  unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment))
+  unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment, allow_summarise = allow_summarise))
   unpack.list(callModule(geneselect, "selectmatrix",
     eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples,
     getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select
@@ -250,7 +250,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
       rows <- selectRows()
 
       selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
-      if (getSampleSelect() == "group" && getSummaryType() != "none") {
+      if (allow_summarise && getSampleSelect() == "group" && getSummaryType() != "none") {
         selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[getSampleGroupVar()]], getSummaryType())
       }
 
@@ -278,7 +278,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
   # summarised if grouping variables were supplied!
 
   isSummarised <- reactive({
-    length(eselist@group_vars) > 0 && getSummaryType() != "none"
+    allow_summarise && length(eselist@group_vars) > 0 && getSummaryType() != "none"
   })
 
   # Extract the annotation from the SummarizedExperiment
