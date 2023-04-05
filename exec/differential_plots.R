@@ -184,8 +184,14 @@ hline_thresholds[[paste(opt$p_value_column, '=', opt$p_value_threshold)]] = -log
 vline_thresholds[[paste(opt$fold_change_col, '<-', opt$fold_change_threshold)]] = -log2(opt$fold_change_threshold)
 vline_thresholds[[paste(opt$fold_change_col, '>', opt$fold_change_threshold)]] = log2(opt$fold_change_threshold)
 
+if (opt$unlog_foldchanges){
+  x <- sign(differential[[opt$fold_change_col]]) * log2(abs(differential[[opt$fold_change_col]])) 
+}else{
+  x <- differential[[opt$fold_change_col]]
+}
+
 plot_args <- list(
-  x = log2(differential[[opt$fold_change_col]]),
+  x = x,
   y = -log10(differential[[opt$p_value_column]]),
   colorby = differential$differential_status,
   ylab = paste("-log(10)", opt$p_value_column),
