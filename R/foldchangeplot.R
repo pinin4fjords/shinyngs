@@ -33,13 +33,13 @@ foldchangeplotInput <- function(id, eselist) {
 
   # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
 
-  fieldsets <- list()
+  fieldsets <- list(contrasts = list(contrastsInput(ns("differential"))))
   if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
     fieldsets$expression_matrix <- expression_filters
   }
 
   fieldsets <- c(fieldsets, list(
-    contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")),
+    scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")),
     export = simpletableInput(ns("foldchangetable"))
   ))
 
