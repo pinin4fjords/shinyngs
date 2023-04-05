@@ -271,7 +271,7 @@ selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = 
   selectColData <- reactive({
     validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
     withProgress(message = "Extracting experiment metadata", value = 0, {
-      droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE]))
+      droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE], check.names = FALSE))
     })
   })
 

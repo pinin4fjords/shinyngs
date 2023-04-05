@@ -328,7 +328,7 @@ contrasts <- function(input, output, session, eselist, selectmatrix_reactives = 
       ese <- getExperiment()
       contrasts <- getAllContrasts()
       matrix <- getAssayMatrix()
-      coldata <- data.frame(colData(ese))
+      coldata <- data.frame(colData(ese), check.names = FALSE)
 
       validate(need(nrow(matrix) > 0, "Waiting for input matrix"))
 

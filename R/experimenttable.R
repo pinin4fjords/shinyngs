@@ -101,7 +101,7 @@ experimenttableOutput <- function(id) {
 #'
 experimenttable <- function(input, output, session, eselist) {
   getExperiment <- reactive({
-    experiment <- data.frame(colData(eselist[[input$experiment]]))
+    experiment <- data.frame(colData(eselist[[input$experiment]]), check.names = FALSE)
     colnames(experiment) <- prettifyVariablename(colnames(experiment))
     experiment
   })
