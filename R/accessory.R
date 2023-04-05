@@ -1021,7 +1021,7 @@ read_differential <- function(filename,
   }
 
   if (unlog_foldchanges) {
-    st[[fc_column]] <- 2^st[[fc_column]]
+    st[[fc_column]] <- sign(st[[fc_column]]) * 2^(abs(st[[fc_column]]))
   }
   st
 }
