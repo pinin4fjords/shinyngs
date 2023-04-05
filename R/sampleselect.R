@@ -83,6 +83,7 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @param getExperiment Reactive expression that returns a
 #'   \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 #'   result of a user selection
+#' @param allow_summarise Boolean, show controls for matrix summarisation?
 #'
 #' @return output A list of reactive functions for interrogating the selected
 #' samples/ columns.
@@ -92,8 +93,10 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @examples
 #' selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
 #'
-sampleselect <- function(input, output, session, eselist, getExperiment) {
-  getSummaryType <- callModule(summarisematrix, "summarise")
+sampleselect <- function(input, output, session, eselist, getExperiment, allow_summarise = TRUE) {
+  if (allow_summarise){
+    getSummaryType <- callModule(summarisematrix, "summarise")
+  }
 
   # Render the sampleGroupVal() element based on sampleGroupVar
 
@@ -105,7 +108,11 @@ sampleselect <- function(input, output, session, eselist, getExperiment) {
       group_values <- as.character(unique(ese[[isolate(input$sampleGroupVar)]]))
       ns <- session$ns
 
-      list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values), summarisematrixInput(ns("summarise")))
+      inputs <- list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values))
+      if (allow_summarise){
+        inputs <- pushToList(inputs, summarisematrixInput(ns("summarise"))) 
+      }
+      inputs
     }
   })
 
@@ -152,5 +159,11 @@ sampleselect <- function(input, output, session, eselist, getExperiment) {
     })
   })
 
-  list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSummaryType = getSummaryType, getSampleSelect = getSampleSelect)
+  reactives <- list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSampleSelect = getSampleSelect)
+
+  if (allow_summarise){
+    reactives[['getSummaryType']] <- getSummaryType
+  }
+
+  reactives
 }

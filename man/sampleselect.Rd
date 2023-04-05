@@ -4,7 +4,14 @@
 \alias{sampleselect}
 \title{The server function of the sampleselect module}
 \usage{
-sampleselect(input, output, session, eselist, getExperiment)
+sampleselect(
+  input,
+  output,
+  session,
+  eselist,
+  getExperiment,
+  allow_summarise = TRUE
+)
 }
 \arguments{
 \item{input}{Input object}
@@ -19,6 +26,8 @@ ExploratorySummarizedExperiment objects}
 \item{getExperiment}{Reactive expression that returns a
 \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 result of a user selection}
+
+\item{allow_summarise}{Boolean, show controls for matrix summarisation?}
 }
 \value{
 output A list of reactive functions for interrogating the selected

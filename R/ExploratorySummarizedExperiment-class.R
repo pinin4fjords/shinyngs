@@ -118,7 +118,7 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   # Build the object
 
-  sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData))
+  sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData, check.names = FALSE))
   mcols(sumexp) <- annotation
 
   new("ExploratorySummarizedExperiment", sumexp,
