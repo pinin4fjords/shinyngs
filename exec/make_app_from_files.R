@@ -54,6 +54,12 @@ option_list <- list(
     help = "Column in feature metadata used as feature identifier. Should be used to name columns of expression matrices."
   ),
   make_option(
+    c("-N", "--feature_name_col"),
+    type = "character",
+    default = "gene_name",
+    help = "Column in feature metadata used as feature name/ label. Can be different to matrix column names."
+  ),
+  make_option(
     c("-n", "--diff_feature_id_col"),
     type = "character",
     metavar = "string",
@@ -274,7 +280,7 @@ experiments[[opt$assay_entity_name]] <- list(
   "annotation" = list(
     "file" = opt$feature_metadata,
     "id" = opt$feature_id_col,
-    "label" = "gene_name"
+    "label" = opt$feature_name_col
   ),
   "expression_matrices" = lapply(assay_files, function(x) {
     list(
