@@ -342,28 +342,30 @@ plotdata <-
     groupby = opt$contrast_variable
   )
 
-mad_plot_args <- list(
-  x = plotdata$group,
-  y = plotdata$mad,
-  color = plotdata$outlier,
-  hline_thresholds = c("Outlier threshold" = -5),
-  legend_title = "Outlier status",
-  labels = rownames(plotdata),
-  show_labels = TRUE,
-  xlab = "Sample group",
-  ylab = "MAD score",
-  palette_name = opt$palette_name
-)
+if (! is.null(plotdata)){
+  mad_plot_args <- list(
+    x = plotdata$group,
+    y = plotdata$mad,
+    color = plotdata$outlier,
+    hline_thresholds = c("Outlier threshold" = -5),
+    legend_title = "Outlier status",
+    labels = rownames(plotdata),
+    show_labels = TRUE,
+    xlab = "Sample group",
+    ylab = "MAD score",
+    palette_name = opt$palette_name
+  )
 
-print("MAD correlation plots...")
-if (opt$write_html){
-  print("...interactive")
-  interactive_madplot <- do.call(plotly_scatterplot, mad_plot_args)
-  htmlwidgets::saveWidget(plotly::as_widget(interactive_madplot), file.path(html_outdir, "mad_correlation.html"), selfcontained = TRUE)
+  print("MAD correlation plots...")
+  if (opt$write_html){
+    print("...interactive")
+    interactive_madplot <- do.call(plotly_scatterplot, mad_plot_args)
+    htmlwidgets::saveWidget(plotly::as_widget(interactive_madplot), file.path(html_outdir, "mad_correlation.html"), selfcontained = TRUE)
+  }
+
+  print("... static")
+  static_madplot <- do.call(static_scatterplot, mad_plot_args)
+  png(filename = file.path(png_outdir, "mad_correlation.png"), width = 800, height = 600)
+  print(static_madplot)
+  dev.off()
 }
-
-print("... static")
-static_madplot <- do.call(static_scatterplot, mad_plot_args)
-png(filename = file.path(png_outdir, "mad_correlation.png"), width = 800, height = 600)
-print(static_madplot)
-dev.off()
