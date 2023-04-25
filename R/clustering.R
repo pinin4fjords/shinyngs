@@ -438,25 +438,38 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
   # Double-check the matrix/ sample sheet synch
   matrix <- matrix[, rownames(sample_sheet)]
 
-  if (is.null(groupby)) {
-    matrices <- list(all = matrix)
-  } else {
-    matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[, x])
+  group_sizes <- table(sample_sheet[[groupby]])
+  mad_valid_groups <- group_sizes[group_sizes > 2]
+  
+  if (length(mad_valid_groups) == 0){
+    print("WARNING: low replication, skipping outlier detection ...")  
+    NULL
+  }else{
+    mad_valid_samples <- which(sample_sheet[[groupby]] %in% names(mad_valid_groups))
+
+    matrix <- matrix[, mad_valid_samples]
+    sample_sheet <- sample_sheet[mad_valid_samples, ]
+    
+    if (is.null(groupby)) {
+      matrices <- list(all = matrix)
+    } else {
+      matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[, x])
+    }
+    
+    # The following intentionally verbose to highlight logic
+    
+    mads <- do.call(rbind, lapply(names(matrices), function(g) {
+      corrs <- cor(matrices[[g]])
+      corrs_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[x, -x])))
+      corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
+      
+      correlation_difference <- structure(corrs_involving - corrs_not_involving, names = colnames(corrs))
+      median_correlation_differences <- median(correlation_difference)
+      median_absolute_deviation <- median(abs(correlation_difference - median_correlation_differences))
+      data.frame(group = g, mad = (correlation_difference - median_correlation_differences) / (median_absolute_deviation * 1.4826))
+    }))
+    
+    mads$outlier <- mads$mad < outlier_threshold
+    mads
   }
-
-  # The following intentionally verbose to highlight logic
-
-  mads <- do.call(rbind, lapply(names(matrices), function(g) {
-    corrs <- cor(matrices[[g]])
-    corrs_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[x, -x])))
-    corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
-
-    correlation_difference <- structure(corrs_involving - corrs_not_involving, names = colnames(corrs))
-    median_correlation_differences <- median(correlation_difference)
-    median_absolute_deviation <- median(abs(correlation_difference - median_correlation_differences))
-    data.frame(group = g, mad = (correlation_difference - median_correlation_differences) / (median_absolute_deviation * 1.4826))
-  }))
-
-  mads$outlier <- mads$mad < outlier_threshold
-  mads
 }
