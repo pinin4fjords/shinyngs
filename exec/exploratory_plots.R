@@ -154,11 +154,13 @@ assay_files <-
 # Expect that 'variance stabilised' expression profiles will already be logged
 
 assay_data <- lapply(assay_files, function(x) {
-  read_matrix(
-    x,
-    sample_metadata = sample_metadata,
-    feature_metadata = feature_metadata,
-    row.names = 1
+  na.omit(
+    read_matrix(
+      x,
+      sample_metadata = sample_metadata,
+      feature_metadata = feature_metadata,
+      row.names = 1
+    )
   )
 })
 
