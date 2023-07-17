@@ -100,6 +100,12 @@ option_list <- list(
     metavar = "string",
     help = "A valid R palette name.",
     default = "Set1"
+  ),
+  make_option(
+    c("-l", "--log2_assays"),
+    type = "logical",
+    default = NULL,
+    help = "Should log2 be applied to the assays? If not specified, the script will guess the log status based on the maximum value of the input data."
   )
 )
 
@@ -179,14 +185,20 @@ if (is.null(opt$final_assay)){
   }
 }
 
-# Guess which assays aren't logged and log them. Don't like this, but need a
-# cleaner solution
+# If log2_assays is not specified, guess which assays aren't logged and log them.
 
-unlogged <- unlist(lapply(assay_data, function(x) max(x) > 20))
+if (is.null(opt$log2_assays)) {
+  unlogged <- unlist(lapply(assay_data, function(x) max(x) > 20))
 
-for (unlogged_expression_type in names(unlogged)[unlogged]) {
-  if (unlogged_expression_type %in% names(assay_data)) {
-    assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
+  for (unlogged_expression_type in names(unlogged)[unlogged]) {
+    if (unlogged_expression_type %in% names(assay_data)) {
+      assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
+    }
+  }
+} else {
+  # If log2_assays is TRUE, apply log2 without guessing
+  if (opt$log2_assays) {
+    assay_data <- log2(assay_data)
   }
 }
 
