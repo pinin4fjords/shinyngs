@@ -103,9 +103,9 @@ option_list <- list(
   ),
   make_option(
     c("-l", "--log2_assays"),
-    type = "logical",
+    type = "character",
     default = NULL,
-    help = "Should log2 be applied to the assays? If not specified, the script will guess the log status based on the maximum value of the input data."
+    help = "Comma-separated list of assay_names to which to apply log2. If not specified, the script will guess the log status based on the maximum value of the input data."
   )
 )
 
@@ -196,10 +196,15 @@ if (is.null(opt$log2_assays)) {
     }
   }
 } else {
-  # If log2_assays is TRUE, apply log2 without guessing
-  if (opt$log2_assays) {
-    assay_data <- log2(assay_data)
-  }
+  # Otherwise apply log2 where specified
+
+    log2_assays <- simpleSplit(opt$log2_assays)
+
+    for (unlogged_expression_type in log2_assays) {
+      if (unlogged_expression_type %in% names(assay_data)) {
+        assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
+      }
+    }
 }
 
 # Create output paths
