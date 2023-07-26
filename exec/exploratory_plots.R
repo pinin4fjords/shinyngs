@@ -203,7 +203,7 @@ if (is.null(opt$log2_assays)) {
   if (is_valid_positive_integer_vector(opt$log2_assays)) {
 
     print("--log2_assays param set to list of int, will apply log2 to specified assays.")
-    unlogged <- as.integer(simpleSplit(opt$log2_assays))
+    unlogged <- unique(as.integer(simpleSplit(opt$log2_assays)))
 
     # Check if log2_assays contains 0
     if (min(unlogged) == 0) {
@@ -215,10 +215,6 @@ if (is.null(opt$log2_assays)) {
 
       stop(paste(max(unlogged), "is not a valid assay position, only got", length(assay_data), "assay(s). Please check param --log2_assays."))
     }
-    # Check for duplicates
-    if (anyDuplicated(unlogged)) {
-      stop(paste0("--log2_assays param must be unique! It contains duplicates: ", paste(unlogged[duplicated(unlogged)], collapse=", "), "."))
-    }
 
     for (unlogged_position in unlogged) {
       assay_data[[unlogged_position]] <- log2(assay_data[[unlogged_position]])
@@ -227,16 +223,12 @@ if (is.null(opt$log2_assays)) {
 
   else {
     print("--log2_assays param set to list of string, will apply log2 to specified assays.")
-    unlogged <- simpleSplit(opt$log2_assays)
+    unlogged <- unique(simpleSplit(opt$log2_assays))
 
     # Check if all names are valid
     if (any(!(unlogged %in% names(assay_data)))) {
       invalid_assays <- paste(unlogged[!(unlogged %in% names(assay_data))], collapse=", ")
       stop(paste0(invalid_assays, " is/are not valid assay name(s). Valid assay names are: ", paste(names(assay_data), collapse=", "), ". Please check param --log2_assays."))
-    }
-    # Check for duplicates
-    if (anyDuplicated(unlogged)) {
-      stop(paste0("--log2_assays param must be unique! It contains duplicates: ", paste(unlogged[duplicated(unlogged)], collapse=", "), "."))
     }
 
     for (unlogged_expression_type in unlogged) {
