@@ -105,7 +105,7 @@ option_list <- list(
     c("-l", "--log2_assays"),
     type = "character",
     default = NULL,
-    help = "Comma-separated list of assay_names to which to apply log2. If not specified, the script will guess the log status based on the maximum value of the input data."
+    help = "Comma-separated list of assay_names to which to apply log2. Alternatively, comma-separated list of positive integers indicating which assays to log (1-based!). If not specified, the script will guess the log status based on the maximum value of the input data. If empty string, will not apply log2."
   )
 )
 
@@ -185,26 +185,65 @@ if (is.null(opt$final_assay)){
   }
 }
 
-# If log2_assays is not specified, guess which assays aren't logged and log them.
-
 if (is.null(opt$log2_assays)) {
-  unlogged <- unlist(lapply(assay_data, function(x) max(x) > 20))
 
+  print("--log2_assays param not set, will guess which input assays need to be log2.")
+  unlogged <- unlist(lapply(assay_data, function(x) max(x) > 20))
   for (unlogged_expression_type in names(unlogged)[unlogged]) {
     if (unlogged_expression_type %in% names(assay_data)) {
       assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
     }
   }
+
+} else if (opt$log2_assays == "") {
+
+  print("--log2_assays param set to empty string, will not apply log2.")
+
 } else {
-  # Otherwise apply log2 where specified
+  if (is_valid_positive_integer_vector(opt$log2_assays)) {
 
-    log2_assays <- simpleSplit(opt$log2_assays)
+    print("--log2_assays param set to list of int, will apply log2 to specified assays.")
+    unlogged <- as.integer(simpleSplit(opt$log2_assays))
 
-    for (unlogged_expression_type in log2_assays) {
-      if (unlogged_expression_type %in% names(assay_data)) {
-        assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
-      }
+    # Check if log2_assays contains 0
+    if (min(unlogged) == 0) {
+
+      stop(paste("0 is not a valid assay position, use 1-based positions. Please check param --log2_assays."))
     }
+    # Check if highest position in log2_assays is valid
+    if (max(unlogged) > length(assay_data)) {
+
+      stop(paste(max(unlogged), "is not a valid assay position, only got", length(assay_data), "assay(s). Please check param --log2_assays."))
+    }
+    # Check for duplicates
+    if (anyDuplicated(unlogged)) {
+      stop(paste0("--log2_assays param must be unique! It contains duplicates: ", paste(unlogged[duplicated(unlogged)], collapse=", "), "."))
+    }
+
+    for (unlogged_position in unlogged) {
+      assay_data[[unlogged_position]] <- log2(assay_data[[unlogged_position]])
+    }
+  }
+
+  else {
+    print("--log2_assays param set to list of string, will apply log2 to specified assays.")
+    unlogged <- simpleSplit(opt$log2_assays)
+
+    # Check if all names are valid
+    if (any(!(unlogged %in% names(assay_data)))) {
+      invalid_assays <- paste(unlogged[!(unlogged %in% names(assay_data))], collapse=", ")
+      stop(paste0(invalid_assays, " is/are not valid assay name(s). Valid assay names are: ", paste(names(assay_data), collapse=", "), ". Please check param --log2_assays."))
+    }
+    # Check for duplicates
+    if (anyDuplicated(unlogged)) {
+      stop(paste0("--log2_assays param must be unique! It contains duplicates: ", paste(unlogged[duplicated(unlogged)], collapse=", "), "."))
+    }
+
+    for (unlogged_expression_type in unlogged) {
+      assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
+    }
+  }
+
 }
 
 # Create output paths
