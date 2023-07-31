@@ -1198,3 +1198,21 @@ validate_inputs <- function(samples_metadata,
 
   validated_parts
 }
+
+#' Check if a comma-separated string can be parsed to an integer vector
+#'
+#' @param string Input string
+#'
+#' @return output Boolean indicating whether the check passed
+#' @export
+
+# Function to check if a comma-separated string can be parsed to a positive integer vector
+is_valid_positive_integer_vector <- function(string) {
+
+  # as.integer() will truncate floats without throwing an error and also
+  # accept negatives, so check if string contains NOT 0-9 or comma
+  if (grepl("[^0-9,]", string)) {
+    return(FALSE)
+  }
+  return(TRUE)
+}
