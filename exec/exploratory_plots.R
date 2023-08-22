@@ -204,16 +204,10 @@ if (is.null(opt$log2_assays)) {
 
     print("--log2_assays param set to list of int, will apply log2 to specified assays.")
     unlogged <- unique(as.integer(simpleSplit(opt$log2_assays)))
-
-    # Check if log2_assays contains 0
-    if (min(unlogged) == 0) {
-
-      stop(paste("0 is not a valid assay position, use 1-based positions. Please check param --log2_assays."))
-    }
-    # Check if highest position in log2_assays is valid
-    if (max(unlogged) > length(assay_data)) {
-
-      stop(paste(max(unlogged), "is not a valid assay position, only got", length(assay_data), "assay(s). Please check param --log2_assays."))
+    
+    invalid_assays <- unlogged[! unlogged %in% 1:length(assay_data)]
+    if (length(invalid_assays) > 0){
+        stop(paste0("Invalid assays: ", paste(invalid_assays, collapse=', ')))
     }
 
     for (unlogged_position in unlogged) {

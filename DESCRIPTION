@@ -1,6 +1,6 @@
 Package: shinyngs
 Title: Shiny apps for NGS data
-Version: 1.7.2
+Version: 1.8.1
 Authors@R: person("Jonathan", "Manning", email = "jonathan.manning@healx.io", role = c("aut", "cre"))
 Description: Provides Shiny applications for various array and NGS applications.
     Currently very RNA-seq centric, with plans for expansion.
@@ -51,6 +51,6 @@ Suggests:
 Remotes:
     cran/d3heatmap,
     pinin4fjords/zhangneurons
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
