@@ -1217,13 +1217,14 @@ is_valid_positive_integer_vector <- function(string) {
   return(TRUE)
 }
 
-#' Apply log2 transformation on assay data based on log2_assays parameter.
+#' Conditionally apply log2 transformation on assay data based on log2_assays parameter.
 #'
 #' @param assay_data A list containing assay data.
 #' @param log2_assays A string parameter that can be NULL, empty, or a non-empty string.
 #'                     If NULL: log2 transformation will be guessed based on input assays.
 #'                     If empty: no log2 transformation will be applied.
 #'                     If non-empty: log2 transformation will be applied to specified assays.
+#' @param threshold A numeric threshold to determine if an assay should be log-transformed.
 #'
 #' @return A modified assay_data list.
 #'
@@ -1234,12 +1235,11 @@ is_valid_positive_integer_vector <- function(string) {
 #' cond_log2_transform_assays(data, "a,b")
 #' cond_log2_transform_assays(data, "1,2")
 #' @export
-
-cond_log2_transform_assays <- function(assay_data, log2_assays) {
-
+cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 20) {
+  
   if (is.null(log2_assays)) {
     print("log2_assays param not set, will guess which input assays need to be log2.")
-    indices <- names(unlist(lapply(assay_data, function(x) max(x) > 20)))
+    indices <- names(unlist(lapply(assay_data, function(x) max(x) > threshold)))
   } else if (log2_assays == "") {
     print("log2_assays param set to empty string, will not apply log2.")
     return(assay_data)
@@ -1251,16 +1251,15 @@ cond_log2_transform_assays <- function(assay_data, log2_assays) {
       print("log2_assays param set to list of string, will apply log2 to specified assays.")
       indices <- simpleSplit(log2_assays)
     }
-
+    
     invalid_indices <- indices[!indices %in% c(1:length(assay_data), names(assay_data))]
     if (length(invalid_indices) > 0) {
       stop("Invalid assays: ", paste(invalid_indices, collapse=', '))
     }
   }
-
+  
   for (index in indices) {
     assay_data[[index]] <- log2(assay_data[[index]])
   }
   return(assay_data)
 }
-

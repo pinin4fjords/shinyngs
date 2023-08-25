@@ -2,9 +2,9 @@
 % Please edit documentation in R/accessory.R
 \name{cond_log2_transform_assays}
 \alias{cond_log2_transform_assays}
-\title{Apply log2 transformation on assay data based on log2_assays parameter.}
+\title{Conditionally apply log2 transformation on assay data based on log2_assays parameter.}
 \usage{
-cond_log2_transform_assays(assay_data, log2_assays)
+cond_log2_transform_assays(assay_data, log2_assays, threshold = 20)
 }
 \arguments{
 \item{assay_data}{A list containing assay data.}
@@ -13,12 +13,14 @@ cond_log2_transform_assays(assay_data, log2_assays)
 If NULL: log2 transformation will be guessed based on input assays.
 If empty: no log2 transformation will be applied.
 If non-empty: log2 transformation will be applied to specified assays.}
+
+\item{threshold}{A numeric threshold to determine if an assay should be log-transformed.}
 }
 \value{
 A modified assay_data list.
 }
 \description{
-Apply log2 transformation on assay data based on log2_assays parameter.
+Conditionally apply log2 transformation on assay data based on log2_assays parameter.
 }
 \examples{
 data <- list(a = c(22,23,24), b = c(2,3,4), c = c(40,41,42))
