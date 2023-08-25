@@ -185,52 +185,8 @@ if (is.null(opt$final_assay)){
   }
 }
 
-if (is.null(opt$log2_assays)) {
-
-  print("--log2_assays param not set, will guess which input assays need to be log2.")
-  unlogged <- unlist(lapply(assay_data, function(x) max(x) > 20))
-  for (unlogged_expression_type in names(unlogged)[unlogged]) {
-    if (unlogged_expression_type %in% names(assay_data)) {
-      assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
-    }
-  }
-
-} else if (opt$log2_assays == "") {
-
-  print("--log2_assays param set to empty string, will not apply log2.")
-
-} else {
-  if (is_valid_positive_integer_vector(opt$log2_assays)) {
-
-    print("--log2_assays param set to list of int, will apply log2 to specified assays.")
-    unlogged <- unique(as.integer(simpleSplit(opt$log2_assays)))
-    
-    invalid_assays <- unlogged[! unlogged %in% 1:length(assay_data)]
-    if (length(invalid_assays) > 0){
-        stop(paste0("Invalid assays: ", paste(invalid_assays, collapse=', ')))
-    }
-
-    for (unlogged_position in unlogged) {
-      assay_data[[unlogged_position]] <- log2(assay_data[[unlogged_position]])
-    }
-  }
-
-  else {
-    print("--log2_assays param set to list of string, will apply log2 to specified assays.")
-    unlogged <- unique(simpleSplit(opt$log2_assays))
-
-    # Check if all names are valid
-    if (any(!(unlogged %in% names(assay_data)))) {
-      invalid_assays <- paste(unlogged[!(unlogged %in% names(assay_data))], collapse=", ")
-      stop(paste0(invalid_assays, " is/are not valid assay name(s). Valid assay names are: ", paste(names(assay_data), collapse=", "), ". Please check param --log2_assays."))
-    }
-
-    for (unlogged_expression_type in unlogged) {
-      assay_data[[unlogged_expression_type]] <- log2(assay_data[[unlogged_expression_type]])
-    }
-  }
-
-}
+# Apply a log2 transform to assays where appropriate
+assay_data <- cond_log2_transform_assays(assay_data, opt$log2_assays)
 
 # Create output paths
 
