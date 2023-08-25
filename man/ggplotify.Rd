@@ -9,7 +9,8 @@ ggplotify(
   experiment,
   colorby = NULL,
   value_type = "expression",
-  annotate_samples = FALSE
+  annotate_samples = FALSE,
+  should_log = NULL
 )
 }
 \arguments{
@@ -25,6 +26,11 @@ that will be used to set a color column in the reshaped output.}
 values, but can be 'density' to calculate expression densities.}
 
 \item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
+
+\item{should_log}{A boolean indicating if the log2 transformation should be applied.
+If TRUE, log2 transformation is applied unconditionally.
+If FALSE, no transformation is applied.
+If NULL (default), a conditional transformation based on threshold is applied.}
 }
 \value{
 A reshaped data frame

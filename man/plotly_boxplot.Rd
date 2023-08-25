@@ -11,7 +11,8 @@ plotly_boxplot(
   palette = NULL,
   expressiontype = "expression",
   palette_name = "Set1",
-  annotate_samples = FALSE
+  annotate_samples = FALSE,
+  should_log = NULL
 )
 }
 \arguments{
@@ -29,6 +30,11 @@ plotly_boxplot(
 \item{palette_name}{Valid R color palette name}
 
 \item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
+
+\item{should_log}{A boolean indicating if the log2 transformation should be applied.
+If TRUE, log2 transformation is applied unconditionally.
+If FALSE, no transformation is applied.
+If NULL, a conditional transformation based on threshold is applied.}
 }
 \value{
 output A \code{plotly} output

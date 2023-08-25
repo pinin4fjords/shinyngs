@@ -219,12 +219,12 @@ print("Writing boxplots...")
 
 if (opt$write_html){
   print("... interactive")
-  interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
+  interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_log = FALSE)
   htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
 }
 
 print("... static")
-static_boxplot <- ggplot_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
+static_boxplot <- ggplot_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_log = FALSE)
 png(filename = file.path(png_outdir, "boxplot.png"), width = 800, height = 600)
 static_boxplot
 dev.off()
@@ -239,12 +239,12 @@ print("Writing density plots...")
 
 if (opt$write_html){
   print("...interactive")
-  interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
+  interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_log = FALSE)
   htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
 }
 
 print("... static")
-static_densityplot <- ggplot_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name)
+static_densityplot <- ggplot_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_log = FALSE)
 png(filename = file.path(png_outdir, "density.png"), width = 800, height = 600)
 static_densityplot
 dev.off()
