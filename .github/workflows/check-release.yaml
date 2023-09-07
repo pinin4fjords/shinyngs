@@ -22,9 +22,27 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
-          needs: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           error-on: '"error"'
           args: 'c("--no-manual", "--as-cran", "--no-examples")'
+
+      - name: Install the package
+        run: R CMD INSTALL .
+
+      - name: Download test data from nf-core tests data repo
+        run: |
+          test_data_base="https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/mus_musculus/rnaseq_expression"
+          for filename in SRP254919.gene_meta.tsv SRP254919.samplesheet.csv SRP254919.salmon.merged.gene_counts.top1000cov.tsv; do
+            wget -O $filename $test_data_base/$filename
+          done
+
+      - name: Run exploratory plots script
+        run: |
+          chmod +x exec/exploratory_plots.R
+          ./exec/exploratory_plots.R \
+            --sample_metadata SRP254919.samplesheet.csv \
+            --feature_metadata SRP254919.gene_meta.tsv \
+            --assay_files SRP254919.salmon.merged.gene_counts.top1000cov.tsv \
+            --outdir $(pwd)
