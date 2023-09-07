@@ -1289,24 +1289,25 @@ validate_indices <- function(assay_data, index_string) {
 #' @export
 
 cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 20) {
-  
-  # If log2_assays is not empty
-  if (log2_assays != "") {
+
+  indices_to_log = c()
+  should_log = FALSE
+
+  # Check if log2_assays is null
+  if (is.null(log2_assays)) {
+    indices_to_log <- names(assay_data)
+    should_log <- NULL
+  } else if (log2_assays != "") {
     # Determine which assays to log based on log2_assays
-    if (is.null(log2_assays)) {
-      indices_to_log <- names(assay_data)
-      should_log <- NULL
-    } else {
-      indices_to_log <- validate_indices(assay_data = assay_data, index_string = log2_assays)
-      should_log <- TRUE
-    }
-    
-    # Apply log2 transformation to specified assays
-    for (index in indices_to_log) {
-      assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_log = should_log, threshold = threshold)
-    }
+    indices_to_log <- validate_indices(assay_data = assay_data, index_string = log2_assays)
+    should_log <- TRUE
   }
-  
+
+  # Apply log2 transformation to any specified assays
+  for (index in indices_to_log) {
+    assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_log = should_log, threshold = threshold)
+  }
+
   return(assay_data)
 }
 
