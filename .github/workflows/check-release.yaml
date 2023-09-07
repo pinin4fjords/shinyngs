@@ -42,4 +42,5 @@ jobs:
             --sample_metadata SRP254919.samplesheet.csv \
             --feature_metadata SRP254919.gene_meta.tsv \
             --assay_files SRP254919.salmon.merged.gene_counts.top1000cov.tsv \
+            --contrast_variable treatment \
             --outdir $(pwd)
