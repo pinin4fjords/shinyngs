@@ -73,12 +73,13 @@ jobs:
 
       - name: Run app-building script
         run: |
+          ln -s $DIFFERENTIAL_FILE copied_${DIFFERENTIAL_FILE}
           ./exec/make_app_from_files.R \
             --sample_metadata $SAMPLE_META_FILE \
             --feature_metadata $FEATURE_META_FILE \
             --assay_files $ASSAY_FILE \
             --contrast_file $CONTRASTS_FILE \
             --contrast_stats_assay 1 \
-            --differential_results $DIFFERENTIAL_FILE \
+            --differential_results ${DIFFERENTIAL_FILE},copied_${DIFFERENTIAL_FILE} \
             --output_dir $(pwd)
 
