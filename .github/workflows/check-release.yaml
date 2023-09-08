@@ -50,7 +50,7 @@ jobs:
             --sample_metadata $SAMPLE_META_FILE \
             --feature_metadata $FEATURE_META_FILE \
             --assay_files $ASSAY_FILE \
-            --contrasts_file $CONTRASTS_FILE \ 
+            --contrasts_file $CONTRASTS_FILE \
             --output_directory $(pwd)
 
       - name: Run exploratory plots script
