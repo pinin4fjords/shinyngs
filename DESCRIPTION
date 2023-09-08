@@ -44,6 +44,7 @@ Suggests:
     Gviz,
     knitr,
     markdown,
+    optparse,
     rmarkdown,
     rsconnect,
     testthat (>= 3.0.0),

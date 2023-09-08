@@ -12,6 +12,16 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.R_CI }}
       R_KEEP_PKG_SOURCE: yes
+      TEST_DATA_BASE: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/mus_musculus/rnaseq_expression"
+      FEATURE_META_FILE: "SRP254919.gene_meta.tsv"
+      SAMPLE_META_FILE: "SRP254919.samplesheet.csv"
+      ASSAY_FILE: "SRP254919.salmon.merged.gene_counts.top1000cov.tsv"
+      CONTRASTS_FILE: "SRP254919.contrasts.csv"
+      DIFFERENTIAL_FILE: "SRP254919.salmon.merged.deseq2.results.tsv"
+      TREATMENT_VARIABLE: "treatment"
+      REFERENCE_LEVEL: "mCherry"
+      TREATMENT_LEVEL: "hND6"
+
     steps:
       - uses: actions/checkout@v2
 
@@ -21,10 +31,55 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
-          needs: check
+          extra-packages: any::rcmdcheck, local::.
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           error-on: '"error"'
           args: 'c("--no-manual", "--as-cran", "--no-examples")'
+
+      - name: Download test data from nf-core tests data repo
+        run: |
+          for filename in $CONTRASTS_FILE $FEATURE_META_FILE $SAMPLE_META_FILE $ASSAY_FILE $DIFFERENTIAL_FILE; do
+            wget -O $filename ${TEST_DATA_BASE}/$filename
+          done
+
+      - name: Run FOM validation script
+        run: |
+          ./exec/validate_fom_components.R \
+            --sample_metadata $SAMPLE_META_FILE \
+            --feature_metadata $FEATURE_META_FILE \
+            --assay_files $ASSAY_FILE \
+            --contrasts_file $CONTRASTS_FILE \
+            --output_directory $(pwd)
+
+      - name: Run exploratory plots script
+        run: |
+          ./exec/exploratory_plots.R \
+            --sample_metadata $SAMPLE_META_FILE \
+            --feature_metadata $FEATURE_META_FILE \
+            --assay_files $ASSAY_FILE \
+            --contrast_variable $TREATMENT_VARIABLE \
+            --outdir $(pwd)
+      
+      - name: Run differential plots script
+        run: |
+          ./exec/differential_plots.R \
+            --differential_file $DIFFERENTIAL_FILE \
+            --feature_metadata $FEATURE_META_FILE \
+            --reference_level $REFERENCE_LEVEL \
+            --treatment_level $TREATMENT_LEVEL \
+            --outdir $(pwd)
+
+      - name: Run app-building script
+        run: |
+          ln -s $DIFFERENTIAL_FILE copied_${DIFFERENTIAL_FILE}
+          ./exec/make_app_from_files.R \
+            --sample_metadata $SAMPLE_META_FILE \
+            --feature_metadata $FEATURE_META_FILE \
+            --assay_files $ASSAY_FILE \
+            --contrast_file $CONTRASTS_FILE \
+            --contrast_stats_assay 1 \
+            --differential_results ${DIFFERENTIAL_FILE},copied_${DIFFERENTIAL_FILE} \
+            --output_dir $(pwd)
+
