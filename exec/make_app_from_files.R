@@ -218,14 +218,14 @@ if (opt$deploy_app) {
   print("Updating BioC packages as will be required for shinyapps.io deployment")
   
   library(BiocManager)
-  options(repos = BiocManager::repositories(version = '3.17'))
+  options(repos = BiocManager::repositories())
   ood <- data.frame(BiocManager::valid()$out_of_date)
   ood_packages <- ood[grep('bioconductor', ood$Repository), 'Package']
   
   dir.create('libs', showWarnings = FALSE) 
   .libPaths('libs')
   
-  BiocManager::install(ood_packages, version = "3.17", update = TRUE, ask = FALSE, lib = 'libs')
+  BiocManager::install(ood_packages, update = TRUE, ask = FALSE, lib = 'libs')
 }
 
 library(shinyngs)
