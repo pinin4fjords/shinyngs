@@ -789,7 +789,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  matrix_data <- as.matrix(matrix_data[, rownames(sample_metadata)])
+  matrix_data <- na.omit(as.matrix(matrix_data[, rownames(sample_metadata)]))
   
   # Guess the log status
 
