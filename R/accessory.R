@@ -930,10 +930,12 @@ read_contrasts <-
 
     success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
 
-    blocking <- unlist(lapply(contrasts$blocking, function(x) simpleSplit(x, ";")))
-    blocking <- blocking[!is.na(blocking)]
-    if (length(blocking > 0)) {
-      success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+    if (! blocking_col %in% names(contrasts)){
+        blocking <- unlist(lapply(contrasts[[blocking_col]], function(x) simpleSplit(x, ";")))
+        blocking <- blocking[!is.na(blocking)]
+        if (length(blocking > 0)) {
+          success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+        }
     }
 
     ## 'reference', 'target', and 'blocking' should be values of their variable
