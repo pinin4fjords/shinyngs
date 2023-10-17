@@ -914,8 +914,8 @@ read_contrasts <-
 
     contrasts <- read_metadata(filename)
     contrast_cols <- c(variable_column, reference_column, target_column)
-    if (! blocking_col %in% names(contrasts)){
-        contrasts[[blocking_col]] <- ''
+    if (! blocking_column %in% names(contrasts)){
+        contrasts[[blocking_column]] <- ''
     }
 
     # Check contrast headers are as expected
@@ -930,8 +930,8 @@ read_contrasts <-
 
     success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
 
-    if (! blocking_col %in% names(contrasts)){
-        blocking <- unlist(lapply(contrasts[[blocking_col]], function(x) simpleSplit(x, ";")))
+    if (! blocking_column %in% names(contrasts)){
+        blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
         blocking <- blocking[!is.na(blocking)]
         if (length(blocking > 0)) {
           success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
