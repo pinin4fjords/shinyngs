@@ -913,7 +913,7 @@ read_contrasts <-
     # Read the contrasts
 
     contrasts <- read_metadata(filename)
-    contrast_cols <- c(variable_column, reference_column, target_column, blocking_column)
+    contrast_cols <- c(variable_column, reference_column, target_column)
 
     # Check contrast headers are as expected
 
