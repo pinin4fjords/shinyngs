@@ -914,6 +914,9 @@ read_contrasts <-
 
     contrasts <- read_metadata(filename)
     contrast_cols <- c(variable_column, reference_column, target_column)
+    if (! blocking_col %in% names(contrasts)){
+        contrasts[[blocking_col]] <- ''
+    }
 
     # Check contrast headers are as expected
 
