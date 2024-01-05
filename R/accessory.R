@@ -1271,6 +1271,7 @@ validate_indices <- function(assay_data, index_string) {
     indices <- as.integer(simpleSplit(index_string))
   } else {
     indices <- simpleSplit(index_string)
+    indices <- lapply(indices, prettifyVariablename)
   }
   
   invalid_indices <- indices[!indices %in% c(1:length(assay_data), names(assay_data))]
