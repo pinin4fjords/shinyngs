@@ -253,7 +253,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
     if (value_type == "density") {
       plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s) {
-        dens <- density(cond_log2_transform_matrix(plotmatrices[[pm]][, s], rmzeros = TRUE, should_log = should_log))  
+        dens <- density(cond_log2_transform_matrix(plotmatrices[[pm]][, s], rmzeros = TRUE, should_log = should_log), n = 100)
         data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {
@@ -913,7 +913,10 @@ read_contrasts <-
     # Read the contrasts
 
     contrasts <- read_metadata(filename)
-    contrast_cols <- c(variable_column, reference_column, target_column, blocking_column)
+    contrast_cols <- c(variable_column, reference_column, target_column)
+    if (! blocking_column %in% names(contrasts)){
+        contrasts[[blocking_column]] <- NA
+    }
 
     # Check contrast headers are as expected
 
@@ -927,7 +930,9 @@ read_contrasts <-
 
     success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
 
-    blocking <- unlist(lapply(contrasts$blocking, function(x) simpleSplit(x, ";")))
+    # Check blocking variables, where supplied
+
+    blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
     blocking <- blocking[!is.na(blocking)]
     if (length(blocking > 0)) {
       success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")

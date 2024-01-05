@@ -328,7 +328,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
   }
 
   p <- ggplot(data = plotdata) +
-    geom_area(aes(x = value, y = density, fill = colorby, color = colorby), alpha = 0.4) +
+    geom_area(aes(x = value, y = density, fill = colorby, color = colorby, group = name), alpha = 0.4) +
     scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
     scale_color_manual(name = prettifyVariablename(colorby), values = palette) +
     ylab("Density") +

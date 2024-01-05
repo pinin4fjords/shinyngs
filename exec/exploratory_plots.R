@@ -157,6 +157,11 @@ assay_files <-
     prettify_names = TRUE
   )
 
+# Valid samples are those with values in the specified sample metadata field
+
+valid_samples <- Filter(function(x) !is.na(x) && x != '' && !is.null(x), sample_metadata[[opt$contrast_variable]])
+sample_metadata <- sample_metadata[sample_metadata[[opt$contrast_variable]] %in% valid_samples, ]
+
 # Expect that 'variance stabilised' expression profiles will already be logged
 
 assay_data <- lapply(assay_files, function(x) {
