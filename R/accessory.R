@@ -1255,6 +1255,7 @@ cond_log2_transform_matrix <- function(matrix_data, should_log = NULL, threshold
 #'
 #' @param assay_data A list containing matrices as assay data.
 #' @param index_string A string that can be a comma-separated list of integers or assay names.
+#' @param prettify_names Boolean. Prettify element names?
 #'
 #' @return A vector of valid indices (either as integers or assay names).
 #'
@@ -1265,12 +1266,15 @@ cond_log2_transform_matrix <- function(matrix_data, should_log = NULL, threshold
 #'
 #' @export
 
-validate_indices <- function(assay_data, index_string) {
+validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
   
   if (is_valid_positive_integer_vector(index_string)) {
     indices <- as.integer(simpleSplit(index_string))
   } else {
     indices <- simpleSplit(index_string)
+    if (prettify_names) {
+      indices <- unlist(lapply(indices, prettifyVariablename))
+    }
   }
   
   invalid_indices <- indices[!indices %in% c(1:length(assay_data), names(assay_data))]
