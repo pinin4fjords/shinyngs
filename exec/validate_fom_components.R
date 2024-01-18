@@ -116,7 +116,7 @@ validated_parts <- validate_inputs(
   sample_id_col = opt$sample_id_col,
   feature_id_col = opt$feature_id_col,
   differential_results = opt$differential_results,
-  pval_column = opt$feature_id_col,
+  pval_column = opt$pval_column,
   qval_column = opt$qval_column,
   fc_column = opt$fold_change_column,
   unlog_foldchanges = opt$unlog_foldchanges
