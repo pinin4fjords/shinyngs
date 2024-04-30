@@ -106,7 +106,14 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "Comma-separated list of assay_names to which to apply log2. Alternatively, comma-separated list of positive integers indicating which assays to log (1-based!). If not specified, the script will guess the log status based on the maximum value of the input data. If empty string, will not apply log2."
-  )
+  ),
+  make_option(
+    c("-k", "--log2_guessing_threshold"),
+    type = "integer",
+    metavar = "integer",
+    help = "Magnitude used to guess log status.",
+    default = 30
+  ),
 )
 
 opt_parser <- OptionParser(option_list = option_list)
@@ -154,7 +161,7 @@ assay_files <-
     elements_string = opt$assay_files,
     opt$assay_names,
     simplify_files = TRUE,
-    prettify_names = TRUE
+    prettify_names = FALSE
   )
 
 # Valid samples are those with values in the specified sample metadata field
@@ -180,7 +187,7 @@ assay_data <- lapply(assay_files, function(x) {
 if (is.null(opt$final_assay)){
   final_assay <- length(assay_data)
 }else{
-  final_assay <- prettifyVariablename(opt$final_assay)
+  final_assay <- opt$final_assay
   if (!final_assay %in% names(assay_data)) {
     if (!grepl("\\D", final_assay)) {
       final_assay <- names(assay_data)[as.numeric(final_assay)]
@@ -191,8 +198,12 @@ if (is.null(opt$final_assay)){
 }
 
 # Apply a log2 transform to assays where appropriate
-assay_data <- cond_log2_transform_assays(assay_data, opt$log2_assays)
+assay_data <- cond_log2_transform_assays(assay_data, log2_assays = opt$log2_assays, threshold = opt$log2_guessing_threshold)
 
+# Prettify assay names
+names(assay_data) <- prettifyVariablename(names(assay_data))
+final_assay <- prettifyVariablename(names(assay_data))
+                        
 # Create output paths
 
 print("Creating output paths...")
