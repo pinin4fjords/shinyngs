@@ -113,7 +113,7 @@ option_list <- list(
     metavar = "integer",
     help = "Magnitude used to guess log status.",
     default = 30
-  ),
+  )
 )
 
 opt_parser <- OptionParser(option_list = option_list)
