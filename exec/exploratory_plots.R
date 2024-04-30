@@ -164,6 +164,7 @@ assay_files <-
     prettify_names = FALSE
   )
 
+
 # Valid samples are those with values in the specified sample metadata field
 
 valid_samples <- Filter(function(x) !is.na(x) && x != '' && !is.null(x), sample_metadata[[opt$contrast_variable]])
@@ -185,7 +186,7 @@ assay_data <- lapply(assay_files, function(x) {
 # Check an indicated final assay is among what we have
 
 if (is.null(opt$final_assay)){
-  final_assay <- length(assay_data)
+  final_assay <- names(assay_data)[length(assay_data)]
 }else{
   final_assay <- opt$final_assay
   if (!final_assay %in% names(assay_data)) {
