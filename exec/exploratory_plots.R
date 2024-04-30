@@ -202,7 +202,7 @@ assay_data <- cond_log2_transform_assays(assay_data, log2_assays = opt$log2_assa
 
 # Prettify assay names
 names(assay_data) <- prettifyVariablename(names(assay_data))
-final_assay <- prettifyVariablename(names(assay_data))
+final_assay <- prettifyVariablename(final_assay)
                         
 # Create output paths
 
