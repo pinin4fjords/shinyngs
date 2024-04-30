@@ -272,7 +272,7 @@ dev.off()
 ################################################
 
 print("Writing PCA plots...")
-pca_data <- compilePCAData(assay_data[[final_assay]])
+pca_data <- compilePCAData(assay_data[[final_assay]], ntop = opt$n_genes)
 
 plotdata <- pca_data$coords
 plotdata$colorby <- factor(sample_metadata[[opt$contrast_variable]], levels = unique(sample_metadata[[opt$contrast_variable]]))
