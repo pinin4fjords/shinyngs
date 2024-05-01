@@ -279,9 +279,9 @@ runPCA <- function(matrix, do_log = TRUE) {
 compilePCAData <- function(matrix, ntop = NULL) {
 
   if (is.null(ntop)){
-    select <- selectVariableGenes(matrix = matrix, ntop = ntop)
-  }else{
     select <- 1:nrow(matrix)
+  }else{
+    select <- selectVariableGenes(matrix = matrix, ntop = ntop)
   }
 
   # perform a PCA on the data in assay(x) for the selected genes
