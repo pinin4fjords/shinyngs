@@ -1293,11 +1293,12 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
 #'                     If empty: no log2 transformation will be applied.
 #'                     If non-empty: log2 transformation will be applied unconditionally to specified assays.
 #' @param threshold A numeric threshold to determine if an assay should be log-transformed.
+#' @param prettify_names Boolean. Prettify element names? Passed to validate_indices().
 #'
 #' @return A modified assay_data list.
 #' @export
 
-cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 20) {
+cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 20, prettify_names = TRUE) {
 
   indices_to_log = c()
   should_log = FALSE
@@ -1308,7 +1309,7 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 20) 
     should_log <- NULL
   } else if (log2_assays != "") {
     # Determine which assays to log based on log2_assays
-    indices_to_log <- validate_indices(assay_data = assay_data, index_string = log2_assays)
+    indices_to_log <- validate_indices(assay_data = assay_data, index_string = log2_assays, prettify_names = prettify_names)
     should_log <- TRUE
   }
 
