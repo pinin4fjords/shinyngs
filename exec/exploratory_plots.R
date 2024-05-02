@@ -199,7 +199,7 @@ if (is.null(opt$final_assay)){
 }
 
 # Apply a log2 transform to assays where appropriate
-assay_data <- cond_log2_transform_assays(assay_data, log2_assays = opt$log2_assays, threshold = opt$log2_guessing_threshold)
+assay_data <- cond_log2_transform_assays(assay_data, log2_assays = opt$log2_assays, threshold = opt$log2_guessing_threshold, prettify_names = FALSE)
 
 # Prettify assay names
 names(assay_data) <- prettifyVariablename(names(assay_data))
