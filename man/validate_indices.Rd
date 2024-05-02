@@ -4,12 +4,14 @@
 \alias{validate_indices}
 \title{Validate assay indices based on a given string.}
 \usage{
-validate_indices(assay_data, index_string)
+validate_indices(assay_data, index_string, prettify_names = TRUE)
 }
 \arguments{
 \item{assay_data}{A list containing matrices as assay data.}
 
 \item{index_string}{A string that can be a comma-separated list of integers or assay names.}
+
+\item{prettify_names}{Boolean. Prettify element names?}
 }
 \value{
 A vector of valid indices (either as integers or assay names).
