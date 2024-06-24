@@ -618,7 +618,7 @@ eselistfromConfig <-
 
       # If specified, ensure data is unlogged before it's loaded
 
-      assay_data <- cond_log2_transform_assays(
+      assays <- cond_log2_transform_assays(
         assays,
         log2_assays = log2_assays,
         threshold = log2_threshold,
@@ -1275,7 +1275,7 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
 #'
 #' @export
 
-validate_indices <- function(assay_data, index_string, invert_assays, prettify_names = TRUE) {
+validate_indices <- function(assay_data, index_string, invert_assays = FALSE, prettify_names = TRUE) {
 
   indices_are_names <- TRUE
 
