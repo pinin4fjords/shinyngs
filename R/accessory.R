@@ -219,7 +219,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' @param value_type Type of data to assemble. By default this is just expression
 #'   values, but can be 'density' to calculate expression densities.
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL (default), a conditional transformation based on threshold is applied.
@@ -230,7 +230,7 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' @examples
 #' plotdata <- ggplotify(as.matrix(plotmatrix), experiment, colorby)
 #'
-ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "expression", annotate_samples = FALSE, should_log = NULL) {
+ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "expression", annotate_samples = FALSE, should_transform = NULL) {
   # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
 
   if (!is.null(colorby)) {
@@ -253,14 +253,14 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
     if (value_type == "density") {
       plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s) {
-        dens <- density(cond_log2_transform_matrix(plotmatrices[[pm]][, s], rmzeros = TRUE, should_log = should_log), n = 100)
+        dens <- density(cond_log2_transform_matrix(plotmatrices[[pm]][, s], rmzeros = TRUE, should_transform = should_transform), n = 100)
         data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {
       plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
       plotdata <- plotdata[which(plotdata$value > 0), ]
       colnames(plotdata) <- c("gene", "name", "value")
-      plotdata$value <- cond_log2_transform_matrix(plotdata$value, should_log = should_log)
+      plotdata$value <- cond_log2_transform_matrix(plotdata$value, should_transform = should_transform)
     }
 
     if (!is.null(colorby)) {
@@ -287,7 +287,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
 #' \code{linewidth} characters
 #'
 #' @param string A string with spaces
-#' @param linewidth The maximum line length in characters (default: 20)
+#' @param linewidth The maximum line length in characters (default: 30)
 #'
 #' @return A string with newline characters added where appropriate
 #'
@@ -558,14 +558,22 @@ eselistFromYAML <- function(configfile) {
 #' Build an ExploratorySummarisedExperimentList from a description provided in a list
 #'
 #' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
-#' @param guess_unlog_matrices Should we guess the log status of matrices and
-#'   unlog where things seem logged?
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
+#'                   If TRUE, log2 transformation is applied unconditionally.
+#'                   If FALSE, no transformation is applied.
+#'                   If NULL (default), a conditional transformation based on threshold is applied.
+#' @param log2_threshold A numeric threshold to determine if the matrix should be log-transformed.
+#'                  This is only checked if should_transform is NULL.
+#' @param log2_assays A string parameter that can be NULL, empty, or a non-empty string.
+#'                     If NULL: log2 transformation will be guessed based on input assays.
+#'                     If empty: no log2 transformation will be applied.
+#'                     If non-empty: log2 transformation will be applied unconditionally to specified assays.
 #'
 #' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
 #' @export
 
 eselistfromConfig <-
-  function(config, guess_unlog_matrices = FALSE) {
+  function(config, log2_assays, log2_threshold = 30) {
     # 'Experiments' are sets of results from a common set of samples
 
     experiments <- config$experiments
@@ -608,10 +616,19 @@ eselistfromConfig <-
           mat$file,
           sample_metadata = colData,
           feature_metadata = annotation,
-          row.names = 1,
-          guess_unlog = guess_unlog_matrices
+          row.names = 1
         )
       }))
+
+      # If specified, ensure data is unlogged before it's loaded
+
+      assay_data <- cond_log2_transform_assays(
+        assays,
+        log2_assays = log2_assays,
+        threshold = log2_threshold,
+        prettify_names = FALSE,
+        reverse = TRUE
+      )
 
       # Apply ordering if provided
 
@@ -744,13 +761,11 @@ eselistfromConfig <-
 #' @param feature_metadata Data fraome of feature metadata
 #' @param sep Sepaarator in matrix file
 #' @param row.names Matrix column number or name containing feature identifiers
-#' @param guess_unlog Should we guess the log status of matrices and unlog where
-#'   things seem logged?
 #'
 #' @return output Numeric matrix
 #' @export
 
-read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, sep = NULL, row.names = 1, guess_unlog = FALSE) {
+read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, sep = NULL, row.names = 1) {
   if (is.null(sep)) {
     sep <- getSeparator(matrix_file)
   }
@@ -789,16 +804,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  matrix_data <- na.omit(as.matrix(matrix_data[, rownames(sample_metadata)]))
-  
-  # Guess the log status
-
-  if (guess_unlog && max(matrix_data) <= 20){
-    2^matrix_data
-  }else{
-    matrix_data
-  }
-
+  na.omit(as.matrix(matrix_data[, rownames(sample_metadata)]))
 }
 
 #' Read a metadata file
@@ -1206,15 +1212,16 @@ is_valid_positive_integer_vector <- function(string) {
 #' Apply log2 transformation on a matrix.
 #'
 #' @param matrix_data A matrix containing data.
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
 #' @param threshold A numeric threshold to determine if the matrix should be log-transformed.
-#'                  This is only checked if should_log is NULL.
-#' @param rmzeros A boolean indicating whether to remove zeros from the matrix. 
+#'                  This is only checked if should_transform is NULL.
+#' @param rmzeros A boolean indicating whether to remove zeros from the matrix.
 #'                If TRUE, zeros are removed. Default is FALSE.
 #' @param small_value A small value to add to zero entries before log transformation.
+#' @param reverse Boolean, should we unlog rather than log?
 #'
 #' @return A modified matrix.
 #' @export
@@ -1222,29 +1229,33 @@ is_valid_positive_integer_vector <- function(string) {
 #' @examples
 #' # Create a sample matrix
 #' mat <- matrix(c(10, 0, 30, 0, 50, 60), ncol = 2)
-#' 
+#'
 #' # Use the function with different parameters
-#' transformed_mat1 <- cond_log2_transform_matrix(mat, should_log = TRUE)
-#' transformed_mat2 <- cond_log2_transform_matrix(mat, should_log = NULL, threshold = 40)
+#' transformed_mat1 <- cond_log2_transform_matrix(mat, should_transform = TRUE)
+#' transformed_mat2 <- cond_log2_transform_matrix(mat, should_transform = NULL, threshold = 40)
 #' transformed_mat3 <- cond_log2_transform_matrix(mat, rmzeros = TRUE)
 
-cond_log2_transform_matrix <- function(matrix_data, should_log = NULL, threshold = 20, rmzeros = FALSE, small_value = 1) {
-  
-  # Remove zeros if rmzeros is TRUE
-  if (rmzeros) {
-    matrix_data <- matrix_data[matrix_data > 0]
-  } else {
-    # If not removing zeros, add a small value to zeros to prevent -Inf during log transformation
-    matrix_data[matrix_data == 0] <- small_value
+cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, threshold = 30, rmzeros = FALSE, small_value = 1, reverse = FALSE) {
+
+  # Handle zeros in the matrix only if reverse is FALSE
+  if (!reverse) {
+    matrix_data[matrix_data == 0] <- if (rmzeros) NA else small_value
   }
-  
-  if (is.null(should_log)) {
-    if (max(matrix_data, na.rm = TRUE) > threshold) {
+
+  # Determine if transformation is needed
+  if (is.null(should_transform)) {
+    should_transform <- (max(matrix_data, na.rm = TRUE) > threshold) || (reverse && max(matrix_data, na.rm = TRUE) <= threshold)
+  }
+
+  # Apply transformation based on conditions
+  if (should_transform) {
+    if (reverse) {
+      return(2^(matrix_data))
+    } else {
       return(log2(matrix_data))
     }
-  } else if (should_log) {
-    return(log2(matrix_data))
   }
+
   return(matrix_data)
 }
 
@@ -1267,7 +1278,7 @@ cond_log2_transform_matrix <- function(matrix_data, should_log = NULL, threshold
 #' @export
 
 validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
-  
+
   if (is_valid_positive_integer_vector(index_string)) {
     indices <- as.integer(simpleSplit(index_string))
   } else {
@@ -1276,12 +1287,12 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
       indices <- unlist(lapply(indices, prettifyVariablename))
     }
   }
-  
+
   invalid_indices <- indices[!indices %in% c(1:length(assay_data), names(assay_data))]
   if (length(invalid_indices) > 0) {
     stop("Invalid assays: ", paste(invalid_indices, collapse=', '))
   }
-  
+
   return(indices)
 }
 
@@ -1292,30 +1303,32 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
 #'                     If NULL: log2 transformation will be guessed based on input assays.
 #'                     If empty: no log2 transformation will be applied.
 #'                     If non-empty: log2 transformation will be applied unconditionally to specified assays.
-#' @param threshold A numeric threshold to determine if an assay should be log-transformed.
+#' @param log2_threshold A numeric threshold to determine if the matrix should be log-transformed.
+#'                  This is only checked if should_transform is NULL.
+#' @param log2_reverse Boolean, should we unlog rather than log?
 #' @param prettify_names Boolean. Prettify element names? Passed to validate_indices().
 #'
 #' @return A modified assay_data list.
 #' @export
 
-cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 20, prettify_names = TRUE) {
+cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, prettify_names = TRUE) {
 
   indices_to_log = c()
-  should_log = FALSE
+  should_transform = FALSE
 
   # Check if log2_assays is null
   if (is.null(log2_assays)) {
     indices_to_log <- names(assay_data)
-    should_log <- NULL
+    should_transform <- NULL
   } else if (log2_assays != "") {
     # Determine which assays to log based on log2_assays
     indices_to_log <- validate_indices(assay_data = assay_data, index_string = log2_assays, prettify_names = prettify_names)
-    should_log <- TRUE
+    should_transform <- TRUE
   }
 
   # Apply log2 transformation to any specified assays
   for (index in indices_to_log) {
-    assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_log = should_log, threshold = threshold)
+    assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_transform = should_transform, threshold = log2_threshold, reverse = log2_reverse)
   }
 
   return(assay_data)
