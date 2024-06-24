@@ -623,7 +623,8 @@ eselistfromConfig <-
         log2_assays = log2_assays,
         threshold = log2_threshold,
         prettify_names = TRUE,
-        reverse = TRUE
+        reverse = TRUE,
+        invert_assays = TRUE
       )
 
       # Apply ordering if provided
@@ -1262,6 +1263,7 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
 #'
 #' @param assay_data A list containing matrices as assay data.
 #' @param index_string A string that can be a comma-separated list of integers or assay names.
+#' @param invert_assays Boolean, return the indices NOT specified.
 #' @param prettify_names Boolean. Prettify element names?
 #'
 #' @return A vector of valid indices (either as integers or assay names).
@@ -1273,9 +1275,12 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
 #'
 #' @export
 
-validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
+validate_indices <- function(assay_data, index_string, invert_assays, prettify_names = TRUE) {
+
+  indices_are_names <- TRUE
 
   if (is_valid_positive_integer_vector(index_string)) {
+    indices_are_names <- FALSE
     indices <- as.integer(simpleSplit(index_string))
   } else {
     indices <- simpleSplit(index_string)
@@ -1288,11 +1293,19 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
   invalid_indices <- indices[!indices %in% valid_indices]
   if (length(invalid_indices) > 0) {
     stop(
-      "Invalid assays: ", 
-      paste(invalid_indices, collapse=', '), 
-      ", valid indices are:", 
+      "Invalid assays: ",
+      paste(invalid_indices, collapse=', '),
+      ", valid indices are:",
       paste(valid_indices, collapse=', ')
     )
+  }
+
+  if (invert_assays) {
+    if (indices_are_names) {
+      indices <- names(assay_data)[!names(assay_data) %in% indices]
+    } else {
+      indices <- setdiff(1:length(assay_data), indices)
+    }
   }
 
   return(indices)
@@ -1308,28 +1321,30 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
 #' @param threshold A numeric threshold to determine if the matrix should be log-transformed.
 #'                  This is only checked if should_transform is NULL.
 #' @param reverse Boolean, should we unlog rather than log?
+#' @param invert_assays Boolean, apply transform to assays NOT specified in log2_assays.
 #' @param prettify_names Boolean. Prettify element names? Passed to validate_indices().
 #'
 #' @return A modified assay_data list.
 #' @export
 
-cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, reverse = FALSE, prettify_names = TRUE) {
+cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, reverse = FALSE, prettify_names = TRUE, invert_assays = FALSE) {
 
-  indices_to_log = c()
+  indices_to_transform = c()
   should_transform = FALSE
 
   # Check if log2_assays is null
   if (is.null(log2_assays)) {
-    indices_to_log <- names(assay_data)
+    indices_to_transform <- names(assay_data)
     should_transform <- NULL
   } else if (log2_assays != "") {
     # Determine which assays to log based on log2_assays
-    indices_to_log <- validate_indices(assay_data = assay_data, index_string = log2_assays, prettify_names = prettify_names)
+    indices_to_transform <- validate_indices(assay_data = assay_data, index_string = log2_assays, prettify_names = prettify_names, invert_assays = invert_assays)
+
     should_transform <- TRUE
   }
 
   # Apply log2 transformation to any specified assays
-  for (index in indices_to_log) {
+  for (index in indices_to_transform) {
     assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_transform = should_transform, threshold = threshold, reverse = reverse)
   }
 
