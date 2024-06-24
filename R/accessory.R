@@ -1299,15 +1299,15 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
 #'                     If NULL: log2 transformation will be guessed based on input assays.
 #'                     If empty: no log2 transformation will be applied.
 #'                     If non-empty: log2 transformation will be applied unconditionally to specified assays.
-#' @param log2_threshold A numeric threshold to determine if the matrix should be log-transformed.
+#' @param threshold A numeric threshold to determine if the matrix should be log-transformed.
 #'                  This is only checked if should_transform is NULL.
-#' @param log2_reverse Boolean, should we unlog rather than log?
+#' @param reverse Boolean, should we unlog rather than log?
 #' @param prettify_names Boolean. Prettify element names? Passed to validate_indices().
 #'
 #' @return A modified assay_data list.
 #' @export
 
-cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, prettify_names = TRUE) {
+cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, reverse = FALSE, prettify_names = TRUE) {
 
   indices_to_log = c()
   should_transform = FALSE
@@ -1324,7 +1324,7 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
 
   # Apply log2 transformation to any specified assays
   for (index in indices_to_log) {
-    assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_transform = should_transform, threshold = log2_threshold, reverse = log2_reverse)
+    assay_data[[index]] <- cond_log2_transform_matrix(matrix_data = assay_data[[index]], should_transform = should_transform, threshold = threshold, reverse = reverse)
   }
 
   return(assay_data)
