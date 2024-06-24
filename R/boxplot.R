@@ -178,7 +178,7 @@ boxplot <- function(input, output, session, eselist) {
 #' @param base_size Passed to ggplot's \code{theme()}
 #' @param palette_name Valid R color palette name
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
@@ -195,8 +195,8 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = 'Set1', annotate_samples = FALSE, should_log = NULL) {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_log = should_log)
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_transform = should_transform)
 
   if (!is.null(colorby)) {
     ncats <- length(unique(experiment[[colorby]]))
@@ -241,7 +241,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' @param expressiontype Expression type for use in y axis label
 #' @param palette_name Valid R color palette name
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
@@ -252,8 +252,8 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE, should_log = NULL) {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples = annotate_samples, should_log = should_log)
+plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples = annotate_samples, should_transform = should_transform)
 
   ncats <- length(unique(plotdata$colorby))
   if (is.null(palette)) {
@@ -311,7 +311,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #' @param base_size Passed to ggplot's \code{theme()}
 #' @param palette_name Valid R color palette name
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
@@ -320,8 +320,8 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1', annotate_samples = FALSE, should_log = NULL) {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_log = should_log)
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))
     palette <- makeColorScale(ncats, palette = palette_name)
@@ -360,7 +360,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' @param expressiontype Expression type for use in y axis label
 #' @param palette_name Valid R color palette name
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
@@ -370,8 +370,8 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'
 #' @return output A \code{plotly} output
 
-plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE, should_log = NULL) {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_log = should_log)
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+  plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))
     palette <- makeColorScale(ncats, palette = palette_name)
@@ -431,7 +431,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' @param expressiontype Y axis label
 #' @param whisker_distance IQR multiplier for whiskers, and beyond which to
 #' show outliers (see \code{coef} in \code{\link[ggplot2]{geom_boxplot}})
-#' @param should_log A boolean indicating if the log2 transformation should be applied.
+#' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
@@ -441,8 +441,8 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' data(airway, package = "airway")
 #' plotly_quartiles(assays(airway)[[1]], as(airway, "ExploratorySummarizedExperiment"))
 #'
-plotly_quartiles <- function(matrix, labels = rownames(matrix), expressiontype = "expression", whisker_distance = 1.5, should_log = NULL) {
-  matrix <- cond_log2_transform_matrix(matrix, should_log = should_log)
+plotly_quartiles <- function(matrix, labels = rownames(matrix), expressiontype = "expression", whisker_distance = 1.5, should_transform = NULL) {
+  matrix <- cond_log2_transform_matrix(matrix, should_transform = should_transform)
 
   quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)
   samples <- structure(colnames(matrix), names = colnames(matrix))

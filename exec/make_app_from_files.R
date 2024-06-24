@@ -121,12 +121,6 @@ option_list <- list(
     help = "Set this option if fold changes should be unlogged."
   ),
   make_option(
-    "--guess_unlog_matrices",
-    action = "store_true",
-    default = FALSE,
-    help = "Should we guess the log status of matrices and unlog where things seem logged?"
-  ),
-  make_option(
     c("-p", "--pval_column"),
     type = "character",
     default = "padj",
@@ -161,6 +155,19 @@ option_list <- list(
     type = "character",
     default = NULL,
     help = "App name for shinyapp deploment."
+  ),
+  make_option(
+    c("--log2_assays"),
+    type = "character",
+    default = NULL,
+    help = "Comma-separated list of assay_names to which to apply log2. Alternatively, comma-separated list of positive integers indicating which assays to log (1-based!). If not specified, the script will guess the log status based on the maximum value of the input data. If empty string, will not apply log2."
+  ),
+  make_option(
+    c("--log2_guessing_threshold"),
+    type = "integer",
+    metavar = "integer",
+    help = "Magnitude used to guess log status.",
+    default = 30
   )
 )
 
@@ -317,7 +324,11 @@ if (!is.null(opt$description)) {
   shiny_config[['report']] <- opt$report_markdown_file
 }
 
-myesel <- eselistfromConfig(shiny_config, guess_unlog_matrices = opt$guess_unlog_matrices)
+myesel <- eselistfromConfig(
+  shiny_config,
+  log2_assays = opt$log2_assays,
+  log2_threshold = opt$log2_guessing_threshold
+)
 
 # Write output
 

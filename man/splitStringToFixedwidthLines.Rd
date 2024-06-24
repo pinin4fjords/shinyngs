@@ -10,7 +10,7 @@ splitStringToFixedwidthLines(string, linewidth = 20)
 \arguments{
 \item{string}{A string with spaces}
 
-\item{linewidth}{The maximum line length in characters (default: 20)}
+\item{linewidth}{The maximum line length in characters (default: 30)}
 }
 \value{
 A string with newline characters added where appropriate

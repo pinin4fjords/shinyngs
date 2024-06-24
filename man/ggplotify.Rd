@@ -10,7 +10,7 @@ ggplotify(
   colorby = NULL,
   value_type = "expression",
   annotate_samples = FALSE,
-  should_log = NULL
+  should_transform = NULL
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ values, but can be 'density' to calculate expression densities.}
 
 \item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 
-\item{should_log}{A boolean indicating if the log2 transformation should be applied.
+\item{should_transform}{A boolean indicating if the log2 transformation should be applied.
 If TRUE, log2 transformation is applied unconditionally.
 If FALSE, no transformation is applied.
 If NULL (default), a conditional transformation based on threshold is applied.}

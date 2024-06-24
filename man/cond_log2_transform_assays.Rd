@@ -7,7 +7,8 @@
 cond_log2_transform_assays(
   assay_data,
   log2_assays,
-  threshold = 20,
+  threshold = 30,
+  reverse = FALSE,
   prettify_names = TRUE
 )
 }
@@ -19,7 +20,10 @@ If NULL: log2 transformation will be guessed based on input assays.
 If empty: no log2 transformation will be applied.
 If non-empty: log2 transformation will be applied unconditionally to specified assays.}
 
-\item{threshold}{A numeric threshold to determine if an assay should be log-transformed.}
+\item{threshold}{A numeric threshold to determine if the matrix should be log-transformed.
+This is only checked if should_transform is NULL.}
+
+\item{reverse}{Boolean, should we unlog rather than log?}
 
 \item{prettify_names}{Boolean. Prettify element names? Passed to validate_indices().}
 }
