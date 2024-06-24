@@ -2,7 +2,6 @@
 % Please edit documentation in R/shinyngs.R
 \docType{package}
 \name{shinyngs}
-\alias{shinyngs-package}
 \alias{shinyngs}
 \title{Interactive downstream analysis with ShinyNGS.}
 \description{
@@ -213,7 +212,3 @@ button} \item{summarizematrix}{Module which takes a matrix and a factor which
 groups columns, and summarises by a supplied method, mean by default} }}
 }
 
-\author{
-\strong{Maintainer}: Jonathan Manning \email{jonathan.manning@healx.io}
-
-}
