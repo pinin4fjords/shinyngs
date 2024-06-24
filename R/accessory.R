@@ -558,10 +558,6 @@ eselistFromYAML <- function(configfile) {
 #' Build an ExploratorySummarisedExperimentList from a description provided in a list
 #'
 #' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
-#' @param should_transform A boolean indicating if the log2 transformation should be applied.
-#'                   If TRUE, log2 transformation is applied unconditionally.
-#'                   If FALSE, no transformation is applied.
-#'                   If NULL (default), a conditional transformation based on threshold is applied.
 #' @param log2_threshold A numeric threshold to determine if the matrix should be log-transformed.
 #'                  This is only checked if should_transform is NULL.
 #' @param log2_assays A string parameter that can be NULL, empty, or a non-empty string.

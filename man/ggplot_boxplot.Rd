@@ -14,7 +14,7 @@ ggplot_boxplot(
   base_size = 11,
   palette_name = "Set1",
   annotate_samples = FALSE,
-  should_log = NULL
+  should_transform = NULL
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ that function for more info (default: 1.5).}
 
 \item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 
-\item{should_log}{A boolean indicating if the log2 transformation should be applied.
+\item{should_transform}{A boolean indicating if the log2 transformation should be applied.
 If TRUE, log2 transformation is applied unconditionally.
 If FALSE, no transformation is applied.
 If NULL, a conditional transformation based on threshold is applied.}

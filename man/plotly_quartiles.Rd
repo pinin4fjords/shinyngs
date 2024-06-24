@@ -9,7 +9,7 @@ plotly_quartiles(
   labels = rownames(matrix),
   expressiontype = "expression",
   whisker_distance = 1.5,
-  should_log = NULL
+  should_transform = NULL
 )
 }
 \arguments{
@@ -22,7 +22,7 @@ plotly_quartiles(
 \item{whisker_distance}{IQR multiplier for whiskers, and beyond which to
 show outliers (see \code{coef} in \code{\link[ggplot2]{geom_boxplot}})}
 
-\item{should_log}{A boolean indicating if the log2 transformation should be applied.
+\item{should_transform}{A boolean indicating if the log2 transformation should be applied.
 If TRUE, log2 transformation is applied unconditionally.
 If FALSE, no transformation is applied.
 If NULL, a conditional transformation based on threshold is applied.}

@@ -24,7 +24,7 @@ If NULL, a conditional transformation based on threshold is applied.}
 \item{threshold}{A numeric threshold to determine if the matrix should be log-transformed.
 This is only checked if should_transform is NULL.}
 
-\item{rmzeros}{A boolean indicating whether to remove zeros from the matrix. 
+\item{rmzeros}{A boolean indicating whether to remove zeros from the matrix.
 If TRUE, zeros are removed. Default is FALSE.}
 
 \item{small_value}{A small value to add to zero entries before log transformation.}

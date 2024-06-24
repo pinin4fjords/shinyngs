@@ -16,11 +16,6 @@ If non-empty: log2 transformation will be applied unconditionally to specified a
 
 \item{log2_threshold}{A numeric threshold to determine if the matrix should be log-transformed.
 This is only checked if should_transform is NULL.}
-
-\item{should_transform}{A boolean indicating if the log2 transformation should be applied.
-If TRUE, log2 transformation is applied unconditionally.
-If FALSE, no transformation is applied.
-If NULL (default), a conditional transformation based on threshold is applied.}
 }
 \value{
 out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
