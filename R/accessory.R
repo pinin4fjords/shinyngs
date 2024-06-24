@@ -622,7 +622,7 @@ eselistfromConfig <-
         assays,
         log2_assays = log2_assays,
         threshold = log2_threshold,
-        prettify_names = FALSE,
+        prettify_names = TRUE,
         reverse = TRUE
       )
 
