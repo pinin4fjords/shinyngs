@@ -1234,11 +1234,6 @@ is_valid_positive_integer_vector <- function(string) {
 
 cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, threshold = 30, rmzeros = FALSE, small_value = 1, reverse = FALSE) {
 
-  # Handle zeros in the matrix only if reverse is FALSE
-  if (!reverse) {
-    matrix_data[matrix_data == 0] <- if (rmzeros) NA else small_value
-  }
-
   # Determine if transformation is needed
   if (is.null(should_transform)) {
     should_transform <- (max(matrix_data, na.rm = TRUE) > threshold) || (reverse && max(matrix_data, na.rm = TRUE) <= threshold)
@@ -1249,6 +1244,10 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
     if (reverse) {
       return(2^(matrix_data))
     } else {
+
+      # Handle zeros before any log transform - either removing them or applying a small minimum
+      matrix_data[matrix_data == 0] <- if (rmzeros) NA else small_value
+
       return(log2(matrix_data))
     }
   }
