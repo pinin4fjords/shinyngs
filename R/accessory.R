@@ -1284,9 +1284,15 @@ validate_indices <- function(assay_data, index_string, prettify_names = TRUE) {
     }
   }
 
-  invalid_indices <- indices[!indices %in% c(1:length(assay_data), names(assay_data))]
+  valid_indices <- c(1:length(assay_data), names(assay_data))
+  invalid_indices <- indices[!indices %in% valid_indices]
   if (length(invalid_indices) > 0) {
-    stop("Invalid assays: ", paste(invalid_indices, collapse=', '))
+    stop(
+      "Invalid assays: ", 
+      paste(invalid_indices, collapse=', '), 
+      ", valid indices are:", 
+      paste(valid_indices, collapse=', ')
+    )
   }
 
   return(indices)
