@@ -1,0 +1,45 @@
+name: Build WebAssembly R Package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [published]
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build WebAssembly R package
+        uses: r-wasm/actions/build-rwasm@v1
+        with:
+          packages: 'shinyngs'
+          strip: "demo, doc, examples, help, html, include, tests, vignette"
+          image-path: 'wasm-lib'
+          repo-path: '_repo'
+          compress: true
+
+      - name: Upload WASM library
+        uses: actions/upload-artifact@v3
+        with:
+          name: shinyngs-wasm-lib
+          path: wasm-lib
+
+      - name: Upload WASM repository
+        uses: actions/upload-artifact@v3
+        with:
+          name: shinyngs-wasm-repo
+          path: _repo
+
+      # Optional: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _repo
+          keep_files: false
