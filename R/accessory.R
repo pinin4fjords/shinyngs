@@ -916,7 +916,7 @@ read_contrasts <-
 
   # Read the contrasts depending on the file format (CSV or YAML)
   if (grepl("\\.csv$", filename)) {
-    contrasts <- read_metadata_yaml(filename)
+    contrasts <- read_metadata(filename)
     contrast_cols <- c(variable_column, reference_column, target_column)
     if (!blocking_column %in% names(contrasts)) {
       contrasts[[blocking_column]] <- NA
@@ -950,13 +950,13 @@ read_contrasts <-
   }
 
   # Check contrast content is appropriate to sample sheet
-  success <- checkListIsSubset_yaml(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
+  success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
 
   # Check blocking variables, where supplied
   blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
   blocking <- blocking[!is.na(blocking)]
   if (length(blocking) > 0) {
-    success <- checkListIsSubset_yaml(blocking, colnames(samples), "blocking variables", "sample metadata")
+    success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
   }
 
   # Ensure reference, target, and blocking values are valid for their variable
@@ -967,7 +967,7 @@ read_contrasts <-
       if (is.na(val) || val == "") {
         stop(paste("Missing value for", col, "in sample sheet"))
       } else {
-        success <- checkListIsSubset_yaml(val, samples[[var]], "contrast levels", "sample metadata variable")
+        success <- checkListIsSubset(val, samples[[var]], "contrast levels", "sample metadata variable")
       }
     }
   }
