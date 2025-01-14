@@ -929,17 +929,22 @@ read_contrasts <-
 
   } else if (grepl("\\.ya?ml$", filename)) {
     contrasts_yaml <- yaml::read_yaml(filename)
+    
+    if (is.null(contrasts_yaml$contrasts)) {
+      stop("YAML file must contain a 'contrasts' section.")
+    }
 
-    # Extract contrasts and structure into a data frame
-    contrasts_list <- contrasts_yaml$contrasts
-    contrasts <- data.frame(
-      id = sapply(contrasts_list, function(x) x$id),
-      variable = sapply(contrasts_list, function(x) x$comparison[1]),
-      reference = sapply(contrasts_list, function(x) x$comparison[2]),
-      target = sapply(contrasts_list, function(x) x$comparison[3]),
-      blocking = sapply(contrasts_list, function(x) ifelse(!is.null(x$blocking_factors), paste(x$blocking_factors, collapse = ";"), NA)),
-      stringsAsFactors = FALSE
-    )
+    # Parse YAML contrasts into a data frame
+    contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
+      data.frame(
+        id = x$id,
+        variable = x$comparison[1],
+        reference = x$comparison[2],
+        target = x$comparison[3],
+        blocking = ifelse(is.null(x$blocking_factors), NA, paste(x$blocking_factors, collapse = ";")),
+        stringsAsFactors = FALSE
+      )
+    }))
 
     # Check for missing fields
     if (any(is.na(contrasts$variable) | is.na(contrasts$reference) | is.na(contrasts$target))) {
