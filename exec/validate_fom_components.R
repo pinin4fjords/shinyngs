@@ -3,6 +3,7 @@
 # Call shinyngs parsing functions to validate simple matrix inputs
 
 library(optparse)
+library(yaml)
 
 option_list <- list(
   make_option(

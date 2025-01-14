@@ -905,70 +905,92 @@ checkListIsSubset <- function(test_list,
 #' @return output Validated contrasts data frame
 #' @export
 
-read_contrasts <-
+read_contrasts <- 
   function(filename,
-           samples,
-           variable_column = "variable",
-           reference_column = "reference",
-           target_column = "target",
-           blocking_column = "blocking",
-           convert_to_list = FALSE) {
-    # Read the contrasts
+          samples,
+          variable_column = "variable",
+          reference_column = "reference",
+          target_column = "target",
+          blocking_column = "blocking",
+          convert_to_list = FALSE) {
 
+  # Read the contrasts depending on the file format (CSV or YAML)
+  if (grepl("\\.csv$", filename)) {
     contrasts <- read_metadata(filename)
     contrast_cols <- c(variable_column, reference_column, target_column)
-    if (! blocking_column %in% names(contrasts)){
-        contrasts[[blocking_column]] <- NA
+    if (!blocking_column %in% names(contrasts)) {
+      contrasts[[blocking_column]] <- NA
     }
 
     # Check contrast headers are as expected
-
     if (!all(contrast_cols %in% colnames(contrasts))) {
       stop(paste("Contrasts file must contain all of", paste(contrast_cols, collapse = ", ")))
     }
 
-    # Check contrast content is appropriate to sample sheet
-
-    ## 'variable' values should be sample sheet columns
-
-    success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
-
-    # Check blocking variables, where supplied
-
-    blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
-    blocking <- blocking[!is.na(blocking)]
-    if (length(blocking > 0)) {
-      success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+  } else if (grepl("\\.ya?ml$", filename)) {
+    contrasts_yaml <- yaml::read_yaml(filename)
+    
+    if (is.null(contrasts_yaml$contrasts)) {
+      stop("YAML file must contain a 'contrasts' section.")
     }
 
-    ## 'reference', 'target', and 'blocking' should be values of their variable
-    ## columns
+    # Parse YAML contrasts into a data frame
+    contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
+      data.frame(
+        id = x$id,
+        variable = x$comparison[1],
+        reference = x$comparison[2],
+        target = x$comparison[3],
+        blocking = ifelse(is.null(x$blocking_factors), NA, paste(x$blocking_factors, collapse = ";")),
+        stringsAsFactors = FALSE
+      )
+    }))
 
-    for (i in 1:nrow(contrasts)) {
-      var <- contrasts[i, variable_column]
-      for (col in c(reference_column, target_column)) {
-        val <- contrasts[i, col]
-        if (is.na(val) || val == "") {
-          stop(paste("Missing value for", col, "in sample sheet"))
-        } else {
-          success <- checkListIsSubset(val, samples[[var]], "contrast levels", "sample metadata variable")
-        }
+    # Check for missing fields
+    if (any(is.na(contrasts$variable) | is.na(contrasts$reference) | is.na(contrasts$target))) {
+      stop("Contrasts file has missing values in key columns (variable, reference, target).")
+    }
+  } else {
+    stop("Invalid file format. Please provide a CSV or YAML file.")
+  }
+
+  # Check contrast content is appropriate to sample sheet
+  success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
+
+  # Check blocking variables, where supplied
+  blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
+  blocking <- blocking[!is.na(blocking)]
+  if (length(blocking) > 0) {
+    success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+  }
+
+  # Ensure reference, target, and blocking values are valid for their variable
+  for (i in 1:nrow(contrasts)) {
+    var <- contrasts[i, variable_column]
+    for (col in c(reference_column, target_column)) {
+      val <- contrasts[i, col]
+      if (is.na(val) || val == "") {
+        stop(paste("Missing value for", col, "in sample sheet"))
+      } else {
+        success <- checkListIsSubset(val, samples[[var]], "contrast levels", "sample metadata variable")
       }
     }
+  }
 
-    if (convert_to_list) {
-      contrasts <- apply(contrasts, 1, function(x) {
-        conlist <- split(unname(x),names(x))[names(x)]
-        rename <- c('variable' = 'Variable', 'reference' = 'Group.1', 'target' = 'Group.2')
-        rename_ind <- match(names(rename), names(conlist))
-        names(conlist)[rename_ind] <- rename
-        nonempty <- unlist(lapply(conlist, function(y) ! (is.na(y) || is.null(y) || grepl("^\\s*$", y))))
-        conlist[nonempty]
-      })
-    }
+  # Convert contrasts to a list if requested
+  if (convert_to_list) {
+    contrasts <- apply(contrasts, 1, function(x) {
+      conlist <- split(unname(x), names(x))[names(x)]
+      rename <- c('variable' = 'Variable', 'reference' = 'Group.1', 'target' = 'Group.2')
+      rename_ind <- match(names(rename), names(conlist))
+      names(conlist)[rename_ind] <- rename
+      nonempty <- unlist(lapply(conlist, function(y) !(is.na(y) || is.null(y) || grepl("^\\s*$", y))))
+      conlist[nonempty]
+    })
+  }
 
     contrasts
-  }
+}
 
 #' Read tables of differential statistics
 #'
