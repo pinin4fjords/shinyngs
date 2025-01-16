@@ -52,6 +52,7 @@ Suggests:
 Remotes:
     cran/d3heatmap,
     pinin4fjords/zhangneurons
+biocViews: Software
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
