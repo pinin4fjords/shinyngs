@@ -1147,10 +1147,6 @@ compile_contrast_data <-
     contrast_stats_rearranged
   }
 
-
-
-
-
 #' Call the various read/ validate methods for input data surrounding an experiment
 #'
 #' @param samples_metadata Sample metadata data frame
