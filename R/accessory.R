@@ -1004,7 +1004,6 @@ read_contrasts <-
       warning(paste("Column", col, "is numeric and may be treated as continuous."))
     }
   }
-  cat("Continuous covariate warnings (if any) issued.\n")
   
   # Check that values in design matrix columns do not contain disallowed special characters.
   for (col in design_cols) {
