@@ -986,7 +986,6 @@ read_contrasts <-
   # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
   design_cols <- unique(c(contrasts[[variable_column]], blocking))
   design_matrix <- samples[, design_cols, drop = FALSE]
-  cat("Constructed design matrix with columns:", paste(colnames(design_matrix), collapse = ", "), "\n")
   
   # Ensure there are no NA values in the design matrix.
   if (any(is.na(design_matrix))) {
