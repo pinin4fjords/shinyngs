@@ -998,7 +998,6 @@ read_contrasts <-
   if (qr(mm)$rank < ncol(mm)) {
     stop("Design matrix is not full rank.")
   }
-  cat("Check passed: Design matrix is full rank.\n")
   
   # Warn about continuous covariates in the design matrix columns.
   for (col in design_cols) {
