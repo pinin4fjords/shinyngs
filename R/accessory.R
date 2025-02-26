@@ -895,7 +895,7 @@ checkListIsSubset <- function(test_list,
 #' 3. If blocking factors are supplied, checks that they are present in the sample metadata.
 #' 4. Design matrix is full rank.
 #' 5. Warn about continuous covariates (e.g. numeric patient IDs treated as continuous).
-#' 6. Values of specified columns don't contain special characters that the pipeline can't handle.
+#' 6. Values of specified columns don't contain special characters.
 #' 7. Verify that the specified reference and target values exist in the corresponding sample metadata column.  
 #' 8. Issue a warning if the reference and target levels are identical.
 #' 
