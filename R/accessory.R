@@ -1236,6 +1236,7 @@ validate_inputs <- function(samples_metadata,
     mat
   })
 
+  # Read contrasts and check against sample info
   if (!is.null(contrasts_file)) {
     print("Reading contrast definitions and validating against sample sheet")
     validated_parts[[contrasts_file]] <- read_contrasts(contrasts_file, samples)
