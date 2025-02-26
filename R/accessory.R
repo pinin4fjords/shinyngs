@@ -889,6 +889,16 @@ checkListIsSubset <- function(test_list,
 
 #' Read and validate a contrasts file against sample metadata
 #'
+#' Checks: 
+#' 1. No duplicate contrast IDs. Ensure that the required columns (variable, reference, target) are present.  
+#' 2. Values in the contrast variable column exist as column names in the sample metadata.
+#' 3. If blocking factors are supplied, checks that they are present in the sample metadata.
+#' 4. Design matrix is full rank.
+#' 5. Warn about continuous covariates (e.g. numeric patient IDs treated as continuous).
+#' 6. Values of specified columns don't contain special characters that the pipeline can't handle.
+#' 7. Verify that the specified reference and target values exist in the corresponding sample metadata column.  
+#' 8. Issue a warning if the reference and target levels are identical.
+#' 
 #' @param filename Contrasts file
 #' @param samples Data frame of sample information
 #' @param variable_column Column in contrasts file referencing sample sheet
@@ -972,6 +982,45 @@ read_contrasts <-
   if (length(blocking) > 0) {
     success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
   }
+
+  # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
+  design_cols <- unique(c(contrasts[[variable_column]], blocking))
+  design_matrix <- samples[, design_cols, drop = FALSE]
+  cat("Constructed design matrix with columns:", paste(colnames(design_matrix), collapse = ", "), "\n")
+  
+  # Ensure there are no NA values in the design matrix.
+  if (any(is.na(design_matrix))) {
+    stop("NA values found in one or more design matrix columns.")
+  }
+  cat("No NA values found in design matrix.\n")
+  
+  # Check that the design matrix is full rank.
+  mm <- model.matrix(~ . - 1, data = design_matrix)
+  cat("Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n")
+  if (qr(mm)$rank < ncol(mm)) {
+    stop("Design matrix is not full rank.")
+  }
+  cat("Check passed: Design matrix is full rank.\n")
+  
+  # Warn about continuous covariates in the design matrix columns.
+  for (col in design_cols) {
+    if (is.numeric(samples[[col]])) {
+      warning(paste("Column", col, "is numeric and may be treated as continuous."))
+    }
+  }
+  cat("Continuous covariate warnings (if any) issued.\n")
+  
+  # Check that values in design matrix columns do not contain disallowed special characters.
+  for (col in design_cols) {
+    vals <- as.character(samples[[col]])
+    for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
+      if (any(grepl(sc, vals))) {
+        warning(paste("Column", col, "contains special character", sc, 
+                      "which may cause issues downstream."))
+      }
+    }
+  }
+  cat("Special character check complete.\n")
 
   # Ensure reference, target, and blocking values are valid for their variable
   for (i in 1:nrow(contrasts)) {
@@ -1104,117 +1153,6 @@ compile_contrast_data <-
     contrast_stats_rearranged
   }
 
-#' Validate design matrix and contrast specifications.
-#'
-#' This function performs several checks on the design matrix constructed
-#' from sample metadata.
-#'
-#' Checks:
-#' 1. Columns from design matrix are present in sample metadata.
-#' 2. Design matrix is full rank.
-#' 3. Contrasts are valid (i.e. specified coefficients occur as columns in the design matrix).
-#' 4. No NAs in any of the columns used in the design.
-#' 5. Warn about continuous covariates (e.g. numeric patient IDs treated as continuous).
-#' 6. Values of specified columns don't contain special characters that the pipeline can't handle.
-#'
-#' @param sample_metadata Data frame of sample metadata.
-#' @param design_cols Character vector of column names to be used for the design matrix.
-#' @param contrasts Optional list of contrasts. Each contrast should be a list with at least an 'id' and a 'comparison' field (a character vector).
-#' @param continuous_warning Optional character vector of column names that should be categorical.
-#' @param special_chars Character vector of special characters to check for (default: c("/", "\\\\")). Note: "\\" is escaped.
-#'
-#' @return TRUE if all checks pass. Stops with an error if a check fails.
-#' @export
-validate_design_matrix <- function(sample_metadata,
-                                     design_cols,
-                                     contrasts = NULL,
-                                     continuous_warning = NULL,
-                                     special_chars = c("/", "\\\\")) {
-  cat("Starting design matrix validation\n")
-  
-  # Verify that design_cols are present in sample metadata.
-  missing_cols <- setdiff(design_cols, colnames(sample_metadata))
-  if (length(missing_cols) > 0) {
-    stop(paste("The following design matrix columns are missing in sample metadata:",
-               paste(missing_cols, collapse = ", ")))
-  }
-  cat("All design columns are present.\n")
-  
-  # Construct design matrix from sample_metadata.
-  design_matrix <- sample_metadata[, design_cols, drop = FALSE]
-  cat("Constructed design matrix with columns:", paste(colnames(design_matrix), collapse = ", "), "\n")
-  
-  # Ensure there are no NA values in the design matrix.
-  if (any(is.na(design_matrix))) {
-    stop("NA values found in one or more design matrix columns.")
-  }
-  cat("No NA values found in design matrix.\n")
-  
-  # Check that the design matrix is full rank.
-  # Use model.matrix to convert factors to dummy variables.
-  mm <- model.matrix(~ . - 1, data = design_matrix)
-  cat("Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n")
-  if (qr(mm)$rank < ncol(mm)) {
-    stop("Design matrix is not full rank.")
-  }
-  cat("Check passed: Design matrix is full rank.\n")
-  
-  # Validate contrasts, if provided.
-  if (!is.null(contrasts)) {
-    cat("Starting contrast validation...\n")
-    # Ensure contrasts is a data frame.
-    contrasts_df <- as.data.frame(contrasts)
-    for (i in seq_len(nrow(contrasts_df))) {
-      contrast <- contrasts_df[i, ]
-      cat("Validating contrast with id:", contrast$id, "\n")
-      # Verify that the contrast variable is in design_cols.
-      if (!(contrast$variable %in% design_cols)) {
-        stop(paste("Contrast", contrast$id, "has variable", contrast$variable, 
-                   "which is not in the design matrix columns."))
-      }
-      # Check that the reference and target are present in the sample metadata for that variable.
-      var <- contrast$variable
-      sample_vals <- as.character(sample_metadata[[var]])
-      if (!(contrast$reference %in% sample_vals)) {
-        stop(paste("Contrast", contrast$id, "has reference", contrast$reference, 
-                   "not found in sample metadata for variable", var))
-      }
-      if (!(contrast$target %in% sample_vals)) {
-        stop(paste("Contrast", contrast$id, "has target", contrast$target, 
-                   "not found in sample metadata for variable", var))
-      }
-      if (contrast$reference == contrast$target) {
-        warning(paste("Contrast", contrast$id, "has identical reference and target levels."))
-      }
-    }
-    cat("Check passed: All contrasts are valid.\n")
-  }
-  
-  # Warn about continuous covariates in specified columns.
-  if (!is.null(continuous_warning)) {
-    for (col in continuous_warning) {
-      if (col %in% design_cols && is.numeric(sample_metadata[[col]])) {
-        warning(paste("Column", col, "is numeric and may be treated as continuous."))
-      }
-    }
-    cat("Continuous covariate warnings (if any) issued.\n")
-  }
-  
-  # Check that values in design matrix columns do not contain disallowed special characters.
-  for (col in design_cols) {
-    vals <- as.character(sample_metadata[[col]])
-    for (sc in special_chars) {
-      if (any(grepl(sc, vals))) {
-        warning(paste("Column", col, "contains special character", sc, 
-                      "which may cause issues downstream."))
-      }
-    }
-  }
-  cat("Special character check complete.\n")
-  
-  cat("Design matrix validation completed successfully.\n")
-  return(TRUE)
-}
 
 
 
@@ -1308,40 +1246,10 @@ validate_inputs <- function(samples_metadata,
     mat
   })
 
-  # Read contrasts and check against sample info
-
   if (!is.null(contrasts_file)) {
     print("Reading contrast definitions and validating against sample sheet")
     validated_parts[[contrasts_file]] <- read_contrasts(contrasts_file, samples)
     print("... contrasts good")
-  }
-
-  # Read contrasts and check against sample info, including design matrix validations:
-  if (!is.null(contrasts_file)) {
-    print("Reading contrast definitions and validating against sample sheet")
-    contrasts_df <- read_contrasts(contrasts_file, samples)
-    
-    # Extract design matrix columns from contrasts:
-    # Columns from design matrix are present in sample metadata.
-    # Use the 'variable' column and any blocking factors.
-    design_cols <- unique(contrasts_df$variable)
-    if ("blocking" %in% colnames(contrasts_df)) {
-      blocking <- unique(unlist(lapply(contrasts_df$blocking, function(x) {
-        if (!is.na(x)) simpleSplit(x, ";") else NA
-      })))
-      blocking <- blocking[!is.na(blocking)]
-      design_cols <- unique(c(design_cols, blocking))
-    }
-    
-    # Call the design matrix validation function which performs:
-    # 1. Columns present; 2. Full rank; 3. Valid contrasts;
-    # 4. No NAs; 5. Warn on continuous covariates; 6. Check for special characters.
-    validate_design_matrix(sample_metadata = samples,
-                           design_cols = design_cols,
-                           contrasts = as.list(contrasts_df),
-                           continuous_warning = design_cols)
-    
-    validated_parts[[contrasts_file]] <- contrasts_df
   }
 
   if (!is.null(differential_results)) {
