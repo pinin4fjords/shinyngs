@@ -905,7 +905,7 @@ checkListIsSubset <- function(test_list,
 #' @return output Validated contrasts data frame
 #' @export
 
-read_contrasts <- 
+read_contrasts <-
   function(filename,
           samples,
           variable_column = "variable",
@@ -929,19 +929,30 @@ read_contrasts <-
 
   } else if (grepl("\\.ya?ml$", filename)) {
     contrasts_yaml <- yaml::read_yaml(filename)
-    
+
     if (is.null(contrasts_yaml$contrasts)) {
       stop("YAML file must contain a 'contrasts' section.")
     }
 
     # Parse YAML contrasts into a data frame
     contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
+      # Extract blocking factors from 'formula' if available
+      blocking <- NA
+      if (!is.null(x$formula)) {
+        formula_terms <- unlist(strsplit(gsub("~", "", x$formula), "\\+"))
+        formula_terms <- trimws(formula_terms)  # Remove whitespace
+        blocking_vars <- setdiff(formula_terms, x$comparison[1])  # Remove the primary variable
+        blocking <- ifelse(length(blocking_vars) > 0, paste(blocking_vars, collapse = ";"), NA)
+      } else if (!is.null(x$blocking_factors)) {
+        blocking <- paste(x$blocking_factors, collapse = ";")
+      }
+
       data.frame(
         id = x$id,
         variable = x$comparison[1],
         reference = x$comparison[2],
         target = x$comparison[3],
-        blocking = ifelse(is.null(x$blocking_factors), NA, paste(x$blocking_factors, collapse = ";")),
+        blocking = blocking,
         stringsAsFactors = FALSE
       )
     }))
@@ -989,8 +1000,9 @@ read_contrasts <-
     })
   }
 
-    contrasts
+  contrasts
 }
+
 
 #' Read tables of differential statistics
 #'
