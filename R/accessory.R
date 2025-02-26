@@ -1015,7 +1015,6 @@ read_contrasts <-
       }
     }
   }
-  cat("Special character check complete.\n")
 
   # Ensure reference, target, and blocking values are valid for their variable
   for (i in 1:nrow(contrasts)) {
