@@ -991,7 +991,6 @@ read_contrasts <-
   if (any(is.na(design_matrix))) {
     stop("NA values found in one or more design matrix columns.")
   }
-  cat("No NA values found in design matrix.\n")
   
   # Check that the design matrix is full rank.
   mm <- model.matrix(~ . - 1, data = design_matrix)
