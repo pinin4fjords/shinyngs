@@ -889,6 +889,16 @@ checkListIsSubset <- function(test_list,
 
 #' Read and validate a contrasts file against sample metadata
 #'
+#' Checks: 
+#' 1. No duplicate contrast IDs. Ensure that the required columns (variable, reference, target) are present.  
+#' 2. Values in the contrast variable column exist as column names in the sample metadata.
+#' 3. If blocking factors are supplied, checks that they are present in the sample metadata.
+#' 4. Design matrix is full rank.
+#' 5. Warn about continuous covariates (e.g. numeric patient IDs treated as continuous).
+#' 6. Values of specified columns don't contain special characters.
+#' 7. Verify that the specified reference and target values exist in the corresponding sample metadata column.  
+#' 8. Issue a warning if the reference and target levels are identical.
+#' 
 #' @param filename Contrasts file
 #' @param samples Data frame of sample information
 #' @param variable_column Column in contrasts file referencing sample sheet
@@ -917,6 +927,10 @@ read_contrasts <-
   # Read the contrasts depending on the file format (CSV or YAML)
   if (grepl("\\.csv$", filename)) {
     contrasts <- read_metadata(filename)
+    # Check for duplicates in constrasts id
+    if (any(duplicated(contrasts$id))) {
+      stop("Duplicate contrast ids found in CSV contrasts file.")
+    }
     contrast_cols <- c(variable_column, reference_column, target_column)
     if (!blocking_column %in% names(contrasts)) {
       contrasts[[blocking_column]] <- NA
@@ -936,6 +950,9 @@ read_contrasts <-
 
     # Parse YAML contrasts into a data frame
     contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
+      if (is.null(x$id)) {
+        stop("Missing contrast id in YAML contrasts.")
+      }
       # Extract blocking factors from 'formula' if available
       blocking <- NA
       if (!is.null(x$formula)) {
@@ -955,7 +972,9 @@ read_contrasts <-
         stringsAsFactors = FALSE
       )
     }))
-
+    if (any(duplicated(contrasts$id))) {
+      stop("Duplicate contrast ids found in YAML contrasts file.")
+    }
     # Check for missing fields
     if (any(is.na(contrasts$variable) | is.na(contrasts$reference) | is.na(contrasts$target))) {
       stop("Contrasts file has missing values in key columns (variable, reference, target).")
@@ -974,6 +993,39 @@ read_contrasts <-
     success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
   }
 
+  # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
+  design_cols <- unique(c(contrasts[[variable_column]], blocking))
+  design_matrix <- samples[, design_cols, drop = FALSE]
+  
+  # Ensure there are no NA values in the design matrix.
+  if (any(is.na(design_matrix))) {
+    stop("NA values found in one or more design matrix columns.")
+  }
+  
+  # Check that the design matrix is full rank.
+  mm <- model.matrix(~ . - 1, data = design_matrix)
+  if (qr(mm)$rank < ncol(mm)) {
+    stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+  }
+  
+  # Warn about continuous covariates in the design matrix columns.
+  for (col in design_cols) {
+    if (is.numeric(samples[[col]])) {
+      warning(paste("Column", col, "is numeric and may be treated as continuous."))
+    }
+  }
+  
+  # Check that values in design matrix columns do not contain disallowed special characters.
+  for (col in design_cols) {
+    vals <- as.character(samples[[col]])
+    for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
+      if (any(grepl(sc, vals))) {
+        warning(paste("Column", col, "contains special character", sc, 
+                      "which may cause issues downstream."))
+      }
+    }
+  }
+
   # Ensure reference, target, and blocking values are valid for their variable
   for (i in 1:nrow(contrasts)) {
     var <- contrasts[i, variable_column]
@@ -984,6 +1036,10 @@ read_contrasts <-
       } else {
         success <- checkListIsSubset(val, samples[[var]], "contrast levels", "sample metadata variable")
       }
+    }
+    # Warn if reference and target are identical
+    if (contrasts[i, reference_column] == contrasts[i, target_column]) {
+      warning(sprintf("Contrast id '%s' has identical reference and target levels.", contrasts[i, "id"]))
     }
   }
 
@@ -1192,7 +1248,6 @@ validate_inputs <- function(samples_metadata,
   })
 
   # Read contrasts and check against sample info
-
   if (!is.null(contrasts_file)) {
     print("Reading contrast definitions and validating against sample sheet")
     validated_parts[[contrasts_file]] <- read_contrasts(contrasts_file, samples)
