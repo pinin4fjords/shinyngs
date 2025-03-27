@@ -955,9 +955,11 @@ read_contrasts <-
       }
       # Extract blocking factors from 'formula' if available
       blocking <- NA
+      formula <- NA
       if (!is.null(x$formula)) {
         terms <- trimws(unlist(strsplit(gsub("~", "", x$formula), "\\+")))
         blocking_vars <- setdiff(terms, x$comparison[1])
+        formula <- x$formula
         if (length(blocking_vars) > 0) blocking <- paste(blocking_vars, collapse = ";")
       } else if (!is.null(x$blocking_factors)) {
         blocking <- paste(x$blocking_factors, collapse = ";")
@@ -969,6 +971,7 @@ read_contrasts <-
         reference = x$comparison[2],
         target = x$comparison[3],
         blocking = blocking,
+        formula = formula,
         stringsAsFactors = FALSE
       )
     }))
