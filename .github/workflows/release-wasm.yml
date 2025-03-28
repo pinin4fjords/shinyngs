@@ -1,24 +1,21 @@
-name: Release WebAssembly Assets
+# Workflow derived from https://github.com/r-wasm/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 
 on:
   release:
-    types: [published]
+    # Must republish release to update assets
+    types: [ published ]
+
+name: Build and deploy wasm R package image
 
 jobs:
-  build-wasm:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build R WebAssembly
-        uses: r-wasm/actions/build-rwasm@v2
-        with:
-          packages: |
-            github::pinin4fjords/shinyngs@${{ github.event.release.tag_name }}
-          github: true
-          
-      - name: Release File System Image
-        uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2
-        with:
-          release_tag: ${{ github.event.release.tag_name }}
-          image_name: shinyngs-wasm 
+  release-file-system-image:
+    uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2
+    with:
+      packages: |
+        github::pinin4fjords/shinyngs@${{ github.event.release.tag_name }}
+      image_name: shinyngs-wasm
+    permissions:
+      # For publishing artifact files to the release
+      contents: write
+      # To download GitHub Packages within action 
