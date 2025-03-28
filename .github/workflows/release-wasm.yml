@@ -1,0 +1,26 @@
+name: Release WebAssembly Assets
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build R WebAssembly
+        uses: r-wasm/actions/build-rwasm@v2
+        with:
+          packages: |
+            shinyngs
+          cran: true
+          bioc: true
+          github: true
+          
+      - name: Release File System Image
+        uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2
+        with:
+          release_tag: ${{ github.event.release.tag_name }}
+          image_name: shinyngs-wasm 
