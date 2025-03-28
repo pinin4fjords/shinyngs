@@ -14,7 +14,6 @@ jobs:
     with:
       packages: |
         github::pinin4fjords/shinyngs@${{ github.event.release.tag_name }}
-      image_name: shinyngs-wasm
     permissions:
       # For publishing artifact files to the release
       contents: write
