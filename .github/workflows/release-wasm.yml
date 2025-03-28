@@ -6,6 +6,10 @@ on:
     # Must republish release to update assets
     types: [ published ]
 
+permissions:
+  contents: write
+  repository-projects: read
+
 name: Build and deploy wasm R package image
 
 jobs:
