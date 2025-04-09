@@ -958,7 +958,9 @@ read_contrasts <-
       formula <- NA
       string <- NA
       if (!is.null(x$formula)) {
-        terms <- trimws(unlist(strsplit(gsub("~", "", x$formula), "\\+")))
+        formula_obj <- as.formula(x$formula)
+        terms_obj <- terms(formula_obj)
+        terms <- attr(terms_obj, "term.labels")
         blocking_vars <- setdiff(terms, x$comparison[1])
         formula <- x$formula
         string <- x$string
