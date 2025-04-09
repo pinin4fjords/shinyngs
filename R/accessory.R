@@ -963,7 +963,7 @@ read_contrasts <-
         terms <- attr(terms_obj, "term.labels")
         blocking_vars <- setdiff(terms, x$comparison[1])
         formula <- x$formula
-        string <- x$string
+        string <- if (!is.null(x$string)) x$string else NA
         if (length(blocking_vars) > 0) blocking <- paste(blocking_vars, collapse = ";")
       } else if (!is.null(x$blocking_factors)) {
         blocking <- paste(x$blocking_factors, collapse = ";")
