@@ -956,14 +956,14 @@ read_contrasts <-
       # Extract blocking factors from 'formula' if available
       blocking <- NA
       formula <- NA
-      string <- NA
+      make_contrasts_str <- NA
       if (!is.null(x$formula)) {
         formula_obj <- as.formula(x$formula)
         terms_obj <- terms(formula_obj)
         terms <- attr(terms_obj, "term.labels")
         blocking_vars <- setdiff(terms, x$comparison[1])
         formula <- x$formula
-        string <- if (!is.null(x$string)) x$string else NA
+        make_contrasts_str <- if (!is.null(x$make_contrasts_str)) x$make_contrasts_str else NA
         if (length(blocking_vars) > 0) blocking <- paste(blocking_vars, collapse = ";")
       } else if (!is.null(x$blocking_factors)) {
         blocking <- paste(x$blocking_factors, collapse = ";")
@@ -976,7 +976,7 @@ read_contrasts <-
         target = x$comparison[3],
         blocking = blocking,
         formula = formula,
-        string = string,
+        make_contrasts_str = make_contrasts_str,
         stringsAsFactors = FALSE
       )
     }))
