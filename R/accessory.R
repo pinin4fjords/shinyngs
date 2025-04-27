@@ -953,27 +953,40 @@ read_contrasts <-
       if (is.null(x$id)) {
         stop("Missing contrast id in YAML contrasts.")
       }
+
+    # Check that YAML does not contain both 'comparison' and 'make_contrasts_str'
+      has_comparison <- !is.null(x$comparison)
+      has_mcstr <- !is.null(x$make_contrasts_str)
+
+      if (has_comparison && has_mcstr) {
+        stop(sprintf("Contrast id '%s' must not contain both 'comparison' and 'make_contrasts_str'.", x$id))
+      }
+
+      # If comparison is available, populate variable/reference/target
+      comparison <- if (!is.null(x$comparison)) x$comparison else list()
+      variable <- if (length(comparison) >= 1) comparison[[1]] else NA
+      reference <- if (length(comparison) >= 2) comparison[[2]] else NA
+      target <- if (length(comparison) >= 3) comparison[[3]] else NA
+
       # Extract blocking factors from 'formula' if available
       blocking <- NA
       formula <- NA
       make_contrasts_str <- NA
       if (!is.null(x$formula)) {
-        formula_obj <- as.formula(x$formula)
-        terms_obj <- terms(formula_obj)
-        terms <- attr(terms_obj, "term.labels")
-        blocking_vars <- setdiff(terms, x$comparison[1])
         formula <- x$formula
         if (!is.null(x$make_contrasts_str)) make_contrasts_str <- x$make_contrasts_str
-        if (length(blocking_vars) > 0) blocking <- paste(blocking_vars, collapse = ";")
+        if (!is.null(x$blocking_factors)) { # blocking is explicit in YAML via blocking_factors only.
+          blocking <- paste(x$blocking_factors, collapse = ";")
+        }
       } else if (!is.null(x$blocking_factors)) {
         blocking <- paste(x$blocking_factors, collapse = ";")
       }
 
       data.frame(
         id = x$id,
-        variable = x$comparison[1],
-        reference = x$comparison[2],
-        target = x$comparison[3],
+        variable = variable,
+        reference = reference,
+        target = target,
         blocking = blocking,
         formula = formula,
         make_contrasts_str = make_contrasts_str,
@@ -983,16 +996,21 @@ read_contrasts <-
     if (any(duplicated(contrasts$id))) {
       stop("Duplicate contrast ids found in YAML contrasts file.")
     }
-    # Check for missing fields
-    if (any(is.na(contrasts$variable) | is.na(contrasts$reference) | is.na(contrasts$target))) {
-      stop("Contrasts file has missing values in key columns (variable, reference, target).")
+    # Only check missing values for entries that have 'comparison'
+    comparison_idx <- is.na(contrasts$make_contrasts_str) | contrasts$make_contrasts_str == ""
+    missing_fields <- with(contrasts[comparison_idx, ], is.na(variable) | is.na(reference) | is.na(target))
+    if (any(missing_fields)) {
+      stop("Contrasts with 'comparison' must have variable, reference, and target.")
     }
   } else {
     stop("Invalid file format. Please provide a CSV or YAML file.")
   }
 
   # Check contrast content is appropriate to sample sheet
-  success <- checkListIsSubset(contrasts$variable, colnames(samples), "contrast variables", "sample metadata")
+  variables_without_na <- na.omit(contrasts$variable)
+  if (length(variables_without_na) > 0) {
+    success <- checkListIsSubset(variables_without_na, colnames(samples), "contrast variables", "sample metadata")
+  }
 
   # Check blocking variables, where supplied
   blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
@@ -1002,7 +1020,7 @@ read_contrasts <-
   }
 
   # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
-  design_cols <- unique(c(contrasts[[variable_column]], blocking))
+  design_cols <- unique(na.omit(c(contrasts[[variable_column]], blocking))) # design_matrix could fail if blocking is NA.
   design_matrix <- samples[, design_cols, drop = FALSE]
   
   # Ensure there are no NA values in the design matrix.
@@ -1037,17 +1055,17 @@ read_contrasts <-
   # Ensure reference, target, and blocking values are valid for their variable
   for (i in 1:nrow(contrasts)) {
     var <- contrasts[i, variable_column]
-    for (col in c(reference_column, target_column)) {
-      val <- contrasts[i, col]
-      if (is.na(val) || val == "") {
-        stop(paste("Missing value for", col, "in sample sheet"))
-      } else {
-        success <- checkListIsSubset(val, samples[[var]], "contrast levels", "sample metadata variable")
+    ref <- contrasts[i, reference_column]
+    tgt <- contrasts[i, target_column]
+
+    # Only check values if both reference and target are present
+    if (!is.na(ref) && !is.na(tgt)) {
+      success <- checkListIsSubset(ref, samples[[var]], "contrast levels", "sample metadata variable")
+      success <- checkListIsSubset(tgt, samples[[var]], "contrast levels", "sample metadata variable")
+
+      if (ref == tgt) {
+        warning(sprintf("Contrast id '%s' has identical reference and target levels.", contrasts[i, "id"]))
       }
-    }
-    # Warn if reference and target are identical
-    if (contrasts[i, reference_column] == contrasts[i, target_column]) {
-      warning(sprintf("Contrast id '%s' has identical reference and target levels.", contrasts[i, "id"]))
     }
   }
 
