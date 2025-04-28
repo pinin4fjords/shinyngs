@@ -980,10 +980,19 @@ read_contrasts <-
 
       if (has_comparison) {
         comparison <- x$comparison
-        variable <- if (length(comparison) >= 1) comparison[[1]] else NA
-        reference <- if (length(comparison) >= 2) comparison[[2]] else NA
-        target <- if (length(comparison) >= 3) comparison[[3]] else NA
+        fields <- c(variable = NA, reference = NA, target = NA)
+        fields[seq_len(length(comparison))] <- comparison
+
+        variable <- fields["variable"]
+        reference <- fields["reference"]
+        target <- fields["target"]
         blocking <- if (has_blocking_factors) paste(x$blocking_factors, collapse = ";") else NA
+
+        # Check no elements are empty in variable, reference, target (for entries that are 'comparison' contrasts, only)
+        if (any(is.na(c(variable, reference, target))) || any(c(variable, reference, target) == "")) {
+          stop(sprintf("Contrast id '%s' must provide non-empty 'variable', 'reference', and 'target' fields.", x$id))
+        }
+
       } else if (has_formula) {
         formula <- x$formula
         make_contrasts_str <- x$make_contrasts_str
@@ -1003,12 +1012,6 @@ read_contrasts <-
     if (any(duplicated(contrasts$id))) {
       stop("Duplicate contrast ids found in YAML contrasts file.")
     }
-    # Only check missing values for entries do not have formula / are 'comparison' contrasts
-    has_comparison <- is.na(contrasts$formula) | contrasts$formula == ""
-    missing_fields <- with(contrasts[has_comparison, ], is.na(variable) | is.na(reference) | is.na(target))
-    if (any(missing_fields)) {
-      stop("Contrasts with 'comparison' must have variable, reference, and target.")
-    }
   } else {
     stop("Invalid file format. Please provide a CSV or YAML file.")
   }
@@ -1018,7 +1021,6 @@ read_contrasts <-
   if (length(variables_without_na) > 0) {
     success <- checkListIsSubset(variables_without_na, colnames(samples), "contrast variables", "sample metadata")
   }
-
   # Check blocking variables, where supplied
   blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
   blocking <- blocking[!is.na(blocking)]
@@ -1059,7 +1061,7 @@ read_contrasts <-
     }
   }
 
-  # Ensure reference, target, and blocking values are valid for their variable
+  # Ensure reference and target are valid for their variable
   for (i in 1:nrow(contrasts)) {
     var <- contrasts[i, variable_column]
     ref <- contrasts[i, reference_column]
