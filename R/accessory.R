@@ -954,32 +954,39 @@ read_contrasts <-
         stop("Missing contrast id in YAML contrasts.")
       }
 
-    # Check that YAML does not contain both 'comparison' and 'make_contrasts_str'
       has_comparison <- !is.null(x$comparison)
-      has_mcstr <- !is.null(x$make_contrasts_str)
+      has_formula <- !is.null(x$formula)
+      has_make_contrasts_str <- !is.null(x$make_contrasts_str)
+      has_blocking_factors <- !is.null(x$blocking_factors)
 
-      if (has_comparison && has_mcstr) {
-        stop(sprintf("Contrast id '%s' must not contain both 'comparison' and 'make_contrasts_str'.", x$id))
+      # Validate allowed structures
+      if (has_comparison) {
+        if (has_formula || has_make_contrasts_str) {
+          stop(sprintf("Contrast id '%s' with 'comparison' must not have 'formula' or 'make_contrasts_str'.", x$id))
+        }
+      } else if (has_formula) {
+        if (!has_make_contrasts_str) {
+          stop(sprintf("Contrast id '%s' with 'formula' must also provide 'make_contrasts_str'.", x$id))
+        }
+        if (has_blocking_factors) {
+          stop(sprintf("Contrast id '%s' with 'formula' must not have 'blocking_factors'.", x$id))
+        }
+      } else {
+        stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
       }
 
-      # If comparison is available, populate variable/reference/target
-      comparison <- if (!is.null(x$comparison)) x$comparison else list()
-      variable <- if (length(comparison) >= 1) comparison[[1]] else NA
-      reference <- if (length(comparison) >= 2) comparison[[2]] else NA
-      target <- if (length(comparison) >= 3) comparison[[3]] else NA
+      # Initialize all columns
+      variable <- reference <- target <- blocking <- formula <- make_contrasts_str <- NA
 
-      # Extract blocking factors from 'formula' if available
-      blocking <- NA
-      formula <- NA
-      make_contrasts_str <- NA
-      if (!is.null(x$formula)) {
+      if (has_comparison) {
+        comparison <- x$comparison
+        variable <- if (length(comparison) >= 1) comparison[[1]] else NA
+        reference <- if (length(comparison) >= 2) comparison[[2]] else NA
+        target <- if (length(comparison) >= 3) comparison[[3]] else NA
+        blocking <- if (has_blocking_factors) paste(x$blocking_factors, collapse = ";") else NA
+      } else if (has_formula) {
         formula <- x$formula
-        if (!is.null(x$make_contrasts_str)) make_contrasts_str <- x$make_contrasts_str
-        if (!is.null(x$blocking_factors)) { # blocking is explicit in YAML via blocking_factors only.
-          blocking <- paste(x$blocking_factors, collapse = ";")
-        }
-      } else if (!is.null(x$blocking_factors)) {
-        blocking <- paste(x$blocking_factors, collapse = ";")
+        make_contrasts_str <- x$make_contrasts_str
       }
 
       data.frame(
@@ -996,9 +1003,9 @@ read_contrasts <-
     if (any(duplicated(contrasts$id))) {
       stop("Duplicate contrast ids found in YAML contrasts file.")
     }
-    # Only check missing values for entries that have 'comparison'
-    comparison_idx <- is.na(contrasts$make_contrasts_str) | contrasts$make_contrasts_str == ""
-    missing_fields <- with(contrasts[comparison_idx, ], is.na(variable) | is.na(reference) | is.na(target))
+    # Only check missing values for entries do not have formula / are 'comparison' contrasts
+    has_comparison <- is.na(contrasts$formula) | contrasts$formula == ""
+    missing_fields <- with(contrasts[has_comparison, ], is.na(variable) | is.na(reference) | is.na(target))
     if (any(missing_fields)) {
       stop("Contrasts with 'comparison' must have variable, reference, and target.")
     }
@@ -1020,7 +1027,7 @@ read_contrasts <-
   }
 
   # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
-  design_cols <- unique(na.omit(c(contrasts[[variable_column]], blocking))) # design_matrix could fail if blocking is NA.
+  design_cols <- unique(na.omit(c(contrasts[[variable_column]], blocking)))
   design_matrix <- samples[, design_cols, drop = FALSE]
   
   # Ensure there are no NA values in the design matrix.
