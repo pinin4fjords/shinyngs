@@ -950,65 +950,51 @@ read_contrasts <-
 
     # Parse YAML contrasts into a data frame
     contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
-      if (is.null(x$id)) {
-        stop("Missing contrast id in YAML contrasts.")
+    stopifnot(!is.null(x$id))  # Require that each contrast has an 'id'
+
+    row <- data.frame(
+      id = x$id,
+      variable = NA, reference = NA, target = NA,
+      blocking = NA,
+      formula = NA,
+      make_contrasts_str = NA,
+      stringsAsFactors = FALSE
+    )
+
+    if (!is.null(x$comparison)) {
+      if (!is.null(x$formula) || !is.null(x$make_contrasts_str)) {
+        stop(sprintf("Contrast id '%s' with 'comparison' must not have 'formula' or 'make_contrasts_str'.", x$id))
       }
 
-      has_comparison <- !is.null(x$comparison)
-      has_formula <- !is.null(x$formula)
-      has_make_contrasts_str <- !is.null(x$make_contrasts_str)
-      has_blocking_factors <- !is.null(x$blocking_factors)
+      fields <- setNames(rep(NA, 3), c("variable", "reference", "target"))
+      fields[names(fields)[seq_along(x$comparison)]] <- x$comparison
 
-      # Validate allowed structures
-      if (has_comparison) {
-        if (has_formula || has_make_contrasts_str) {
-          stop(sprintf("Contrast id '%s' with 'comparison' must not have 'formula' or 'make_contrasts_str'.", x$id))
-        }
-      } else if (has_formula) {
-        if (!has_make_contrasts_str) {
-          stop(sprintf("Contrast id '%s' with 'formula' must also provide 'make_contrasts_str'.", x$id))
-        }
-        if (has_blocking_factors) {
-          stop(sprintf("Contrast id '%s' with 'formula' must not have 'blocking_factors'.", x$id))
-        }
-      } else {
-        stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
+      if (any(is.na(fields)) || any(fields == "")) {
+        stop(sprintf("Contrast id '%s' must provide non-empty 'variable', 'reference', and 'target' fields.", x$id))
       }
 
-      # Initialize all columns
-      variable <- reference <- target <- blocking <- formula <- make_contrasts_str <- NA
+      row$variable <- fields["variable"]
+      row$reference <- fields["reference"]
+      row$target <- fields["target"]
 
-      if (has_comparison) {
-        comparison <- x$comparison
-        fields <- c(variable = NA, reference = NA, target = NA)
-        fields[seq_len(length(comparison))] <- comparison
-
-        variable <- fields["variable"]
-        reference <- fields["reference"]
-        target <- fields["target"]
-        blocking <- if (has_blocking_factors) paste(x$blocking_factors, collapse = ";") else NA
-
-        # Check no elements are empty in variable, reference, target (for entries that are 'comparison' contrasts, only)
-        if (any(is.na(c(variable, reference, target))) || any(c(variable, reference, target) == "")) {
-          stop(sprintf("Contrast id '%s' must provide non-empty 'variable', 'reference', and 'target' fields.", x$id))
-        }
-
-      } else if (has_formula) {
-        formula <- x$formula
-        make_contrasts_str <- x$make_contrasts_str
+      if (!is.null(x$blocking_factors)) {
+        row$blocking <- paste(x$blocking_factors, collapse = ";")
       }
 
-      data.frame(
-        id = x$id,
-        variable = variable,
-        reference = reference,
-        target = target,
-        blocking = blocking,
-        formula = formula,
-        make_contrasts_str = make_contrasts_str,
-        stringsAsFactors = FALSE
-      )
-    }))
+    } else if (!is.null(x$formula)) {
+      if (is.null(x$make_contrasts_str) || !is.null(x$blocking_factors)) {
+        stop(sprintf("Contrast id '%s' with 'formula' must have 'make_contrasts_str' and no 'blocking_factors'.", x$id))
+      }
+
+      row$formula <- x$formula
+      row$make_contrasts_str <- x$make_contrasts_str
+
+    } else {
+      stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
+    }
+
+    row
+  }))
     if (any(duplicated(contrasts$id))) {
       stop("Duplicate contrast ids found in YAML contrasts file.")
     }
