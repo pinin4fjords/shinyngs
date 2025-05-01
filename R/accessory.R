@@ -961,6 +961,11 @@ read_contrasts <-
       stringsAsFactors = FALSE
     )
 
+    # A contrast can be defined in two ways:
+    #
+    # 1 . Specifying a column in the sample sheet, and two values from that column which define two groups of samples to compare. Tools using a contrast defined in this way would need to generate a model and contrast using that information.
+    # 2. Specifying the formula and contrast string explicitly. Tools using those contrasts can then pass these directly to function of suites such as DESeq2. 
+
     if (!is.null(x$comparison)) {
       if (!is.null(x$formula) || !is.null(x$make_contrasts_str)) {
         stop(sprintf("Contrast id '%s' with 'comparison' must not have 'formula' or 'make_contrasts_str'.", x$id))
