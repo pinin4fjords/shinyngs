@@ -994,6 +994,12 @@ read_contrasts <-
       row$formula <- x$formula
       row$make_contrasts_str <- x$make_contrasts_str
 
+      vars_in_formula <- all.vars(as.formula(x$formula))
+      # Concatenate all variables with a separator so design_cols picks them up
+      if (length(vars_in_formula) > 0) {
+        row$._formula_vars <- paste(vars_in_formula, collapse = ";")
+      }
+
     } else {
       stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
     }
@@ -1014,6 +1020,9 @@ read_contrasts <-
   }
   # Check blocking variables, where supplied
   blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
+  if ("._formula_vars" %in% colnames(contrasts)) {
+    blocking <- c(blocking, unlist(lapply(contrasts$._formula_vars, function(x) simpleSplit(x, ";"))))
+  }
   blocking <- blocking[!is.na(blocking)]
   if (length(blocking) > 0) {
     success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
@@ -1081,6 +1090,9 @@ read_contrasts <-
     })
   }
 
+  if ("._formula_vars" %in% colnames(contrasts)) {
+    contrasts$._formula_vars <- NULL
+  }
   contrasts
 }
 
