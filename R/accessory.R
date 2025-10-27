@@ -869,17 +869,16 @@ checkListIsSubset <- function(test_list,
                               test_list_name,
                               reference_list_name) {
   if (!all(test_list %in% reference_list)) {
+    missing_vars <- test_list[!test_list %in% reference_list]
     stop(
       paste0(
         "Not all ",
         test_list_name,
-        " (",
-        paste(test_list, collapse = ","),
-        ") are available in the ",
+        " are available in the ",
         reference_list_name,
-        " (",
-        paste(reference_list, collapse = ","),
-        ")"
+        ".\n",
+        "Missing ", test_list_name, ": ", paste(missing_vars, collapse = ", "), "\n",
+        "Available ", reference_list_name, ": ", paste(unique(reference_list), collapse = ",")
       )
     )
   }
