@@ -149,7 +149,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
       } else {
         # Numeric IDs (like entrez will be cast to integers)
 
-        is_numeric <- all(!is.na(as.numeric(annotation[[gene_set_id_type]])))
+        is_numeric <- all(!is.na(suppressWarnings(as.numeric(annotation[[gene_set_id_type]]))))
       }
 
       print("Processing gene sets")
