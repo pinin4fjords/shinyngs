@@ -685,7 +685,22 @@ eselistfromConfig <-
         ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
           lapply(assay, function(gene_set_type) {
             lapply(gene_set_type, function(contrast) {
-              read.csv(contrast, check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+              if (length(contrast) == 1) {
+                read.csv(contrast, sep=getSeparator(contrast),
+                         check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+              } else if (length(contrast) == 2) {
+                # This is useful for GSEA output, that splits up and down in two tsv files.
+                # We read both files and set the direction
+                up <- read.csv(contrast[["up"]], sep=getSeparator(contrast[["up"]]),
+                               check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+                up$Direction <- rep("Up", nrow(up))
+                down <- read.csv(contrast[["down"]], sep=getSeparator(contrast[["down"]]),
+                               check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
+                down$Direction <- rep("Down", nrow(down))
+                rbind(up, down)
+              } else {
+                stop("gene_set_analyses should have one or two contrast files per gene_set_type")
+              }
             })
           })
         })
