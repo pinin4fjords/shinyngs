@@ -348,7 +348,7 @@ writeLines(
 )
 
 # If deployment has been indicated, try to do that. Needs SHINYAPPS_SECRET AND
-# SHINYAPPS_TOKEN to be set in the evironment
+# SHINYAPPS_TOKEN to be set in the environment
 
 if (opt$deploy_app) {
   library(rsconnect)
