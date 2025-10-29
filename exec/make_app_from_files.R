@@ -336,6 +336,8 @@ dir.create(opt$output_directory, showWarnings = FALSE)
 saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
 writeLines(
   c(
+    '# install.packages(c("remotes", "BiocManager", "markdown"))',
+    '# remotes::install_github("pinin4fjords/shinyngs")',
     "library(shinyngs)",
     "library(markdown)",
     'esel <- readRDS("data.rds")',
