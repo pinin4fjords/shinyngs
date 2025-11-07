@@ -878,7 +878,7 @@ checkListIsSubset <- function(test_list,
         reference_list_name,
         ".\n",
         "Missing ", test_list_name, ": ", paste(missing_vars, collapse = ", "), "\n",
-        "Available ", reference_list_name, ": ", paste(unique(reference_list), collapse = ",")
+        "Available ", reference_list_name, ": ", paste(unique(reference_list), collapse = ", ")
       )
     )
   }

@@ -102,7 +102,7 @@ if (length(missing_args) > 0) {
   stop(paste("Missing mandatory arguments:", paste(missing_args, collapse = ", ")))
 }
 
-suppressMessages(suppressWarnings(library(shinyngs, quietly = TRUE, warn.conflicts = FALSE)))
+suppressPackageStartupMessages(library(shinyngs, quietly = TRUE, warn.conflicts = FALSE))
 
 # validate_inputs() just wraps the parsing functions of shinyng, used by e.g.
 # eselistfromConfig(). These functions are good for ensuring the consistency of
