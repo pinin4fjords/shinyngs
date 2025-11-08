@@ -15,7 +15,7 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(
+setClass("ExploratorySummarizedExperimentList", contains = "list", slots = c(
   title = "character", author = "character", description = "character", static_pdf = "character",
   group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", gene_set_id_type = "character", ensembl_species = "character"
 ))
