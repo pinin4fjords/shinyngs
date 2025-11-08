@@ -8,6 +8,7 @@ Depends:
     R (>= 3.4.0),
     SummarizedExperiment
 License: AGPL (>= 3)
+Encoding: UTF-8
 LazyData: true
 Imports:
     cluster,
