@@ -13,7 +13,7 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment", representation = representation(
+setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment", slots = c(
   idfield = "character", entrezgenefield = "character", labelfield = "character", contrast_stats = "list",
   assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"
 ))
