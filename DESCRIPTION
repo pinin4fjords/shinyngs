@@ -5,7 +5,7 @@ Authors@R: person("Jonathan", "Manning", email = "jonathan.manning@seqera.io", r
 Description: Provides Shiny applications for various array and NGS applications.
     Currently very RNA-seq centric, with plans for expansion.
 Depends:
-    R (>= 3.2.2),
+    R (>= 3.4.0),
     SummarizedExperiment
 License: AGPL (>= 3)
 LazyData: true
