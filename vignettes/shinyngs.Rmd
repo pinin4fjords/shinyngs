@@ -259,6 +259,7 @@ head(myannotation)
 Now we can put these things together to create an 'ExploratorySummarizedExperiment: 
 
 ```{r eval=TRUE}
+library(shinyngs)
 myese <- ExploratorySummarizedExperiment(
     assays = SimpleList(
       myassays
