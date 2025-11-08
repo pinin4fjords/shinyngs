@@ -1,8 +1,6 @@
 #' The ExploratorySummarizedExperiment class
 #'
-#' Subclass of SummarizedExperiment if present in the SummarizedExperiment
-#' package (newer versions of Bioconductor have moved this from GenomicRanges),
-#' otherwise of SummarizedExperiment0.
+#' Subclass of SummarizedExperiment.
 #'
 #' @slot idfield character.
 #' @slot entrezgenefield character.
@@ -15,18 +13,13 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment",
-  "SummarizedExperiment0"
-), representation = representation(
+setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment", representation = representation(
   idfield = "character", entrezgenefield = "character", labelfield = "character", contrast_stats = "list",
   assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"
 ))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
-  as(
-    (as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))),
-    "ExploratorySummarizedExperiment"
-  )
+  as(as(from, "SummarizedExperiment"), "ExploratorySummarizedExperiment")
 })
 
 #' ExploratorySummarizedExperiments
