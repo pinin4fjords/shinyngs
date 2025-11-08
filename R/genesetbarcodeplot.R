@@ -166,8 +166,23 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     contrast_numbers <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
 
     if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]])) {
-      fdr <- paste(signif(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "FDR"], 3), collapse = ",")
-      direction <- paste(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]][gene_set_names, "Direction"], collapse = ",")
+      gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]]
+      
+      # Get the tool used for enrichment, or auto-detect it:
+      if ("gene_set_analyses_tool" %in% slotNames(ese)) {
+        gs_tool <- ese@gene_set_analyses_tool[[assay]][[gene_set_types]][[contrast_numbers]]
+      } else {
+        gs_tool <- "auto"
+      }
+      
+      gst_and_colinfo <- get_gst_columns(gst, gs_tool)
+      # unpack:
+      gst <- gst_and_colinfo$gst
+      fdr_col_name <- gst_and_colinfo$fdr_col_name
+      direction_col_name <- gst_and_colinfo$direction_col_name
+      
+      fdr <- paste(signif(gst[gene_set_names, fdr_col_name], 3), collapse = ",")
+      direction <- paste(gst[gene_set_names, direction_col_name], collapse = ",")
       title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
     } else {
       title_components <- c(title_components, "(no association)")
