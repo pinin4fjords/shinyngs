@@ -56,9 +56,8 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' correspond to 'contrasts' set in the containing SummarizedExperimentList.
 #' @param assay_measures Optional List of measures to display related to each
 #' assay.
-#' @param gene_set_analyses List of lists of gene set tables keyed first by
-#' gene set
-#' type and secondly by contrast
+#' @param gene_set_analyses Three-level nested lists of gene set tables keyed first by
+#' assay, then by gene set type and then by contrast.
 #' @param read_reports A named list of matrices with read counts in columns
 #' and sample names in rows. Useful for providing mapped read counts,
 #' counts per gene type etc
