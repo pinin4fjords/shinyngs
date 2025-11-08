@@ -54,6 +54,6 @@ Remotes:
     cran/d3heatmap,
     pinin4fjords/zhangneurons
 biocViews: Software
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Config/testthat/edition: 3
