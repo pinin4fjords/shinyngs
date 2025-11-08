@@ -237,10 +237,33 @@ genesetanalysistable <- function(input, output, session, eselist) {
     selected_contrasts <- getSelectedContrastNumbers()[[1]]
 
     gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[as.numeric(selected_contrasts)]]
-
-    # Rename p value if we have PValue from mroast etc()
-
-    colnames(gst) <- sub("PValue", "p value", colnames(gst))
+    
+    # Get the tool used for enrichment, or auto-detect it:
+    if ("gene_set_analyses_tool" %in% slotNames(ese)) {
+      gs_tool <- ese@gene_set_analyses_tool[[assay]][[gene_set_types]][[as.numeric(selected_contrasts)]]
+    } else {
+      gs_tool <- "auto"
+    }
+    
+    gst_and_colinfo <- get_gst_columns(gst, gs_tool)
+    # unpack:
+    gst <- gst_and_colinfo$gst
+    gs_tool <- gst_and_colinfo$gs_tool
+    pvalue_col_name <- gst_and_colinfo$pvalue_col_name
+    fdr_col_name <- gst_and_colinfo$fdr_col_name
+    direction_col_name <- gst_and_colinfo$direction_col_name
+    
+    if (!pvalue_col_name %in% colnames(gst)) {
+      stop(paste0(pvalue_col_name, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+    }
+    
+    if (!fdr_col_name %in% colnames(gst)) {
+      stop(paste0(fdr_col_name, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+    }
+    
+    if (!direction_col_name %in% colnames(gst)) {
+      stop(paste0(direction_col_name, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+    }
 
     # Select out specific gene sets if they've been provided
 
@@ -258,7 +281,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
 
     # Apply the user's filters
 
-    gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, , drop = FALSE]
+    gst <- gst[gst[[pvalue_col_name]] < input$pval & gst[[fdr_col_name]] < input$fdr, , drop = FALSE]
 
     validate(need(nrow(gst) > 0, "No results matching specified filters"))
 
@@ -272,7 +295,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
       gene_sets <- getGeneSets()
 
       gst$significant_genes <- apply(gst, 1, function(row) {
-        if (row["Direction"] == "Up") {
+        if (row[direction_col_name] == "Up") {
           siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], up)
         } else {
           siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], down)
