@@ -10,12 +10,13 @@
 #' @slot gene_set_analyses list.
 #' @slot dexseq_results list.
 #' @slot read_reports list.
+#' @slot gene_set_analyses_tool list.
 #'
 #' @export
 
 setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment", slots = c(
   idfield = "character", entrezgenefield = "character", labelfield = "character", contrast_stats = "list",
-  assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"
+  assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list", gene_set_analyses_tool = "list"
 ))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
@@ -63,13 +64,16 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' counts per gene type etc
 #' @param dexseq_results An optional list of \code{DEXSeqResults} objects
 #' corresponding to the contrasts listed in the \code{contrasts} slot..
+#' @param gene_set_analyses_tool Three-level nested lists of a string, nested as \code{gene_set_analyses}.
+#' Each string may be \code{"auto"} (the default), \code{"gsea"} or \code{"roast"}. It defines the format of the
+#' corresponding \code{gene_set_analyses} table.
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
 #' @rawNamespace import(SummarizedExperiment, except = 'shift')
 #' @export
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(),
-                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
+                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list(), gene_set_analyses_tool = list()) {
   # Reset NULLs to empty
 
   if (is.null(entrezgenefield)) {
@@ -108,6 +112,9 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   annotation <- data.frame(lapply(annotation, as.character), stringsAsFactors = FALSE, check.names = FALSE, row.names = rownames(annotation))[all_rows, ]
 
+  # Ensure consistency between gene_set_analyses with gene_set_analyses_tool
+  gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(gene_set_analyses, gene_set_analyses_tool)
+  
   # Build the object
 
   sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData, check.names = FALSE))
@@ -115,6 +122,54 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   new("ExploratorySummarizedExperiment", sumexp,
     idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures,
-    contrast_stats = contrast_stats, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports
+    contrast_stats = contrast_stats, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports,
+    gene_set_analyses_tool = gene_set_analyses_tool
   )
+}
+
+check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set_analyses_tool) {
+  # gene_set_analyses and gene_set_analyses_tool should have the same list of lists
+  # structure. gene_set_analyses_tool should have a single string
+  
+  # Create default structure if necessary:
+  out <- list()
+  
+  if (is.null(gene_set_analyses_tool)) {
+    gene_set_analyses_tool <- list()
+  }
+  for (assay_name in names(gene_set_analyses)) {
+    if (!assay_name %in% names(gene_set_analyses_tool)) {
+      gene_set_analyses_tool[[assay_name]] <- list()
+    }
+    for (gs_type in names(gene_set_analyses[[assay_name]])) {
+      if (! gs_type %in% names(gene_set_analyses_tool[[assay_name]])) {
+        gene_set_analyses_tool[[assay_name]][[gs_type]] <- list()
+      }
+      for (contrast_name in names(gene_set_analyses[[assay_name]][[gs_type]])) {
+        if (! contrast_name %in% names(gene_set_analyses_tool[[assay_name]][[gs_type]])) {
+          gene_set_analyses_tool[[assay_name]][[gs_type]][[contrast_name]] <- "auto"
+        } else {
+          tool_name <- gene_set_analyses_tool[[assay_name]][[gs_type]][[contrast_name]]
+          if (!is.character(tool_name) || length(tool_name) > 1) {
+            stop(paste0("Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
+                        gs_type, " and ", contrast_name, " should be one of 'auto', 'gsea' or 'roast'. Found ",
+                        paste0(tool_name, collapse=",")))
+          }
+          if (! tool_name %in% c("auto", "gsea", "roast")) {
+            stop(paste0("Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
+                        gs_type, " and ", contrast_name, " should be one of 'auto', 'gsea' or 'roast'. Found ",
+                        tool_name))
+          }
+        }
+      }
+      # In case gene_set_analyses_tool has other entries, just keep the ones matching gene_set_analyses
+      contrasts_ordered <- names(gene_set_analyses[[assay_name]][[gs_type]])
+      gene_set_analyses_tool[[assay_name]][[gs_type]] <- gene_set_analyses_tool[[assay_name]][[gs_type]][contrasts_ordered]
+    }
+    gene_set_type_names_ordered <- names(gene_set_analyses[[assay_name]])
+    gene_set_analyses_tool[[assay_name]] <- gene_set_analyses_tool[[assay_name]][gene_set_type_names_ordered]
+  }
+  analysis_names_ordered <- names(gene_set_analyses_tool)
+  gene_set_analyses_tool <- gene_set_analyses_tool[analysis_names_ordered]
+  gene_set_analyses_tool
 }
