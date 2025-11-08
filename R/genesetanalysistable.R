@@ -289,7 +289,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
   getDisplayGeneSetAnalysis <- reactive({
     gst <- getGeneSetAnalysis()
 
-    # Add links, but use a prettiefied version of the gene set name that re-flows to take up less space
+    # Add links, but use a prettified version of the gene set name that re-flows to take up less space
 
     gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id), stringsAsFactors = FALSE))
     colnames(gst) <- prettifyVariablename(colnames(gst))
@@ -297,7 +297,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     gst
   })
 
-  # Make an explantory file name
+  # Make an explanatory file name
 
   makeFileName <- reactive({
     gsub("[^a-zA-Z0-9_]", "_", paste("gsa", getSelectedContrastNames(), getGeneSetTypes()))
