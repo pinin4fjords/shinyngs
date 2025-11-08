@@ -682,6 +682,9 @@ eselistfromConfig <-
       }
 
       if ("gene_set_analyses" %in% names(exp)) {
+        # Basic list to pass to object creation
+        exp$gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(exp$gene_set_analyses, exp$gene_set_analyses_tool)
+        
         ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
           lapply(assay, function(gene_set_type) {
             lapply(gene_set_type, function(contrast) {
