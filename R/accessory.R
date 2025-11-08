@@ -1488,3 +1488,50 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
   return(assay_data)
 }
 
+# Gene set enrichment format and filtering columns
+# gst: A data frame coming from the gene enrichment tool (roast, gsea)
+# gs_tool: A string, the tool used to get gst ("auto", "gsea", "roast")
+get_gst_columns <- function(gst, gs_tool) {
+  # Auto-detection:
+  if (gs_tool == "auto") {
+    if ("NOM p-val" %in% colnames(gst)) {
+      gs_tool <- "gsea"
+    }
+    else if (any(c("p value", "PValue") %in% colnames(gst))) {
+      gs_tool <- "roast"
+    } else {
+      stop("Could not detect gs_tool method.")
+    }
+  }
+  
+  if (gs_tool == "roast") {
+    # mroast has PValue instead of "p value", check:
+    if ("PValue" %in% colnames(gst)) {
+      pvalue_col_name <- "PValue"
+    } else {
+      pvalue_col_name <- "p value"
+    }
+    fdr_col_name <- "FDR"
+    direction_col_name <- "Direction"
+  } else if (gs_tool == "gsea") {
+    pvalue_col_name <- "NOM p-val"
+    fdr_col_name <- "FDR q-val"
+    direction_col_name <- "Direction"
+  } else {
+    stop(paste0("Invalid gene_set_analyses_tool: ", gs_tool))
+  }
+  
+  if (gs_tool == "gsea") {
+    # gsea tsv files have two useless columns that can be removed:
+    cols_to_remove <- c("GS<br> follow link to MSigDB", "GS DETAILS")
+    gst <- gst[ , !(names(gst) %in% cols_to_remove), drop=FALSE]
+  }
+
+  list(
+    gst = gst,
+    gs_tool = gs_tool,
+    pvalue_col_name = pvalue_col_name,
+    fdr_col_name = fdr_col_name,
+    direction_col_name = direction_col_name
+  )
+}
