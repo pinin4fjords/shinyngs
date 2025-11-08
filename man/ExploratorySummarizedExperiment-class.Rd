@@ -5,9 +5,7 @@
 \alias{ExploratorySummarizedExperiment-class}
 \title{The ExploratorySummarizedExperiment class}
 \description{
-Subclass of SummarizedExperiment if present in the SummarizedExperiment
-package (newer versions of Bioconductor have moved this from GenomicRanges),
-otherwise of SummarizedExperiment0.
+Subclass of SummarizedExperiment.
 }
 \section{Slots}{
 
@@ -27,5 +25,7 @@ otherwise of SummarizedExperiment0.
 \item{\code{dexseq_results}}{list.}
 
 \item{\code{read_reports}}{list.}
+
+\item{\code{gene_set_analyses_tool}}{list.}
 }}
 
