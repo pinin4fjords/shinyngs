@@ -684,11 +684,14 @@ eselistfromConfig <-
       if ("gene_set_analyses" %in% names(exp)) {
         # Basic list to pass to object creation
         exp$gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(exp$gene_set_analyses, exp$gene_set_analyses_tool)
-        
+
         ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
           lapply(assay, function(gene_set_type) {
             lapply(gene_set_type, function(contrast) {
-              if (length(contrast) == 1) {
+              # contrast may be one file name or two file names (up and down), or NULL
+              if (is.null(contrast) || length(contrast) == 0) {
+                NULL
+              } else if (length(contrast) == 1) {
                 read.csv(contrast, sep=getSeparator(contrast),
                          check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
               } else if (length(contrast) == 2) {
@@ -702,11 +705,13 @@ eselistfromConfig <-
                 down$Direction <- rep("Down", nrow(down))
                 rbind(up, down)
               } else {
-                stop("gene_set_analyses should have one or two contrast files per gene_set_type")
+                stop("gene_set_analyses should have zero, one or two contrast files per gene_set_type")
               }
             })
           })
         })
+        
+        ese_list$gene_set_analyses <- remove_nulls(ese_list$gene_set_analyses)
       }
 
       do.call(ExploratorySummarizedExperiment, ese_list)
@@ -768,6 +773,15 @@ eselistfromConfig <-
 
     eselist
   }
+
+# Recursively remove NULL entries from a nested list
+remove_nulls <- function(x) {
+  if (is.list(x) && !is.data.frame(x)) {
+    x <- lapply(x, remove_nulls)
+    x <- Filter(Negate(is.null), x)
+  }
+  return(x)
+}
 
 #' Read an expression matrix file and match to specified samples and features
 #'
