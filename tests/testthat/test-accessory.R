@@ -83,3 +83,46 @@ contrasts:
 
   unlink(yaml_file)
 })
+
+# read_contrasts() using only formula based contrasts
+
+test_that("read_contrasts parses YAML correctly using only formula based contrasts", {
+  samples <- data.frame(
+    sample = c("Sample1", "Sample7", "Sample13", "Sample19", "Sample16"),
+    genotype = c("WT", "WT", "KO", "KO", "KO"),
+    treatment = c("Control", "Treated", "Control", "Treated", "Control"),
+    time = c(1, 1, 1, 1, 16),
+    batch = c("b1", "b1", "b1", "b1", "b3"),
+    stringsAsFactors = FALSE
+  )
+
+  yaml_content <- "
+contrasts:
+  - id: treatment_plus_genotype
+    formula: \"~ treatment + genotype\"
+    make_contrasts_str: \"treatmentTreated\"
+  - id: interaction_genotype_treatment
+    formula: \"~ genotype * treatment\"
+    make_contrasts_str: \"genotypeWT.treatmentTreated\"
+  - id: full_model_with_interactions
+    formula: \"~ genotype * treatment * time\"
+    make_contrasts_str: \"genotypeWT.treatmentTreated.time\"
+"
+
+  yaml_file <- tempfile(fileext = ".yaml")
+  writeLines(yaml_content, yaml_file)
+
+  contrasts <- read_contrasts(yaml_file, samples)
+
+  # Test basic structure
+  expect_true(is.data.frame(contrasts))
+  expect_equal(nrow(contrasts), 3)
+  expect_true(all(c("id", "variable", "reference", "target", "blocking", "formula", "make_contrasts_str") %in% colnames(contrasts)))
+
+  # Test specific rows
+  expect_equal(contrasts$formula[1], "~ treatment + genotype")
+  expect_equal(contrasts$make_contrasts_str[2], "genotypeWT.treatmentTreated")
+  expect_equal(contrasts$make_contrasts_str[3], "genotypeWT.treatmentTreated.time")
+
+  unlink(yaml_file)
+})

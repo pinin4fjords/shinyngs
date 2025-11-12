@@ -1019,41 +1019,48 @@ read_contrasts <-
     success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
   }
 
-  # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
-  design_cols <- unique(na.omit(c(contrasts[[variable_column]], blocking)))
-  design_matrix <- samples[, design_cols, drop = FALSE]
-  
-  # Ensure there are no NA values in the design matrix.
-  if (any(is.na(design_matrix))) {
-    stop("NA values found in one or more design matrix columns.")
-  }
-  
-  # Check that the design matrix is full rank.
-  mm <- model.matrix(~ . - 1, data = design_matrix)
-  if (qr(mm)$rank < ncol(mm)) {
-    stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
-  }
-  
-  # Warn about continuous covariates in the design matrix columns.
-  for (col in design_cols) {
-    if (is.numeric(samples[[col]])) {
-      warning(paste("Column", col, "is numeric and may be treated as continuous."))
-    }
-  }
-  
-  # Check that values in design matrix columns do not contain disallowed special characters.
-  for (col in design_cols) {
-    vals <- as.character(samples[[col]])
-    for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
-      if (any(grepl(sc, vals))) {
-        warning(paste("Column", col, "contains special character", sc, 
-                      "which may cause issues downstream."))
-      }
-    }
-  }
-
   # Ensure reference and target are valid for their variable
   for (i in 1:nrow(contrasts)) {
+    blocking_vars <- simpleSplit(contrasts[[blocking_column]][i], ";")
+
+    # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
+    # For formula-based contrasts, extract variables from the formula itself.
+    formula_vars <- character(0)
+    if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
+      formula_vars <- all.vars(as.formula(contrasts$formula[i]))
+    }
+
+    design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars, formula_vars)))
+    design_matrix <- samples[, design_cols, drop = FALSE]
+    
+    # Ensure there are no NA values in the design matrix.
+    if (any(is.na(design_matrix))) {
+      stop("NA values found in one or more design matrix columns.")
+    }
+    
+    # Check that the design matrix is full rank.
+    mm <- model.matrix(~ . - 1, data = design_matrix)
+    if (qr(mm)$rank < ncol(mm)) {
+      stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+    }
+    
+    # Warn about continuous covariates in the design matrix columns.
+    for (col in design_cols) {
+      if (is.numeric(samples[[col]])) {
+        warning(paste("Column", col, "is numeric and may be treated as continuous."))
+      }
+    }
+    
+    # Check that values in design matrix columns do not contain disallowed special characters.
+    for (col in design_cols) {
+      vals <- as.character(samples[[col]])
+      for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
+        if (any(grepl(sc, vals))) {
+          warning(paste("Column", col, "contains special character", sc, 
+                        "which may cause issues downstream."))
+        }
+      }
+    }
     var <- contrasts[i, variable_column]
     ref <- contrasts[i, reference_column]
     tgt <- contrasts[i, target_column]
