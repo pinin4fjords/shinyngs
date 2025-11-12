@@ -127,6 +127,17 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
   )
 }
 
+#' Ensure consistency between gene_set_analyses and gene_set_analyses_tool structures
+#'
+#' @description
+#' Ensures that the structure of \code{gene_set_analyses_tool} matches that of \code{gene_set_analyses},
+#' filling in missing elements as needed. Each entry in \code{gene_set_analyses_tool} should be a string
+#' (e.g., "auto", "gsea", or "roast") corresponding to the format of the associated gene set analysis table.
+#'
+#' @param gene_set_analyses A three-level nested list of gene set tables, keyed by assay, gene set type, and contrast.
+#' @param gene_set_analyses_tool A three-level nested list of strings, structured as \code{gene_set_analyses}, indicating the tool used for each gene set analysis.
+#'
+#' @return A three-level nested list of strings, matching the structure of \code{gene_set_analyses}, with missing elements filled as needed.
 check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set_analyses_tool) {
   # gene_set_analyses and gene_set_analyses_tool should have the same list of lists
   # structure. gene_set_analyses_tool should have a single string
