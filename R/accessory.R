@@ -712,6 +712,7 @@ eselistfromConfig <-
         })
         
         ese_list$gene_set_analyses <- remove_nulls(ese_list$gene_set_analyses)
+        ese_list$gene_set_analyses_tool <- exp$gene_set_analyses_tool
       }
 
       do.call(ExploratorySummarizedExperiment, ese_list)
@@ -774,7 +775,11 @@ eselistfromConfig <-
     eselist
   }
 
-# Recursively remove NULL entries from a nested list
+#' Recursively remove NULL entries from a nested list
+#'
+#' @param x A list (possibly nested) from which NULL entries should be removed.
+#'
+#' @return The input list with all NULL entries recursively removed.
 remove_nulls <- function(x) {
   if (is.list(x) && !is.data.frame(x)) {
     x <- lapply(x, remove_nulls)
@@ -1502,9 +1507,24 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
   return(assay_data)
 }
 
-# Gene set enrichment format and filtering columns
-# gst: A data frame coming from the gene enrichment tool (roast, gsea)
-# gs_tool: A string, the tool used to get gst ("auto", "gsea", "roast")
+#' Extract and standardize gene set enrichment columns
+#'
+#' @description
+#'   Determines the appropriate column names for p-value, FDR, and direction in a gene set enrichment result data frame,
+#'   based on the tool used (e.g., "gsea" or "roast"). Optionally removes extraneous columns for GSEA results.
+#'
+#' @param gst A data frame from a gene enrichment tool (e.g., roast, gsea).
+#' @param gs_tool A string specifying the tool used to generate \code{gst}. One of "auto", "gsea", or "roast".
+#'
+#' @return A list with the following elements:
+#'   \describe{
+#'     \item{gst}{The possibly modified input data frame with extraneous columns removed (for GSEA).}
+#'     \item{gs_tool}{The detected or specified gene set analysis tool.}
+#'     \item{pvalue_col_name}{The name of the p-value column.}
+#'     \item{fdr_col_name}{The name of the FDR column.}
+#'     \item{direction_col_name}{The name of the direction column.}
+#'   }
+#'
 get_gst_columns <- function(gst, gs_tool) {
   # Auto-detection:
   if (gs_tool == "auto") {

@@ -154,7 +154,7 @@ option_list <- list(
     "--enrichment_gene_type_id",
     type = "character",
     default = "gene_name",
-    help = "Gene identifier in the enrichnent gene sets. Use this to specify that the gmt files represent genes with the gene name or an entrez id"
+    help = "Gene identifier in the enrichment gene sets. Use this to specify that the gmt files represent genes with the gene name or an entrez id"
   ),
   make_option(
     c("-o", "--output_directory"),
@@ -312,7 +312,7 @@ if (!is.null(opt$enrichment_filename_template)) {
     stop("When --enrichment_filename_template is given, --enrichment_gene_sets is required")
   }
 
-  contrasts_df = read_metadata(opt$contrast_file)
+  contrasts_df <- read_metadata(opt$contrast_file)
   genesets_files <- stringsToNamedVector(
     opt$enrichment_gene_sets,
     simplify_files = TRUE,
@@ -362,7 +362,7 @@ if (!is.null(opt$enrichment_filename_template)) {
           }
           
         } else {
-          enrichment_file <- gene_set_template
+          enrichment_file <- opt$enrichment_filename_template
           enrichment_file <- gsub("{contrast_name}", contrast_name, enrichment_file, fixed=TRUE)
           enrichment_file <- gsub("{geneset_type}", geneset_type, enrichment_file, fixed=TRUE)
           if (file.exists(enrichment_file)) {
