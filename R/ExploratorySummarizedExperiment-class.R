@@ -141,10 +141,7 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set_analyses_tool) {
   # gene_set_analyses and gene_set_analyses_tool should have the same list of lists
   # structure. gene_set_analyses_tool should have a single string
-  
-  # Create default structure if necessary:
-  out <- list()
-  
+
   if (is.null(gene_set_analyses_tool)) {
     gene_set_analyses_tool <- list()
   }
