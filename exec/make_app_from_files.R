@@ -342,15 +342,8 @@ if (!is.null(opt$enrichment_filename_template)) {
         # becomes:
         # "gsea_for_disease_vs_healthy_using_geo_bp_results.tsv"
         if (grepl("target\\|reference", opt$enrichment_filename_template)) {
-          up_file <- opt$enrichment_filename_template
-          up_file <- gsub("{contrast_name}", contrast_name, up_file, fixed=TRUE)
-          up_file <- gsub("{geneset_type}", geneset_type, up_file, fixed=TRUE)
-          up_file <- gsub("{target|reference}", ctrst_info$target, up_file, fixed=TRUE)
-          
-          down_file <- opt$enrichment_filename_template
-          down_file <- gsub("{contrast_name}", contrast_name, down_file, fixed=TRUE)
-          down_file <- gsub("{geneset_type}", geneset_type, down_file, fixed=TRUE)
-          down_file <- gsub("{target|reference}", ctrst_info$reference, down_file, fixed=TRUE)
+          up_file <- build_enrichment_path(opt$enrichment_filename_template, ctrst_info, geneset_type, "up")
+          down_file <- build_enrichment_path(opt$enrichment_filename_template, ctrst_info, geneset_type, "down")
           if (file.exists(up_file) && file.exists(down_file)) {
             list("up" = up_file, "down" = down_file)
           } else {
@@ -360,11 +353,8 @@ if (!is.null(opt$enrichment_filename_template)) {
               stop(sprintf("both enrichment files should exist: %s and %s", up_file, down_file))
             }
           }
-          
         } else {
-          enrichment_file <- opt$enrichment_filename_template
-          enrichment_file <- gsub("{contrast_name}", contrast_name, enrichment_file, fixed=TRUE)
-          enrichment_file <- gsub("{geneset_type}", geneset_type, enrichment_file, fixed=TRUE)
+          enrichment_file <- build_enrichment_path(opt$enrichment_filename_template, ctrst_info, geneset_type)
           if (file.exists(enrichment_file)) {
             enrichment_file
           } else {
