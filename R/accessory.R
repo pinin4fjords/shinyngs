@@ -1507,6 +1507,45 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
   return(assay_data)
 }
 
+
+#' Build path to the enrichment results
+#' 
+#' The template accepts the following:
+#' 
+#' - `{contrast_name}`: Will be replaced by `contrast_info$id` argument
+#' - `{geneset_type`: Will be replaced by the `geneset_type` argument
+#' - `{target|reference}`: If the `direction` argument is `"up"`, will be replaced
+#'   with `contrast_info$target`, if it is `"down"`, `contrast_info$reference` will be
+#'   used instead.
+#'
+#' @param template A string, such as `"/path/to/folder/{contrast_name}-{geneset_type}.csv"` or
+#' `"./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv"`
+#' @param contrast_info  A list with contrast details: `id`, `reference`, and `target`,
+#'   to be replaced in template.
+#' @param geneset_type The name of the geneset type, to be replaced in the template
+#' @param direction Either `"up"`, `"down"` or `NULL`, used to determine how the replacement will happen.
+#'
+#' @returns A string similar to template, but with the templates replaced
+#' @export
+#' @examples
+#' build_enrichment_path(
+#'   template = "./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv",
+#'   contrast_info = list(id="disease_vs_ctrl", reference="control", target="disease"),
+#'   geneset_type = "m2.cp.v2024.1.Mm.entrez",
+#'   direction = "up"
+#' )
+#' 
+build_enrichment_path <- function(template, contrast_info, geneset_type, direction = NULL) {
+  path <- template
+  path <- gsub("{contrast_name}", contrast_info$id, path, fixed = TRUE)
+  path <- gsub("{geneset_type}", geneset_type, path, fixed = TRUE)
+  if (!is.null(direction)) {
+    target_val <- if (direction == "up") contrast_info$target else contrast_info$reference
+    path <- gsub("{target|reference}", target_val, path, fixed = TRUE)
+  }
+  path
+}
+
 #' Extract and standardize gene set enrichment columns
 #'
 #' @description
