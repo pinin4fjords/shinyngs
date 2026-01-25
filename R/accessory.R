@@ -556,9 +556,9 @@ eselistFromYAML <- function(configfile) {
 }
 
 #' Reads gene enrichment files
-#'
+#' @noRd
 #' @param contrast_spec One of:
-#' - `NULL` (meaning no enrichment was analyzed for that contrast)
+#' - \code{NULL} (meaning no enrichment was analyzed for that contrast)
 #' - a path to a file (e.g. the table output from roast)
 #' - a named list with elements "up" and "down" with paths to files (e.g.
 #'  corresponding to gsea up-regulated and down-regulated output tables).
@@ -566,8 +566,7 @@ eselistFromYAML <- function(configfile) {
 #'  The two tables from GSEA output will be combined into a single data frame. A column "Direction" with
 #'  values "Up" and "Down" will be added.
 #'
-#' @returns A data frame with the file contents (or `NULL`)
-#' @export
+#' @returns A data frame with the file contents (or \code{NULL})
 #'
 read_enrichment_file <- function(contrast_spec) {
   # contrast_spec may be one file name or two file names (up and down), or NULL
@@ -802,7 +801,7 @@ eselistfromConfig <-
   }
 
 #' Recursively remove NULL entries from a nested list
-#'
+#' @noRd
 #' @param x A list (possibly nested) from which NULL entries should be removed.
 #'
 #' @return The input list with all NULL entries recursively removed.
@@ -1536,16 +1535,19 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
 
 #' Build path to the enrichment results
 #' 
+#' @details
+#' 
 #' The template accepts the following:
 #' 
-#' - `{contrast_name}`: Will be replaced by `contrast_info$id` argument
-#' - `{geneset_type`: Will be replaced by the `geneset_type` argument
-#' - `{target|reference}`: If the `direction` argument is `"up"`, will be replaced
-#'   with `contrast_info$target`, if it is `"down"`, `contrast_info$reference` will be
-#'   used instead.
+#' \describe{
+#'   \item{\code{\{contrast_name\}}}{Will be replaced by \code{contrast_info$id} argument}
+#'   \item{\code{\{geneset_type\}}}{Will be replaced by the \code{geneset_type} argument}
+#'   \item{\code{\{target|reference\}}}{If the \code{direction} argument is \code{"up"}, will be replaced
+#'   with \code{contrast_info$target}, if it is \code{"down"}, \code{contrast_info$reference} will be used instead.}
+#' }
 #'
-#' @param template A string, such as `"/path/to/folder/{contrast_name}-{geneset_type}.csv"` or
-#' `"./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv"`
+#' @param template A string, such as \code{"/path/to/folder/{contrast_name}-{geneset_type}.csv"} or
+#' \code{"./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv"}
 #' @param contrast_info  A list with contrast details: `id`, `reference`, and `target`,
 #'   to be replaced in template.
 #' @param geneset_type The name of the geneset type, to be replaced in the template
