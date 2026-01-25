@@ -174,15 +174,15 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
       } else {
         gs_tool <- "auto"
       }
+      if (gs_tool == "auto") {
+        gs_tool <- detect_enrichment_tool(gst)
+      }
+      validate_enrichment_table(gst, gs_tool)
+      col_map <- get_enrichment_mapping(gst, gs_tool)
+      gst <- clean_enrichment_table(gst, gs_tool)
       
-      gst_and_colinfo <- get_gst_columns(gst, gs_tool)
-      # unpack:
-      gst <- gst_and_colinfo$gst
-      fdr_col_name <- gst_and_colinfo$fdr_col_name
-      direction_col_name <- gst_and_colinfo$direction_col_name
-      
-      fdr <- paste(signif(gst[gene_set_names, fdr_col_name], 3), collapse = ",")
-      direction <- paste(gst[gene_set_names, direction_col_name], collapse = ",")
+      fdr <- paste(signif(gst[gene_set_names, col_map$fdr], 3), collapse = ",")
+      direction <- paste(gst[gene_set_names, col_map$direction], collapse = ",")
       title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
     } else {
       title_components <- c(title_components, "(no association)")
