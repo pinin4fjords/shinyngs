@@ -555,6 +555,52 @@ eselistFromYAML <- function(configfile) {
   eselistFromList(config)
 }
 
+#' Reads gene enrichment files
+#'
+#' @param contrast_spec One of:
+#' - `NULL` (meaning no enrichment was analyzed for that contrast)
+#' - a path to a file (e.g. the table output from roast)
+#' - a named list with elements "up" and "down" with paths to files (e.g.
+#'  corresponding to gsea up-regulated and down-regulated output tables).
+#'  
+#'  The two tables from GSEA output will be combined into a single data frame. A column "Direction" with
+#'  values "Up" and "Down" will be added.
+#'
+#' @returns A data frame with the file contents (or `NULL`)
+#' @export
+#'
+read_enrichment_file <- function(contrast_spec) {
+  # contrast_spec may be one file name or two file names (up and down), or NULL
+  if (is.null(contrast_spec) || length(contrast_spec) == 0) {
+    return(NULL)
+  }
+
+  read_one <- function(path) {
+    read.csv(path, sep = getSeparator(path), check.names = FALSE, 
+             stringsAsFactors = FALSE, row.names = 1)
+  }
+  
+  if (length(contrast_spec) == 1) {
+    return(read_one(contrast_spec))
+  }
+  
+  if (length(contrast_spec) == 2) {
+    # This is useful for GSEA output, that splits up and down in two tsv files.
+    # We read both files and set the direction
+    up <- read_one(contrast_spec[["up"]])
+    if (nrow(up) > 0) {
+      up$Direction <- "Up"
+    }
+    down <- read_one(contrast_spec[["down"]])
+    if (nrow(down) > 0) {
+      down$Direction <- "Down"
+    }
+    return(rbind(up, down))
+  }
+
+  stop("gene_set_analyses should have zero, one or two contrast files per gene_set_type")
+}
+
 #' Build an ExploratorySummarisedExperimentList from a description provided in a list
 #'
 #' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
@@ -687,27 +733,7 @@ eselistfromConfig <-
 
         ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
           lapply(assay, function(gene_set_type) {
-            lapply(gene_set_type, function(contrast) {
-              # contrast may be one file name or two file names (up and down), or NULL
-              if (is.null(contrast) || length(contrast) == 0) {
-                NULL
-              } else if (length(contrast) == 1) {
-                read.csv(contrast, sep=getSeparator(contrast),
-                         check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
-              } else if (length(contrast) == 2) {
-                # This is useful for GSEA output, that splits up and down in two tsv files.
-                # We read both files and set the direction
-                up <- read.csv(contrast[["up"]], sep=getSeparator(contrast[["up"]]),
-                               check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
-                up$Direction <- rep("Up", nrow(up))
-                down <- read.csv(contrast[["down"]], sep=getSeparator(contrast[["down"]]),
-                               check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
-                down$Direction <- rep("Down", nrow(down))
-                rbind(up, down)
-              } else {
-                stop("gene_set_analyses should have zero, one or two contrast files per gene_set_type")
-              }
-            })
+            lapply(gene_set_type, read_enrichment_file)
           })
         })
         
