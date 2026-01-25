@@ -144,3 +144,7 @@ test_that("read_enrichment_file parses file correctly", {
                                     rbind(up_df, down_df))
 })
 
+
+test_that("remove_nulls works", {
+  expect_equal(remove_nulls(list(1, NULL, 2)), list(1, 2))
+})
