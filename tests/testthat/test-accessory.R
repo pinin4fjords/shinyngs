@@ -126,3 +126,21 @@ contrasts:
 
   unlink(yaml_file)
 })
+
+test_that("read_enrichment_file parses file correctly", {
+  up_text <- "geneset,p value,FDR,Direction\ndummy,0.04,0.01,Up\n"
+  up_file <- tempfile(pattern = "test_shinyngs", fileext = ".csv")
+  up_df <- read.csv(textConnection(up_text), check.names = FALSE, row.names = 1)
+  write(up_text, up_file)
+  
+  down_text <- "geneset,p value,FDR,Direction\ndummy2,0.04,0.01,Down\n"
+  down_file <- tempfile(pattern = "test_shinyngs", fileext = ".csv")
+  down_df <- read.csv(textConnection(down_text), check.names = FALSE, row.names = 1)
+  write(down_text, down_file)
+
+  expect_equal(read_enrichment_file(NULL), NULL)
+  expect_equal(read_enrichment_file(up_file), up_df)
+  expect_equal(read_enrichment_file(c("up" = up_file,"down" = down_file)),
+                                    rbind(up_df, down_df))
+})
+
