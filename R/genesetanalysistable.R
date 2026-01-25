@@ -244,26 +244,12 @@ genesetanalysistable <- function(input, output, session, eselist) {
     } else {
       gs_tool <- "auto"
     }
-    
-    gst_and_colinfo <- get_gst_columns(gst, gs_tool)
-    # unpack:
-    gst <- gst_and_colinfo$gst
-    gs_tool <- gst_and_colinfo$gs_tool
-    pvalue_col_name <- gst_and_colinfo$pvalue_col_name
-    fdr_col_name <- gst_and_colinfo$fdr_col_name
-    direction_col_name <- gst_and_colinfo$direction_col_name
-    
-    if (!pvalue_col_name %in% colnames(gst)) {
-      stop(paste0(pvalue_col_name, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+    if (gs_tool == "auto") {
+      gs_tool <- detect_enrichment_tool(gst)
     }
-    
-    if (!fdr_col_name %in% colnames(gst)) {
-      stop(paste0(fdr_col_name, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
-    }
-    
-    if (!direction_col_name %in% colnames(gst)) {
-      stop(paste0(direction_col_name, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
-    }
+    validate_enrichment_table(gst, gs_tool)
+    col_map <- get_enrichment_mapping(gst, gs_tool)
+    gst <- clean_enrichment_table(gst, gs_tool)
 
     # Select out specific gene sets if they've been provided
 
@@ -281,7 +267,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
 
     # Apply the user's filters
 
-    gst <- gst[gst[[pvalue_col_name]] < input$pval & gst[[fdr_col_name]] < input$fdr, , drop = FALSE]
+    gst <- gst[gst[[col_map$pvalue]] < input$pval & gst[[col_map$fdr]] < input$fdr, , drop = FALSE]
 
     validate(need(nrow(gst) > 0, "No results matching specified filters"))
 
@@ -295,7 +281,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
       gene_sets <- getGeneSets()
 
       gst$significant_genes <- apply(gst, 1, function(row) {
-        if (row[direction_col_name] == "Up") {
+        if (row[col_map$direction] == "Up") {
           siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], up)
         } else {
           siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], down)

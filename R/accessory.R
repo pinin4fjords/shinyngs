@@ -1572,65 +1572,64 @@ build_enrichment_path <- function(template, contrast_info, geneset_type, directi
   path
 }
 
-#' Extract and standardize gene set enrichment columns
+#' Detects the enrichment tool used
 #'
-#' @description
-#'   Determines the appropriate column names for p-value, FDR, and direction in a gene set enrichment result data frame,
-#'   based on the tool used (e.g., "gsea" or "roast"). Optionally removes extraneous columns for GSEA results.
+#' @noRd
+#' @param gst The enrichment table
 #'
-#' @param gst A data frame from a gene enrichment tool (e.g., roast, gsea).
-#' @param gs_tool A string specifying the tool used to generate \code{gst}. One of "auto", "gsea", or "roast".
+#' @returns The enrichment tool as a string, based on whether "NOM p-val" is a column ("gsea") or
+#' either "p value" or "PValue" are found ("roast")
+detect_enrichment_tool <- function(gst) {
+  if ("NOM p-val" %in% colnames(gst)) return("gsea")
+  if (any(c("p value", "PValue") %in% colnames(gst))) return("roast")
+  stop("Could not detect enrichment tool from column names")
+}
+
+
+
+#' Get the expected column names for the gene set enrichment tool
 #'
-#' @return A list with the following elements:
-#'   \describe{
-#'     \item{gst}{The possibly modified input data frame with extraneous columns removed (for GSEA).}
-#'     \item{gs_tool}{The detected or specified gene set analysis tool.}
-#'     \item{pvalue_col_name}{The name of the p-value column.}
-#'     \item{fdr_col_name}{The name of the FDR column.}
-#'     \item{direction_col_name}{The name of the direction column.}
-#'   }
+#' @noRd
+#' @param gst The enrichment table.
+#' @param gs_tool Either `"roast"` or `"gsea"`.
 #'
-get_gst_columns <- function(gst, gs_tool) {
-  # Auto-detection:
-  if (gs_tool == "auto") {
-    if ("NOM p-val" %in% colnames(gst)) {
-      gs_tool <- "gsea"
-    }
-    else if (any(c("p value", "PValue") %in% colnames(gst))) {
-      gs_tool <- "roast"
-    } else {
-      stop("Could not detect gs_tool method.")
-    }
-  }
-  
+#' @returns A list with three elements: `"pvalue"`, `"fdr"` and `"direction"`. Each element is
+#' a string pointing to the expected column name for that tool.
+get_enrichment_mapping <- function(gst, gs_tool) {
+  mappings <- list(
+    roast = list(pvalue = "p value", fdr = "FDR", direction = "Direction"),
+    gsea = list(pvalue = "NOM p-val", fdr = "FDR q-val", direction = "Direction")
+  )
   if (gs_tool == "roast") {
-    # mroast has PValue instead of "p value", check:
     if ("PValue" %in% colnames(gst)) {
-      pvalue_col_name <- "PValue"
-    } else {
-      pvalue_col_name <- "p value"
+      mappings[["roast"]][["pvalue"]] <- "PValue"
     }
-    fdr_col_name <- "FDR"
-    direction_col_name <- "Direction"
-  } else if (gs_tool == "gsea") {
-    pvalue_col_name <- "NOM p-val"
-    fdr_col_name <- "FDR q-val"
-    direction_col_name <- "Direction"
-  } else {
-    stop(paste0("Invalid gene_set_analyses_tool: ", gs_tool))
+  }
+  mappings[[gs_tool]]
+}
+
+# Returns an error if the table has missing expected columns.
+validate_enrichment_table <- function(gst, gs_tool) {
+  col_map <- get_enrichment_mapping(gst, gs_tool)
+  # sanity checks
+  if (!col_map$pvalue %in% colnames(gst)) {
+    stop(paste0(col_map$pvalue, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
   }
   
+  if (!col_map$fdr %in% colnames(gst)) {
+    stop(paste0(col_map$fdr, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+  }
+  
+  if (!col_map$direction %in% colnames(gst)) {
+    stop(paste0(col_map$direction, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+  }
+}
+
+clean_enrichment_table <- function(gst, gs_tool) {
   if (gs_tool == "gsea") {
     # gsea tsv files have two useless columns that can be removed:
     cols_to_remove <- c("GS<br> follow link to MSigDB", "GS DETAILS")
-    gst <- gst[ , !(names(gst) %in% cols_to_remove), drop=FALSE]
+    gst <- gst[ , !(colnames(gst) %in% cols_to_remove), drop=FALSE]
   }
-
-  list(
-    gst = gst,
-    gs_tool = gs_tool,
-    pvalue_col_name = pvalue_col_name,
-    fdr_col_name = fdr_col_name,
-    direction_col_name = direction_col_name
-  )
+  gst
 }
