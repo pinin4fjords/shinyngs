@@ -145,39 +145,51 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
   if (is.null(gene_set_analyses_tool)) {
     gene_set_analyses_tool <- list()
   }
-  for (assay_name in names(gene_set_analyses)) {
-    if (!assay_name %in% names(gene_set_analyses_tool)) {
-      gene_set_analyses_tool[[assay_name]] <- list()
+  
+  valid_tools <- c("auto", "gsea", "roast")
+  
+  safe_get <- function(x, path, default="auto") {
+    # similar to purrr::pluck()
+    if (is.null(x)) {
+      return(default)
     }
-    for (gs_type in names(gene_set_analyses[[assay_name]])) {
-      if (! gs_type %in% names(gene_set_analyses_tool[[assay_name]])) {
-        gene_set_analyses_tool[[assay_name]][[gs_type]] <- list()
+    for (p in path) {
+      if (!p %in% names(x)) {
+        return(default)
       }
-      for (contrast_name in names(gene_set_analyses[[assay_name]][[gs_type]])) {
-        if (! contrast_name %in% names(gene_set_analyses_tool[[assay_name]][[gs_type]])) {
-          gene_set_analyses_tool[[assay_name]][[gs_type]][[contrast_name]] <- "auto"
-        } else {
-          tool_name <- gene_set_analyses_tool[[assay_name]][[gs_type]][[contrast_name]]
-          if (!is.character(tool_name) || length(tool_name) > 1) {
-            stop(paste0("Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
-                        gs_type, " and ", contrast_name, " should be one of 'auto', 'gsea' or 'roast'. Found ",
-                        paste0(tool_name, collapse=",")))
-          }
-          if (! tool_name %in% c("auto", "gsea", "roast")) {
-            stop(paste0("Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
-                        gs_type, " and ", contrast_name, " should be one of 'auto', 'gsea' or 'roast'. Found ",
-                        tool_name))
-          }
-        }
+      x <- x[[p]]
+      if (is.null(x)) {
+        return(default)
       }
-      # In case gene_set_analyses_tool has other entries, just keep the ones matching gene_set_analyses
-      contrasts_ordered <- names(gene_set_analyses[[assay_name]][[gs_type]])
-      gene_set_analyses_tool[[assay_name]][[gs_type]] <- gene_set_analyses_tool[[assay_name]][[gs_type]][contrasts_ordered]
     }
-    gene_set_type_names_ordered <- names(gene_set_analyses[[assay_name]])
-    gene_set_analyses_tool[[assay_name]] <- gene_set_analyses_tool[[assay_name]][gene_set_type_names_ordered]
+    x
   }
-  analysis_names_ordered <- names(gene_set_analyses_tool)
-  gene_set_analyses_tool <- gene_set_analyses_tool[analysis_names_ordered]
-  gene_set_analyses_tool
+
+  lapply(
+    setNames(nm=names(gene_set_analyses)),
+    function(assay_name) {
+      gene_sets <- gene_set_analyses[[assay_name]]
+      lapply(
+        setNames(nm=names(gene_sets)),
+        function(gene_set_name) {
+          contrasts <- gene_sets[[gene_set_name]]
+          lapply(
+            setNames(nm=names(contrasts)),
+            function(contrast_name) {
+              tool_name <- safe_get(gene_set_analyses_tool, c(assay_name, gene_set_name, contrast_name), "auto")
+              if (!is.character(tool_name) || length(tool_name) > 1 || !tool_name %in% valid_tools) {
+                stop(
+                  "Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
+                  assay_name, ",", gene_set_name, ",", contrast_name,
+                  ". It should be one of 'auto', 'gsea' or 'roast'. Found ",
+                  tool_name
+                )
+              }
+              tool_name
+            }
+          )
+        }
+      )
+    }
+  )
 }
