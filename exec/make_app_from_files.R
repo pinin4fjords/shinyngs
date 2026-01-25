@@ -313,11 +313,8 @@ if (!is.null(opt$enrichment_filename_template)) {
   }
 
   contrasts_df <- read_metadata(opt$contrast_file)
-  genesets_files <- stringsToNamedVector(
-    opt$enrichment_gene_sets,
-    simplify_files = TRUE,
-    prettify_names = TRUE
-  )
+  genesets_files <- simpleSplit(opt$enrichment_gene_sets)
+  names(genesets_files) <- tools::file_path_sans_ext(basename(genesets_files))
 
   gene_set_analyses <- list(
     lapply(setNames(nm=names(genesets_files)), function(geneset_type) {
