@@ -128,6 +128,7 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 }
 
 #' Ensure consistency between gene_set_analyses and gene_set_analyses_tool structures
+#' @noRd
 #'
 #' @description
 #' Ensures that the structure of \code{gene_set_analyses_tool} matches that of \code{gene_set_analyses},
