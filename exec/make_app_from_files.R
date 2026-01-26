@@ -440,7 +440,7 @@ myesel <- eselistfromConfig(
 
 # Write output
 
-dir.create(opt$output_directory, showWarnings = FALSE)
+dir.create(opt$output_directory, showWarnings = FALSE, recursive = TRUE)
 saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
 writeLines(
   c(
