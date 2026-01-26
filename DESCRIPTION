@@ -5,9 +5,10 @@ Authors@R: person("Jonathan", "Manning", email = "jonathan.manning@seqera.io", r
 Description: Provides Shiny applications for various array and NGS applications.
     Currently very RNA-seq centric, with plans for expansion.
 Depends:
-    R (>= 3.2.2),
+    R (>= 3.4.0),
     SummarizedExperiment
 License: AGPL (>= 3)
+Encoding: UTF-8
 LazyData: true
 Imports:
     cluster,
@@ -53,6 +54,6 @@ Remotes:
     cran/d3heatmap,
     pinin4fjords/zhangneurons
 biocViews: Software
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 Config/testthat/edition: 3

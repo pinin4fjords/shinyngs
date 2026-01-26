@@ -555,6 +555,51 @@ eselistFromYAML <- function(configfile) {
   eselistFromList(config)
 }
 
+#' Reads gene enrichment files
+#' @noRd
+#' @param contrast_spec One of:
+#' - \code{NULL} (meaning no enrichment was analyzed for that contrast)
+#' - a path to a file (e.g. the table output from roast)
+#' - a named list with elements "up" and "down" with paths to files (e.g.
+#'  corresponding to gsea up-regulated and down-regulated output tables).
+#'  
+#'  The two tables from GSEA output will be combined into a single data frame. A column "Direction" with
+#'  values "Up" and "Down" will be added.
+#'
+#' @returns A data frame with the file contents (or \code{NULL})
+#'
+read_enrichment_file <- function(contrast_spec) {
+  # contrast_spec may be one file name or two file names (up and down), or NULL
+  if (is.null(contrast_spec) || length(contrast_spec) == 0) {
+    return(NULL)
+  }
+
+  read_one <- function(path) {
+    read.csv(path, sep = getSeparator(path), check.names = FALSE, 
+             stringsAsFactors = FALSE, row.names = 1)
+  }
+  
+  if (length(contrast_spec) == 1) {
+    return(read_one(contrast_spec))
+  }
+  
+  if (length(contrast_spec) == 2) {
+    # This is useful for GSEA output, that splits up and down in two tsv files.
+    # We read both files and set the direction
+    up <- read_one(contrast_spec[["up"]])
+    if (nrow(up) > 0) {
+      up$Direction <- "Up"
+    }
+    down <- read_one(contrast_spec[["down"]])
+    if (nrow(down) > 0) {
+      down$Direction <- "Down"
+    }
+    return(rbind(up, down))
+  }
+
+  stop("gene_set_analyses should have zero, one or two contrast files per gene_set_type")
+}
+
 #' Build an ExploratorySummarisedExperimentList from a description provided in a list
 #'
 #' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
@@ -682,13 +727,17 @@ eselistfromConfig <-
       }
 
       if ("gene_set_analyses" %in% names(exp)) {
+        # Basic list to pass to object creation
+        exp$gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(exp$gene_set_analyses, exp$gene_set_analyses_tool)
+
         ese_list$gene_set_analyses <- lapply(exp$gene_set_analyses, function(assay) {
           lapply(assay, function(gene_set_type) {
-            lapply(gene_set_type, function(contrast) {
-              read.csv(contrast, check.names = FALSE, stringsAsFactors = FALSE, row.names = 1)
-            })
+            lapply(gene_set_type, read_enrichment_file)
           })
         })
+        
+        ese_list$gene_set_analyses <- remove_nulls(ese_list$gene_set_analyses)
+        ese_list$gene_set_analyses_tool <- exp$gene_set_analyses_tool
       }
 
       do.call(ExploratorySummarizedExperiment, ese_list)
@@ -750,6 +799,19 @@ eselistfromConfig <-
 
     eselist
   }
+
+#' Recursively remove NULL entries from a nested list
+#' @noRd
+#' @param x A list (possibly nested) from which NULL entries should be removed.
+#'
+#' @return The input list with all NULL entries recursively removed.
+remove_nulls <- function(x) {
+  if (is.list(x) && !is.data.frame(x)) {
+    x <- lapply(x, remove_nulls)
+    x <- Filter(Negate(is.null), x)
+  }
+  return(x)
+}
 
 #' Read an expression matrix file and match to specified samples and features
 #'
@@ -1470,3 +1532,106 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
   return(assay_data)
 }
 
+
+#' Build path to the enrichment results
+#' 
+#' @details
+#' 
+#' The template accepts the following:
+#' 
+#' \describe{
+#'   \item{\code{\{contrast_name\}}}{Will be replaced by \code{contrast_info$id} argument}
+#'   \item{\code{\{geneset_type\}}}{Will be replaced by the \code{geneset_type} argument}
+#'   \item{\code{\{target|reference\}}}{If the \code{direction} argument is \code{"up"}, will be replaced
+#'   with \code{contrast_info$target}, if it is \code{"down"}, \code{contrast_info$reference} will be used instead.}
+#' }
+#'
+#' @param template A string, such as \code{"/path/to/folder/{contrast_name}-{geneset_type}.csv"} or
+#' \code{"./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv"}
+#' @param contrast_info  A list with contrast details: `id`, `reference`, and `target`,
+#'   to be replaced in template.
+#' @param geneset_type The name of the geneset type, to be replaced in the template
+#' @param direction Either `"up"`, `"down"` or `NULL`, used to determine how the replacement will happen.
+#'
+#' @returns A string similar to template, but with the templates replaced
+#' @export
+#' @examples
+#' build_enrichment_path(
+#'   template = "./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv",
+#'   contrast_info = list(id="disease_vs_ctrl", reference="control", target="disease"),
+#'   geneset_type = "m2.cp.v2024.1.Mm.entrez",
+#'   direction = "up"
+#' )
+#' 
+build_enrichment_path <- function(template, contrast_info, geneset_type, direction = NULL) {
+  path <- template
+  path <- gsub("{contrast_name}", contrast_info$id, path, fixed = TRUE)
+  path <- gsub("{geneset_type}", geneset_type, path, fixed = TRUE)
+  if (!is.null(direction)) {
+    target_val <- if (direction == "up") contrast_info$target else contrast_info$reference
+    path <- gsub("{target|reference}", target_val, path, fixed = TRUE)
+  }
+  path
+}
+
+#' Detects the enrichment tool used
+#'
+#' @noRd
+#' @param gst The enrichment table
+#'
+#' @returns The enrichment tool as a string, based on whether "NOM p-val" is a column ("gsea") or
+#' either "p value" or "PValue" are found ("roast")
+detect_enrichment_tool <- function(gst) {
+  if ("NOM p-val" %in% colnames(gst)) return("gsea")
+  if (any(c("p value", "PValue") %in% colnames(gst))) return("roast")
+  stop("Could not detect enrichment tool from column names")
+}
+
+
+
+#' Get the expected column names for the gene set enrichment tool
+#'
+#' @noRd
+#' @param gst The enrichment table.
+#' @param gs_tool Either `"roast"` or `"gsea"`.
+#'
+#' @returns A list with three elements: `"pvalue"`, `"fdr"` and `"direction"`. Each element is
+#' a string pointing to the expected column name for that tool.
+get_enrichment_mapping <- function(gst, gs_tool) {
+  mappings <- list(
+    roast = list(pvalue = "p value", fdr = "FDR", direction = "Direction"),
+    gsea = list(pvalue = "NOM p-val", fdr = "FDR q-val", direction = "Direction")
+  )
+  if (gs_tool == "roast") {
+    if ("PValue" %in% colnames(gst)) {
+      mappings[["roast"]][["pvalue"]] <- "PValue"
+    }
+  }
+  mappings[[gs_tool]]
+}
+
+# Returns an error if the table has missing expected columns.
+validate_enrichment_table <- function(gst, gs_tool) {
+  col_map <- get_enrichment_mapping(gst, gs_tool)
+  # sanity checks
+  if (!col_map$pvalue %in% colnames(gst)) {
+    stop(paste0(col_map$pvalue, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+  }
+  
+  if (!col_map$fdr %in% colnames(gst)) {
+    stop(paste0(col_map$fdr, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+  }
+  
+  if (!col_map$direction %in% colnames(gst)) {
+    stop(paste0(col_map$direction, " column not found in gst. Found: ", paste0(colnames(gst), collapse=", ")))
+  }
+}
+
+clean_enrichment_table <- function(gst, gs_tool) {
+  if (gs_tool == "gsea") {
+    # gsea tsv files have two useless columns that can be removed:
+    cols_to_remove <- c("GS<br> follow link to MSigDB", "GS DETAILS")
+    gst <- gst[ , !(colnames(gst) %in% cols_to_remove), drop=FALSE]
+  }
+  gst
+}

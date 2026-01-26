@@ -15,7 +15,7 @@
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperimentList", contains = "list", representation = representation(
+setClass("ExploratorySummarizedExperimentList", contains = "list", slots = c(
   title = "character", author = "character", description = "character", static_pdf = "character",
   group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", gene_set_id_type = "character", ensembl_species = "character"
 ))
@@ -149,7 +149,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
       } else {
         # Numeric IDs (like entrez will be cast to integers)
 
-        is_numeric <- all(!is.na(as.numeric(annotation[[gene_set_id_type]])))
+        is_numeric <- all(!is.na(suppressWarnings(as.numeric(annotation[[gene_set_id_type]]))))
       }
 
       print("Processing gene sets")

@@ -15,7 +15,8 @@ ExploratorySummarizedExperiment(
   assay_measures = list(),
   gene_set_analyses = list(),
   dexseq_results = list(),
-  read_reports = list()
+  read_reports = list(),
+  gene_set_analyses_tool = list()
 )
 }
 \arguments{
@@ -46,9 +47,8 @@ correspond to 'contrasts' set in the containing SummarizedExperimentList.}
 \item{assay_measures}{Optional List of measures to display related to each
 assay.}
 
-\item{gene_set_analyses}{List of lists of gene set tables keyed first by
-gene set
-type and secondly by contrast}
+\item{gene_set_analyses}{Three-level nested lists of gene set tables keyed first by
+assay, then by gene set type and then by contrast.}
 
 \item{dexseq_results}{An optional list of \code{DEXSeqResults} objects
 corresponding to the contrasts listed in the \code{contrasts} slot..}
@@ -56,6 +56,10 @@ corresponding to the contrasts listed in the \code{contrasts} slot..}
 \item{read_reports}{A named list of matrices with read counts in columns
 and sample names in rows. Useful for providing mapped read counts,
 counts per gene type etc}
+
+\item{gene_set_analyses_tool}{Three-level nested lists of a string, nested as \code{gene_set_analyses}.
+Each string may be \code{"auto"} (the default), \code{"gsea"} or \code{"roast"}. It defines the format of the
+corresponding \code{gene_set_analyses} table.}
 }
 \value{
 output An ExploratoryRangedSummarizedExperient object
