@@ -827,7 +827,7 @@ read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors 
       read.delim(
         filename,
         sep = sep,
-        check.names = FALSE,
+        check.names = TRUE,
         header = TRUE,
         stringsAsFactors = stringsAsFactors
       )
@@ -845,6 +845,8 @@ read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors 
           filename
         )
       )
+    } else {
+      id_col <- make.names(id_col)
     }
 
     metadata <- metadata[match(unique(metadata[[id_col]]), metadata[[id_col]]), ]
