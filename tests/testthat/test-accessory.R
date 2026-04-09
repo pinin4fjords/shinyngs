@@ -34,11 +34,11 @@ test_that("nlines works", {
 
 test_that("read_contrasts parses YAML correctly", {
   samples <- data.frame(
-    sample = c("Sample1", "Sample7", "Sample13", "Sample19", "Sample16"),
-    genotype = c("WT", "WT", "KO", "KO", "KO"),
-    treatment = c("Control", "Treated", "Control", "Treated", "Control"),
-    time = c(1, 1, 1, 1, 16),
-    batch = c("b1", "b1", "b1", "b1", "b3"),
+    sample = c("Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6", "Sample7", "Sample8"),
+    genotype = c("WT", "WT", "WT", "WT", "KO", "KO", "KO", "KO"),
+    treatment = c("Control", "Control", "Treated", "Treated", "Control", "Control", "Treated", "Treated"),
+    time = c(1, 16, 1, 16, 1, 16, 1, 16),
+    batch = c("b1", "b2", "b1", "b2", "b1", "b2", "b1", "b2"),
     stringsAsFactors = FALSE
   )
 
@@ -88,11 +88,11 @@ contrasts:
 
 test_that("read_contrasts parses YAML correctly using only formula based contrasts", {
   samples <- data.frame(
-    sample = c("Sample1", "Sample7", "Sample13", "Sample19", "Sample16"),
-    genotype = c("WT", "WT", "KO", "KO", "KO"),
-    treatment = c("Control", "Treated", "Control", "Treated", "Control"),
-    time = c(1, 1, 1, 1, 16),
-    batch = c("b1", "b1", "b1", "b1", "b3"),
+    sample = c("Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6", "Sample7", "Sample8"),
+    genotype = c("WT", "WT", "WT", "WT", "KO", "KO", "KO", "KO"),
+    treatment = c("Control", "Control", "Treated", "Treated", "Control", "Control", "Treated", "Treated"),
+    time = c(1, 16, 1, 16, 1, 16, 1, 16),
+    batch = c("b1", "b2", "b1", "b2", "b1", "b2", "b1", "b2"),
     stringsAsFactors = FALSE
   )
 
