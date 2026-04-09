@@ -885,6 +885,59 @@ checkListIsSubset <- function(test_list,
   TRUE
 }
 
+#' Remove random effects from a model formula
+#'
+#' @param formula_string Formula string that may contain random effects
+#'
+#' @return output Fixed-effects-only formula
+fixedEffectsFormula <- function(formula_string) {
+  reformulas::nobars(as.formula(formula_string))
+}
+
+#' Build a model matrix from the fixed-effects part of a formula
+#'
+#' @param formula_string Formula string that may contain random effects
+#' @param samples Data frame of sample information
+#'
+#' @return output Model matrix for the fixed-effects formula
+fixedEffectsModelMatrix <- function(formula_string, samples) {
+  model.matrix(fixedEffectsFormula(formula_string), data = samples)
+}
+
+#' Validate a formula-based contrast string against fixed-effect coefficients
+#'
+#' @param contrast_id Contrast identifier
+#' @param contrast_formula Formula string used for the contrast
+#' @param contrast_string Contrast string to validate
+#' @param samples Data frame of sample information
+#'
+#' @return output Returns TRUE if validation passes
+validateFormulaBasedContrast <- function(contrast_id,
+                                         contrast_formula,
+                                         contrast_string,
+                                         samples) {
+  model_coefficients <- make.names(
+    colnames(fixedEffectsModelMatrix(contrast_formula, samples)),
+    unique = TRUE
+  )
+
+  tryCatch(
+    limma::makeContrasts(contrasts = contrast_string, levels = model_coefficients),
+    error = function(e) {
+      stop(
+        paste0(
+          "Contrast id '", contrast_id, "' has invalid make_contrasts_str '", contrast_string,
+          "' for formula '", contrast_formula, "'. ",
+          "Available coefficient names for make_contrasts_str: ",
+          paste(model_coefficients, collapse = ", "),
+          "."
+        ),
+        call. = FALSE
+      )
+    }
+  )
+}
+
 
 #' Read and validate a contrasts file against sample metadata
 #'
@@ -922,48 +975,6 @@ read_contrasts <-
           target_column = "target",
           blocking_column = "blocking",
           convert_to_list = FALSE) {
-
-  fixed_effects_formula <- function(formula_string) {
-    fixed_formula <- gsub("\\([^()]*\\|[^()]*\\)", "", formula_string)
-    fixed_formula <- gsub("\\s+", " ", fixed_formula)
-    fixed_formula <- gsub("\\+\\s*\\+", "+", fixed_formula)
-    fixed_formula <- gsub("~\\s*\\+", "~", fixed_formula)
-    fixed_formula <- gsub("\\+\\s*$", "", fixed_formula)
-    fixed_formula <- trimws(fixed_formula)
-
-    if (identical(fixed_formula, "~") || identical(fixed_formula, "")) {
-      fixed_formula <- "~ 1"
-    }
-
-    fixed_formula
-  }
-
-  validate_formula_based_contrast <- function(contrast_id,
-                                              contrast_formula,
-                                              contrast_string,
-                                              samples) {
-    contrast_formula <- fixed_effects_formula(contrast_formula)
-    model_coefficients <- make.names(
-      colnames(model.matrix(as.formula(contrast_formula), data = samples)),
-      unique = TRUE
-    )
-
-    tryCatch(
-      limma::makeContrasts(contrasts = contrast_string, levels = model_coefficients),
-      error = function(e) {
-        stop(
-          paste0(
-            "Contrast id '", contrast_id, "' has invalid make_contrasts_str '", contrast_string,
-            "' for formula '", contrast_formula, "'. ",
-            "Available coefficient names derived from the formula: ",
-            paste(model_coefficients, collapse = ", "),
-            "."
-          ),
-          call. = FALSE
-        )
-      }
-    )
-  }
 
   # Read the contrasts depending on the file format (CSV or YAML)
   if (grepl("\\.csv$", filename)) {
@@ -1066,35 +1077,42 @@ read_contrasts <-
 
     # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
     # For formula-based contrasts, extract variables from the formula itself.
-    formula_vars <- character(0)
     if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
-      formula_vars <- all.vars(as.formula(fixed_effects_formula(contrasts$formula[i])))
-    }
+      design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
+      success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
+      design_matrix <- samples[, design_cols, drop = FALSE]
 
-    design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars, formula_vars)))
-    design_matrix <- samples[, design_cols, drop = FALSE]
-    
-    # Ensure there are no NA values in the design matrix.
-    if (any(is.na(design_matrix))) {
-      stop("NA values found in one or more design matrix columns.")
-    }
-    
-    # Check that the design matrix is full rank.
-    mm <- model.matrix(~ . - 1, data = design_matrix)
-    if (qr(mm)$rank < ncol(mm)) {
-      stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
-    }
-    
-    if ("formula" %in% colnames(contrasts) &&
-        "make_contrasts_str" %in% colnames(contrasts) &&
-        !is.na(contrasts$formula[i]) &&
-        !is.na(contrasts$make_contrasts_str[i])) {
-      validate_formula_based_contrast(
+      # Ensure there are no NA values in the design matrix.
+      if (any(is.na(design_matrix))) {
+        stop("NA values found in one or more design matrix columns.")
+      }
+
+      # Check that the design matrix is full rank.
+      mm <- fixedEffectsModelMatrix(contrasts$formula[i], samples)
+      if (qr(mm)$rank < ncol(mm)) {
+        stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+      }
+
+      validateFormulaBasedContrast(
         contrast_id = contrasts[i, "id"],
         contrast_formula = contrasts$formula[i],
         contrast_string = contrasts$make_contrasts_str[i],
         samples = samples
       )
+    } else {
+      design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
+      design_matrix <- samples[, design_cols, drop = FALSE]
+
+      # Ensure there are no NA values in the design matrix.
+      if (any(is.na(design_matrix))) {
+        stop("NA values found in one or more design matrix columns.")
+      }
+
+      # Check that the design matrix is full rank.
+      mm <- model.matrix(~ . - 1, data = design_matrix)
+      if (qr(mm)$rank < ncol(mm)) {
+        stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+      }
     }
 
     # Warn about continuous covariates in the design matrix columns.
@@ -1523,4 +1541,3 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
 
   return(assay_data)
 }
-
