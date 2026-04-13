@@ -963,6 +963,8 @@ validateFormulaBasedContrast <- function(contrast_id,
 #'   sample sheet variables to be used as blocking factors
 #' @param convert_to_list Convert output to a list as used internally by
 #'   shinyngs?
+#' @param validate_design Validate design matrix (check for NAs, full rank,
+#'   numeric columns, special characters)? Set to FALSE to skip these checks.
 #'
 #' @return output Validated contrasts data frame
 #' @export
@@ -974,7 +976,8 @@ read_contrasts <-
           reference_column = "reference",
           target_column = "target",
           blocking_column = "blocking",
-          convert_to_list = FALSE) {
+          convert_to_list = FALSE,
+          validate_design = TRUE) {
 
   # Read the contrasts depending on the file format (CSV or YAML)
   if (grepl("\\.csv$", filename)) {
@@ -1077,61 +1080,74 @@ read_contrasts <-
 
     # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
     # For formula-based contrasts, extract variables from the formula itself.
-    if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
-      design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
-      success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
-      design_matrix <- samples[, design_cols, drop = FALSE]
-
-      # Ensure there are no NA values in the design matrix.
-      if (any(is.na(design_matrix))) {
-        stop("NA values found in one or more design matrix columns.")
+    if (validate_design) {
+      # Filter samples if exclude columns are specified for this contrast
+      contrast_samples <- samples
+      if ("exclude_samples_col" %in% colnames(contrasts) && "exclude_samples_values" %in% colnames(contrasts)) {
+        if (!is.na(contrasts$exclude_samples_col[i]) && !is.na(contrasts$exclude_samples_values[i])) {
+          exclude_col <- contrasts$exclude_samples_col[i]
+          exclude_vals <- simpleSplit(contrasts$exclude_samples_values[i], ";")
+          contrast_samples <- samples[!samples[[exclude_col]] %in% exclude_vals, , drop = FALSE]
+        }
       }
 
-      # Check that the design matrix is full rank.
-      mm <- fixedEffectsModelMatrix(contrasts$formula[i], samples)
-      if (qr(mm)$rank < ncol(mm)) {
-        stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+      if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
+        design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
+        success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
+        design_matrix <- contrast_samples[, design_cols, drop = FALSE]
+
+        # Ensure there are no NA values in the design matrix.
+        if (any(is.na(design_matrix))) {
+          stop("NA values found in one or more design matrix columns.")
+        }
+
+        # Check that the design matrix is full rank.
+        mm <- fixedEffectsModelMatrix(contrasts$formula[i], contrast_samples)
+        if (qr(mm)$rank < ncol(mm)) {
+          stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+        }
+
+        validateFormulaBasedContrast(
+          contrast_id = contrasts[i, "id"],
+          contrast_formula = contrasts$formula[i],
+          contrast_string = contrasts$make_contrasts_str[i],
+          samples = contrast_samples
+        )
+      } else {
+        design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
+        design_matrix <- contrast_samples[, design_cols, drop = FALSE]
+
+        # Ensure there are no NA values in the design matrix.
+        if (any(is.na(design_matrix))) {
+          stop("NA values found in one or more design matrix columns.")
+        }
+
+        # Check that the design matrix is full rank.
+        mm <- model.matrix(~ . - 1, data = design_matrix)
+        if (qr(mm)$rank < ncol(mm)) {
+          stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+        }
       }
 
-      validateFormulaBasedContrast(
-        contrast_id = contrasts[i, "id"],
-        contrast_formula = contrasts$formula[i],
-        contrast_string = contrasts$make_contrasts_str[i],
-        samples = samples
-      )
-    } else {
-      design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
-      design_matrix <- samples[, design_cols, drop = FALSE]
-
-      # Ensure there are no NA values in the design matrix.
-      if (any(is.na(design_matrix))) {
-        stop("NA values found in one or more design matrix columns.")
+      # Warn about continuous covariates in the design matrix columns.
+      for (col in design_cols) {
+        if (is.numeric(samples[[col]])) {
+          warning(paste("Column", col, "is numeric and may be treated as continuous."))
+        }
       }
 
-      # Check that the design matrix is full rank.
-      mm <- model.matrix(~ . - 1, data = design_matrix)
-      if (qr(mm)$rank < ncol(mm)) {
-        stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
-      }
-    }
-
-    # Warn about continuous covariates in the design matrix columns.
-    for (col in design_cols) {
-      if (is.numeric(samples[[col]])) {
-        warning(paste("Column", col, "is numeric and may be treated as continuous."))
-      }
-    }
-    
-    # Check that values in design matrix columns do not contain disallowed special characters.
-    for (col in design_cols) {
-      vals <- as.character(samples[[col]])
-      for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
-        if (any(grepl(sc, vals))) {
-          warning(paste("Column", col, "contains special character", sc, 
-                        "which may cause issues downstream."))
+      # Check that values in design matrix columns do not contain disallowed special characters.
+      for (col in design_cols) {
+        vals <- as.character(samples[[col]])
+        for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
+          if (any(grepl(sc, vals))) {
+            warning(paste("Column", col, "contains special character", sc,
+                          "which may cause issues downstream."))
+          }
         }
       }
     }
+
     var <- contrasts[i, variable_column]
     ref <- contrasts[i, reference_column]
     tgt <- contrasts[i, target_column]
