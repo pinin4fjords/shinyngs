@@ -1011,6 +1011,8 @@ read_contrasts <-
       id = x$id,
       variable = NA, reference = NA, target = NA,
       blocking = NA,
+      exclude_samples_col = NA,
+      exclude_samples_values = NA,
       formula = NA,
       make_contrasts_str = NA,
       stringsAsFactors = FALSE
@@ -1053,6 +1055,15 @@ read_contrasts <-
       stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
     }
 
+    if (!is.null(x$exclude_samples_col) || !is.null(x$exclude_samples_values)) {
+      if (is.null(x$exclude_samples_col) || is.null(x$exclude_samples_values)) {
+        stop(sprintf("Contrast id '%s' must provide both 'exclude_samples_col' and 'exclude_samples_values'.", x$id))
+      }
+
+      row$exclude_samples_col <- x$exclude_samples_col
+      row$exclude_samples_values <- paste(x$exclude_samples_values, collapse = ";")
+    }
+
     row
   }))
     if (any(duplicated(contrasts$id))) {
@@ -1073,10 +1084,17 @@ read_contrasts <-
   if (length(blocking) > 0) {
     success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
   }
+  if ("exclude_samples_col" %in% colnames(contrasts)) {
+    exclude_cols <- na.omit(contrasts$exclude_samples_col)
+    if (length(exclude_cols) > 0) {
+      success <- checkListIsSubset(exclude_cols, colnames(samples), "exclude sample columns", "sample metadata")
+    }
+  }
 
   # Ensure reference and target are valid for their variable
   for (i in 1:nrow(contrasts)) {
     blocking_vars <- simpleSplit(contrasts[[blocking_column]][i], ";")
+    design_cols <- character(0)
 
     # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
     # For formula-based contrasts, extract variables from the formula itself.
@@ -1094,18 +1112,7 @@ read_contrasts <-
       if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
         design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
         success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
-        design_matrix <- contrast_samples[, design_cols, drop = FALSE]
-
-        # Ensure there are no NA values in the design matrix.
-        if (any(is.na(design_matrix))) {
-          stop("NA values found in one or more design matrix columns.")
-        }
-
-        # Check that the design matrix is full rank.
         mm <- fixedEffectsModelMatrix(contrasts$formula[i], contrast_samples)
-        if (qr(mm)$rank < ncol(mm)) {
-          stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
-        }
 
         validateFormulaBasedContrast(
           contrast_id = contrasts[i, "id"],
@@ -1115,18 +1122,19 @@ read_contrasts <-
         )
       } else {
         design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
-        design_matrix <- contrast_samples[, design_cols, drop = FALSE]
+        mm <- model.matrix(~ . - 1, data = contrast_samples[, design_cols, drop = FALSE])
+      }
 
-        # Ensure there are no NA values in the design matrix.
-        if (any(is.na(design_matrix))) {
-          stop("NA values found in one or more design matrix columns.")
-        }
+      design_matrix <- contrast_samples[, design_cols, drop = FALSE]
 
-        # Check that the design matrix is full rank.
-        mm <- model.matrix(~ . - 1, data = design_matrix)
-        if (qr(mm)$rank < ncol(mm)) {
-          stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
-        }
+      # Ensure there are no NA values in the design matrix.
+      if (any(is.na(design_matrix))) {
+        stop("NA values found in one or more design matrix columns.")
+      }
+
+      # Check that the design matrix is full rank.
+      if (qr(mm)$rank < ncol(mm)) {
+        stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
       }
 
       # Warn about continuous covariates in the design matrix columns.
