@@ -139,7 +139,7 @@ test_that("read_contrasts reports a descriptive error for realistic invalid form
 contrasts:
   - id: invalid_formula_contrast
     formula: \"~ genotype * treatment\"
-    make_contrasts_str: \"genotypeWT:treatmentTreated\"
+    make_contrasts_str: \"genotypeWT.treatmenttreated\"
 "
 
   yaml_file <- tempfile(fileext = ".yaml")
@@ -148,7 +148,7 @@ contrasts:
   expect_error(
     read_contrasts(yaml_file, samples),
     paste(
-      "Contrast id 'invalid_formula_contrast' has invalid make_contrasts_str 'genotypeWT:treatmentTreated'",
+      "Contrast id 'invalid_formula_contrast' has invalid make_contrasts_str 'genotypeWT.treatmenttreated'",
       "for formula '~ genotype \\* treatment'. Available coefficient names for make_contrasts_str:",
       "Intercept, genotypeWT, treatmentTreated, genotypeWT.treatmentTreated\\."
     )
