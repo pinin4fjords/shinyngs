@@ -909,17 +909,19 @@ fixedEffectsModelMatrix <- function(formula_string, samples) {
 #' @param contrast_id Contrast identifier
 #' @param contrast_formula Formula string used for the contrast
 #' @param contrast_string Contrast string to validate
+#' @param model_matrix Optional precomputed model matrix for the fixed-effects formula
 #' @param samples Data frame of sample information
 #'
 #' @return output Returns TRUE if validation passes
 validateFormulaBasedContrast <- function(contrast_id,
                                          contrast_formula,
                                          contrast_string,
+                                         model_matrix = NULL,
                                          samples) {
-  model_coefficients <- make.names(
-    colnames(fixedEffectsModelMatrix(contrast_formula, samples)),
-    unique = TRUE
-  )
+  if (is.null(model_matrix)) {
+    model_matrix <- fixedEffectsModelMatrix(contrast_formula, samples)
+  }
+  model_coefficients <- make.names(colnames(model_matrix), unique = TRUE)
 
   tryCatch(
     limma::makeContrasts(contrasts = contrast_string, levels = model_coefficients),
@@ -1118,6 +1120,7 @@ read_contrasts <-
           contrast_id = contrasts[i, "id"],
           contrast_formula = contrasts$formula[i],
           contrast_string = contrasts$make_contrasts_str[i],
+          model_matrix = mm,
           samples = contrast_samples
         )
       } else {
