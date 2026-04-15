@@ -801,7 +801,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  na.omit(as.matrix(matrix_data[, rownames(sample_metadata)]))
+  as.matrix(matrix_data[, rownames(sample_metadata)])
 }
 
 #' Read a metadata file
