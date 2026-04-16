@@ -34,11 +34,11 @@ test_that("nlines works", {
 
 test_that("read_contrasts parses YAML correctly", {
   samples <- data.frame(
-    sample = c("Sample1", "Sample7", "Sample13", "Sample19", "Sample16"),
-    genotype = c("WT", "WT", "KO", "KO", "KO"),
-    treatment = c("Control", "Treated", "Control", "Treated", "Control"),
-    time = c(1, 1, 1, 1, 16),
-    batch = c("b1", "b1", "b1", "b1", "b3"),
+    sample = c("Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6", "Sample7", "Sample8"),
+    genotype = c("WT", "WT", "WT", "WT", "KO", "KO", "KO", "KO"),
+    treatment = c("Control", "Control", "Treated", "Treated", "Control", "Control", "Treated", "Treated"),
+    time = c(1, 16, 1, 16, 1, 16, 1, 16),
+    batch = c("b1", "b2", "b1", "b2", "b1", "b2", "b1", "b2"),
     stringsAsFactors = FALSE
   )
 
@@ -88,11 +88,11 @@ contrasts:
 
 test_that("read_contrasts parses YAML correctly using only formula based contrasts", {
   samples <- data.frame(
-    sample = c("Sample1", "Sample7", "Sample13", "Sample19", "Sample16"),
-    genotype = c("WT", "WT", "KO", "KO", "KO"),
-    treatment = c("Control", "Treated", "Control", "Treated", "Control"),
-    time = c(1, 1, 1, 1, 16),
-    batch = c("b1", "b1", "b1", "b1", "b3"),
+    sample = c("Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6", "Sample7", "Sample8"),
+    genotype = c("WT", "WT", "WT", "WT", "KO", "KO", "KO", "KO"),
+    treatment = c("Control", "Control", "Treated", "Treated", "Control", "Control", "Treated", "Treated"),
+    time = c(1, 16, 1, 16, 1, 16, 1, 16),
+    batch = c("b1", "b2", "b1", "b2", "b1", "b2", "b1", "b2"),
     stringsAsFactors = FALSE
   )
 
@@ -123,6 +123,36 @@ contrasts:
   expect_equal(contrasts$formula[1], "~ treatment + genotype")
   expect_equal(contrasts$make_contrasts_str[2], "genotypeWT.treatmentTreated")
   expect_equal(contrasts$make_contrasts_str[3], "genotypeWT.treatmentTreated.time")
+
+  unlink(yaml_file)
+})
+
+test_that("read_contrasts reports a descriptive error for realistic invalid formula contrast strings", {
+  samples <- data.frame(
+    sample = c("Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6", "Sample7", "Sample8"),
+    genotype = c("WT", "WT", "WT", "WT", "KO", "KO", "KO", "KO"),
+    treatment = c("Control", "Control", "Treated", "Treated", "Control", "Control", "Treated", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  yaml_content <- "
+contrasts:
+  - id: invalid_formula_contrast
+    formula: \"~ genotype * treatment\"
+    make_contrasts_str: \"genotypeWT.treatmenttreated\"
+"
+
+  yaml_file <- tempfile(fileext = ".yaml")
+  writeLines(yaml_content, yaml_file)
+
+  expect_error(
+    read_contrasts(yaml_file, samples),
+    paste(
+      "Contrast id 'invalid_formula_contrast' has invalid make_contrasts_str 'genotypeWT.treatmenttreated'",
+      "for formula '~ genotype \\* treatment'. Available coefficient names for make_contrasts_str:",
+      "X\\.Intercept\\., genotypeWT, treatmentTreated, genotypeWT\\.treatmentTreated\\."
+    )
+  )
 
   unlink(yaml_file)
 })

@@ -885,6 +885,61 @@ checkListIsSubset <- function(test_list,
   TRUE
 }
 
+#' Remove random effects from a model formula
+#'
+#' @param formula_string Formula string that may contain random effects
+#'
+#' @return output Fixed-effects-only formula
+fixedEffectsFormula <- function(formula_string) {
+  reformulas::nobars(as.formula(formula_string))
+}
+
+#' Build a model matrix from the fixed-effects part of a formula
+#'
+#' @param formula_string Formula string that may contain random effects
+#' @param samples Data frame of sample information
+#'
+#' @return output Model matrix for the fixed-effects formula
+fixedEffectsModelMatrix <- function(formula_string, samples) {
+  model.matrix(fixedEffectsFormula(formula_string), data = samples)
+}
+
+#' Validate a formula-based contrast string against fixed-effect coefficients
+#'
+#' @param contrast_id Contrast identifier
+#' @param contrast_formula Formula string used for the contrast
+#' @param contrast_string Contrast string to validate
+#' @param model_matrix Optional precomputed model matrix for the fixed-effects formula
+#' @param samples Data frame of sample information
+#'
+#' @return output Returns TRUE if validation passes
+validateFormulaBasedContrast <- function(contrast_id,
+                                         contrast_formula,
+                                         contrast_string,
+                                         model_matrix = NULL,
+                                         samples) {
+  if (is.null(model_matrix)) {
+    model_matrix <- fixedEffectsModelMatrix(contrast_formula, samples)
+  }
+  model_coefficients <- make.names(colnames(model_matrix), unique = TRUE)
+
+  tryCatch(
+    limma::makeContrasts(contrasts = contrast_string, levels = model_coefficients),
+    error = function(e) {
+      stop(
+        paste0(
+          "Contrast id '", contrast_id, "' has invalid make_contrasts_str '", contrast_string,
+          "' for formula '", contrast_formula, "'. ",
+          "Available coefficient names for make_contrasts_str: ",
+          paste(model_coefficients, collapse = ", "),
+          "."
+        ),
+        call. = FALSE
+      )
+    }
+  )
+}
+
 
 #' Read and validate a contrasts file against sample metadata
 #'
@@ -958,6 +1013,8 @@ read_contrasts <-
       id = x$id,
       variable = NA, reference = NA, target = NA,
       blocking = NA,
+      exclude_samples_col = NA,
+      exclude_samples_values = NA,
       formula = NA,
       make_contrasts_str = NA,
       stringsAsFactors = FALSE
@@ -1000,6 +1057,15 @@ read_contrasts <-
       stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
     }
 
+    if (!is.null(x$exclude_samples_col) || !is.null(x$exclude_samples_values)) {
+      if (is.null(x$exclude_samples_col) || is.null(x$exclude_samples_values)) {
+        stop(sprintf("Contrast id '%s' must provide both 'exclude_samples_col' and 'exclude_samples_values'.", x$id))
+      }
+
+      row$exclude_samples_col <- x$exclude_samples_col
+      row$exclude_samples_values <- paste(x$exclude_samples_values, collapse = ";")
+    }
+
     row
   }))
     if (any(duplicated(contrasts$id))) {
@@ -1020,21 +1086,21 @@ read_contrasts <-
   if (length(blocking) > 0) {
     success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
   }
+  if ("exclude_samples_col" %in% colnames(contrasts)) {
+    exclude_cols <- na.omit(contrasts$exclude_samples_col)
+    if (length(exclude_cols) > 0) {
+      success <- checkListIsSubset(exclude_cols, colnames(samples), "exclude sample columns", "sample metadata")
+    }
+  }
 
   # Ensure reference and target are valid for their variable
   for (i in 1:nrow(contrasts)) {
     blocking_vars <- simpleSplit(contrasts[[blocking_column]][i], ";")
+    design_cols <- character(0)
 
     # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
     # For formula-based contrasts, extract variables from the formula itself.
-    formula_vars <- character(0)
-    if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
-      formula_vars <- all.vars(as.formula(contrasts$formula[i]))
-    }
-
     if (validate_design) {
-      design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars, formula_vars)))
-
       # Filter samples if exclude columns are specified for this contrast
       contrast_samples <- samples
       if ("exclude_samples_col" %in% colnames(contrasts) && "exclude_samples_values" %in% colnames(contrasts)) {
@@ -1045,6 +1111,23 @@ read_contrasts <-
         }
       }
 
+      if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
+        design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
+        success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
+        mm <- fixedEffectsModelMatrix(contrasts$formula[i], contrast_samples)
+
+        validateFormulaBasedContrast(
+          contrast_id = contrasts[i, "id"],
+          contrast_formula = contrasts$formula[i],
+          contrast_string = contrasts$make_contrasts_str[i],
+          model_matrix = mm,
+          samples = contrast_samples
+        )
+      } else {
+        design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
+        mm <- model.matrix(~ . - 1, data = contrast_samples[, design_cols, drop = FALSE])
+      }
+
       design_matrix <- contrast_samples[, design_cols, drop = FALSE]
 
       # Ensure there are no NA values in the design matrix.
@@ -1053,7 +1136,6 @@ read_contrasts <-
       }
 
       # Check that the design matrix is full rank.
-      mm <- model.matrix(~ . - 1, data = design_matrix)
       if (qr(mm)$rank < ncol(mm)) {
         stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
       }
@@ -1486,4 +1568,3 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
 
   return(assay_data)
 }
-

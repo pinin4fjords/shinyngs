@@ -25,6 +25,7 @@ Imports:
     plotly (>= 4.3.4),
     plyr,
     RColorBrewer,
+    reformulas,
     reshape2,
     scatterplot3d,
     shiny,
