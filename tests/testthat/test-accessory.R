@@ -150,7 +150,7 @@ contrasts:
     paste(
       "Contrast id 'invalid_formula_contrast' has invalid make_contrasts_str 'genotypeWT.treatmenttreated'",
       "for formula '~ genotype \\* treatment'. Available coefficient names for make_contrasts_str:",
-      "Intercept, genotypeWT, treatmentTreated, genotypeWT.treatmentTreated\\."
+      "X\\.Intercept\\., genotypeWT, treatmentTreated, genotypeWT\\.treatmentTreated\\."
     )
   )
 
