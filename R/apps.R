@@ -111,7 +111,32 @@ prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
     app <- simpleApp(eselist, type, ui_only = ui_only, ...)
   }
 
+  # Preload htmlwidget JS/CSS as <script>/<link> tags in the initial HTML so
+  # plugins like jQuery DataTables are attached at page-load. Otherwise
+  # htmlwidgets 1.6.4's shinyBinding.renderValue calls the synchronous
+  # Shiny.renderDependencies() and immediately runs bindingDef.renderValue
+  # (e.g. $().DataTable). The plugin <script> is appended to <head> but not
+  # awaited. Locally that's a <1ms race; behind a reverse proxy (Seqera
+  # Studios, Shiny Server behind nginx, etc.) it consistently loses, surfacing
+  # as "$table.DataTable is not a function" and empty plots/tables.
+  app$ui <- htmltools::attachDependencies(
+    app$ui,
+    htmlwidget_preload_deps(),
+    append = TRUE
+  )
+
   app
+}
+
+# Dependencies for every htmlwidget type used anywhere in shinyngs, so they
+# load as blocking <script>/<link> tags in the initial HTML rather than lazily
+# via WebSocket-delivered dep messages. See prepareApp() for rationale.
+htmlwidget_preload_deps <- function() {
+  htmltools::resolveDependencies(c(
+    htmltools::findDependencies(DT::datatable(data.frame(a = 1))),
+    htmltools::findDependencies(plotly::plot_ly(x = 1, y = 1)),
+    htmltools::findDependencies(d3heatmap::d3heatmap(matrix(1)))
+  ))
 }
 
 #' Produce a simple app with controls and layout for a single module, in a
