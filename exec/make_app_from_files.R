@@ -336,6 +336,8 @@ dir.create(opt$output_directory, showWarnings = FALSE)
 saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
 writeLines(
   c(
+    '# See installation instructions at:',
+    '# https://github.com/pinin4fjords/shinyngs?tab=readme-ov-file#installation',
     "library(shinyngs)",
     "library(markdown)",
     'esel <- readRDS("data.rds")',
@@ -346,7 +348,7 @@ writeLines(
 )
 
 # If deployment has been indicated, try to do that. Needs SHINYAPPS_SECRET AND
-# SHINYAPPS_TOKEN to be set in the evironment
+# SHINYAPPS_TOKEN to be set in the environment
 
 if (opt$deploy_app) {
   library(rsconnect)
