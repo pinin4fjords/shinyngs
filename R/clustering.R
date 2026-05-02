@@ -436,7 +436,7 @@ bootstrapMedian <- function(data, num) {
 
 madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5) {
   # Double-check the matrix/ sample sheet synch
-  matrix <- matrix[, rownames(sample_sheet)]
+  matrix <- matrix[, rownames(sample_sheet), drop=FALSE]
 
   group_sizes <- table(sample_sheet[[groupby]])
   mad_valid_groups <- group_sizes[group_sizes > 2]
@@ -447,13 +447,13 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
   }else{
     mad_valid_samples <- which(sample_sheet[[groupby]] %in% names(mad_valid_groups))
 
-    matrix <- matrix[, mad_valid_samples]
-    sample_sheet <- sample_sheet[mad_valid_samples, ]
+    matrix <- matrix[, mad_valid_samples, drop=FALSE]
+    sample_sheet <- sample_sheet[mad_valid_samples, , drop=FALSE]
     
     if (is.null(groupby)) {
       matrices <- list(all = matrix)
     } else {
-      matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[, x])
+      matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[, x, drop=FALSE])
     }
     
     # The following intentionally verbose to highlight logic
