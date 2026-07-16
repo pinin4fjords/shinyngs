@@ -19,21 +19,29 @@ changes on top, then run the app against test data.
 ## 1. Build the environment once
 
 ```bash
-ulimit -n 1000000 && export CONDA_OVERRIDE_OSX=15.0 && \
-  /opt/homebrew/bin/micromamba create -n shinyngs-dev -c conda-forge -c bioconda r-shinyngs r-testthat -y
+micromamba create -n shinyngs-dev -c conda-forge -c bioconda r-shinyngs r-testthat -y
 ```
 
 This pulls the exact dependency set (Bioconductor packages, `shinyBS`,
 `shinyjs`, `d3heatmap`, `plotly`, etc.) as prebuilt binaries — building them
 from source directly is far slower and more failure-prone. Reuse this env
 across sessions; only rebuild if bioconda's pinned version drifts far from
-`DESCRIPTION`.
+`DESCRIPTION`. (`conda`/`mamba` work the same way if that's what you have
+installed.)
 
-Activate it for every command below:
+Activate it for every command below. `micromamba activate` needs shell hook
+initialization, which a fresh non-interactive shell (e.g. a tool-invoked
+command) won't have unless you set it up yourself, so the self-contained form
+is more reliable here:
 
 ```bash
-source ~/.local/bin/mm-activate shinyngs-dev
+eval "$(micromamba shell hook --shell bash)" && micromamba activate shinyngs-dev
 ```
+
+If environment creation fails in a confusing way on macOS, search for known
+micromamba/conda + Gatekeeper/codesign issues for your OS version before
+assuming it's this package's fault — these crop up periodically and the fix
+is OS-version-specific, not something to bake into this skill.
 
 ## 2. Install your local changes on top
 

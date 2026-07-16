@@ -39,7 +39,7 @@ fi
 PORT="$1"
 MODULE="$2"
 DATA="$3"
-LOG="$(mktemp -t "shinyngs-app-${PORT}-XXXXXX").log"
+LOG="/tmp/shinyngs-app-${PORT}.log"
 TIMEOUT_SECS="${TIMEOUT_SECS:-150}"
 POLL_INTERVAL="${POLL_INTERVAL:-5}"
 
