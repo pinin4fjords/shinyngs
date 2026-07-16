@@ -4,11 +4,10 @@ This panel generates a matrix of correlation values between pairs of samples, an
 
 #### Controls
 
-Annotations from the experiment data can added by clicking 'annotated' in the heatmap controls- though note that the annotated plot is static rather than interactive. 
+Annotations from the experiment data can be added using the 'Annotate with variables' control, and appear as colored bars above the heatmap with their own legend.
 
 The remaining controls relate to selection of the matrix and the rows and columns to use to produce this plot. More variable rows produce clearer clustering, so the top 1000 most variant rows are selected by default.
 
 #### References
 
-* Cheng J and Galili T (2016). <em>d3heatmap: Interactive Heat Maps Using 'htmlwidgets' and 'D3.js'</em>. R package version 0.6.1.1, <a href=\"http://CRAN.R-project.org/package=d3heatmap\">http://CRAN.R-project.org/package=d3heatmap</a>.
-* Kolde R (2015). <em>pheatmap: Pretty Heatmaps</em>. R package version 1.0.7, <a href=\"http://CRAN.R-project.org/package=pheatmap\">http://CRAN.R-project.org/package=pheatmap</a>.
+* Galili T, O'Callaghan A, Sidi J and Sievert C (2017). <em>heatmaply: an R package for creating interactive cluster heatmaps for online publishing</em>. Bioinformatics, <a href=\"https://doi.org/10.1093/bioinformatics/btx657\">https://doi.org/10.1093/bioinformatics/btx657</a>.
