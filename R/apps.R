@@ -135,7 +135,7 @@ htmlwidget_preload_deps <- function() {
   htmltools::resolveDependencies(c(
     htmltools::findDependencies(DT::datatable(data.frame(a = 1))),
     htmltools::findDependencies(plotly::plot_ly(x = 1, y = 1)),
-    htmltools::findDependencies(d3heatmap::d3heatmap(matrix(1)))
+    htmltools::findDependencies(d3heatmap::d3heatmap(matrix(1), dendrogram = "none"))
   ))
 }
 
