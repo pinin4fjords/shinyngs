@@ -140,62 +140,36 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 #'
 #' @return A three-level nested list of strings, matching the structure of \code{gene_set_analyses}, with missing elements filled as needed.
 check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set_analyses_tool) {
-  # gene_set_analyses and gene_set_analyses_tool should have the same list of lists
-  # structure. gene_set_analyses_tool should have a single string
-
   if (is.null(gene_set_analyses_tool)) {
     gene_set_analyses_tool <- list()
   }
-  
-  valid_tools <- c("auto", "gsea", "roast")
 
-  is_valid_tool <- function(t) {
-    (is.character(t) && length(t) == 1 && t %in% valid_tools) || is_enrichment_mapping(t)
+  validate_tool <- function(tool, where) {
+    ok <- (is.character(tool) && length(tool) == 1 && tool %in% c("auto", "gsea", "roast")) ||
+      is_enrichment_mapping(tool)
+    if (!ok) {
+      stop("Invalid gene_set_analyses_tool for ", where,
+           ". Expected 'auto', 'gsea', 'roast', or a named vector giving ",
+           paste(enrichment_mapping_fields, collapse = "/"), " columns. Found ",
+           paste(tool, collapse = ","))
+    }
+    tool
   }
 
-  safe_get <- function(x, path, default="auto") {
-    # similar to purrr::pluck()
-    if (is.null(x)) {
-      return(default)
-    }
-    for (p in path) {
-      if (!p %in% names(x)) {
-        return(default)
+  # gene_set_analyses is the source of truth for structure; mirror the tool spec
+  # onto it, defaulting each contrast to "auto" and validating any override.
+  mirror <- function(analyses, tools, path) {
+    lapply(setNames(nm = names(analyses)), function(name) {
+      node <- analyses[[name]]
+      tool_node <- if (is.null(tools)) NULL else tools[[name]]
+      if (is.list(node) && !is.data.frame(node)) {
+        mirror(node, tool_node, c(path, name))              # assay / gene-set-type container
+      } else {
+        validate_tool(if (is.null(tool_node)) "auto" else tool_node,
+                      paste(c(path, name), collapse = "/")) # contrast leaf (table or NULL)
       }
-      x <- x[[p]]
-      if (is.null(x)) {
-        return(default)
-      }
-    }
-    x
+    })
   }
 
-  lapply(
-    setNames(nm=names(gene_set_analyses)),
-    function(assay_name) {
-      gene_sets <- gene_set_analyses[[assay_name]]
-      lapply(
-        setNames(nm=names(gene_sets)),
-        function(gene_set_name) {
-          contrasts <- gene_sets[[gene_set_name]]
-          lapply(
-            setNames(nm=names(contrasts)),
-            function(contrast_name) {
-              tool_name <- safe_get(gene_set_analyses_tool, c(assay_name, gene_set_name, contrast_name), "auto")
-              if (!is_valid_tool(tool_name)) {
-                stop(
-                  "Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
-                  assay_name, ",", gene_set_name, ",", contrast_name,
-                  ". It should be one of 'auto', 'gsea', 'roast', or a named vector giving ",
-                  "'pvalue', 'fdr' and 'direction' column names. Found ",
-                  paste(tool_name, collapse = ",")
-                )
-              }
-              tool_name
-            }
-          )
-        }
-      )
-    }
-  )
+  mirror(gene_set_analyses, gene_set_analyses_tool, character(0))
 }
