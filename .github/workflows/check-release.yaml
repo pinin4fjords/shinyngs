@@ -30,6 +30,32 @@ jobs:
           use-public-rspm: true
           r-version: '4.4.0'
 
+      - name: Install system libraries required by Rhtslib
+        # Per Rhtslib's DESCRIPTION: SystemRequirements: libbz2 & liblzma &
+        # libcurl (with header files), GNU make. Normally provided by
+        # setup-r-dependencies' own sysreqs resolution, but that step runs
+        # after this one (see next step), so install them explicitly here.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libbz2-dev liblzma-dev zlib1g-dev
+
+      - name: Pre-install Rhtslib directly (works around a pak parallel-install bug)
+        run: |
+          Rscript -e '
+            # setup-r-dependencies (pak) intermittently reports
+            # "Failed to install binary package Rhtslib" even though the
+            # package actually built and installed correctly - confirmed by
+            # running BiocManager::install("Rhtslib") right after a failed
+            # pak run and finding it already present and loadable. Rhtslib
+            # sets StagedInstall: no (it runs its own Makefile-based htslib
+            # build rather than pak/R staged install), which looks to race
+            # with pak parallel worker bookkeeping. Installing it here,
+            # sequentially and directly, before pak resolves dependencies,
+            # sidesteps that: pak will see it already satisfied and skip it.
+            if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+            BiocManager::install("Rhtslib", update = FALSE, ask = FALSE)
+          '
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck, local::.
