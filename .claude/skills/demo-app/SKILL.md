@@ -96,49 +96,39 @@ option list — it changes over time.
 
 ## 4. Launch the app
 
-**Single module** — fastest, isolates exactly the screen you're demoing:
-
-```r
-library(shinyngs)
-esel <- readRDS("data.rds")  # or however you built it in step 3
-app <- prepareApp("genesetanalysistable", esel)  # module name, e.g. heatmap, pca, differentialtable
-shiny::runApp(shiny::shinyApp(app$ui, app$server), host = "127.0.0.1", port = 8110, launch.browser = FALSE)
-```
-
-**Full app** — for a click-through covering navigation, or when the change
-could have cross-module effects:
-
-```r
-library(shinyngs); library(shinyBS); library(shinyjs); library(markdown)
-esel <- readRDS("data.rds")
-app <- prepareApp("rnaseq", esel)
-shiny::runApp(shiny::shinyApp(app$ui, app$server), host = "127.0.0.1", port = 8110, launch.browser = FALSE)
-```
-
-Run this backgrounded and poll for readiness rather than guessing a sleep
-duration — startup time varies a lot with dataset size:
+Use the bundled script for this — it kills anything already bound to the
+port, launches in the background, polls for readiness (startup time varies a
+lot with dataset size, so don't guess a sleep duration), and reports the log
+tail. This is the part that's identical every time and where manual attempts
+go wrong (see the first pitfall below), so it's worth using even for a quick
+check.
 
 ```bash
-(Rscript -e "..." > /tmp/shinyngs.log 2>&1 &)
-for i in $(seq 1 30); do sleep 5; \
-  [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 4 http://127.0.0.1:8110)" = "200" ] && break; done
-grep -iE "listening|error|halt" /tmp/shinyngs.log | tail -5
+scripts/run-app.sh --help   # read this first
+scripts/run-app.sh 8110 genesetanalysistable /tmp/data.rds   # single module — fastest, isolates one screen
+scripts/run-app.sh 8110 rnaseq zhangneurons                  # full app — click-through, cross-module changes
 ```
+
+`MODULE` is any shinyngs module name (`heatmap`, `pca`, `differentialtable`,
+...) or `rnaseq` for the full app. `DATA` is a path to an RDS file holding an
+`ExploratorySummarizedExperimentList` (however you built it in step 3), or
+the literal string `zhangneurons`.
 
 Then either hand the user the URL to click through themselves, or drive it
 with Playwright (see the `webapp-testing` skill) — note that shinyngs' select
 inputs are `selectize.js`-enhanced, so set values via
 `element.selectize.setValue(val, false)`, not by setting `.value` directly.
 
+Kill it when done: `lsof -ti tcp:PORT | xargs kill -9`.
+
 ## Pitfalls that waste time
 
 - **Stale process silently holding the port.** A `runApp()` left over from an
   earlier attempt (possibly hours old) can hold the port so a "restart"
-  silently connects you to the *old*, unfixed app. Before every launch:
-  ```bash
-  for pid in $(lsof -ti tcp:8110 2>/dev/null); do kill -9 $pid; done
-  ```
-  and confirm the fresh log actually contains `Listening on http://...`, not
+  silently connects you to the *old*, unfixed app — `scripts/run-app.sh`
+  kills anything on the target port before launching, specifically to avoid
+  this. If you launch manually instead, always do the same and confirm the
+  fresh log actually contains `Listening on http://...`, not
   `createTcpServer: address already in use`.
 
 - **`d3heatmap(matrix(1))` crashes app startup on old checkouts.** Fixed on
