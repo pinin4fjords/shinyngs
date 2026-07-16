@@ -185,8 +185,87 @@ test_that("read_enrichment_file parses file correctly", {
                combined_df)
 })
 
-test_that("remove_nulls works", {
-  expect_equal(remove_nulls(list(1, NULL, 2)), list(1, 2))
+test_that("drop_empty_gene_set_analyses keeps contrast positions but drops empty types/assays", {
+  df <- data.frame(FDR = 0.01)
+  gsa <- list(
+    counts = list(
+      # a missing middle contrast must remain NULL so positional indexing stays aligned
+      go = list(c1 = df, c2 = NULL, c3 = df),
+      # a gene set type with no results at all is dropped
+      kegg = list(c1 = NULL, c2 = NULL, c3 = NULL)
+    ),
+    # an assay left with no gene set types is dropped
+    other = list(go = list(c1 = NULL))
+  )
+  out <- drop_empty_gene_set_analyses(gsa)
+
+  expect_equal(names(out), "counts")
+  expect_equal(names(out$counts), "go")
+  expect_equal(length(out$counts$go), 3)
+  expect_equal(names(out$counts$go), c("c1", "c2", "c3"))
+  expect_null(out$counts$go[[2]])
+  expect_equal(out$counts$go[[3]], df)
+})
+
+test_that("check_gene_set_analyses_tool_consistency mirrors structure and aligns NULL contrasts", {
+  df <- data.frame(FDR = 0.01)
+  gsa <- list(counts = list(go = list(c1 = df, c2 = NULL, c3 = df)))
+  tools <- check_gene_set_analyses_tool_consistency(gsa, list())
+
+  expect_equal(names(tools$counts$go), c("c1", "c2", "c3"))
+  expect_equal(unname(unlist(tools$counts$go)), c("auto", "auto", "auto"))
+
+  # explicit tool choices are preserved and validated
+  tools2 <- check_gene_set_analyses_tool_consistency(
+    gsa, list(counts = list(go = list(c1 = "gsea", c3 = "roast")))
+  )
+  expect_equal(tools2$counts$go$c1, "gsea")
+  expect_equal(tools2$counts$go$c3, "roast")
+  expect_error(
+    check_gene_set_analyses_tool_consistency(gsa, list(counts = list(go = list(c1 = "nonsense"))))
+  )
+})
+
+test_that("resolve_contrast_key matches by identifier regardless of stored order", {
+  # make_app_from_files style: contrast carries an id matching the entry names
+  analyses <- list(neuron_no_yes = data.frame(x = 2), astrocyte_no_yes = data.frame(x = 1))
+  ctr <- c(id = "astrocyte_no_yes", Variable = "Astrocyte", Group.1 = "no", Group.2 = "yes")
+  # contrast is position 1, but its entry is stored second: must resolve by id, not position
+  expect_equal(resolve_contrast_key(analyses, 1, ctr), "astrocyte_no_yes")
+
+  # zhangneurons style: bare c(variable, reference, target); entries keyed var-ref-target
+  z_analyses <- list(`Astrocyte-no-yes` = data.frame(x = 1), `Neuron-no-yes` = data.frame(x = 2))
+  expect_equal(resolve_contrast_key(z_analyses, 2, c("Neuron", "no", "yes")), "Neuron-no-yes")
+
+  # falls back to position when nothing matches by name
+  pos_analyses <- list(data.frame(x = 1), data.frame(x = 2), data.frame(x = 3))
+  expect_equal(resolve_contrast_key(pos_analyses, 3, c("Whatever", "a", "b")), 3)
+
+  # NULL when the position is out of range and no name matches
+  expect_null(resolve_contrast_key(pos_analyses, 5, c("Whatever", "a", "b")))
+})
+
+test_that("resolve_enrichment returns the cleaned table and mapping, or NULL", {
+  mat <- matrix(1:4, nrow = 2, ncol = 2, dimnames = list(c("g1", "g2"), c("s1", "s2")))
+  gsea_tab <- data.frame(
+    "GS DETAILS" = "x", "NOM p-val" = 0.01, "FDR q-val" = 0.02, "Direction" = "Up",
+    row.names = "SET1", check.names = FALSE, stringsAsFactors = FALSE
+  )
+  ese <- ExploratorySummarizedExperiment(
+    assays = list(counts = mat),
+    colData = data.frame(grp = c("a", "b"), batch = c("x", "y"), row.names = c("s1", "s2")),
+    annotation = data.frame(gene_id = c("g1", "g2"), gene_name = c("G1", "G2"), row.names = c("g1", "g2")),
+    idfield = "gene_id",
+    gene_set_analyses = list(counts = list(go = list(c1 = gsea_tab, c2 = NULL)))
+  )
+
+  res <- resolve_enrichment(ese, "counts", "go", 1, c("grp", "a", "b"))
+  expect_equal(res$col_map$pvalue, "NOM p-val")            # auto-detected gsea
+  expect_true("SET1" %in% rownames(res$gst))
+  expect_false("GS DETAILS" %in% colnames(res$gst))        # cleaned
+
+  expect_null(resolve_enrichment(ese, "counts", "go", 2, c("grp", "x", "y")))  # NULL contrast
+  expect_null(resolve_enrichment(ese, "counts", "missing", 1, c("grp", "a", "b")))  # absent type
 })
 
 test_that("build_enrichment_path replaces variables", {
@@ -249,4 +328,62 @@ test_that("validate_enrichment_table works", {
   gst_gsea_wrong <- gst_gsea
   gst_gsea_wrong[["NOM p-val"]] <- NULL
   expect_error(validate_enrichment_table(gst_gsea_wrong, "gsea"))
+})
+
+# A table from an arbitrary tool with its own column names
+gst_custom <- data.frame(
+  "NAME" = "dummy",
+  "myPval" = 0.01,
+  "myFDR" = 0.02,
+  "myDir" = "Up",
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+custom_map <- c(pvalue = "myPval", fdr = "myFDR", direction = "myDir")
+
+test_that("is_enrichment_mapping distinguishes mappings from tool names", {
+  expect_true(is_enrichment_mapping(custom_map))
+  expect_true(is_enrichment_mapping(list(pvalue = "a", fdr = "b", direction = "c")))
+  expect_false(is_enrichment_mapping("gsea"))
+  expect_false(is_enrichment_mapping("auto"))
+  expect_false(is_enrichment_mapping(c(pvalue = "a", fdr = "b"))) # missing direction
+})
+
+test_that("get_enrichment_mapping accepts a custom column mapping for arbitrary tools", {
+  expect_equal(
+    get_enrichment_mapping(gst_custom, custom_map),
+    list(pvalue = "myPval", fdr = "myFDR", direction = "myDir")
+  )
+  # named list form works too
+  expect_equal(
+    get_enrichment_mapping(gst_custom, list(pvalue = "myPval", fdr = "myFDR", direction = "myDir")),
+    list(pvalue = "myPval", fdr = "myFDR", direction = "myDir")
+  )
+  # an unrecognised tool name (not a mapping) is an error
+  expect_error(get_enrichment_mapping(gst_custom, "someothertool"))
+})
+
+test_that("validate_enrichment_table works with a custom mapping", {
+  validate_enrichment_table(gst_custom, custom_map)
+  bad <- gst_custom
+  bad[["myFDR"]] <- NULL
+  expect_error(validate_enrichment_table(bad, custom_map))
+})
+
+test_that("clean_enrichment_table leaves custom-tool tables untouched", {
+  expect_equal(clean_enrichment_table(gst_custom, custom_map), gst_custom)
+})
+
+test_that("check_gene_set_analyses_tool_consistency accepts a custom mapping", {
+  gsa <- list(counts = list(kegg = list(c1 = data.frame(x = 1))))
+  tools <- check_gene_set_analyses_tool_consistency(
+    gsa, list(counts = list(kegg = list(c1 = custom_map)))
+  )
+  expect_equal(tools$counts$kegg$c1, custom_map)
+  # a mapping missing a required field is rejected
+  expect_error(
+    check_gene_set_analyses_tool_consistency(
+      gsa, list(counts = list(kegg = list(c1 = c(pvalue = "p", fdr = "q"))))
+    )
+  )
 })

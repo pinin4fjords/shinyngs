@@ -414,6 +414,48 @@ head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)
 
 This data struture is a bit cumbersome, and I'm thinking of ways of better representing such data and the associated contrasts.
 
+### Enrichment tool formats and auto-detection
+
+Enrichment tables from different tools use different column names for the p-value, FDR and direction. `shinyngs` detects the tool from the table columns, so both `roast`/`mroast` output (`p value`/`PValue`, `FDR`, `Direction`) and GSEA output (`NOM p-val`, `FDR q-val`) are filtered on the correct columns without extra configuration. The optional `gene_set_analyses_tool` slot (nested like `gene_set_analyses`) can force a particular format; it defaults to `"auto"`.
+
+To support a tool `shinyngs` doesn't recognise natively, set the corresponding `gene_set_analyses_tool` entry to a named vector giving the columns to filter on, instead of a tool name:
+
+```{r eval = FALSE}
+gene_set_analyses_tool <- list(
+  "normalised" = list(
+    "my_gene_sets" = list(
+      "disease_vs_control" = c(pvalue = "PValue", fdr = "adj.P.Val", direction = "dir")
+    )
+  )
+)
+```
+
+GSEA reports up- and down-regulated results in two files. Supply these as a named list per contrast and they are combined, with a `Direction` column added:
+
+```{r eval = FALSE}
+gene_set_analyses <- list(
+  "normalised" = list(
+    "my_gene_sets" = list(
+      "disease_vs_control" = c(up = "gsea_report_for_disease.tsv", down = "gsea_report_for_control.tsv")
+    )
+  )
+)
+```
+
+### Building an app from files with enrichment results
+
+`exec/make_app_from_files.R` can wire GSEA (or `roast`) results into an app from the command line. `--enrichment_filename_template` describes where the result files live, with `{contrast_name}` and `{geneset_type}` substituted per contrast and gene set type, and an optional `{target|reference}` token to point at the split up/down GSEA files:
+
+```sh
+make_app_from_files.R \
+  ... \
+  --contrast_file contrasts.csv \
+  --enrichment_gene_sets my_gene_sets.gmt \
+  --enrichment_filename_template 'gsea_{contrast_name}_{geneset_type}_for_{target|reference}.tsv'
+```
+
+Pass `--enrichment_skip_missing` to tolerate contrasts or gene set types with no result files; those contrasts simply show "No enrichment results for this contrast" in the app. For a tool that isn't auto-detected, give `--enrichment_pval_column`, `--enrichment_fdr_column` and `--enrichment_direction_column` to name the columns to filter on.
+
 # Other options
 
 Further options are available - for example supplying `url_roots` in the `ExploratorySummarizedExperimentList` will add link-outs where appropriate, and the `description` slot is handy for providing details of analysis to the user.

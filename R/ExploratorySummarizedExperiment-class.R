@@ -148,7 +148,11 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
   }
   
   valid_tools <- c("auto", "gsea", "roast")
-  
+
+  is_valid_tool <- function(t) {
+    (is.character(t) && length(t) == 1 && t %in% valid_tools) || is_enrichment_mapping(t)
+  }
+
   safe_get <- function(x, path, default="auto") {
     # similar to purrr::pluck()
     if (is.null(x)) {
@@ -178,12 +182,13 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
             setNames(nm=names(contrasts)),
             function(contrast_name) {
               tool_name <- safe_get(gene_set_analyses_tool, c(assay_name, gene_set_name, contrast_name), "auto")
-              if (!is.character(tool_name) || length(tool_name) > 1 || !tool_name %in% valid_tools) {
+              if (!is_valid_tool(tool_name)) {
                 stop(
                   "Invalid gene_set_analyses_tool. gene_set_analyses_tool for ",
                   assay_name, ",", gene_set_name, ",", contrast_name,
-                  ". It should be one of 'auto', 'gsea' or 'roast'. Found ",
-                  tool_name
+                  ". It should be one of 'auto', 'gsea', 'roast', or a named vector giving ",
+                  "'pvalue', 'fdr' and 'direction' column names. Found ",
+                  paste(tool_name, collapse = ",")
                 )
               }
               tool_name

@@ -165,22 +165,11 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
     gene_set_names <- getGenesetNames()
     contrast_numbers <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
 
-    if (gene_set_types %in% names(ese@gene_set_analyses[[assay]]) && gene_set_names %in% rownames(ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]])) {
-      gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[contrast_numbers]]
-      
-      # Get the tool used for enrichment, or auto-detect it:
-      if ("gene_set_analyses_tool" %in% slotNames(ese)) {
-        gs_tool <- ese@gene_set_analyses_tool[[assay]][[gene_set_types]][[contrast_numbers]]
-      } else {
-        gs_tool <- "auto"
-      }
-      if (gs_tool == "auto") {
-        gs_tool <- detect_enrichment_tool(gst)
-      }
-      validate_enrichment_table(gst, gs_tool)
-      col_map <- get_enrichment_mapping(gst, gs_tool)
-      gst <- clean_enrichment_table(gst, gs_tool)
-      
+    enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_numbers, eselist@contrasts[[contrast_numbers]])
+
+    if (!is.null(enrichment) && all(gene_set_names %in% rownames(enrichment$gst))) {
+      gst <- enrichment$gst
+      col_map <- enrichment$col_map
       fdr <- paste(signif(gst[gene_set_names, col_map$fdr], 3), collapse = ",")
       direction <- paste(gst[gene_set_names, col_map$direction], collapse = ",")
       title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
@@ -241,7 +230,11 @@ genesetbarcodeplot <- function(input, output, session, eselist) {
   # Add links for display
 
   gsbpLinkedContrastsTable <- reactive({
-    linkMatrix(gsbpContrastsTable(), eselist@url_roots)
+    # Force the table (and its gene-set validation) here rather than letting it
+    # evaluate lazily inside linkMatrix()'s colnames() call, where a pending
+    # validation would surface as an error instead of a clean prompt.
+    contrasts_table <- gsbpContrastsTable()
+    linkMatrix(contrasts_table, eselist@url_roots)
   })
 
   # Provide the gene set genes in a table of contrst data

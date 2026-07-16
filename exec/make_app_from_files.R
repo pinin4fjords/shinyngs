@@ -157,6 +157,24 @@ option_list <- list(
     help = "Gene identifier in the enrichment gene sets. Use this to specify that the gmt files represent genes with the gene name or an entrez id"
   ),
   make_option(
+    "--enrichment_pval_column",
+    type = "character",
+    default = NULL,
+    help = "Name of the p-value column in the enrichment results. Set this (together with --enrichment_fdr_column and --enrichment_direction_column) to support tools other than the auto-detected gsea/roast formats."
+  ),
+  make_option(
+    "--enrichment_fdr_column",
+    type = "character",
+    default = NULL,
+    help = "Name of the FDR/adjusted p-value column in the enrichment results. See --enrichment_pval_column."
+  ),
+  make_option(
+    "--enrichment_direction_column",
+    type = "character",
+    default = NULL,
+    help = "Name of the direction column in the enrichment results. See --enrichment_pval_column."
+  ),
+  make_option(
     c("-o", "--output_directory"),
     type = "character",
     default = NULL,
@@ -366,8 +384,32 @@ if (!is.null(opt$enrichment_filename_template)) {
     })
   )
   names(gene_set_analyses) <- names(assay_files)[contrast_stats_assay]
+
+  # Custom column mapping for enrichment tools other than the auto-detected
+  # gsea/roast formats. If any of the column options is given, all three are
+  # required, and the mapping is applied to every enrichment result.
+  custom_col_opts <- list(
+    pvalue = opt$enrichment_pval_column,
+    fdr = opt$enrichment_fdr_column,
+    direction = opt$enrichment_direction_column
+  )
+  n_custom_cols <- length(Filter(Negate(is.null), custom_col_opts))
+  if (n_custom_cols > 0 && n_custom_cols < 3) {
+    stop("--enrichment_pval_column, --enrichment_fdr_column and --enrichment_direction_column must all be given together")
+  }
+  if (n_custom_cols == 3) {
+    enrichment_custom_cols <- unlist(custom_col_opts)
+    gene_set_analyses_tool <- lapply(gene_set_analyses, function(assay) {
+      lapply(assay, function(geneset_type) {
+        lapply(geneset_type, function(contrast) enrichment_custom_cols)
+      })
+    })
+  } else {
+    gene_set_analyses_tool <- list()
+  }
 } else {
   gene_set_analyses <- list()
+  gene_set_analyses_tool <- list()
   genesets_files <- list()
 }
 
@@ -396,7 +438,8 @@ experiments[[opt$assay_entity_name]] <- list(
       measure = "counts"
     )
   }),
-  "gene_set_analyses" = gene_set_analyses
+  "gene_set_analyses" = gene_set_analyses,
+  "gene_set_analyses_tool" = gene_set_analyses_tool
 )
 
 shiny_config <- list(

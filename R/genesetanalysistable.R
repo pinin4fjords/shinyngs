@@ -234,22 +234,12 @@ genesetanalysistable <- function(input, output, session, eselist) {
     ese <- getExperiment()
     assay <- getAssay()
     gene_set_types <- getGeneSetTypes()
-    selected_contrasts <- getSelectedContrastNumbers()[[1]]
+    contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]])
 
-    gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[as.numeric(selected_contrasts)]]
-    
-    # Get the tool used for enrichment, or auto-detect it:
-    if ("gene_set_analyses_tool" %in% slotNames(ese)) {
-      gs_tool <- ese@gene_set_analyses_tool[[assay]][[gene_set_types]][[as.numeric(selected_contrasts)]]
-    } else {
-      gs_tool <- "auto"
-    }
-    if (gs_tool == "auto") {
-      gs_tool <- detect_enrichment_tool(gst)
-    }
-    validate_enrichment_table(gst, gs_tool)
-    col_map <- get_enrichment_mapping(gst, gs_tool)
-    gst <- clean_enrichment_table(gst, gs_tool)
+    enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+    validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
+    gst <- enrichment$gst
+    col_map <- enrichment$col_map
 
     # Select out specific gene sets if they've been provided
 
@@ -281,11 +271,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
       gene_sets <- getGeneSets()
 
       gst$significant_genes <- apply(gst, 1, function(row) {
-        if (row[col_map$direction] == "Up") {
-          siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], up)
-        } else {
-          siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], down)
-        }
+        direction_genes <- if (row[col_map$direction] == "Up") up else down
+        siggenes <- intersect(gene_sets[[gene_set_types]][[row["gene_set_id"]]], direction_genes)
         paste(siggenes, collapse = " ")
       })
 
