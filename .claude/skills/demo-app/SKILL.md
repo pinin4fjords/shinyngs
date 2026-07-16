@@ -4,10 +4,12 @@ description: >-
   Spin up a shinyngs Shiny app on test data to demo or verify a code change.
   Use whenever asked to run the app, demo this change, show me the UI, spin up
   a test app, click through a module, or verify something in the browser for
-  this repo. Covers building a throwaway R env with all deps, installing local
-  changes on top, getting test data (zhangneurons or synthetic), launching a
-  full app vs a single module, and the pitfalls that waste time (stale ports,
-  Docker memory limits, wrapped validate() errors).
+  this repo — including comparing before/after, old vs new, or two branches
+  side by side, which this also handles by running both versions
+  simultaneously on separate ports. Covers building a throwaway R env with all
+  deps, installing local changes on top, getting test data (zhangneurons or
+  synthetic), launching a full app vs a single module, and the pitfalls that
+  waste time (stale ports, Docker memory limits, wrapped validate() errors).
 ---
 
 # Demoing shinyngs app changes
@@ -129,6 +131,45 @@ inputs are `selectize.js`-enhanced, so set values via
 
 Kill it when done: `lsof -ti tcp:PORT | xargs kill -9`.
 
+## 5. Comparing two versions side by side
+
+Sometimes the point isn't just to see the new behavior, but to see it next to
+the old one — before/after a fix, or one branch against another. R can't hold
+two versions of the same package's class definitions in one session, so this
+needs two separate R processes, each pointed at its own private copy of
+`shinyngs`, sharing everything else from the env in step 1. `compare-app.sh`
+does this:
+
+```bash
+scripts/compare-app.sh --help
+scripts/compare-app.sh develop . genesetanalysistable zhangneurons
+#                      ^old    ^new (this checkout, incl. uncommitted changes)
+```
+
+`OLD_REF`/`NEW_REF` are each either a git ref (branch/tag/commit) or an
+existing checkout/worktree path — pass `.` for "this checkout as it is right
+now." A ref that isn't currently checked out anywhere gets its own worktree
+(reusing one already on that ref rather than duplicating it, and created
+alongside the repo the same way any other worktree here would be); a ref
+that's already checked out somewhere (very often true for `NEW_REF`, since
+that's usually the branch you're already sitting in) is used directly, no
+worktree needed. Each version is installed into its own library directory
+under `/tmp/shinyngs-compare/` and launched via `run-app.sh` with
+`R_LIB_OVERRIDE` pointed at it, so neither touches the shared env or the
+other version.
+
+`MODULE` and `DATA` are shared between both sides deliberately — same
+module, same test data, different code, so any difference you see is
+attributable to the change. If the two versions disagree about the shape of
+that data (e.g. a slot or column was added since `OLD_REF`), build `DATA`
+with the *older* version's package so the comparison also exercises backward
+compatibility with it — usually the more informative direction, and it can
+turn up real bugs on its own, not just cosmetic differences.
+
+Clean up the worktrees this creates the same way as any other:
+`git worktree remove <path>` for ones you're done with, `git worktree prune`
+to sweep dangling references.
+
 ## Pitfalls that waste time
 
 - **Stale process silently holding the port.** A `runApp()` left over from an
@@ -166,3 +207,10 @@ Kill it when done: `lsof -ti tcp:PORT | xargs kill -9`.
   suddenly shows nothing and a previously-working URL goes dead, the daemon
   is pointing at a different VM — rebuild the image there, or just run
   locally instead.
+
+- **In a comparison, `OLD_REF` failing to boot is often correct, not a
+  tooling bug.** An old ref can hit a real historical bug that was later
+  fixed — `compare-app.sh` still launches `NEW_REF` afterwards and reports
+  both statuses, rather than stopping at the first failure. Check the
+  printed log path before assuming the comparison scripts themselves are
+  broken.

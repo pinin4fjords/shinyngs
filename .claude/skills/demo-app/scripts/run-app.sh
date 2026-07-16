@@ -17,8 +17,12 @@ Usage: run-app.sh PORT MODULE DATA
           zhangneurons test package via data(zhangneurons)
 
 Environment overrides:
-  TIMEOUT_SECS   Max seconds to wait for readiness (default 150)
-  POLL_INTERVAL  Seconds between readiness checks (default 5)
+  TIMEOUT_SECS    Max seconds to wait for readiness (default 150)
+  POLL_INTERVAL   Seconds between readiness checks (default 5)
+  R_LIB_OVERRIDE  A library directory to search for the shinyngs package
+                  before the env's own library. Used by compare-app.sh to run
+                  two package versions side by side without touching the
+                  shared env; leave unset for normal single-version use.
 
 Requires the target R env active (SKILL.md step 1) and the local shinyngs
 package already installed into it (step 2). Prints the log tail and exits 0
@@ -59,9 +63,14 @@ else
   load_expr="esel <- readRDS(\"$DATA\")"
 fi
 
-r_expr="suppressMessages({library(shinyngs); library(shinyBS); library(shinyjs); library(markdown)}); ${load_expr}; app <- prepareApp(\"${MODULE}\", esel); shiny::runApp(shiny::shinyApp(app\$ui, app\$server), host = \"127.0.0.1\", port = ${PORT}, launch.browser = FALSE)"
+lib_expr=""
+if [ -n "${R_LIB_OVERRIDE:-}" ]; then
+  lib_expr=".libPaths(c(\"${R_LIB_OVERRIDE}\", .libPaths())); "
+fi
 
-echo "==> Launching module '$MODULE' on port $PORT (log: $LOG)"
+r_expr="${lib_expr}suppressMessages({library(shinyngs); library(shinyBS); library(shinyjs); library(markdown)}); ${load_expr}; app <- prepareApp(\"${MODULE}\", esel); shiny::runApp(shiny::shinyApp(app\$ui, app\$server), host = \"127.0.0.1\", port = ${PORT}, launch.browser = FALSE)"
+
+echo "==> Launching module '$MODULE' on port $PORT (log: $LOG)${R_LIB_OVERRIDE:+, shinyngs from $R_LIB_OVERRIDE}"
 (Rscript -e "$r_expr" >"$LOG" 2>&1 &)
 
 echo "==> Waiting up to ${TIMEOUT_SECS}s for readiness"
