@@ -9,7 +9,8 @@ cond_log2_transform_assays(
   log2_assays,
   threshold = 30,
   reverse = FALSE,
-  prettify_names = TRUE
+  prettify_names = TRUE,
+  invert_assays = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ This is only checked if should_transform is NULL.}
 \item{reverse}{Boolean, should we unlog rather than log?}
 
 \item{prettify_names}{Boolean. Prettify element names? Passed to validate_indices().}
+
+\item{invert_assays}{Boolean, apply transform to assays NOT specified in log2_assays.}
 }
 \value{
 A modified assay_data list.

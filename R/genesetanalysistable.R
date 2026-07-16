@@ -234,13 +234,12 @@ genesetanalysistable <- function(input, output, session, eselist) {
     ese <- getExperiment()
     assay <- getAssay()
     gene_set_types <- getGeneSetTypes()
-    selected_contrasts <- getSelectedContrastNumbers()[[1]]
+    contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]])
 
-    gst <- ese@gene_set_analyses[[assay]][[gene_set_types]][[as.numeric(selected_contrasts)]]
-
-    # Rename p value if we have PValue from mroast etc()
-
-    colnames(gst) <- sub("PValue", "p value", colnames(gst))
+    enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+    validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
+    gst <- enrichment$gst
+    col_map <- enrichment$col_map
 
     # Select out specific gene sets if they've been provided
 
@@ -258,7 +257,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
 
     # Apply the user's filters
 
-    gst <- gst[gst[["p value"]] < input$pval & gst[["FDR"]] < input$fdr, , drop = FALSE]
+    gst <- gst[gst[[col_map$pvalue]] < input$pval & gst[[col_map$fdr]] < input$fdr, , drop = FALSE]
 
     validate(need(nrow(gst) > 0, "No results matching specified filters"))
 
@@ -272,11 +271,8 @@ genesetanalysistable <- function(input, output, session, eselist) {
       gene_sets <- getGeneSets()
 
       gst$significant_genes <- apply(gst, 1, function(row) {
-        if (row["Direction"] == "Up") {
-          siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], up)
-        } else {
-          siggenes <- intersect(gene_sets[[getGeneSetTypes()]][[row["gene_set_id"]]], down)
-        }
+        direction_genes <- if (row[col_map$direction] == "Up") up else down
+        siggenes <- intersect(gene_sets[[gene_set_types]][[row["gene_set_id"]]], direction_genes)
         paste(siggenes, collapse = " ")
       })
 
@@ -289,7 +285,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
   getDisplayGeneSetAnalysis <- reactive({
     gst <- getGeneSetAnalysis()
 
-    # Add links, but use a prettiefied version of the gene set name that re-flows to take up less space
+    # Add links, but use a prettified version of the gene set name that re-flows to take up less space
 
     gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id), stringsAsFactors = FALSE))
     colnames(gst) <- prettifyVariablename(colnames(gst))
@@ -297,7 +293,7 @@ genesetanalysistable <- function(input, output, session, eselist) {
     gst
   })
 
-  # Make an explantory file name
+  # Make an explanatory file name
 
   makeFileName <- reactive({
     gsub("[^a-zA-Z0-9_]", "_", paste("gsa", getSelectedContrastNames(), getGeneSetTypes()))

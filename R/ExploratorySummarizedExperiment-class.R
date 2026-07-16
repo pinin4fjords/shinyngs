@@ -1,8 +1,6 @@
 #' The ExploratorySummarizedExperiment class
 #'
-#' Subclass of SummarizedExperiment if present in the SummarizedExperiment
-#' package (newer versions of Bioconductor have moved this from GenomicRanges),
-#' otherwise of SummarizedExperiment0.
+#' Subclass of SummarizedExperiment.
 #'
 #' @slot idfield character.
 #' @slot entrezgenefield character.
@@ -12,21 +10,17 @@
 #' @slot gene_set_analyses list.
 #' @slot dexseq_results list.
 #' @slot read_reports list.
+#' @slot gene_set_analyses_tool list.
 #'
 #' @export
 
-setClass("ExploratorySummarizedExperiment", contains = ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment",
-  "SummarizedExperiment0"
-), representation = representation(
+setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment", slots = c(
   idfield = "character", entrezgenefield = "character", labelfield = "character", contrast_stats = "list",
-  assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list"
+  assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list", gene_set_analyses_tool = "list"
 ))
 
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
-  as(
-    (as(from, ifelse("SummarizedExperiment" %in% getClasses(where = "package:SummarizedExperiment"), "SummarizedExperiment", "SummarizedExperiment0"))),
-    "ExploratorySummarizedExperiment"
-  )
+  as(as(from, "SummarizedExperiment"), "ExploratorySummarizedExperiment")
 })
 
 #' ExploratorySummarizedExperiments
@@ -63,21 +57,23 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' correspond to 'contrasts' set in the containing SummarizedExperimentList.
 #' @param assay_measures Optional List of measures to display related to each
 #' assay.
-#' @param gene_set_analyses List of lists of gene set tables keyed first by
-#' gene set
-#' type and secondly by contrast
+#' @param gene_set_analyses Three-level nested lists of gene set tables keyed first by
+#' assay, then by gene set type and then by contrast.
 #' @param read_reports A named list of matrices with read counts in columns
 #' and sample names in rows. Useful for providing mapped read counts,
 #' counts per gene type etc
 #' @param dexseq_results An optional list of \code{DEXSeqResults} objects
 #' corresponding to the contrasts listed in the \code{contrasts} slot..
+#' @param gene_set_analyses_tool Three-level nested lists of a string, nested as \code{gene_set_analyses}.
+#' Each string may be \code{"auto"} (the default), \code{"gsea"} or \code{"roast"}. It defines the format of the
+#' corresponding \code{gene_set_analyses} table.
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
 #' @rawNamespace import(SummarizedExperiment, except = 'shift')
 #' @export
 
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(),
-                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list()) {
+                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list(), gene_set_analyses_tool = list()) {
   # Reset NULLs to empty
 
   if (is.null(entrezgenefield)) {
@@ -116,6 +112,9 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   annotation <- data.frame(lapply(annotation, as.character), stringsAsFactors = FALSE, check.names = FALSE, row.names = rownames(annotation))[all_rows, ]
 
+  # Ensure consistency between gene_set_analyses with gene_set_analyses_tool
+  gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(gene_set_analyses, gene_set_analyses_tool)
+  
   # Build the object
 
   sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData, check.names = FALSE))
@@ -123,6 +122,54 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   new("ExploratorySummarizedExperiment", sumexp,
     idfield = idfield, labelfield = labelfield, entrezgenefield = entrezgenefield, assay_measures = assay_measures,
-    contrast_stats = contrast_stats, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports
+    contrast_stats = contrast_stats, gene_set_analyses = gene_set_analyses, dexseq_results = dexseq_results, read_reports = read_reports,
+    gene_set_analyses_tool = gene_set_analyses_tool
   )
+}
+
+#' Ensure consistency between gene_set_analyses and gene_set_analyses_tool structures
+#' @noRd
+#'
+#' @description
+#' Ensures that the structure of \code{gene_set_analyses_tool} matches that of \code{gene_set_analyses},
+#' filling in missing elements as needed. Each entry in \code{gene_set_analyses_tool} should be a string
+#' (e.g., "auto", "gsea", or "roast") corresponding to the format of the associated gene set analysis table.
+#'
+#' @param gene_set_analyses A three-level nested list of gene set tables, keyed by assay, gene set type, and contrast.
+#' @param gene_set_analyses_tool A three-level nested list of strings, structured as \code{gene_set_analyses}, indicating the tool used for each gene set analysis.
+#'
+#' @return A three-level nested list of strings, matching the structure of \code{gene_set_analyses}, with missing elements filled as needed.
+check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set_analyses_tool) {
+  if (is.null(gene_set_analyses_tool)) {
+    gene_set_analyses_tool <- list()
+  }
+
+  validate_tool <- function(tool, where) {
+    ok <- (is.character(tool) && length(tool) == 1 && tool %in% c("auto", "gsea", "roast")) ||
+      is_enrichment_mapping(tool)
+    if (!ok) {
+      stop("Invalid gene_set_analyses_tool for ", where,
+           ". Expected 'auto', 'gsea', 'roast', or a named vector giving ",
+           paste(enrichment_mapping_fields, collapse = "/"), " columns. Found ",
+           paste(tool, collapse = ","))
+    }
+    tool
+  }
+
+  # gene_set_analyses is the source of truth for structure; mirror the tool spec
+  # onto it, defaulting each contrast to "auto" and validating any override.
+  mirror <- function(analyses, tools, path) {
+    lapply(setNames(nm = names(analyses)), function(name) {
+      node <- analyses[[name]]
+      tool_node <- if (is.null(tools)) NULL else tools[[name]]
+      if (is.list(node) && !is.data.frame(node)) {
+        mirror(node, tool_node, c(path, name))              # assay / gene-set-type container
+      } else {
+        validate_tool(if (is.null(tool_node)) "auto" else tool_node,
+                      paste(c(path, name), collapse = "/")) # contrast leaf (table or NULL)
+      }
+    })
+  }
+
+  mirror(gene_set_analyses, gene_set_analyses_tool, character(0))
 }
