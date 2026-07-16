@@ -58,12 +58,20 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, local::.
+          # Vignette-only Suggests (biomaRt, Gviz, DEXSeq, zhangneurons, devtools,
+          # BiocStyle, rmarkdown, markdown, rsconnect) are skipped here: CI builds
+          # with --no-build-vignettes / checks with --no-vignettes below, and
+          # _R_CHECK_FORCE_SUGGESTS_ is false, so they aren't needed. testthat and
+          # optparse are explicit since the "dependencies" restriction below would
+          # otherwise exclude them (they're only Suggests, not Imports).
+          extra-packages: any::rcmdcheck, any::testthat, any::optparse, local::.
+          dependencies: 'c("Imports", "Depends", "LinkingTo")'
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           error-on: '"error"'
-          args: 'c("--no-manual", "--as-cran", "--no-examples")'
+          args: 'c("--no-manual", "--as-cran", "--no-examples", "--no-vignettes")'
+          build_args: 'c("--no-manual", "--no-build-vignettes")'
 
       - name: Download test data from nf-core tests data repo
         run: |
@@ -71,35 +79,34 @@ jobs:
             wget -O $filename ${TEST_DATA_BASE}/$filename
           done
 
-      - name: Run FOM validation script
+      - name: Run integration scripts (FOM validation, exploratory/differential plots, app build)
         run: |
+          pids=()
+
           ./exec/validate_fom_components.R \
             --sample_metadata $SAMPLE_META_FILE \
             --feature_metadata $FEATURE_META_FILE \
             --assay_files $ASSAY_FILE \
             --contrasts_file $CONTRASTS_FILE \
-            --output_directory $(pwd)
+            --output_directory $(pwd) &
+          pids+=($!)
 
-      - name: Run exploratory plots script
-        run: |
           ./exec/exploratory_plots.R \
             --sample_metadata $SAMPLE_META_FILE \
             --feature_metadata $FEATURE_META_FILE \
             --assay_files $ASSAY_FILE \
             --contrast_variable $TREATMENT_VARIABLE \
-            --outdir $(pwd)
-      
-      - name: Run differential plots script
-        run: |
+            --outdir $(pwd) &
+          pids+=($!)
+
           ./exec/differential_plots.R \
             --differential_file $DIFFERENTIAL_FILE \
             --feature_metadata $FEATURE_META_FILE \
             --reference_level $REFERENCE_LEVEL \
             --treatment_level $TREATMENT_LEVEL \
-            --outdir $(pwd)
+            --outdir $(pwd) &
+          pids+=($!)
 
-      - name: Run app-building script
-        run: |
           ln -s $DIFFERENTIAL_FILE copied_${DIFFERENTIAL_FILE}
           ./exec/make_app_from_files.R \
             --sample_metadata $SAMPLE_META_FILE \
@@ -108,5 +115,12 @@ jobs:
             --contrast_file $CONTRASTS_FILE \
             --contrast_stats_assay 1 \
             --differential_results ${DIFFERENTIAL_FILE},copied_${DIFFERENTIAL_FILE} \
-            --output_dir $(pwd)
+            --output_dir $(pwd) &
+          pids+=($!)
+
+          status=0
+          for pid in "${pids[@]}"; do
+            wait "$pid" || status=1
+          done
+          exit $status
 
