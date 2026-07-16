@@ -166,9 +166,20 @@ with the *older* version's package so the comparison also exercises backward
 compatibility with it — usually the more informative direction, and it can
 turn up real bugs on its own, not just cosmetic differences.
 
-Clean up the worktrees this creates the same way as any other:
-`git worktree remove <path>` for ones you're done with, `git worktree prune`
-to sweep dangling references.
+When done, tear everything down in one command — both apps' processes are
+otherwise easy to forget since there are two of them, not one:
+
+```bash
+scripts/compare-app.sh --cleanup develop . 8110 8111
+```
+
+This kills both ports, deletes the temporary libraries, and removes any
+worktree it created for `OLD_REF`/`NEW_REF` — never a path you gave directly
+(like `.`), and never a worktree that already existed for other reasons; it
+only touches ones at this tool's own `<repo>-compare-<ref>` naming
+convention. Every normal (non-cleanup) run also prints the exact cleanup
+command to copy for that invocation, so you don't have to reconstruct it
+from memory.
 
 ## Pitfalls that waste time
 

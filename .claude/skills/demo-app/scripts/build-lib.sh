@@ -7,6 +7,7 @@ set -euo pipefail
 usage() {
   cat <<'USAGE'
 Usage: build-lib.sh REF_OR_PATH LIB_DIR
+       build-lib.sh --resolve REF_OR_PATH
 
   REF_OR_PATH  Either an existing directory (a checkout/worktree to install
                as-is — pass "." or the current worktree's path for "my
@@ -21,41 +22,73 @@ duplicate (git worktree add errors if a branch is checked out twice), and
 otherwise creates one alongside the repo root, matching this project's usual
 worktree conventions.
 
+--resolve prints the checkout path that would be used for REF_OR_PATH,
+without creating a worktree or installing anything — used by
+compare-app.sh --cleanup to find (and only remove) worktrees it created,
+without side effects from just asking.
+
 Examples:
   build-lib.sh . /tmp/shinyngs-compare/new-lib          # this checkout, as-is
   build-lib.sh develop /tmp/shinyngs-compare/old-lib    # a branch/tag/commit
+  build-lib.sh --resolve develop
 USAGE
 }
 
-if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ] || [ "$#" -lt 2 ]; then
+# Prints the checkout path for REF_OR_PATH to stdout. If CREATE=true and no
+# worktree exists yet, creates one; if CREATE=false, only reports the path
+# a subsequent build would use, without touching the filesystem or git state.
+# All diagnostics go to stderr so stdout is just the path, safe to capture.
+resolve_src_dir() {
+  local ref_or_path="$1" create="$2"
+
+  if [ -d "$ref_or_path" ]; then
+    echo "==> Using existing checkout: $ref_or_path" >&2
+    echo "$ref_or_path"
+    return
+  fi
+
+  local repo_root safe_ref existing src_dir
+  repo_root="$(git rev-parse --show-toplevel)"
+  safe_ref="$(echo "$ref_or_path" | tr '/' '-')"
+  existing="$(git -C "$repo_root" worktree list --porcelain | awk -v ref="refs/heads/$ref_or_path" '
+    /^worktree /{wt=$2} /^branch /{if ($2==ref) print wt}')"
+
+  if [ -n "$existing" ]; then
+    echo "==> Reusing existing worktree for '$ref_or_path': $existing" >&2
+    echo "$existing"
+    return
+  fi
+
+  src_dir="$(dirname "$repo_root")/$(basename "$repo_root")-compare-${safe_ref}"
+  if [ -d "$src_dir" ]; then
+    echo "==> Reusing previously-built worktree: $src_dir" >&2
+  elif [ "$create" = true ]; then
+    echo "==> Creating worktree for '$ref_or_path': $src_dir" >&2
+    git -C "$repo_root" worktree add --detach "$src_dir" "$ref_or_path" >&2
+  fi
+  echo "$src_dir"
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   usage
-  exit "$([ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ] && echo 0 || echo 1)"
+  exit 0
+fi
+
+if [ "${1:-}" = "--resolve" ]; then
+  [ "$#" -lt 2 ] && { usage; exit 1; }
+  resolve_src_dir "$2" false
+  exit 0
+fi
+
+if [ "$#" -lt 2 ]; then
+  usage
+  exit 1
 fi
 
 REF_OR_PATH="$1"
 LIB_DIR="$2"
 
-if [ -d "$REF_OR_PATH" ]; then
-  SRC_DIR="$REF_OR_PATH"
-  echo "==> Using existing checkout: $SRC_DIR"
-else
-  REPO_ROOT="$(git rev-parse --show-toplevel)"
-  SAFE_REF="$(echo "$REF_OR_PATH" | tr '/' '-')"
-  EXISTING="$(git -C "$REPO_ROOT" worktree list --porcelain | awk -v ref="refs/heads/$REF_OR_PATH" '
-    /^worktree /{wt=$2} /^branch /{if ($2==ref) print wt}')"
-  if [ -n "$EXISTING" ]; then
-    SRC_DIR="$EXISTING"
-    echo "==> Reusing existing worktree for '$REF_OR_PATH': $SRC_DIR"
-  else
-    SRC_DIR="$(dirname "$REPO_ROOT")/$(basename "$REPO_ROOT")-compare-${SAFE_REF}"
-    if [ -d "$SRC_DIR" ]; then
-      echo "==> Reusing previously-built worktree: $SRC_DIR"
-    else
-      echo "==> Creating worktree for '$REF_OR_PATH': $SRC_DIR"
-      git -C "$REPO_ROOT" worktree add --detach "$SRC_DIR" "$REF_OR_PATH"
-    fi
-  fi
-fi
+SRC_DIR="$(resolve_src_dir "$REF_OR_PATH" true)"
 
 mkdir -p "$LIB_DIR"
 echo "==> Installing $SRC_DIR into $LIB_DIR"
