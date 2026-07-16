@@ -1,6 +1,6 @@
-This page shows a standard expression heatmap, plotted with either `d3heatmap` (interactive) [1] or `pheatmap` (annotated) [2]. 
+This page shows a standard expression heatmap, plotted interactively with `heatmaply` [1]. 
 
-Clustering dendrograms are based on a correlation-based distance matrix using the Spearman coefficient, passed to the 'ward.D2' method of `hclust()` function in R [3].
+Clustering dendrograms are based on a correlation-based distance matrix using the Spearman coefficient, passed to the 'ward.D2' method of `hclust()` function in R [2].
 
 #### Controls
 
@@ -18,6 +18,5 @@ If gene sets have been uploaded, you can also use these controls to create heat 
 
 #### References
 
-* [1] Cheng J and Galili T (2016). <em>d3heatmap: Interactive Heat Maps Using 'htmlwidgets' and 'D3.js'</em>. R package version 0.6.1.1, <a href=\"http://CRAN.R-project.org/package=d3heatmap\">http://CRAN.R-project.org/package=d3heatmap</a>.
-* [2] Kolde R (2015). <em>pheatmap: Pretty Heatmaps</em>. R package version 1.0.7, <a href=\"http://CRAN.R-project.org/package=pheatmap\">http://CRAN.R-project.org/package=pheatmap</a>.
-* [3] Murtagh, Fionn and Legendre, Pierre (2014). <em>Ward's hierarchical agglomerative clustering method: which algorithms implement Ward's criterion?</em> Journal of Classification 31 (forthcoming).
+* [1] Galili T, O'Callaghan A, Sidi J and Sievert C (2017). <em>heatmaply: an R package for creating interactive cluster heatmaps for online publishing</em>. Bioinformatics, <a href=\"https://doi.org/10.1093/bioinformatics/btx657\">https://doi.org/10.1093/bioinformatics/btx657</a>.
+* [2] Murtagh, Fionn and Legendre, Pierre (2014). <em>Ward's hierarchical agglomerative clustering method: which algorithms implement Ward's criterion?</em> Journal of Classification 31 (forthcoming).

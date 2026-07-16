@@ -10,9 +10,8 @@ The provided controls allow selection of the experimental variables to test, and
 
 #### Plotting libraries used 
 
-Interactive heatmaps are createding using `d3heatmap` [1]. Annotated heatmaps are provided with `pheatmap` [2]. Annotated interactive heatmaps are not currently possible. 
+This heatmap is created using `heatmaply` [1].
 
 #### References
 
-* [1] Cheng J and Galili T (2016). <em>d3heatmap: Interactive Heat Maps Using 'htmlwidgets' and 'D3.js'</em>. R package version 0.6.1.1, <a href=\"http://CRAN.R-project.org/package=d3heatmap\">http://CRAN.R-project.org/package=d3heatmap</a>.
-* [2] Kolde R (2015). <em>pheatmap: Pretty Heatmaps</em>. R package version 1.0.7, <a href=\"http://CRAN.R-project.org/package=pheatmap\">http://CRAN.R-project.org/package=pheatmap</a>.
+* [1] Galili T, O'Callaghan A, Sidi J and Sievert C (2017). <em>heatmaply: an R package for creating interactive cluster heatmaps for online publishing</em>. Bioinformatics, <a href=\"https://doi.org/10.1093/bioinformatics/btx657\">https://doi.org/10.1093/bioinformatics/btx657</a>.

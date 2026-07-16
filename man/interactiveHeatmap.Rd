@@ -2,7 +2,7 @@
 % Please edit documentation in R/heatmap.R
 \name{interactiveHeatmap}
 \alias{interactiveHeatmap}
-\title{Make a ineractive heatmap with d3heatmap}
+\title{Make an interactive heatmap with heatmaply}
 \usage{
 interactiveHeatmap(
   plotmatrix,
@@ -15,15 +15,19 @@ interactiveHeatmap(
   colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100),
   cexCol = 0.7,
   cexRow = 0.7,
+  display_numbers = FALSE,
+  hide_colorbar = FALSE,
   ...
 )
 }
 \arguments{
 \item{plotmatrix}{Expression/ other data matrix}
 
-\item{displaymatrix}{A matrix of values that might be displayed in cells}
+\item{displaymatrix}{A matrix of values shown on hover, in addition to the
+(possibly scaled/ transformed) values in \code{plotmatrix}}
 
-\item{sample_annotation}{A data frame with sample metadata}
+\item{sample_annotation}{A data frame with sample metadata, used to draw
+column side colors and an accompanying legend}
 
 \item{cluster_rows}{Cluster rows?}
 
@@ -35,18 +39,23 @@ interactiveHeatmap(
 
 \item{colors}{A vector of colors for the heatmap}
 
-\item{cexCol}{Character expansion factor passed to \code{d3heatmap()}}
+\item{cexCol}{Character expansion factor passed to \code{heatmaply()}}
 
-\item{cexRow}{Character expansion factor passed to \code{d3heatmap()}}
+\item{cexRow}{Character expansion factor passed to \code{heatmaply()}}
 
-\item{...}{Additional argments passed to \code{d3heatmap()}}
+\item{display_numbers}{Boolean, should the (possibly scaled/ transformed)
+values in \code{plotmatrix} be displayed on the heatmap cells?}
+
+\item{hide_colorbar}{Boolean, should the color scale legend be hidden?}
+
+\item{...}{Additional argments passed to \code{heatmaply()}}
 }
 \value{
-output A plot as produced by pheatmap()
+output A plotly htmlwidget as produced by heatmaply()
 }
 \description{
 This is a generic function which may be useful outside of this package. It
 produces a heatmap based on an expression matrix and accompanying
-experiment data in the form of a frame, \code{d3heatmap()}.
+experiment data in the form of a frame, using \code{heatmaply::heatmaply()}.
 }
 \keyword{keywords}
