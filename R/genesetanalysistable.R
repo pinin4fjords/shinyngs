@@ -109,7 +109,11 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(genesetanalysistable_modal$id), "help", "help"), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
+  list(
+    modalInput(ns(genesetanalysistable_modal$id), "help", "help"),
+    uiOutput(ns("enrichmentMethod")),
+    simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis")
+  )
 }
 
 #' The server function of the genesetanalysistable module
@@ -190,15 +194,33 @@ genesetanalysistable <- function(id, eselist) {
       updateGeneSetsList()
     })
 
-    getGeneSetAnalysis <- reactive({
-      validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
+    # Resolve the enrichment table, column mapping and tool once per selection,
+    # shared between the table itself and the method label above it.
 
+    getEnrichmentInfo <- reactive({
       ese <- getExperiment()
       assay <- getAssay()
       gene_set_types <- getGeneSetTypes()
       contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]])
 
-      enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+      resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+    })
+
+    output$enrichmentMethod <- renderUI({
+      enrichment <- getEnrichmentInfo()
+      if (is.null(enrichment)) {
+        return(NULL)
+      }
+      helpText(paste0("Method: ", enrichment_tool_label(enrichment$tool)))
+    })
+
+    getGeneSetAnalysis <- reactive({
+      validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
+
+      ese <- getExperiment()
+      gene_set_types <- getGeneSetTypes()
+
+      enrichment <- getEnrichmentInfo()
       validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
       gst <- enrichment$gst
       col_map <- enrichment$col_map

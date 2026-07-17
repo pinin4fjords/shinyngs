@@ -187,6 +187,7 @@ genesetbarcodeplot <- function(id, eselist) {
         fdr <- paste(signif(gst[gene_set_names, col_map$fdr], 3), collapse = ",")
         direction <- paste(gst[gene_set_names, col_map$direction], collapse = ",")
         title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
+        title_components <- c(title_components, paste("Method:", enrichment_tool_label(enrichment$tool)))
       } else {
         title_components <- c(title_components, "(no association)")
       }

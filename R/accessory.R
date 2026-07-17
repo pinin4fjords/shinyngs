@@ -2137,6 +2137,28 @@ get_enrichment_mapping <- function(gst, gs_tool) {
   mappings[[gs_tool]]
 }
 
+#' Friendly label for an enrichment tool/mapping, for display in the app
+#' @noRd
+#' @param gs_tool Either \code{"gsea"}, \code{"roast"}, or a column mapping (see
+#' \code{is_enrichment_mapping()}). Should already be resolved (not \code{"auto"}).
+#'
+#' @returns A human-readable description of the tool/method that produced an
+#' enrichment table.
+enrichment_tool_label <- function(gs_tool) {
+  if (is_enrichment_mapping(gs_tool)) {
+    cols <- as.list(gs_tool)[enrichment_mapping_fields]
+    return(sprintf(
+      "Custom (p value: %s, FDR: %s, direction: %s)",
+      cols$pvalue, cols$fdr, cols$direction
+    ))
+  }
+  switch(gs_tool,
+    gsea = "GSEA (Gene Set Enrichment Analysis)",
+    roast = "ROAST (rotation gene set test)",
+    as.character(gs_tool)
+  )
+}
+
 # Errors if the table is missing expected columns; returns the column mapping.
 validate_enrichment_table <- function(gst, gs_tool) {
   col_map <- get_enrichment_mapping(gst, gs_tool)
@@ -2203,10 +2225,11 @@ resolve_contrast_key <- function(analyses, contrast_number, contrast) {
 #' @param contrast The selected contrast record (see \code{resolve_contrast_key}).
 #'
 #' @return \code{NULL} when there is no usable result for the selection,
-#' otherwise a list with \code{gst} (the cleaned enrichment table) and
-#' \code{col_map} (its pvalue/fdr/direction column names). The enrichment tool is
-#' taken from the \code{gene_set_analyses_tool} slot when present (older objects
-#' predating the slot fall back to auto-detection).
+#' otherwise a list with \code{gst} (the cleaned enrichment table), \code{col_map}
+#' (its pvalue/fdr/direction column names) and \code{tool} (the resolved tool,
+#' e.g. \code{"gsea"}, \code{"roast"} or a column mapping - never \code{"auto"}).
+#' The enrichment tool is taken from the \code{gene_set_analyses_tool} slot when
+#' present (older objects predating the slot fall back to auto-detection).
 resolve_enrichment <- function(ese, assay, gene_set_type, contrast_number, contrast) {
   analyses <- ese@gene_set_analyses[[assay]][[gene_set_type]]
   contrast_key <- resolve_contrast_key(analyses, contrast_number, contrast)
@@ -2228,7 +2251,7 @@ resolve_enrichment <- function(ese, assay, gene_set_type, contrast_number, contr
   }
 
   col_map <- validate_enrichment_table(gst, gs_tool)
-  list(gst = clean_enrichment_table(gst, gs_tool), col_map = col_map)
+  list(gst = clean_enrichment_table(gst, gs_tool), col_map = col_map, tool = gs_tool)
 }
 
 #' Group levels for a colouring variable, in first-appearance order
