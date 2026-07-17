@@ -297,7 +297,7 @@ Technical information can be accessed via the package documentation:
 
 More user-oriented documentation and examples of how to build your own
 apps in the
-[vignette](https://rawgit.com/pinin4fjords/shinyngs/master/vignettes/shinyngs.html).
+[vignette](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html).
 
 This is also accessible via the `vignette` command:
 
