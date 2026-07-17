@@ -592,8 +592,16 @@ v3.0](https://pinin4fjords.github.io/shinyngs/LICENSE.txt)
 - [`geneInput()`](https://pinin4fjords.github.io/shinyngs/reference/geneInput.md)
   : The input function of the gene module
 
-- [`geneModelPlot()`](https://pinin4fjords.github.io/shinyngs/reference/geneModelPlot.md)
-  : Make a gene model plot for a chromosomal location
+- [`geneModelBiotypeColors()`](https://pinin4fjords.github.io/shinyngs/reference/geneModelBiotypeColors.md)
+  :
+
+  Default color table for Ensembl transcript biotypes, used to color the
+  full transcript catalog track loaded by the `gene` module's gene model
+  view
+
+- [`geneModelGenomeInfo()`](https://pinin4fjords.github.io/shinyngs/reference/geneModelGenomeInfo.md)
+  : Map an Ensembl species name to an igv.js genome build and, where
+  known, a hosted Ensembl GFF3 annotation for that build
 
 - [`geneOutput()`](https://pinin4fjords.github.io/shinyngs/reference/geneOutput.md)
   : The input function of the gene module

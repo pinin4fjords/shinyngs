@@ -85,8 +85,9 @@ ExploratorySummarizedExperimentList(
 
 - ensembl_species:
 
-  Ensembl species definition like 'mmusculus'. Used to interface with
-  BiomaRt e.g. to make gene model plots in the `gene` module.
+  Ensembl species definition like 'mmusculus'. Used to pick an igv.js
+  genome build for the gene model view in the `gene` module (see
+  [`geneModelGenomeInfo()`](https://pinin4fjords.github.io/shinyngs/reference/geneModelGenomeInfo.md)).
 
 ## Value
 
