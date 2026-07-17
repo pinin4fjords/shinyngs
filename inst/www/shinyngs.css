@@ -66,6 +66,98 @@ overriding the z-index we need from bootstrap.css  */
 
 .shinyngs-cardinalfield .row div:nth-child(2) .selectize-input,
 .shinyngs-cardinalfield .row div:nth-child(3) input{
-  height: 35px; 
+  height: 35px;
   border-radius: 4px;
+}
+
+/* ---- Home landing page: header, tiles, drawer, jump card ---- */
+
+.shinyngs-home { padding-top: 0.5em; }
+.shinyngs-study-title { font-weight: 700; text-wrap: balance; }
+.shinyngs-study-author { color: #7b8794; font-weight: 400; margin-top: 0.25em; }
+.shinyngs-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #7b8794; margin: 0 0 10px; }
+.shinyngs-muted { color: #7b8794; }
+
+/* Overview panel grouping the tiles + drawer into one unit */
+.shinyngs-overview { background: #f4f6f8; border: 1px solid #e2e7ec; border-radius: 8px; padding: 18px 20px; margin: 18px 0 6px; }
+
+/* Tile clusters, stacked (data then analysis), not side-by-side */
+.shinyngs-clusters { display: flex; flex-direction: column; gap: 16px; }
+.shinyngs-clusters .cluster { min-width: 0; }
+.shinyngs-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+
+.shinyngs-tile {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px 15px;
+  background-color: #ffffff;
+  border: 1px solid #dfe4e8;
+  border-radius: 7px;
+  color: #2c3e50;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.shinyngs-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.09); border-color: #2780e3; text-decoration: none; color: #2c3e50; }
+.shinyngs-tile:focus-visible { outline: 2px solid #2780e3; outline-offset: 2px; }
+.shinyngs-tile.active { border-color: #2780e3; box-shadow: inset 0 0 0 1px #2780e3; }
+
+.shinyngs-tile-icon { color: #2780e3; font-size: 20px; flex: 0 0 auto; margin-top: 2px; }
+.shinyngs-tile-body { min-width: 0; flex: 1; padding-right: 16px; }
+.shinyngs-tile-value { display: block; font-size: 26px; font-weight: 700; line-height: 1.05; color: #1c2833; font-variant-numeric: tabular-nums; }
+.shinyngs-tile-label { display: block; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: #7b8794; margin-top: 3px; }
+.shinyngs-tile-chev { position: absolute; top: 12px; right: 12px; color: #9aa7b2; font-size: 12px; transition: transform .15s ease; }
+.shinyngs-tile:hover .shinyngs-tile-chev { color: #2780e3; }
+.shinyngs-tile.active .shinyngs-tile-chev { transform: rotate(180deg); color: #2780e3; }
+
+/* Detail drawer */
+.shinyngs-drawer { margin: 14px 0 2px; border: 1px solid #dfe4e8; background: #ffffff; border-radius: 7px; }
+.shinyngs-drawer-in { padding: 18px 20px; animation: shinyngs-fade .18s ease; }
+@keyframes shinyngs-fade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.shinyngs-drawer-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 13px; flex-wrap: wrap; }
+.shinyngs-drawer-title { font-size: 15px; font-weight: 700; color: #1c2833; margin: 0; }
+.shinyngs-drawer-title span { color: #7b8794; font-weight: 400; }
+.shinyngs-goto { font-size: 13.5px; font-weight: 600; color: #2780e3; white-space: nowrap; }
+
+/* Bar breakdown */
+.shinyngs-bars { display: flex; flex-direction: column; gap: 7px; max-width: 560px; }
+.shinyngs-bar-row { display: grid; grid-template-columns: 160px 1fr 34px; align-items: center; gap: 10px; font-size: 13px; }
+.shinyngs-bar-name { color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shinyngs-bar-track { background: #dfe4e8; border-radius: 4px; height: 12px; }
+.shinyngs-bar-fill { display: block; background: #2780e3; height: 12px; border-radius: 4px; min-width: 4px; }
+.shinyngs-bar-val { text-align: right; color: #7b8794; font-variant-numeric: tabular-nums; }
+
+/* Key-value lists, pills and contrast table */
+.shinyngs-kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 13.5px; max-width: 640px; margin: 0; }
+.shinyngs-kv dt { color: #1c2833; font-weight: 600; }
+.shinyngs-kv dd { margin: 0; color: #7b8794; }
+.shinyngs-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.shinyngs-pill { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; background: #e9f1fb; color: #2780e3; margin-left: 6px; }
+.shinyngs-kv dt .shinyngs-pill { vertical-align: middle; }
+.shinyngs-ctable { border-collapse: collapse; font-size: 13px; width: 100%; max-width: 640px; }
+.shinyngs-ctable th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: #7b8794; font-weight: 700; padding: 0 16px 7px 0; border-bottom: 1px solid #dfe4e8; }
+.shinyngs-ctable td { padding: 6px 16px 6px 0; border-bottom: 1px solid #dfe4e8; color: #2c3e50; }
+.shinyngs-ctable tr:last-child td { border-bottom: 0; }
+.shinyngs-avail { color: #2e9e57; font-weight: 600; }
+
+/* Description: flows in newspaper columns to fill the width below the tiles */
+.shinyngs-desc { margin-top: 26px; }
+.shinyngs-desc-body { column-count: 2; column-gap: 44px; }
+.shinyngs-desc-body > :first-child { margin-top: 0; }
+@media (max-width: 767px) { .shinyngs-desc-body { column-count: 1; } }
+
+/* Sidebar: jump-to-analysis links + interface note (sits inside the sidebar well) */
+.shinyngs-jump a { display: flex; align-items: center; gap: 9px; padding: 8px 0; color: #2c3e50; text-decoration: none; font-size: 14px; border-bottom: 1px solid #e0e0e0; }
+.shinyngs-jump a:last-child { border-bottom: 0; }
+.shinyngs-jump a:hover { color: #2780e3; text-decoration: none; }
+.shinyngs-jump a .fa, .shinyngs-jump a svg { color: #2780e3; width: 15px; text-align: center; }
+.shinyngs-aside-note { margin-top: 16px; padding-top: 14px; border-top: 1px solid #e0e0e0; font-size: 12.5px; color: #8a97a3; line-height: 1.55; }
+.shinyngs-aside-note p { margin: 0 0 8px; }
+.shinyngs-aside-note a { color: #6a7a88; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shinyngs-tile, .shinyngs-tile-chev { transition: none; }
+  .shinyngs-drawer-in { animation: none; }
 }
