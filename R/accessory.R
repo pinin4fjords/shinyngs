@@ -1,3 +1,24 @@
+#' Resolve the default grouping variable for an experiment list
+#'
+#' Returns \code{default_groupvar} if set, otherwise the first of
+#' \code{group_vars}, or \code{NULL} when no grouping variables are defined.
+#'
+#' @param eselist ExploratorySummarizedExperimentList object
+#'
+#' @return A single grouping-variable name, or \code{NULL}
+#'
+#' @keywords internal
+#'
+defaultGroupvar <- function(eselist) {
+  if (length(eselist@default_groupvar) > 0) {
+    eselist@default_groupvar
+  } else if (length(eselist@group_vars) > 0) {
+    eselist@group_vars[1]
+  } else {
+    NULL
+  }
+}
+
 #' Convenience interface to strsplit()
 #'
 #' @param string Input string
