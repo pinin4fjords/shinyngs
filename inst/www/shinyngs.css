@@ -75,12 +75,6 @@ h3{
   max-width:100%;
 }
 
-/* shinythemes overrides the bootstrap.css z-index that modal dialogs need. */
-
-.modal{
-  z-index: 1050; 
-}
-
 .help{
   float:right;
   padding-left:1em;
