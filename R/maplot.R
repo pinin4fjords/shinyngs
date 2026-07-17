@@ -1,3 +1,5 @@
+maplot_modal <- list(id = "maplot", title = "MA plots")
+
 #' The UI input function of the \code{maplot} module
 #'
 #' This module produces an MA plot of log(10) expression vs log(2) fold change
@@ -80,7 +82,7 @@ maplotOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("maplot"), "help", "help"), modalOutput(ns("maplot"), "MA plots", includeMarkdown(system.file("inlinehelp", "maplot.md", package = packageName()))),
+    modalInput(ns(maplot_modal$id), "help", "help"),
     h3("MA plot"), scatterplotOutput(ns("ma")), htmlOutput(ns("matable"))
   )
 }
@@ -110,6 +112,8 @@ maplotOutput <- function(id) {
 #'
 maplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(maplot_modal$id, maplot_modal$title)
+
     output$matable <- renderUI({
       ns <- session$ns
 

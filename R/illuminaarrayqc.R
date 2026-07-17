@@ -1,3 +1,5 @@
+illuminaarrayqc_modal <- list(id = "illuminaarrayqc", title = "Quality control plot for Illumina microarray data")
+
 #' The input function of the illuminaarrayqc module
 #'
 #' This module plots control probes from an illumina microarray experiment.
@@ -50,10 +52,7 @@ illuminaarrayqcOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", includeMarkdown(system.file("inlinehelp",
-      "illuminaarrayqc.md",
-      package = packageName()
-    ))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
+    modalInput(ns(illuminaarrayqc_modal$id), "help", "help"), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
     simpletableOutput(ns("qctable"))
   )
 }
@@ -76,6 +75,8 @@ illuminaarrayqcOutput <- function(id) {
 #'
 illuminaarrayqc <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(illuminaarrayqc_modal$id, illuminaarrayqc_modal$title)
+
     unpack.list(selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
 
     output$qcplot <- renderPlotly({

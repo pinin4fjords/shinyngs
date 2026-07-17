@@ -1,3 +1,5 @@
+dendro_modal <- list(id = "dendro", title = "Sample clustering dendrogram")
+
 #' The input function of the dendrogram module
 #'
 #' This module will produce a sample clustering dendrogram based on
@@ -32,12 +34,9 @@ dendroInput <- function(id, eselist) {
       `Ward minimum variance clustering` = "ward.D2", `Single linkage` = "single", `Complete linkage` = "complete", `Average linkage` = "average",
       WPGMA = "mcquittye", UPGMC = "centroid"
     )
-  ), groupbyInput(ns("dendro")), sliderInput(ns("labelspace"),
-    label = "Label space (%)", min = 0.1, max = 0.5,
-    step = 0.05, value = 0.2
-  ))
+  ), groupbyInput(ns("dendro")))
 
-  fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters, export = plotdownloadInput(ns("dendro"))))
+  fieldSets(ns("fieldset"), list(clustering = dendro_filters, expression = expression_filters))
 }
 
 #' The output function of the dendro module
@@ -61,9 +60,7 @@ dendroInput <- function(id, eselist) {
 #'
 dendroOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.md",
-    package = packageName()
-  ))), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
+  list(modalInput(ns(dendro_modal$id), "help", "help"), h3("Sample clustering dendrogram"), plotlyOutput(ns("sampleDendroPlot"), height = "480px"))
 }
 
 #' The server function of the dendrogram module
@@ -87,43 +84,61 @@ dendroOutput <- function(id) {
 #'
 dendro <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(dendro_modal$id, dendro_modal$title)
+
     # Get the expression matrix - no need for a gene selection
 
     unpack.list(selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
     unpack.list(groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectColData))
 
-    # Call to plotdownload module
+    plot_source <- session$ns("sampleDendroPlot")
 
-    plotdownload("dendro", makePlot = plotSampleDendroPlot, filename = "dendrogram.png", plotHeight = 600, plotWidth = 800)
+    # Groups the user has toggled off via the legend; their samples are dropped
+    # from the matrix so the tree is recomputed on the remainder.
+    hiddenGroups <- reactiveVal(character(0))
 
-    # Reactive for making a plot for download
-
-    plotSampleDendroPlot <- reactive({
-      clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-        cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-        palette = getPalette()
-      )
+    getLevels <- reactive({
+      dendroGroupLevels(selectColData(), getGroupby())
     })
 
-    # Fetch the label spacing
-
-    getLabelspace <- reactive({
-      input$labelspace
-    })
-
-    # Render the actual plot
-
-    output$sampleDendroPlot <- renderPlot(
+    # A change of grouping variable invalidates the toggled-off group names
+    observeEvent(getGroupby(),
       {
-        withProgress(message = "Making sample dendrogram", value = 0, {
-          clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-            cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-            labelspace = getLabelspace(), palette = getPalette()
-          )
-        })
+        hiddenGroups(character(0))
       },
-      height = 600
+      ignoreNULL = FALSE
     )
+
+    # Clicking a legend entry emits plotly_restyle with the trace's new
+    # visibility; translate that into showing/hiding the group's samples. Trace 0
+    # is the branch tree, so trace i corresponds to the i-th group.
+    observeEvent(event_data("plotly_restyle", source = plot_source), {
+      ed <- event_data("plotly_restyle", source = plot_source)
+      visible <- ed[[1]][["visible"]]
+      if (is.null(visible)) {
+        return()
+      }
+      traces <- unlist(ed[[2]])
+      levels_all <- getLevels()
+      current <- hiddenGroups()
+      for (j in seq_along(traces)) {
+        trace <- traces[j]
+        if (trace < 1 || trace > length(levels_all)) next
+        level <- levels_all[trace]
+        state <- if (length(visible) >= j) visible[[j]] else visible[[1]]
+        current <- if (identical(state, "legendonly")) union(current, level) else setdiff(current, level)
+      }
+      hiddenGroups(current)
+    })
+
+    output$sampleDendroPlot <- renderPlotly({
+      withProgress(message = "Making sample dendrogram", value = 0, {
+        plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
+          cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
+          palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+        )
+      })
+    })
   })
 }
 
@@ -224,6 +239,157 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     p3 <- p3 + guides(color = guide_legend(nrow = ceiling(length(unique(experiment[[colorby]])) / 2)))
   }
   print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
+}
+
+#' Group levels for a dendrogram, in the order legend traces are built
+#'
+#' Shared by \code{plotly_clusteringDendrogram()} and its Shiny module so the
+#' trace order and the server's trace-index-to-group mapping cannot drift apart.
+#'
+#' @param experiment Sample annotation data frame
+#' @param colorby Column name in \code{experiment}, or NULL for no grouping
+#'
+#' @return Character vector of unique group values, with \code{"N/A"} for missing
+#'
+#' @noRd
+dendroGroupLevels <- function(experiment, colorby) {
+  if (is.null(colorby)) {
+    return(character(0))
+  }
+  unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
+}
+
+#' Make an interactive clustering dendrogram colored by experimental variable
+#'
+#' A \code{plotly} counterpart to \code{clusteringDendrogram()}: the branch
+#' geometry is derived from the same \code{hclust()} tree, and the leaves are
+#' placed as markers colored by an experimental variable. Sample names sit on
+#' the x-axis (rotated, with plotly reserving the label margin), and hovering a
+#' leaf reveals the sample name and its group value.
+#'
+#' @param plotmatrix Expression/ other data matrix
+#' @param experiment Annotation for the columns of plotmatrix
+#' @param colorby Column name in \code{experiment} specifying how leaves should be colored
+#' @param cor_method Correlation method, passed to cor() (default: pearson).
+#' @param cluster_method Clustering method, passed to hclust() (default: ward.D).
+#' @param plot_title Plot title
+#' @param palette Palette of colors, one for each unique value derived from
+#'   \code{colorby}.
+#' @param palette_name Valid R color palette name
+#' @param hidden_groups Values of \code{colorby} to exclude: their samples are
+#'   dropped and the tree is recomputed on the remainder, while the groups stay
+#'   in the legend (as \code{legendonly}) so they can be toggled back on.
+#' @param source A plotly event source string, used to route legend-click
+#'   (\code{plotly_restyle}) events back to a Shiny session.
+#'
+#' @return output A \code{plotly} plot object
+#'
+#' @keywords keywords
+#'
+#' @export
+#'
+#' @examples
+#' data(airway, package = "airway")
+#' mymatrix <- assays(airway)[[1]]
+#' mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000], ]
+#' plotly_clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
+#'
+plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "",
+                                        palette = NULL, palette_name = "Set1", hidden_groups = character(0), source = NULL) {
+  plot_title <- gsub("\n", "<br>", plot_title, fixed = TRUE)
+
+  # Group membership per sample, and the full set of groups. Both are derived
+  # from the complete sample set so the palette, symbols and legend stay stable
+  # as groups are toggled on and off.
+  levels_all <- dendroGroupLevels(experiment, colorby)
+  if (is.null(colorby)) {
+    col_groups <- character(ncol(plotmatrix))
+  } else {
+    col_groups <- na.replace(as.character(experiment[[colorby]][match(colnames(plotmatrix), rownames(experiment))]), "N/A")
+  }
+
+  if (is.null(palette) || any(is.na(palette[seq_along(levels_all)]))) {
+    palette <- makeColorScale(max(length(levels_all), 1), palette = palette_name)
+  }
+  palette <- stats::setNames(palette[seq_along(levels_all)], levels_all)
+  symbols <- stats::setNames(rep(c("circle", "square", "diamond", "triangle-up", "cross", "x"), length.out = length(levels_all)), levels_all)
+
+  visible_matrix <- plotmatrix[, !(col_groups %in% hidden_groups), drop = FALSE]
+
+  p <- plotly::plot_ly(source = source)
+
+  # Trace 0 is always the branch tree (empty when too few samples remain to
+  # cluster), so a Shiny handler can map any later trace index onto levels_all.
+  labs <- NULL
+  ymax <- 1
+  if (ncol(visible_matrix) >= 2) {
+    hcd <- calculateDendrogram(log2(visible_matrix + 1), cor_method, cluster_method)
+    ddata <- ggdendro::dendro_data(hcd)
+    segs <- ggdendro::segment(ddata)
+    labs <- ggdendro::label(ddata)
+    ymax <- max(c(segs$y, segs$yend))
+    p <- plotly::add_lines(p,
+      x = as.vector(rbind(segs$x, segs$xend, NA)), y = as.vector(rbind(segs$y, segs$yend, NA)),
+      line = list(color = "black", width = 1), hoverinfo = "none", showlegend = FALSE
+    )
+  } else {
+    p <- plotly::add_lines(p, x = numeric(0), y = numeric(0), hoverinfo = "none", showlegend = FALSE)
+  }
+
+  if (is.null(colorby)) {
+    if (!is.null(labs)) {
+      p <- plotly::add_markers(p, x = labs$x, y = rep(0, nrow(labs)), text = labs$label, hoverinfo = "text", marker = list(color = "black", size = 8), showlegend = FALSE)
+    }
+  } else {
+    leaf_group <- if (is.null(labs)) character(0) else na.replace(as.character(experiment[[colorby]][match(labs$label, rownames(experiment))]), "N/A")
+    # One trace per group, in levels_all order, so a Shiny handler can map a
+    # restyled trace index onto a group.
+    for (level in levels_all) {
+      keep <- leaf_group == level
+      marker <- list(color = palette[[level]], symbol = symbols[[level]], size = 9, line = list(color = "black", width = 0.5))
+      if (any(keep)) {
+        p <- plotly::add_markers(p,
+          x = labs$x[keep], y = rep(0, sum(keep)),
+          text = paste0(labs$label[keep], "<br>", prettifyVariablename(colorby), ": ", level), hoverinfo = "text", marker = marker, name = level
+        )
+      } else {
+        # No leaves to place, but keep a clickable legend entry: dimmed
+        # (legendonly) when the user hid the group, otherwise a normal entry
+        # drawing nothing (an NA point is not plotted).
+        hidden <- level %in% hidden_groups
+        p <- plotly::add_markers(p,
+          x = if (hidden) 0 else NA_real_, y = if (hidden) 0 else NA_real_,
+          marker = marker, name = level, hoverinfo = "skip", visible = if (hidden) "legendonly" else TRUE
+        )
+      }
+    }
+  }
+
+  # Leaves sit at y = 0 (the tree tips); floor the axis just below 0 so the
+  # rotated sample labels hang beneath the markers rather than behind them.
+  leaf_x <- if (is.null(labs)) numeric(0) else labs$x
+  xaxis <- list(
+    title = "", tickmode = "array", tickvals = leaf_x,
+    ticktext = if (is.null(labs)) character(0) else labs$label, tickangle = -90,
+    automargin = TRUE, zeroline = FALSE, showgrid = FALSE,
+    range = if (length(leaf_x)) c(min(leaf_x) - 0.5, max(leaf_x) + 0.5) else c(-0.5, 0.5)
+  )
+  yaxis <- list(title = "Height", zeroline = FALSE, showgrid = FALSE, range = c(-ymax * 0.05, ymax * 1.05))
+
+  annotations <- NULL
+  if (ncol(visible_matrix) < 2) {
+    annotations <- list(list(text = "Select at least two groups to cluster", xref = "paper", yref = "paper", x = 0.5, y = 0.5, showarrow = FALSE))
+  }
+
+  p <- plotly::layout(p,
+    title = plot_title, xaxis = xaxis, yaxis = yaxis, hovermode = "closest", annotations = annotations,
+    legend = list(title = list(text = if (is.null(colorby)) "" else prettifyVariablename(colorby)))
+  )
+
+  if (!is.null(source)) {
+    p <- plotly::event_register(p, "plotly_restyle")
+  }
+  p
 }
 
 #' Calculate a distance matrix based on correlation

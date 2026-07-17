@@ -98,6 +98,22 @@ gene <- function(id, eselist) {
     unpack.list(contrasts("gene", eselist = eselist, multiple = TRUE, show_controls = FALSE, selectmatrix_reactives = selectmatrix_reactives, select_all_contrasts = TRUE))
     unpack.list(groupby("gene", eselist = eselist, group_label = "Color by", selectColData = selectColData))
 
+    # Help modals are shown from the reactive info/model links, with titles
+    # that track the currently selected experiment and gene
+
+    gene_info_modal_id <- "geneInfo"
+    gene_model_modal_id <- "geneModel"
+
+    modalServer(gene_info_modal_id,
+      title = function() paste(getExperimentName(), "information for", paste(getSelectedLabels(), sep = ", ")),
+      content = DT::dataTableOutput(session$ns("geneInfoTable"))
+    )
+
+    modalServer(gene_model_modal_id,
+      title = function() paste(getSelectedLabels()[1], "gene model"),
+      content = plotOutput(session$ns("geneModel"), height = "600px")
+    )
+
     # The title and info link are reactive to the currently active experiment
 
     output$title <- renderUI({
@@ -108,24 +124,17 @@ gene <- function(id, eselist) {
     output$info <- renderUI({
       ns <- session$ns
       en <- getExperimentName()
-      gene_labels <- getSelectedLabels()
 
-      list(modalInput(ns("geneInfo"), paste(en, " info"), "help"), modalOutput(
-        ns("geneInfo"), paste(en, "information for", paste(gene_labels, sep = ", ")),
-        DT::dataTableOutput(ns("geneInfoTable"))
-      ))
+      list(modalInput(ns(gene_info_modal_id), paste(en, " info"), "help"))
     })
 
     # Render the gene model plot
 
     output$model <- renderUI({
       ns <- session$ns
-      gene_labels <- getSelectedLabels()
 
       if (length(eselist@ensembl_species) > 0) {
-        out <- list(modalInput(ns("geneModel"), "Gene model", "help"), modalOutput(ns("geneModel"), paste(gene_labels[1], "gene model"), plotOutput(ns("geneModel"),
-          height = "600px"
-        )))
+        out <- list(modalInput(ns(gene_model_modal_id), "Gene model", "help"))
       }
     })
 

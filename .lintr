@@ -13,5 +13,6 @@ linters: linters_with_defaults(
     infix_spaces_linter = NULL,
     spaces_inside_linter = NULL,
     commas_linter = NULL,
-    cyclocomp_linter = NULL
+    return_linter = NULL,
+    pipe_consistency_linter = NULL
   )

@@ -1,3 +1,5 @@
+clustering_modal <- list(id = "clustering", title = "Feature-wise clustering")
+
 #' The input function of the clustering module
 #'
 #' This module plots the expression profiles (scaled for comparison) of the
@@ -73,9 +75,7 @@ clusteringInput <- function(id, eselist) {
 clusteringOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns("clustering"), "help", "help"), modalOutput(ns("clustering"), "Feature-wise clustering", includeMarkdown(system.file("inlinehelp", "clustering.md",
-      package = packageName()
-    ))), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
+    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
     simpletableOutput(ns("geneClusteringTable"))
   )
 }
@@ -104,6 +104,8 @@ clusteringOutput <- function(id) {
 #'
 clustering <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(clustering_modal$id, clustering_modal$title)
+
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
 
     unpack.list(selectmatrix("clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))

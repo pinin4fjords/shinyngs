@@ -21,7 +21,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::lintr, local::.
+          extra-packages: any::lintr@3.4.0, local::.
           dependencies: 'c("Imports", "Depends", "LinkingTo")'
           needs: lint
 
