@@ -72,6 +72,12 @@ heatmapInput <- function(id, eselist, type = "expression") {
   filters
 }
 
+# Fixed pixel height for each annotation color-bar row drawn above a heatmap.
+# Kept as an absolute pixel value (converted to a fraction of the actual
+# container height where needed) rather than a fraction of the plot itself,
+# so the bars stay the same size regardless of how many heatmap rows are shown.
+HEATMAP_ANNOTATION_ROW_HEIGHT_PX <- 20
+
 heatmap_modal_specs <- list(
   pca = list(id = "pcavsexperiment", title = "Principal components vs experimental variables"),
   samples = list(id = "clusteringheatmap", title = "Sample clustering heatmap"),
@@ -317,7 +323,7 @@ heatmap <- function(id, eselist, type = "expression") {
       # Allowance for the angled column labels
       xaxis_labels_height <- 150
 
-      (nrow(display_matrix) * rowHeight()) + dendroHeight() + xaxis_labels_height
+      (nrow(display_matrix) * rowHeight()) + dendroHeight() + annotationHeight() + xaxis_labels_height
     })
 
     # Add a chunk for the dendrogram at the top
@@ -327,6 +333,19 @@ heatmap <- function(id, eselist, type = "expression") {
         150
       } else {
         0
+      }
+    })
+
+    # Reserve a fixed number of pixels per annotation variable, so adding more
+    # annotation rows doesn't compress the heatmap grid itself
+
+    annotationHeight <- reactive({
+      plot_annotation <- getPlotAnnotation()
+
+      if (is.null(plot_annotation) || ncol(plot_annotation) == 0) {
+        0
+      } else {
+        HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(plot_annotation)
       }
     })
 
@@ -383,7 +402,7 @@ heatmap <- function(id, eselist, type = "expression") {
       validateOrCatch(interactiveHeatmap(
         plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
         cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
-        display_numbers = FALSE, hide_colorbar = hideColorbar()
+        display_numbers = FALSE, hide_colorbar = hideColorbar(), plot_height = plotHeight()
       ))
     }) %>% bindCache(
       getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels(), makeColors(), hideColorbar()
@@ -418,6 +437,11 @@ heatmap <- function(id, eselist, type = "expression") {
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
 #'   values in \code{plotmatrix} be displayed on the heatmap cells?
 #' @param hide_colorbar Boolean, should the color scale legend be hidden?
+#' @param plot_height The total rendered height of the plot in pixels, used to
+#'   convert the fixed-pixel annotation row height into the fraction
+#'   \code{heatmaply()} expects. Should match the \code{height} the plot is
+#'   actually rendered at (e.g. the \code{height} argument of the
+#'   \code{plotlyOutput()} it's displayed in).
 #' @param ... Additional arguments passed to \code{heatmaply()}
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
@@ -430,7 +454,7 @@ heatmap <- function(id, eselist, type = "expression") {
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(
                                  n = 7,
                                  name = "RdYlBu"
-                               )))(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, ...) {
+                               )))(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = 600, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels
@@ -486,16 +510,17 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 
   # heatmaply reserves a fixed 0.2/0.1 fraction of the plot height for the column
   # dendrogram/annotation bars regardless of how many annotation variables there
-  # are, which reads as oversized for a small number of them; scale the
-  # annotation share with the number of annotation variables instead, and give
-  # the rest of the space to the heatmap itself
+  # are, which reads as oversized for a small number of them. Give the
+  # annotation bars a constant pixel height instead (converted to the fraction
+  # heatmaply expects using the plot's actual rendered height), so they don't
+  # grow or shrink with the number of heatmap rows, and give the rest of the
+  # space to the heatmap itself
   has_col_dend <- dendrogram %in% c("both", "column")
   has_col_annotation <- !is.null(col_side_colors)
 
   dend_height <- 0.2
-  annotation_row_height <- 0.025
 
-  annotation_height <- if (has_col_annotation) annotation_row_height * ncol(col_side_colors) else 0
+  annotation_height <- if (has_col_annotation) (HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(col_side_colors)) / plot_height else 0
 
   subplot_heights <- NULL
   if (has_col_dend && has_col_annotation) {
