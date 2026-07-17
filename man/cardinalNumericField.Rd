@@ -12,7 +12,8 @@ cardinalNumericField(
   cardinality = "<=",
   step = NA,
   min = NA,
-  max = NA
+  max = NA,
+  tooltip = NULL
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ cardinalNumericField(
 \item{min}{Passed to \code{\link[shiny]{numericInput}}}
 
 \item{max}{Passed to \code{\link[shiny]{numericInput}}}
+
+\item{tooltip}{Optional tooltip text explaining the field, shown via a help
+icon next to the label (see \code{\link{withHelpIcon}})}
 }
 \value{
 out An HTML tag object that can be rendered as HTML using

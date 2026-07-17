@@ -124,7 +124,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
         gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'variance' "
-        ), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0(
+        ), sliderInput(ns("obs"), withHelpIcon("Show top N most variant rows:", "Rows are ranked by variance across samples; increasing this includes more, less variable rows."), min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'metadata_pick' "
         ), labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0(

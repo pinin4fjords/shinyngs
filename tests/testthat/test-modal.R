@@ -36,3 +36,18 @@ test_that("modalServer accepts a static title and loads default markdown help", 
     )
   )
 })
+
+test_that("every id in help_modal_ids has a corresponding inlinehelp markdown file", {
+  md_paths <- file.path(system.file("inlinehelp", package = "shinyngs"), paste0(help_modal_ids, ".md"))
+  missing <- help_modal_ids[!file.exists(md_paths)]
+
+  expect_equal(missing, character(0))
+})
+
+test_that("every inlinehelp markdown file corresponds to an id in help_modal_ids", {
+  md_files <- list.files(system.file("inlinehelp", package = "shinyngs"), pattern = "\\.md$")
+  md_ids <- sub("\\.md$", "", md_files)
+  orphaned <- setdiff(md_ids, help_modal_ids)
+
+  expect_equal(orphaned, character(0))
+})

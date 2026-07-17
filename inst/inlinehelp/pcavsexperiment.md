@@ -6,7 +6,7 @@ In this panel, an 'analysis of variance' test is conducted for each component ag
 
 #### Controls
 
-The provided controls allow selection of the experimental variables to test, and which input matrix to use. Often a clearer separation of samples will be acheived by using the variable rows of a matrix, so the top 1000 most variant rows are used by default. You should adjust this parameter as required.
+The provided controls allow selection of the experimental variables to test, and which input matrix to use. Often a clearer separation of samples will be achieved by using the variable rows of a matrix, so the top 1000 most variant rows are used by default. You should adjust this parameter as required.
 
 #### Plotting libraries used 
 
