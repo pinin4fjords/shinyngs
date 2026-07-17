@@ -157,7 +157,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
     rowVariances <- reactive({
       nonempty <- getNonEmptyRows()
       withProgress(message = "Calculating row variances", value = 0, {
-        mfs <- matrixFromSamples()
+        mfs <- as.matrix(matrixFromSamples())
         stats::setNames(matrixStats::rowVars(mfs), rownames(mfs))
       })
     })
@@ -264,6 +264,7 @@ selectVariableGenes <- function(ntop, matrix = NULL, row_variances = NULL) {
     if (is.null(matrix)) {
       stop("selctVariableGenes(): a value must be provided for either matrix or row_variances")
     } else {
+      matrix <- as.matrix(matrix)
       row_variances <- stats::setNames(matrixStats::rowVars(matrix), rownames(matrix))
     }
   }
