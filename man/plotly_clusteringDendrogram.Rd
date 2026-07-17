@@ -47,11 +47,10 @@ output A \code{plotly} plot object
 }
 \description{
 A \code{plotly} counterpart to \code{clusteringDendrogram()}: the branch
-geometry is derived from the same \code{hclust()} tree, drawn with
-\code{add_segments()}, and the leaves are placed as markers colored by an
-experimental variable. Sample names sit on the x-axis (rotated, with plotly
-reserving the label margin), and hovering a leaf reveals the sample name and
-its group value.
+geometry is derived from the same \code{hclust()} tree, and the leaves are
+placed as markers colored by an experimental variable. Sample names sit on
+the x-axis (rotated, with plotly reserving the label margin), and hovering a
+leaf reveals the sample name and its group value.
 }
 \examples{
 data(airway, package = "airway")

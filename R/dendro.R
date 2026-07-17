@@ -95,14 +95,8 @@ dendro <- function(id, eselist) {
     # from the matrix so the tree is recomputed on the remainder.
     hiddenGroups <- reactiveVal(character(0))
 
-    # The order of groups here must match the trace order built by
-    # plotly_clusteringDendrogram(), so a restyled trace index maps to a group.
     getLevels <- reactive({
-      colorby <- getGroupby()
-      if (is.null(colorby)) {
-        return(character(0))
-      }
-      unique(na.replace(as.character(selectColData()[[colorby]]), "N/A"))
+      dendroGroupLevels(selectColData(), getGroupby())
     })
 
     # A change of grouping variable invalidates the toggled-off group names
@@ -134,8 +128,6 @@ dendro <- function(id, eselist) {
       }
       hiddenGroups(current)
     })
-
-    # Render the actual plot
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
@@ -247,14 +239,31 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
   print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
 }
 
+#' Group levels for a dendrogram, in the order legend traces are built
+#'
+#' Shared by \code{plotly_clusteringDendrogram()} and its Shiny module so the
+#' trace order and the server's trace-index-to-group mapping cannot drift apart.
+#'
+#' @param experiment Sample annotation data frame
+#' @param colorby Column name in \code{experiment}, or NULL for no grouping
+#'
+#' @return Character vector of unique group values, with \code{"N/A"} for missing
+#'
+#' @noRd
+dendroGroupLevels <- function(experiment, colorby) {
+  if (is.null(colorby)) {
+    return(character(0))
+  }
+  unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
+}
+
 #' Make an interactive clustering dendrogram colored by experimental variable
 #'
 #' A \code{plotly} counterpart to \code{clusteringDendrogram()}: the branch
-#' geometry is derived from the same \code{hclust()} tree, drawn with
-#' \code{add_segments()}, and the leaves are placed as markers colored by an
-#' experimental variable. Sample names sit on the x-axis (rotated, with plotly
-#' reserving the label margin), and hovering a leaf reveals the sample name and
-#' its group value.
+#' geometry is derived from the same \code{hclust()} tree, and the leaves are
+#' placed as markers colored by an experimental variable. Sample names sit on
+#' the x-axis (rotated, with plotly reserving the label margin), and hovering a
+#' leaf reveals the sample name and its group value.
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param experiment Annotation for the columns of plotmatrix
@@ -290,12 +299,11 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
   # Group membership per sample, and the full set of groups. Both are derived
   # from the complete sample set so the palette, symbols and legend stay stable
   # as groups are toggled on and off.
+  levels_all <- dendroGroupLevels(experiment, colorby)
   if (is.null(colorby)) {
     col_groups <- character(ncol(plotmatrix))
-    levels_all <- character(0)
   } else {
     col_groups <- na.replace(as.character(experiment[[colorby]][match(colnames(plotmatrix), rownames(experiment))]), "N/A")
-    levels_all <- unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
   }
 
   if (is.null(palette) || any(is.na(palette[seq_along(levels_all)]))) {
@@ -332,22 +340,24 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
     }
   } else {
     leaf_group <- if (is.null(labs)) character(0) else na.replace(as.character(experiment[[colorby]][match(labs$label, rownames(experiment))]), "N/A")
-    # One trace per group, in levels_all order. Shown groups carry their leaf
-    # markers; hidden groups carry no data but keep a clickable legend entry.
+    # One trace per group, in levels_all order, so a Shiny handler can map a
+    # restyled trace index onto a group.
     for (level in levels_all) {
       keep <- leaf_group == level
       marker <- list(color = palette[[level]], symbol = symbols[[level]], size = 9, line = list(color = "black", width = 0.5))
-      if (level %in% hidden_groups || !any(keep)) {
-        # A single dummy point keeps this trace (and its legend entry) valid;
-        # a "legendonly" trace is never drawn, so the coordinate is irrelevant.
-        p <- plotly::add_markers(p,
-          x = 0, y = 0, marker = marker, name = level, hoverinfo = "skip",
-          visible = if (level %in% hidden_groups) "legendonly" else TRUE
-        )
-      } else {
+      if (any(keep)) {
         p <- plotly::add_markers(p,
           x = labs$x[keep], y = rep(0, sum(keep)),
           text = paste0(labs$label[keep], "<br>", prettifyVariablename(colorby), ": ", level), hoverinfo = "text", marker = marker, name = level
+        )
+      } else {
+        # No leaves to place, but keep a clickable legend entry: dimmed
+        # (legendonly) when the user hid the group, otherwise a normal entry
+        # drawing nothing (an NA point is not plotted).
+        hidden <- level %in% hidden_groups
+        p <- plotly::add_markers(p,
+          x = if (hidden) 0 else NA_real_, y = if (hidden) 0 else NA_real_,
+          marker = marker, name = level, hoverinfo = "skip", visible = if (hidden) "legendonly" else TRUE
         )
       }
     }
@@ -355,11 +365,12 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
 
   # Leaves sit at y = 0 (the tree tips); floor the axis just below 0 so the
   # rotated sample labels hang beneath the markers rather than behind them.
+  leaf_x <- if (is.null(labs)) numeric(0) else labs$x
   xaxis <- list(
-    title = "", tickmode = "array", tickvals = if (is.null(labs)) numeric(0) else labs$x,
+    title = "", tickmode = "array", tickvals = leaf_x,
     ticktext = if (is.null(labs)) character(0) else labs$label, tickangle = -90,
     automargin = TRUE, zeroline = FALSE, showgrid = FALSE,
-    range = if (is.null(labs)) c(-0.5, 0.5) else c(min(labs$x) - 0.5, max(labs$x) + 0.5)
+    range = if (length(leaf_x)) c(min(leaf_x) - 0.5, max(leaf_x) + 0.5) else c(-0.5, 0.5)
   )
   yaxis <- list(title = "Height", zeroline = FALSE, showgrid = FALSE, range = c(-ymax * 0.05, ymax * 1.05))
 
