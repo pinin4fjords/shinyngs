@@ -1402,6 +1402,9 @@ guess_foldchange_scale <- function(values, log2_magnitude_limit = 15) {
 #' resolve_foldchange_scale(c(-8, 45, -120), fc_column = "FoldChange")
 resolve_foldchange_scale <- function(values, fc_column = NULL, declared_scale = "auto") {
   declared_scale <- match.arg(declared_scale, c("auto", "log2", "linear"))
+  if (!is.null(fc_column) && is.na(fc_column)) {
+    fc_column <- NULL
+  }
 
   column_label <- if (is.null(fc_column)) "the fold change column" else paste0("'", fc_column, "'")
   name_hint <- if (!is.null(fc_column) && grepl("log2", fc_column, ignore.case = TRUE)) "log2" else NULL
@@ -1448,49 +1451,47 @@ resolve_foldchange_scale <- function(values, fc_column = NULL, declared_scale = 
   ))
 }
 
-#' Read tables of differential statistics
+#' Map the deprecated \code{unlog_foldchanges}/\code{--unlog_foldchanges}
+#' argument onto \code{fold_change_scale}, warning if it was used
 #'
-#' @param filename File name of file with table of differential statistics
-#' @param feature_id_column Column of stats file with feature identifiers
-#' @param pval_column Column of stats file with p values
-#' @param qval_column Column of stats file with adjust p values/ q values
-#' @param fc_column Column of stats with fold changes
-#' @param fold_change_scale Scale of the values in \code{fc_column}: one of
-#'   \code{"auto"} (default, infer and validate from the column name and data
-#'   distribution), \code{"log2"} or \code{"linear"}. See
-#'   \code{\link{resolve_foldchange_scale}}.
-#' @param apply_fold_change_scale Should the resolved scale actually be
-#'   applied (unlogging \code{fc_column} in place if resolved to
-#'   \code{"log2"})? Set to \code{FALSE} to read the column raw and defer
-#'   resolution/transformation to the caller (used when combining fold
-#'   changes across multiple files, so the scale is resolved once for the
-#'   combined data rather than per-file).
-#' @param unlog_foldchanges Deprecated, use \code{fold_change_scale} instead.
-#'   Reverse a log on fold changes? Set to TRUE if values are logged.
+#' Shared by \code{read_differential}, \code{compile_contrast_data},
+#' \code{validate_inputs} and the \code{make_app_from_files.R},
+#' \code{differential_plots.R} and \code{validate_fom_components.R} scripts
+#' under \code{exec/}, so the shim only needs to be written once.
 #'
-#' @return output Validated selected columns of differential stats files as a
-#'   data frame, with the resolved scale attached as the \code{fold_change_scale}
-#'   attribute (when \code{apply_fold_change_scale} is \code{TRUE}).
+#' @param fold_change_scale The caller's current \code{fold_change_scale}
+#'   value (used unchanged when \code{unlog_foldchanges} is \code{NULL}).
+#' @param unlog_foldchanges The deprecated argument value, or \code{NULL} if
+#'   it was not supplied.
+#'
+#' @return The \code{fold_change_scale} to use.
 #' @export
-
-read_differential <- function(filename,
-                              feature_id_column = NULL,
-                              pval_column = NULL,
-                              qval_column = NULL,
-                              fc_column = NULL,
-                              fold_change_scale = "auto",
-                              apply_fold_change_scale = TRUE,
-                              unlog_foldchanges = NULL) {
-  if (!is.null(unlog_foldchanges)) {
-    warning(
-      "`unlog_foldchanges` is deprecated and will be removed in a future release; ",
-      "use `fold_change_scale = \"log2\"` (to unlog) or `fold_change_scale = \"linear\"` ",
-      "(to leave values as-is) instead.",
-      call. = FALSE
-    )
-    fold_change_scale <- if (isTRUE(unlog_foldchanges)) "log2" else "linear"
+resolve_deprecated_unlog_foldchanges <- function(fold_change_scale, unlog_foldchanges) {
+  if (is.null(unlog_foldchanges)) {
+    return(fold_change_scale)
   }
 
+  warning(
+    "`unlog_foldchanges`/`--unlog_foldchanges` is deprecated and will be removed in a future release; ",
+    "use `fold_change_scale`/`--fold_change_scale` = \"log2\" (to unlog) or \"linear\" (to leave values ",
+    "as-is) instead.",
+    call. = FALSE
+  )
+  if (isTRUE(unlog_foldchanges)) "log2" else "linear"
+}
+
+# Unlog a signed fold change value from log2 to linear scale (see
+# resolve_foldchange_scale()).
+unlog_fold_change <- function(x) {
+  sign(x) * 2^(abs(x))
+}
+
+# Read the feature id/p value/q value/fold change columns of a differential
+# statistics file, without resolving or applying any fold change scale.
+# Shared by read_differential() (which resolves/applies the scale for a
+# single file) and compile_contrast_data() (which combines several files'
+# raw fold changes before resolving the scale once across all of them).
+read_stats_table <- function(filename, feature_id_column = NULL, pval_column = NULL, qval_column = NULL, fc_column = NULL) {
   st <- read_metadata(filename, id_col = feature_id_column)
   stats_cols <- c(feature_id_column, pval_column, qval_column, fc_column)
 
@@ -1509,20 +1510,56 @@ read_differential <- function(filename,
       st[[c]] <- as.numeric(st[[c]])
     }
   }
+  st
+}
 
-  if (apply_fold_change_scale) {
-    resolved_scale <- resolve_foldchange_scale(
-      values = st[[fc_column]],
-      fc_column = fc_column,
-      declared_scale = fold_change_scale
-    )
+#' Read tables of differential statistics
+#'
+#' @param filename File name of file with table of differential statistics
+#' @param feature_id_column Column of stats file with feature identifiers
+#' @param pval_column Column of stats file with p values
+#' @param qval_column Column of stats file with adjust p values/ q values
+#' @param fc_column Column of stats with fold changes
+#' @param fold_change_scale Scale of the values in \code{fc_column}: one of
+#'   \code{"auto"} (default, infer and validate from the column name and data
+#'   distribution), \code{"log2"} or \code{"linear"}. See
+#'   \code{\link{resolve_foldchange_scale}}.
+#' @param unlog_foldchanges Deprecated, use \code{fold_change_scale} instead.
+#'   Reverse a log on fold changes? Set to TRUE if values are logged.
+#'
+#' @return output Validated selected columns of differential stats files as a
+#'   data frame, with the resolved scale attached as the \code{fold_change_scale}
+#'   attribute.
+#' @export
 
-    if (resolved_scale == "log2") {
-      st[[fc_column]] <- sign(st[[fc_column]]) * 2^(abs(st[[fc_column]]))
-    }
+read_differential <- function(filename,
+                              feature_id_column = NULL,
+                              pval_column = NULL,
+                              qval_column = NULL,
+                              fc_column = NULL,
+                              fold_change_scale = "auto",
+                              unlog_foldchanges = NULL) {
+  fold_change_scale <- resolve_deprecated_unlog_foldchanges(fold_change_scale, unlog_foldchanges)
 
-    attr(st, "fold_change_scale") <- resolved_scale
+  st <- read_stats_table(
+    filename = filename,
+    feature_id_column = feature_id_column,
+    pval_column = pval_column,
+    qval_column = qval_column,
+    fc_column = fc_column
+  )
+
+  resolved_scale <- resolve_foldchange_scale(
+    values = st[[fc_column]],
+    fc_column = fc_column,
+    declared_scale = fold_change_scale
+  )
+
+  if (resolved_scale == "log2") {
+    st[[fc_column]] <- unlog_fold_change(st[[fc_column]])
   }
+
+  attr(st, "fold_change_scale") <- resolved_scale
   st
 }
 
@@ -1551,28 +1588,19 @@ compile_contrast_data <-
            fc_column = NULL,
            fold_change_scale = "auto",
            unlog_foldchanges = NULL) {
-    if (!is.null(unlog_foldchanges)) {
-      warning(
-        "`unlog_foldchanges` is deprecated and will be removed in a future release; ",
-        "use `fold_change_scale = \"log2\"` (to unlog) or `fold_change_scale = \"linear\"` ",
-        "(to leave values as-is) instead.",
-        call. = FALSE
-      )
-      fold_change_scale <- if (isTRUE(unlog_foldchanges)) "log2" else "linear"
-    }
+    fold_change_scale <- resolve_deprecated_unlog_foldchanges(fold_change_scale, unlog_foldchanges)
 
     # Read stats and make sure they're numeric. Fold changes are read raw here
     # (no scale applied) so that the scale can be resolved once below, across
     # the fold changes combined from every contrast file.
 
     contrast_stats <- lapply(differential_stats_files, function(dsf) {
-      read_differential(
+      read_stats_table(
         filename = dsf,
         feature_id_column = feature_id_column,
         pval_column = pval_column,
         qval_column = qval_column,
-        fc_column = fc_column,
-        apply_fold_change_scale = FALSE
+        fc_column = fc_column
       )
     })
 
@@ -1597,7 +1625,7 @@ compile_contrast_data <-
       )
 
       if (resolved_scale == "log2") {
-        fold_changes[] <- lapply(fold_changes, function(x) sign(x) * 2^(abs(x)))
+        fold_changes[] <- lapply(fold_changes, unlog_fold_change)
       }
 
       attr(fold_changes, "fold_change_scale") <- resolved_scale
@@ -1649,15 +1677,7 @@ validate_inputs <- function(samples_metadata,
                             fc_column = "log2FoldChange",
                             fold_change_scale = "auto",
                             unlog_foldchanges = NULL) {
-  if (!is.null(unlog_foldchanges)) {
-    warning(
-      "`unlog_foldchanges` is deprecated and will be removed in a future release; ",
-      "use `fold_change_scale = \"log2\"` (to unlog) or `fold_change_scale = \"linear\"` ",
-      "(to leave values as-is) instead.",
-      call. = FALSE
-    )
-    fold_change_scale <- if (isTRUE(unlog_foldchanges)) "log2" else "linear"
-  }
+  fold_change_scale <- resolve_deprecated_unlog_foldchanges(fold_change_scale, unlog_foldchanges)
 
   validated_parts <- list()
 

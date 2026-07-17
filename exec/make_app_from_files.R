@@ -222,10 +222,7 @@ option_list <- list(
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
-if (!is.null(opt$unlog_foldchanges)) {
-  warning("--unlog_foldchanges is deprecated and will be removed in a future release; use --fold_change_scale=log2 instead.", call. = FALSE)
-  opt$fold_change_scale <- "log2"
-}
+opt$fold_change_scale <- shinyngs::resolve_deprecated_unlog_foldchanges(opt$fold_change_scale, opt$unlog_foldchanges)
 
 # Check mandatory
 

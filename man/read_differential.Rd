@@ -11,7 +11,6 @@ read_differential(
   qval_column = NULL,
   fc_column = NULL,
   fold_change_scale = "auto",
-  apply_fold_change_scale = TRUE,
   unlog_foldchanges = NULL
 )
 }
@@ -31,20 +30,13 @@ read_differential(
 distribution), \code{"log2"} or \code{"linear"}. See
 \code{\link{resolve_foldchange_scale}}.}
 
-\item{apply_fold_change_scale}{Should the resolved scale actually be
-applied (unlogging \code{fc_column} in place if resolved to
-\code{"log2"})? Set to \code{FALSE} to read the column raw and defer
-resolution/transformation to the caller (used when combining fold
-changes across multiple files, so the scale is resolved once for the
-combined data rather than per-file).}
-
 \item{unlog_foldchanges}{Deprecated, use \code{fold_change_scale} instead.
 Reverse a log on fold changes? Set to TRUE if values are logged.}
 }
 \value{
 output Validated selected columns of differential stats files as a
   data frame, with the resolved scale attached as the \code{fold_change_scale}
-  attribute (when \code{apply_fold_change_scale} is \code{TRUE}).
+  attribute.
 }
 \description{
 Read tables of differential statistics
