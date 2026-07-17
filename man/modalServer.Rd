@@ -9,10 +9,13 @@ modalServer(id, title, content = NULL)
 \arguments{
 \item{id}{Modal ID. Must match that passed to \code{modalInput}}
 
-\item{title}{Title to show on the help modal}
+\item{title}{Title to show on the help modal. May be a function, which is
+called each time the modal opens, so titles that depend on reactive state
+stay current.}
 
-\item{content}{Content to include in the modal. When \code{NULL} (the
-default), Markdown is loaded from \code{inst/inlinehelp/<id>.md}.}
+\item{content}{Content to include in the modal. May be a function, called
+each time the modal opens. When \code{NULL} (the default), Markdown is
+loaded once from \code{inst/inlinehelp/<id>.md}.}
 }
 \description{
 This module uses Shiny's \code{modalDialog()} to create overlaid text for the

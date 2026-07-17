@@ -35,21 +35,25 @@ modalInput <- function(id, label, class, icon = "info-circle") {
 #' This is handy, for example when adding help text.
 #'
 #' @param id Modal ID. Must match that passed to \code{modalInput}
-#' @param title Title to show on the help modal
-#' @param content Content to include in the modal. When \code{NULL} (the
-#'   default), Markdown is loaded from \code{inst/inlinehelp/<id>.md}.
+#' @param title Title to show on the help modal. May be a function, which is
+#'   called each time the modal opens, so titles that depend on reactive state
+#'   stay current.
+#' @param content Content to include in the modal. May be a function, called
+#'   each time the modal opens. When \code{NULL} (the default), Markdown is
+#'   loaded once from \code{inst/inlinehelp/<id>.md}.
 #'
 #' @examples
 #' modalServer("dendro", "Sample clustering dendrogram")
 #'
 modalServer <- function(id, title, content = NULL) {
   moduleServer(id, function(input, output, session) {
-    body <- content
-    if (is.null(body)) {
-      body <- includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
+    default_body <- if (is.null(content)) {
+      includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
     }
     observeEvent(input$link, {
-      showModal(modalDialog(body, title = title, size = "l", easyClose = TRUE, footer = modalButton("Close")))
+      body <- if (is.null(content)) default_body else if (is.function(content)) content() else content
+      dialog_title <- if (is.function(title)) title() else title
+      showModal(modalDialog(body, title = dialog_title, size = "l", easyClose = TRUE, footer = modalButton("Close")))
     })
   })
 }

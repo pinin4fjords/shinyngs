@@ -98,21 +98,18 @@ gene <- function(id, eselist) {
     unpack.list(contrasts("gene", eselist = eselist, multiple = TRUE, show_controls = FALSE, selectmatrix_reactives = selectmatrix_reactives, select_all_contrasts = TRUE))
     unpack.list(groupby("gene", eselist = eselist, group_label = "Color by", selectColData = selectColData))
 
-    # Help modals are shown from the reactive info/model links
+    # Help modals are shown from the reactive info/model links, with titles
+    # that track the currently selected experiment and gene
 
-    observeEvent(input[["geneInfo-link"]], {
-      showModal(modalDialog(DT::dataTableOutput(session$ns("geneInfoTable")),
-        title = paste(getExperimentName(), "information for", paste(getSelectedLabels(), sep = ", ")),
-        size = "l", easyClose = TRUE, footer = modalButton("Close")
-      ))
-    })
+    modalServer("geneInfo",
+      title = function() paste(getExperimentName(), "information for", paste(getSelectedLabels(), sep = ", ")),
+      content = DT::dataTableOutput(session$ns("geneInfoTable"))
+    )
 
-    observeEvent(input[["geneModel-link"]], {
-      showModal(modalDialog(plotOutput(session$ns("geneModel"), height = "600px"),
-        title = paste(getSelectedLabels()[1], "gene model"),
-        size = "l", easyClose = TRUE, footer = modalButton("Close")
-      ))
-    })
+    modalServer("geneModel",
+      title = function() paste(getSelectedLabels()[1], "gene model"),
+      content = plotOutput(session$ns("geneModel"), height = "600px")
+    )
 
     # The title and info link are reactive to the currently active experiment
 
