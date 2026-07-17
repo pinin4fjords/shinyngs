@@ -51,6 +51,7 @@ Suggests:
     pkgdown,
     rmarkdown,
     rsconnect,
+    shinytest2,
     styler,
     testthat (>= 3.0.0),
     withr
