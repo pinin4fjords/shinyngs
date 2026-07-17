@@ -23,7 +23,7 @@ Imports:
     limma,
     markdown,
     methods,
-    plotly (>= 4.3.4),
+    plotly (>= 4.8.0),
     RColorBrewer,
     reformulas,
     scatterplot3d,
