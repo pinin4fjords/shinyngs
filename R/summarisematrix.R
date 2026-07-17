@@ -147,14 +147,15 @@ colMedians <- function(x) {
 #' @return Logical vector, one element per row, \code{TRUE} where the row holds
 #'   more than one distinct value
 #'
-#' @keywords internal
-
+#' @noRd
 rowsWithMultipleValues <- function(matrix) {
   matrix <- as.matrix(matrix)
-  na_per_row <- rowSums(is.na(matrix))
-  any_na <- na_per_row > 0L
-  all_na <- na_per_row == ncol(matrix)
+  n_nan <- rowSums(is.nan(matrix))
+  n_missing <- rowSums(is.na(matrix))
+  n_na <- n_missing - n_nan
+  has_value <- n_missing < ncol(matrix)
   row_min <- matrixStats::rowMins(matrix)
   row_max <- matrixStats::rowMaxs(matrix)
-  (any_na & !all_na) | (!any_na & (row_min != row_max))
+  finite_differs <- has_value & n_missing == 0L & (row_min != row_max)
+  (has_value & n_missing > 0L) | finite_differs | (!has_value & n_na > 0L & n_nan > 0L)
 }
