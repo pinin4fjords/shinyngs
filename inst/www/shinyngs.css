@@ -245,6 +245,25 @@ h3{
 .shinyngs-aside-note p { margin: 0 0 8px; }
 .shinyngs-aside-note a { color: var(--bs-secondary-color); }
 
+/* ---- Keyboard focus indicators (light + dark) ---- */
+
+/* One visible focus-visible treatment for interactive elements that Bootstrap
+   and bslib leave with only a faint ring or none, matching the home tiles'
+   standard so keyboard users can always see their position. The theme accent
+   adapts to both light and dark. */
+.shinyngs-jump a:focus-visible,
+.shinyngs-goto:focus-visible,
+.navbar .nav-link:focus-visible,
+.navbar .navbar-brand:focus-visible,
+.card a:focus-visible,
+.btn:focus-visible,
+.shiny-download-link:focus-visible,
+.accordion-button:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shinyngs-tilebox, .shinyngs-tile-hint .fa, .shinyngs-tile-hint svg { transition: none; }
   .shinyngs-drawer-in { animation: none; }

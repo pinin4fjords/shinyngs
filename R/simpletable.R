@@ -22,7 +22,12 @@ simpletableInput <- function(id, tabletitle = "", description = NULL) {
     inputs <- pushToList(inputs, p(description))
   }
 
-  inputs <- pushToList(inputs, downloadButton(ns("downloadTable"), paste(tabletitle, "table")))
+  download_label <- trimws(paste(tabletitle, "table"))
+  inputs <- pushToList(inputs, a11yControl(
+    downloadButton(ns("downloadTable"), download_label),
+    label = paste("Download", download_label, "as CSV"),
+    tooltip = paste("Download the", tolower(download_label), "as a CSV file")
+  ))
 
   tagList(inputs)
 }
