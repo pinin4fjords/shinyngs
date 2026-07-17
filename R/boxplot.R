@@ -121,7 +121,7 @@ boxplot <- function(id, eselist) {
     output$quartilesPlot <- renderUI({
       ns <- session$ns
       if (input$plotType == "boxes") {
-        plotOutput(ns("sampleBoxplot"))
+        plotlyOutput(ns("sampleBoxplot"), height = "600px")
       } else if (input$plotType == "density") {
         plotlyOutput(ns("densityPlotly"), height = "600px")
       } else {
@@ -139,15 +139,55 @@ boxplot <- function(id, eselist) {
       plotly_densityplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), palette = getPalette())
     })
 
-    output$sampleBoxplot <- renderPlot(
+    plot_source <- session$ns("sampleBoxplot")
+
+    # Groups the user has toggled off via the legend; their samples are dropped
+    # so the plot is redrawn on the remainder.
+    hiddenGroups <- reactiveVal(character(0))
+
+    getLevels <- reactive({
+      boxplotGroupLevels(selectColData(), getGroupby())
+    })
+
+    # A change of grouping variable invalidates the toggled-off group names
+    observeEvent(getGroupby(),
       {
-        withProgress(message = "Making sample boxplot", value = 0, {
-          p <- ggplot_boxplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance, palette = getPalette())
-          print(p)
-        })
+        hiddenGroups(character(0))
       },
-      height = 600
+      ignoreNULL = FALSE
     )
+
+    # Clicking a legend entry emits plotly_restyle with the trace's new
+    # visibility; translate that into showing/hiding the group's samples. Box
+    # traces come first (one per group, in getLevels() order), so trace i
+    # corresponds to the (i + 1)-th group; the trailing outlier trace is ignored.
+    observeEvent(event_data("plotly_restyle", source = plot_source), {
+      ed <- event_data("plotly_restyle", source = plot_source)
+      visible <- ed[[1]][["visible"]]
+      if (is.null(visible)) {
+        return()
+      }
+      traces <- unlist(ed[[2]])
+      levels_all <- getLevels()
+      current <- hiddenGroups()
+      for (j in seq_along(traces)) {
+        trace <- traces[j]
+        if (trace < 0 || trace >= length(levels_all)) next
+        level <- levels_all[trace + 1]
+        state <- if (length(visible) >= j) visible[[j]] else visible[[1]]
+        current <- if (identical(state, "legendonly")) union(current, level) else setdiff(current, level)
+      }
+      hiddenGroups(current)
+    })
+
+    output$sampleBoxplot <- renderPlotly({
+      withProgress(message = "Making sample boxplot", value = 0, {
+        plotly_boxplot(selectMatrix(), selectColData(), getGroupby(),
+          expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance,
+          palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+        )
+      })
+    })
 
     # Provide the plot for download
 
@@ -228,10 +268,76 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   ), 15))
 }
 
-#' Make a boxplot with coloring by experimental variable
+#' Summarise a vector into the statistics a box plot needs
 #'
-#' A simple function using \code{plotly} to make a sample boxplot.
-#' NOT CURRENTLY USED DUE TO RESOURCE REQUIREMENTS ON LARGE MATRICES
+#' Computes the quartiles, Tukey-style whisker extents (the most extreme
+#' observations still within \code{whisker_distance} IQRs of the box), and the
+#' outliers lying beyond them. This is the server-side reduction that lets
+#' \code{\link{plotly_boxplot}} draw genuine box glyphs while sending only a
+#' handful of numbers per box to the browser rather than every observation.
+#'
+#' @param values Numeric vector
+#' @param labels Character vector of point labels, parallel to \code{values}
+#' @param whisker_distance IQR multiplier for the whiskers (see \code{coef} in
+#' \code{\link[ggplot2]{geom_boxplot}})
+#'
+#' @return A list with scalar \code{q1}, \code{median}, \code{q3},
+#' \code{lowerfence} and \code{upperfence}, plus \code{outlier_values} and
+#' \code{outlier_labels} vectors
+#'
+#' @keywords internal
+box_summary <- function(values, labels, whisker_distance = 1.5) {
+  keep <- is.finite(values)
+  values <- values[keep]
+  labels <- labels[keep]
+
+  if (length(values) == 0) {
+    return(list(
+      q1 = NA_real_, median = NA_real_, q3 = NA_real_, lowerfence = NA_real_,
+      upperfence = NA_real_, outlier_values = numeric(0), outlier_labels = character(0)
+    ))
+  }
+
+  q <- quantile(values, probs = c(0.25, 0.5, 0.75), names = FALSE)
+  iqr <- q[3] - q[1]
+  lower_bound <- q[1] - whisker_distance * iqr
+  upper_bound <- q[3] + whisker_distance * iqr
+  within <- values >= lower_bound & values <= upper_bound
+
+  list(
+    q1 = q[1], median = q[2], q3 = q[3],
+    lowerfence = if (any(within)) min(values[within]) else q[1],
+    upperfence = if (any(within)) max(values[within]) else q[3],
+    outlier_values = values[!within],
+    outlier_labels = labels[!within]
+  )
+}
+
+#' Group levels for a boxplot, in the order the legend traces are built
+#'
+#' Shared by \code{plotly_boxplot()} and its Shiny module so the box-trace order
+#' and the server's trace-index-to-group mapping cannot drift apart.
+#'
+#' @param experiment Sample annotation data frame
+#' @param colorby Column name in \code{experiment} used for grouping, or NULL
+#'
+#' @return A character vector of group levels
+#'
+#' @keywords internal
+boxplotGroupLevels <- function(experiment, colorby = NULL) {
+  if (is.null(colorby)) {
+    return(" ")
+  }
+  unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
+}
+
+#' Make an interactive boxplot with coloring by experimental variable
+#'
+#' Draws a \code{plotly} box plot of the value distribution in each sample.
+#' Box statistics (quartiles, whiskers, outliers) are computed server-side and
+#' supplied to plotly as precomputed values, so the browser payload scales with
+#' the number of samples rather than the size of the matrix. This makes it
+#' usable on full expression matrices where sending every point would not be.
 #'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
@@ -240,64 +346,168 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
 #' @param palette_name Valid R color palette name
+#' @param whisker_distance IQR multiplier for the whiskers, and the boundary
+#' beyond which points are drawn as outliers (see \code{coef} in
+#' \code{\link[ggplot2]{geom_boxplot}}, default: 1.5)
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
 #' @param should_transform A boolean indicating if the log2 transformation should be applied.
 #'                   If TRUE, log2 transformation is applied unconditionally.
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
+#' @param max_outliers Maximum number of outlier points to draw per facet. When
+#' a sample set produces more, the most extreme (furthest from the median) are
+#' kept so the overlay stays bounded (default: 500).
+#' @param hidden_groups Values of \code{colorby} to exclude: their samples are
+#'   dropped so the plot is redrawn on the remainder, while they stay in the
+#'   legend (as \code{legendonly}) so they can be toggled back on.
+#' @param source Optional plotly source id used to route legend-click
+#'   (\code{plotly_restyle}) events back to a Shiny session.
 #'
-#' @importFrom dplyr group_map
 #' @export
 #' @return output A \code{plotly} output
 #'
 #' @keywords keywords
-
-plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples = annotate_samples, should_transform = should_transform)
-
-  ncats <- length(unique(plotdata$colorby))
-  if (is.null(palette)) {
-    palette <- makeColorScale(ncats, palette = palette_name)
+#'
+#' @examples
+#' require(airway)
+#' data(airway, package = "airway")
+#' plotly_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
+#'
+plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = "Set1", whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL) {
+  if (!is.list(plotmatrices)) {
+    plotmatrices <- list(" " = plotmatrices)
   }
 
-  plotdata %>%
-    group_by(type) %>%
-    group_map(
-      ~ plot_ly(
-        data = .,
-        x = ~name,
-        y = ~value,
-        color = ~colorby,
-        text = ~gene,
+  # Order samples so members of the same group sit together, preserving
+  # first-seen order of both samples and groups (mirrors ggplotify()).
+
+  group_levels <- boxplotGroupLevels(experiment, colorby)
+  if (!is.null(colorby)) {
+    groups <- na.replace(as.character(experiment[[colorby]]), "N/A")
+  } else {
+    groups <- rep(" ", nrow(experiment))
+  }
+  sample_order <- order(factor(groups, levels = group_levels))
+  samples <- rownames(experiment)[sample_order]
+  groups <- groups[sample_order]
+
+  if (is.null(palette)) {
+    palette <- makeColorScale(length(group_levels), palette = palette_name)
+  }
+  palette <- palette[seq_along(group_levels)]
+  names(palette) <- group_levels
+
+  axis_labels <- samples
+  if (annotate_samples && !is.null(colorby)) {
+    axis_labels <- paste0(samples, " (", groups, ")")
+  }
+  names(axis_labels) <- samples
+
+  visible_mask <- !(groups %in% hidden_groups)
+  visible_samples <- samples[visible_mask]
+
+  # Legend-click events are only routed for a single (non-subplotted) panel,
+  # which is what the Shiny module produces.
+  event_source <- if (length(plotmatrices) == 1) source else NULL
+
+  facet_names <- prettifyVariablename(names(plotmatrices))
+  yaxis_title <- splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), 15)
+
+  facet_plots <- lapply(seq_along(plotmatrices), function(i) {
+    m <- cond_log2_transform_matrix(as.matrix(plotmatrices[[i]]), should_transform = should_transform, rmzeros = TRUE)
+    m <- m[, samples, drop = FALSE]
+
+    stats <- lapply(samples, function(s) box_summary(m[, s], rownames(m), whisker_distance))
+    names(stats) <- samples
+
+    p <- if (is.null(event_source)) plot_ly() else plot_ly(source = event_source)
+
+    for (g in group_levels) {
+      grp_samples <- samples[groups == g]
+      if (length(grp_samples) == 0) {
+        next
+      }
+      s_stats <- stats[grp_samples]
+      p <- add_trace(
+        p,
         type = "box",
-        legendgroup = ~colorby,
-        colors = palette,
-        showlegend = (.y == "Raw")
+        x = unname(axis_labels[grp_samples]),
+        lowerfence = vapply(s_stats, function(x) x$lowerfence, numeric(1)),
+        q1 = vapply(s_stats, function(x) x$q1, numeric(1)),
+        median = vapply(s_stats, function(x) x$median, numeric(1)),
+        q3 = vapply(s_stats, function(x) x$q3, numeric(1)),
+        upperfence = vapply(s_stats, function(x) x$upperfence, numeric(1)),
+        name = g,
+        legendgroup = g,
+        fillcolor = palette[[g]],
+        line = list(color = "black"),
+        visible = if (g %in% hidden_groups) "legendonly" else TRUE,
+        showlegend = !is.null(colorby) && i == 1
+      )
+    }
+
+    outliers <- do.call(rbind, lapply(visible_samples, function(s) {
+      ov <- stats[[s]]$outlier_values
+      if (length(ov) == 0) {
+        return(NULL)
+      }
+      data.frame(
+        x = unname(axis_labels[s]), y = ov, label = stats[[s]]$outlier_labels,
+        deviation = abs(ov - stats[[s]]$median), stringsAsFactors = FALSE
+      )
+    }))
+
+    if (!is.null(outliers) && nrow(outliers) > 0) {
+      if (nrow(outliers) > max_outliers) {
+        outliers <- outliers[order(outliers$deviation, decreasing = TRUE)[seq_len(max_outliers)], ]
+      }
+      p <- add_trace(
+        p,
+        type = "scatter", mode = "markers",
+        x = outliers$x, y = outliers$y,
+        text = outliers$label, hoverinfo = "text",
+        marker = list(color = "black", size = 4, opacity = 0.5),
+        name = "outliers", showlegend = FALSE
+      )
+    }
+
+    xaxis <- list(title = if (length(plotmatrices) > 1) facet_names[i] else NULL)
+    if (length(visible_samples) > 0) {
+      xaxis$categoryorder <- "array"
+      xaxis$categoryarray <- unname(axis_labels[visible_samples])
+    }
+
+    p %>%
+      layout(
+        xaxis = xaxis,
+        yaxis = list(title = yaxis_title, zeroline = FALSE)
       ) %>%
-        layout(
-          xaxis = list(title = paste(.x$type[1])),
-          yaxis = list(title = splitStringToFixedwidthLines(paste0(
-            "log2(",
-            prettifyVariablename(expressiontype), ")"
-          ), 15)),
-          legend = list(
-            title = list(text = prettifyVariablename(colorby)),
-            orientation = "h",
-            xanchor = "center",
-            x = 0.5,
-            y = -0.3
-          )
-        ) %>%
-        config(showLink = TRUE),
-      .keep = TRUE
-    ) %>%
-    subplot(
-      nrows = 1,
-      shareX = TRUE,
-      shareY = TRUE,
-      titleX = TRUE,
-      titleY = TRUE
+      config(showLink = TRUE)
+  })
+
+  if (length(facet_plots) == 1) {
+    p <- facet_plots[[1]]
+  } else {
+    p <- subplot(facet_plots, nrows = length(facet_plots), shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
+  }
+
+  p <- p %>%
+    layout(
+      legend = list(
+        title = list(text = if (!is.null(colorby)) prettifyVariablename(colorby) else ""),
+        orientation = "h",
+        xanchor = "center",
+        x = 0.5,
+        y = -0.3
+      ),
+      margin = list(b = 120),
+      hovermode = "closest"
     )
+
+  if (!is.null(event_source)) {
+    p <- event_register(p, "plotly_restyle")
+  }
+  p
 }
 
 #' Make a static density plot with ggplot2

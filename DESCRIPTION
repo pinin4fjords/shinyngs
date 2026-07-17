@@ -22,7 +22,7 @@ Imports:
     heatmaply,
     limma,
     methods,
-    plotly (>= 4.3.4),
+    plotly (>= 4.8.0),
     plyr,
     RColorBrewer,
     reformulas,

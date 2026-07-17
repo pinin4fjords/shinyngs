@@ -2,17 +2,21 @@
 % Please edit documentation in R/boxplot.R
 \name{plotly_boxplot}
 \alias{plotly_boxplot}
-\title{Make a boxplot with coloring by experimental variable}
+\title{Make an interactive boxplot with coloring by experimental variable}
 \usage{
 plotly_boxplot(
   plotmatrices,
   experiment,
-  colorby,
+  colorby = NULL,
   palette = NULL,
   expressiontype = "expression",
   palette_name = "Set1",
+  whisker_distance = 1.5,
   annotate_samples = FALSE,
-  should_transform = NULL
+  should_transform = NULL,
+  max_outliers = 500,
+  hidden_groups = character(0),
+  source = NULL
 )
 }
 \arguments{
@@ -29,18 +33,42 @@ plotly_boxplot(
 
 \item{palette_name}{Valid R color palette name}
 
+\item{whisker_distance}{IQR multiplier for the whiskers, and the boundary
+beyond which points are drawn as outliers (see \code{coef} in
+\code{\link[ggplot2]{geom_boxplot}}, default: 1.5)}
+
 \item{annotate_samples}{Add a suffix to sample labels reflecting their group?}
 
 \item{should_transform}{A boolean indicating if the log2 transformation should be applied.
 If TRUE, log2 transformation is applied unconditionally.
 If FALSE, no transformation is applied.
 If NULL, a conditional transformation based on threshold is applied.}
+
+\item{max_outliers}{Maximum number of outlier points to draw per facet. When
+a sample set produces more, the most extreme (furthest from the median) are
+kept so the overlay stays bounded (default: 500).}
+
+\item{hidden_groups}{Values of \code{colorby} to exclude: their samples are
+dropped so the plot is redrawn on the remainder, while they stay in the
+legend (as \code{legendonly}) so they can be toggled back on.}
+
+\item{source}{Optional plotly source id used to route legend-click
+(\code{plotly_restyle}) events back to a Shiny session.}
 }
 \value{
 output A \code{plotly} output
 }
 \description{
-A simple function using \code{plotly} to make a sample boxplot.
-NOT CURRENTLY USED DUE TO RESOURCE REQUIREMENTS ON LARGE MATRICES
+Draws a \code{plotly} box plot of the value distribution in each sample.
+Box statistics (quartiles, whiskers, outliers) are computed server-side and
+supplied to plotly as precomputed values, so the browser payload scales with
+the number of samples rather than the size of the matrix. This makes it
+usable on full expression matrices where sending every point would not be.
+}
+\examples{
+require(airway)
+data(airway, package = "airway")
+plotly_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
+
 }
 \keyword{keywords}
