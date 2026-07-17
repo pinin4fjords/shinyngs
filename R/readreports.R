@@ -45,7 +45,14 @@ readreportsInput <- function(id, eselist) {
 readreportsOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(modalInput(ns(readreports_modal$id), "help", "help"), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
+  moduleMain(
+    NULL,
+    uiOutput(ns("plotTitle")),
+    uiOutput(ns("barplotOutput")),
+    uiOutput(ns("tableTitle")),
+    simpletableOutput(ns("readrep")),
+    help = modalInput(ns(readreports_modal$id), "help", "help")
+  )
 }
 
 #' Server function of the \code{readreports} module
@@ -63,12 +70,12 @@ readreports <- function(id, eselist) {
 
     ns <- session$ns
 
-    unpack.list(selectmatrix("readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
+    selectmatrix_reactives <- selectmatrix("readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
 
     # Render a select for the report type based on what's in the 'read_reports' slot
 
     output$reportType <- renderUI({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettifyVariablename(names(ese@read_reports))))
     })
 
@@ -82,7 +89,7 @@ readreports <- function(id, eselist) {
     # Render the bar plot with height dependent on the number of columns in the report (so that the legend fits)
 
     output$barplotOutput <- renderUI({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       report_type <- getReportType()
       min_height <- 400
       height <- max(min_height, ncol(ese@read_reports[[report_type]]) * 20)
@@ -106,7 +113,7 @@ readreports <- function(id, eselist) {
     # Return the selected plot type when available
 
     getReportType <- reactive({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       validate(need(input$reportType, FALSE))
       validate(need(input$reportType %in% names(ese@read_reports), "No matching report type for the selected experiment"))
       input$reportType
@@ -134,7 +141,7 @@ readreports <- function(id, eselist) {
     # Get the report table from the slot
 
     getReportTable <- reactive({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       report_type <- getReportType()
       plotmatrix <- ese@read_reports[[report_type]]
       plotmatrix <- plotmatrix[, apply(plotmatrix, 2, function(x) sum(x > 10) > 0)]

@@ -87,7 +87,12 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(foldchangeplot_modal$id), "help", "help"), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+  moduleMain(
+    "Fold change plot",
+    scatterplotOutput(ns("foldchange")),
+    htmlOutput(ns("foldchangetable")),
+    help = modalInput(ns(foldchangeplot_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -119,24 +124,23 @@ foldchangeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(foldchangeplot_modal$id, foldchangeplot_modal$title)
 
-    output$foldchangetable <- renderUI({
-      ns <- session$ns
-
-      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "))
-    })
-
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
-    unpack.list(selectmatrix_reactives)
 
     # Pass the matrix to the contrasts module for processing
 
-    unpack.list(contrasts("differential", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
+    contrast_reactives <- contrasts("differential", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
 
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
 
-    unpack.list(geneselect("foldchange", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    geneselect_reactives <- geneselect("foldchange", eselist = eselist, getExperiment = selectmatrix_reactives$getExperiment, getAssay = selectmatrix_reactives$getAssay, provide_all = FALSE, provide_none = TRUE)
+
+    output$foldchangetable <- renderUI({
+      ns <- session$ns
+
+      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "), spinner = TRUE)
+    })
 
     # Pass the matrix to the scatterplot module for display
 
@@ -145,7 +149,7 @@ foldchangeplot <- function(id, eselist) {
     # Make a title by selecting the single contrast name of the single filter set
 
     getTitle <- reactive({
-      contrast_names <- getSelectedContrastNames()
+      contrast_names <- contrast_reactives$getSelectedContrastNames()
       contrast_names[[1]][[1]]
     })
 
@@ -154,7 +158,7 @@ foldchangeplot <- function(id, eselist) {
     plotLines <- reactive({
       fct <- foldchangeTable()
 
-      fclim <- getFoldChange()
+      fclim <- contrast_reactives$getFoldChange()
 
       normal_y <- !is.infinite(fct[, 2])
       normal_x <- !is.infinite(fct[, 1])
@@ -178,7 +182,7 @@ foldchangeplot <- function(id, eselist) {
 
       # Use lines dependent on how the fold change filter is applied
 
-      fccard <- getFoldChangeCard()
+      fccard <- contrast_reactives$getFoldChangeCard()
       if (fccard %in% c(">= or <= -", "<= and >= -")) {
         lines
       } else if (fccard == "<=" && sign(fclim) == "-1") {
@@ -206,27 +210,27 @@ foldchangeplot <- function(id, eselist) {
 
     foldchangeTable <- reactive({
       withProgress(message = "Compiling fold change plot data", value = 0, {
-        sct <- selectedContrastsTables()
+        sct <- contrast_reactives$selectedContrastsTables()
         ct <- sct[[1]][[1]]
         ct <- round(log2(ct[, 1:2]), 3)
 
-        cont <- getSelectedContrasts()[[1]][[1]]
+        cont <- contrast_reactives$getSelectedContrasts()[[1]][[1]]
         colnames(ct) <- c(paste0("log2(", cont[2], ")"), paste0("log2(", cont[3], ")"))
 
-        fct <- filteredContrastsTables()[[1]][[1]]
+        fct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
         ct$colorby <- "hidden"
         ct[rownames(fct), "colorby"] <- "match contrast filters"
-        ct[selectRows(), "colorby"] <- "in highlighted gene set"
+        ct[geneselect_reactives$selectRows(), "colorby"] <- "in highlighted gene set"
         ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
 
-        ct$label <- idToLabel(rownames(ct), getExperiment())
-        ct$label[!rownames(ct) %in% c(rownames(fct), selectRows())] <- NA
+        ct$label <- idToLabel(rownames(ct), selectmatrix_reactives$getExperiment())
+        ct$label[!rownames(ct) %in% c(rownames(fct), geneselect_reactives$selectRows())] <- NA
       })
       ct
     })
 
     # Display the data as a table alongside
 
-    simpletable("foldchangetable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "foldchange", rownames = FALSE, pageLength = 10)
+    simpletable("foldchangetable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "foldchange", rownames = FALSE, pageLength = 10)
   })
 }

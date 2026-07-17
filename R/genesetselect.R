@@ -23,7 +23,7 @@ genesetselectInput <- function(id, multiple = TRUE) {
   tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(
     placeholder = "Type a gene set keyword",
     maxItems = 5
-  ), multiple = multiple), radioButtons(ns("overlapType"), "Overlap type", c("union", "intersect")))
+  ), multiple = multiple), radioButtons(ns("overlapType"), withHelpIcon("Overlap type", "'Union' includes genes from any of the selected gene sets; 'intersect' includes only genes common to all of them."), c("union", "intersect")))
 }
 
 #' The server function of the genesetselect module

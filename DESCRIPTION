@@ -13,7 +13,7 @@ BugReports: https://github.com/pinin4fjords/shinyngs/issues
 Encoding: UTF-8
 LazyData: true
 Imports:
-    bslib,
+    bslib (>= 0.9.0),
     cluster,
     cpp11,
     data.table,
@@ -21,7 +21,6 @@ Imports:
     DT (>= 0.2),
     ggdendro,
     ggplot2,
-    GSEABase,
     heatmaply,
     limma,
     markdown,
@@ -32,6 +31,7 @@ Imports:
     reformulas,
     scatterplot3d,
     shiny (>= 1.7.0),
+    shinycssloaders,
     shinyjs,
     stats,
     utils,

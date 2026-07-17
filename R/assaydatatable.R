@@ -68,7 +68,11 @@ assaydatatableInput <- function(id, eselist) {
 assaydatatableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(assaydatatable_modal$id), "help", "help"), htmlOutput(ns("assaydatatable")))
+  moduleMain(
+    NULL,
+    htmlOutput(ns("assaydatatable")),
+    help = modalInput(ns(assaydatatable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the assaydatatable module
@@ -101,20 +105,23 @@ assaydatatable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(assaydatatable_modal$id, assaydatatable_modal$title)
 
+    # Call the selectmatrix module and hold on to the reactives it sends back
+
+    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE)
+
     # Render the output area - and provide an input-dependent title
 
     output$assaydatatable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
+      simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", selectmatrix_reactives$getAssay(), sep = ": "), spinner = TRUE)
     })
-
-    # Call the selectmatrix module and unpack the reactives it sends back
-
-    unpack.list(selectmatrix("expression", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
+    simpletable("assaydatatable",
+      downloadMatrix = selectmatrix_reactives$selectLabelledMatrix, displayMatrix = selectmatrix_reactives$selectLabelledLinkedMatrix,
+      filename = selectmatrix_reactives$getAssay(), rownames = FALSE
+    )
   })
 }

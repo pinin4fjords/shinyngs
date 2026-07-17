@@ -12,17 +12,17 @@ The PCA is calculated here based on a matrix of features (e.g. genes, transcript
 
 The PCA controls principally serve to allow you to select which components are displayed. The first two or three (for 2D or 3D plots) components are shown by default, but in cases where the very strongest patterns are associated with unknown factors or experiment variables of lesser interest, you may wish to select other components. 
 
-Coloring the points by the variables associated with your samples (e.g. gender, sequencing lane etc) can reveal what factors have influenced the structure in the data. In many case it's expected that samples will group by a primary treament factor (disease vs normal etc).  If the samples don't group as you expect then you're not likely to see the differential expression you may be looking for between groups. This can be for a number of resons, and it may be, for example, that you need to adjust for technical variables in your data.
+Coloring the points by the variables associated with your samples (e.g. gender, sequencing lane etc) can reveal what factors have influenced the structure in the data. In many case it's expected that samples will group by a primary treament factor (disease vs normal etc).  If the samples don't group as you expect then you're not likely to see the differential expression you may be looking for between groups. This can be for a number of reasons, and it may be, for example, that you need to adjust for technical variables in your data.
 
 #### Plots
 
 ##### Components plot
 
-The components plot shows the first components plotted against one another, and should separate samples according to the strongest patterns in the data, hopefully (though not necessarily) by your main exerimental variables. 
+The components plot shows the first components plotted against one another, and should separate samples according to the strongest patterns in the data, hopefully (though not necessarily) by your main experimental variables. 
 
 ##### Loading plot
 
-The loading plot shows which rows of the input matrix contributed most to each component, by default showing the union of the 10 strongest contributers to each component. For example, where a treatment has a strong impact on the expression of a set of genes, we expect that those genes will contribute strongly to the first few components. The nature of PCA is that components should be orthogonal to one another, the the strongest loadings at each component should be different to one another.
+The loading plot shows which rows of the input matrix contributed most to each component, by default showing the union of the 10 strongest contributors to each component. For example, where a treatment has a strong impact on the expression of a set of genes, we expect that those genes will contribute strongly to the first few components. The nature of PCA is that components should be orthogonal to one another, so the strongest loadings at each component should be different to one another.
 
 #### References
 

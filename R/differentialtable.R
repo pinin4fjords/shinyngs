@@ -46,7 +46,12 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(differentialtable_modal$id), "help", "help"), htmlOutput(ns("differentialtable")), contrastsOutput(ns("differential")))
+  moduleMain(
+    NULL,
+    htmlOutput(ns("differentialtable")),
+    contrastsOutput(ns("differential")),
+    help = modalInput(ns(differentialtable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the differentialtable module
@@ -73,25 +78,24 @@ differentialtable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(differentialtable_modal$id, differentialtable_modal$title)
 
+    # Call the selectmatrix module and hold on to the reactives it sends back
+
+    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
+
+    # Pass the matrix to the contrasts module for processing
+
+    contrast_reactives <- contrasts("differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE)
+
     # Render the output area - and provide an input-dependent title
 
     output$differentialtable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "))
+      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", selectmatrix_reactives$getAssay(), sep = ": "), spinner = TRUE)
     })
-
-    # Call the selectmatrix module and unpack the reactives it sends back
-
-    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
-    unpack.list(selectmatrix_reactives)
-
-    # Pass the matrix to the contrasts module for processing
-
-    unpack.list(contrasts("differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE))
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    simpletable("differentialtable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
   })
 }

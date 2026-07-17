@@ -55,7 +55,7 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE) {
 #' @return output A list of reactives for accessing input values
 #'
 #' @examples
-#' unpack.list(scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
+#' scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2) # To have fixed axes rather than user-selected
 #'
 scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeColors = NULL) {
   moduleServer(id, function(input, output, session) {

@@ -1,8 +1,8 @@
-When looking for differences in replicate data between groups, it is necessary to examine both the magnitude of of the difference in mean value between groups as well as the variability within each group. A mean fold change of 2 is meaningless if points within each group regularly have fold changes much greater than that.
+When looking for differences in replicate data between groups, it is necessary to examine both the magnitude of the difference in mean value between groups as well as the variability within each group. A mean fold change of 2 is meaningless if points within each group regularly have fold changes much greater than that.
 
 A volcano plot, and plotted on this page with Plotly [3], is designed to allow the rapid identification of large differences in replicate data [1,2]. The log(2) fold-change is shown on the x axis (preserving sign), and the -log(10) of a p-value is shown on the y axis. Points with high-magnitude changes between groups are shown at the extremes of the x axis, and where variability is low enough to make this difference statistically significant, they also appear at the extremes of the y axis, such that the top-left and top-right portions of the graph show the points of most interest. 
 
-Points above the specified thresholds of fold change and q value are shown in blue with mouse-over data available, while points below these thresholds are shown with inactive grey points. This is done for reasons of performance- labelling 10s of 1000s of points adds a lot of data and shows the browser.
+Points above the specified thresholds of fold change and q value are shown in blue with mouse-over data available, while points below these thresholds are shown with inactive grey points. This is done for reasons of performance- labelling 10s of 1000s of points adds a lot of data and slows the browser.
 
 #### Controls
 

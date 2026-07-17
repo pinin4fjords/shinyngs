@@ -4,7 +4,7 @@
 \alias{inlineField}
 \title{Wrap a Shiny input so its label is displayed inline}
 \usage{
-inlineField(field_def, label, labelwidth = 6)
+inlineField(field_def, label, labelwidth = 6, tooltip = NULL)
 }
 \arguments{
 \item{field_def}{A field definition with NULL set for the label property}
@@ -12,6 +12,9 @@ inlineField(field_def, label, labelwidth = 6)
 \item{label}{Field label}
 
 \item{labelwidth}{With (in units out of 12) for label}
+
+\item{tooltip}{Optional tooltip text explaining the field, shown via a help
+icon next to the label (see \code{\link{withHelpIcon}})}
 }
 \value{
 output A UI definition that can be passed to the shinyUI function.

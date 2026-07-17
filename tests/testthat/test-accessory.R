@@ -208,21 +208,47 @@ test_that("drop_empty_gene_set_analyses keeps contrast positions but drops empty
 })
 
 test_that("check_gene_set_analyses_tool_consistency mirrors structure and aligns NULL contrasts", {
-  df <- data.frame(FDR = 0.01)
+  df <- data.frame("p value" = 0.01, "FDR" = 0.01, "Direction" = "Up", check.names = FALSE)
   gsa <- list(counts = list(go = list(c1 = df, c2 = NULL, c3 = df)))
   tools <- check_gene_set_analyses_tool_consistency(gsa, list())
 
   expect_equal(names(tools$counts$go), c("c1", "c2", "c3"))
   expect_equal(unname(unlist(tools$counts$go)), c("auto", "auto", "auto"))
 
-  # explicit tool choices are preserved and validated
+  # explicit tool choices are preserved and validated against matching tables
+  gsa2 <- list(counts = list(go = list(
+    c1 = data.frame("NOM p-val" = 0.01, "FDR q-val" = 0.01, "Direction" = "Up", check.names = FALSE),
+    c3 = df
+  )))
   tools2 <- check_gene_set_analyses_tool_consistency(
-    gsa, list(counts = list(go = list(c1 = "gsea", c3 = "roast")))
+    gsa2, list(counts = list(go = list(c1 = "gsea", c3 = "roast")))
   )
   expect_equal(tools2$counts$go$c1, "gsea")
   expect_equal(tools2$counts$go$c3, "roast")
   expect_error(
     check_gene_set_analyses_tool_consistency(gsa, list(counts = list(go = list(c1 = "nonsense"))))
+  )
+  # explicit tool that doesn't match the table's actual columns is rejected
+  expect_error(
+    check_gene_set_analyses_tool_consistency(gsa, list(counts = list(go = list(c1 = "gsea"))))
+  )
+})
+
+test_that("check_gene_set_analyses_tool_consistency rejects a malformed table under auto-detection", {
+  # detectable as roast (has "p value") but missing the FDR/Direction columns roast needs
+  incomplete <- data.frame("p value" = 0.01, check.names = FALSE)
+  gsa <- list(counts = list(go = list(c1 = incomplete)))
+  expect_error(
+    check_gene_set_analyses_tool_consistency(gsa, list()),
+    "FDR column not found"
+  )
+
+  # not detectable as either gsea or roast at all
+  undetectable <- data.frame(x = 1)
+  gsa2 <- list(counts = list(go = list(c1 = undetectable)))
+  expect_error(
+    check_gene_set_analyses_tool_consistency(gsa2, list()),
+    "Could not detect gene_set_analyses_tool"
   )
 })
 
@@ -266,6 +292,22 @@ test_that("resolve_enrichment returns the cleaned table and mapping, or NULL", {
 
   expect_null(resolve_enrichment(ese, "counts", "go", 2, c("grp", "x", "y")))  # NULL contrast
   expect_null(resolve_enrichment(ese, "counts", "missing", 1, c("grp", "a", "b")))  # absent type
+})
+
+test_that("ExploratorySummarizedExperiment rejects a malformed gene_set_analyses table at construction time", {
+  mat <- matrix(1:4, nrow = 2, ncol = 2, dimnames = list(c("g1", "g2"), c("s1", "s2")))
+  incomplete_tab <- data.frame("NOM p-val" = 0.01, row.names = "SET1", check.names = FALSE)
+
+  expect_error(
+    ExploratorySummarizedExperiment(
+      assays = list(counts = mat),
+      colData = data.frame(grp = c("a", "b"), batch = c("x", "y"), row.names = c("s1", "s2")),
+      annotation = data.frame(gene_id = c("g1", "g2"), gene_name = c("G1", "G2"), row.names = c("g1", "g2")),
+      idfield = "gene_id",
+      gene_set_analyses = list(counts = list(go = list(c1 = incomplete_tab)))
+    ),
+    "FDR q-val column not found"
+  )
 })
 
 test_that("build_enrichment_path replaces variables", {
@@ -375,7 +417,7 @@ test_that("clean_enrichment_table leaves custom-tool tables untouched", {
 })
 
 test_that("check_gene_set_analyses_tool_consistency accepts a custom mapping", {
-  gsa <- list(counts = list(kegg = list(c1 = data.frame(x = 1))))
+  gsa <- list(counts = list(kegg = list(c1 = gst_custom)))
   tools <- check_gene_set_analyses_tool_consistency(
     gsa, list(counts = list(kegg = list(c1 = custom_map)))
   )

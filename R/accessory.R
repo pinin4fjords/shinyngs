@@ -1,3 +1,9 @@
+# Placeholder binding so tests can mock requireNamespace() via
+# testthat::local_mocked_bindings() - R skips non-function bindings when
+# resolving a call, so this doesn't affect the real base::requireNamespace()
+# used at runtime.
+requireNamespace <- NULL
+
 #' Resolve the default grouping variable for an experiment list
 #'
 #' Returns \code{default_groupvar} if set, otherwise the first of
@@ -194,8 +200,10 @@ pushToList <- function(input_list, element) {
 #' Build the top-level bslib page shell shared by the app modules
 #'
 #' Applies the package's Bootstrap 5 theme and dark navbar styling, injects
-#' the package CSS and shinyjs, and constructs the resulting
-#' \code{bslib::page_navbar()}.
+#' the package CSS/JS and shinyjs, adds a light/dark mode toggle to the
+#' navbar, and constructs the resulting \code{bslib::page_navbar()}. The
+#' accent colour is defined once here, on the theme, and everything else
+#' (CSS, plots) derives from the resulting Bootstrap variables.
 #'
 #' @param navbar_menus A named list of arguments accepted by
 #' \code{bslib::page_navbar()} (\code{id}, \code{title}, \code{window_title},
@@ -208,10 +216,89 @@ pushToList <- function(input_list, element) {
 #'
 shinyngsPageNavbar <- function(navbar_menus) {
   cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
-  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo")
+  jsfile <- system.file("www", paste0(packageName(), ".js"), package = packageName())
+  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo", primary = "#2780e3")
   navbar_menus$navbar_options <- bslib::navbar_options(bg = "dark", theme = "dark")
-  navbar_menus$header <- tagList(includeCSS(cssfile), shinyjs::useShinyjs())
+
+  # Resolve the light/dark theme in <head> before first paint. input_dark_mode
+  # only sets data-bs-theme once its web component hydrates, so a dark-resolved
+  # load (dark OS scheme) would otherwise paint the default light theme for a
+  # frame or two first, flashing white (most visibly across large plots).
+  no_flash <- tags$head(tags$script(HTML(
+    "(function(){try{var d=document.documentElement;if(!d.getAttribute('data-bs-theme')){var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;d.setAttribute('data-bs-theme',m?'dark':'light');}}catch(e){}})();"
+  )))
+  navbar_menus$header <- tagList(no_flash, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
+  navbar_menus <- c(navbar_menus, list(
+    bslib::nav_spacer(),
+    bslib::nav_item(bslib::input_dark_mode(id = "shinyngs_dark_mode"))
+  ))
   do.call(bslib::page_navbar, navbar_menus)
+}
+
+#' Lay out a module's controls beside its output
+#'
+#' Wraps the standard "controls on the left, output on the right" arrangement
+#' used by every analysis tab in a \code{bslib::layout_sidebar()}. The sidebar
+#' collapses on narrow screens; the main area holds the output (typically a
+#' \code{moduleMain()}).
+#'
+#' @param controls Sidebar content, usually a module's input UI
+#' @param main Main content, usually a \code{moduleMain()}
+#' @param width Sidebar width in pixels
+#'
+#' @return A \code{bslib::layout_sidebar()}
+#'
+#' @keywords internal
+#'
+moduleLayout <- function(controls, main, width = 320) {
+  bslib::layout_sidebar(
+    sidebar = bslib::sidebar(controls, width = width, open = "desktop"),
+    main,
+    fillable = FALSE,
+    border = FALSE,
+    class = "shinyngs-panel"
+  )
+}
+
+#' Assemble a module's main-panel content
+#'
+#' Lays out a module's output: an optional help-modal trigger floated to the top
+#' right, the section title, and the output body (plots, tables). The content
+#' sits directly in the panel with no surrounding card, keeping the plot area
+#' uncluttered. Pass \code{title = NULL} for modules that render their own
+#' (often dynamic) heading, to avoid a duplicate title.
+#'
+#' @param title Section title (a string or tag), or \code{NULL} to omit it
+#' @param ... Body content (plots, tables, sub-headings)
+#' @param help Optional help-modal trigger, floated to the top right
+#'
+#' @return A \code{tagList}
+#'
+#' @keywords internal
+#'
+moduleMain <- function(title, ..., help = NULL) {
+  tagList(
+    help,
+    if (!is.null(title)) h3(class = "shinyngs-section-title", title),
+    ...
+  )
+}
+
+#' Accent colour for loading spinners
+#'
+#' \code{shinycssloaders::withSpinner()} bakes its colour into a literal CSS
+#' value rather than accepting a \code{var(--bs-primary)} reference, so it
+#' can't pick up the Bootstrap theme variable directly. This returns the same
+#' hex value used as the theme's \code{primary} colour in
+#' \code{shinyngsPageNavbar()}, kept as a single source so the two stay in
+#' sync.
+#'
+#' @return A hex colour string
+#'
+#' @keywords internal
+#'
+shinyngsSpinnerColor <- function() {
+  "#2780e3"
 }
 
 #' Create sets of fields for display
@@ -384,19 +471,6 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
   paste(unlist(strings), collapse = "\n")
 }
 
-#' Unpack a list to the environment. Handy when many reactive functions are
-#' returned by a call to a module's server function
-#'
-#' @param object A named list of objects to unpack
-#'
-#' @export
-
-unpack.list <- function(object) {
-  for (.x in names(object)) {
-    assign(value = object[[.x]], x = .x, envir = parent.frame())
-  }
-}
-
 #' Interleave the columns of two matrices of equal dimensions
 #'
 #' @param mat1 First numeric matrix
@@ -484,11 +558,43 @@ na.replace <- function(vec, replacement = "NA") {
   vec
 }
 
+#' Append a help icon carrying a tooltip to a label
+#'
+#' Used to attach non-obvious control-level guidance at the point of use,
+#' rather than requiring a user to open a panel-level help modal to
+#' understand an individual field.
+#'
+#' @param label Label text or tag content
+#' @param tooltip Tooltip text shown on hover/focus of the icon. If \code{NULL},
+#'   \code{label} is returned unchanged and no icon is added.
+#' @param placement Tooltip placement, passed to \code{\link[bslib]{tooltip}}
+#'
+#' @return A \code{tagList} combining the label and, if \code{tooltip} is
+#'   supplied, a tooltip-triggering help icon.
+#' @export
+#'
+#' @examples
+#' withHelpIcon("Whisker distance", "How far outliers may sit from the box")
+#'
+withHelpIcon <- function(label, tooltip = NULL, placement = "right") {
+  if (is.null(tooltip)) {
+    return(label)
+  }
+
+  tagList(label, " ", bslib::tooltip(
+    tags$span(icon("circle-info", verify_fa = FALSE), style = "cursor: help; color: #6c757d;"),
+    tooltip,
+    placement = placement
+  ))
+}
+
 #' Wrap a Shiny input so its label is displayed inline
 #'
 #' @param field_def A field definition with NULL set for the label property
 #' @param label Field label
 #' @param labelwidth With (in units out of 12) for label
+#' @param tooltip Optional tooltip text explaining the field, shown via a help
+#'   icon next to the label (see \code{\link{withHelpIcon}})
 #'
 #' @return output A UI definition that can be passed to the shinyUI function.
 #' @export
@@ -496,8 +602,9 @@ na.replace <- function(vec, replacement = "NA") {
 #' @examples
 #' inlineField(numericInput("foo", label = NULL, min = 0, max = 100, value = 50), "FOO")
 #'
-inlineField <- function(field_def, label, labelwidth = 6) {
-  fluidRow(column(labelwidth, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(12 - labelwidth, field_def))
+inlineField <- function(field_def, label, labelwidth = 6, tooltip = NULL) {
+  label_content <- withHelpIcon(HTML(paste0("<b>", label, ":</b>&nbsp;")), tooltip)
+  fluidRow(column(labelwidth, label_content), column(12 - labelwidth, field_def))
 }
 
 
@@ -516,13 +623,16 @@ inlineField <- function(field_def, label, labelwidth = 6) {
 #' @param step Passed to \code{\link[shiny]{numericInput}}
 #' @param min Passed to \code{\link[shiny]{numericInput}}
 #' @param max Passed to \code{\link[shiny]{numericInput}}
+#' @param tooltip Optional tooltip text explaining the field, shown via a help
+#'   icon next to the label (see \code{\link{withHelpIcon}})
 #'
 #' @return out An HTML tag object that can be rendered as HTML using
 #' as.character()
 
-cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<=", step = NA, min = NA, max = NA) {
+cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<=", step = NA, min = NA, max = NA, tooltip = NULL) {
+  label_content <- withHelpIcon(HTML(paste0("<b>", label, ":</b>&nbsp;")), tooltip)
   tags$div(
-    fluidRow(column(4, HTML(paste0("<b>", label, ":</b>&nbsp;"))), column(3, selectInput(cardinal_id, label = NULL, choices = c(
+    fluidRow(column(4, label_content), column(3, selectInput(cardinal_id, label = NULL, choices = c(
       "<=", ">=", ">= or <= -",
       "<= and >= -"
     ), selected = cardinality), selectize = FALSE), column(5, numericInput(id, label = NULL, value = value, min = min, max = max, step = step))),
@@ -869,7 +979,7 @@ eselistfromConfig <-
 
     if ("gene_set_id_type" %in% names(config) && "gene_sets" %in% names(config)) {
       eselist_args$gene_set_id_type <- config$gene_set_id_type
-      eselist_args$gene_sets <- lapply(config$gene_sets, GSEABase::getGmt)
+      eselist_args$gene_sets <- lapply(config$gene_sets, read_gmt)
     }
 
     eselist <- do.call(ExploratorySummarizedExperimentList, eselist_args)
@@ -892,6 +1002,38 @@ drop_empty_gene_set_analyses <- function(gene_set_analyses) {
     Filter(function(gene_set_type) any(!vapply(gene_set_type, is.null, logical(1))), assay)
   })
   Filter(function(assay) length(assay) > 0, gene_set_analyses)
+}
+
+#' Read a GMT-format gene set file
+#'
+#' Parses a plain-text \code{.gmt} file (one gene set per line: set name,
+#' description, then tab-separated gene identifiers - the format used by
+#' MSigDB and similar resources) into a named list of character vectors, one
+#' per gene set. Blank lines are ignored.
+#'
+#' @param file Path to a \code{.gmt} file
+#'
+#' @return A named list of character vectors of gene identifiers, one per
+#' gene set, named after the set name in the file's first column.
+#'
+#' @export
+
+read_gmt <- function(file) {
+  lines <- readLines(file)
+  lines <- lines[nzchar(lines)]
+
+  fields <- strsplit(lines, "\t")
+  set_names <- vapply(fields, `[`, character(1), 1)
+
+  duplicate_names <- unique(set_names[duplicated(set_names)])
+  if (length(duplicate_names) > 0) {
+    stop("Duplicate gene set name(s) in ", file, ": ", paste(duplicate_names, collapse = ", "))
+  }
+
+  gene_sets <- lapply(fields, function(x) x[-c(1, 2)])
+  names(gene_sets) <- set_names
+
+  gene_sets
 }
 
 #' Read an expression matrix file and match to specified samples and features
@@ -2067,6 +2209,28 @@ get_enrichment_mapping <- function(gst, gs_tool) {
   mappings[[gs_tool]]
 }
 
+#' Friendly label for an enrichment tool/mapping, for display in the app
+#' @noRd
+#' @param gs_tool Either \code{"gsea"}, \code{"roast"}, or a column mapping (see
+#' \code{is_enrichment_mapping()}). Should already be resolved (not \code{"auto"}).
+#'
+#' @returns A human-readable description of the tool/method that produced an
+#' enrichment table.
+enrichment_tool_label <- function(gs_tool) {
+  if (is_enrichment_mapping(gs_tool)) {
+    cols <- as.list(gs_tool)[enrichment_mapping_fields]
+    return(sprintf(
+      "Custom (p value: %s, FDR: %s, direction: %s)",
+      cols$pvalue, cols$fdr, cols$direction
+    ))
+  }
+  switch(gs_tool,
+    gsea = "GSEA (Gene Set Enrichment Analysis)",
+    roast = "ROAST (rotation gene set test)",
+    as.character(gs_tool)
+  )
+}
+
 # Errors if the table is missing expected columns; returns the column mapping.
 validate_enrichment_table <- function(gst, gs_tool) {
   col_map <- get_enrichment_mapping(gst, gs_tool)
@@ -2125,6 +2289,16 @@ resolve_contrast_key <- function(analyses, contrast_number, contrast) {
   NULL
 }
 
+# Resolve gs_tool to a concrete tool name, auto-detecting from gst's columns
+# when unset or "auto". Shared by resolve_enrichment() and
+# check_gene_set_analyses_tool_consistency().
+resolve_gene_set_analyses_tool <- function(gst, gs_tool) {
+  if (is.null(gs_tool) || identical(gs_tool, "auto")) {
+    return(detect_enrichment_tool(gst))
+  }
+  gs_tool
+}
+
 #' Resolve the cleaned enrichment table and column mapping for a contrast
 #' @noRd
 #' @param ese An ExploratorySummarizedExperiment.
@@ -2133,10 +2307,11 @@ resolve_contrast_key <- function(analyses, contrast_number, contrast) {
 #' @param contrast The selected contrast record (see \code{resolve_contrast_key}).
 #'
 #' @return \code{NULL} when there is no usable result for the selection,
-#' otherwise a list with \code{gst} (the cleaned enrichment table) and
-#' \code{col_map} (its pvalue/fdr/direction column names). The enrichment tool is
-#' taken from the \code{gene_set_analyses_tool} slot when present (older objects
-#' predating the slot fall back to auto-detection).
+#' otherwise a list with \code{gst} (the cleaned enrichment table), \code{col_map}
+#' (its pvalue/fdr/direction column names) and \code{tool} (the resolved tool,
+#' e.g. \code{"gsea"}, \code{"roast"} or a column mapping - never \code{"auto"}).
+#' The enrichment tool is taken from the \code{gene_set_analyses_tool} slot when
+#' present (older objects predating the slot fall back to auto-detection).
 resolve_enrichment <- function(ese, assay, gene_set_type, contrast_number, contrast) {
   analyses <- ese@gene_set_analyses[[assay]][[gene_set_type]]
   contrast_key <- resolve_contrast_key(analyses, contrast_number, contrast)
@@ -2153,12 +2328,9 @@ resolve_enrichment <- function(ese, assay, gene_set_type, contrast_number, contr
   } else {
     "auto"
   }
-  if (is.null(gs_tool) || identical(gs_tool, "auto")) {
-    gs_tool <- detect_enrichment_tool(gst)
-  }
-
+  gs_tool <- resolve_gene_set_analyses_tool(gst, gs_tool)
   col_map <- validate_enrichment_table(gst, gs_tool)
-  list(gst = clean_enrichment_table(gst, gs_tool), col_map = col_map)
+  list(gst = clean_enrichment_table(gst, gs_tool), col_map = col_map, tool = gs_tool)
 }
 
 #' Group levels for a colouring variable, in first-appearance order

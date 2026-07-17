@@ -104,8 +104,11 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
   moduleServer(id, function(input, output, session) {
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
-    unpack.list(sampleselect("selectmatrix", eselist = eselist, getExperiment, allow_summarise = allow_summarise))
-    unpack.list(geneselect("selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select))
+    sampleselect_reactives <- sampleselect("selectmatrix", eselist = eselist, getExperiment, allow_summarise = allow_summarise)
+    geneselect_reactives <- geneselect("selectmatrix",
+      eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = sampleselect_reactives$selectSamples,
+      getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select
+    )
 
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
 
@@ -239,15 +242,15 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     selectMatrix <- reactive({
       withProgress(message = "Getting expression data subset", value = 0, {
-        rows <- selectRows()
+        rows <- geneselect_reactives$selectRows()
         validate(need(length(rows) > 0, "No matching rows in selected matrix"))
         assay_matrix <- getAssayMatrix()
-        samples <- selectSamples()
-        rows <- selectRows()
+        samples <- sampleselect_reactives$selectSamples()
+        rows <- geneselect_reactives$selectRows()
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
-        if (allow_summarise && getSampleSelect() == "group" && getSummaryType() != "none") {
-          selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[getSampleGroupVar()]], getSummaryType())
+        if (allow_summarise && sampleselect_reactives$getSampleSelect() == "group" && sampleselect_reactives$getSummaryType() != "none") {
+          selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
         }
 
         # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
@@ -264,9 +267,9 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Extract experimental variables given selection parameters
 
     selectColData <- reactive({
-      validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
+      validate(need(length(sampleselect_reactives$selectSamples()) > 0, "Waiting for sample selection"))
       withProgress(message = "Extracting experiment metadata", value = 0, {
-        droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE], check.names = FALSE))
+        droplevels(data.frame(colData(getExperiment())[sampleselect_reactives$selectSamples(), , drop = FALSE], check.names = FALSE))
       })
     })
 
@@ -274,7 +277,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # summarised if grouping variables were supplied!
 
     isSummarised <- reactive({
-      allow_summarise && has_slot_data(eselist, "group_vars") && getSummaryType() != "none"
+      allow_summarise && has_slot_data(eselist, "group_vars") && sampleselect_reactives$getSummaryType() != "none"
     })
 
     # Extract the annotation from the SummarizedExperiment
@@ -336,9 +339,9 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     list(
       getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix,
-      matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
+      matrixTitle = geneselect_reactives$title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
       getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId,
-      getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields
+      getExperimentName = getExperimentName, getNonEmptyRows = geneselect_reactives$getNonEmptyRows, getMetafields = getMetafields
     )
   })
 }

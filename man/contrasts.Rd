@@ -48,7 +48,7 @@ This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-contrasts("differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
+contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
 
 }
 \keyword{shiny}

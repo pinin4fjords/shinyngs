@@ -74,7 +74,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
 
-    unpack.list(genesetselect("geneset", eselist = eselist, getExperiment = getExperiment))
+    genesetselect_reactives <- genesetselect("geneset", eselist = eselist, getExperiment = getExperiment)
 
     # Get rows by metadata: pick from available values
 
@@ -88,7 +88,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
     observeEvent(input$geneSelect, {
       if (input$geneSelect == "gene set") {
-        updateGeneSetsList()
+        genesetselect_reactives$updateGeneSetsList()
       } else if (input$geneSelect == "metadata_pick") {
         lsf_picked_methods$updateLabelField()
       }
@@ -124,7 +124,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
         gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'variance' "
-        ), sliderInput(ns("obs"), "Show top N most variant rows:", min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0(
+        ), sliderInput(ns("obs"), withHelpIcon("Show top N most variant rows:", "Rows are ranked by variance across samples; increasing this includes more, less variable rows."), min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'metadata_pick' "
         ), labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0(
@@ -176,6 +176,17 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       input$geneSelect
     })
 
+    # Debounce the "top N most variant rows" slider so dragging it doesn't
+    # trigger a row/expression matrix recompute on every tick. Fall back to
+    # var_n while input$obs hasn't reached the server yet - a debounced
+    # reactive's first value is primed synchronously, before the client has
+    # necessarily sent its initial slider value, and downstream consumers
+    # treat NULL here as "no limit" rather than "not ready yet".
+
+    getObs <- reactive({
+      if (is.null(input$obs)) var_n else input$obs
+    }) %>% debounce(300)
+
     # Make all the reactive expressions that will be needed by calling modules.
 
     geneselect_functions <- list(getNonEmptyRows = getNonEmptyRows)
@@ -195,7 +206,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
           return(nonempty)
         } else if (gene_select == "variance") {
           vars <- rowVariances()
-          return(names(vars)[selectVariableGenes(input$obs, row_variances = vars)])
+          return(names(vars)[selectVariableGenes(getObs(), row_variances = vars)])
         } else if (gene_select == "metadata_pick") {
           selected_rows <- lsf_picked_methods$getSelectedIds()
           return(intersect(selected_rows, nonempty))
@@ -204,7 +215,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
           return(intersect(selected_rows, nonempty))
         } else {
           if (gene_select == "gene set") {
-            selected_genes <- getPathwayGenes()
+            selected_genes <- genesetselect_reactives$getPathwayGenes()
           } else {
             selected_genes <- unlist(strsplit(input$geneList, "\\n"))
           }
@@ -232,9 +243,9 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       if (gene_select == "all") {
         title <- "All rows"
       } else if (gene_select == "variance") {
-        title <- paste(paste("Top", input$obs, "rows"), "by variance")
+        title <- paste(paste("Top", getObs(), "rows"), "by variance")
       } else if (gene_select == "gene set") {
-        title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
+        title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(genesetselect_reactives$getGenesetNames()), collapse = "\n"))
         # } else if (gene_select == 'list') { title <- 'Rows for specifified gene list'
       } else if (gene_select == "metadata_pick") {
         title <- "Rows by picked metadata field value"

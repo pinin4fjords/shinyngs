@@ -106,13 +106,11 @@ contrastsOutput <- function(id) {
 #' @import data.table
 #'
 #' @examples
-#' contrasts("differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
+#' contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
 #'
 contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
-    unpack.list(selectmatrix_reactives)
 
     getSummaryType <- summarisematrix("contrasts")
 
@@ -128,15 +126,15 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     observeEvent(
       {
-        selectMatrix()
+        selectmatrix_reactives$selectMatrix()
         input$insertBtn
       },
       {
-        ese <- getExperiment()
+        ese <- selectmatrix_reactives$getExperiment()
         contrasts <- getAllContrasts()
         contrast_numbers <- getAllContrastsNumbers()
-        assay <- getAssay()
-        coldata <- selectColData()
+        assay <- selectmatrix_reactives$getAssay()
+        coldata <- selectmatrix_reactives$selectColData()
 
         # Restrict contrasts to those valid for the input matrix
 
@@ -204,7 +202,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     # When a new assay is selected, or when the input matrix is otherwise changed, we need to rebuild the inputs
 
-    observeEvent(selectMatrix(),
+    observeEvent(selectmatrix_reactives$selectMatrix(),
       {
         if (length(inserted) > 0) {
           lapply(names(filterset_values), function(filterId) {
@@ -225,7 +223,10 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     output$combine_operator <- renderUI({
       scn <- getSelectedContrastNumbers()
       if (length(scn) > 1) {
-        inlineField(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")), label = "Combine using", 6)
+        inlineField(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")),
+          label = "Combine using", 6,
+          tooltip = "'Intersect' requires rows to satisfy every selected contrast filter; 'union' includes rows matching any one of them."
+        )
       } else {
         hiddenInput(ns("combine_operator"), "intersect")
       }
@@ -315,7 +316,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     })
 
     ########################################################################### Generate summaries and contrast stats for all contrasts and all rows.  Then the data is handy for subsetting by other functions.  NOTE: this uses ALL
-    ########################################################################### rows in the input ExploratorySummarizedExperiment.  The rows in the matrix returned by selectMatrix() will but a subset, but any modifications to the
+    ########################################################################### rows in the input ExploratorySummarizedExperiment.  The rows in the matrix returned by selectmatrix_reactives$selectMatrix() will but a subset, but any modifications to the
     ########################################################################### rows used will not necessitate a re-calculation of these basic stats.
 
     # Generate the summary statistic (probably mean) for column groups as defined by the possible contrasts. Other functions can then pick from this output and
@@ -323,9 +324,9 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     getSummaries <- reactive({
       if (!is.null(getSummaryType())) {
-        ese <- getExperiment()
+        ese <- selectmatrix_reactives$getExperiment()
         contrasts <- getAllContrasts()
-        matrix <- getAssayMatrix()
+        matrix <- selectmatrix_reactives$getAssayMatrix()
         coldata <- data.frame(colData(ese), check.names = FALSE)
 
         validate(need(nrow(matrix) > 0, "Waiting for input matrix"))
@@ -377,8 +378,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # Get list describing, for each contrast, the samples on each side
 
     getContrastSamples <- reactive({
-      ese <- getExperiment()
-      coldata <- selectColData()
+      ese <- selectmatrix_reactives$getExperiment()
+      coldata <- selectmatrix_reactives$selectColData()
       contrasts <- getAllContrasts()
 
       lapply(contrasts, function(c) {
@@ -390,12 +391,12 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # of the ExploratorySummarizedExperiment. Make a summary table for every contrast. This data can then be re-used when processing filter sets.
 
     contrastsTables <- reactive({
-      matrix <- selectMatrix()
+      matrix <- selectmatrix_reactives$selectMatrix()
 
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       summaries <- getSummaries()
       contrasts <- getAllContrasts()
-      assay <- getAssay()
+      assay <- selectmatrix_reactives$getAssay()
 
       # There can be a mismatch between the conrasts and summaries as we adjust the input matrix. Wait for updates to finish before making the table.
 
@@ -441,8 +442,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # Test for the presence of pre-computed fold changes (e.g. from modelling)
 
     fcsAvailable <- reactive({
-      assay <- getAssay()
-      ese <- getExperiment()
+      assay <- selectmatrix_reactives$getAssay()
+      ese <- selectmatrix_reactives$getExperiment()
 
       has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "fold_changes" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$fold_changes)
     })
@@ -456,8 +457,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
         return("linear")
       }
 
-      assay <- getAssay()
-      ese <- getExperiment()
+      assay <- selectmatrix_reactives$getAssay()
+      ese <- selectmatrix_reactives$getExperiment()
 
       scale <- attr(ese@contrast_stats[[assay]]$fold_changes, "fold_change_scale")
       if (is.null(scale)) "unspecified" else scale
@@ -466,8 +467,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # Test for the presence of p values in the input object
 
     pvalsAvailable <- reactive({
-      assay <- getAssay()
-      ese <- getExperiment()
+      assay <- selectmatrix_reactives$getAssay()
+      ese <- selectmatrix_reactives$getExperiment()
 
       has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)
     })
@@ -475,8 +476,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # Test for the presence of q values in the input object
 
     qvalsAvailable <- reactive({
-      assay <- getAssay()
-      ese <- getExperiment()
+      assay <- selectmatrix_reactives$getAssay()
+      ese <- selectmatrix_reactives$getExperiment()
 
       has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)
     })
@@ -488,7 +489,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     contrastsTablesToMatchMatrix <- reactive({
       contrast_tables <- contrastsTables()
-      matrix <- selectMatrix()
+      matrix <- selectmatrix_reactives$selectMatrix()
 
       lapply(contrast_tables, function(ct) {
         ct[rownames(matrix), ]
@@ -604,8 +605,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       req(length(selected_contrasts_tables) > 0)
 
       if (getFilterRows()) {
-        ese <- getExperiment()
-        assay <- getAssay()
+        ese <- selectmatrix_reactives$getExperiment()
+        assay <- selectmatrix_reactives$getAssay()
 
         fold_change <- getFoldChange()
         fold_change_card <- getFoldChangeCard()
@@ -664,14 +665,14 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # The output of filteredContrastsTables() are significant results for each filter set, and each contrast within those.
 
     labelledContrastsTable <- reactive({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       sff <- selectFinalFeatures()
 
       filtered_contrast_tables <- filteredContrastsTables()
 
       metafields <- c()
-      if (!is.null(getMetafields)) {
-        metafields <- getMetafields()
+      if (!is.null(selectmatrix_reactives$getMetafields)) {
+        metafields <- selectmatrix_reactives$getMetafields()
       }
 
       withProgress(message = "Making labelled table", value = 0, {
@@ -699,7 +700,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       fcts <- filteredContrastsTables()
       selected_contrasts <- getSelectedContrasts()
       queries <- getQueryStrings()
-      eid <- getExperimentId()
+      eid <- selectmatrix_reactives$getExperimentId()
 
       summaries <- lapply(seq_along(fcts), function(i) {
         summary <- data.frame(cbind(query = queries[i], do.call(rbind, selected_contrasts[[i]])))
@@ -746,14 +747,14 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
       query_summary <- data.frame(filter = filters, features = unlist(lapply(filter_final_features, length)))
 
-      exp_id <- getExperimentId()
+      exp_id <- selectmatrix_reactives$getExperimentId()
       colnames(query_summary)[2] <- paste0(exp_id, "s")
 
       # Convert to labels
 
-      labelfield <- getLabelField()
+      labelfield <- selectmatrix_reactives$getLabelField()
       if (!is.null(labelfield)) {
-        ese <- getExperiment()
+        ese <- selectmatrix_reactives$getExperiment()
         filter_final_labels <- lapply(filter_final_features, function(x) convertIds(x, ese, labelfield))
 
         query_summary[[paste0(labelfield, "s")]] <- unlist(lapply(filter_final_labels, function(x) length(unique(x))))
@@ -787,11 +788,11 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       if (nrow(query_summary) > 1) {
         sff_in <- selectFinalFeatures()
         sff <- unique(sff_in)
-        ese <- getExperiment()
+        ese <- selectmatrix_reactives$getExperiment()
 
         summary_row <- c(comb_op, length(sff))
 
-        labelfield <- getLabelField()
+        labelfield <- selectmatrix_reactives$getLabelField()
         if (!is.null(labelfield)) {
           labels <- convertIds(ids = sff, ese, labelfield)
           summary_row <- c(summary_row, length(unique(labels[!is.na(labels)])))
@@ -871,7 +872,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
     if ("pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)) {
       pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)),
         value = default_pval, label = "p value", min = 0,
-        max = 1, step = 0.01
+        max = 1, step = 0.01,
+        tooltip = "Only include results with an unadjusted p value meeting this threshold and cardinality."
       )
     } else {
       pval_field <- hiddenInput(ns(paste0("p_value", index)), values = "NULL")
@@ -884,7 +886,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
     if ("qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)) {
       qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)),
         value = default_qval, label = "q value", min = 0,
-        max = 1, step = 0.01
+        max = 1, step = 0.01,
+        tooltip = "Only include results with a multiple-testing-adjusted q value (FDR) meeting this threshold and cardinality."
       )
     } else {
       qval_field <- hiddenInput(ns(paste0("q_value", index)), values = "NULL")
@@ -894,7 +897,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
 
     fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)),
       value = default_foldchange, label = "fold change",
-      cardinality = ">= or <= -", step = 0.5
+      cardinality = ">= or <= -", step = 0.5,
+      tooltip = "Only include results with a fold change meeting this threshold; '>= or <= -' matches changes of this magnitude in either direction."
     )
     contrast_field_set <- c(contrast_field_set, list(fold_change_field))
   }

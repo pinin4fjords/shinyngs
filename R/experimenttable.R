@@ -81,7 +81,11 @@ experimenttableInput <- function(id, eselist) {
 #'
 experimenttableOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns(experimenttable_modal$id), "help", "help"), simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data"))
+  moduleMain(
+    "Experimental data",
+    simpletableOutput(ns("experimenttable")),
+    help = modalInput(ns(experimenttable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the experimenttable module

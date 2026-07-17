@@ -59,7 +59,7 @@ applications:
 
 # Screenshot
 
-![Example: the gene page](screenshots/gene_page.png)
+![Example: the gene page](man/figures/gene_page.png)
 
 ## Objectives
 
@@ -216,8 +216,11 @@ This is designed to take a regular file complement of
 - Differential resutls (e.g. from DESeq2) containing P values and fold
   changes
 
-.. and produce an app.R. This currently covers the basic use cases and I
-haven’t go to the gene sets etc, that will be future work.
+.. and produce an app.R. Gene set enrichment results (GSEA, ROAST, or other
+tools via a custom column mapping) can also be wired in via
+`--enrichment_gene_sets` and `--enrichment_filename_template` - see
+["Building an app from files with enrichment results"](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html#building-an-app-from-files-with-enrichment-results)
+in the vignette for a worked example.
 
 You can start the resulting app locally, by running the `app.R`
 resulting from the above command.
@@ -297,7 +300,7 @@ Technical information can be accessed via the package documentation:
 
 More user-oriented documentation and examples of how to build your own
 apps in the
-[vignette](https://rawgit.com/pinin4fjords/shinyngs/master/vignettes/shinyngs.html).
+[vignette](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html).
 
 This is also accessible via the `vignette` command:
 
