@@ -28,3 +28,50 @@ test_that("runPCA scales variables before running prcomp", {
   unscaled <- prcomp(t(as.matrix(logged)), scale. = FALSE)
   expect_false(isTRUE(all.equal(pca$sdev, unscaled$sdev)))
 })
+
+# compilePCAData()
+
+test_that("compilePCAData returns coordinates and percent variance for all genes when ntop is NULL", {
+  set.seed(1)
+  mat <- matrix(rexp(200, rate = .1), nrow = 20)
+  rownames(mat) <- paste0("gene", 1:20)
+  colnames(mat) <- paste0("sample", 1:10)
+
+  result <- compilePCAData(mat)
+
+  expect_true(is.data.frame(result$coords))
+  expect_equal(nrow(result$coords), ncol(mat))
+  expect_equal(ncol(result$coords), ncol(mat))
+  expect_equal(sum(result$percentVar), 100)
+})
+
+test_that("compilePCAData restricts the PCA to the ntop most variable genes", {
+  set.seed(1)
+  mat <- matrix(rexp(200, rate = .1), nrow = 20)
+  rownames(mat) <- paste0("gene", 1:20)
+  colnames(mat) <- paste0("sample", 1:10)
+
+  result <- compilePCAData(mat, ntop = 5)
+  full <- compilePCAData(mat)
+
+  # Using fewer genes changes the PCA result relative to using them all
+  expect_false(isTRUE(all.equal(result$coords, full$coords)))
+
+  # The selected genes should be exactly the 5 most variable ones
+  top5 <- selectVariableGenes(matrix = mat, ntop = 5)
+  expected <- compilePCAData(mat[top5, , drop = FALSE])
+  expect_equal(result$coords, expected$coords)
+})
+
+# calculatePCAFractionExplained()
+
+test_that("calculatePCAFractionExplained returns percentages that sum to 100", {
+  set.seed(1)
+  mat <- matrix(rnorm(40), nrow = 4)
+  pca <- prcomp(mat, scale. = TRUE)
+
+  fraction <- calculatePCAFractionExplained(pca)
+
+  expect_equal(sum(fraction), 100)
+  expect_equal(length(fraction), length(pca$sdev))
+})
