@@ -45,7 +45,8 @@
 <span>  <span class="va">y</span>,</span>
 <span>  lines <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hline_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  vline_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  vline_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  plot_type <span class="op">=</span> <span class="st">"scatter"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -78,6 +79,11 @@ a named list of y values at which to place hlines</p></dd>
 <dt id="arg-vline-thresholds">vline_thresholds<a class="anchor" aria-label="anchor" href="#arg-vline-thresholds"></a></dt>
 <dd><p>Alternatively or in addition to 'lines', just specify
 a named list of x values at which to place vlines</p></dd>
+
+
+<dt id="arg-plot-type">plot_type<a class="anchor" aria-label="anchor" href="#arg-plot-type"></a></dt>
+<dd><p>Plot type: 'scatter' or 'scatter3d'. The axis range fix
+that makes threshold lines reach the plot edges only applies to 2D plots.</p></dd>
 
 </dl></div>
     <div class="section level2">

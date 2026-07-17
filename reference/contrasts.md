@@ -70,6 +70,6 @@ counterpart, and wraps its logic in `moduleServer()` (see example).
 ## Examples
 
 ``` r
-contrasts("differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
-#> Error in contrasts("differential", getExperiment = getExperiment, selectMatrix = selectMatrix,     getAssay = getAssay, multiple = TRUE): unused arguments (getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
+contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
+#> Error in contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives,     multiple = TRUE): unused arguments (eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
 ```

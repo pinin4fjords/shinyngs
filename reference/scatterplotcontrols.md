@@ -57,6 +57,6 @@ output A list of reactives for accessing input values
 ## Examples
 
 ``` r
-unpack.list(scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
+scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2) # To have fixed axes rather than user-selected
 #> Error in scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2): could not find function "scatterplotcontrols"
 ```

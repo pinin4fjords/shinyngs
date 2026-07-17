@@ -973,10 +973,6 @@ v3.0](https://pinin4fjords.github.io/shinyngs/LICENSE.txt)
 - [`ucfirst()`](https://pinin4fjords.github.io/shinyngs/reference/ucfirst.md)
   : Capitalise the first letter of a string
 
-- [`unpack.list()`](https://pinin4fjords.github.io/shinyngs/reference/unpack.list.md)
-  : Unpack a list to the environment. Handy when many reactive functions
-  are returned by a call to a module's server function
-
 - [`upset()`](https://pinin4fjords.github.io/shinyngs/reference/upset.md)
   : The server function of the upstart module
 

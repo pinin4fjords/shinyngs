@@ -11,7 +11,8 @@ drawLines(
   y,
   lines = NULL,
   hline_thresholds = list(),
-  vline_thresholds = list()
+  vline_thresholds = list(),
+  plot_type = "scatter"
 )
 ```
 
@@ -43,6 +44,11 @@ drawLines(
 
   Alternatively or in addition to 'lines', just specify a named list of
   x values at which to place vlines
+
+- plot_type:
+
+  Plot type: 'scatter' or 'scatter3d'. The axis range fix that makes
+  threshold lines reach the plot edges only applies to 2D plots.
 
 ## Value
 
