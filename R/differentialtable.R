@@ -78,7 +78,7 @@ differentialtable <- function(id, eselist) {
     output$differentialtable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "))
+      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "), spinner = TRUE)
     })
 
     # Call the selectmatrix module and unpack the reactives it sends back

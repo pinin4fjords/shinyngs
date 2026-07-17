@@ -131,7 +131,7 @@ maplot <- function(id, eselist) {
     output$matable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "))
+      simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "), spinner = TRUE)
     })
 
     # Call the selectmatrix module and unpack the reactives it sends back

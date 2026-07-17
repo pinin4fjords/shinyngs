@@ -122,7 +122,7 @@ foldchangeplot <- function(id, eselist) {
     output$foldchangetable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "))
+      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "), spinner = TRUE)
     })
 
     # Call the selectmatrix module and unpack the reactives it sends back
