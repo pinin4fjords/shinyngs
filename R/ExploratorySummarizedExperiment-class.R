@@ -92,10 +92,10 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   # Subset colData to remove any samples not present in the first assay
 
-  colData <- colData[rownames(colData) %in% colnames(assays[[1]]), ]
+  colData <- colData[rownames(colData) %in% colnames(assays[[1]]), , drop = FALSE]
 
   assays <- SimpleList(lapply(assays, function(as) {
-    round(add_missing_rows(as)[, rownames(colData)], 2)
+    round(add_missing_rows(as)[, rownames(colData), drop = FALSE], 2)
   }))
 
   # The same fix for contrast_stats
