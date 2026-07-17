@@ -16,7 +16,8 @@ cardinalNumericField(
   cardinality = "<=",
   step = NA,
   min = NA,
-  max = NA
+  max = NA,
+  tooltip = NULL
 )
 ```
 
@@ -56,6 +57,12 @@ cardinalNumericField(
 
   Passed to
   [`numericInput`](https://rdrr.io/pkg/shiny/man/numericInput.html)
+
+- tooltip:
+
+  Optional tooltip text explaining the field, shown via a help icon next
+  to the label (see
+  [`withHelpIcon`](https://pinin4fjords.github.io/shinyngs/reference/withHelpIcon.md))
 
 ## Value
 

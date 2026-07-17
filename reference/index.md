@@ -672,3 +672,6 @@
   :
 
   The output function of the `volcanoplot` module
+
+- [`withHelpIcon()`](https://pinin4fjords.github.io/shinyngs/reference/withHelpIcon.md)
+  : Append a help icon carrying a tooltip to a label

@@ -5,7 +5,7 @@ Wrap a Shiny input so its label is displayed inline
 ## Usage
 
 ``` r
-inlineField(field_def, label, labelwidth = 6)
+inlineField(field_def, label, labelwidth = 6, tooltip = NULL)
 ```
 
 ## Arguments
@@ -21,6 +21,12 @@ inlineField(field_def, label, labelwidth = 6)
 - labelwidth:
 
   With (in units out of 12) for label
+
+- tooltip:
+
+  Optional tooltip text explaining the field, shown via a help icon next
+  to the label (see
+  [`withHelpIcon`](https://pinin4fjords.github.io/shinyngs/reference/withHelpIcon.md))
 
 ## Value
 
