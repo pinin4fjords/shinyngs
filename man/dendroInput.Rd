@@ -27,8 +27,10 @@ This funcion provides the form elements to control the display
 }
 \examples{
 library(shinyngs)
-data(zhangneurons)
-dendroInput("myid", zhangneurons)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+dendroInput("myid", eselist)
 
 }
 \keyword{shiny}

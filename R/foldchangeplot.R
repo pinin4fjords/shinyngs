@@ -15,14 +15,18 @@
 #' @keywords shiny
 #'
 #' @examples
-#' data(zhangneurons)
-#' foldchangeplotInput("myid", zhangneurons)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' foldchangeplotInput("myid", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("foldchangeplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("foldchangeplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 foldchangeplotInput <- function(id, eselist) {
   ns <- NS(id)
@@ -69,9 +73,14 @@ foldchangeplotInput <- function(id, eselist) {
 #' @examples
 #' foldchangeplotOutput("myid")
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("foldchangeplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("foldchangeplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 foldchangeplotOutput <- function(id) {
   ns <- NS(id)
@@ -97,11 +106,15 @@ foldchangeplotOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' foldchangeplot("foldchangeplot", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("foldchangeplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   foldchangeplot("foldchangeplot", eselist)
+#'   app <- prepareApp("foldchangeplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 foldchangeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {

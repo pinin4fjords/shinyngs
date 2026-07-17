@@ -18,8 +18,10 @@
 #'
 #' @examples
 #' library(shinyngs)
-#' data(zhangneurons)
-#' dendroInput("myid", zhangneurons)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#' dendroInput("myid", eselist)
 #'
 dendroInput <- function(id, eselist) {
   ns <- NS(id)
@@ -156,7 +158,7 @@ dendro <- function(id, eselist) {
 #' # Make a dendrogram with the data in airway
 #'
 #' require(airway)
-#' data(airway, pakckage = "airway")
+#' data(airway, package = "airway")
 #' clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
 #' # Do the same, but only usig the 1000 most variant rows and see how the

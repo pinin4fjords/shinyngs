@@ -21,6 +21,7 @@ Imports:
     GSEABase,
     heatmaply,
     limma,
+    matrixStats,
     methods,
     plotly (>= 4.3.4),
     plyr,
@@ -48,10 +49,7 @@ Suggests:
     optparse,
     rmarkdown,
     rsconnect,
-    testthat (>= 3.0.0),
-    zhangneurons
-Remotes:
-    pinin4fjords/zhangneurons
+    testthat (>= 3.0.0)
 biocViews: Software
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr

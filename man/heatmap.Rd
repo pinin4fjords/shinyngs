@@ -28,13 +28,17 @@ This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-heatmap("heatmap", eselist, type = "pca")
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("heatmap", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  heatmap("heatmap", eselist, type = "pca")
+  app <- prepareApp("heatmap", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

@@ -15,13 +15,18 @@
 #' @keywords shiny
 #'
 #' @examples
-#' boxplotInput(ns("boxplot"), eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' boxplotInput("boxplot", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("boxplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("boxplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 boxplotInput <- function(id, eselist) {
   ns <- NS(id)
@@ -72,9 +77,14 @@ boxplotInput <- function(id, eselist) {
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("boxplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("boxplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 boxplotOutput <- function(id) {
   ns <- NS(id)
@@ -101,13 +111,17 @@ boxplotOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' boxplot("boxplot", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("boxplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   boxplot("boxplot", eselist)
+#'   app <- prepareApp("boxplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 boxplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {

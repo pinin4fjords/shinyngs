@@ -21,11 +21,15 @@ This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-foldchangeplot("foldchangeplot", eselist)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
-data(zhangneurons)
-app <- prepareApp("foldchangeplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  foldchangeplot("foldchangeplot", eselist)
+  app <- prepareApp("foldchangeplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

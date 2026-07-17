@@ -30,7 +30,6 @@ components of a variety of shiny apps, based on the type and data specified,
 using modularised Shiny components.
 }
 \examples{
-require(airway)
 library(shinyngs)
 
 # 1: BASIC RNA-SEQ APP
@@ -57,54 +56,52 @@ eselist <- ExploratorySummarizedExperimentList(
   description = expinfo$Description
 )
 
-# Make the app
+# Make and run the app
 
-app <- prepareApp("rnaseq", eselist)
-
-# Run the app
-
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  app <- prepareApp("rnaseq", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 # 2: AUGMENT WITH ANNOTATION INFO FOR MORE INFORMATIVE APP
 
-# Use Biomart to retrieve some annotation, and add it to the object
+# Use Biomart to retrieve some annotation, add it to the object, then choose a
+# different default grouping variable and re-make the app.
 
-library(biomaRt)
-attributes <- c(
-  "ensembl_gene_id", # The sort of ID your results are keyed by
-  "entrezgene", # Could be used for gene sets keyed by Entrez ID (must set \code{gene_set_id_type} correctly on the containing \code{ExploratorySummarizedExperimentList})
-  "external_gene_name" # Used to annotate gene names on the plot
-)
+if (interactive()) {
+  library(biomaRt)
+  attributes <- c(
+    "ensembl_gene_id", # The sort of ID your results are keyed by
+    "entrezgene", # Could be used for gene sets keyed by Entrez ID
+    "external_gene_name" # Used to annotate gene names on the plot
+  )
 
-mart <- useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org")
-annotation <- getBM(attributes = attributes, mart = mart)
-annotation <- annotation[order(annotation$entrezgene), ]
+  mart <- useMart(
+    biomart = "ENSEMBL_MART_ENSEMBL",
+    dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org"
+  )
+  annotation <- getBM(attributes = attributes, mart = mart)
+  annotation <- annotation[order(annotation$entrezgene), ]
 
-mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
-ese@labelfield <- "external_gene_name"
+  mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
+  ese@labelfield <- "external_gene_name"
 
-# Re-do app creation etc, choose to use a different grouping variable by
-# default
-
-eselist <- ExploratorySummarizedExperimentList(
-  ese,
-  title = expinfo$Title,
-  author = expinfo$Author,
-  description = expinfo$Description,
-  default_groupvar <- "dex"
-)
-app <- prepareApp("rnaseq", eselist)
-shiny::shinyApp(ui = app$ui, server = app$server)
+  eselist <- ExploratorySummarizedExperimentList(
+    ese,
+    title = expinfo$Title,
+    author = expinfo$Author,
+    description = expinfo$Description,
+    default_groupvar = "dex"
+  )
+  app <- prepareApp("rnaseq", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 # 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
 
-# See vignette for more info. However, the included sample
-# ExploratorySummarizedExperimentList has the appopriate slots populated
-# to demonstrate contrasts, gene set annotations etc. The app produced in
-# this way will have more panels for differential analyses.
-
-data("zhangneurons")
-app <- prepareApp("rnaseq", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+# See the vignette for how to populate the extra slots of an
+# ExploratorySummarizedExperimentList (contrasts, differential statistics,
+# gene set analyses etc.). With those in place the resulting app gains
+# additional panels for differential analyses.
 }
 \keyword{shiny}

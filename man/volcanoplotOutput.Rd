@@ -29,9 +29,14 @@ differentialtableOutput("experiment")
 
 # However, almost certainly called via application creation:
 
-data(zhangneurons)
-app <- prepareApp("volcanoplot", zhangneurons)
-shinyApp(ui = app$ui, server = app$server)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+if (interactive()) {
+  app <- prepareApp("volcanoplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

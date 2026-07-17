@@ -25,13 +25,18 @@ from the \code{gene_set_analyses} slot of the selected
 \code{ExploratorySummarizedExperiment} are displayed where provided.
 }
 \examples{
-data(zhangneurons)
-genesetbarcodeplotInput("myid", zhangneurons)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
-# Almost certainly used via application creation
+# The gene set modules need an eselist with populated gene_set_analyses (see
+# the vignette). Given such data, they are used via application creation:
 
-app <- prepareApp("genesetbarcodeplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  genesetbarcodeplotInput("myid", eselist)
+  app <- prepareApp("genesetbarcodeplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

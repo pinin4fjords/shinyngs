@@ -16,13 +16,18 @@
 #' @keywords shiny
 #'
 #' @examples
-#' experimentableInput("experiment", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' experimenttableInput("experiment", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("experimenttable", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("experimenttable", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 experimenttableInput <- function(id, eselist) {
   ns <- NS(id)
@@ -63,9 +68,14 @@ experimenttableInput <- function(id, eselist) {
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("experimenttable", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("experimenttable", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 experimenttableOutput <- function(id) {
   ns <- NS(id)
@@ -89,13 +99,17 @@ experimenttableOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' experimenttable("experimenttable", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("experimenttable", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   experimenttable("experimenttable", eselist)
+#'   app <- prepareApp("experimenttable", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 experimenttable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
