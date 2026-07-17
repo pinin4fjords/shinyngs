@@ -67,6 +67,12 @@ heatmapInput <- function(id, eselist, type = "expression") {
   filters
 }
 
+heatmap_modal_specs <- list(
+  pca = list(id = "pcavsexperiment", title = "Principal components vs experimental variables"),
+  samples = list(id = "clusteringheatmap", title = "Sample clustering heatmap"),
+  expression = list(id = "expressionheatmap", title = "Expression heatmap")
+)
+
 #' The output function of the heatmap module
 #'
 #' Three types of heatmaps are provided, employed in various places in the
@@ -100,12 +106,9 @@ heatmapOutput <- function(id, type = "") {
 
   help <- list()
 
-  if (type == "pca") {
-    help <- list(modalInput(ns("pcavsexperiment"), "help", "help"))
-  } else if (type == "samples") {
-    help <- list(modalInput(ns("clusteringheatmap"), "help", "help"))
-  } else if (type == "expression") {
-    help <- list(modalInput(ns("expressionheatmap"), "help", "help"))
+  spec <- heatmap_modal_specs[[type]]
+  if (!is.null(spec)) {
+    help <- list(modalInput(ns(spec$id), "help", "help"))
   }
 
   # Return outputs and help link
@@ -147,12 +150,9 @@ heatmap <- function(id, eselist, type = "expression") {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    if (type == "pca") {
-      modalServer("pcavsexperiment", "Principal components vs experimental variables")
-    } else if (type == "samples") {
-      modalServer("clusteringheatmap", "Sample clustering heatmap")
-    } else if (type == "expression") {
-      modalServer("expressionheatmap", "Expression heatmap")
+    spec <- heatmap_modal_specs[[type]]
+    if (!is.null(spec)) {
+      modalServer(spec$id, spec$title)
     }
 
     # Make the groupby UI element

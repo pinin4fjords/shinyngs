@@ -25,8 +25,7 @@ h3{
   max-width:100%;
 }
 
-/* This is for getting the shinyBS modals to show. CSS from shinythemes was 
-overriding the z-index we need from bootstrap.css  */
+/* shinythemes overrides the bootstrap.css z-index that modal dialogs need. */
 
 .modal{
   z-index: 1050; 

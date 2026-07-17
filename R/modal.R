@@ -44,11 +44,11 @@ modalInput <- function(id, label, class, icon = "info-circle") {
 #'
 modalServer <- function(id, title, content = NULL) {
   moduleServer(id, function(input, output, session) {
+    body <- content
+    if (is.null(body)) {
+      body <- includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
+    }
     observeEvent(input$link, {
-      body <- content
-      if (is.null(body)) {
-        body <- includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
-      }
       showModal(modalDialog(body, title = title, size = "l", easyClose = TRUE, footer = modalButton("Close")))
     })
   })
