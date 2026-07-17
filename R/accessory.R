@@ -238,9 +238,9 @@ shinyngsPageNavbar <- function(navbar_menus) {
 #' Lay out a module's controls beside its output
 #'
 #' Wraps the standard "controls on the left, output on the right" arrangement
-#' used by every analysis tab in a \code{bslib::layout_sidebar()}, replacing the
-#' Bootstrap-3-era \code{sidebarLayout()} grid. The sidebar collapses on narrow
-#' screens; the main area holds the output (typically a \code{moduleMain()}).
+#' used by every analysis tab in a \code{bslib::layout_sidebar()}. The sidebar
+#' collapses on narrow screens; the main area holds the output (typically a
+#' \code{moduleMain()}).
 #'
 #' @param controls Sidebar content, usually a module's input UI
 #' @param main Main content, usually a \code{moduleMain()}
@@ -279,7 +279,7 @@ moduleLayout <- function(controls, main, width = 320) {
 moduleMain <- function(title, ..., help = NULL) {
   tagList(
     help,
-    if (!is.null(title) && !identical(title, "")) h3(class = "shinyngs-section-title", title),
+    if (!is.null(title)) h3(class = "shinyngs-section-title", title),
     ...
   )
 }
