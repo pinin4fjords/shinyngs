@@ -18,16 +18,24 @@ COLORBLIND_PALETTE <- c(
   "#595959" # neutral grey
 )
 
+# Picker value selecting the fixed colour-blind-safe palette rather than an
+# RColorBrewer one. The selectInput choice and the makeColorScale branch check
+# must agree on this string, so it is defined once.
+COLORBLIND_PALETTE_NAME <- "colorblind"
+
 #' The input function of the colorby module
 #'
-#' shinyngs colours every plot from the single, fixed colour-blind-safe
-#' palette in \code{\link{makeColorScale}}, so there is no per-plot palette
-#' choice to expose. Modules that build their form from a list of inputs can
-#' include this call unconditionally; it contributes no UI element.
+#' Provides a drop-down for picking the plot colour palette. The default is
+#' shinyngs' fixed colour-blind-safe palette (see \code{\link{makeColorScale}});
+#' the remaining choices are RColorBrewer qualitative palettes for users who
+#' prefer them.
+#'
+#' This function provides the form elements to control the display
 #'
 #' @param id Submodule namespace
 #'
-#' @return output NULL
+#' @return output An HTML tag object that can be rendered as HTML using
+#'   as.character()
 #'
 #' @keywords shiny
 #'
@@ -35,14 +43,22 @@ COLORBLIND_PALETTE <- c(
 #' colormakerInput("myid")
 #'
 colormakerInput <- function(id) {
-  NULL
+  ns <- NS(id)
+
+  palettes <- c(
+    `Colour-blind safe` = COLORBLIND_PALETTE_NAME,
+    Dark2 = "Dark2", Set1 = "Set1", Set2 = "Set2", Set3 = "Set3",
+    Pastel1 = "Pastel1", Pastel2 = "Pastel2", Paired = "Paired", Accent = "Accent"
+  )
+
+  selectInput(inputId = ns("palette_name"), label = "Color palette", choices = palettes, selected = COLORBLIND_PALETTE_NAME)
 }
 
 #' The output function of the colorby module
 #'
-#' Supplies a reactive returning shinyngs' fixed colour-blind-safe palette
-#' (see \code{\link{makeColorScale}}), sized to the number of categories the
-#' caller reports.
+#' Supplies a reactive returning the palette selected in the drop-down, sized
+#' to the number of categories the caller reports (see
+#' \code{\link{makeColorScale}}).
 #'
 #' This function is called directly, using the same id as its UI counterpart,
 #' and wraps its logic in \code{moduleServer()} (see example).
@@ -60,24 +76,32 @@ colormakerInput <- function(id) {
 #'
 colormaker <- function(id, getNumberCategories) {
   moduleServer(id, function(input, output, session) {
+    getPaletteName <- reactive({
+      validate(need(!is.null(input$palette_name), "Waiting for palette"))
+      input$palette_name
+    })
+
     reactive({
-      makeColorScale(getNumberCategories())
+      makeColorScale(getNumberCategories(), palette = getPaletteName())
     })
   })
 }
 
-#' Make a colour-blind-safe categorical colour scale of a specified length
+#' Make a categorical colour scale of a specified length
 #'
-#' Returns colours drawn, in order, from shinyngs' fixed colour-blind-safe
-#' categorical palette (\code{\link{COLORBLIND_PALETTE}}), so the same
-#' position always gets the same colour and a group keeps its colour across
-#' plots. When more colours are requested than the base palette provides,
-#' additional shades are interpolated between them and a message is emitted,
-#' since colour-blind separation can no longer be guaranteed for every pair.
+#' With the default \code{palette = "colorblind"} (or \code{NULL}), returns
+#' colours drawn, in order, from shinyngs' fixed colour-blind-safe categorical
+#' palette (\code{\link{COLORBLIND_PALETTE}}), so the same position always gets
+#' the same colour and a group keeps its colour across plots; when more colours
+#' are requested than the base palette provides, additional shades are
+#' interpolated between them and a message is emitted, since colour-blind
+#' separation can no longer be guaranteed for every pair. Any other value is
+#' treated as an RColorBrewer palette name and expanded with interpolation
+#' where necessary.
 #'
 #' @param ncolors Integer specifying the number of colors
-#' @param palette Ignored. Accepted so callers can pass a palette name
-#'   argument without it being an error.
+#' @param palette \code{"colorblind"} (or \code{NULL}) for the colour-blind-safe
+#'   palette, otherwise an RColorBrewer palette name. (default: 'colorblind')
 #'
 #' @return output Character vector of colors
 #' @importFrom grDevices colorRampPalette
@@ -86,16 +110,30 @@ colormaker <- function(id, getNumberCategories) {
 #' @examples
 #' makeColorScale(10)
 #'
-makeColorScale <- function(ncolors, palette = NULL) {
-  if (ncolors > length(COLORBLIND_PALETTE)) {
-    message(
-      "makeColorScale: ", ncolors, " categories requested, more than the ",
-      length(COLORBLIND_PALETTE), " colours in shinyngs' colour-blind-safe ",
-      "palette. Interpolating additional shades, which will be harder to ",
-      "tell apart than the base palette."
-    )
-    return(colorRampPalette(COLORBLIND_PALETTE)(ncolors))
+makeColorScale <- function(ncolors, palette = COLORBLIND_PALETTE_NAME) {
+  if (is.null(palette) || palette == COLORBLIND_PALETTE_NAME) {
+    if (ncolors > length(COLORBLIND_PALETTE)) {
+      message(
+        "makeColorScale: ", ncolors, " categories requested, more than the ",
+        length(COLORBLIND_PALETTE), " colours in shinyngs' colour-blind-safe ",
+        "palette. Interpolating additional shades, which will be harder to ",
+        "tell apart than the base palette."
+      )
+      return(colorRampPalette(COLORBLIND_PALETTE)(ncolors))
+    }
+
+    return(COLORBLIND_PALETTE[seq_len(ncolors)])
   }
 
-  COLORBLIND_PALETTE[seq_len(ncolors)]
+  paletteinfo <- RColorBrewer::brewer.pal.info
+
+  if (ncolors > paletteinfo[palette, "maxcolors"]) {
+    cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
+  } else if (ncolors < 3) {
+    cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
+    cols <- cols[seq_len(ncolors)]
+  } else {
+    cols <- RColorBrewer::brewer.pal(ncolors, palette)
+  }
+  rev(cols)
 }

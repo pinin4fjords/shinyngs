@@ -10,7 +10,7 @@ plotly_boxplot(
   colorby = NULL,
   palette = NULL,
   expressiontype = "expression",
-  palette_name = "Set1",
+  palette_name = COLORBLIND_PALETTE_NAME,
   whisker_distance = 1.5,
   annotate_samples = FALSE,
   should_transform = NULL,

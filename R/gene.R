@@ -68,7 +68,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("model")),
     uiOutput(ns("info")),
     uiOutput(ns("title")),
-    plotlyOutput(ns("barPlot"), height = 500),
+    shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = 500), color = shinyngsSpinnerColor()),
     h4("Contrasts table"),
     simpletableOutput(ns("geneContrastsTable")),
     help = modalInput(ns(gene_modal$id), "help", "help")
@@ -179,7 +179,8 @@ gene <- function(id, eselist) {
         assaymeasure <- selectmatrix_reactives$getAssayMeasure()
         palette <- groupby_reactives$getPalette()
 
-        p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette)
+        p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette) %>%
+          shinyngsPlotlyConfig("gene_expression")
       })
     })
 

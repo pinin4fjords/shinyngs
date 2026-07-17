@@ -16,7 +16,44 @@
     };
   }
 
-  function themeOnePlot(gd) {
+  // Structural marks (dendrogram branches, box outlines, upset grid lines and
+  // bars) are drawn in a literal black by the plotting modules; they vanish on
+  // the dark theme. The data palette is colour-blind-safe and contains no pure
+  // black, so flipping only exactly-black line/marker/text colours to the body
+  // colour re-themes the chrome-like marks without touching any data colour.
+  function isBlack(c) {
+    if (typeof c !== "string") return false;
+    var v = c.trim().toLowerCase().replace(/\s+/g, "");
+    return v === "black" || v === "#000" || v === "#000000" || v === "rgb(0,0,0)";
+  }
+
+  // Flipping a structural mark to the body colour makes it no longer black, so
+  // its indices are remembered per plot: a later theme toggle re-themes those
+  // traces even though isBlack() no longer matches. `rebuild` (a fresh Shiny
+  // render, which redraws the marks black again) discards the remembered set so
+  // stale indices can't outlive a re-render. Restyles are batched per property
+  // so a plot with many black traces (e.g. a per-sample boxplot) redraws once.
+  function themeMarks(gd, fg, rebuild) {
+    if (!gd.data) return;
+    if (rebuild || !gd._shinyngsMarks) {
+      gd._shinyngsMarks = { line: [], marker: [], text: [] };
+    }
+    var rec = gd._shinyngsMarks;
+    gd.data.forEach(function (tr, i) {
+      if (tr.line && isBlack(tr.line.color) && rec.line.indexOf(i) < 0) rec.line.push(i);
+      if (tr.marker && isBlack(tr.marker.color) && rec.marker.indexOf(i) < 0) rec.marker.push(i);
+      if (tr.textfont && isBlack(tr.textfont.color) && rec.text.indexOf(i) < 0) rec.text.push(i);
+    });
+    try {
+      if (rec.line.length) Plotly.restyle(gd, { "line.color": fg }, rec.line);
+      if (rec.marker.length) Plotly.restyle(gd, { "marker.color": fg }, rec.marker);
+      if (rec.text.length) Plotly.restyle(gd, { "textfont.color": fg }, rec.text);
+    } catch (e) {
+      /* mid-render restyle can reject; the next trigger will catch it */
+    }
+  }
+
+  function themeOnePlot(gd, rebuild) {
     if (typeof Plotly === "undefined" || !gd || !gd.classList) return;
     if (!gd.classList.contains("js-plotly-plot")) return;
     var c = themeColors();
@@ -34,21 +71,19 @@
     } catch (e) {
       /* a plot mid-render can reject relayout; the next trigger will catch it */
     }
+    themeMarks(gd, c.fg, rebuild);
   }
 
-  function themeAllPlots() {
-    document.querySelectorAll(".js-plotly-plot").forEach(themeOnePlot);
+  function themeAllPlots(rebuild) {
+    document.querySelectorAll(".js-plotly-plot").forEach(function (gd) {
+      themeOnePlot(gd, rebuild);
+    });
   }
 
   // Re-theme when the user toggles light/dark (bslib sets data-bs-theme on <html>).
-  new MutationObserver(function (muts) {
-    for (var i = 0; i < muts.length; i++) {
-      if (muts[i].attributeName === "data-bs-theme") {
-        themeAllPlots();
-        return;
-      }
-    }
-  }).observe(document.documentElement, { attributes: true });
+  new MutationObserver(function () {
+    themeAllPlots(false);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
 
   // Re-theme each plot as Shiny (re)renders it. The output element id is
   // e.name; the plotly widget is that element or a descendant of it.
@@ -56,17 +91,19 @@
     setTimeout(function () {
       var el = document.getElementById(e.name);
       if (!el) {
-        themeAllPlots();
+        themeAllPlots(false);
         return;
       }
       var plot = el.classList.contains("js-plotly-plot") ? el : el.querySelector(".js-plotly-plot");
       if (plot) {
-        themeOnePlot(plot);
+        themeOnePlot(plot, true);
       }
     }, 50);
   });
 
   $(document).on("shiny:connected", function () {
-    setTimeout(themeAllPlots, 300);
+    setTimeout(function () {
+      themeAllPlots(false);
+    }, 300);
   });
 })();

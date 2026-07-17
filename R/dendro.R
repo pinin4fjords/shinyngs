@@ -122,7 +122,7 @@ dendro <- function(id, eselist) {
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
-        getDendroPlot()
+        getDendroPlot() %>% shinyngsPlotlyConfig("dendrogram")
       })
     })
   })
@@ -168,7 +168,7 @@ dendro <- function(id, eselist) {
 #' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 #'
 clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2,
-                                 palette = NULL, palette_name = "Set1") {
+                                 palette = NULL, palette_name = COLORBLIND_PALETTE_NAME) {
   plotmatrix <- log2(plotmatrix + 1)
 
   hcd <- calculateDendrogram(plotmatrix, cor_method, cluster_method)
@@ -263,7 +263,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 #' plotly_clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 #'
 plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "",
-                                        palette = NULL, palette_name = "Set1", hidden_groups = character(0), source = NULL) {
+                                        palette = NULL, palette_name = COLORBLIND_PALETTE_NAME, hidden_groups = character(0), source = NULL) {
   plot_title <- gsub("\n", "<br>", plot_title, fixed = TRUE)
 
   # Group membership per sample, and the full set of groups. Both are derived

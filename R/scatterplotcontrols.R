@@ -121,7 +121,7 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
     getPointSize <- reactive({
       validate(need(input$threedee, "Waiting for pointsize"))
       input$pointSize
-    })
+    }) %>% debounce(300)
 
     reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)
 

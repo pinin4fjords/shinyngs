@@ -98,8 +98,8 @@ option_list <- list(
     c("-p", "--palette_name"),
     type = "character",
     metavar = "string",
-    help = "A valid R palette name.",
-    default = "Set1"
+    help = "'colorblind' for the colour-blind-safe palette, or a valid RColorBrewer palette name.",
+    default = "colorblind"
   ),
   make_option(
     c("-l", "--log2_assays"),

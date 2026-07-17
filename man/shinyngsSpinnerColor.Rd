@@ -12,9 +12,8 @@ A hex colour string
 \description{
 \code{shinycssloaders::withSpinner()} bakes its colour into a literal CSS
 value rather than accepting a \code{var(--bs-primary)} reference, so it
-can't pick up the Bootstrap theme variable directly. This returns the same
-hex value used as the theme's \code{primary} colour in
-\code{shinyngsPageNavbar()}, kept as a single source so the two stay in
-sync.
+can't pick up the Bootstrap theme variable directly. This returns the
+brand accent (\code{SHINYNGS_ACCENT}), the same value the theme's
+\code{primary} colour derives from.
 }
 \keyword{internal}

@@ -11,7 +11,7 @@ ggplot_densityplot(
   palette = NULL,
   expressiontype = "expression",
   base_size = 16,
-  palette_name = "Set1",
+  palette_name = COLORBLIND_PALETTE_NAME,
   annotate_samples = FALSE,
   should_transform = NULL
 )
