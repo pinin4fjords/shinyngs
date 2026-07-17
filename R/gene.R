@@ -117,7 +117,9 @@ gene <- function(id, eselist) {
       content = DT::dataTableOutput(session$ns("geneInfoTable"))
     )
 
-    gene_model_content <- if (requireNamespace("igvShiny", quietly = TRUE)) {
+    igvshiny_available <- requireNamespace("igvShiny", quietly = TRUE)
+
+    gene_model_content <- if (igvshiny_available) {
       igvShiny::igvShinyOutput(session$ns("geneModel"), height = "600px")
     } else {
       p("The igvShiny package must be installed to view gene model plots.")
@@ -189,22 +191,27 @@ gene <- function(id, eselist) {
       })
     })
 
-    # Make a gene region plot with igvShiny (a real, interactive genome
-    # browser widget, rather than static Gviz graphics)
+    # Make a gene region plot with igvShiny, an interactive genome browser widget
 
     getGeneModelLocus <- reactive({
       gene_labels <- gene_label_reactives$getSelectedLabels()
       ese <- selectmatrix_reactives$getExperiment()
 
-      annotation <- data.frame(SummarizedExperiment::mcols(ese))
-      annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
+      # Subset to the single matching row by index rather than converting the
+      # full annotation to a data.frame -- also ensures multiple rows sharing
+      # the same label (e.g. duplicate gene symbols) don't get merged into a
+      # single min/max span across unrelated loci.
+      annotation <- SummarizedExperiment::mcols(ese)
+      row_idx <- which(annotation[[ese@labelfield]] == gene_labels[1])[1]
+
+      validate(need(!is.na(row_idx), paste0("No annotation found for gene '", gene_labels[1], "'")))
 
       # start_position/end_position may come through as character (e.g. from
       # annotation originally read from a text file), so coerce explicitly
       # rather than relying on the columns already being numeric.
-      chromosome <- as.character(annotation$chromosome_name[1])
-      start <- suppressWarnings(min(as.numeric(annotation$start_position), na.rm = TRUE))
-      end <- suppressWarnings(max(as.numeric(annotation$end_position), na.rm = TRUE))
+      chromosome <- as.character(annotation$chromosome_name[row_idx])
+      start <- suppressWarnings(as.numeric(annotation$start_position[row_idx]))
+      end <- suppressWarnings(as.numeric(annotation$end_position[row_idx]))
 
       validate(need(
         !is.na(chromosome) && is.finite(start) && is.finite(end),
@@ -214,7 +221,7 @@ gene <- function(id, eselist) {
       list(chromosome = chromosome, start = start, end = end)
     })
 
-    if (requireNamespace("igvShiny", quietly = TRUE)) {
+    if (igvshiny_available) {
       output$geneModel <- igvShiny::renderIgvShiny({
         locus <- getGeneModelLocus()
         genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
@@ -235,7 +242,7 @@ gene <- function(id, eselist) {
     # known (see geneModelGenomeInfo() -- currently hg38 only; other builds
     # fall back to the widget's default annotation track).
 
-    if (requireNamespace("igvShiny", quietly = TRUE)) {
+    if (igvshiny_available) {
       observeEvent(input$igvReady, {
         locus <- getGeneModelLocus()
         genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
