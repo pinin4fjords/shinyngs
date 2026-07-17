@@ -134,6 +134,9 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 #' Ensures that the structure of \code{gene_set_analyses_tool} matches that of \code{gene_set_analyses},
 #' filling in missing elements as needed. Each entry in \code{gene_set_analyses_tool} should be a string
 #' (e.g., "auto", "gsea", or "roast") corresponding to the format of the associated gene set analysis table.
+#' Every non-NULL table in \code{gene_set_analyses} is also validated against its resolved tool's expected
+#' columns (auto-detecting the tool first where the entry is "auto"), so malformed enrichment tables are
+#' rejected here rather than only when rendered in the app.
 #'
 #' @param gene_set_analyses A three-level nested list of gene set tables, keyed by assay, gene set type, and contrast.
 #' @param gene_set_analyses_tool A three-level nested list of strings, structured as \code{gene_set_analyses}, indicating the tool used for each gene set analysis.
@@ -158,8 +161,7 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
     tool
   }
 
-  # gene_set_analyses is the source of truth for structure; mirror the tool spec
-  # onto it, defaulting each contrast to "auto" and validating any override.
+  # gene_set_analyses is the source of truth for structure; mirror the tool spec onto it.
   mirror <- function(analyses, tools, path) {
     lapply(setNames(nm = names(analyses)), function(name) {
       node <- analyses[[name]]
@@ -167,10 +169,24 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
       if (is.list(node) && !is.data.frame(node)) {
         mirror(node, tool_node, c(path, name)) # assay / gene-set-type container
       } else {
-        validate_tool(
+        where <- paste(c(path, name), collapse = "/")
+        resolved_tool <- validate_tool(
           if (is.null(tool_node)) "auto" else tool_node,
-          paste(c(path, name), collapse = "/")
+          where
         ) # contrast leaf (table or NULL)
+
+        if (!is.null(node)) {
+          actual_tool <- tryCatch(
+            resolve_gene_set_analyses_tool(node, resolved_tool),
+            error = function(e) stop("Could not detect gene_set_analyses_tool for ", where, ": ", conditionMessage(e))
+          )
+          tryCatch(
+            validate_enrichment_table(node, actual_tool),
+            error = function(e) stop("Invalid gene_set_analyses table for ", where, ": ", conditionMessage(e))
+          )
+        }
+
+        resolved_tool
       }
     })
   }
