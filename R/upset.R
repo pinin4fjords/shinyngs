@@ -415,7 +415,7 @@ upset <- function(id, eselist, setlimit = 16) {
             size = 10
           ), hoverinfo = "text", text = ~name
         ) %>%
-        layout(xaxis = list(showticklabels = FALSE, showgrid = FALSE, zeroline = FALSE), yaxis = list(showticklabels = FALSE, showgrid = FALSE, range = c(0, nsets), zeroline = FALSE, range = 1:nsets), margin = list(t = 0, b = 40))
+        layout(xaxis = list(showticklabels = FALSE, showgrid = FALSE, zeroline = FALSE), yaxis = list(showticklabels = FALSE, showgrid = FALSE, range = c(0, nsets), zeroline = FALSE), margin = list(t = 0, b = 40))
     })
 
     # Make the bar chart illustrating set sizes
