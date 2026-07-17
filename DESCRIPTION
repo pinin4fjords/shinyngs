@@ -45,6 +45,7 @@ Suggests:
     lintr,
     markdown,
     optparse,
+    pkgdown,
     rmarkdown,
     rsconnect,
     styler,

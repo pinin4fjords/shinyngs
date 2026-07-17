@@ -393,7 +393,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
 #'   values in \code{plotmatrix} be displayed on the heatmap cells?
 #' @param hide_colorbar Boolean, should the color scale legend be hidden?
-#' @param ... Additional argments passed to \code{heatmaply()}
+#' @param ... Additional arguments passed to \code{heatmaply()}
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
 #'

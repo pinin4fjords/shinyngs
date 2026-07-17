@@ -27,7 +27,7 @@ option_list <- list(
     c("-m", "--report_markdown_file"),
     type = "character",
     default = NULL,
-    help = "Path to file with descripion/ reporting in markdown. Alternative to 'description' for more extensive description content."
+    help = "Path to file with description/ reporting in markdown. Alternative to 'description' for more extensive description content."
   ),
   make_option(
     c("-s", "--sample_metadata"),

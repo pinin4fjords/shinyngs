@@ -15,11 +15,8 @@
 #'   been key to making the included visualisations as dynamic and useful as
 #'   they are.
 #'
-#'   Plotly's R interface has changed markedly between versions, and
-#'   \code{shinyngs} is currently dependent on a version later than the (now
-#'   somewhat old) version on CRAN. This should therefore be installed from
-#'   GitHub: \code{devtools::install_github('ropensci/plotly',
-#'   upgrade_dependencies = FALSE)}.
+#'   \code{shinyngs} requires \code{plotly} (>= 4.3.4), which is available on
+#'   CRAN and installed automatically as a normal package dependency.
 #'
 #' @section Input data structure: \code{shinyngs} defines two new data
 #'   structures. The first, \code{\link{ExploratorySummarizedExperiment}} simply
@@ -35,7 +32,7 @@
 #'   devised to allow incorporation of other feature sets. For example, we might
 #'   want to visualise expression in terms of both transcripts and genes.
 #'   \code{ExploratorySummarizedExperimentList} is just a list of
-#'   \code{ExploratorySummarizedExperiment}s, with some additonal slots
+#'   \code{ExploratorySummarizedExperiment}s, with some additional slots
 #'   pertaining to a study as a whole.
 #'
 #'   To use \code{shinyngs}, data is assumed to be in these formats. I'm not
@@ -59,7 +56,7 @@
 #'
 #'   \subsection{Components}{Each module will have server and UI functions that
 #'   provide processing and UI functionality respectively. For example, the
-#'   \code{dendro} module, which provides sample clustering dengrograms, has
+#'   \code{dendro} module, which provides sample clustering dendrograms, has
 #'   \code{\link{dendroInput}}, which provides user interface components to
 #'   determine clustering method etc, and \code{\link{dendro}}, which parses
 #'   those inputs and calls the appropriate functions to generate a dendrogram.
@@ -77,7 +74,7 @@
 #'   dendroOutput(ns('dendro'))
 #'   dendro('dendro', eselist) }}
 #'
-#'   These module functions are not currently exported, not currenlty being
+#'   These module functions are not currently exported, not currently being
 #'   intended for use outside \code{shinyngs}. This may change.
 #'
 #' @section Main functions:
@@ -124,8 +121,8 @@
 #' set at the time of writing:
 #'
 #' \subsection{Top-level}{\describe{\item{rnaseq}{Pull together PCA analysis,
-#' heat maps, dendgrograms, volcano plots, gene sets etc to make a comprehensive
-#' data mining tool.} \item{chipseq}{Currenlty a near clone of \code{rnaseq}, to
+#' heat maps, dendrograms, volcano plots, gene sets etc to make a comprehensive
+#' data mining tool.} \item{chipseq}{Currently a near clone of \code{rnaseq}, to
 #' be optimised for ChIP-seq in due course.} }}
 #'
 #' \subsection{Stand-alone}{
@@ -134,7 +131,7 @@
 #'
 #' \describe{ \item{assaydatatable}{Provide access to asay matrices of input
 #' object} \item{boxplot}{Make quartile/ boxplots} \item{dendro}{Make
-#' sample-clustering dendgrograms.} \item{dexseqplot}{Differential exon usage
+#' sample-clustering dendrograms.} \item{dexseqplot}{Differential exon usage
 #' plot (where relevant slot populated)} \item{dexseqtable}{Differential exon
 #' usage table (where relevant slot populated)}
 #' \item{differentialtable}{Differential table showing summarised group values
