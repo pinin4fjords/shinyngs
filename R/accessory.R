@@ -209,6 +209,52 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
   }
 }
 
+#' Reshape a matrix into long format
+#'
+#' Produces the same three-column long format as the retired
+#' \code{reshape2::melt()} for a matrix: a row identifier, a column
+#' identifier and the value, with rows ordered so the column identifier
+#' varies slowest. Row and column identifiers are factors levelled in the
+#' matrix's original row/column order when dimnames are present, or plain
+#' integer indices otherwise.
+#'
+#' @param m A matrix
+#' @param varnames Column names for the row and column identifiers
+#' @param value.name Column name for the value
+#'
+#' @return A data frame with columns \code{varnames[1]}, \code{varnames[2]}
+#'   and \code{value.name}
+#'
+#' @importFrom tidyr pivot_longer
+#' @export
+#'
+#' @examples
+#' m <- matrix(1:6, nrow = 2, dimnames = list(c("a", "b"), c("x", "y", "z")))
+#' melt_matrix(m)
+#'
+melt_matrix <- function(m, varnames = c("Var1", "Var2"), value.name = "value") {
+  row_ids <- if (is.null(rownames(m))) seq_len(nrow(m)) else factor(rownames(m), levels = rownames(m))
+  col_ids <- if (is.null(colnames(m))) seq_len(ncol(m)) else factor(colnames(m), levels = colnames(m))
+
+  # Transposing before pivoting keeps the column identifier varying slowest
+  # in the output, matching reshape2::melt()'s row order for a matrix.
+  transposed <- as.data.frame(t(m))
+  colnames(transposed) <- as.character(seq_len(nrow(m)))
+  transposed[[varnames[2]]] <- col_ids
+
+  long <- tidyr::pivot_longer(
+    transposed,
+    cols = as.character(seq_len(nrow(m))),
+    names_to = "..row",
+    values_to = value.name
+  )
+
+  long[[varnames[1]]] <- row_ids[as.integer(long[["..row"]])]
+  long[["..row"]] <- NULL
+
+  as.data.frame(long[, c(varnames[1], varnames[2], value.name)])
+}
+
 #' Reshape data to the way \code{ggplot2} likes it
 #'
 #' @param plotmatrices A matrix of values, e.g. expression data
@@ -257,7 +303,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
         data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {
-      plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
+      plotdata <- melt_matrix(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
       plotdata <- plotdata[which(plotdata$value > 0), ]
       colnames(plotdata) <- c("gene", "name", "value")
       plotdata$value <- cond_log2_transform_matrix(plotdata$value, should_transform = should_transform)

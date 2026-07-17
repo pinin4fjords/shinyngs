@@ -214,7 +214,7 @@ clustering <- function(id, eselist) {
 
       withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
         lapply(matrices_by_cluster, function(mbc) {
-          summarySE(reshape2::melt(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
+          summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
         })
       })
     })
@@ -237,7 +237,7 @@ clustering <- function(id, eselist) {
           if (nrow(x) > 100) {
             x <- x[sample(1:nrow(x), 100), ]
           }
-          x <- reshape2::melt(as.matrix(x))
+          x <- melt_matrix(as.matrix(x))
           x %>%
             group_by(Var1) %>%
             plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), line = list(color = cluster_color))
@@ -335,7 +335,7 @@ clustering <- function(id, eselist) {
 #' Uses bootstrapping to return the standard error/ deviation of the median.
 #'
 #' @param data A data frame. Expects all values for summarisation to be in one
-#'   column, which may requie judicious use of \code{\link[reshape2]{melt}}.
+#'   column, which may require judicious use of \code{\link{melt_matrix}}.
 #' @param measurevar The name of a column that contains the variable to be
 #'   summariezed
 #' @param groupvars A vector containing names of columns that contain grouping
@@ -346,11 +346,10 @@ clustering <- function(id, eselist) {
 #' @param add_medians Logical indicating whether medians should be added to the
 #'   output. Standard error estimates for the median require bootstrapping, so
 #'   TRUE for this variables make summary statistic calculation take longer.
-#' @param .drop Logical passed to ddply()
+#' @param .drop Logical controlling whether unobserved combinations of
+#'   \code{groupvars} are dropped, passed to \code{dplyr::group_by()}.
 #'
 #' @return out Data frame with summary statistics
-#' @rawNamespace import(plyr, except = c('mutate', 'arrange', 'rename',
-#' 'summarise'))
 #'
 #' @export
 #'
@@ -368,18 +367,28 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
     }
   }
 
-  # This is does the summary; it's not easy to understand...
-  datac <- ddply(data, groupvars, .drop = .drop, .fun = function(xx, col, na.rm) {
-    stats <- c(N = length2(xx[, col], na.rm = na.rm), mean = mean(xx[, col], na.rm = na.rm), sd = sd(xx[, col], na.rm = na.rm))
+  summarise_group <- function(xx) {
+    values <- xx[[measurevar]]
+    stats <- data.frame(
+      N = length2(values, na.rm = na.rm), mean = mean(values, na.rm = na.rm), sd = sd(values, na.rm = na.rm)
+    )
 
     if (add_medians) {
-      stats["median"] <- median(xx[, col], na.rm = na.rm)
-      stats["median.se"] <- bootstrapMedian(xx[, col], 1000)$std.err
+      stats$median <- median(values, na.rm = na.rm)
+      stats$median.se <- bootstrapMedian(values, 1000)$std.err
     }
     stats
-  }, measurevar, na.rm)
+  }
 
-  # Rename the 'mean' column
+  if (is.null(groupvars)) {
+    datac <- summarise_group(data)
+  } else {
+    datac <- data %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(groupvars)), .drop = .drop) %>%
+      dplyr::group_modify(~ summarise_group(.x)) %>%
+      dplyr::ungroup() %>%
+      as.data.frame()
+  }
 
   datac$se <- datac$sd / sqrt(datac$N) # Calculate standard error of the mean
 

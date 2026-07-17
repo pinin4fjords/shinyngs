@@ -16,7 +16,7 @@ summarySE(
 }
 \arguments{
 \item{data}{A data frame. Expects all values for summarisation to be in one
-column, which may requie judicious use of \code{\link[reshape2]{melt}}.}
+column, which may require judicious use of \code{\link{melt_matrix}}.}
 
 \item{measurevar}{The name of a column that contains the variable to be
 summariezed}
@@ -33,7 +33,8 @@ variables}
 output. Standard error estimates for the median require bootstrapping, so
 TRUE for this variables make summary statistic calculation take longer.}
 
-\item{.drop}{Logical passed to ddply()}
+\item{.drop}{Logical controlling whether unobserved combinations of
+\code{groupvars} are dropped, passed to \code{dplyr::group_by()}.}
 }
 \value{
 out Data frame with summary statistics

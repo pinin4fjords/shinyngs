@@ -91,7 +91,7 @@ illuminaarrayqc <- function(id, eselist) {
         low_stringency_mm = "phage_lambda_genome:mm2", negative = "permuted_negative", biotin = "phage_lambda_genome", labeling = "thrB", housekeeping = "housekeeping"
       )
 
-      plotdata <- reshape2::melt(do.call(cbind, lapply(qc_groups, function(qcg) {
+      plotdata <- melt_matrix(do.call(cbind, lapply(qc_groups, function(qcg) {
         colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
       })))
 
