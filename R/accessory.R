@@ -2204,6 +2204,16 @@ resolve_contrast_key <- function(analyses, contrast_number, contrast) {
   NULL
 }
 
+# Resolve gs_tool to a concrete tool name, auto-detecting from gst's columns
+# when unset or "auto". Shared by resolve_enrichment() and
+# check_gene_set_analyses_tool_consistency().
+resolve_gene_set_analyses_tool <- function(gst, gs_tool) {
+  if (is.null(gs_tool) || identical(gs_tool, "auto")) {
+    return(detect_enrichment_tool(gst))
+  }
+  gs_tool
+}
+
 #' Resolve the cleaned enrichment table and column mapping for a contrast
 #' @noRd
 #' @param ese An ExploratorySummarizedExperiment.
@@ -2233,10 +2243,7 @@ resolve_enrichment <- function(ese, assay, gene_set_type, contrast_number, contr
   } else {
     "auto"
   }
-  if (is.null(gs_tool) || identical(gs_tool, "auto")) {
-    gs_tool <- detect_enrichment_tool(gst)
-  }
-
+  gs_tool <- resolve_gene_set_analyses_tool(gst, gs_tool)
   col_map <- validate_enrichment_table(gst, gs_tool)
   list(gst = clean_enrichment_table(gst, gs_tool), col_map = col_map, tool = gs_tool)
 }

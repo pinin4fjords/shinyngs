@@ -161,11 +161,7 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
     tool
   }
 
-  # gene_set_analyses is the source of truth for structure; mirror the tool spec
-  # onto it, defaulting each contrast to "auto" and validating any override.
-  # Non-NULL tables are also checked against the resolved tool's expected
-  # columns here, so a malformed enrichment file fails at construction time
-  # rather than only when a user happens to render that contrast in the app.
+  # gene_set_analyses is the source of truth for structure; mirror the tool spec onto it.
   mirror <- function(analyses, tools, path) {
     lapply(setNames(nm = names(analyses)), function(name) {
       node <- analyses[[name]]
@@ -180,14 +176,10 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
         ) # contrast leaf (table or NULL)
 
         if (!is.null(node)) {
-          actual_tool <- if (identical(resolved_tool, "auto")) {
-            tryCatch(
-              detect_enrichment_tool(node),
-              error = function(e) stop("Could not detect gene_set_analyses_tool for ", where, ": ", conditionMessage(e))
-            )
-          } else {
-            resolved_tool
-          }
+          actual_tool <- tryCatch(
+            resolve_gene_set_analyses_tool(node, resolved_tool),
+            error = function(e) stop("Could not detect gene_set_analyses_tool for ", where, ": ", conditionMessage(e))
+          )
           tryCatch(
             validate_enrichment_table(node, actual_tool),
             error = function(e) stop("Invalid gene_set_analyses table for ", where, ": ", conditionMessage(e))
