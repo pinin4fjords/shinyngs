@@ -27,7 +27,6 @@ Imports:
     matrixStats,
     methods,
     plotly (>= 4.8.0),
-    RColorBrewer,
     reformulas,
     scatterplot3d,
     shiny (>= 1.7.0),
@@ -35,6 +34,7 @@ Imports:
     shinyjs,
     stats,
     utils,
+    viridisLite,
     yaml
 Suggests:
     airway,

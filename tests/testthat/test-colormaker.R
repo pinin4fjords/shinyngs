@@ -1,34 +1,38 @@
 # makeColorScale()
 
 test_that("makeColorScale returns the requested number of colors for a mid-range value", {
-  cols <- makeColorScale(5, palette = "Set1")
+  cols <- makeColorScale(5)
 
   expect_length(cols, 5)
   expect_true(all(grepl("^#[0-9A-Fa-f]{6,8}$", cols)))
 })
 
-test_that("makeColorScale interpolates when ncolors exceeds the palette maximum", {
-  cols <- makeColorScale(20, palette = "Set1")
+test_that("makeColorScale draws from the start of the fixed colour-blind-safe palette", {
+  cols <- makeColorScale(5)
 
-  expect_length(cols, 20)
-  expect_equal(length(unique(cols)), 20)
+  expect_equal(cols, COLORBLIND_PALETTE[1:5])
+})
+
+test_that("makeColorScale returns colours stably for the same count", {
+  expect_equal(makeColorScale(3), makeColorScale(3))
+  expect_equal(makeColorScale(8), COLORBLIND_PALETTE)
+})
+
+test_that("makeColorScale ignores an (unused) palette name argument", {
+  expect_equal(makeColorScale(4, palette = "Set1"), makeColorScale(4))
 })
 
 test_that("makeColorScale still returns the requested count when ncolors is below 3", {
-  cols1 <- makeColorScale(1, palette = "Set1")
-  cols2 <- makeColorScale(2, palette = "Set1")
+  cols1 <- makeColorScale(1)
+  cols2 <- makeColorScale(2)
 
-  expect_length(cols1, 1)
-  expect_length(cols2, 2)
-
-  ramp <- colorRampPalette(RColorBrewer::brewer.pal(9, "Set1"))(3)
-  expect_equal(cols1, rev(ramp[1]))
-  expect_equal(cols2, rev(ramp[1:2]))
+  expect_equal(cols1, COLORBLIND_PALETTE[1])
+  expect_equal(cols2, COLORBLIND_PALETTE[1:2])
 })
 
-test_that("makeColorScale reverses the underlying palette order", {
-  cols <- makeColorScale(3, palette = "Set1")
-  expected <- rev(RColorBrewer::brewer.pal(3, "Set1"))
+test_that("makeColorScale interpolates and warns when ncolors exceeds the base palette", {
+  expect_message(cols <- makeColorScale(20), "more than the")
 
-  expect_equal(cols, expected)
+  expect_length(cols, 20)
+  expect_equal(length(unique(cols)), 20)
 })

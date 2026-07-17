@@ -140,7 +140,7 @@ heatmapOutput <- function(id, type = "") {
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
 #'   'pca' (default: 'expression')
 #'
-#' @importFrom grDevices colorRampPalette
+#' @importFrom viridisLite viridis
 #' @keywords shiny
 #'
 #' @examples
@@ -371,7 +371,7 @@ heatmap <- function(id, eselist, type = "expression") {
     # Make a color palette
 
     makeColors <- reactive({
-      colors <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100)
+      colors <- viridisLite::viridis(100)
 
       if (type == "pca") {
         colors <- rev(colors)
@@ -440,13 +440,10 @@ heatmap <- function(id, eselist, type = "expression") {
 #'
 #' @keywords keywords
 #'
-#' @importFrom grDevices colorRampPalette
+#' @importFrom viridisLite viridis
 #' @export
 
-interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = colorRampPalette(rev(RColorBrewer::brewer.pal(
-                                 n = 7,
-                                 name = "RdYlBu"
-                               )))(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = 600, ...) {
+interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = 600, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels

@@ -10,16 +10,13 @@ colormakerInput(id)
 \item{id}{Submodule namespace}
 }
 \value{
-output An HTML tag object that can be rendered as HTML using
-  as.character()
+output NULL
 }
 \description{
-This module provides a drop-down for picking an RColorBrewer color palette
-and provides that palette given a reactive which supplied the required
-number of colors.
-}
-\details{
-This funcion provides the form elements to control the display
+shinyngs colours every plot from the single, fixed colour-blind-safe
+palette in \code{\link{makeColorScale}}, so there is no per-plot palette
+choice to expose. Modules that build their form from a list of inputs can
+include this call unconditionally; it contributes no UI element.
 }
 \examples{
 colormakerInput("myid")
