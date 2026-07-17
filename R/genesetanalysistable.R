@@ -111,6 +111,7 @@ genesetanalysistableOutput <- function(id) {
 
   moduleMain(
     "Gene set analysis",
+    uiOutput(ns("enrichmentMethod")),
     simpletableOutput(ns("genesetanalysistable")),
     help = modalInput(ns(genesetanalysistable_modal$id), "help", "help")
   )
@@ -193,15 +194,33 @@ genesetanalysistable <- function(id, eselist) {
       genesetselect_reactives$updateGeneSetsList()
     })
 
-    getGeneSetAnalysis <- reactive({
-      validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
+    # Resolve the enrichment table, column mapping and tool once per selection,
+    # shared between the table itself and the method label above it.
 
+    getEnrichmentInfo <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
       assay <- selectmatrix_reactives$getAssay()
       gene_set_types <- genesetselect_reactives$getGeneSetTypes()
       contrast_number <- as.numeric(contrast_reactives$getSelectedContrastNumbers()[[1]])
 
-      enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+      resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+    })
+
+    output$enrichmentMethod <- renderUI({
+      enrichment <- getEnrichmentInfo()
+      if (is.null(enrichment)) {
+        return(NULL)
+      }
+      helpText(paste0("Method: ", enrichment_tool_label(enrichment$tool)))
+    })
+
+    getGeneSetAnalysis <- reactive({
+      validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
+
+      ese <- selectmatrix_reactives$getExperiment()
+      gene_set_types <- genesetselect_reactives$getGeneSetTypes()
+
+      enrichment <- getEnrichmentInfo()
       validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
       gst <- enrichment$gst
       col_map <- enrichment$col_map
