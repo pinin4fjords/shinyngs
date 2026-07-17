@@ -1,5 +1,10 @@
 pca_modal <- list(id = "pca", title = "Principal components analysis")
 
+# Default for the "Number of loadings to examine" slider, shared between the
+# UI default and the server-side fallback used before the debounced reactive
+# has a value from the client.
+PCA_DEFAULT_N_LOADINGS <- 10
+
 #' The input function of the pca module
 #'
 #' This provides the form elements to control the pca display, derived from the
@@ -34,7 +39,7 @@ pcaInput <- function(id, eselist) {
 
   expression_filters <- selectmatrixInput(ns("pca"), eselist)
 
-  pca_filters <- list(sliderInput(ns("n_loadings"), "Number of loadings to examine", min = 2, max = 100, value = 10))
+  pca_filters <- list(sliderInput(ns("n_loadings"), "Number of loadings to examine", min = 2, max = 100, value = PCA_DEFAULT_N_LOADINGS))
 
   # Output sets of fields in their own containers
 
@@ -201,10 +206,13 @@ pca <- function(id, eselist) {
     })
 
     # Debounce the loadings-count slider so dragging it doesn't refetch the
-    # loadings on every tick
+    # loadings on every tick. Fall back to the slider's default while
+    # input$n_loadings hasn't reached the server yet - a debounced reactive's
+    # first value is primed synchronously, before the client has necessarily
+    # sent its initial slider value, and seq_len() below errors on NULL.
 
     getNLoadings <- reactive({
-      input$n_loadings
+      if (is.null(input$n_loadings)) PCA_DEFAULT_N_LOADINGS else input$n_loadings
     }) %>% debounce(300)
 
     # Fetch the loadings
