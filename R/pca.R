@@ -302,7 +302,7 @@ compilePCAData <- function(matrix, ntop = NULL) {
   }
 
   # perform a PCA on the data in assay(x) for the selected genes
-  pca <- runPCA(matrix, do_log = FALSE)
+  pca <- runPCA(matrix[select, , drop = FALSE], do_log = FALSE)
 
   # the contribution to the total variance for each component
   percentVar <- calculatePCAFractionExplained(pca)

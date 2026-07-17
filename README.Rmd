@@ -19,6 +19,8 @@ knitr::opts_chunk$set(
 
 Shinyngs is an R package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots and data mining tools. It is unrelated to the recently published [Shiny Transcritome Analysis Resource Tool](https://github.com/jminnier/STARTapp) (START), though it was probably developed at the same time as that work.
 
+Full documentation and function reference: https://pinin4fjords.github.io/shinyngs/
+
 # Examples
 
 ## Data structure
