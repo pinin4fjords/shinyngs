@@ -33,6 +33,9 @@ simpletableInput <- function(id, tabletitle = "", description = NULL) {
 #'
 #' @param id Module namespace
 #' @param tabletitle (optional) Title to display with the table
+#' @param spinner Show a loading spinner while the table is (re)computed.
+#' Intended for tables backed by expensive reactives (e.g. differential
+#' expression); left off by default for small, near-instant tables.
 #'
 #' @return output An HTML tag object that can be rendered as HTML using
 #' as.character()
@@ -42,7 +45,7 @@ simpletableInput <- function(id, tabletitle = "", description = NULL) {
 #' @examples
 #' simpletableOutput("simpletable", "my title")
 #'
-simpletableOutput <- function(id, tabletitle = NULL) {
+simpletableOutput <- function(id, tabletitle = NULL, spinner = FALSE) {
   ns <- NS(id)
 
   outputs <- list()
@@ -50,7 +53,11 @@ simpletableOutput <- function(id, tabletitle = NULL) {
     outputs <- pushToList(outputs, h3(tabletitle))
   }
 
-  outputs <- pushToList(outputs, DT::dataTableOutput(ns("datatable")))
+  datatable <- DT::dataTableOutput(ns("datatable"))
+  if (spinner) {
+    datatable <- shinycssloaders::withSpinner(datatable, color = shinyngsSpinnerColor())
+  }
+  outputs <- pushToList(outputs, datatable)
 
   tagList(outputs)
 }

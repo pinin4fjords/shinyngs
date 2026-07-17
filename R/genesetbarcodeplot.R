@@ -153,34 +153,33 @@ genesetbarcodeplot <- function(id, eselist) {
       assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
     }
 
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
-    unpack.list(selectmatrix_reactives)
 
     # Pass the matrix to the contrasts module for processing
 
-    unpack.list(contrasts("genesetbarcodeplot", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
+    contrast_reactives <- contrasts("genesetbarcodeplot", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
 
     # Parse the gene sets for ease of use
 
-    unpack.list(genesetselect("genesetbarcodeplot", eselist, getExperiment, multiple = FALSE))
+    genesetselect_reactives <- genesetselect("genesetbarcodeplot", eselist, selectmatrix_reactives$getExperiment, multiple = FALSE)
 
     observe({
-      updateGeneSetsList()
+      genesetselect_reactives$updateGeneSetsList()
     })
 
     # Make a sensible title for the plot
 
     barcodeplotTitle <- reactive({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
 
-      title_components <- c(prettifyGeneSetName(unlist(getGenesetNames())), getSelectedContrastNames()[[1]])
+      title_components <- c(prettifyGeneSetName(unlist(genesetselect_reactives$getGenesetNames())), contrast_reactives$getSelectedContrastNames()[[1]])
 
-      gene_set_types <- getGenesetTypes()
-      assay <- getAssay()
-      gene_set_names <- getGenesetNames()
-      contrast_numbers <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
+      gene_set_types <- genesetselect_reactives$getGenesetTypes()
+      assay <- selectmatrix_reactives$getAssay()
+      gene_set_names <- genesetselect_reactives$getGenesetNames()
+      contrast_numbers <- as.numeric(contrast_reactives$getSelectedContrastNumbers()[[1]][[1]])
 
       enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_numbers, eselist@contrasts[[contrast_numbers]])
 
@@ -202,7 +201,7 @@ genesetbarcodeplot <- function(id, eselist) {
     # The contrast table backing the fold changes, gene IDs and labels below
 
     getContrastsTable <- reactive({
-      filteredContrastsTables()[[1]][[1]]
+      contrast_reactives$filteredContrastsTables()[[1]][[1]]
     })
 
     # Get the list of fold changes by which to rank genes
@@ -214,19 +213,19 @@ genesetbarcodeplot <- function(id, eselist) {
     # Get gene IDs of the same type as used for gene sets
 
     getGeneIDs <- reactive({
-      convertIds(rownames(getContrastsTable()), getExperiment(), eselist@gene_set_id_type)
+      convertIds(rownames(getContrastsTable()), selectmatrix_reactives$getExperiment(), eselist@gene_set_id_type)
     })
 
     # Labels for plot hover text
 
     getLabels <- reactive({
-      idToLabel(rownames(getContrastsTable()), getExperiment())
+      idToLabel(rownames(getContrastsTable()), selectmatrix_reactives$getExperiment())
     })
 
     # Render the barcode plot
 
     output$genesetbarcodeplot <- renderPlotly({
-      set_genes <- getPathwayGenes()
+      set_genes <- genesetselect_reactives$getPathwayGenes()
 
       plotly_barcodeplot(
         fold_changes = getFoldChanges(), gene_ids = getGeneIDs(), set_gene_ids = names(set_genes), labels = getLabels(),
@@ -237,9 +236,9 @@ genesetbarcodeplot <- function(id, eselist) {
     # Make a table of contrast data for the gene set Subset the linked contrasts table for the gene set genes
 
     gsbpContrastsTable <- reactive({
-      lct <- labelledContrastsTable()
-      ese <- getExperiment()
-      set_genes <- getPathwayGenes()
+      lct <- contrast_reactives$labelledContrastsTable()
+      ese <- selectmatrix_reactives$getExperiment()
+      set_genes <- genesetselect_reactives$getPathwayGenes()
 
       lct[which(lct[[prettifyVariablename(ese@labelfield)]] %in% set_genes), ]
     })
@@ -269,13 +268,13 @@ genesetbarcodeplot <- function(id, eselist) {
 
       url_observe <- observe({
         if ("geneset" %in% names(query)) {
-          updateGeneset()
+          genesetselect_reactives$updateGeneset()
         }
         url_observe$suspend()
       })
     })
 
-    updateGeneset
+    genesetselect_reactives$updateGeneset
   })
 }
 

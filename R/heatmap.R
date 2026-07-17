@@ -164,21 +164,21 @@ heatmap <- function(id, eselist, type = "expression") {
 
     # Make the groupby UI element
 
-    unpack.list(groupby("heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE))
+    groupby_reactives <- groupby("heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE)
 
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     if (type == "expression") {
-      unpack.list(selectmatrix("heatmap", eselist, var_max = 500))
+      selectmatrix_reactives <- selectmatrix("heatmap", eselist, var_max = 500)
     } else {
-      unpack.list(selectmatrix("heatmap", eselist, var_n = 1000, select_meta = FALSE, allow_summarise = FALSE))
+      selectmatrix_reactives <- selectmatrix("heatmap", eselist, var_n = 1000, select_meta = FALSE, allow_summarise = FALSE)
     }
 
     # Render the heatmap container
 
     output$heatmap_ui <- renderUI({
       withProgress(message = "Preparing heatmap container", value = 0, {
-        list(h3(makeTitle()), plotly::plotlyOutput(ns("interactiveHeatmap"), height = plotHeight()))
+        list(h3(makeTitle()), shinycssloaders::withSpinner(plotly::plotlyOutput(ns("interactiveHeatmap"), height = plotHeight()), color = shinyngsSpinnerColor()))
       })
     })
 
@@ -186,23 +186,23 @@ heatmap <- function(id, eselist, type = "expression") {
 
     makeTitle <- reactive({
       if (type == "pca") {
-        paste("PCA vs variable association plot based on expression matrix:", matrixTitle())
+        paste("PCA vs variable association plot based on expression matrix:", selectmatrix_reactives$matrixTitle())
       } else if (type == "expression") {
-        paste("Expression heat map based on expression matrix:", matrixTitle())
+        paste("Expression heat map based on expression matrix:", selectmatrix_reactives$matrixTitle())
       } else {
-        paste("Sample clustering heat map based on expression matrix:", matrixTitle())
+        paste("Sample clustering heat map based on expression matrix:", selectmatrix_reactives$matrixTitle())
       }
     })
 
     # Get the experiment data and tidy up as appropriate
 
     getExperimentData <- reactive({
-      if (isSummarised()) {
+      if (selectmatrix_reactives$isSummarised()) {
         NULL
       } else {
-        ed <- selectColData()
+        ed <- selectmatrix_reactives$selectColData()
 
-        anno_fields <- getGroupby()
+        anno_fields <- groupby_reactives$getGroupby()
 
         if (!is.null(anno_fields)) {
           # Prettify the factor levels for display
@@ -211,7 +211,7 @@ heatmap <- function(id, eselist, type = "expression") {
           group_vars <- prettifyVariablename(anno_fields)
 
           # Make factors from the specified grouping variables
-          sm <- selectMatrix()
+          sm <- selectmatrix_reactives$selectMatrix()
           ed <- ed[colnames(sm), , drop = FALSE]
 
           ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[, x], levels = unique(ed[, x]))),
@@ -242,7 +242,7 @@ heatmap <- function(id, eselist, type = "expression") {
     # Get a a matrix of the values we actually want the user to see in mouseovers etc.
 
     getDisplayMatrix <- reactive({
-      pm <- selectMatrix()
+      pm <- selectmatrix_reactives$selectMatrix()
 
       if (type == "samples") {
         pm <- cor(pm, use = "complete.obs", method = "spearman")
@@ -285,7 +285,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
     getPCAMatrix <- reactive({
       pcameta <- getExperimentData()
-      pcavals <- selectMatrix()[, rownames(pcameta), drop = FALSE]
+      pcavals <- selectmatrix_reactives$selectMatrix()[, rownames(pcameta), drop = FALSE]
 
       pca <- runPCA(pcavals)
       fraction_explained <- calculatePCAFractionExplained(pca)
@@ -300,7 +300,7 @@ heatmap <- function(id, eselist, type = "expression") {
       )
 
       anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
-    }) %>% bindCache(getExperimentData(), selectMatrix())
+    }) %>% bindCache(getExperimentData(), selectmatrix_reactives$selectMatrix())
 
     # Calculate heights for the the various types of heatmap
 
@@ -338,7 +338,7 @@ heatmap <- function(id, eselist, type = "expression") {
     # Make row labels
 
     rowLabels <- reactive({
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
       plot_matrix <- getPlotMatrix()
 
       if (has_slot_data(ese, "labelfield") && type == "expression") {

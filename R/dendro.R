@@ -64,7 +64,7 @@ dendroOutput <- function(id) {
   ns <- NS(id)
   moduleMain(
     "Sample clustering dendrogram",
-    plotlyOutput(ns("sampleDendroPlot"), height = "480px"),
+    shinycssloaders::withSpinner(plotlyOutput(ns("sampleDendroPlot"), height = "480px"), color = shinyngsSpinnerColor()),
     help = modalInput(ns(dendro_modal$id), "help", "help")
   )
 }
@@ -94,28 +94,31 @@ dendro <- function(id, eselist) {
 
     # Get the expression matrix - no need for a gene selection
 
-    unpack.list(selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
-    unpack.list(groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    selectmatrix_reactives <- selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance")
+    groupby_reactives <- groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
     plot_source <- session$ns("sampleDendroPlot")
 
     getLevels <- reactive({
-      groupLevels(selectColData(), getGroupby())
+      groupLevels(selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby())
     })
 
     # Trace 0 is the branch tree, so the per-group traces start at index 1.
-    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, getGroupby, trace_offset = 1L)
+    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, groupby_reactives$getGroupby, trace_offset = 1L)
 
     # Cached on exactly the inputs read below, so re-rendering the tab (or
     # another session viewing the same matrix/settings) doesn't re-run the
     # underlying distance/hclust computation.
 
     getDendroPlot <- reactive({
-      validateOrCatch(plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-        cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-        palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+      validateOrCatch(plotly_clusteringDendrogram(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+        cor_method = input$corMethod, cluster_method = input$clusterMethod, selectmatrix_reactives$matrixTitle(),
+        palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
       ))
-    }) %>% bindCache(selectMatrix(), selectColData(), getGroupby(), input$corMethod, input$clusterMethod, matrixTitle(), getPalette(), hiddenGroups())
+    }) %>% bindCache(
+      selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), input$corMethod, input$clusterMethod,
+      selectmatrix_reactives$matrixTitle(), groupby_reactives$getPalette(), hiddenGroups()
+    )
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {

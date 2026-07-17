@@ -42,6 +42,6 @@ This module provides controls (2D/3D, axes etc) for scatter plots, which
 may then be used by one or more instances of the scatterplot module.
 }
 \examples{
-unpack.list(scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
+scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2) # To have fixed axes rather than user-selected
 
 }

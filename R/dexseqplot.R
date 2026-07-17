@@ -117,20 +117,20 @@ dexseqplot <- function(id, eselist) {
 
     # Fetch the table of values for the gene
 
-    unpack.list(dexseqtable("deuPlotTable", eselist = eselist, allow_filtering = FALSE, getDEUGeneID = getDEUGeneID, show_controls = FALSE, page_length = 50, link_to_deu_plot = FALSE))
+    dexseqtable_reactives <- dexseqtable("deuPlotTable", eselist = eselist, allow_filtering = FALSE, getDEUGeneID = getDEUGeneID, show_controls = FALSE, page_length = 50, link_to_deu_plot = FALSE)
 
     # Create a field for selecting the gene ID
 
-    unpack.list(labelselectfield("genesymbol", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "deu_gene"))
+    genesymbol_reactives <- labelselectfield("genesymbol", eselist = eselist, getExperiment = dexseqtable_reactives$getExperiment, labels_from_all_experiments = TRUE, url_field = "deu_gene")
 
     # Fetch the DEXSeqResults object for the currently selected contrast,
     # guarding against a selected contrast number with no corresponding entry
     # in the experiment's dexseq_results slot
 
     getSelectedDEUResult <- reactive({
-      ese <- getExperiment()
+      ese <- dexseqtable_reactives$getExperiment()
       deu <- ese@dexseq_results
-      selected_contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
+      selected_contrast_number <- as.numeric(dexseqtable_reactives$getSelectedContrastNumbers()[[1]][[1]])
       validate(need(
         selected_contrast_number %in% seq_along(deu),
         "No differential exon usage results available for the selected contrast"
@@ -141,8 +141,8 @@ dexseqplot <- function(id, eselist) {
     # Get the a gene ID for the currently input gene symbol. Could be a composite
 
     getDEUGeneID <- reactive({
-      ese <- getExperiment()
-      gene_id <- getSelectedIds()
+      ese <- dexseqtable_reactives$getExperiment()
+      gene_id <- genesymbol_reactives$getSelectedIds()
       deu <- ese@dexseq_results
       d <- getSelectedDEUResult()
 
@@ -162,12 +162,12 @@ dexseqplot <- function(id, eselist) {
       {
         validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage plots."))
 
-        ese <- getExperiment()
+        ese <- dexseqtable_reactives$getExperiment()
 
         dexseq_result <- getSelectedDEUResult()
 
-        selected_contrast <- getSelectedContrasts()[[1]][[1]]
-        gene_label <- getSelectedLabels()
+        selected_contrast <- dexseqtable_reactives$getSelectedContrasts()[[1]][[1]]
+        gene_label <- genesymbol_reactives$getSelectedLabels()
         gene_id <- getDEUGeneID()
 
         withProgress(message = "Making differential exon usage plot", value = 0, {
@@ -186,11 +186,11 @@ dexseqplot <- function(id, eselist) {
     makeDEUPlotForDownload <- reactive({
       validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage plots."))
 
-      ese <- getExperiment()
+      ese <- dexseqtable_reactives$getExperiment()
 
       dexseq_result <- getSelectedDEUResult()
-      selected_contrast <- getSelectedContrasts()[[1]][[1]]
-      gene_label <- getSelectedLabels()
+      selected_contrast <- dexseqtable_reactives$getSelectedContrasts()[[1]][[1]]
+      gene_label <- genesymbol_reactives$getSelectedLabels()
       gene_id <- getDEUGeneID()
 
       DEXSeq::plotDEXSeq(dexseq_result,
@@ -206,6 +206,6 @@ dexseqplot <- function(id, eselist) {
 
     # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
 
-    updateLabelField
+    genesymbol_reactives$updateLabelField
   })
 }

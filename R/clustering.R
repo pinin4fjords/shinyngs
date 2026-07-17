@@ -79,9 +79,9 @@ clusteringOutput <- function(id) {
   moduleMain(
     NULL,
     uiOutput(ns("geneClusteringTitle")),
-    plotlyOutput(ns("geneClusteringPlot"), height = 600),
+    shinycssloaders::withSpinner(plotlyOutput(ns("geneClusteringPlot"), height = 600), color = shinyngsSpinnerColor()),
     h4("Table of values by cluster"),
-    simpletableOutput(ns("geneClusteringTable")),
+    simpletableOutput(ns("geneClusteringTable"), spinner = TRUE),
     help = modalInput(ns(clustering_modal$id), "help", "help")
   )
 }
@@ -114,7 +114,7 @@ clustering <- function(id, eselist) {
 
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
 
-    unpack.list(selectmatrix("clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
+    selectmatrix_reactives <- selectmatrix("clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance")
 
     getPalette <- colormaker("clustering", getNumberCategories = getClusterNumber)
 
@@ -172,7 +172,7 @@ clustering <- function(id, eselist) {
     # Create title reflecting how the input matrix for clustering was generated
 
     output$geneClusteringTitle <- renderUI({
-      list(h3(paste("Feature-wise clustering for feature set:", matrixTitle())), h4(errorBarsSubtitle()))
+      list(h3(paste("Feature-wise clustering for feature set:", selectmatrix_reactives$matrixTitle())), h4(errorBarsSubtitle()))
     })
 
     # A common set of colors however the clusters are plotted
@@ -184,7 +184,7 @@ clustering <- function(id, eselist) {
     # Make a scaled version of the input matrix suitable for clustering and visualisation
 
     scaleMatrix <- reactive({
-      inmatrix <- selectMatrix()
+      inmatrix <- selectmatrix_reactives$selectMatrix()
       data.frame(t(scale(t(inmatrix))), check.names = FALSE)
     })
 
@@ -285,7 +285,7 @@ clustering <- function(id, eselist) {
         })
       }
 
-      experiment <- selectColData()
+      experiment <- selectmatrix_reactives$selectColData()
 
       lapply(plots, function(p) {
         p %>% layout(
@@ -312,10 +312,10 @@ clustering <- function(id, eselist) {
     ############################################################################# Functions for making the table of values with cluster numbers
 
     makeMatrixWithClusters <- reactive({
-      inmatrix <- selectMatrix()
+      inmatrix <- selectmatrix_reactives$selectMatrix()
       clusters <- makeClusters()
-      ese <- getExperiment()
-      mf <- getMetafields()
+      ese <- selectmatrix_reactives$getExperiment()
+      mf <- selectmatrix_reactives$getMetafields()
 
       inmatrix <- data.frame(inmatrix, check.names = FALSE)
 

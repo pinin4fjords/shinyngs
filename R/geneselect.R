@@ -74,7 +74,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
 
-    unpack.list(genesetselect("geneset", eselist = eselist, getExperiment = getExperiment))
+    genesetselect_reactives <- genesetselect("geneset", eselist = eselist, getExperiment = getExperiment)
 
     # Get rows by metadata: pick from available values
 
@@ -88,7 +88,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
     observeEvent(input$geneSelect, {
       if (input$geneSelect == "gene set") {
-        updateGeneSetsList()
+        genesetselect_reactives$updateGeneSetsList()
       } else if (input$geneSelect == "metadata_pick") {
         lsf_picked_methods$updateLabelField()
       }
@@ -211,7 +211,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
           return(intersect(selected_rows, nonempty))
         } else {
           if (gene_select == "gene set") {
-            selected_genes <- getPathwayGenes()
+            selected_genes <- genesetselect_reactives$getPathwayGenes()
           } else {
             selected_genes <- unlist(strsplit(input$geneList, "\\n"))
           }
@@ -241,7 +241,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       } else if (gene_select == "variance") {
         title <- paste(paste("Top", getObs(), "rows"), "by variance")
       } else if (gene_select == "gene set") {
-        title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
+        title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(genesetselect_reactives$getGenesetNames()), collapse = "\n"))
         # } else if (gene_select == 'list') { title <- 'Rows for specifified gene list'
       } else if (gene_select == "metadata_pick") {
         title <- "Rows by picked metadata field value"

@@ -76,8 +76,10 @@ rowmetatable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(rowmetatable_modal$id, rowmetatable_modal$title)
 
+    selectmatrix_reactives <- selectmatrix("rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
+
     getRowMeta <- reactive({
-      meta <- getAnnotation()
+      meta <- selectmatrix_reactives$getAnnotation()
       meta
     })
 
@@ -87,7 +89,6 @@ rowmetatable <- function(id, eselist) {
       linkMatrix(meta, eselist@url_roots)
     })
 
-    unpack.list(selectmatrix("rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
     simpletable("rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
   })
 }

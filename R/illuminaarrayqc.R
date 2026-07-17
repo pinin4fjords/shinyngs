@@ -80,13 +80,13 @@ illuminaarrayqc <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(illuminaarrayqc_modal$id, illuminaarrayqc_modal$title)
 
-    unpack.list(selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
+    selectmatrix_reactives <- selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE)
 
     output$qcplot <- renderPlotly({
-      ese <- getExperiment()
-      experiment <- selectColData()
-      control_annotation <- getAnnotation()
-      controls <- selectMatrix()
+      ese <- selectmatrix_reactives$getExperiment()
+      experiment <- selectmatrix_reactives$selectColData()
+      control_annotation <- selectmatrix_reactives$getAnnotation()
+      controls <- selectmatrix_reactives$selectMatrix()
 
       controls_merged <- merge(control_annotation, controls, by.x = "Array_Address_Id", by.y = "row.names")
 
@@ -113,6 +113,6 @@ illuminaarrayqc <- function(id, eselist) {
 
     # Render the table and provide for download, using the simpletable module.
 
-    simpletable("qctable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE)
+    simpletable("qctable", downloadMatrix = selectmatrix_reactives$selectLabelledMatrix, displayMatrix = selectmatrix_reactives$selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE)
   })
 }

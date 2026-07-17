@@ -124,14 +124,13 @@ upset <- function(id, eselist, setlimit = 16) {
 
     ns <- session$ns
 
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("upset", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE, select_meta = FALSE)
-    unpack.list(selectmatrix_reactives)
 
     # Pass the matrix to the contrasts module for processing
 
-    unpack.list(contrasts("upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE))
+    contrast_reactives <- contrasts("upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE)
 
     ############################################################################# Render dynamic fields
 
@@ -156,7 +155,7 @@ upset <- function(id, eselist, setlimit = 16) {
     })
 
     output$differential_parameters <- renderUI({
-      query_strings <- getQueryStrings()
+      query_strings <- contrast_reactives$getQueryStrings()
       HTML(query_strings[1])
     })
 
@@ -238,8 +237,8 @@ upset <- function(id, eselist, setlimit = 16) {
 
     getValidSets <- reactive({
       withProgress(message = "Deriving input sets", value = 0, {
-        fcts <- unlist(filteredContrastsTables(), recursive = FALSE)
-        names(fcts) <- unlist(getSafeSelectedContrastNames(), recursive = FALSE)
+        fcts <- unlist(contrast_reactives$filteredContrastsTables(), recursive = FALSE)
+        names(fcts) <- unlist(contrast_reactives$getSafeSelectedContrastNames(), recursive = FALSE)
 
         fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
 
@@ -461,6 +460,6 @@ upset <- function(id, eselist, setlimit = 16) {
 
     # Provide the differential set summary for download
 
-    simpletable("upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, filter = "none", filename = "differential_summary", rownames = FALSE)
+    simpletable("upset", downloadMatrix = contrast_reactives$makeDifferentialSetSummary, displayMatrix = contrast_reactives$makeDifferentialSetSummary, filter = "none", filename = "differential_summary", rownames = FALSE)
   })
 }
