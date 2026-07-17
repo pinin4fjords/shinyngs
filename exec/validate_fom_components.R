@@ -55,10 +55,16 @@ option_list <- list(
     help = "Column in differential results files holding fold changes."
   ),
   make_option(
+    c("--fold_change_scale"),
+    type = "character",
+    default = "auto",
+    help = "Scale of the values in --fold_change_column: 'log2', 'linear' or 'auto' (default). 'auto' infers the scale from the column name and the distribution of the values, and errors if the two signals (or an explicit 'log2'/'linear' declaration) disagree."
+  ),
+  make_option(
     c("-u", "--unlog_foldchanges"),
     action = "store_true",
-    default = FALSE,
-    help = "Set this option if fold changes should be unlogged."
+    default = NULL,
+    help = "Deprecated - use --fold_change_scale=log2 instead. Set this option if fold changes should be unlogged."
   ),
   make_option(
     c("-p", "--pval_column"),
@@ -88,6 +94,11 @@ option_list <- list(
 
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
+
+if (!is.null(opt$unlog_foldchanges)) {
+  warning("--unlog_foldchanges is deprecated and will be removed in a future release; use --fold_change_scale=log2 instead.", call. = FALSE)
+  opt$fold_change_scale <- "log2"
+}
 
 # Check mandatory
 
@@ -120,7 +131,7 @@ validated_parts <- validate_inputs(
   pval_column = opt$pval_column,
   qval_column = opt$qval_column,
   fc_column = opt$fold_change_column,
-  unlog_foldchanges = opt$unlog_foldchanges
+  fold_change_scale = opt$fold_change_scale
 )
 
 # If an output path is provided we can re-write the data, ensuring consistency

@@ -16,7 +16,8 @@ validate_inputs(
   pval_column = "pval_column",
   qval_column = "qval_column",
   fc_column = "log2FoldChange",
-  unlog_foldchanges = FALSE
+  fold_change_scale = "auto",
+  unlog_foldchanges = NULL
 )
 }
 \arguments{
@@ -42,8 +43,14 @@ validate_inputs(
 
 \item{fc_column}{Fold change column if differential stats files specified}
 
-\item{unlog_foldchanges}{Boolean- should fold changes in stats files be
-unlogged?}
+\item{fold_change_scale}{Scale of the values in \code{fc_column}: one of
+\code{"auto"} (default, infer and validate from the column name and data
+distribution), \code{"log2"} or \code{"linear"}. Each differential
+results file is validated independently. See
+\code{\link{resolve_foldchange_scale}}.}
+
+\item{unlog_foldchanges}{Deprecated, use \code{fold_change_scale} instead.
+Boolean- should fold changes in stats files be unlogged?}
 }
 \value{
 output A named list with feature/ observation components

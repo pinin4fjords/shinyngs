@@ -10,7 +10,8 @@ compile_contrast_data(
   pval_column = NULL,
   qval_column = NULL,
   fc_column = NULL,
-  unlog_foldchanges = FALSE
+  fold_change_scale = "auto",
+  unlog_foldchanges = NULL
 )
 }
 \arguments{
@@ -24,7 +25,14 @@ compile_contrast_data(
 
 \item{fc_column}{Fold change column in stats files}
 
-\item{unlog_foldchanges}{Should fold change values be unlogged?}
+\item{fold_change_scale}{Scale of the values in \code{fc_column}: one of
+\code{"auto"} (default), \code{"log2"} or \code{"linear"}. Resolved once
+across the fold changes combined from all \code{differential_stats_files},
+rather than per-file, so contrasts from the same experiment are treated
+consistently. See \code{\link{resolve_foldchange_scale}}.}
+
+\item{unlog_foldchanges}{Deprecated, use \code{fold_change_scale} instead.
+Should fold change values be unlogged?}
 }
 \value{
 output A named list of data frames by statistic, number of columns equal to input file number

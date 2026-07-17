@@ -92,10 +92,16 @@ option_list <- list(
     help = "For differential plot annotation. Postitive fold changes will be annotated as being higher in this group. "
   ),
   make_option(
+    c("--fold_change_scale"),
+    type = "character",
+    default = "auto",
+    help = "Scale of the values in --fold_change_col: 'log2', 'linear' or 'auto' (default). 'auto' infers the scale from the column name and the distribution of the values, and errors if the two signals (or an explicit 'log2'/'linear' declaration) disagree."
+  ),
+  make_option(
     c("-s", "--unlog_foldchanges"),
     action = "store_true",
-    default = FALSE,
-    help = "Set this option if fold changes should be unlogged."
+    default = NULL,
+    help = "Deprecated - use --fold_change_scale=log2 instead. Set this option if fold changes should be unlogged."
   ),
   make_option(
     c("-x", "--write_html"),
@@ -114,6 +120,11 @@ option_list <- list(
 
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
+
+if (!is.null(opt$unlog_foldchanges)) {
+  warning("--unlog_foldchanges is deprecated and will be removed in a future release; use --fold_change_scale=log2 instead.", call. = FALSE)
+  opt$fold_change_scale <- "log2"
+}
 
 for (input in c("differential_file", "feature_metadata", "outdir", "reference_level", "treatment_level")) {
   if (is.null(opt[[input]])) {
@@ -156,8 +167,14 @@ differential <- read_differential(
   pval_column = opt$p_value_column,
   qval_column = opt$p_value_column,
   fc_column = opt$fold_change_col,
-  unlog_foldchanges = opt$unlog_foldchanges
+  fold_change_scale = opt$fold_change_scale
 )
+
+# read_differential() normalises fold changes to a signed linear scale
+# internally (unlogging them first if they were resolved to be log2), so
+# differential[[opt$fold_change_col]] is always linear-signed from here on.
+
+fold_change_scale <- attr(differential, "fold_change_scale")
 
 differential <- subset(differential, (!is.na(differential[[opt$fold_change_col]])) & (!is.na(differential[[opt$p_value_column]])))
 
@@ -183,18 +200,14 @@ hline_thresholds[[paste(opt$p_value_column, "=", opt$p_value_threshold)]] <- -lo
 vline_thresholds[[paste(opt$fold_change_col, "<-", opt$fold_change_threshold)]] <- -log2(opt$fold_change_threshold)
 vline_thresholds[[paste(opt$fold_change_col, ">", opt$fold_change_threshold)]] <- log2(opt$fold_change_threshold)
 
-if (opt$unlog_foldchanges) {
-  x <- sign(differential[[opt$fold_change_col]]) * log2(abs(differential[[opt$fold_change_col]]))
-} else {
-  x <- differential[[opt$fold_change_col]]
-}
+x <- sign(differential[[opt$fold_change_col]]) * log2(abs(differential[[opt$fold_change_col]]))
 
 plot_args <- list(
   x = x,
   y = -log10(differential[[opt$p_value_column]]),
   colorby = differential$differential_status,
   ylab = paste("-log(10)", opt$p_value_column),
-  xlab = xlabel <- paste("higher in", opt$reference_level, "          <<", opt$fold_change_col, ">>           higher in", opt$treatment_level),
+  xlab = xlabel <- paste("higher in", opt$reference_level, "          <<", paste0("log2(", opt$fold_change_col, ")"), paste0("(source scale: ", fold_change_scale, ")"), ">>           higher in", opt$treatment_level),
   labels = differential$label,
   hline_thresholds = hline_thresholds,
   vline_thresholds = vline_thresholds,

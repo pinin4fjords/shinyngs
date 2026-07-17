@@ -201,7 +201,7 @@ complements:
         --differential_results treatment-saline-drug.deseq2.results.tsv \
         --output_dir app \
         --contrast_stats_assay 2 \
-        --unlog_foldchanges
+        --fold_change_scale log2
 
 (This script can be found under `exec`).
 
