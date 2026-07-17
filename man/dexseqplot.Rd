@@ -4,21 +4,17 @@
 \alias{dexseqplot}
 \title{The server function of the dexseqplot Shiny module}
 \usage{
-dexseqplot(input, output, session, eselist)
+dexseqplot(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \details{
 This module produces a differential exon usage plot using the \code{plotDEXSeq}
@@ -33,7 +29,7 @@ to the contrasts listed in the \code{contrasts} slot of the
 \code{ExploratorySummarizedExperiment}.
 }
 \examples{
-callModule(dexseqplot, "dexseqplot", eselist)
+dexseqplot("dexseqplot", eselist)
 
 }
 \keyword{shiny}

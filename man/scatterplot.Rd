@@ -5,9 +5,7 @@
 \title{Server function for the scatterplot module}
 \usage{
 scatterplot(
-  input,
-  output,
-  session,
+  id,
   getDatamatrix,
   getThreedee = NULL,
   getXAxis = NULL,
@@ -33,11 +31,7 @@ scatterplot(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{getDatamatrix}{Reactive supplying a matrix. If using external controls
 this should match the one supplied to \code{scatterplotcontrols}}

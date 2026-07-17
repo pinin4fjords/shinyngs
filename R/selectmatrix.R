@@ -66,12 +66,10 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #' This will generally not be called directly, but by other modules such as the
 #' heatmap module.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #' @param var_n The number of rows to select when doing so by variance. Default
@@ -100,251 +98,249 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #' @keywords shiny
 #'
 #' @examples
-#' selectSamples <- callModule(sampleselect, "selectmatrix", eselist)
+#' selectSamples <- sampleselect("selectmatrix", eselist)
 #'
-selectmatrix <- function(input, output, session, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE,
-                         default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
-  # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
+selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
+  moduleServer(id, function(input, output, session) {
+    # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
-  unpack.list(callModule(sampleselect, "selectmatrix", eselist = eselist, getExperiment, allow_summarise = allow_summarise))
-  unpack.list(callModule(geneselect, "selectmatrix",
-    eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples,
-    getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select
-  ))
+    unpack.list(sampleselect("selectmatrix", eselist = eselist, getExperiment, allow_summarise = allow_summarise))
+    unpack.list(geneselect("selectmatrix", eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples, getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select))
 
-  # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
+    # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
 
-  ns <- session$ns
+    ns <- session$ns
 
-  output$assay <- renderUI({
-    withProgress(message = "Rendering assay drop-down", value = 0, {
-      ns <- session$ns
+    output$assay <- renderUI({
+      withProgress(message = "Rendering assay drop-down", value = 0, {
+        ns <- session$ns
 
-      if (length(validAssays()) > 1 && select_assays) {
-        assayselect <- selectInput(ns("assay"), "Matrix", validAssays())
-      } else {
-        assayselect <- hiddenInput(ns("assay"), validAssays()[1])
-      }
+        if (length(validAssays()) > 1 && select_assays) {
+          assayselect <- selectInput(ns("assay"), "Matrix", validAssays())
+        } else {
+          assayselect <- hiddenInput(ns("assay"), validAssays()[1])
+        }
 
-      assayselect
+        assayselect
+      })
     })
-  })
 
-  # Alow users to add extra metadata columns to the display
+    # Alow users to add extra metadata columns to the display
 
-  output$meta <- renderUI({
-    ese <- getExperiment()
-    if (select_meta) {
-      metafields <- colnames(mcols(ese))
-      if (length(ese@idfield) > 0) {
-        metafields <- setdiff(metafields, ese@idfield)
-      }
-
-      checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)),
-        selected = ese@labelfield,
-        inline = TRUE
-      )
-    } else if (length(ese@labelfield) > 0) {
-      hiddenInput(id = ns("metafields"), values = ese@labelfield)
-    }
-  })
-
-  getMetafields <- reactive({
-    input$metafields
-  })
-
-  # Render sample selection controls
-
-  output$samples <- renderUI({
-    sampleselectInput(ns("selectmatrix"), eselist = eselist, getExperiment = getExperiment, select_samples = select_samples)
-  })
-
-  # Render row selection controls
-
-  output$rows <- renderUI({
-    geneselectInput(ns("selectmatrix"), select_genes = select_genes)
-  })
-
-  # Get list of assays
-
-  validAssays <- reactive({
-    ese <- getExperiment()
-
-    if (require_contrast_stats) {
-      valid_assays <- names(ese@contrast_stats)
-    } else {
-      names(SummarizedExperiment::assays(ese))
-    }
-  })
-
-  # Reactive for getting the right ExploratorySummarizedExperiment and passing it on to sample and gene selection
-
-  getExperiment <- reactive({
-    eid <- getExperimentId()
-    eselist[[eid]]
-  })
-
-  # Name of the experment is useful sometimes
-
-  getExperimentId <- reactive({
-    validate(need(input$experiment, "Waiting for experiment selection"))
-    input$experiment
-  })
-
-  getExperimentName <- reactive({
-    eid <- getExperimentId()
-    prettifyVariablename(eid)
-  })
-
-  # Get the row labels where available
-
-  getRowLabels <- reactive({
-    withProgress(message = "Deriving row labels", value = 0, {
+    output$meta <- renderUI({
       ese <- getExperiment()
-      # if (!is.null(ese@idfield)) {
-      idToLabel(rownames(ese), ese)
-      # } else { rownames(ese) }
-    })
-  })
+      if (select_meta) {
+        metafields <- colnames(mcols(ese))
+        if (length(ese@idfield) > 0) {
+          metafields <- setdiff(metafields, ese@idfield)
+        }
 
-  # Allow calling modules to retrieve the current assay
-
-  getAssay <- reactive({
-    validate(need(!is.null(input$assay), "Waiting for form to provide assay"))
-    input$assay
-  })
-
-  # Retrieve the assay measure to display with plots etc (where defined by the user)
-
-  getAssayMeasure <- reactive({
-    ese <- getExperiment()
-    if (length(ese@assay_measures) > 0 && getAssay() %in% names(ese@assay_measures)) {
-      ese@assay_measures[[getAssay()]]
-    } else {
-      "expression"
-    }
-  })
-
-  varMax <- reactive({
-    if (is.null(var_max)) {
-      nrow(getExperiment())
-    } else {
-      var_max
-    }
-  })
-
-  getAssayMatrix <- reactive({
-    ese <- getExperiment()
-    assay <- getAssay()
-
-    SummarizedExperiment::assays(ese)[[assay]]
-  })
-
-  # Generate an expression matrix given the selected experiment, assay, rows and columns
-
-  selectMatrix <- reactive({
-    withProgress(message = "Getting expression data subset", value = 0, {
-      rows <- selectRows()
-      validate(need(length(rows) > 0, "No matching rows in selected matrix"))
-      assay_matrix <- getAssayMatrix()
-      samples <- selectSamples()
-      rows <- selectRows()
-
-      selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
-      if (allow_summarise && getSampleSelect() == "group" && getSummaryType() != "none") {
-        selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[getSampleGroupVar()]], getSummaryType())
+        checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)),
+          selected = ese@labelfield,
+          inline = TRUE
+        )
+      } else if (length(ese@labelfield) > 0) {
+        hiddenInput(id = ns("metafields"), values = ese@labelfield)
       }
+    })
 
-      # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
+    getMetafields <- reactive({
+      input$metafields
+    })
 
-      if (nrow(selected_matrix) == 1) {
-        selected_matrix[1, ] <- apply(selected_matrix, 2, round, rounding)
-        selected_matrix
+    # Render sample selection controls
+
+    output$samples <- renderUI({
+      sampleselectInput(ns("selectmatrix"), eselist = eselist, getExperiment = getExperiment, select_samples = select_samples)
+    })
+
+    # Render row selection controls
+
+    output$rows <- renderUI({
+      geneselectInput(ns("selectmatrix"), select_genes = select_genes)
+    })
+
+    # Get list of assays
+
+    validAssays <- reactive({
+      ese <- getExperiment()
+
+      if (require_contrast_stats) {
+        valid_assays <- names(ese@contrast_stats)
       } else {
-        apply(selected_matrix, 2, round, rounding)
+        names(SummarizedExperiment::assays(ese))
       }
     })
-  })
 
-  # Extract experimental variables given selection parameters
+    # Reactive for getting the right ExploratorySummarizedExperiment and passing it on to sample and gene selection
 
-  selectColData <- reactive({
-    validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
-    withProgress(message = "Extracting experiment metadata", value = 0, {
-      droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE], check.names = FALSE))
+    getExperiment <- reactive({
+      eid <- getExperimentId()
+      eselist[[eid]]
     })
-  })
 
-  # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be
-  # summarised if grouping variables were supplied!
+    # Name of the experment is useful sometimes
 
-  isSummarised <- reactive({
-    allow_summarise && length(eselist@group_vars) > 0 && getSummaryType() != "none"
-  })
-
-  # Extract the annotation from the SummarizedExperiment
-
-  getAnnotation <- reactive({
-    ese <- getExperiment()
-    validate(need(ncol(mcols(ese)) > 0, "Selected experiment contains no row metadata"))
-    withProgress(message = "Deriving annotation", value = 0, {
-      data.frame(mcols(ese))
+    getExperimentId <- reactive({
+      validate(need(input$experiment, "Waiting for experiment selection"))
+      input$experiment
     })
+
+    getExperimentName <- reactive({
+      eid <- getExperimentId()
+      prettifyVariablename(eid)
+    })
+
+    # Get the row labels where available
+
+    getRowLabels <- reactive({
+      withProgress(message = "Deriving row labels", value = 0, {
+        ese <- getExperiment()
+        # if (!is.null(ese@idfield)) {
+        idToLabel(rownames(ese), ese)
+        # } else { rownames(ese) }
+      })
+    })
+
+    # Allow calling modules to retrieve the current assay
+
+    getAssay <- reactive({
+      validate(need(!is.null(input$assay), "Waiting for form to provide assay"))
+      input$assay
+    })
+
+    # Retrieve the assay measure to display with plots etc (where defined by the user)
+
+    getAssayMeasure <- reactive({
+      ese <- getExperiment()
+      if (length(ese@assay_measures) > 0 && getAssay() %in% names(ese@assay_measures)) {
+        ese@assay_measures[[getAssay()]]
+      } else {
+        "expression"
+      }
+    })
+
+    varMax <- reactive({
+      if (is.null(var_max)) {
+        nrow(getExperiment())
+      } else {
+        var_max
+      }
+    })
+
+    getAssayMatrix <- reactive({
+      ese <- getExperiment()
+      assay <- getAssay()
+
+      SummarizedExperiment::assays(ese)[[assay]]
+    })
+
+    # Generate an expression matrix given the selected experiment, assay, rows and columns
+
+    selectMatrix <- reactive({
+      withProgress(message = "Getting expression data subset", value = 0, {
+        rows <- selectRows()
+        validate(need(length(rows) > 0, "No matching rows in selected matrix"))
+        assay_matrix <- getAssayMatrix()
+        samples <- selectSamples()
+        rows <- selectRows()
+
+        selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
+        if (allow_summarise && getSampleSelect() == "group" && getSummaryType() != "none") {
+          selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[getSampleGroupVar()]], getSummaryType())
+        }
+
+        # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
+
+        if (nrow(selected_matrix) == 1) {
+          selected_matrix[1, ] <- apply(selected_matrix, 2, round, rounding)
+          selected_matrix
+        } else {
+          apply(selected_matrix, 2, round, rounding)
+        }
+      })
+    })
+
+    # Extract experimental variables given selection parameters
+
+    selectColData <- reactive({
+      validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
+      withProgress(message = "Extracting experiment metadata", value = 0, {
+        droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE], check.names = FALSE))
+      })
+    })
+
+    # Calling modules may need to know if the data are sumamrised. E.g. heatmaps only need to display sample metadata for unsummarised matrices Will only be
+    # summarised if grouping variables were supplied!
+
+    isSummarised <- reactive({
+      allow_summarise && length(eselist@group_vars) > 0 && getSummaryType() != "none"
+    })
+
+    # Extract the annotation from the SummarizedExperiment
+
+    getAnnotation <- reactive({
+      ese <- getExperiment()
+      validate(need(ncol(mcols(ese)) > 0, "Selected experiment contains no row metadata"))
+      withProgress(message = "Deriving annotation", value = 0, {
+        data.frame(mcols(ese))
+      })
+    })
+
+    # Use selectMatrix() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
+
+    selectLabelledMatrix <- reactive({
+      selected_matrix <- data.frame(selectMatrix(), check.names = FALSE)
+      se <- getExperiment()
+
+      labelMatrix(selected_matrix, se, metafields = getMetafields())
+    })
+
+    # Use selectLabelledMatrix to get the labelled matrix and add some links.
+
+    selectLabelledLinkedMatrix <- reactive({
+      selected_matrix <- selectLabelledMatrix()
+      se <- getExperiment()
+
+      if (length(eselist@url_roots) > 0) {
+        linkMatrix(selected_matrix, eselist@url_roots)
+      } else {
+        selected_matrix
+      }
+    })
+
+    # Accessors for the id and label fields of the current experiment
+
+    getIdField <- reactive({
+      ese <- getExperiment()
+      if (length(ese@idfield) > 0) {
+        ese@idfield
+      } else {
+        "id"
+      }
+    })
+
+    getLabelField <- reactive({
+      ese <- getExperiment()
+      if (length(ese@labelfield) > 0) {
+        ese@labelfield
+      } else {
+        # ese@idfield
+        NULL
+      }
+    })
+
+    # getAssayIds <- reactive({ assay_matrix <- getAssayMatrix() rownames(assay_matrix[complete.cases(assay_matrix),,drop=F]) })
+
+    # Return the list of reactive expressions we'll need to access the data
+
+    list(
+      getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix,
+      matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
+      getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId,
+      getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields
+    )
   })
-
-  # Use selectMatrix() to get the data matrix, then apply the appropriate labels. Useful in cases where the matrix is destined for display
-
-  selectLabelledMatrix <- reactive({
-    selected_matrix <- data.frame(selectMatrix(), check.names = FALSE)
-    se <- getExperiment()
-
-    labelMatrix(selected_matrix, se, metafields = getMetafields())
-  })
-
-  # Use selectLabelledMatrix to get the labelled matrix and add some links.
-
-  selectLabelledLinkedMatrix <- reactive({
-    selected_matrix <- selectLabelledMatrix()
-    se <- getExperiment()
-
-    if (length(eselist@url_roots) > 0) {
-      linkMatrix(selected_matrix, eselist@url_roots)
-    } else {
-      selected_matrix
-    }
-  })
-
-  # Accessors for the id and label fields of the current experiment
-
-  getIdField <- reactive({
-    ese <- getExperiment()
-    if (length(ese@idfield) > 0) {
-      ese@idfield
-    } else {
-      "id"
-    }
-  })
-
-  getLabelField <- reactive({
-    ese <- getExperiment()
-    if (length(ese@labelfield) > 0) {
-      ese@labelfield
-    } else {
-      # ese@idfield
-      NULL
-    }
-  })
-
-  # getAssayIds <- reactive({ assay_matrix <- getAssayMatrix() rownames(assay_matrix[complete.cases(assay_matrix),,drop=F]) })
-
-  # Return the list of reactive expressions we'll need to access the data
-
-  list(
-    getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix,
-    matrixTitle = title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
-    getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId,
-    getExperimentName = getExperimentName, getNonEmptyRows = getNonEmptyRows, getMetafields = getMetafields
-  )
 }
 
 #' Add columns to display ID and label in a table

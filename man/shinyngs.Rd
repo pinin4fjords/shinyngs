@@ -80,13 +80,14 @@ usage.
 
   \subsection{Usage}{Any application seeking to create dendrograms need only
   call \code{\link{dendroInput}} \code{\link{dendroOutput}} in the parts of
-  their application where inputs and outputs should appear, and then use
-  \code{\link[shiny]{callModule}} (again using the same ID) to activate them.
+  their application where inputs and outputs should appear, and then call
+  \code{\link{dendro}} directly (again using the same ID) to activate them,
+  via \code{\link[shiny]{moduleServer}}.
 
   \preformatted{
   dendroInput(ns('dendro'), eselist)
   dendroOutput(ns('dendro'))
-  callModule(dendro, 'dendro', eselist) }}
+  dendro('dendro', eselist) }}
 
   These module functions are not currently exported, not currenlty being
   intended for use outside \code{shinyngs}. This may change.

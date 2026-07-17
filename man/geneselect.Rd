@@ -5,9 +5,7 @@
 \title{The server function of the geneselect module}
 \usage{
 geneselect(
-  input,
-  output,
-  session,
+  id,
   eselist,
   getExperiment,
   var_n = 50,
@@ -22,11 +20,7 @@ geneselect(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -63,7 +57,7 @@ This module provides controls for selecting genes (matrix rows) by various
 criteria such as variance and gene set.
 }
 \examples{
-geneselect_functions <- callModule(geneselect, "heatmap", getExperiments)
+geneselect_functions <- geneselect("heatmap", getExperiments)
 
 }
 \keyword{shiny}

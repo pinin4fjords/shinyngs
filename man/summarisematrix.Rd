@@ -4,21 +4,17 @@
 \alias{summarisematrix}
 \title{The server function of the summarisematrix module}
 \usage{
-summarisematrix(input, output, session)
+summarisematrix(id)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 }
 \description{
 This module provides a form element and associated get function for defining
 how a summary statistic is calculated (probably by mean).
 }
 \examples{
-callModule(summarisematrix)
+summarisematrix()
 
 }
 \keyword{shiny}

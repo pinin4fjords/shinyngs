@@ -5,9 +5,7 @@
 \title{The server function of the contrasts module}
 \usage{
 contrasts(
-  input,
-  output,
-  session,
+  id,
   eselist,
   selectmatrix_reactives = list(),
   multiple = FALSE,
@@ -19,11 +17,7 @@ contrasts(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -50,11 +44,11 @@ differential expression panels. In particular it provides the ability for
 users to add filters to progressively refine a query.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(contrasts, "differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
+contrasts("differential", getExperiment = getExperiment, selectMatrix = selectMatrix, getAssay = getAssay, multiple = TRUE)
 
 }
 \keyword{shiny}

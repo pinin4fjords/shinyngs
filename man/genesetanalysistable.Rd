@@ -4,14 +4,10 @@
 \alias{genesetanalysistable}
 \title{The server function of the genesetanalysistable module}
 \usage{
-genesetanalysistable(input, output, session, eselist)
+genesetanalysistable(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -31,8 +27,8 @@ The module is based on the output of roast() from \code{limma}, but it's
 fairly generic, and assumes only the presence of a 'p value' and 'FDR'
 column, so the output of other methods should be easily adapted to suit.
 
-This function is not called directly, but rather via callModule() (see
-example). Essentially this just passes the results of \code{colData()}
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
@@ -55,7 +51,7 @@ names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
 
 names(zhangneurons@gene_sets)
 
-callModule(genesetanalysistable, "genesetanalysistable", eselist)
+genesetanalysistable("genesetanalysistable", eselist)
 
 }
 \keyword{shiny}

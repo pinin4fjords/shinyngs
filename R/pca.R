@@ -76,21 +76,19 @@ pcaOutput <- function(id) {
 #' \code{scatterplotcontrols} module, to power scatter plots for both components
 #' and loadings produced by the \code{scatterplots} module.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
 #' Matrix and UI selection elements provided by the selectmatrix module
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(pca, "pca", eselist)
+#' pca("pca", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
@@ -98,147 +96,143 @@ pcaOutput <- function(id) {
 #' app <- prepareApp("pca", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
-pca <- function(input, output, session, eselist) {
-  unpack.list(callModule(selectmatrix, "pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, default_gene_select = "variance", select_meta = FALSE))
+pca <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    unpack.list(selectmatrix("pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, default_gene_select = "variance", select_meta = FALSE))
 
-  # Call the groupby module to define sample groups and group colors
+    # Call the groupby module to define sample groups and group colors
 
-  unpack.list(callModule(groupby, "pca", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    unpack.list(groupby("pca", eselist = eselist, group_label = "Color by", selectColData = selectColData))
 
-  # Make a common set of controls to be used for components and loadings plots
+    # Make a common set of controls to be used for components and loadings plots
 
-  unpack.list(callModule(scatterplotcontrols, "pca", pcaMatrix))
+    unpack.list(scatterplotcontrols("pca", pcaMatrix))
 
-  # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
+    # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
 
-  callModule(scatterplot, "pca",
-    getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels,
-    getPointSize = getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = getPalette
-  )
-  callModule(scatterplot, "loading",
-    getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis,
-    getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels
-  )
+    scatterplot("pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = getPalette)
+    scatterplot("loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
 
-  # Simple title functions
+    # Simple title functions
 
-  getComponentsTitle <- reactive({
-    paste("Components plot for PCA on matrix:", tolower(matrixTitle()))
-  })
-
-  getLoadingTitle <- reactive({
-    paste("Loading plot for PCA on matrix:", tolower(matrixTitle()))
-  })
-
-  # Make a matrix of values to the PCA
-
-  pcaMatrix <- reactive({
-    withProgress(message = "Making PCA matrix", value = 0, {
-      fraction_explained <- calculatePCAFractionExplained()
-      plotdata <- data.frame(pca()$x)
-      colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
-      plotdata
+    getComponentsTitle <- reactive({
+      paste("Components plot for PCA on matrix:", tolower(matrixTitle()))
     })
-  })
 
-  pcaDisplayMatrix <- reactive({
-    pcam <- pcaMatrix()
-    pcam <- apply(pcam[, 1:min(ncol(pcam), 10)], 2, function(x) round(x, 2))
-    pcam
-  })
-
-  pcaColorBy <- reactive({
-    if (is.null(getGroupby())) {
-
-    } else {
-      pcb <- na.replace(selectColData()[[getGroupby()]], "N/A")
-      factor(pcb, levels = unique(pcb))
-    }
-  })
-
-  # Run the PCA
-
-  pca <- reactive({
-    pcamatrix <- selectMatrix()
-    withProgress(message = "Running principal component analysis", value = 0, {
-      runPCA(pcamatrix)
+    getLoadingTitle <- reactive({
+      paste("Loading plot for PCA on matrix:", tolower(matrixTitle()))
     })
-  })
 
-  # Fractional variance for each component
+    # Make a matrix of values to the PCA
 
-  calculatePCAFractionExplained <- reactive({
-    pca <- pca()
-    round((pca$sdev)^2 / sum(pca$sdev^2), 3) * 100
-  })
-
-  # Loading matrix
-
-  loadingMatrix <- reactive({
-    getLoadings()$load
-  })
-
-  selectedComponents <- reactive({
-    c(getXAxis(), getYAxis(), getZAxis())
-  })
-
-  # Fetch the loadings
-
-  getLoadings <- reactive({
-    withProgress(message = "Fetching loadings", value = 0, {
-      rot <- pca()$rotation
-      fraction_explained <- calculatePCAFractionExplained()
-      colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
-
-      loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
-
-      # Also return a table with the loadings converted to fractions
-
-      aload <- abs(rot)
-      fractions <- sweep(aload, 2, colSums(aload), "/")
-
-      list(load = rot[loaded_rows, ], fraction = fractions[loaded_rows, ])
+    pcaMatrix <- reactive({
+      withProgress(message = "Making PCA matrix", value = 0, {
+        fraction_explained <- calculatePCAFractionExplained()
+        plotdata <- data.frame(pca()$x)
+        colnames(plotdata) <- paste0(colnames(plotdata), ": ", fraction_explained, "%")
+        plotdata
+      })
     })
-  })
 
-  # Take the loadings and format them for display
-
-  makeLoadingTable <- reactive({
-    load <- getLoadings()$load[, selectedComponents()]
-    colnames(load) <- paste(colnames(load), "loading")
-
-    fraction <- getLoadings()$fraction[, selectedComponents()]
-    colnames(fraction) <- paste(colnames(fraction), "loading fraction")
-
-    interleaveColumns(load, fraction)
-  })
-
-  # Make a version of the loading table for display with rounded values and links
-
-  makeDisplayLoadingTable <- reactive({
-    linkMatrix(labelMatrix(data.frame(signif(makeLoadingTable(), 5), check.names = FALSE), getExperiment()), url_roots = eselist@url_roots)
-  })
-
-  makeDownloadLoadingTable <- reactive({
-    labelMatrix(data.frame(makeLoadingTable(), check.names = FALSE), getExperiment())
-  })
-
-  # Make labels for the laoding plot detailing the percent contributions to components etc
-
-  getLoadLabels <- reactive({
-    load <- getLoadings()
-
-    percent_contributions <- lapply(selectedComponents(), function(n) {
-      paste0(paste(paste0("PC", n), round((load$fraction[, n] * 100), 3), sep = ": "), "%")
+    pcaDisplayMatrix <- reactive({
+      pcam <- pcaMatrix()
+      pcam <- apply(pcam[, 1:min(ncol(pcam), 10)], 2, function(x) round(x, 2))
+      pcam
     })
-    percent_contributions$sep <- "<br />"
 
-    loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
+    pcaColorBy <- reactive({
+      if (is.null(getGroupby())) {
+
+      } else {
+        pcb <- na.replace(selectColData()[[getGroupby()]], "N/A")
+        factor(pcb, levels = unique(pcb))
+      }
+    })
+
+    # Run the PCA
+
+    pca <- reactive({
+      pcamatrix <- selectMatrix()
+      withProgress(message = "Running principal component analysis", value = 0, {
+        runPCA(pcamatrix)
+      })
+    })
+
+    # Fractional variance for each component
+
+    calculatePCAFractionExplained <- reactive({
+      pca <- pca()
+      round((pca$sdev)^2 / sum(pca$sdev^2), 3) * 100
+    })
+
+    # Loading matrix
+
+    loadingMatrix <- reactive({
+      getLoadings()$load
+    })
+
+    selectedComponents <- reactive({
+      c(getXAxis(), getYAxis(), getZAxis())
+    })
+
+    # Fetch the loadings
+
+    getLoadings <- reactive({
+      withProgress(message = "Fetching loadings", value = 0, {
+        rot <- pca()$rotation
+        fraction_explained <- calculatePCAFractionExplained()
+        colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
+
+        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
+
+        # Also return a table with the loadings converted to fractions
+
+        aload <- abs(rot)
+        fractions <- sweep(aload, 2, colSums(aload), "/")
+
+        list(load = rot[loaded_rows, ], fraction = fractions[loaded_rows, ])
+      })
+    })
+
+    # Take the loadings and format them for display
+
+    makeLoadingTable <- reactive({
+      load <- getLoadings()$load[, selectedComponents()]
+      colnames(load) <- paste(colnames(load), "loading")
+
+      fraction <- getLoadings()$fraction[, selectedComponents()]
+      colnames(fraction) <- paste(colnames(fraction), "loading fraction")
+
+      interleaveColumns(load, fraction)
+    })
+
+    # Make a version of the loading table for display with rounded values and links
+
+    makeDisplayLoadingTable <- reactive({
+      linkMatrix(labelMatrix(data.frame(signif(makeLoadingTable(), 5), check.names = FALSE), getExperiment()), url_roots = eselist@url_roots)
+    })
+
+    makeDownloadLoadingTable <- reactive({
+      labelMatrix(data.frame(makeLoadingTable(), check.names = FALSE), getExperiment())
+    })
+
+    # Make labels for the laoding plot detailing the percent contributions to components etc
+
+    getLoadLabels <- reactive({
+      load <- getLoadings()
+
+      percent_contributions <- lapply(selectedComponents(), function(n) {
+        paste0(paste(paste0("PC", n), round((load$fraction[, n] * 100), 3), sep = ": "), "%")
+      })
+      percent_contributions$sep <- "<br />"
+
+      loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
+    })
+
+    simpletable("components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE)
+
+    simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
   })
-
-  callModule(simpletable, "components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE)
-
-  callModule(simpletable, "loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
 }
 
 #' Run a simple PCA analysis
@@ -277,10 +271,9 @@ runPCA <- function(matrix, do_log = TRUE) {
 #'   and fractional variance contributions, respectively.
 
 compilePCAData <- function(matrix, ntop = NULL) {
-
-  if (is.null(ntop)){
+  if (is.null(ntop)) {
     select <- 1:nrow(matrix)
-  }else{
+  } else {
     select <- selectVariableGenes(matrix = matrix, ntop = ntop)
   }
 

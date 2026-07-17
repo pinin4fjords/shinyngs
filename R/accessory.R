@@ -1522,7 +1522,11 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
 
   # Determine if transformation is needed
   if (is.null(should_transform)) {
-    should_transform <- (max(matrix_data, na.rm = TRUE) > threshold) || (reverse && max(matrix_data, na.rm = TRUE) <= threshold)
+    if (reverse) {
+      should_transform <- max(matrix_data, na.rm = TRUE) <= threshold
+    } else {
+      should_transform <- max(matrix_data, na.rm = TRUE) > threshold
+    }
   }
 
   # Apply transformation based on conditions

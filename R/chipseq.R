@@ -148,86 +148,86 @@ chipseqInput <- function(id, eselist) {
 #' The server function of the chipseq module. Currently a near-clone of the
 #' RNA-seq module, with ChIP-seq optimisations planned.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(chipseq, "chipseq", eselist)
+#' chipseq("chipseq", eselist)
 #'
-chipseq <- function(input, output, session, eselist) {
-  # Add internal links to the tables with gene labels
+chipseq <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Add internal links to the tables with gene labels
 
-  for (esen in names(eselist)) {
-    ese <- eselist[[esen]]
+    for (esen in names(eselist)) {
+      ese <- eselist[[esen]]
 
-    if (length(ese@labelfield) > 0) {
-      eselist@url_roots[[ese@labelfield]] <- "?gene="
-      eselist@url_roots$significant_genes <- "?gene="
-      eselist@url_roots$gene_set_id <- "?geneset="
-    }
-  }
-
-  # Now a lot of boring calls to all the modules to activate the UI parts
-
-  callModule(experimenttable, "experimenttable", eselist)
-  callModule(rowmetatable, "rowmetatable", eselist)
-  callModule(heatmap, "heatmap-clustering", eselist, type = "samples")
-  callModule(heatmap, "heatmap-expression", eselist, type = "expression")
-  callModule(heatmap, "heatmap-pca", eselist, type = "pca")
-  callModule(pca, "pca", eselist)
-  callModule(boxplot, "boxplot", eselist)
-  callModule(dendro, "dendro", eselist)
-  callModule(assaydatatable, "expression", eselist)
-
-  # Calls for the various optional tables
-
-  if (any(unlist(lapply(eselist, function(ese) {
-    length(ese@read_reports) > 0
-  })))) {
-    callModule(readreports, "readrep", eselist)
-  }
-
-  if (length(eselist@contrasts) > 0) {
-    callModule(differentialtable, "differential", eselist)
-    callModule(volcanoplot, "volcano", eselist)
-    callModule(foldchangeplot, "foldchange", eselist)
-    callModule(maplot, "ma", eselist)
-    callModule(genesetanalysistable, "genesetanalysis", eselist)
-    updateBarcodeGeneset <- callModule(genesetbarcodeplot, "chipseq", eselist)
-    if (length(eselist@contrasts) > 1) {
-      callModule(upset, "upset", eselist)
-    }
-  }
-
-  updateGeneLabel <- callModule(gene, "gene", eselist)
-
-  # Catch the specified gene from the URL, switch to the gene info tab, and and use the reactive supplied by the gene module to update its gene label field
-  # accordingly
-
-  observe({
-    query <- parseQueryString(session$clientData$url_search)
-
-    if (length(intersect(c("gene", "geneset", "deu_gene"), names(query))) == 0) {
-      return()
-    }
-
-    url_observe <- observe({
-      if ("gene" %in% names(query)) {
-        updateNavbarPage(session, "chipseq", "geneinfo")
-        updateGeneLabel()
-      } else if ("geneset" %in% names(query)) {
-        updateNavbarPage(session, "chipseq", "genesetbarcode")
-        updateBarcodeGeneset()
+      if (length(ese@labelfield) > 0) {
+        eselist@url_roots[[ese@labelfield]] <- "?gene="
+        eselist@url_roots$significant_genes <- "?gene="
+        eselist@url_roots$gene_set_id <- "?geneset="
       }
-      url_observe$suspend()
+    }
+
+    # Now a lot of boring calls to all the modules to activate the UI parts
+
+    experimenttable("experimenttable", eselist)
+    rowmetatable("rowmetatable", eselist)
+    heatmap("heatmap-clustering", eselist, type = "samples")
+    heatmap("heatmap-expression", eselist, type = "expression")
+    heatmap("heatmap-pca", eselist, type = "pca")
+    pca("pca", eselist)
+    boxplot("boxplot", eselist)
+    dendro("dendro", eselist)
+    assaydatatable("expression", eselist)
+
+    # Calls for the various optional tables
+
+    if (any(unlist(lapply(eselist, function(ese) {
+      length(ese@read_reports) > 0
+    })))) {
+      readreports("readrep", eselist)
+    }
+
+    if (length(eselist@contrasts) > 0) {
+      differentialtable("differential", eselist)
+      volcanoplot("volcano", eselist)
+      foldchangeplot("foldchange", eselist)
+      maplot("ma", eselist)
+      genesetanalysistable("genesetanalysis", eselist)
+      updateBarcodeGeneset <- genesetbarcodeplot("chipseq", eselist)
+      if (length(eselist@contrasts) > 1) {
+        upset("upset", eselist)
+      }
+    }
+
+    updateGeneLabel <- gene("gene", eselist)
+
+    # Catch the specified gene from the URL, switch to the gene info tab, and and use the reactive supplied by the gene module to update its gene label field
+    # accordingly
+
+    observe({
+      query <- parseQueryString(session$clientData$url_search)
+
+      if (length(intersect(c("gene", "geneset", "deu_gene"), names(query))) == 0) {
+        return()
+      }
+
+      url_observe <- observe({
+        if ("gene" %in% names(query)) {
+          updateNavbarPage(session, "chipseq", "geneinfo")
+          updateGeneLabel()
+        } else if ("geneset" %in% names(query)) {
+          updateNavbarPage(session, "chipseq", "genesetbarcode")
+          updateBarcodeGeneset()
+        }
+        url_observe$suspend()
+      })
     })
   })
 }

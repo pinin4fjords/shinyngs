@@ -131,12 +131,10 @@ heatmapOutput <- function(id, type = "") {
 #' A pca heatmap plots the results of anova tests applied to examine the
 #' associations between principal components and experimental variables.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
@@ -146,7 +144,7 @@ heatmapOutput <- function(id, type = "") {
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(heatmap, "heatmap", eselist, type = "pca")
+#' heatmap("heatmap", eselist, type = "pca")
 #'
 #' # Almost certainly used via application creation
 #'
@@ -154,221 +152,223 @@ heatmapOutput <- function(id, type = "") {
 #' app <- prepareApp("heatmap", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
-heatmap <- function(input, output, session, eselist, type = "expression") {
-  ns <- session$ns
+heatmap <- function(id, eselist, type = "expression") {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
 
-  # Make the groupby UI element
+    # Make the groupby UI element
 
-  unpack.list(callModule(groupby, "heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE))
+    unpack.list(groupby("heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE))
 
-  # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and unpack the reactives it sends back
 
-  if (type == "expression") {
-    unpack.list(callModule(selectmatrix, "heatmap", eselist, var_max = 500))
-  } else {
-    unpack.list(callModule(selectmatrix, "heatmap", eselist, var_n = 1000, select_meta = FALSE, allow_summarise = FALSE))
-  }
+    if (type == "expression") {
+      unpack.list(selectmatrix("heatmap", eselist, var_max = 500))
+    } else {
+      unpack.list(selectmatrix("heatmap", eselist, var_n = 1000, select_meta = FALSE, allow_summarise = FALSE))
+    }
 
-  # Render the heatmap container
+    # Render the heatmap container
 
-  output$heatmap_ui <- renderUI({
-    withProgress(message = "Preparing heatmap container", value = 0, {
-      list(h3(makeTitle()), plotly::plotlyOutput(ns("interactiveHeatmap"), height = plotHeight()))
+    output$heatmap_ui <- renderUI({
+      withProgress(message = "Preparing heatmap container", value = 0, {
+        list(h3(makeTitle()), plotly::plotlyOutput(ns("interactiveHeatmap"), height = plotHeight()))
+      })
     })
-  })
 
-  # Create a title
+    # Create a title
 
-  makeTitle <- reactive({
-    if (type == "pca") {
-      paste("PCA vs variable association plot based on expression matrix:", matrixTitle())
-    } else if (type == "expression") {
-      paste("Expression heat map based on expression matrix:", matrixTitle())
-    } else {
-      paste("Sample clustering heat map based on expression matrix:", matrixTitle())
-    }
-  })
-
-  # Get the experiment data and tidy up as appropriate
-
-  getExperimentData <- reactive({
-    if (isSummarised()) {
-      NULL
-    } else {
-      ed <- selectColData()
-
-      anno_fields <- getGroupby()
-
-      if (!is.null(anno_fields)) {
-        # Prettify the factor levels for display
-
-        colnames(ed)[match(anno_fields, colnames(ed))] <- prettifyVariablename(anno_fields)
-        group_vars <- prettifyVariablename(anno_fields)
-
-        # Make factors from the specified grouping variables
-        sm <- selectMatrix()
-        ed <- ed[colnames(sm), , drop = FALSE]
-
-        ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[, x], levels = unique(ed[, x]))),
-          check.names = FALSE,
-          stringsAsFactors = FALSE, row.names = rownames(ed)
-        )
-
-        # Order by the group variables for display purposes
-
-        ed[do.call(order, as.list(ed[, group_vars, drop = FALSE])), , drop = FALSE]
+    makeTitle <- reactive({
+      if (type == "pca") {
+        paste("PCA vs variable association plot based on expression matrix:", matrixTitle())
+      } else if (type == "expression") {
+        paste("Expression heat map based on expression matrix:", matrixTitle())
       } else {
-        ed
+        paste("Sample clustering heat map based on expression matrix:", matrixTitle())
       }
-    }
-  })
+    })
+
+    # Get the experiment data and tidy up as appropriate
+
+    getExperimentData <- reactive({
+      if (isSummarised()) {
+        NULL
+      } else {
+        ed <- selectColData()
+
+        anno_fields <- getGroupby()
+
+        if (!is.null(anno_fields)) {
+          # Prettify the factor levels for display
+
+          colnames(ed)[match(anno_fields, colnames(ed))] <- prettifyVariablename(anno_fields)
+          group_vars <- prettifyVariablename(anno_fields)
+
+          # Make factors from the specified grouping variables
+          sm <- selectMatrix()
+          ed <- ed[colnames(sm), , drop = FALSE]
+
+          ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[, x], levels = unique(ed[, x]))),
+            check.names = FALSE,
+            stringsAsFactors = FALSE, row.names = rownames(ed)
+          )
+
+          # Order by the group variables for display purposes
+
+          ed[do.call(order, as.list(ed[, group_vars, drop = FALSE])), , drop = FALSE]
+        } else {
+          ed
+        }
+      }
+    })
 
 
-  # Get a matrix of annotation to use in the plots. This is the experiment data except when type is 'pca', when it's not relevant
+    # Get a matrix of annotation to use in the plots. This is the experiment data except when type is 'pca', when it's not relevant
 
-  getPlotAnnotation <- reactive({
-    if (type == "pca") {
-      NULL
-    } else {
-      getExperimentData()
-    }
-  })
+    getPlotAnnotation <- reactive({
+      if (type == "pca") {
+        NULL
+      } else {
+        getExperimentData()
+      }
+    })
 
-  # Get a a matrix of the values we actually want the user to see in mouseovers etc.
+    # Get a a matrix of the values we actually want the user to see in mouseovers etc.
 
-  getDisplayMatrix <- reactive({
-    pm <- selectMatrix()
+    getDisplayMatrix <- reactive({
+      pm <- selectMatrix()
 
-    if (type == "samples") {
-      pm <- cor(pm, use = "complete.obs", method = "spearman")
-    } else if (type == "pca") {
-      pm <- getPCAMatrix()
-    }
+      if (type == "samples") {
+        pm <- cor(pm, use = "complete.obs", method = "spearman")
+      } else if (type == "pca") {
+        pm <- getPCAMatrix()
+      }
 
-    # We can't do clustering with anything with the same value in all columns. So take these out.
+      # We can't do clustering with anything with the same value in all columns. So take these out.
 
-    if (as.logical(input$cluster_rows) && !is.null(getExperimentData())) {
-      pm <- pm[apply(pm, 1, function(x) length(unique(x)) > 1), , drop = FALSE]
-    }
+      if (as.logical(input$cluster_rows) && !is.null(getExperimentData())) {
+        pm <- pm[apply(pm, 1, function(x) length(unique(x)) > 1), , drop = FALSE]
+      }
 
-    # For expression, re-order by the experiment
+      # For expression, re-order by the experiment
 
-    if (type == "expression") {
-      pm <- pm[, rownames(getExperimentData())]
-    }
-    pm
-  })
+      if (type == "expression") {
+        pm <- pm[, rownames(getExperimentData())]
+      }
+      pm
+    })
 
-  # Create of values to use in plotting, i.e. to define the colors
+    # Create of values to use in plotting, i.e. to define the colors
 
-  getPlotMatrix <- reactive({
-    pm <- getDisplayMatrix()
+    getPlotMatrix <- reactive({
+      pm <- getDisplayMatrix()
 
-    if (type == "expression") {
-      pm <- log2(pm + 1)
-    } else if (type == "pca") {
-      pm[pm < 0.001] <- 0.001
-      pm <- log10(pm[apply(pm, 1, function(x) !all(is.na(x))), ])
-    }
-    pm
-  })
+      if (type == "expression") {
+        pm <- log2(pm + 1)
+      } else if (type == "pca") {
+        pm[pm < 0.001] <- 0.001
+        pm <- log10(pm[apply(pm, 1, function(x) !all(is.na(x))), ])
+      }
+      pm
+    })
 
-  # Run a PCA with the currently selected matrix
+    # Run a PCA with the currently selected matrix
 
-  getPCAMatrix <- reactive({
-    pcameta <- getExperimentData()
-    pcavals <- selectMatrix()[, rownames(pcameta)]
+    getPCAMatrix <- reactive({
+      pcameta <- getExperimentData()
+      pcavals <- selectMatrix()[, rownames(pcameta)]
 
-    pca <- runPCA(pcavals)
-    fraction_explained <- calculatePCAFractionExplained(pca)
-  
-    # Check for non-useful variables (those with 1 value, or N values where N is the
-    # number of samples)
-  
-    informative_variables <- chooseGroupingVariables(pcameta)
+      pca <- runPCA(pcavals)
+      fraction_explained <- calculatePCAFractionExplained(pca)
 
-    validate(
+      # Check for non-useful variables (those with 1 value, or N values where N is the
+      # number of samples)
+
+      informative_variables <- chooseGroupingVariables(pcameta)
+
+      validate(
         need(length(informative_variables) > 0, "Warning: supplied filters have reduced sample metadata selections so as to render all variables uninformative (number of unique values = 1 or N)")
-    )
-
-    anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
-  })
-
-  # Calculate heights for the the various types of heatmap
-
-  plotHeight <- reactive({
-    display_matrix <- getDisplayMatrix()
-
-    # Allowance for the angled column labels
-    xaxis_labels_height <- 150
-
-    (nrow(display_matrix) * rowHeight()) + dendroHeight() + xaxis_labels_height
-  })
-
-  # Add a chunk for the dendrogram at the top
-
-  dendroHeight <- reactive({
-    if (as.logical(input$cluster_cols)) {
-      150
-    } else {
-      0
-    }
-  })
-
-  # Small row height for expression heat map (probably lots of rows)
-
-  rowHeight <- reactive({
-    if (type == "expression") {
-      12
-    } else if (type == "pca") {
-      20
-    } else {
-      20
-    }
-  })
-
-  # Make row labels
-
-  rowLabels <- reactive({
-    ese <- getExperiment()
-    plot_matrix <- getPlotMatrix()
-
-    if (length(ese@labelfield) > 0 && type == "expression") {
-      annotation <- as.data.frame(mcols(ese))
-      labels <- annotation[match(rownames(plot_matrix), annotation[[ese@idfield]]), ese@labelfield]
-      labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(plot_matrix)[!is.na(labels)], sep = " / ")
-      labels[is.na(labels)] <- rownames(plot_matrix)[is.na(labels)]
-      labels
-    } else {
-      rownames(plot_matrix)
-    }
-  })
-
-  # Make a color palette
-
-  makeColors <- reactive({
-    colors <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100)
-
-    if (type == "pca") {
-      colors <- rev(colors)
-    }
-
-    colors
-  })
-
-  hideColorbar <- reactive({
-    type == "pca"
-  })
-
-  # Make the interactive heatmap
-
-  output$interactiveHeatmap <- plotly::renderPlotly({
-    withProgress(message = "Building interactive heatmap", value = 0, {
-      interactiveHeatmap(
-        plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
-        cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
-        display_numbers = FALSE, hide_colorbar = hideColorbar()
       )
+
+      anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
+    })
+
+    # Calculate heights for the the various types of heatmap
+
+    plotHeight <- reactive({
+      display_matrix <- getDisplayMatrix()
+
+      # Allowance for the angled column labels
+      xaxis_labels_height <- 150
+
+      (nrow(display_matrix) * rowHeight()) + dendroHeight() + xaxis_labels_height
+    })
+
+    # Add a chunk for the dendrogram at the top
+
+    dendroHeight <- reactive({
+      if (as.logical(input$cluster_cols)) {
+        150
+      } else {
+        0
+      }
+    })
+
+    # Small row height for expression heat map (probably lots of rows)
+
+    rowHeight <- reactive({
+      if (type == "expression") {
+        12
+      } else if (type == "pca") {
+        20
+      } else {
+        20
+      }
+    })
+
+    # Make row labels
+
+    rowLabels <- reactive({
+      ese <- getExperiment()
+      plot_matrix <- getPlotMatrix()
+
+      if (length(ese@labelfield) > 0 && type == "expression") {
+        annotation <- as.data.frame(mcols(ese))
+        labels <- annotation[match(rownames(plot_matrix), annotation[[ese@idfield]]), ese@labelfield]
+        labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(plot_matrix)[!is.na(labels)], sep = " / ")
+        labels[is.na(labels)] <- rownames(plot_matrix)[is.na(labels)]
+        labels
+      } else {
+        rownames(plot_matrix)
+      }
+    })
+
+    # Make a color palette
+
+    makeColors <- reactive({
+      colors <- colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100)
+
+      if (type == "pca") {
+        colors <- rev(colors)
+      }
+
+      colors
+    })
+
+    hideColorbar <- reactive({
+      type == "pca"
+    })
+
+    # Make the interactive heatmap
+
+    output$interactiveHeatmap <- plotly::renderPlotly({
+      withProgress(message = "Building interactive heatmap", value = 0, {
+        interactiveHeatmap(
+          plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
+          cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
+          display_numbers = FALSE, hide_colorbar = hideColorbar()
+        )
+      })
     })
   })
 }
@@ -604,18 +604,18 @@ splitAnnotationLegend <- function(p, col_side_colors, palette, ncol_heatmap) {
 #' @return output A numeric matrix of p values
 #' @export
 
-anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained){
+anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
   # Use 10 components or however many fewer is produced by the PCA
-  
+
   last_pc <- 10
   if (ncol(pca_coords) < last_pc) {
     last_pc <- ncol(pca_coords)
   }
-  
+
   pcameta <- pcameta[, chooseGroupingVariables(pcameta), drop = FALSE]
 
   # Make a blank matrix to hold the p values
-  
+
   pvals <-
     matrix(
       data = NA,
@@ -632,9 +632,9 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained){
         )
       )
     )
-  
+
   # Fill the matrix with anova p values
-  
+
   for (i in 1:ncol(pcameta)) {
     for (j in 1:last_pc) {
       fit <- aov(pca_coords[, j] ~ factor(pcameta[, i]))
@@ -643,6 +643,6 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained){
       }
     }
   }
-  
+
   pvals
 }

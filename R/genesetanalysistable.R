@@ -155,14 +155,12 @@ genesetanalysistableOutput <- function(id) {
 #' fairly generic, and assumes only the presence of a 'p value' and 'FDR'
 #' column, so the output of other methods should be easily adapted to suit.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example). Essentially this just passes the results of \code{colData()}
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 #' applied to the specified SummarizedExperiment object to the
 #' \code{simpletable} module
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
@@ -187,122 +185,118 @@ genesetanalysistableOutput <- function(id) {
 #'
 #' names(zhangneurons@gene_sets)
 #'
-#' callModule(genesetanalysistable, "genesetanalysistable", eselist)
+#' genesetanalysistable("genesetanalysistable", eselist)
 #'
-genesetanalysistable <- function(input, output, session, eselist) {
-  # Only use experiments with gene set analyses available
+genesetanalysistable <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Only use experiments with gene set analyses available
 
-  eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
+    eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
 
-  # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
 
-  for (exp in names(eselist)) {
-    assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
-  }
-
-  # Extract the gene sets that have been analysed for the the user to select from
-
-  ns <- session$ns
-
-  output$geneSets <- renderUI({
-    genesetselectInput(ns("genesetanalysistable"))
-  })
-
-  # Call the selectmatrix module and unpack the reactives it sends back
-
-  selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, select_assays = TRUE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
-  unpack.list(selectmatrix_reactives)
-
-  # Pass the matrix to the contrasts module for processing
-
-  unpack.list(callModule(contrasts, "genesetanalysistable",
-    eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_foldchange = 1,
-    default_pval = 0.05, default_qval = 1
-  ))
-
-  # Parse the gene sets for ease of use
-
-  unpack.list(callModule(genesetselect, "genesetanalysistable", eselist, getExperiment, filter_by_type = TRUE, require_select = FALSE))
-
-  observe({
-    updateGeneSetsList()
-  })
-
-  getGeneSetAnalysis <- reactive({
-    validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
-
-    ese <- getExperiment()
-    assay <- getAssay()
-    gene_set_types <- getGeneSetTypes()
-    contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]])
-
-    enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
-    validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
-    gst <- enrichment$gst
-    col_map <- enrichment$col_map
-
-    # Select out specific gene sets if they've been provided
-
-    selected_gene_sets <- getGenesetNames()
-    if (!is.null(selected_gene_sets)) {
-      validate(need(any(selected_gene_sets %in% rownames(gst)), "Selected gene sets not available in test results"))
-      gst <- gst[selected_gene_sets, , drop = FALSE]
+    for (exp in names(eselist)) {
+      assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
     }
 
-    # Move the row names to an actual column
+    # Extract the gene sets that have been analysed for the the user to select from
 
-    gst <- data.frame(gst, check.names = FALSE, stringsAsFactors = FALSE)
-    gst$gene_set_id <- rownames(gst)
-    gst <- gst[, c("gene_set_id", colnames(gst)[colnames(gst) != "gene_set_id"]), drop = FALSE]
+    ns <- session$ns
 
-    # Apply the user's filters
+    output$geneSets <- renderUI({
+      genesetselectInput(ns("genesetanalysistable"))
+    })
 
-    gst <- gst[gst[[col_map$pvalue]] < input$pval & gst[[col_map$fdr]] < input$fdr, , drop = FALSE]
+    # Call the selectmatrix module and unpack the reactives it sends back
 
-    validate(need(nrow(gst) > 0, "No results matching specified filters"))
+    selectmatrix_reactives <- selectmatrix("expression", eselist, select_assays = TRUE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
+    unpack.list(selectmatrix_reactives)
 
-    if (nrow(gst) > 0) {
-      # Add in the differential genes
+    # Pass the matrix to the contrasts module for processing
 
-      ct <- filteredContrastsTables()[[1]][[1]]
-      up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
-      down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
+    unpack.list(contrasts("genesetanalysistable", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_foldchange = 1, default_pval = 0.05, default_qval = 1))
 
-      gene_sets <- getGeneSets()
+    # Parse the gene sets for ease of use
 
-      gst$significant_genes <- apply(gst, 1, function(row) {
-        direction_genes <- if (row[col_map$direction] == "Up") up else down
-        siggenes <- intersect(gene_sets[[gene_set_types]][[row["gene_set_id"]]], direction_genes)
-        paste(siggenes, collapse = " ")
-      })
+    unpack.list(genesetselect("genesetanalysistable", eselist, getExperiment, filter_by_type = TRUE, require_select = FALSE))
+
+    observe({
+      updateGeneSetsList()
+    })
+
+    getGeneSetAnalysis <- reactive({
+      validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
+
+      ese <- getExperiment()
+      assay <- getAssay()
+      gene_set_types <- getGeneSetTypes()
+      contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]])
+
+      enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+      validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
+      gst <- enrichment$gst
+      col_map <- enrichment$col_map
+
+      # Select out specific gene sets if they've been provided
+
+      selected_gene_sets <- getGenesetNames()
+      if (!is.null(selected_gene_sets)) {
+        validate(need(any(selected_gene_sets %in% rownames(gst)), "Selected gene sets not available in test results"))
+        gst <- gst[selected_gene_sets, , drop = FALSE]
+      }
+
+      # Move the row names to an actual column
+
+      gst <- data.frame(gst, check.names = FALSE, stringsAsFactors = FALSE)
+      gst$gene_set_id <- rownames(gst)
+      gst <- gst[, c("gene_set_id", colnames(gst)[colnames(gst) != "gene_set_id"]), drop = FALSE]
+
+      # Apply the user's filters
+
+      gst <- gst[gst[[col_map$pvalue]] < input$pval & gst[[col_map$fdr]] < input$fdr, , drop = FALSE]
+
+      validate(need(nrow(gst) > 0, "No results matching specified filters"))
+
+      if (nrow(gst) > 0) {
+        # Add in the differential genes
+
+        ct <- filteredContrastsTables()[[1]][[1]]
+        up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
+        down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
+
+        gene_sets <- getGeneSets()
+
+        gst$significant_genes <- apply(gst, 1, function(row) {
+          direction_genes <- if (row[col_map$direction] == "Up") up else down
+          siggenes <- intersect(gene_sets[[gene_set_types]][[row["gene_set_id"]]], direction_genes)
+          paste(siggenes, collapse = " ")
+        })
+
+        gst
+      }
+    })
+
+    # Take the table and add links etc
+
+    getDisplayGeneSetAnalysis <- reactive({
+      gst <- getGeneSetAnalysis()
+
+      # Add links, but use a prettified version of the gene set name that re-flows to take up less space
+
+      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id), stringsAsFactors = FALSE))
+      colnames(gst) <- prettifyVariablename(colnames(gst))
 
       gst
-    }
+    })
+
+    # Make an explanatory file name
+
+    makeFileName <- reactive({
+      gsub("[^a-zA-Z0-9_]", "_", paste("gsa", getSelectedContrastNames(), getGeneSetTypes()))
+    })
+
+    # Pass the matrix to the simpletable module for display
+
+    simpletable("genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
   })
-
-  # Take the table and add links etc
-
-  getDisplayGeneSetAnalysis <- reactive({
-    gst <- getGeneSetAnalysis()
-
-    # Add links, but use a prettified version of the gene set name that re-flows to take up less space
-
-    gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id), stringsAsFactors = FALSE))
-    colnames(gst) <- prettifyVariablename(colnames(gst))
-
-    gst
-  })
-
-  # Make an explanatory file name
-
-  makeFileName <- reactive({
-    gsub("[^a-zA-Z0-9_]", "_", paste("gsa", getSelectedContrastNames(), getGeneSetTypes()))
-  })
-
-  # Pass the matrix to the simpletable module for display
-
-  callModule(simpletable, "genesetanalysistable",
-    downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName,
-    rownames = FALSE
-  )
 }

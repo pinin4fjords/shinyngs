@@ -4,14 +4,10 @@
 \alias{foldchangeplot}
 \title{The server function of the \code{foldchangeplot} module}
 \usage{
-foldchangeplot(input, output, session, eselist)
+foldchangeplot(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -21,11 +17,11 @@ This module is for making scatter plots comparing pairs of groups defined in
 a 'contrasts' slot of the ExploratorySummarizedExperimentList
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(foldchangeplot, "foldchangeplot", eselist)
+foldchangeplot("foldchangeplot", eselist)
 
 data(zhangneurons)
 app <- prepareApp("foldchangeplot", zhangneurons)

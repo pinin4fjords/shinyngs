@@ -5,9 +5,7 @@
 \title{The server function of the genesetselect module}
 \usage{
 genesetselect(
-  input,
-  output,
-  session,
+  id,
   eselist,
   getExperiment,
   multiple = TRUE,
@@ -16,11 +14,7 @@ genesetselect(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{An ExploratorySummarizedExperimentList with its gene_sets
 slot set}
@@ -46,7 +40,7 @@ to thousands of entries. This would be difficult to do client-side using a
 standard select field.
 }
 \examples{
-geneset_functions <- callModule(genesetselect, "heatmap", getExperiment)
+geneset_functions <- genesetselect("heatmap", getExperiment)
 
 }
 \keyword{shiny}

@@ -72,12 +72,10 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' This module provides controls for selecting matrix columns by sample or
 #' group name.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #' @param getExperiment Reactive expression that returns a
@@ -91,79 +89,80 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @keywords shiny
 #'
 #' @examples
-#' selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
+#' selectSamples <- sampleselect("selectmatrix", getExperiment)
 #'
-sampleselect <- function(input, output, session, eselist, getExperiment, allow_summarise = TRUE) {
-  if (allow_summarise){
-    getSummaryType <- callModule(summarisematrix, "summarise")
-  }
-
-  # Render the sampleGroupVal() element based on sampleGroupVar
-
-  output$groupSamples <- renderUI({
-    ese <- getExperiment()
-
-    if (input$sampleSelect == "group" && length(eselist@group_vars) > 0) {
-      validate(need(input$sampleGroupVar, FALSE))
-      group_values <- as.character(unique(ese[[isolate(input$sampleGroupVar)]]))
-      ns <- session$ns
-
-      inputs <- list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values))
-      if (allow_summarise){
-        inputs <- pushToList(inputs, summarisematrixInput(ns("summarise"))) 
-      }
-      inputs
+sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
+  moduleServer(id, function(input, output, session) {
+    if (allow_summarise) {
+      getSummaryType <- summarisematrix("summarise")
     }
-  })
 
-  # Output a reactive so that other modules know whether we've selected by sample or group
+    # Render the sampleGroupVal() element based on sampleGroupVar
 
-  getSampleSelect <- reactive({
-    input$sampleSelect
-  })
-
-  # Return summary type
-
-  getSampleGroupVar <- reactive({
-    input$sampleGroupVar
-  })
-
-  # Reactive expression for selecting the specified columns
-
-  selectSamples <- reactive({
-    withProgress(message = "Selecting samples", value = 0, {
-
-      validate(need(!is.null(getSampleSelect()), "Waiting for form to provide sampleSelect"))
+    output$groupSamples <- renderUI({
       ese <- getExperiment()
 
-      if (getSampleSelect() == "all") {
-        return(colnames(ese))
-      } else {
-        validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
+      if (input$sampleSelect == "group" && length(eselist@group_vars) > 0) {
+        validate(need(input$sampleGroupVar, FALSE))
+        group_values <- as.character(unique(ese[[isolate(input$sampleGroupVar)]]))
+        ns <- session$ns
 
-        if (length(eselist@group_vars) > 0) {
-          validate(need(!is.null(input$sampleGroupVal), FALSE))
+        inputs <- list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values))
+        if (allow_summarise) {
+          inputs <- pushToList(inputs, summarisematrixInput(ns("summarise")))
         }
-
-        if (getSampleSelect() == "name") {
-          return(input$samples)
-        } else {
-          # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
-
-          samplegroups <- as.character(ese[[isolate(input$sampleGroupVar)]])
-          samplegroups[is.na(samplegroups)] <- ""
-
-          return(colnames(ese)[samplegroups %in% input$sampleGroupVal])
-        }
+        inputs
       }
     })
+
+    # Output a reactive so that other modules know whether we've selected by sample or group
+
+    getSampleSelect <- reactive({
+      input$sampleSelect
+    })
+
+    # Return summary type
+
+    getSampleGroupVar <- reactive({
+      input$sampleGroupVar
+    })
+
+    # Reactive expression for selecting the specified columns
+
+    selectSamples <- reactive({
+      withProgress(message = "Selecting samples", value = 0, {
+        validate(need(!is.null(getSampleSelect()), "Waiting for form to provide sampleSelect"))
+        ese <- getExperiment()
+
+        if (getSampleSelect() == "all") {
+          return(colnames(ese))
+        } else {
+          validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
+
+          if (length(eselist@group_vars) > 0) {
+            validate(need(!is.null(input$sampleGroupVal), FALSE))
+          }
+
+          if (getSampleSelect() == "name") {
+            return(input$samples)
+          } else {
+            # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
+
+            samplegroups <- as.character(ese[[isolate(input$sampleGroupVar)]])
+            samplegroups[is.na(samplegroups)] <- ""
+
+            return(colnames(ese)[samplegroups %in% input$sampleGroupVal])
+          }
+        }
+      })
+    })
+
+    reactives <- list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSampleSelect = getSampleSelect)
+
+    if (allow_summarise) {
+      reactives[["getSummaryType"]] <- getSummaryType
+    }
+
+    reactives
   })
-
-  reactives <- list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSampleSelect = getSampleSelect)
-
-  if (allow_summarise){
-    reactives[['getSummaryType']] <- getSummaryType
-  }
-
-  reactives
 }

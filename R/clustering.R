@@ -90,244 +90,241 @@ clusteringOutput <- function(id) {
 #' defining the input matrix users can decide how the clusters are drawn and how
 #' many clusters should be generated.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(clustering, "myid", eselist)
+#' clustering("myid", eselist)
 #'
-clustering <- function(input, output, session, eselist) {
-  # Call the selectmatrix module to get the expression matrix - no need for a gene selection
+clustering <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Call the selectmatrix module to get the expression matrix - no need for a gene selection
 
-  unpack.list(callModule(selectmatrix, "clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
+    unpack.list(selectmatrix("clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
 
-  getPalette <- callModule(colormaker, "clustering", getNumberCategories = getClusterNumber)
+    getPalette <- colormaker("clustering", getNumberCategories = getClusterNumber)
 
-  ############################################################################# Form accessors
+    ############################################################################# Form accessors
 
-  # The number of clusters
+    # The number of clusters
 
-  getClusterNumber <- reactive({
-    validate(need(!is.null(input$cluster_number), "waiting for cluster number"))
-    as.numeric(input$cluster_number)
-  })
-
-  # How limits of error bars etc should be defined
-
-  getLimits <- reactive({
-    validate(need(!is.null(input$limits), "Waiting for limits"))
-    limits <- input$limits
-
-    average_type <- getAverageType()
-    if (average_type == "median") {
-      limits <- paste0("median.", limits)
-    }
-    limits
-  })
-
-  # Use mean or median?
-
-  getAverageType <- reactive({
-    validate(need(!is.null(input$average_type), "Waiting for average type"))
-    input$average_type
-  })
-
-  # How to display clusters
-
-  getClusterDisplay <- reactive({
-    validate(need(!is.null(input$cluster_display), "waiting for cluster display"))
-    input$cluster_display
-  })
-
-  ############################################################################# Display things
-
-  errorBarsSubtitle <- reactive({
-    limits <- getLimits()
-    limit_types <- c(sd = "standard deviation", se = "standard error", ci = "95% Confidence interval")
-    cluster_display <- getClusterDisplay()
-    average_type <- getAverageType()
-
-    subtitle <- ""
-    if (cluster_display != "sample_lines") {
-      subtitle <- paste0("(Limits show ", limit_types[limits], "s of the ", getAverageType(), ")")
-    }
-    subtitle
-  })
-
-  # Create title reflecting how the input matrix for clustering was generated
-
-  output$geneClusteringTitle <- renderUI({
-    list(h3(paste("Feature-wise clustering for feature set:", matrixTitle())), h4(errorBarsSubtitle()))
-  })
-
-  # A common set of colors however the clusters are plotted
-
-  # getClusterColors <- reactive({ number_of_clusters <- getClusterNumber() makeColorScale(as.numeric(number_of_clusters), 'Dark2') })
-
-  ############################################################################# Clustering
-
-  # Make a scaled version of the input matrix suitable for clustering and visualisation
-
-  scaleMatrix <- reactive({
-    inmatrix <- selectMatrix()
-    data.frame(t(scale(t(inmatrix))), check.names = FALSE)
-  })
-
-  # Do the actual clustering. Assign genes/rows to clusters.
-
-  makeClusters <- reactive({
-    scaled_inmatrix <- scaleMatrix()
-    cluster_number <- getClusterNumber()
-    withProgress(message = "Calculating clusters with clara()", value = 0, {
-      cluster::clara(scaled_inmatrix, cluster_number, samples = 50)
+    getClusterNumber <- reactive({
+      validate(need(!is.null(input$cluster_number), "waiting for cluster number"))
+      as.numeric(input$cluster_number)
     })
-  })
 
-  # Get the matrix of values for each cluster
+    # How limits of error bars etc should be defined
 
-  getMatricesByCluster <- reactive({
-    scaled_inmatrix <- scaleMatrix()
-    clusters <- makeClusters()
-    split(scaled_inmatrix, clusters$clustering[match(rownames(scaled_inmatrix), names(clusters$clustering))])
-  })
+    getLimits <- reactive({
+      validate(need(!is.null(input$limits), "Waiting for limits"))
+      limits <- input$limits
 
-  # A reactive to define what summary stats are used
+      average_type <- getAverageType()
+      if (average_type == "median") {
+        limits <- paste0("median.", limits)
+      }
+      limits
+    })
 
-  addMedians <- reactive({
-    average_type <- getAverageType()
-    average_type == "median"
-  })
+    # Use mean or median?
 
-  # Generate summary statistics from the matrix for each cluster. This is what's actually plotted if cluster display is set to something other than 'sample
-  # lines'.  Uses summarySE() to derive mean, median, standard error, standard deviation and 95% confidence intervals.
+    getAverageType <- reactive({
+      validate(need(!is.null(input$average_type), "Waiting for average type"))
+      input$average_type
+    })
 
-  getSummarisedMatricesByCluster <- reactive({
-    matrices_by_cluster <- getMatricesByCluster()
-    add_medians <- addMedians()
+    # How to display clusters
 
-    withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
-      lapply(matrices_by_cluster, function(mbc) {
-        summarySE(reshape2::melt(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
+    getClusterDisplay <- reactive({
+      validate(need(!is.null(input$cluster_display), "waiting for cluster display"))
+      input$cluster_display
+    })
+
+    ############################################################################# Display things
+
+    errorBarsSubtitle <- reactive({
+      limits <- getLimits()
+      limit_types <- c(sd = "standard deviation", se = "standard error", ci = "95% Confidence interval")
+      cluster_display <- getClusterDisplay()
+      average_type <- getAverageType()
+
+      subtitle <- ""
+      if (cluster_display != "sample_lines") {
+        subtitle <- paste0("(Limits show ", limit_types[limits], "s of the ", getAverageType(), ")")
+      }
+      subtitle
+    })
+
+    # Create title reflecting how the input matrix for clustering was generated
+
+    output$geneClusteringTitle <- renderUI({
+      list(h3(paste("Feature-wise clustering for feature set:", matrixTitle())), h4(errorBarsSubtitle()))
+    })
+
+    # A common set of colors however the clusters are plotted
+
+    # getClusterColors <- reactive({ number_of_clusters <- getClusterNumber() makeColorScale(as.numeric(number_of_clusters), 'Dark2') })
+
+    ############################################################################# Clustering
+
+    # Make a scaled version of the input matrix suitable for clustering and visualisation
+
+    scaleMatrix <- reactive({
+      inmatrix <- selectMatrix()
+      data.frame(t(scale(t(inmatrix))), check.names = FALSE)
+    })
+
+    # Do the actual clustering. Assign genes/rows to clusters.
+
+    makeClusters <- reactive({
+      scaled_inmatrix <- scaleMatrix()
+      cluster_number <- getClusterNumber()
+      withProgress(message = "Calculating clusters with clara()", value = 0, {
+        cluster::clara(scaled_inmatrix, cluster_number, samples = 50)
       })
     })
-  })
 
-  # The business end of the cluster plotting. Use the above parameters and processing to produce one plot object for each cluster of matrix rows.
+    # Get the matrix of values for each cluster
 
-  makeClusterPlots <- reactive({
-    matrices_by_cluster <- getMatricesByCluster()
-    summarised_matrices_by_cluster <- getSummarisedMatricesByCluster()
-    cluster_colors <- getPalette()
-    limits <- getLimits()
-    average_type <- getAverageType()
-    cluster_display <- getClusterDisplay()
-
-    if (cluster_display == "sample_lines") {
-      plots <- lapply(names(matrices_by_cluster), function(c) {
-        cluster_color <- cluster_colors[as.numeric(c)]
-
-        x <- matrices_by_cluster[[c]]
-        if (nrow(x) > 100) {
-          x <- x[sample(1:nrow(x), 100), ]
-        }
-        x <- reshape2::melt(as.matrix(x))
-        x %>%
-          group_by(Var1) %>%
-          plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), line = list(color = cluster_color))
-      })
-    } else if (cluster_display == "error_bars") {
-      plots <- lapply(names(summarised_matrices_by_cluster), function(c) {
-        cluster_color <- cluster_colors[as.numeric(c)]
-        x <- summarised_matrices_by_cluster[[c]]
-        plot_ly(x, x = ~Var2, y = ~ x[, average_type], name = paste("Cluster", c)) %>% add_lines(error_y = ~ list(
-          name = paste("Cluster", c), color = cluster_color,
-          type = "array", array = x[, limits]
-        ), line = list(color = cluster_color))
-      })
-    } else {
-      plots <- lapply(names(matrices_by_cluster), function(c) {
-        cluster_color <- cluster_colors[as.numeric(c)]
-        x <- summarised_matrices_by_cluster[[c]]
-
-        x$lower <- x[, average_type] - x[, limits]
-        x$upper <- x[, average_type] + x[, limits]
-
-        plot_ly(x, name = paste("Cluster", c)) %>%
-          add_trace(
-            x = ~Var2, y = x[, average_type], type = "scatter", mode = "lines", line = list(color = cluster_color),
-            showlegend = TRUE
-          ) %>%
-          add_trace(
-            x = ~Var2, y = ~upper, type = "scatter", mode = "lines", line = list(color = "transparent"), showlegend = FALSE,
-            name = paste(average_type, toupper(limits), sep = " + ")
-          ) %>%
-          add_trace(
-            x = ~Var2, y = ~lower, type = "scatter", mode = "lines", fill = "tonexty",
-            fillcolor = "rgba(0,100,80,0.2)", line = list(color = "transparent"), showlegend = FALSE, name = paste(average_type, toupper(limits), sep = " - ")
-          )
-      })
-    }
-
-    experiment <- selectColData()
-
-    lapply(plots, function(p) {
-      p %>% layout(
-        xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = ""), yaxis = list(title = "scaled<br />expression"),
-        margin = list(b = 150)
-      )
-    })
-  })
-
-  # Take individual cluster plots and display them together using subplot.
-
-  output$geneClusteringPlot <- renderPlotly({
-    withProgress(message = "Plotting cluster profiles", value = 0, {
+    getMatricesByCluster <- reactive({
       scaled_inmatrix <- scaleMatrix()
       clusters <- makeClusters()
-
-      withProgress(message = "Making a plot for each cluster", value = 0, {
-        plots <- makeClusterPlots()
-      })
-      do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>% config(showLink = TRUE)
+      split(scaled_inmatrix, clusters$clustering[match(rownames(scaled_inmatrix), names(clusters$clustering))])
     })
+
+    # A reactive to define what summary stats are used
+
+    addMedians <- reactive({
+      average_type <- getAverageType()
+      average_type == "median"
+    })
+
+    # Generate summary statistics from the matrix for each cluster. This is what's actually plotted if cluster display is set to something other than 'sample
+    # lines'.  Uses summarySE() to derive mean, median, standard error, standard deviation and 95% confidence intervals.
+
+    getSummarisedMatricesByCluster <- reactive({
+      matrices_by_cluster <- getMatricesByCluster()
+      add_medians <- addMedians()
+
+      withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
+        lapply(matrices_by_cluster, function(mbc) {
+          summarySE(reshape2::melt(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
+        })
+      })
+    })
+
+    # The business end of the cluster plotting. Use the above parameters and processing to produce one plot object for each cluster of matrix rows.
+
+    makeClusterPlots <- reactive({
+      matrices_by_cluster <- getMatricesByCluster()
+      summarised_matrices_by_cluster <- getSummarisedMatricesByCluster()
+      cluster_colors <- getPalette()
+      limits <- getLimits()
+      average_type <- getAverageType()
+      cluster_display <- getClusterDisplay()
+
+      if (cluster_display == "sample_lines") {
+        plots <- lapply(names(matrices_by_cluster), function(c) {
+          cluster_color <- cluster_colors[as.numeric(c)]
+
+          x <- matrices_by_cluster[[c]]
+          if (nrow(x) > 100) {
+            x <- x[sample(1:nrow(x), 100), ]
+          }
+          x <- reshape2::melt(as.matrix(x))
+          x %>%
+            group_by(Var1) %>%
+            plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), line = list(color = cluster_color))
+        })
+      } else if (cluster_display == "error_bars") {
+        plots <- lapply(names(summarised_matrices_by_cluster), function(c) {
+          cluster_color <- cluster_colors[as.numeric(c)]
+          x <- summarised_matrices_by_cluster[[c]]
+          plot_ly(x, x = ~Var2, y = ~ x[, average_type], name = paste("Cluster", c)) %>% add_lines(error_y = ~ list(
+            name = paste("Cluster", c), color = cluster_color,
+            type = "array", array = x[, limits]
+          ), line = list(color = cluster_color))
+        })
+      } else {
+        plots <- lapply(names(matrices_by_cluster), function(c) {
+          cluster_color <- cluster_colors[as.numeric(c)]
+          x <- summarised_matrices_by_cluster[[c]]
+
+          x$lower <- x[, average_type] - x[, limits]
+          x$upper <- x[, average_type] + x[, limits]
+
+          plot_ly(x, name = paste("Cluster", c)) %>%
+            add_trace(
+              x = ~Var2, y = x[, average_type], type = "scatter", mode = "lines", line = list(color = cluster_color),
+              showlegend = TRUE
+            ) %>%
+            add_trace(
+              x = ~Var2, y = ~upper, type = "scatter", mode = "lines", line = list(color = "transparent"), showlegend = FALSE,
+              name = paste(average_type, toupper(limits), sep = " + ")
+            ) %>%
+            add_trace(
+              x = ~Var2, y = ~lower, type = "scatter", mode = "lines", fill = "tonexty",
+              fillcolor = "rgba(0,100,80,0.2)", line = list(color = "transparent"), showlegend = FALSE, name = paste(average_type, toupper(limits), sep = " - ")
+            )
+        })
+      }
+
+      experiment <- selectColData()
+
+      lapply(plots, function(p) {
+        p %>% layout(
+          xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = ""), yaxis = list(title = "scaled<br />expression"),
+          margin = list(b = 150)
+        )
+      })
+    })
+
+    # Take individual cluster plots and display them together using subplot.
+
+    output$geneClusteringPlot <- renderPlotly({
+      withProgress(message = "Plotting cluster profiles", value = 0, {
+        scaled_inmatrix <- scaleMatrix()
+        clusters <- makeClusters()
+
+        withProgress(message = "Making a plot for each cluster", value = 0, {
+          plots <- makeClusterPlots()
+        })
+        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>% config(showLink = TRUE)
+      })
+    })
+
+    ############################################################################# Functions for making the table of values with cluster numbers
+
+    makeMatrixWithClusters <- reactive({
+      inmatrix <- selectMatrix()
+      clusters <- makeClusters()
+      ese <- getExperiment()
+      mf <- getMetafields()
+
+      inmatrix <- data.frame(inmatrix, check.names = FALSE)
+
+      inmatrix$cluster <- clusters$clustering[match(rownames(inmatrix), names(clusters$clustering))]
+      inmatrix <- inmatrix[, c("cluster", colnames(inmatrix)[colnames(inmatrix) != "cluster"])]
+      labelMatrix(inmatrix, ese, metafields = mf)
+    })
+
+    # Add links to the table
+
+    makeLinkedMatrixWithClusters <- reactive({
+      mwc <- makeMatrixWithClusters()
+      linkMatrix(mwc, eselist@url_roots)
+    })
+
+    # Render the table and provide for download, using the simpletable module.
+
+    simpletable("geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix", rownames = FALSE)
   })
-
-  ############################################################################# Functions for making the table of values with cluster numbers
-
-  makeMatrixWithClusters <- reactive({
-    inmatrix <- selectMatrix()
-    clusters <- makeClusters()
-    ese <- getExperiment()
-    mf <- getMetafields()
-
-    inmatrix <- data.frame(inmatrix, check.names = FALSE)
-
-    inmatrix$cluster <- clusters$clustering[match(rownames(inmatrix), names(clusters$clustering))]
-    inmatrix <- inmatrix[, c("cluster", colnames(inmatrix)[colnames(inmatrix) != "cluster"])]
-    labelMatrix(inmatrix, ese, metafields = mf)
-  })
-
-  # Add links to the table
-
-  makeLinkedMatrixWithClusters <- reactive({
-    mwc <- makeMatrixWithClusters()
-    linkMatrix(mwc, eselist@url_roots)
-  })
-
-  # Render the table and provide for download, using the simpletable module.
-
-  callModule(simpletable, "geneClusteringTable",
-    downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix",
-    rownames = FALSE
-  )
 }
 
 #' Summarise an input matrix
@@ -440,35 +437,35 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 
   group_sizes <- table(sample_sheet[[groupby]])
   mad_valid_groups <- group_sizes[group_sizes > 2]
-  
-  if (length(mad_valid_groups) == 0){
-    print("WARNING: low replication, skipping outlier detection ...")  
+
+  if (length(mad_valid_groups) == 0) {
+    print("WARNING: low replication, skipping outlier detection ...")
     NULL
-  }else{
+  } else {
     mad_valid_samples <- which(sample_sheet[[groupby]] %in% names(mad_valid_groups))
 
     matrix <- matrix[, mad_valid_samples]
     sample_sheet <- sample_sheet[mad_valid_samples, ]
-    
+
     if (is.null(groupby)) {
       matrices <- list(all = matrix)
     } else {
       matrices <- lapply(split(rownames(sample_sheet), sample_sheet[[groupby]]), function(x) matrix[, x])
     }
-    
+
     # The following intentionally verbose to highlight logic
-    
+
     mads <- do.call(rbind, lapply(names(matrices), function(g) {
       corrs <- cor(matrices[[g]])
       corrs_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[x, -x])))
       corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
-      
+
       correlation_difference <- structure(corrs_involving - corrs_not_involving, names = colnames(corrs))
       median_correlation_differences <- median(correlation_difference)
       median_absolute_deviation <- median(abs(correlation_difference - median_correlation_differences))
       data.frame(group = g, mad = (correlation_difference - median_correlation_differences) / (median_absolute_deviation * 1.4826))
     }))
-    
+
     mads$outlier <- mads$mad < outlier_threshold
     mads
   }

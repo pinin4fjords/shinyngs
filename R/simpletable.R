@@ -57,12 +57,10 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 
 #' The server function of the simpletable module
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param downloadMatrix Reactive expression for retrieving the plot to supply
 #' for download (default: NULL, in which case \code{displayMatrix()} will be
 #' used)
@@ -78,35 +76,37 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(simpletable, "simpletable", my_data_frame)
+#' simpletable("simpletable", my_data_frame)
 #'
-simpletable <- function(input, output, session, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none") {
-  if (is.null(downloadMatrix)) {
-    downloadMatrix <- displayMatrix
-  }
-
-  options <- list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100")), dom = "ltip")
-
-  if (show_controls) {
-    options$dom <- paste0("f", options$dom)
-  }
-
-  output$datatable <- DT::renderDataTable(
-    {
-      displayMatrix()
-    },
-    options = options,
-    filter = filter,
-    rownames = rownames,
-    escape = FALSE
-  )
-
-  output$downloadTable <- downloadHandler(filename = function() {
-    if (is.reactive(filename)) {
-      filename <- filename()
+simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none") {
+  moduleServer(id, function(input, output, session) {
+    if (is.null(downloadMatrix)) {
+      downloadMatrix <- displayMatrix
     }
-    paste0(filename, ".csv")
-  }, content = function(file) {
-    write.csv(downloadMatrix(), file = file, row.names = rownames)
+
+    options <- list(pageLength = pageLength, lengthMenu = list(c(5, 10, 15, 25, 50, 100), c("5", "10", "15", "25", "50", "100")), dom = "ltip")
+
+    if (show_controls) {
+      options$dom <- paste0("f", options$dom)
+    }
+
+    output$datatable <- DT::renderDataTable(
+      {
+        displayMatrix()
+      },
+      options = options,
+      filter = filter,
+      rownames = rownames,
+      escape = FALSE
+    )
+
+    output$downloadTable <- downloadHandler(filename = function() {
+      if (is.reactive(filename)) {
+        filename <- filename()
+      }
+      paste0(filename, ".csv")
+    }, content = function(file) {
+      write.csv(downloadMatrix(), file = file, row.names = rownames)
+    })
   })
 }

@@ -113,12 +113,10 @@ dexseqtableOutput <- function(id) {
 #' to the contrasts listed in the \code{contrasts} slot of the
 #' \code{ExploratorySummarizedExperiment}.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #' @param allow_filtering Allow user filtering of results (default: TRUE)?
@@ -135,137 +133,136 @@ dexseqtableOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(dexseqtable, "dexseqtable", eselist)
+#' dexseqtable("dexseqtable", eselist)
 #'
-dexseqtable <- function(input, output, session, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, link_to_deu_plot = TRUE) {
-  # Only use experiments with gene set analyses available
+dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, link_to_deu_plot = TRUE) {
+  moduleServer(id, function(input, output, session) {
+    # Only use experiments with gene set analyses available
 
-  eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
+    eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
 
-  # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and unpack the reactives it sends back
 
-  selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE)
-  unpack.list(selectmatrix_reactives)
+    selectmatrix_reactives <- selectmatrix("expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE)
+    unpack.list(selectmatrix_reactives)
 
-  # Just use the contrasts module to select a comparison
+    # Just use the contrasts module to select a comparison
 
-  contrast_reactives <- callModule(contrasts, "deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
-  unpack.list(contrast_reactives)
+    contrast_reactives <- contrasts("deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
+    unpack.list(contrast_reactives)
 
-  makeDEUTables <- reactive({
-    ese <- getExperiment()
+    makeDEUTables <- reactive({
+      ese <- getExperiment()
 
-    withProgress(message = "Making DEU table for each contrast", value = 0, {
-      deu_tables <- lapply(1:length(ese@dexseq_results), function(contrast) {
-        d <- ese@dexseq_results[[contrast]]
+      withProgress(message = "Making DEU table for each contrast", value = 0, {
+        deu_tables <- lapply(1:length(ese@dexseq_results), function(contrast) {
+          d <- ese@dexseq_results[[contrast]]
 
-        # Add the mean values for the counts
+          # Add the mean values for the counts
 
-        counts <- DEXSeq::counts(d, normalized = TRUE)
-        contrast_samples <- getContrastSamples()
-        selected_contrast_samples <- contrast_samples[[contrast]]
+          counts <- DEXSeq::counts(d, normalized = TRUE)
+          contrast_samples <- getContrastSamples()
+          selected_contrast_samples <- contrast_samples[[contrast]]
 
-        mean_counts <- lapply(selected_contrast_samples, function(scs) {
-          rowMeans(counts[, scs])
+          mean_counts <- lapply(selected_contrast_samples, function(scs) {
+            rowMeans(counts[, scs])
+          })
+
+          d$mean1 <- round(mean_counts[[1]], 2)
+          d$mean2 <- round(mean_counts[[2]], 2)
+
+          # Make fold changes more useful
+
+          fccol <- grep("log2fold", colnames(d), value = TRUE)
+          d[, fccol] <- 2^d[, fccol]
+          d[d[, fccol] < 1 & !is.na(d[, fccol]), fccol] <- -1 / d[d[, fccol] < 1 & !is.na(d[, fccol]), fccol]
+
+          eu_cols <- colnames(d)[c(8, 9)]
+
+          deucols <- c("groupID", "featureID", "mean1", "mean2", eu_cols, fccol, "pvalue", "padj")
+          deu_table <- as.data.frame(d[, deucols])
+          deu_table[, c(fccol, eu_cols)] <- round(deu_table[, c(fccol, eu_cols)], 2)
+          deu_table[, c("pvalue", "padj")] <- signif(deu_table[, c("pvalue", "padj")], 3)
+
+          # Re-order by p value
+
+          deu_table <- deu_table[order(deu_table$padj), ]
+
+          # Make prettier column labels
+
+          colnames(deu_table) <- c(
+            "groupID", "Exon", paste0("Mean normalised count (", eu_cols, ")"), paste0("Exon usage (", eu_cols, ")"), "Relative exon usage fold change",
+            "P value", "FDR corrected p value"
+          )
+
+          # Add in gene symbols
+
+          deu_table$groupID <- gsub("\\+", " ", deu_table$groupID)
+
+          deu_table
         })
-
-        d$mean1 <- round(mean_counts[[1]], 2)
-        d$mean2 <- round(mean_counts[[2]], 2)
-
-        # Make fold changes more useful
-
-        fccol <- grep("log2fold", colnames(d), value = TRUE)
-        d[, fccol] <- 2^d[, fccol]
-        d[d[, fccol] < 1 & !is.na(d[, fccol]), fccol] <- -1 / d[d[, fccol] < 1 & !is.na(d[, fccol]), fccol]
-
-        eu_cols <- colnames(d)[c(8, 9)]
-
-        deucols <- c("groupID", "featureID", "mean1", "mean2", eu_cols, fccol, "pvalue", "padj")
-        deu_table <- as.data.frame(d[, deucols])
-        deu_table[, c(fccol, eu_cols)] <- round(deu_table[, c(fccol, eu_cols)], 2)
-        deu_table[, c("pvalue", "padj")] <- signif(deu_table[, c("pvalue", "padj")], 3)
-
-        # Re-order by p value
-
-        deu_table <- deu_table[order(deu_table$padj), ]
-
-        # Make prettier column labels
-
-        colnames(deu_table) <- c(
-          "groupID", "Exon", paste0("Mean normalised count (", eu_cols, ")"), paste0("Exon usage (", eu_cols, ")"), "Relative exon usage fold change",
-          "P value", "FDR corrected p value"
-        )
-
-        # Add in gene symbols
-
-        deu_table$groupID <- gsub("\\+", " ", deu_table$groupID)
-
-        deu_table
       })
     })
-  })
 
-  # Select a DEU table for the contrast of interest and filter based on the controls
+    # Select a DEU table for the contrast of interest and filter based on the controls
 
-  makeDEUTable <- reactive({
-    deu_tables <- makeDEUTables()
-    selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
-    deu_table <- deu_tables[[as.numeric(selected_contrast_number)]]
+    makeDEUTable <- reactive({
+      deu_tables <- makeDEUTables()
+      selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
+      deu_table <- deu_tables[[as.numeric(selected_contrast_number)]]
 
-    if (allow_filtering) {
-      if (input$deuMostSigExon) {
-        deu_table <- deu_table[match(unique(deu_table[, 1]), deu_table[, 1]), ]
+      if (allow_filtering) {
+        if (input$deuMostSigExon) {
+          deu_table <- deu_table[match(unique(deu_table[, 1]), deu_table[, 1]), ]
+        }
+
+        fclim <- getFoldChange()
+        fclim_card <- getFoldChangeCard()
+        pvallim <- getPval()
+        pvallim_card <- getPvalCard()
+        qvallim <- getQval()
+        qvallim_card <- getQvalCard()
+
+        # deu_table <- deu_table[which(deu_table[['FDR corrected p value']] < qvallim & abs(deu_table[['Relative exon usage fold change']]) > fclim), ]
+
+        deu_table <- deu_table[evaluateCardinalFilter(deu_table[["FDR corrected p value"]], qvallim_card, qvallim) & evaluateCardinalFilter(
+          deu_table[["P value"]],
+          pvallim_card, pvallim
+        ) & evaluateCardinalFilter(deu_table[["Relative exon usage fold change"]], fclim_card, fclim), ]
       }
 
-      fclim <- getFoldChange()
-      fclim_card <- getFoldChangeCard()
-      pvallim <- getPval()
-      pvallim_card <- getPvalCard()
-      qvallim <- getQval()
-      qvallim_card <- getQvalCard()
+      # If provided, filter by gene symbol
 
-      # deu_table <- deu_table[which(deu_table[['FDR corrected p value']] < qvallim & abs(deu_table[['Relative exon usage fold change']]) > fclim), ]
+      if (!is.null(getDEUGeneID)) {
+        gene_id <- getDEUGeneID()
+        deu_table <- deu_table[deu_table$groupID == gene_id, , drop = FALSE]
+        deu_table <- deu_table[order(deu_table$Exon), ]
+      }
 
-      deu_table <- deu_table[evaluateCardinalFilter(deu_table[["FDR corrected p value"]], qvallim_card, qvallim) & evaluateCardinalFilter(
-        deu_table[["P value"]],
-        pvallim_card, pvallim
-      ) & evaluateCardinalFilter(deu_table[["Relative exon usage fold change"]], fclim_card, fclim), ]
-    }
+      # Add labels
 
-    # If provided, filter by gene symbol
-
-    if (!is.null(getDEUGeneID)) {
-      gene_id <- getDEUGeneID()
-      deu_table <- deu_table[deu_table$groupID == gene_id, , drop = FALSE]
-      deu_table <- deu_table[order(deu_table$Exon), ]
-    }
-
-    # Add labels
-
-    ese <- getExperiment()
-    labelMatrix(deu_table, ese, "groupID", metafields = getMetafields())
-  })
-
-  # Make a linked version of the table for display. Override the label links so they point to DEU plots rather than gene pages
-
-  makeDisplayDEUTable <- reactive({
-    deu_table <- makeDEUTable()
-    url_roots <- eselist@url_roots
-    if (link_to_deu_plot) {
       ese <- getExperiment()
-      url_roots[[ese@labelfield]] <- "?deu_gene="
-    }
-    linkMatrix(deu_table, url_roots)
+      labelMatrix(deu_table, ese, "groupID", metafields = getMetafields())
+    })
+
+    # Make a linked version of the table for display. Override the label links so they point to DEU plots rather than gene pages
+
+    makeDisplayDEUTable <- reactive({
+      deu_table <- makeDEUTable()
+      url_roots <- eselist@url_roots
+      if (link_to_deu_plot) {
+        ese <- getExperiment()
+        url_roots[[ese@labelfield]] <- "?deu_gene="
+      }
+      linkMatrix(deu_table, url_roots)
+    })
+
+    # Pass the matrix to the simpletable module for display
+
+    simpletable("dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, show_controls = show_controls, pageLength = page_length)
+
+    # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
+
+    c(contrast_reactives, list(getExperiment = getExperiment, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrasts = getSelectedContrasts))
   })
-
-  # Pass the matrix to the simpletable module for display
-
-  callModule(simpletable, "dexseqtable",
-    displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, show_controls = show_controls,
-    pageLength = page_length
-  )
-
-  # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
-
-  c(contrast_reactives, list(getExperiment = getExperiment, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrasts = getSelectedContrasts))
 }

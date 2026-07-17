@@ -5,9 +5,7 @@
 \title{The server function of the groupby module}
 \usage{
 groupby(
-  input,
-  output,
-  session,
+  id,
   eselist,
   group_label = "Group by",
   multiple = FALSE,
@@ -18,11 +16,7 @@ groupby(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -46,7 +40,7 @@ The groupby module provides a UI element to choose from the
 \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA etc
 }
 \examples{
-geneset_functions <- callModule(groupby, "heatmap", getExperiment)
+geneset_functions <- groupby("heatmap", getExperiment)
 
 }
 \keyword{shiny}

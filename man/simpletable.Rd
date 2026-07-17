@@ -5,9 +5,7 @@
 \title{The server function of the simpletable module}
 \usage{
 simpletable(
-  input,
-  output,
-  session,
+  id,
   downloadMatrix = NULL,
   displayMatrix,
   pageLength = 15,
@@ -18,11 +16,7 @@ simpletable(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{downloadMatrix}{Reactive expression for retrieving the plot to supply
 for download (default: NULL, in which case \code{displayMatrix()} will be
@@ -43,11 +37,11 @@ names of the input matrix? (default: FALSE)}
 \item{filter}{Passed to \code{DT::renderDataTable()}}
 }
 \description{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(simpletable, "simpletable", my_data_frame)
+simpletable("simpletable", my_data_frame)
 
 }
 \keyword{shiny}

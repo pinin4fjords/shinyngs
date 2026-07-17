@@ -105,7 +105,7 @@ prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
     inputFunc <- get(paste0(type, "Input"))
 
     app <- list(ui = inputFunc(type, eselist), server = function(input, output, session) {
-      callModule(get(type), type, eselist)
+      get(type)(type, eselist)
     })
   } else {
     app <- simpleApp(eselist, type, ui_only = ui_only, ...)
@@ -177,7 +177,7 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
       }
     } else {
       server <- function(input, output, session) {
-        callModule(get(module), module, eselist, ...)
+        get(module)(module, eselist, ...)
       }
     }
     list(ui = ui, server = server)

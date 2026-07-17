@@ -4,14 +4,10 @@
 \alias{dendro}
 \title{The server function of the dendrogram module}
 \usage{
-dendro(input, output, session, eselist)
+dendro(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -23,11 +19,11 @@ provided by the \code{selectmatrix} module, as well distance matrix
 generation and clustering method.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(dendro, "myid", eselist)
+dendro("myid", eselist)
 
 }
 \keyword{shiny}

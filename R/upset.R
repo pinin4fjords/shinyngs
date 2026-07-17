@@ -95,12 +95,10 @@ upsetOutput <- function(id, eselist) {
 #' (rather than assigning every item to its highest-order intersection). It
 #' also seems to have sped things up.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #' @param setlimit Maximum number of sets
@@ -113,353 +111,349 @@ upsetOutput <- function(id, eselist) {
 #' Gehlenborg N (2016). <em>UpSetR: A More Scalable Alternative to Venn and Euler Diagrams for Visualizing Intersecting Sets</em>. R package version 1.3.0, \url{https://CRAN.R-project.org/package=UpSetR}
 #'
 #' @examples
-#' callModule(upstart, "myid", eselist)
+#' upstart("myid", eselist)
 #'
-upset <- function(input, output, session, eselist, setlimit = 16) {
-  ns <- session$ns
+upset <- function(id, eselist, setlimit = 16) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
 
-  # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and unpack the reactives it sends back
 
-  selectmatrix_reactives <- callModule(selectmatrix, "upset", eselist,
-    var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE,
-    select_meta = FALSE
-  )
-  unpack.list(selectmatrix_reactives)
+    selectmatrix_reactives <- selectmatrix("upset", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE, select_meta = FALSE)
+    unpack.list(selectmatrix_reactives)
 
-  # Pass the matrix to the contrasts module for processing
+    # Pass the matrix to the contrasts module for processing
 
-  unpack.list(callModule(contrasts, "upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE))
+    unpack.list(contrasts("upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE))
 
-  ############################################################################# Render dynamic fields
+    ############################################################################# Render dynamic fields
 
-  output$nsets <- renderUI({
-    max_sets <- getMaxSets()
-    sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
-  })
+    output$nsets <- renderUI({
+      max_sets <- getMaxSets()
+      sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
+    })
 
-  output$minorder <- renderUI({
-    assignment_type <- getIntersectionAssignmentType()
-    max_order <- getMaxIntersectionOrder()
+    output$minorder <- renderUI({
+      assignment_type <- getIntersectionAssignmentType()
+      max_order <- getMaxIntersectionOrder()
 
-    # No point starting at size 1 in a non-upset plot, since the areas associated with each individual set will be the same size as the sets themselves
+      # No point starting at size 1 in a non-upset plot, since the areas associated with each individual set will be the same size as the sets themselves
 
-    if (assignment_type == "upset") {
-      startsize <- 1
-    } else {
-      startsize <- 2
-    }
-
-    sliderInput(ns("minorder"), label = "Minimum number of sets in an intersection", min = 1, max = max_order, step = 1, value = startsize)
-  })
-
-  output$differential_parameters <- renderUI({
-    query_strings <- getQueryStrings()
-    HTML(query_strings[1])
-  })
-
-  output$subset_notice <- renderUI({
-    valid_sets <- getValidSets()
-    max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
-
-    message <- paste(length(valid_sets), "valid differential sets found (count > 0)")
-    if (length(valid_sets) > setlimit) {
-      message <- paste(message, "<br />(Note: the set selection used to produce the below plot has been limited to", max_sets, "sets")
-      if (input$separate_by_direction) {
-        message <- paste(message, paste("(", floor((max_sets / 2)), " contrasts)"))
+      if (assignment_type == "upset") {
+        startsize <- 1
+      } else {
+        startsize <- 2
       }
-      message <- paste(message, "due to computational limitations. You may wish to refine your choice of contrasts)")
-    }
-    HTML(message)
-  })
 
-  ############################################################################# Form accessors
+      sliderInput(ns("minorder"), label = "Minimum number of sets in an intersection", min = 1, max = max_order, step = 1, value = startsize)
+    })
+
+    output$differential_parameters <- renderUI({
+      query_strings <- getQueryStrings()
+      HTML(query_strings[1])
+    })
+
+    output$subset_notice <- renderUI({
+      valid_sets <- getValidSets()
+      max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
+
+      message <- paste(length(valid_sets), "valid differential sets found (count > 0)")
+      if (length(valid_sets) > setlimit) {
+        message <- paste(message, "<br />(Note: the set selection used to produce the below plot has been limited to", max_sets, "sets")
+        if (input$separate_by_direction) {
+          message <- paste(message, paste("(", floor((max_sets / 2)), " contrasts)"))
+        }
+        message <- paste(message, "due to computational limitations. You may wish to refine your choice of contrasts)")
+      }
+      HTML(message)
+    })
+
+    ############################################################################# Form accessors
 
 
-  # Accessor for the nsets parameter
+    # Accessor for the nsets parameter
 
-  getNsets <- reactive({
-    validate(need(!is.null(input$nsets), "Waiting for nsets"))
-    input$nsets
-  })
+    getNsets <- reactive({
+      validate(need(!is.null(input$nsets), "Waiting for nsets"))
+      input$nsets
+    })
 
-  # Accessor for the minorder parameter
+    # Accessor for the minorder parameter
 
-  getMinOrder <- reactive({
-    validate(need(!is.null(input$minorder), "Waiting for minorder"))
-    input$minorder
-  })
+    getMinOrder <- reactive({
+      validate(need(!is.null(input$minorder), "Waiting for minorder"))
+      input$minorder
+    })
 
-  # Accessor for the nintersections parameter
+    # Accessor for the nintersections parameter
 
-  getNintersections <- reactive({
-    validate(need(!is.null(input$nintersects), "Waiting for nintersects"))
-    input$nintersects
-  })
+    getNintersections <- reactive({
+      validate(need(!is.null(input$nintersects), "Waiting for nintersects"))
+      input$nintersects
+    })
 
-  # Accessor for the groupby parameter
+    # Accessor for the groupby parameter
 
-  getGroupby <- reactive({
-    validate(need(!is.null(input$group_by), "Waiting for group_by"))
-    input$group_by
-  })
+    getGroupby <- reactive({
+      validate(need(!is.null(input$group_by), "Waiting for group_by"))
+      input$group_by
+    })
 
-  getShowEmptyIntersections <- reactive({
-    validate(need(!is.null(input$show_empty_intersections), "Waiting for empty intersections option"))
-    input$show_empty_intersections
-  })
+    getShowEmptyIntersections <- reactive({
+      validate(need(!is.null(input$show_empty_intersections), "Waiting for empty intersections option"))
+      input$show_empty_intersections
+    })
 
-  # Accessor for the intersection assignment type
+    # Accessor for the intersection assignment type
 
-  getIntersectionAssignmentType <- reactive({
-    validate(need(!is.null(input$intersection_assignment_type), "Waiting for group_by"))
-    input$intersection_assignment_type
-  })
+    getIntersectionAssignmentType <- reactive({
+      validate(need(!is.null(input$intersection_assignment_type), "Waiting for group_by"))
+      input$intersection_assignment_type
+    })
 
-  # Set sorting
+    # Set sorting
 
-  getSetSort <- reactive({
-    validate(need(!is.null(input$set_sort), "Waiting for set_sort"))
-    input$set_sort
-  })
+    getSetSort <- reactive({
+      validate(need(!is.null(input$set_sort), "Waiting for set_sort"))
+      input$set_sort
+    })
 
-  # Bar numbers
+    # Bar numbers
 
-  getBarNumbers <- reactive({
-    validate(need(!is.null(input$bar_numbers), "Waiting for bar numbers"))
-    input$bar_numbers
-  })
+    getBarNumbers <- reactive({
+      validate(need(!is.null(input$bar_numbers), "Waiting for bar numbers"))
+      input$bar_numbers
+    })
 
-  ############################################################################# The business end- derive sets and pass for intersection
+    ############################################################################# The business end- derive sets and pass for intersection
 
-  # Look at the contrasts and remove any contrast with no differential features
+    # Look at the contrasts and remove any contrast with no differential features
 
-  getValidSets <- reactive({
-    withProgress(message = "Deriving input sets", value = 0, {
-      fcts <- unlist(filteredContrastsTables(), recursive = FALSE)
-      names(fcts) <- unlist(getSafeSelectedContrastNames(), recursive = FALSE)
-
-      fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
-
-      # If specified by the user, separate gene sets into 'up' and 'down' for each contrast
-
-      if (input$separate_by_direction) {
-        fcts <- unlist(lapply(fcts, function(x) {
-          y <- split(x, x[["Fold change"]] > 0)
-          names(y)[names(y) == "TRUE"] <- "up"
-          names(y)[names(y) == "FALSE"] <- "down"
-          y
-        }), recursive = FALSE)
+    getValidSets <- reactive({
+      withProgress(message = "Deriving input sets", value = 0, {
+        fcts <- unlist(filteredContrastsTables(), recursive = FALSE)
+        names(fcts) <- unlist(getSafeSelectedContrastNames(), recursive = FALSE)
 
         fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
-      }
 
-      fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
-      fcts <- lapply(fcts, rownames)
+        # If specified by the user, separate gene sets into 'up' and 'down' for each contrast
 
-      setsort <- getSetSort()
-      if (setsort) {
-        fcts <- fcts[order(unlist(lapply(fcts, length)))]
-      }
+        if (input$separate_by_direction) {
+          fcts <- unlist(lapply(fcts, function(x) {
+            y <- split(x, x[["Fold change"]] > 0)
+            names(y)[names(y) == "TRUE"] <- "up"
+            names(y)[names(y) == "FALSE"] <- "down"
+            y
+          }), recursive = FALSE)
 
-      fcts
-    })
-  })
+          fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
+        }
 
-  # Get the maximum number of sets
+        fcts <- fcts[unlist(lapply(fcts, function(x) nrow(x) > 0))]
+        fcts <- lapply(fcts, rownames)
 
-  getMaxSets <- reactive({
-    valid_sets <- getValidSets()
-    ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
-  })
+        setsort <- getSetSort()
+        if (setsort) {
+          fcts <- fcts[order(unlist(lapply(fcts, length)))]
+        }
 
-  # Get the sets we're going to use based on nsets
-
-  getSets <- reactive({
-    valid_sets <- getValidSets()
-    nsets <- getNsets()
-    valid_sets[1:nsets]
-  })
-
-  # Calculate intersections between sets
-
-  calculateIntersections <- reactive({
-    selected_sets <- getSets()
-
-    withProgress(message = "Calculating set intersections", value = 0, {
-      nsets <- getNsets()
-
-      # Get all possible combinations of sets
-
-      combinations <- function(items, pick) {
-        x <- combn(items, pick)
-        lapply(seq_len(ncol(x)), function(i) x[, i])
-      }
-
-      combos <- lapply(1:nsets, function(x) {
-        combinations(1:length(selected_sets), x)
+        fcts
       })
+    })
 
-      # Calculate the intersections of all these combinations
+    # Get the maximum number of sets
 
-      withProgress(message = "Running intersect()", value = 0, {
-        intersects <- lapply(combos, function(combonos) {
-          lapply(combonos, function(combo) {
-            Reduce(intersect, selected_sets[combo])
+    getMaxSets <- reactive({
+      valid_sets <- getValidSets()
+      ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
+    })
+
+    # Get the sets we're going to use based on nsets
+
+    getSets <- reactive({
+      valid_sets <- getValidSets()
+      nsets <- getNsets()
+      valid_sets[1:nsets]
+    })
+
+    # Calculate intersections between sets
+
+    calculateIntersections <- reactive({
+      selected_sets <- getSets()
+
+      withProgress(message = "Calculating set intersections", value = 0, {
+        nsets <- getNsets()
+
+        # Get all possible combinations of sets
+
+        combinations <- function(items, pick) {
+          x <- combn(items, pick)
+          lapply(seq_len(ncol(x)), function(i) x[, i])
+        }
+
+        combos <- lapply(1:nsets, function(x) {
+          combinations(1:length(selected_sets), x)
+        })
+
+        # Calculate the intersections of all these combinations
+
+        withProgress(message = "Running intersect()", value = 0, {
+          intersects <- lapply(combos, function(combonos) {
+            lapply(combonos, function(combo) {
+              Reduce(intersect, selected_sets[combo])
+            })
           })
         })
-      })
 
-      # For UpSet-ness, membership of higher-order intersections takes priority. Otherwise just return the number of entries in each intersection
+        # For UpSet-ness, membership of higher-order intersections takes priority. Otherwise just return the number of entries in each intersection
 
-      assignment_type <- getIntersectionAssignmentType()
+        assignment_type <- getIntersectionAssignmentType()
 
-      intersects <- lapply(1:length(intersects), function(i) {
-        intersectno <- intersects[[i]]
-        members_in_higher_levels <- unlist(intersects[(i + 1):length(intersects)])
-        lapply(intersectno, function(intersect) {
-          if (assignment_type == "upset") {
-            length(setdiff(intersect, members_in_higher_levels))
-          } else {
-            length(intersect)
-          }
+        intersects <- lapply(1:length(intersects), function(i) {
+          intersectno <- intersects[[i]]
+          members_in_higher_levels <- unlist(intersects[(i + 1):length(intersects)])
+          lapply(intersectno, function(intersect) {
+            if (assignment_type == "upset") {
+              length(setdiff(intersect, members_in_higher_levels))
+            } else {
+              length(intersect)
+            }
+          })
         })
+
+        combos <- unlist(combos, recursive = FALSE)
+        intersects <- unlist(intersects)
+
+        if (!getShowEmptyIntersections()) {
+          combos <- combos[which(intersects > 0)]
+          intersects <- intersects[which(intersects > 0)]
+        }
+
+        # Sort by intersect size
+
+        combos <- combos[order(intersects, decreasing = TRUE)]
+        intersects <- intersects[order(intersects, decreasing = TRUE)]
+
+        list(combinations = combos, intersections = intersects)
       })
+    })
 
-      combos <- unlist(combos, recursive = FALSE)
-      intersects <- unlist(intersects)
+    # Post-process intersections to remove lower-order interactions from display if requested
 
-      if (!getShowEmptyIntersections()) {
-        combos <- combos[which(intersects > 0)]
-        intersects <- intersects[which(intersects > 0)]
+    getIntersections <- reactive({
+      minorder <- getMinOrder()
+      ints <- calculateIntersections()
+
+      selected <- unlist(lapply(ints$combinations, length)) >= minorder
+      lapply(ints, function(x) x[selected])
+    })
+
+    ########################################################################### Render the plot with it separate components
+
+    output$plotly_upset <- renderPlotly({
+      grid <- upsetGrid()
+      set_size_chart <- upsetSetSizeBarChart()
+      intersect_size_chart <- upsetIntersectSizeBarChart()
+
+      intersect_size_chart <- intersect_size_chart %>% layout(yaxis = list(title = "Intersections size"))
+
+      s1 <- subplot(plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"),
+        set_size_chart,
+        nrows = 2, widths = c(0.6, 0.4)
+      )
+      s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE) %>% layout(showlegend = FALSE)
+
+      subplot(s1, s2, widths = c(0.3, 0.7))
+    })
+
+    # Calculate the maximum number of sets in an intersection
+
+    getMaxIntersectionOrder <- reactive({
+      ints <- calculateIntersections()
+      max(unlist(lapply(ints$combinations[ints$intersections > 0], length)))
+    })
+
+    # Add some line returns to contrast names
+
+    getSetNames <- reactive({
+      selected_sets <- getSets()
+      gsub("_", " ", names(selected_sets))
+    })
+
+    # Make the grid of points indicating set membership in intersections
+
+    upsetGrid <- reactive({
+      selected_sets <- getSets()
+      ints <- getIntersections()
+
+      intersects <- ints$intersections
+      combos <- ints$combinations
+
+      # Reduce the maximum number of intersections if we don't have that many
+
+      nintersections <- getNintersections()
+      nintersections <- min(nintersections, length(combos))
+
+      # Fetch the number of sets
+
+      nsets <- getNsets()
+      setnames <- getSetNames()
+
+      lines <- data.table::rbindlist(lapply(1:nintersections, function(combono) {
+        data.frame(combo = combono, x = rep(combono, max(2, length(combos[[combono]]))), y = (nsets - combos[[combono]]) + 1, name = setnames[combos[[combono]]])
+      }))
+
+      plot_ly(type = "scatter", mode = "markers", marker = list(color = "lightgrey", size = 8)) %>%
+        add_trace(type = "scatter", x = rep(
+          1:nintersections,
+          length(selected_sets)
+        ), y = unlist(lapply(1:length(selected_sets), function(x) rep(x - 0.5, nintersections))), hoverinfo = "none") %>%
+        add_trace(
+          type = "scatter",
+          data = group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y - 0.5, line = list(color = "black", width = 3), marker = list(
+            color = "black",
+            size = 10
+          ), hoverinfo = "text", text = ~name
+        ) %>%
+        layout(xaxis = list(showticklabels = FALSE, showgrid = FALSE, zeroline = FALSE), yaxis = list(showticklabels = FALSE, showgrid = FALSE, range = c(0, nsets), zeroline = FALSE, range = 1:nsets), margin = list(t = 0, b = 40))
+    })
+
+    # Make the bar chart illustrating set sizes
+
+    upsetSetSizeBarChart <- reactive({
+      setnames <- getSetNames()
+      selected_sets <- getSets()
+
+      plot_ly(x = unlist(lapply(selected_sets, length)), y = setnames, type = "bar", orientation = "h", marker = list(color = "black")) %>% layout(bargap = 0.4, yaxis = list(categoryarray = rev(setnames), categoryorder = "array"))
+    })
+
+    # Make the bar chart illustrating intersect size
+
+    upsetIntersectSizeBarChart <- reactive({
+      ints <- getIntersections()
+      intersects <- ints$intersections
+      combos <- ints$combinations
+      nintersections <- getNintersections()
+
+      p <- plot_ly(showlegend = FALSE) %>% add_trace(x = 1:nintersections, y = unlist(intersects[1:nintersections]), type = "bar", marker = list(
+        color = "black",
+        hoverinfo = "none"
+      ))
+
+      bar_numbers <- getBarNumbers()
+
+      if (bar_numbers) {
+        p <- p %>% add_trace(
+          type = "scatter", mode = "text", x = 1:nintersections, y = unlist(intersects[1:nintersections]) + (max(intersects) * 0.05),
+          text = unlist(intersects[1:nintersections]), textfont = list(color = "black")
+        )
       }
 
-      # Sort by intersect size
-
-      combos <- combos[order(intersects, decreasing = TRUE)]
-      intersects <- intersects[order(intersects, decreasing = TRUE)]
-
-      list(combinations = combos, intersections = intersects)
+      p
     })
+
+    # Provide the differential set summary for download
+
+    simpletable("upset", downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, filter = "none", filename = "differential_summary", rownames = FALSE)
   })
-
-  # Post-process intersections to remove lower-order interactions from display if requested
-
-  getIntersections <- reactive({
-    minorder <- getMinOrder()
-    ints <- calculateIntersections()
-
-    selected <- unlist(lapply(ints$combinations, length)) >= minorder
-    lapply(ints, function(x) x[selected])
-  })
-
-  ########################################################################### Render the plot with it separate components
-
-  output$plotly_upset <- renderPlotly({
-    grid <- upsetGrid()
-    set_size_chart <- upsetSetSizeBarChart()
-    intersect_size_chart <- upsetIntersectSizeBarChart()
-
-    intersect_size_chart <- intersect_size_chart %>% layout(yaxis = list(title = "Intersections size"))
-
-    s1 <- subplot(plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"),
-      set_size_chart,
-      nrows = 2, widths = c(0.6, 0.4)
-    )
-    s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE) %>% layout(showlegend = FALSE)
-
-    subplot(s1, s2, widths = c(0.3, 0.7))
-  })
-
-  # Calculate the maximum number of sets in an intersection
-
-  getMaxIntersectionOrder <- reactive({
-    ints <- calculateIntersections()
-    max(unlist(lapply(ints$combinations[ints$intersections > 0], length)))
-  })
-
-  # Add some line returns to contrast names
-
-  getSetNames <- reactive({
-    selected_sets <- getSets()
-    gsub("_", " ", names(selected_sets))
-  })
-
-  # Make the grid of points indicating set membership in intersections
-
-  upsetGrid <- reactive({
-    selected_sets <- getSets()
-    ints <- getIntersections()
-
-    intersects <- ints$intersections
-    combos <- ints$combinations
-
-    # Reduce the maximum number of intersections if we don't have that many
-
-    nintersections <- getNintersections()
-    nintersections <- min(nintersections, length(combos))
-
-    # Fetch the number of sets
-
-    nsets <- getNsets()
-    setnames <- getSetNames()
-
-    lines <- data.table::rbindlist(lapply(1:nintersections, function(combono) {
-      data.frame(combo = combono, x = rep(combono, max(2, length(combos[[combono]]))), y = (nsets - combos[[combono]]) + 1, name = setnames[combos[[combono]]])
-    }))
-
-    plot_ly(type = "scatter", mode = "markers", marker = list(color = "lightgrey", size = 8)) %>%
-      add_trace(type = "scatter", x = rep(
-        1:nintersections,
-        length(selected_sets)
-      ), y = unlist(lapply(1:length(selected_sets), function(x) rep(x - 0.5, nintersections))), hoverinfo = "none") %>%
-      add_trace(
-        type = "scatter",
-        data = group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y - 0.5, line = list(color = "black", width = 3), marker = list(
-          color = "black",
-          size = 10
-        ), hoverinfo = "text", text = ~name
-      ) %>%
-      layout(xaxis = list(showticklabels = FALSE, showgrid = FALSE, zeroline = FALSE), yaxis = list(showticklabels = FALSE, showgrid = FALSE, range = c(0, nsets), zeroline = FALSE, range = 1:nsets), margin = list(t = 0, b = 40))
-  })
-
-  # Make the bar chart illustrating set sizes
-
-  upsetSetSizeBarChart <- reactive({
-    setnames <- getSetNames()
-    selected_sets <- getSets()
-
-    plot_ly(x = unlist(lapply(selected_sets, length)), y = setnames, type = "bar", orientation = "h", marker = list(color = "black")) %>% layout(bargap = 0.4, yaxis = list(categoryarray = rev(setnames), categoryorder = "array"))
-  })
-
-  # Make the bar chart illustrating intersect size
-
-  upsetIntersectSizeBarChart <- reactive({
-    ints <- getIntersections()
-    intersects <- ints$intersections
-    combos <- ints$combinations
-    nintersections <- getNintersections()
-
-    p <- plot_ly(showlegend = FALSE) %>% add_trace(x = 1:nintersections, y = unlist(intersects[1:nintersections]), type = "bar", marker = list(
-      color = "black",
-      hoverinfo = "none"
-    ))
-
-    bar_numbers <- getBarNumbers()
-
-    if (bar_numbers) {
-      p <- p %>% add_trace(
-        type = "scatter", mode = "text", x = 1:nintersections, y = unlist(intersects[1:nintersections]) + (max(intersects) * 0.05),
-        text = unlist(intersects[1:nintersections]), textfont = list(color = "black")
-      )
-    }
-
-    p
-  })
-
-  # Provide the differential set summary for download
-
-  callModule(simpletable, "upset",
-    downloadMatrix = makeDifferentialSetSummary, displayMatrix = makeDifferentialSetSummary, filter = "none", filename = "differential_summary",
-    rownames = FALSE
-  )
 }

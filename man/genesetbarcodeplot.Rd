@@ -4,14 +4,10 @@
 \alias{genesetbarcodeplot}
 \title{The server function of the genesetbarcodeplot module}
 \usage{
-genesetbarcodeplot(input, output, session, eselist)
+genesetbarcodeplot(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -25,11 +21,11 @@ from the \code{gene_set_analyses} slot of the selected
 \code{ExploratorySummarizedExperiment} are displayed where provided.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(genesetbarcodeplot, "genesetbarcodeplot", eselist)
+genesetbarcodeplot("genesetbarcodeplot", eselist)
 
 # Almost certainly used via application creation
 

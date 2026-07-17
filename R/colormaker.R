@@ -30,12 +30,10 @@ colormakerInput <- function(id) {
 #' and provides that palette given a reactive which supplied the required
 #' number of colors.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param getNumberCategories A reactive supplying the number of categories
 #' that require a color.
 #'
@@ -45,19 +43,21 @@ colormakerInput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(colormaker, "myid", getNumberCategories)
+#' colormaker("myid", getNumberCategories)
 #'
-colormaker <- function(input, output, session, getNumberCategories) {
-  getPaletteName <- reactive({
-    validate(need(!is.null(input$palette_name), "Waiting for palette"))
-    input$palette_name
-  })
+colormaker <- function(id, getNumberCategories) {
+  moduleServer(id, function(input, output, session) {
+    getPaletteName <- reactive({
+      validate(need(!is.null(input$palette_name), "Waiting for palette"))
+      input$palette_name
+    })
 
-  reactive({
-    palette <- getPaletteName()
-    n_colors <- getNumberCategories()
+    reactive({
+      palette <- getPaletteName()
+      n_colors <- getNumberCategories()
 
-    makeColorScale(n_colors, palette)
+      makeColorScale(n_colors, palette)
+    })
   })
 }
 

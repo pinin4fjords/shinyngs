@@ -4,14 +4,10 @@
 \alias{maplot}
 \title{The server function of the \code{maplot} module}
 \usage{
-maplot(input, output, session, eselist)
+maplot(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -21,11 +17,11 @@ This module is for making scatter plots comparing pairs of groups defined in
 a 'contrasts' slot of the ExploratorySummarizedExperiment
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(maplot, "maplot", eselist)
+maplot("maplot", eselist)
 
 # Almost certainly used via application creation
 

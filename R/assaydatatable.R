@@ -64,21 +64,19 @@ assaydatatableOutput <- function(id) {
 
 #' The server function of the assaydatatable module
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example). Essentially this just passes the results of \code{colData()}
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 #' applied to the specified SummarizedExperiment object to the
 #' \code{simpletable} module
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(assaydatatable, "assaydatatable", eselist)
+#' assaydatatable("assaydatatable", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
@@ -86,20 +84,22 @@ assaydatatableOutput <- function(id) {
 #' app <- prepareApp("assaydatatable", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
-assaydatatable <- function(input, output, session, eselist) {
-  # Render the output area - and provide an input-dependent title
+assaydatatable <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Render the output area - and provide an input-dependent title
 
-  output$assaydatatable <- renderUI({
-    ns <- session$ns
+    output$assaydatatable <- renderUI({
+      ns <- session$ns
 
-    simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
+      simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
+    })
+
+    # Call the selectmatrix module and unpack the reactives it sends back
+
+    unpack.list(selectmatrix("expression", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
+
+    # Pass the matrix to the simpletable module for display
+
+    simpletable("assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
   })
-
-  # Call the selectmatrix module and unpack the reactives it sends back
-
-  unpack.list(callModule(selectmatrix, "expression", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE))
-
-  # Pass the matrix to the simpletable module for display
-
-  callModule(simpletable, "assaydatatable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = getAssay(), rownames = FALSE)
 }

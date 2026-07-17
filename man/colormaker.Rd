@@ -4,14 +4,10 @@
 \alias{colormaker}
 \title{The output function of the colorby module}
 \usage{
-colormaker(input, output, session, getNumberCategories)
+colormaker(id, getNumberCategories)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{getNumberCategories}{A reactive supplying the number of categories
 that require a color.}
@@ -26,11 +22,11 @@ and provides that palette given a reactive which supplied the required
 number of colors.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(colormaker, "myid", getNumberCategories)
+colormaker("myid", getNumberCategories)
 
 }
 \keyword{shiny}

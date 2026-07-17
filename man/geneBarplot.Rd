@@ -33,7 +33,7 @@ This function does the actual plotting with plotly. It will produce a plot
 for every row of the input matrix.
 }
 \examples{
-callModule(gene, "gene", ses)
+gene("gene", ses)
 
 }
 \keyword{shiny}

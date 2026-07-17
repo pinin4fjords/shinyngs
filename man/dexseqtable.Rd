@@ -5,9 +5,7 @@
 \title{The server function of the dexseqtable module}
 \usage{
 dexseqtable(
-  input,
-  output,
-  session,
+  id,
   eselist,
   allow_filtering = TRUE,
   getDEUGeneID = NULL,
@@ -17,11 +15,7 @@ dexseqtable(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -54,11 +48,11 @@ of the input \code{ExploratorySummarizedExperimentList}.
 to the contrasts listed in the \code{contrasts} slot of the
 \code{ExploratorySummarizedExperiment}.
 
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(dexseqtable, "dexseqtable", eselist)
+dexseqtable("dexseqtable", eselist)
 
 }
 \keyword{shiny}

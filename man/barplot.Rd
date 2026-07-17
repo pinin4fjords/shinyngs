@@ -4,14 +4,10 @@
 \alias{barplot}
 \title{Server function of the \code{barplot} module}
 \usage{
-barplot(input, output, session, getPlotmatrix, getYLabel, barmode = "stack")
+barplot(id, getPlotmatrix, getYLabel, barmode = "stack")
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{getPlotmatrix}{Reactive supplying a matrix to plot}
 

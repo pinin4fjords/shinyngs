@@ -4,22 +4,10 @@
 \alias{plotdownload}
 \title{The server function of the gene set module}
 \usage{
-plotdownload(
-  input,
-  output,
-  session,
-  makePlot,
-  filename = "plot.png",
-  plotHeight,
-  plotWidth
-)
+plotdownload(id, makePlot, filename = "plot.png", plotHeight, plotWidth)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{makePlot}{A reactive for generating the plot}
 
@@ -34,7 +22,7 @@ The plotdownload module provides export functionality for panels with plots.
 This will generally not be called directly, but by other modules
 }
 \examples{
-callModule(plotdownload, "heatmap", makePlot = plotHeatmap, filename = "heatmap.png", plotHeight = plotHeight, plotWidth = plotWidth)
+plotdownload("heatmap", makePlot = plotHeatmap, filename = "heatmap.png", plotHeight = plotHeight, plotWidth = plotWidth)
 
 }
 \keyword{shiny}

@@ -4,14 +4,10 @@
 \alias{readreports}
 \title{Server function of the \code{readreports} module}
 \usage{
-readreports(input, output, session, eselist)
+readreports(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperiment with \code{read_distribution}
 slot filled}

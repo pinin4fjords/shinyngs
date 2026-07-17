@@ -5,9 +5,7 @@
 \title{The server function of the selectmatrix module}
 \usage{
 selectmatrix(
-  input,
-  output,
-  session,
+  id,
   eselist,
   var_n = 50,
   var_max = NULL,
@@ -23,11 +21,7 @@ selectmatrix(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -81,11 +75,11 @@ row- and column- selection, respectively.
 This will generally not be called directly, but by other modules such as the
 heatmap module.
 
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, "selectmatrix", eselist)
+selectSamples <- sampleselect("selectmatrix", eselist)
 
 }
 \keyword{shiny}

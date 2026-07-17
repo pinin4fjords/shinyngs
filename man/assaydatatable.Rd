@@ -4,26 +4,22 @@
 \alias{assaydatatable}
 \title{The server function of the assaydatatable module}
 \usage{
-assaydatatable(input, output, session, eselist)
+assaydatatable(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see
-example). Essentially this just passes the results of \code{colData()}
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-callModule(assaydatatable, "assaydatatable", eselist)
+assaydatatable("assaydatatable", eselist)
 
 # Almost certainly used via application creation
 

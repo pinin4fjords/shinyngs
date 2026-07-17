@@ -5,9 +5,7 @@
 \title{Server function for scatterplotcontrols module}
 \usage{
 scatterplotcontrols(
-  input,
-  output,
-  session,
+  id,
   getDatamatrix,
   x = NA,
   y = NA,
@@ -16,11 +14,7 @@ scatterplotcontrols(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{getDatamatrix}{Reactive expression that returns a matrix from which
 coulumn headers will be used to create axis select drop-downs. The same
@@ -48,6 +42,6 @@ This module provides controls (2D/3D, axes etc) for scatter plots, which
 may then be used by one or more instances of the scatterplot module.
 }
 \examples{
-unpack.list(callModule(scatterplotcontrols, "pca", pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
+unpack.list(scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2)) # To have fixed axes rather than user-selected
 
 }

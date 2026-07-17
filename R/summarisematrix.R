@@ -39,18 +39,18 @@ summarisematrixInput <- function(id, allow_none = TRUE, select_summary_type = TR
 #' This module provides a form element and associated get function for defining
 #' how a summary statistic is calculated (probably by mean).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(summarisematrix)
+#' summarisematrix()
 #'
-summarisematrix <- function(input, output, session) {
-  getSummaryType <- reactive({
-    input$summaryType
+summarisematrix <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    getSummaryType <- reactive({
+      input$summaryType
+    })
   })
 }
 

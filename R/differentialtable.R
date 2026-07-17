@@ -55,45 +55,42 @@ differentialtableOutput <- function(id) {
 #' This module provides information on the comparison betwen pairs of groups
 #' defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
 #' Essentially this funnction uses the \code{contrasts} module to group samples
 #' and calculate fold changes, adding test statistics where available.
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(differentialtable, "differentialtable", eselist)
+#' differentialtable("differentialtable", eselist)
 #'
-differentialtable <- function(input, output, session, eselist) {
-  # Render the output area - and provide an input-dependent title
+differentialtable <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Render the output area - and provide an input-dependent title
 
-  output$differentialtable <- renderUI({
-    ns <- session$ns
+    output$differentialtable <- renderUI({
+      ns <- session$ns
 
-    simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "))
+      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "))
+    })
+
+    # Call the selectmatrix module and unpack the reactives it sends back
+
+    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
+    unpack.list(selectmatrix_reactives)
+
+    # Pass the matrix to the contrasts module for processing
+
+    unpack.list(contrasts("differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE))
+
+    # Pass the matrix to the simpletable module for display
+
+    simpletable("differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
   })
-
-  # Call the selectmatrix module and unpack the reactives it sends back
-
-  selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
-  unpack.list(selectmatrix_reactives)
-
-  # Pass the matrix to the contrasts module for processing
-
-  unpack.list(callModule(contrasts, "differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE))
-
-  # Pass the matrix to the simpletable module for display
-
-  callModule(simpletable, "differentialtable",
-    downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential",
-    rownames = FALSE
-  )
 }
