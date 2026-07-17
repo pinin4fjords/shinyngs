@@ -48,7 +48,7 @@ boxplotInput <- function(id, eselist) {
     naked_fields[[1]] <- distribution_plot_filters
   }
 
-  field_sets <- c(field_sets, list(expression = expression_filters, export = plotdownloadInput(ns("boxplot"), "box plot")))
+  field_sets <- c(field_sets, list(expression = expression_filters))
 
   list(naked_fields, fieldSets(ns("fieldset"), field_sets))
 }
@@ -159,17 +159,6 @@ boxplot <- function(id, eselist) {
         )
       })
     })
-
-    # Provide the plot for download
-
-    plotSampleBoxplot <- reactive({
-      p <- ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
-      print(p)
-    })
-
-    # Call to plotdownload module
-
-    plotdownload("boxplot", makePlot = plotSampleBoxplot, filename = "boxplot.png", plotHeight = 600, plotWidth = 800)
   })
 }
 
