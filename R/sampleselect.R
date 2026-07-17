@@ -32,12 +32,8 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
     # If grouping variables have been supplied we can use them to define sample selection
 
     selectby <- "name"
-    if (length(eselist@group_vars) > 0) {
+    if (has_slot_data(eselist, "group_vars")) {
       selectby <- c(selectby, "group")
-      default_groupvar <- eselist@group_vars[1]
-      if (length(eselist@group_vars) > 0) {
-        default_groupvar <- eselist@default_groupvar
-      }
     }
 
     # We can select by sample in any case
@@ -51,11 +47,11 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 
     # Add in group selection if relevant
 
-    if (length(eselist@group_vars) > 0) {
+    if (has_slot_data(eselist, "group_vars")) {
       inputs <- pushToList(inputs, conditionalPanel(
         condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"),
           "Define groups by:", structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars)),
-          selected = eselist@default_groupvar
+          selected = defaultGroupvar(eselist)
         ),
         uiOutput(ns("groupSamples"))
       ))
@@ -102,7 +98,7 @@ sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
     output$groupSamples <- renderUI({
       ese <- getExperiment()
 
-      if (input$sampleSelect == "group" && length(eselist@group_vars) > 0) {
+      if (input$sampleSelect == "group" && has_slot_data(eselist, "group_vars")) {
         validate(need(input$sampleGroupVar, FALSE))
         group_values <- as.character(unique(ese[[isolate(input$sampleGroupVar)]]))
         ns <- session$ns
@@ -139,7 +135,7 @@ sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
         } else {
           validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
 
-          if (length(eselist@group_vars) > 0) {
+          if (has_slot_data(eselist, "group_vars")) {
             validate(need(!is.null(input$sampleGroupVal), FALSE))
           }
 

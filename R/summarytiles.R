@@ -205,14 +205,14 @@ summaryTileSpecs <- function(eselist) {
     detail = function() detailAssays(eselist)
   ))
 
-  if (length(eselist@group_vars) > 0) {
+  if (has_slot_data(eselist, "group_vars")) {
     specs <- pushToList(specs, list(
       key = "groups", value = length(eselist@group_vars), label = "Sample groupings", icon = "object-group", group = "analysis",
       detail = function() detailGroups(eselist)
     ))
   }
 
-  if (length(eselist@contrasts) > 0) {
+  if (has_slot_data(eselist, "contrasts")) {
     specs <- pushToList(specs, list(
       key = "contrasts", value = length(eselist@contrasts), label = "Contrasts", icon = "code-compare", group = "analysis",
       detail = function() detailContrasts(eselist)
@@ -347,7 +347,7 @@ detailGroups <- function(eselist) {
 #' @rdname detailSamples
 detailContrasts <- function(eselist) {
   contrasts <- eselist@contrasts
-  has_stats <- any(vapply(eselist, function(e) length(e@contrast_stats) > 0, logical(1)))
+  has_stats <- any(vapply(eselist, function(e) has_slot_data(e, "contrast_stats"), logical(1)))
   ncap <- 12
   rows <- lapply(utils::head(contrasts, ncap), function(ct) {
     tags$tr(

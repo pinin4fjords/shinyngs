@@ -29,6 +29,22 @@ test_that("runPCA scales variables before running prcomp", {
   expect_false(isTRUE(all.equal(pca$sdev, unscaled$sdev)))
 })
 
+test_that("runPCA raises an informative error with fewer than 2 samples", {
+  mat <- matrix(1:4, nrow = 4, ncol = 1)
+  rownames(mat) <- paste0("gene", 1:4)
+  colnames(mat) <- "sample1"
+
+  expect_error(runPCA(mat), "at least 2 samples")
+})
+
+test_that("runPCA raises an informative error when no features vary across samples", {
+  mat <- matrix(5, nrow = 4, ncol = 3)
+  rownames(mat) <- paste0("gene", 1:4)
+  colnames(mat) <- paste0("sample", 1:3)
+
+  expect_error(runPCA(mat), "at least one feature with variable values")
+})
+
 # compilePCAData()
 
 test_that("compilePCAData returns coordinates and percent variance for all genes when ntop is NULL", {

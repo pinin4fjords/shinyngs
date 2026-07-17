@@ -36,7 +36,7 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 
   if (require_contrast_stats) {
     eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-      length(ese@contrast_stats) > 0
+      has_slot_data(ese, "contrast_stats")
     })))]
   }
   inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")), uiOutput(ns("samples")), uiOutput(ns("rows")), uiOutput(ns("meta")))
@@ -131,7 +131,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       ese <- getExperiment()
       if (select_meta) {
         metafields <- colnames(mcols(ese))
-        if (length(ese@idfield) > 0) {
+        if (has_slot_data(ese, "idfield")) {
           metafields <- setdiff(metafields, ese@idfield)
         }
 
@@ -139,7 +139,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
           selected = ese@labelfield,
           inline = TRUE
         )
-      } else if (length(ese@labelfield) > 0) {
+      } else if (has_slot_data(ese, "labelfield")) {
         hiddenInput(id = ns("metafields"), values = ese@labelfield)
       }
     })
@@ -213,7 +213,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     getAssayMeasure <- reactive({
       ese <- getExperiment()
-      if (length(ese@assay_measures) > 0 && getAssay() %in% names(ese@assay_measures)) {
+      if (has_slot_data(ese, "assay_measures") && getAssay() %in% names(ese@assay_measures)) {
         ese@assay_measures[[getAssay()]]
       } else {
         "expression"
@@ -274,7 +274,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # summarised if grouping variables were supplied!
 
     isSummarised <- reactive({
-      allow_summarise && length(eselist@group_vars) > 0 && getSummaryType() != "none"
+      allow_summarise && has_slot_data(eselist, "group_vars") && getSummaryType() != "none"
     })
 
     # Extract the annotation from the SummarizedExperiment
@@ -302,7 +302,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       selected_matrix <- selectLabelledMatrix()
       se <- getExperiment()
 
-      if (length(eselist@url_roots) > 0) {
+      if (has_slot_data(eselist, "url_roots")) {
         linkMatrix(selected_matrix, eselist@url_roots)
       } else {
         selected_matrix
@@ -313,7 +313,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     getIdField <- reactive({
       ese <- getExperiment()
-      if (length(ese@idfield) > 0) {
+      if (has_slot_data(ese, "idfield")) {
         ese@idfield
       } else {
         "id"
@@ -322,7 +322,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     getLabelField <- reactive({
       ese <- getExperiment()
-      if (length(ese@labelfield) > 0) {
+      if (has_slot_data(ese, "labelfield")) {
         ese@labelfield
       } else {
         # ese@idfield
@@ -356,7 +356,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
 labelMatrix <- function(matrix, ese, idcol = NULL, metafields = c()) {
   idfield <- "id"
-  if (length(ese@idfield) > 0) {
+  if (has_slot_data(ese, "idfield")) {
     idfield <- ese@idfield
   }
 

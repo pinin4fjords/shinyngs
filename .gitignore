@@ -14,8 +14,9 @@ default.profraw
 # CI logs
 .nf-test.log
 
-# Local test fixtures downloaded during CI runs
-SRP254919.*
+# Local test fixtures downloaded during CI runs. Root-anchored so committed
+# copies under tests/testthat/fixtures/ stay tracked.
+/SRP254919.*
 
 # Stray large local data files
 /data

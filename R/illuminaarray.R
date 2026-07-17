@@ -52,7 +52,7 @@ illuminaarrayInput <- function(id, eselist) {
   # Add read reports if provided
 
   if (any(unlist(lapply(eselist, function(ese) {
-    length(ese@read_reports) > 0
+    has_slot_data(ese, "read_reports")
   })))) {
     exploratory_menu <- pushToList(exploratory_menu, bslib::nav_panel("Read reports", sidebarLayout(
       sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3),
@@ -87,7 +87,7 @@ illuminaarrayInput <- function(id, eselist) {
 
   # If there are contrasts present, add the differential tab
 
-  if (length(eselist@contrasts) > 0) {
+  if (has_slot_data(eselist, "contrasts")) {
     differential_menu <- list("Differential", bslib::nav_panel("Tables", value = "diff_tables", sidebarLayout(
       sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3),
       mainPanel(differentialtableOutput(ns("differential")), width = 9)
@@ -102,7 +102,7 @@ illuminaarrayInput <- function(id, eselist) {
     # If any of the experiments in the list have assays with associated contrast_stats, add a volcano plot
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@contrast_stats) > 0
+      has_slot_data(ese, "contrast_stats")
     })))) {
       differential_menu <- pushToList(differential_menu, bslib::nav_panel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist),
         width = 3
@@ -112,7 +112,7 @@ illuminaarrayInput <- function(id, eselist) {
     # If any of the experiments have gene set analyses, add this table to the menu
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@gene_set_analyses) > 0
+      has_slot_data(ese, "gene_set_analyses")
     })))) {
       differential_menu <- pushToList(differential_menu, bslib::nav_panel("Gene set analyses", value = "geneset_analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(
         ns("genesetanalysis"),
@@ -128,7 +128,7 @@ illuminaarrayInput <- function(id, eselist) {
     # If any of the experiments have differential exon usage results
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@dexseq_results) > 0
+      has_slot_data(ese, "dexseq_results")
     })))) {
       differential_menu <- pushToList(differential_menu, bslib::nav_panel("Differential exon usage table", sidebarLayout(sidebarPanel(dexseqtableInput(
         ns("deutable"),
@@ -187,7 +187,7 @@ illuminaarray <- function(id, eselist) {
     for (esen in names(eselist)) {
       ese <- eselist[[esen]]
 
-      if (length(ese@labelfield) > 0) {
+      if (has_slot_data(ese, "labelfield")) {
         eselist@url_roots[[ese@labelfield]] <- "?gene="
         eselist@url_roots$significant_genes <- "?gene="
         eselist@url_roots$gene_set_id <- "?geneset="
@@ -212,12 +212,12 @@ illuminaarray <- function(id, eselist) {
     # Calls for the various optional tables
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@read_reports) > 0
+      has_slot_data(ese, "read_reports")
     })))) {
       readreports("readrep", eselist)
     }
 
-    if (length(eselist@contrasts) > 0) {
+    if (has_slot_data(eselist, "contrasts")) {
       differentialtable("differential", eselist)
       volcanoplot("volcano", eselist)
       foldchangeplot("foldchange", eselist)
@@ -230,7 +230,7 @@ illuminaarray <- function(id, eselist) {
     }
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@dexseq_results) > 0
+      has_slot_data(ese, "dexseq_results")
     })))) {
       dexseqtable("deutable", eselist)
       updateDEUGeneLabel <- dexseqplot("deuplot", eselist)

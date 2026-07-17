@@ -66,12 +66,12 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
     navLink(tagList(icon("bars", verify_fa = FALSE), "Sample metadata"), nav[["samples"]]),
     navLink(tagList(icon("cube", verify_fa = FALSE), "PCA & clustering"), nav[["pca"]])
   )
-  if (length(eselist@contrasts) > 0) {
+  if (has_slot_data(eselist, "contrasts")) {
     jump_items <- pushToList(jump_items, navLink(tagList(icon("chart-line", verify_fa = FALSE), "Differential results"), nav[["differential"]]))
   }
   jump_items <- pushToList(jump_items, navLink(tagList(icon("magnifying-glass", verify_fa = FALSE), "Look up a gene"), nav[["geneinfo"]]))
 
-  if (length(eselist@static_pdf) > 0) {
+  if (has_slot_data(eselist, "static_pdf")) {
     pdf <- tags$iframe(style = "height:800px; width:100%; scrolling=yes", src = eselist@static_pdf)
   } else {
     pdf <- NULL

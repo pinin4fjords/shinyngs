@@ -38,7 +38,7 @@ volcanoplotInput <- function(id, eselist) {
   # Only consider experiments that actually have p-values to use in a volcano plot
 
   eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-    length(ese@contrast_stats) > 0
+    has_slot_data(ese, "contrast_stats")
   })))]
   expression_filters <- selectmatrixInput(ns("expression"), eselist, require_contrast_stats = TRUE)
 
@@ -237,7 +237,8 @@ volcanoplot <- function(id, eselist) {
         ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
 
         cont <- getSelectedContrasts()[[1]][[1]]
-        colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
+        fc_axis_label <- paste0("log2(fold change) [source scale: ", getFoldChangeScale(), "]")
+        colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), fc_axis_label, paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
 
         fct <- filteredContrastsTables()[[1]][[1]]
         ct$colorby <- "hidden"

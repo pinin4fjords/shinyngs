@@ -17,7 +17,7 @@ readreportsInput <- function(id, eselist) {
   naked_fields <- list()
   field_sets <- list()
 
-  eselist <- eselist[unlist(lapply(eselist, function(x) length(x@read_reports) > 0))]
+  eselist <- eselist[unlist(lapply(eselist, function(x) has_slot_data(x, "read_reports")))]
   experiment_filter <- selectmatrixInput(ns("readreports"), eselist = eselist)
 
   if (length(eselist) > 1) {
@@ -106,7 +106,9 @@ readreports <- function(id, eselist) {
     # Return the selected plot type when available
 
     getReportType <- reactive({
+      ese <- getExperiment()
       validate(need(input$reportType, FALSE))
+      validate(need(input$reportType %in% names(ese@read_reports), "No matching report type for the selected experiment"))
       input$reportType
     })
 

@@ -409,6 +409,255 @@ test_that("cond_log2_transform_matrix guesses reverse (unlog) status correctly",
   )
 })
 
+# guess_foldchange_scale()
+
+test_that("guess_foldchange_scale detects log2 values via sub-unity magnitudes", {
+  expect_equal(guess_foldchange_scale(c(-3.2, 1.1, 0.4, -0.05, 2.8)), "log2")
+})
+
+test_that("guess_foldchange_scale detects linear values via large excursions", {
+  expect_equal(guess_foldchange_scale(c(-45, 3, 120, -8, 2)), "linear")
+})
+
+test_that("guess_foldchange_scale reports ambiguous when neither signal is present", {
+  expect_equal(guess_foldchange_scale(c(2, 3, -4, 5, -2.5)), "ambiguous")
+})
+
+test_that("guess_foldchange_scale ignores NA and non-finite values", {
+  expect_equal(guess_foldchange_scale(c(NA, Inf, -0.2, 3)), "log2")
+})
+
+# resolve_foldchange_scale()
+
+test_that("resolve_foldchange_scale auto-detects from the data distribution", {
+  expect_equal(
+    resolve_foldchange_scale(c(-3.2, 1.1, 0.4, -0.05), fc_column = "log2FoldChange"),
+    "log2"
+  )
+  expect_equal(
+    resolve_foldchange_scale(c(-45, 3, 120, -8), fc_column = "FoldChange"),
+    "linear"
+  )
+})
+
+test_that("resolve_foldchange_scale falls back to the column-name heuristic when the distribution is ambiguous", {
+  expect_equal(
+    resolve_foldchange_scale(c(2, 3, -4, 5), fc_column = "log2FoldChange"),
+    "log2"
+  )
+})
+
+test_that("resolve_foldchange_scale errors when an ambiguous distribution has no column-name heuristic to fall back on", {
+  expect_error(
+    resolve_foldchange_scale(c(2, 3, -4, 5), fc_column = "FoldChange"),
+    "Could not determine"
+  )
+})
+
+test_that("resolve_foldchange_scale errors when a declared scale contradicts the observed distribution", {
+  # Already-log2 values (sub-unity magnitudes present), but the caller
+  # incorrectly declares them linear.
+  expect_error(
+    resolve_foldchange_scale(c(-3.2, 1.1, 0.4, -0.05), fc_column = "log2FoldChange", declared_scale = "linear"),
+    "look like log2 fold changes"
+  )
+})
+
+test_that("resolve_foldchange_scale errors when the column-name heuristic contradicts the observed distribution", {
+  expect_error(
+    resolve_foldchange_scale(c(-45, 3, 120, -8), fc_column = "log2FoldChange"),
+    "suggests log2 fold changes"
+  )
+})
+
+test_that("resolve_foldchange_scale accepts a declared scale consistent with the data", {
+  expect_equal(
+    resolve_foldchange_scale(c(-3.2, 1.1, 0.4), fc_column = "log2FoldChange", declared_scale = "log2"),
+    "log2"
+  )
+})
+
+# read_differential()
+
+make_differential_file <- function(fold_changes, fc_column = "log2FoldChange") {
+  df <- data.frame(
+    gene_id = paste0("gene", seq_along(fold_changes)),
+    padj = seq(0.001, by = 0.001, length.out = length(fold_changes))
+  )
+  df[[fc_column]] <- fold_changes
+
+  differential_file <- tempfile(fileext = ".tsv")
+  write.table(df, differential_file, sep = "\t", quote = FALSE, row.names = FALSE)
+  differential_file
+}
+
+test_that("read_differential errors when an already-log2 column is declared linear", {
+  differential_file <- make_differential_file(c(-3.2, 1.1, 0.4, -0.05, 2.8))
+  on.exit(unlink(differential_file))
+
+  expect_error(
+    read_differential(
+      filename = differential_file,
+      feature_id_column = "gene_id",
+      pval_column = "padj",
+      qval_column = "padj",
+      fc_column = "log2FoldChange",
+      fold_change_scale = "linear"
+    ),
+    "look like log2 fold changes"
+  )
+})
+
+test_that("read_differential auto-detects and passes through an already-linear column unchanged", {
+  fold_changes <- c(-45, 3, 120, -8, 2)
+  differential_file <- make_differential_file(fold_changes, fc_column = "FoldChange")
+  on.exit(unlink(differential_file))
+
+  result <- read_differential(
+    filename = differential_file,
+    feature_id_column = "gene_id",
+    pval_column = "padj",
+    qval_column = "padj",
+    fc_column = "FoldChange"
+  )
+
+  expect_equal(result[["FoldChange"]], fold_changes)
+  expect_equal(attr(result, "fold_change_scale"), "linear")
+})
+
+test_that("read_differential unlogs an auto-detected log2 column", {
+  fold_changes <- c(-3.2, 1.1, 0.4, -0.05, 2.8)
+  differential_file <- make_differential_file(fold_changes, fc_column = "log2FoldChange")
+  on.exit(unlink(differential_file))
+
+  result <- read_differential(
+    filename = differential_file,
+    feature_id_column = "gene_id",
+    pval_column = "padj",
+    qval_column = "padj",
+    fc_column = "log2FoldChange"
+  )
+
+  expect_equal(result[["log2FoldChange"]], sign(fold_changes) * 2^(abs(fold_changes)))
+  expect_equal(attr(result, "fold_change_scale"), "log2")
+})
+
+test_that("read_differential errors on an ambiguous distribution with no column-name heuristic", {
+  differential_file <- make_differential_file(c(2, 3, -4, 5, -2.5), fc_column = "FoldChange")
+  on.exit(unlink(differential_file))
+
+  expect_error(
+    read_differential(
+      filename = differential_file,
+      feature_id_column = "gene_id",
+      pval_column = "padj",
+      qval_column = "padj",
+      fc_column = "FoldChange"
+    ),
+    "Could not determine"
+  )
+})
+
+test_that("read_differential warns and maps the deprecated unlog_foldchanges argument", {
+  fold_changes <- c(-3.2, 1.1, 0.4, -0.05, 2.8)
+  differential_file <- make_differential_file(fold_changes, fc_column = "log2FoldChange")
+  on.exit(unlink(differential_file))
+
+  expect_warning(
+    result <- read_differential(
+      filename = differential_file,
+      feature_id_column = "gene_id",
+      pval_column = "padj",
+      qval_column = "padj",
+      fc_column = "log2FoldChange",
+      unlog_foldchanges = TRUE
+    ),
+    "deprecated"
+  )
+
+  expect_equal(result[["log2FoldChange"]], sign(fold_changes) * 2^(abs(fold_changes)))
+})
+
+# compile_contrast_data()
+
+test_that("compile_contrast_data resolves the fold change scale once across all contrast files", {
+  # Individually, each file's fold changes could plausibly be linear (no
+  # sub-unity values within a single file), but combined they contain
+  # sub-unity values that only make sense as log2.
+  fc_a <- c(2.5, -3.1, 1.8)
+  fc_b <- c(0.4, -0.2, 4.5)
+
+  file_a <- make_differential_file(fc_a, fc_column = "FoldChange")
+  file_b <- make_differential_file(fc_b, fc_column = "FoldChange")
+  on.exit(unlink(c(file_a, file_b)))
+
+  result <- compile_contrast_data(
+    differential_stats_files = list(file_a, file_b),
+    feature_id_column = "gene_id",
+    pval_column = "padj",
+    qval_column = "padj",
+    fc_column = "FoldChange"
+  )
+
+  expect_equal(attr(result$fold_changes, "fold_change_scale"), "log2")
+  expect_equal(result$fold_changes$V1, sign(fc_a) * 2^(abs(fc_a)))
+  expect_equal(result$fold_changes$V2, sign(fc_b) * 2^(abs(fc_b)))
+})
+
+test_that("compile_contrast_data warns and maps the deprecated unlog_foldchanges argument", {
+  fc_a <- c(-3.2, 1.1, 0.4)
+
+  file_a <- make_differential_file(fc_a, fc_column = "FoldChange")
+  on.exit(unlink(file_a))
+
+  expect_warning(
+    result <- compile_contrast_data(
+      differential_stats_files = list(file_a),
+      feature_id_column = "gene_id",
+      pval_column = "padj",
+      qval_column = "padj",
+      fc_column = "FoldChange",
+      unlog_foldchanges = TRUE
+    ),
+    "deprecated"
+  )
+
+  expect_equal(result$fold_changes$V1, sign(fc_a) * 2^(abs(fc_a)))
+})
+
+# validate_inputs()
+
+test_that("validate_inputs surfaces a fold-change-scale contradiction as an error", {
+  samples_metadata <- tempfile(fileext = ".csv")
+  write.csv(data.frame(sample = c("s1", "s2"), group = c("a", "b")), samples_metadata, row.names = FALSE)
+
+  assay_file <- tempfile(fileext = ".tsv")
+  write.table(
+    data.frame(gene_id = c("gene1", "gene2"), s1 = c(10, 20), s2 = c(15, 25)),
+    assay_file,
+    sep = "\t", quote = FALSE, row.names = FALSE
+  )
+
+  fold_changes <- c(-3.2, 1.1, 0.4, -0.05)
+  differential_file <- make_differential_file(fold_changes, fc_column = "log2FoldChange")
+
+  on.exit(unlink(c(samples_metadata, assay_file, differential_file)))
+
+  expect_error(
+    validate_inputs(
+      samples_metadata = samples_metadata,
+      assay_files = assay_file,
+      differential_results = differential_file,
+      feature_id_col = "gene_id",
+      pval_column = "padj",
+      qval_column = "padj",
+      fc_column = "log2FoldChange",
+      fold_change_scale = "linear"
+    ),
+    "look like log2 fold changes"
+  )
+})
+
 # checkListIsSubset()
 
 test_that("checkListIsSubset returns TRUE when the test list is a subset", {

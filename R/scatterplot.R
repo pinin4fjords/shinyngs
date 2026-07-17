@@ -513,8 +513,8 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
   }
 
   if (is.null(palette)) {
-    if (any(labelled) && !is.null(colorby)) {
-      palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
+    if (!is.null(colorby)) {
+      palette <- makeColorScale(length(unique(colorby)), palette = palette_name)
     } else {
       palette <- makeColorScale(1)
     }

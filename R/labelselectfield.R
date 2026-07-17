@@ -110,7 +110,7 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
         if (length(ese@labelfield) == 0) {
           # If the idfield slot has been set, use its value instead of 'id'
 
-          if (length(ese@idfield) > 0) {
+          if (has_slot_data(ese, "idfield")) {
             mf <- ese@idfield
           }
         } else {
