@@ -4,3 +4,12 @@
 ^README-.*\.png$
 ^\.github$
 ^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^screenshots$
+^SRP254919\..*$
+^data$
+^default\.profraw$
+^.*\.profraw$
+^\.nf-test\.log$
+^\.DS_Store$

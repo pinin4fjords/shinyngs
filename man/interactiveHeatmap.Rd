@@ -48,7 +48,7 @@ values in \code{plotmatrix} be displayed on the heatmap cells?}
 
 \item{hide_colorbar}{Boolean, should the color scale legend be hidden?}
 
-\item{...}{Additional argments passed to \code{heatmaply()}}
+\item{...}{Additional arguments passed to \code{heatmaply()}}
 }
 \value{
 output A plotly htmlwidget as produced by heatmaply()

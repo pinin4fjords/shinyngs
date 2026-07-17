@@ -46,6 +46,7 @@ Suggests:
     knitr,
     markdown,
     optparse,
+    pkgdown,
     rmarkdown,
     rsconnect,
     testthat (>= 3.0.0),

@@ -1,0 +1,7 @@
+url: https://pinin4fjords.github.io/shinyngs/
+
+template:
+  bootstrap: 5
+
+development:
+  mode: auto
