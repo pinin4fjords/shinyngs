@@ -17,12 +17,11 @@ of panel names. In most cases all should be left open (the default), since
 fields in collapsed panels may be less discoverable.}
 }
 \value{
-A \code{tagList} of Bootstrap panels
+A \code{bslib::accordion()}
 }
 \description{
 Shiny apps can get cluttered with many inputs. This method wraps sets of
-fields in collapsible Bootstrap panels, one per named element, using
-Bootstrap's own \code{data-toggle="collapse"} markup rather than a
-separate collapsible-panel package. Every panel collapses/expands
-independently (there is no "close others on open" behaviour).
+fields in a \code{bslib::accordion()}, one panel per named element, with
+every panel able to be open at once (there is no "close others on open"
+behaviour).
 }

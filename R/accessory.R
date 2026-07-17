@@ -191,13 +191,35 @@ pushToList <- function(input_list, element) {
   input_list
 }
 
+#' Build the top-level bslib page shell shared by the app modules
+#'
+#' Applies the package's Bootstrap 5 theme and dark navbar styling, injects
+#' the package CSS and shinyjs, and constructs the resulting
+#' \code{bslib::page_navbar()}.
+#'
+#' @param navbar_menus A named list of arguments accepted by
+#' \code{bslib::page_navbar()} (\code{id}, \code{title}, \code{window_title},
+#' and one or more \code{bslib::nav_panel()}/\code{bslib::nav_menu()}
+#' elements).
+#'
+#' @return A \code{bslib::page_navbar()}
+#'
+#' @keywords internal
+#'
+shinyngsPageNavbar <- function(navbar_menus) {
+  cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
+  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo")
+  navbar_menus$navbar_options <- bslib::navbar_options(bg = "dark", theme = "dark")
+  navbar_menus$header <- tagList(includeCSS(cssfile), shinyjs::useShinyjs())
+  do.call(bslib::page_navbar, navbar_menus)
+}
+
 #' Create sets of fields for display
 #'
 #' Shiny apps can get cluttered with many inputs. This method wraps sets of
-#' fields in collapsible Bootstrap panels, one per named element, using
-#' Bootstrap's own \code{data-toggle="collapse"} markup rather than a
-#' separate collapsible-panel package. Every panel collapses/expands
-#' independently (there is no "close others on open" behaviour).
+#' fields in a \code{bslib::accordion()}, one panel per named element, with
+#' every panel able to be open at once (there is no "close others on open"
+#' behaviour).
 #'
 #' @param id ID field to apply to the overall container
 #' @param fieldset_list A named list, each element containing one or more
@@ -206,50 +228,22 @@ pushToList <- function(input_list, element) {
 #' of panel names. In most cases all should be left open (the default), since
 #' fields in collapsed panels may be less discoverable.
 #'
-#' @return A \code{tagList} of Bootstrap panels
+#' @return A \code{bslib::accordion()}
 
 fieldSets <- function(id, fieldset_list, open = NULL) {
   if (is.null(open)) {
-    open <- names(fieldset_list)
+    open <- TRUE
   }
 
-  ns <- NS(id)
-
   panels <- lapply(names(fieldset_list), function(listname) {
-    panel_id <- ns(make.names(listname))
-    heading_id <- paste0(panel_id, "-heading")
-    collapse_id <- paste0(panel_id, "-collapse")
-    is_open <- listname %in% open
-
-    tags$div(
-      class = "panel panel-default",
-      tags$div(
-        class = "panel-heading",
-        role = "tab",
-        id = heading_id,
-        tags$h4(
-          class = "panel-title",
-          tags$a(
-            role = "button",
-            `data-toggle` = "collapse",
-            href = paste0("#", collapse_id),
-            `aria-expanded` = tolower(as.character(is_open)),
-            `aria-controls` = collapse_id,
-            prettifyVariablename(listname)
-          )
-        )
-      ),
-      tags$div(
-        id = collapse_id,
-        class = paste("panel-collapse collapse", if (is_open) "in" else ""),
-        role = "tabpanel",
-        `aria-labelledby` = heading_id,
-        tags$div(class = "panel-body", fieldset_list[[listname]])
-      )
+    bslib::accordion_panel(
+      title = prettifyVariablename(listname),
+      value = listname,
+      fieldset_list[[listname]]
     )
   })
 
-  tags$div(id = id, class = "panel-group", role = "tablist", panels)
+  do.call(bslib::accordion, c(list(id = id, open = open, multiple = TRUE), panels))
 }
 
 #' Reshape a matrix into long format

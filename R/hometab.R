@@ -110,7 +110,7 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
     )
   )
 
-  tabPanel(
+  bslib::nav_panel(
     "Home",
     sidebarLayout(sidebar, mainpanel),
     icon = icon("house")

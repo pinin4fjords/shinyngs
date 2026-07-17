@@ -4,6 +4,56 @@
 
 .navbar-brand{
   height: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* Bootstrap 5's navbar wraps the brand and nav links onto separate rows once
+   the (long) study title no longer fits alongside them; truncate the brand
+   instead so both stay on one row above the mobile breakpoint. Scoped so the
+   >=lg layout doesn't interfere with the collapsed/mobile nav toggle. */
+@media (min-width: 992px){
+  .navbar .container-fluid{
+    flex-wrap: nowrap;
+  }
+  .navbar-header{
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .navbar-brand{
+    max-width: 100%;
+  }
+  .navbar-collapse{
+    flex: 0 0 auto;
+    width: auto;
+  }
+  .navbar-nav{
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 991.98px){
+  .navbar-brand{
+    max-width: 75vw;
+  }
+}
+
+/* bslib's default accordion styling tints the header of an open panel with
+   the theme's primary color and leaves collapsed headers nearly white;
+   use one neutral color for both states so field-set panels stay legible
+   and consistent with each other regardless of open/collapsed state. */
+.accordion-button,
+.accordion-button:not(.collapsed){
+  background-color: #f5f5f5;
+  color: #333333;
+  box-shadow: none;
+}
+.accordion-button:focus{
+  box-shadow: none;
+  border-color: rgba(0, 0, 0, .125);
 }
 
 .well{
@@ -25,12 +75,6 @@ h3{
   max-width:100%;
 }
 
-/* shinythemes overrides the bootstrap.css z-index that modal dialogs need. */
-
-.modal{
-  z-index: 1050; 
-}
-
 .help{
   float:right;
   padding-left:1em;
@@ -42,7 +86,16 @@ h3{
 }
 
 .dataTables_wrapper{
-  overflow-x: scroll; 
+  overflow-x: scroll;
+}
+
+/* DT's own bundled CSS (jquery.dataTables.min.css) sets a flat 4px padding
+   on its "Show N entries" <select> via a selector more specific than
+   Bootstrap 5's .form-select/.form-select-sm classes, which otherwise
+   reserve the right-hand padding for the select's arrow background-image;
+   restore just that padding so the arrow doesn't sit on top of the value. */
+.dataTables_wrapper .dataTables_length select.form-select{
+  padding-right: 2.25rem;
 }
 
 /* Contrast field sets */

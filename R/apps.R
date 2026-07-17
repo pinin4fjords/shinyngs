@@ -158,12 +158,11 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
 
   moduletitle <- prettifyVariablename(module)
 
-  cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
-
   if (!is.null(module)) {
-    ui <- fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), navbarPage(
+    ui <- shinyngsPageNavbar(list(
       id = "pages", title = moduletitle,
-      windowTitle = moduletitle, tabPanel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(
+      window_title = moduletitle,
+      bslib::nav_panel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(
         module,
         ...
       ), width = 9)))
