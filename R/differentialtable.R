@@ -44,10 +44,7 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("differentialtable"), "help", "help"), modalOutput(ns("differentialtable"), "Differential expression table", includeMarkdown(system.file("inlinehelp",
-    "differentialtable.md",
-    package = packageName()
-  ))), htmlOutput(ns("differentialtable")), contrastsOutput(ns("differential")))
+  list(modalInput(ns("differentialtable"), "help", "help"), htmlOutput(ns("differentialtable")), contrastsOutput(ns("differential")))
 }
 
 #' The server function of the differentialtable module
@@ -72,6 +69,8 @@ differentialtableOutput <- function(id) {
 #'
 differentialtable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("differentialtable", "Differential expression table")
+
     # Render the output area - and provide an input-dependent title
 
     output$differentialtable <- renderUI({

@@ -7,7 +7,7 @@
 modalInput(id, label, class, icon = "info-circle")
 }
 \arguments{
-\item{id}{Modal ID. Must match that passed to \code{inlinehelpOutput}}
+\item{id}{Modal ID. Must match that passed to \code{modalServer}}
 
 \item{label}{A label to use for the link}
 
@@ -16,10 +16,10 @@ modalInput(id, label, class, icon = "info-circle")
 \item{icon}{Icon used to activate modal}
 }
 \description{
-This module uses modals from \code{shinyBS} to create overlaid text for the
-current panel which displays when a link is clicked. Input and output
-functions are placed in the output function of the calling module (see
-example).
+This module uses Shiny's \code{modalDialog()} to create overlaid text for the
+current panel which displays when a link is clicked. The link is placed in
+the output function of the calling module, and the modal is shown by
+\code{modalServer()} in the calling module's server function (see example).
 }
 \details{
 This is handy, for example when adding help text.

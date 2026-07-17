@@ -79,9 +79,7 @@ upsetOutput <- function(id, eselist) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("upset"), "help", "help"), modalOutput(ns("upset"), "Intersection plots with UpSet", includeMarkdown(system.file("inlinehelp", "upset.md",
-      package = packageName()
-    ))), h3("Intersection of differential sets"), uiOutput(ns("subset_notice")), plotlyOutput(ns("plotly_upset"), height = "600px"),
+    modalInput(ns("upset"), "help", "help"), h3("Intersection of differential sets"), uiOutput(ns("subset_notice")), plotlyOutput(ns("plotly_upset"), height = "600px"),
     h4("Differential set summary"), uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset"))
   )
 }
@@ -115,6 +113,8 @@ upsetOutput <- function(id, eselist) {
 #'
 upset <- function(id, eselist, setlimit = 16) {
   moduleServer(id, function(input, output, session) {
+    modalServer("upset", "Intersection plots with UpSet")
+
     ns <- session$ns
 
     # Call the selectmatrix module and unpack the reactives it sends back

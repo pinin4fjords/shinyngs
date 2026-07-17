@@ -58,9 +58,7 @@ dendroInput <- function(id, eselist) {
 #'
 dendroOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns("dendro"), "help", "help"), modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.md",
-    package = packageName()
-  ))), h3("Sample clustering dendrogram"), plotlyOutput(ns("sampleDendroPlot"), height = "480px"))
+  list(modalInput(ns("dendro"), "help", "help"), h3("Sample clustering dendrogram"), plotlyOutput(ns("sampleDendroPlot"), height = "480px"))
 }
 
 #' The server function of the dendrogram module
@@ -84,6 +82,8 @@ dendroOutput <- function(id) {
 #'
 dendro <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("dendro", "Sample clustering dendrogram")
+
     # Get the expression matrix - no need for a gene selection
 
     unpack.list(selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))

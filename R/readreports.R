@@ -43,9 +43,7 @@ readreportsInput <- function(id, eselist) {
 readreportsOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(modalInput(ns("readreports"), "help", "help"), modalOutput(ns("readreports"), "Read reports", includeMarkdown(system.file("inlinehelp", "readreports.md",
-    package = packageName()
-  ))), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
+  list(modalInput(ns("readreports"), "help", "help"), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
 }
 
 #' Server function of the \code{readreports} module
@@ -59,6 +57,8 @@ readreportsOutput <- function(id, eselist) {
 
 readreports <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("readreports", "Read reports")
+
     ns <- session$ns
 
     unpack.list(selectmatrix("readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))

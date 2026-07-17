@@ -56,10 +56,7 @@ assaydatatableInput <- function(id, eselist) {
 assaydatatableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("assaydatatable"), "help", "help"), modalOutput(ns("assaydatatable"), "Assay data table", includeMarkdown(system.file("inlinehelp",
-    "assaydatatable.md",
-    package = packageName()
-  ))), htmlOutput(ns("assaydatatable")))
+  list(modalInput(ns("assaydatatable"), "help", "help"), htmlOutput(ns("assaydatatable")))
 }
 
 #' The server function of the assaydatatable module
@@ -86,6 +83,8 @@ assaydatatableOutput <- function(id) {
 #'
 assaydatatable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("assaydatatable", "Assay data table")
+
     # Render the output area - and provide an input-dependent title
 
     output$assaydatatable <- renderUI({

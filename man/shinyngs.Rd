@@ -193,9 +193,9 @@ autocomplete field to select from available gene sets (where provided in the
 the \code{group_vars} in a SummarizedExperment. Useful for coloring in a PCA
 etc} \item{labelselectfield}{This module provides an input which allows
 filtering on the basis of row IDs, labels, or other data in the metadata slot
-of an \code{ExploratorySummarizedExperiment}} \item{modal}{uses modals from
-\href{https://ebailey78.github.io/shinyBS/}{shinyBS} to create overlaid text
-for the current panel which displays when a link is clicked}
+of an \code{ExploratorySummarizedExperiment}} \item{modal}{uses Shiny's
+\code{modalDialog()} to create overlaid text for the current panel which
+displays when a link is clicked}
 \item{plotdownload}{Provides a download button for displayed plots}
 \item{sampleselect}{Allows a subset of columns to be selected from the
 selected assay matrix} \item{scatterplot}{A generic module for producing

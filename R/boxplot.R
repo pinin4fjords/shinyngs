@@ -79,7 +79,7 @@ boxplotInput <- function(id, eselist) {
 boxplotOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns("boxplot"), "help", "help"), modalOutput(ns("boxplot"), "Value distributions", includeMarkdown(system.file("inlinehelp", "boxplot.md", package = packageName()))),
+    modalInput(ns("boxplot"), "help", "help"),
     h3("Value distributions"), uiOutput(ns("quartilesPlot"))
   )
 }
@@ -111,6 +111,8 @@ boxplotOutput <- function(id) {
 #'
 boxplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("boxplot", "Value distributions")
+
     # Get the expression matrix - no need for a gene selection
 
     unpack.list(selectmatrix("sampleBoxplot", eselist, select_genes = FALSE))
