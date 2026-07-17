@@ -16,7 +16,7 @@ summarySE(
 }
 \arguments{
 \item{data}{A data frame. Expects all values for summarisation to be in one
-column, which may require judicious use of \code{\link{melt_matrix}}.}
+column, which may require judicious use of \code{melt_matrix}.}
 
 \item{measurevar}{The name of a column that contains the variable to be
 summariezed}

@@ -31,7 +31,6 @@ Imports:
     shinyjs,
     shinythemes,
     stats,
-    tidyr,
     utils,
     yaml
 Suggests:

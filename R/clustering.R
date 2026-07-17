@@ -335,7 +335,7 @@ clustering <- function(id, eselist) {
 #' Uses bootstrapping to return the standard error/ deviation of the median.
 #'
 #' @param data A data frame. Expects all values for summarisation to be in one
-#'   column, which may require judicious use of \code{\link{melt_matrix}}.
+#'   column, which may require judicious use of \code{melt_matrix}.
 #' @param measurevar The name of a column that contains the variable to be
 #'   summariezed
 #' @param groupvars A vector containing names of columns that contain grouping
@@ -367,28 +367,17 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
     }
   }
 
-  summarise_group <- function(xx) {
-    values <- xx[[measurevar]]
-    stats <- data.frame(
-      N = length2(values, na.rm = na.rm), mean = mean(values, na.rm = na.rm), sd = sd(values, na.rm = na.rm)
-    )
-
-    if (add_medians) {
-      stats$median <- median(values, na.rm = na.rm)
-      stats$median.se <- bootstrapMedian(values, 1000)$std.err
-    }
-    stats
-  }
-
-  if (is.null(groupvars)) {
-    datac <- summarise_group(data)
-  } else {
-    datac <- data %>%
-      dplyr::group_by(dplyr::across(dplyr::all_of(groupvars)), .drop = .drop) %>%
-      dplyr::group_modify(~ summarise_group(.x)) %>%
-      dplyr::ungroup() %>%
-      as.data.frame()
-  }
+  datac <- data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(groupvars)), .drop = .drop) %>%
+    dplyr::summarise(
+      N = length2(.data[[measurevar]], na.rm = na.rm),
+      mean = mean(.data[[measurevar]], na.rm = na.rm),
+      sd = sd(.data[[measurevar]], na.rm = na.rm),
+      median = if (add_medians) median(.data[[measurevar]], na.rm = na.rm) else NULL,
+      median.se = if (add_medians) bootstrapMedian(.data[[measurevar]], 1000)$std.err else NULL,
+      .groups = "drop"
+    ) %>%
+    as.data.frame()
 
   datac$se <- datac$sd / sqrt(datac$N) # Calculate standard error of the mean
 

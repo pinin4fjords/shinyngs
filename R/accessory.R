@@ -211,12 +211,11 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 
 #' Reshape a matrix into long format
 #'
-#' Produces the same three-column long format as the retired
-#' \code{reshape2::melt()} for a matrix: a row identifier, a column
-#' identifier and the value, with rows ordered so the column identifier
-#' varies slowest. Row and column identifiers are factors levelled in the
-#' matrix's original row/column order when dimnames are present, or plain
-#' integer indices otherwise.
+#' Produces a three-column long format for a matrix: a row identifier, a
+#' column identifier and the value, with rows ordered so the column
+#' identifier varies slowest. Row and column identifiers are factors levelled
+#' in the matrix's original row/column order when dimnames are present, or
+#' plain integer indices otherwise.
 #'
 #' @param m A matrix
 #' @param varnames Column names for the row and column identifiers
@@ -225,34 +224,21 @@ fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
 #' @return A data frame with columns \code{varnames[1]}, \code{varnames[2]}
 #'   and \code{value.name}
 #'
-#' @importFrom tidyr pivot_longer
-#' @export
-#'
-#' @examples
-#' m <- matrix(1:6, nrow = 2, dimnames = list(c("a", "b"), c("x", "y", "z")))
-#' melt_matrix(m)
-#'
+#' @noRd
 melt_matrix <- function(m, varnames = c("Var1", "Var2"), value.name = "value") {
-  row_ids <- if (is.null(rownames(m))) seq_len(nrow(m)) else factor(rownames(m), levels = rownames(m))
-  col_ids <- if (is.null(colnames(m))) seq_len(ncol(m)) else factor(colnames(m), levels = colnames(m))
-
-  # Transposing before pivoting keeps the column identifier varying slowest
-  # in the output, matching reshape2::melt()'s row order for a matrix.
-  transposed <- as.data.frame(t(m))
-  colnames(transposed) <- as.character(seq_len(nrow(m)))
-  transposed[[varnames[2]]] <- col_ids
-
-  long <- tidyr::pivot_longer(
-    transposed,
-    cols = as.character(seq_len(nrow(m))),
-    names_to = "..row",
-    values_to = value.name
+  dn <- dimnames(m)
+  if (is.null(dn)) dn <- list(NULL, NULL)
+  dimnames(m) <- list(
+    if (is.null(dn[[1]])) seq_len(nrow(m)) else dn[[1]],
+    if (is.null(dn[[2]])) seq_len(ncol(m)) else dn[[2]]
   )
 
-  long[[varnames[1]]] <- row_ids[as.integer(long[["..row"]])]
-  long[["..row"]] <- NULL
+  out <- as.data.frame(as.table(m), stringsAsFactors = TRUE)
+  colnames(out) <- c(varnames, value.name)
 
-  as.data.frame(long[, c(varnames[1], varnames[2], value.name)])
+  if (is.null(dn[[1]])) out[[varnames[1]]] <- as.integer(as.character(out[[varnames[1]]]))
+  if (is.null(dn[[2]])) out[[varnames[2]]] <- as.integer(as.character(out[[varnames[2]]]))
+  out
 }
 
 #' Reshape data to the way \code{ggplot2} likes it
