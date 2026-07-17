@@ -5,7 +5,7 @@ This provides actual datatable element for display by applications
 ## Usage
 
 ``` r
-simpletableOutput(id, tabletitle = NULL)
+simpletableOutput(id, tabletitle = NULL, spinner = FALSE)
 ```
 
 ## Arguments
@@ -17,6 +17,12 @@ simpletableOutput(id, tabletitle = NULL)
 - tabletitle:
 
   (optional) Title to display with the table
+
+- spinner:
+
+  Show a loading spinner while the table is (re)computed. Intended for
+  tables backed by expensive reactives (e.g. differential expression);
+  left off by default for small, near-instant tables.
 
 ## Value
 

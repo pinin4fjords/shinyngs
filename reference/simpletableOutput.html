@@ -39,7 +39,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simpletableOutput</span><span class="op">(</span><span class="va">id</span>, tabletitle <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simpletableOutput</span><span class="op">(</span><span class="va">id</span>, tabletitle <span class="op">=</span> <span class="cn">NULL</span>, spinner <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -52,6 +52,12 @@
 
 <dt id="arg-tabletitle">tabletitle<a class="anchor" aria-label="anchor" href="#arg-tabletitle"></a></dt>
 <dd><p>(optional) Title to display with the table</p></dd>
+
+
+<dt id="arg-spinner">spinner<a class="anchor" aria-label="anchor" href="#arg-spinner"></a></dt>
+<dd><p>Show a loading spinner while the table is (re)computed.
+Intended for tables backed by expensive reactives (e.g. differential
+expression); left off by default for small, near-instant tables.</p></dd>
 
 </dl></div>
     <div class="section level2">
