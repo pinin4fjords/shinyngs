@@ -1,3 +1,5 @@
+dexseqplot_modal <- list(id = "dexseqplot", title = "Differential exon usage plot")
+
 #' The UI input function of the dexseqplot Shiny module
 #'
 #' This module produces a differential exon usage plot using the \code{plotDEXSeq}
@@ -76,7 +78,7 @@ dexseqplotInput <- function(id, eselist) {
 dexseqplotOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(modalInput(ns("dexseqplot"), "help", "help"), h4("Gene-wise differential exon usage"), plotOutput(ns("deuPlot"), height = 620), dexseqtableOutput(ns("deuPlotTable")))
+  list(modalInput(ns(dexseqplot_modal$id), "help", "help"), h4("Gene-wise differential exon usage"), plotOutput(ns("deuPlot"), height = 620), dexseqtableOutput(ns("deuPlotTable")))
 }
 
 #' The server function of the dexseqplot Shiny module
@@ -106,7 +108,7 @@ dexseqplotOutput <- function(id, eselist) {
 #'
 dexseqplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("dexseqplot", "Differential exon usage plot")
+    modalServer(dexseqplot_modal$id, dexseqplot_modal$title)
 
     # Fetch the table of values for the gene
 

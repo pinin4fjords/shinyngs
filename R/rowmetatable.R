@@ -1,3 +1,5 @@
+rowmetatable_modal <- list(id = "rowmetatable", title = "Experimental data table")
+
 #' The UI input function of the rowmetatable module
 #'
 #' This module produces a simple table of the row metadata (accessed via
@@ -47,7 +49,7 @@ rowmetatableInput <- function(id, eselist) {
 #'
 rowmetatableOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns("rowmetatable"), "help", "help"), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
+  list(modalInput(ns(rowmetatable_modal$id), "help", "help"), simpletableOutput(ns("rowmetatable"), tabletitle = "Row metadata"))
 }
 
 #' The server function of the rowmetatable module
@@ -68,7 +70,7 @@ rowmetatableOutput <- function(id) {
 #'
 rowmetatable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("rowmetatable", "Experimental data table")
+    modalServer(rowmetatable_modal$id, rowmetatable_modal$title)
 
     getRowMeta <- reactive({
       meta <- getAnnotation()

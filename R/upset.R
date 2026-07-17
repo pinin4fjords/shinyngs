@@ -1,3 +1,5 @@
+upset_modal <- list(id = "upset", title = "Intersection plots with UpSet")
+
 #' The input function of the upset module
 #'
 #' This module illustrates the intersection of differential sets using a
@@ -79,7 +81,7 @@ upsetOutput <- function(id, eselist) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("upset"), "help", "help"), h3("Intersection of differential sets"), uiOutput(ns("subset_notice")), plotlyOutput(ns("plotly_upset"), height = "600px"),
+    modalInput(ns(upset_modal$id), "help", "help"), h3("Intersection of differential sets"), uiOutput(ns("subset_notice")), plotlyOutput(ns("plotly_upset"), height = "600px"),
     h4("Differential set summary"), uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset"))
   )
 }
@@ -113,7 +115,7 @@ upsetOutput <- function(id, eselist) {
 #'
 upset <- function(id, eselist, setlimit = 16) {
   moduleServer(id, function(input, output, session) {
-    modalServer("upset", "Intersection plots with UpSet")
+    modalServer(upset_modal$id, upset_modal$title)
 
     ns <- session$ns
 

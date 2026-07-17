@@ -1,3 +1,5 @@
+dexseqtable_modal <- list(id = "dexseqtable", title = "Differential exon usage table")
+
 #' The UI input function of the dexseqtable module
 #'
 #' This module produces a differential exon usage table based on the output
@@ -94,7 +96,7 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
 dexseqtableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("dexseqtable"), "help", "help"), simpletableOutput(ns("dexseqtable"), tabletitle = "Differential exon usage"))
+  list(modalInput(ns(dexseqtable_modal$id), "help", "help"), simpletableOutput(ns("dexseqtable"), tabletitle = "Differential exon usage"))
 }
 
 #' The server function of the dexseqtable module
@@ -134,7 +136,7 @@ dexseqtableOutput <- function(id) {
 #'
 dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL, show_controls = TRUE, page_length = 15, link_to_deu_plot = TRUE) {
   moduleServer(id, function(input, output, session) {
-    modalServer("dexseqtable", "Differential exon usage table")
+    modalServer(dexseqtable_modal$id, dexseqtable_modal$title)
 
     # Only use experiments with gene set analyses available
 

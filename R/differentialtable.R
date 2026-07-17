@@ -1,3 +1,5 @@
+differentialtable_modal <- list(id = "differentialtable", title = "Differential expression table")
+
 #' The UI input function of the differentialtable module
 #'
 #' This module provides information on the comparison betwen pairs of groups
@@ -44,7 +46,7 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("differentialtable"), "help", "help"), htmlOutput(ns("differentialtable")), contrastsOutput(ns("differential")))
+  list(modalInput(ns(differentialtable_modal$id), "help", "help"), htmlOutput(ns("differentialtable")), contrastsOutput(ns("differential")))
 }
 
 #' The server function of the differentialtable module
@@ -69,7 +71,7 @@ differentialtableOutput <- function(id) {
 #'
 differentialtable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("differentialtable", "Differential expression table")
+    modalServer(differentialtable_modal$id, differentialtable_modal$title)
 
     # Render the output area - and provide an input-dependent title
 
