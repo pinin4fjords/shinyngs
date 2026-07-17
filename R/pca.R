@@ -138,7 +138,7 @@ pca <- function(id, eselist) {
 
     pcaDisplayMatrix <- reactive({
       pcam <- pcaMatrix()
-      pcam <- apply(pcam[, seq_len(min(ncol(pcam), 10))], 2, function(x) round(x, 2))
+      pcam <- apply(pcam[, seq_len(min(ncol(pcam), 10)), drop = FALSE], 2, function(x) round(x, 2))
       pcam
     })
 
@@ -256,7 +256,7 @@ runPCA <- function(matrix, do_log = TRUE) {
     matrix <- log2(matrix + 1)
   }
 
-  matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, ]
+  matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, , drop = FALSE]
 
   prcomp(t(as.matrix(matrix)), scale. = TRUE)
 }
