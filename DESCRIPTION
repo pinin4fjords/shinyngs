@@ -8,6 +8,8 @@ Depends:
     R (>= 4.1.0),
     SummarizedExperiment
 License: AGPL (>= 3)
+URL: https://pinin4fjords.github.io/shinyngs/, https://github.com/pinin4fjords/shinyngs
+BugReports: https://github.com/pinin4fjords/shinyngs/issues
 Encoding: UTF-8
 LazyData: true
 Imports:
