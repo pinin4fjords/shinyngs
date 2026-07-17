@@ -1010,6 +1010,10 @@ eselistfromConfig <-
       eselist_args$gene_sets <- lapply(config$gene_sets, read_gmt)
     }
 
+    if ("ensembl_species" %in% names(config)) {
+      eselist_args$ensembl_species <- config$ensembl_species
+    }
+
     eselist <- do.call(ExploratorySummarizedExperimentList, eselist_args)
 
     eselist

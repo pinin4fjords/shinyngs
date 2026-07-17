@@ -106,8 +106,8 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' ExploratorySummarizedExperiment objects via \code{mcols()}. Used to relate
 #' the rows of assays to gene sets.
 #' @param ensembl_species Ensembl species definition like 'mmusculus'. Used to
-#'   interface with BiomaRt e.g. to make gene model plots in the \code{gene}
-#'   module.
+#'   pick an igv.js genome build for the gene model view in the \code{gene}
+#'   module (see \code{geneModelGenomeInfo()}).
 #'
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
