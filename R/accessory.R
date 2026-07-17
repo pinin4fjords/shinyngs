@@ -869,7 +869,7 @@ eselistfromConfig <-
 
     if ("gene_set_id_type" %in% names(config) && "gene_sets" %in% names(config)) {
       eselist_args$gene_set_id_type <- config$gene_set_id_type
-      eselist_args$gene_sets <- lapply(config$gene_sets, GSEABase::getGmt)
+      eselist_args$gene_sets <- lapply(config$gene_sets, read_gmt)
     }
 
     eselist <- do.call(ExploratorySummarizedExperimentList, eselist_args)
@@ -892,6 +892,38 @@ drop_empty_gene_set_analyses <- function(gene_set_analyses) {
     Filter(function(gene_set_type) any(!vapply(gene_set_type, is.null, logical(1))), assay)
   })
   Filter(function(assay) length(assay) > 0, gene_set_analyses)
+}
+
+#' Read a GMT-format gene set file
+#'
+#' Parses a plain-text \code{.gmt} file (one gene set per line: set name,
+#' description, then tab-separated gene identifiers - the format used by
+#' MSigDB and similar resources) into a named list of character vectors, one
+#' per gene set. Blank lines are ignored.
+#'
+#' @param file Path to a \code{.gmt} file
+#'
+#' @return A named list of character vectors of gene identifiers, one per
+#' gene set, named after the set name in the file's first column.
+#'
+#' @export
+
+read_gmt <- function(file) {
+  lines <- readLines(file)
+  lines <- lines[nzchar(lines)]
+
+  fields <- strsplit(lines, "\t")
+  set_names <- vapply(fields, `[`, character(1), 1)
+
+  duplicate_names <- unique(set_names[duplicated(set_names)])
+  if (length(duplicate_names) > 0) {
+    stop("Duplicate gene set name(s) in ", file, ": ", paste(duplicate_names, collapse = ", "))
+  }
+
+  gene_sets <- lapply(fields, function(x) x[-c(1, 2)])
+  names(gene_sets) <- set_names
+
+  gene_sets
 }
 
 #' Read an expression matrix file and match to specified samples and features

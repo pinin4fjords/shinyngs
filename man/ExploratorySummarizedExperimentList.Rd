@@ -45,10 +45,10 @@ samples of individual experiments, must correspond to their \code{colData}}
 metadata column names of the experiments. Exploratory tools displayed via
 \code{shinyngs} can use these roots to construct URLs to 'link out'.}
 
-\item{gene_sets}{A named list of GeneSetCollections as might be produced by
-reading .gmt format gene sets (for example from MSigDB) using
-GSEABase::getGmt(). These must contain identifiers of the type specified
-in \code{gene_set_id_type}.}
+\item{gene_sets}{A list of named lists of character vectors of gene
+identifiers, as produced by reading .gmt format gene sets (for example from
+MSigDB) with \code{\link{read_gmt}}. These must contain identifiers of the
+type specified in \code{gene_set_id_type}.}
 
 \item{gene_set_id_type}{A column found in the metadata of the component
 ExploratorySummarizedExperiment objects via \code{mcols()}. Used to relate

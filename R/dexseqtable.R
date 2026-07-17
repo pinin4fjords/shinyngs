@@ -153,6 +153,8 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
     unpack.list(contrast_reactives)
 
     makeDEUTables <- reactive({
+      validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage tables."))
+
       ese <- getExperiment()
 
       withProgress(message = "Making DEU table for each contrast", value = 0, {

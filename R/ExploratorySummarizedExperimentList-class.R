@@ -98,10 +98,10 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #' @param url_roots A list of URL roots, with list names corresponding to
 #' metadata column names of the experiments. Exploratory tools displayed via
 #' \code{shinyngs} can use these roots to construct URLs to 'link out'.
-#' @param gene_sets A named list of GeneSetCollections as might be produced by
-#' reading .gmt format gene sets (for example from MSigDB) using
-#' GSEABase::getGmt(). These must contain identifiers of the type specified
-#' in \code{gene_set_id_type}.
+#' @param gene_sets A list of named lists of character vectors of gene
+#' identifiers, as produced by reading .gmt format gene sets (for example from
+#' MSigDB) with \code{\link{read_gmt}}. These must contain identifiers of the
+#' type specified in \code{gene_set_id_type}.
 #' @param gene_set_id_type A column found in the metadata of the component
 #' ExploratorySummarizedExperiment objects via \code{mcols()}. Used to relate
 #' the rows of assays to gene sets.
@@ -155,10 +155,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
       print("Processing gene sets")
 
       gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
-        # gene_set_collection doesn't behave exactly like a list (it's a GSEABase object), so we have to make sure the result gets named properly
-
-        gsc <- lapply(gene_set_collection, function(gene_set) {
-          gene_set_ids <- GSEABase::geneIds(gene_set)
+        gsc <- lapply(gene_set_collection, function(gene_set_ids) {
           if (is_numeric) {
             gene_set_ids <- as.integer(gene_set_ids)
           }

@@ -318,6 +318,11 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
 #' @param end Chromosome end coordinate
 
 geneModelPlot <- function(ensembl_species, chromosome, start, end) {
+  validate(need(
+    requireNamespace("biomaRt", quietly = TRUE) && requireNamespace("Gviz", quietly = TRUE),
+    "The biomaRt and Gviz packages must be installed to view gene model plots."
+  ))
+
   # Initialise a connection to Ensembl
 
   ensembl <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = paste0(ensembl_species, "_gene_ensembl"), host = "www.ensembl.org")
