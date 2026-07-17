@@ -70,22 +70,22 @@ test_that("gene model view falls back to a friendly message when igvShiny is mis
   })
 })
 
-test_that("gene model view reports an unrecognised species with a friendly message", {
-  eselist <- gene_model_eselist()
-  eselist@ensembl_species <- "not_a_real_species"
+# geneModelGenomeInfo() is a plain function (no Shiny/igvShiny involved), so
+# this is tested directly rather than through the full module -- the "no
+# genome build known" validate() message in output$geneModel is only
+# reachable when igvShiny is actually installed, which it may not be in a
+# CI environment that (deliberately) doesn't install Suggests-only heavy deps.
 
-  shiny::testServer(gene, args = list(id = "gene", eselist = eselist), {
-    session$setInputs(
-      "gene-experiment" = "counts",
-      "gene-assay" = "counts",
-      "gene_label-label" = "Gene1"
-    )
+test_that("geneModelGenomeInfo returns NULL for an unrecognised species", {
+  expect_null(geneModelGenomeInfo("not_a_real_species"))
+})
 
-    result <- tryCatch(output$geneModel, error = function(e) e)
+test_that("geneModelGenomeInfo returns a genome build for known species", {
+  info <- geneModelGenomeInfo("hsapiens")
+  expect_equal(info$genome, "hg38")
+  expect_match(info$gff3_url, "^https://")
 
-    expect_s3_class(result, "validation")
-    expect_match(conditionMessage(result), "No igv.js genome build is known")
-  })
+  expect_equal(geneModelGenomeInfo("mmusculus")$genome, "mm10")
 })
 
 # dexseqtable() / dexseqplot() (DEXSeq)
