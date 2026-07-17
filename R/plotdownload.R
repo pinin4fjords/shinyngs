@@ -17,7 +17,11 @@
 plotdownloadInput <- function(id, label = "Plot") {
   ns <- NS(id)
 
-  downloadButton(ns("plotdownload"), label)
+  a11yControl(
+    downloadButton(ns("plotdownload"), label),
+    label = paste("Download", label, "as PNG"),
+    tooltip = paste("Download", tolower(label), "as a PNG image")
+  )
 }
 
 #' The server function of the gene set module

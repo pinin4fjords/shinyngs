@@ -4,7 +4,13 @@
 \alias{modalInput}
 \title{The input function for the \code{modal} module}
 \usage{
-modalInput(id, label, class, icon = "info-circle")
+modalInput(
+  id,
+  label,
+  class,
+  icon = "info-circle",
+  tooltip = "Open detailed help"
+)
 }
 \arguments{
 \item{id}{Modal ID. Must match that passed to \code{modalServer}}
@@ -14,6 +20,9 @@ modalInput(id, label, class, icon = "info-circle")
 \item{class}{A class to apply to the link}
 
 \item{icon}{Icon used to activate modal}
+
+\item{tooltip}{Hover/focus hint describing where the link leads, shown via
+\code{bslib::tooltip()}}
 }
 \description{
 This module uses Shiny's \code{modalDialog()} to create overlaid text for the
