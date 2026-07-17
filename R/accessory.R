@@ -173,8 +173,10 @@ pushToList <- function(input_list, element) {
 #' Create sets of fields for display
 #'
 #' Shiny apps can get cluttered with many inputs. This method wraps sets of
-#' fields in a \code{bslib} \code{accordion()}, with one collapsible panel per
-#' named element.
+#' fields in collapsible Bootstrap panels, one per named element, using
+#' Bootstrap's own \code{data-toggle="collapse"} markup rather than a
+#' separate collapsible-panel package. Every panel collapses/expands
+#' independently (there is no "close others on open" behaviour).
 #'
 #' @param id ID field to apply to the overall container
 #' @param fieldset_list A named list, each element containing one or more
@@ -183,7 +185,7 @@ pushToList <- function(input_list, element) {
 #' of panel names. In most cases all should be left open (the default), since
 #' fields in collapsed panels may be less discoverable.
 #'
-#' @return A \code{bslib} accordion
+#' @return A \code{tagList} of Bootstrap panels
 
 fieldSets <- function(id, fieldset_list, open = NULL) {
   if (is.null(open)) {
@@ -191,10 +193,40 @@ fieldSets <- function(id, fieldset_list, open = NULL) {
   }
 
   panels <- lapply(names(fieldset_list), function(listname) {
-    bslib::accordion_panel(title = prettifyVariablename(listname), value = listname, fieldset_list[[listname]])
+    panel_id <- paste0(id, "-", make.names(listname))
+    heading_id <- paste0(panel_id, "-heading")
+    collapse_id <- paste0(panel_id, "-collapse")
+    is_open <- listname %in% open
+
+    tags$div(
+      class = "panel panel-default",
+      tags$div(
+        class = "panel-heading",
+        role = "tab",
+        id = heading_id,
+        tags$h4(
+          class = "panel-title",
+          tags$a(
+            role = "button",
+            `data-toggle` = "collapse",
+            href = paste0("#", collapse_id),
+            `aria-expanded` = tolower(as.character(is_open)),
+            `aria-controls` = collapse_id,
+            prettifyVariablename(listname)
+          )
+        )
+      ),
+      tags$div(
+        id = collapse_id,
+        class = paste("panel-collapse collapse", if (is_open) "in" else ""),
+        role = "tabpanel",
+        `aria-labelledby` = heading_id,
+        tags$div(class = "panel-body", fieldset_list[[listname]])
+      )
+    )
   })
 
-  do.call(bslib::accordion, c(panels, list(id = id, multiple = TRUE, open = open)))
+  tags$div(id = id, class = "panel-group", role = "tablist", panels)
 }
 
 #' Reshape data to the way \code{ggplot2} likes it
