@@ -27,8 +27,13 @@ genesetbarcodeplotOutput("experiment")
 
 # Almost certainly used via application creation
 
-app <- prepareApp("genesetbarcodeplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  data(airway, package = "airway")
+  ese <- as(airway, "ExploratorySummarizedExperiment")
+  eselist <- ExploratorySummarizedExperimentList(ese)
+  app <- prepareApp("genesetbarcodeplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

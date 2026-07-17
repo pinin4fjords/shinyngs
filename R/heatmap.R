@@ -21,13 +21,18 @@
 #' @keywords shiny
 #'
 #' @examples
-#' heatmapInput("heatmap", ese, group_vars, default_groupvar)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' heatmapInput("heatmap", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("heatmap", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("heatmap", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 heatmapInput <- function(id, eselist, type = "expression") {
   ns <- NS(id)
@@ -95,9 +100,14 @@ heatmap_modal_specs <- list(
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("heatmap", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("heatmap", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 heatmapOutput <- function(id, type = "") {
   ns <- NS(id)
@@ -138,13 +148,17 @@ heatmapOutput <- function(id, type = "") {
 #' @keywords shiny
 #'
 #' @examples
-#' heatmap("heatmap", eselist, type = "pca")
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("heatmap", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   heatmap("heatmap", eselist, type = "pca")
+#'   app <- prepareApp("heatmap", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 heatmap <- function(id, eselist, type = "expression") {
   moduleServer(id, function(input, output, session) {
@@ -246,7 +260,7 @@ heatmap <- function(id, eselist, type = "expression") {
       # We can't do clustering with anything with the same value in all columns. So take these out.
 
       if (as.logical(input$cluster_rows) && !is.null(getExperimentData())) {
-        pm <- pm[apply(pm, 1, function(x) length(unique(x)) > 1), , drop = FALSE]
+        pm <- pm[rowsWithMultipleValues(pm), , drop = FALSE]
       }
 
       # For expression, re-order by the experiment
@@ -266,7 +280,7 @@ heatmap <- function(id, eselist, type = "expression") {
         pm <- log2(pm + 1)
       } else if (type == "pca") {
         pm[pm < 0.001] <- 0.001
-        pm <- log10(pm[apply(pm, 1, function(x) !all(is.na(x))), ])
+        pm <- log10(pm[!matrixStats::rowAlls(is.na(pm)), , drop = FALSE])
       }
       pm
     })
@@ -275,7 +289,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
     getPCAMatrix <- reactive({
       pcameta <- getExperimentData()
-      pcavals <- selectMatrix()[, rownames(pcameta)]
+      pcavals <- selectMatrix()[, rownames(pcameta), drop = FALSE]
 
       pca <- runPCA(pcavals)
       fraction_explained <- calculatePCAFractionExplained(pca)
@@ -490,7 +504,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 
   p <- heatmaply::heatmaply(plotmatrix,
     dendrogram = dendrogram, custom_hovertext = hovertext, Rowv = Rowv, Colv = Colv, scale = scale,
-    colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = row_labels,
+    colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = rownames(plotmatrix),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
     subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = 1, hide_colorbar = hide_colorbar,
     cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers, ...

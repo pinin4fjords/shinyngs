@@ -31,13 +31,18 @@ associations between principal components and experimental variables.
 This provides the form elements to control the heatmap display
 }
 \examples{
-heatmapInput("heatmap", ese, group_vars, default_groupvar)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+heatmapInput("heatmap", eselist)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("heatmap", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  app <- prepareApp("heatmap", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

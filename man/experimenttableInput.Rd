@@ -25,13 +25,18 @@ specified, a select box should appear to pick the desired one for display.
 Leverages the \code{simpletable} module
 }
 \examples{
-experimentableInput("experiment", eselist)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+experimenttableInput("experiment", eselist)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("experimenttable", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  app <- prepareApp("experimenttable", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

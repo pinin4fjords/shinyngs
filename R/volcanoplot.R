@@ -19,13 +19,18 @@ volcanoplot_modal <- list(id = "volcanoplot", title = "Volcano plots")
 #' @keywords shiny
 #'
 #' @examples
-#' volcanoplotInput("myid", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
-#' # However, almost certainly called via application creation:
+#' # The volcano module needs an eselist carrying differential statistics
+#' # (contrast_stats); see the vignette. It is used via application creation:
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("volcanoplot", zhangneurons)
-#' shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   volcanoplotInput("myid", eselist)
+#'   app <- prepareApp("volcanoplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 volcanoplotInput <- function(id, eselist) {
   ns <- NS(id)
@@ -82,9 +87,14 @@ volcanoplotInput <- function(id, eselist) {
 #'
 #' # However, almost certainly called via application creation:
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("volcanoplot", zhangneurons)
-#' shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("volcanoplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 volcanoplotOutput <- function(id) {
   ns <- NS(id)
@@ -106,13 +116,17 @@ volcanoplotOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' differentialtable("differentialtable", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # However, almost certainly called via application creation:
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("volcanoplot", zhangneurons)
-#' shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   differentialtable("differentialtable", eselist)
+#'   app <- prepareApp("volcanoplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 volcanoplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
