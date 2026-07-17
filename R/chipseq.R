@@ -21,26 +21,26 @@
 chipseqInput <- function(id, eselist) {
   ns <- NS(id)
 
-  navbar_menus <- list(id = ns("chipseq"), title = paste0("ChIP-seq explorer: ", eselist@title), windowTitle = eselist@title, homeTab(ns, eselist, "ChIP-seq"), navbarMenu("Sample data", tabPanel("Experiment", value = "Experiment", sidebarLayout(sidebarPanel(experimenttableInput(
+  navbar_menus <- list(id = ns("chipseq"), title = paste0("ChIP-seq explorer: ", eselist@title), window_title = eselist@title, homeTab(ns, eselist, "ChIP-seq"), bslib::nav_menu("Sample data", bslib::nav_panel("Experiment", value = "Experiment", sidebarLayout(sidebarPanel(experimenttableInput(
     ns("experimenttable"),
     eselist
-  ), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)), icon = icon("table")), tabPanel("Annotation", sidebarLayout(sidebarPanel(rowmetatableInput(
+  ), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")), width = 9)), icon = icon("table")), bslib::nav_panel("Annotation", sidebarLayout(sidebarPanel(rowmetatableInput(
     ns("rowmetatable"),
     eselist
   ), width = 2), mainPanel(rowmetatableOutput(ns("rowmetatable")), width = 10)), icon = icon("table")), icon = icon("flask")))
 
   # Add in the QC/ exploratory menu
 
-  exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")),
+  exploratory_menu <- list("QC/ exploratory", bslib::nav_panel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")),
     width = 9
-  )), icon = icon("bar-chart-o", verify_fa = FALSE)), tabPanel("PCA", value = "pca", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
+  )), icon = icon("chart-column", verify_fa = FALSE)), bslib::nav_panel("PCA", value = "pca", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
     width = 9
-  )), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"),
+  )), icon = icon("cube")), bslib::nav_panel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"),
     width = 3
-  ), mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), tabPanel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(
+  ), mainPanel(heatmapOutput(ns("heatmap-pca"), type = "pca"), width = 9)), icon = icon("cubes")), bslib::nav_panel("Clustering dendrogram", sidebarLayout(sidebarPanel(dendroInput(
     ns("dendro"),
     eselist
-  ), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)), icon = icon("sitemap")), tabPanel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"),
+  ), width = 3), mainPanel(dendroOutput(ns("dendro")), width = 9)), icon = icon("sitemap")), bslib::nav_panel("Clustering Heatmap", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-clustering"),
     eselist,
     type = "samples"
   ), width = 3), mainPanel(heatmapOutput(ns("heatmap-clustering"), type = "samples"), width = 9)), icon = icon("th", verify_fa = FALSE)))
@@ -50,37 +50,37 @@ chipseqInput <- function(id, eselist) {
   if (any(unlist(lapply(eselist, function(ese) {
     length(ese@read_reports) > 0
   })))) {
-    exploratory_menu <- pushToList(exploratory_menu, tabPanel("Read reports", sidebarLayout(
+    exploratory_menu <- pushToList(exploratory_menu, bslib::nav_panel("Read reports", sidebarLayout(
       sidebarPanel(readreportsInput(ns("readrep"), eselist), width = 3),
       mainPanel(readreportsOutput(ns("readrep")), width = 9)
-    ), icon = icon("bar-chart-o", verify_fa = FALSE)))
+    ), icon = icon("chart-bar", verify_fa = FALSE)))
   }
   exploratory_menu$icon <- icon("binoculars")
 
-  navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", exploratory_menu))
+  navbar_menus <- pushToList(navbar_menus, do.call(bslib::nav_menu, exploratory_menu))
 
   # Add the assay data menu
 
-  assaydata_menu <- list("Assay data", tabPanel("Tables", value = "assay_tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")),
+  assaydata_menu <- list("Assay data", bslib::nav_panel("Tables", value = "assay_tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")),
     width = 9
-  )), icon = icon("table")), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"),
+  )), icon = icon("table")), bslib::nav_panel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"),
     width = 3
   ), mainPanel(heatmapOutput(ns("heatmap-expression"), type = "expression"), width = 9)), icon = icon("th", verify_fa = FALSE)))
 
   assaydata_menu$icon <- icon("table")
 
-  navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", assaydata_menu))
+  navbar_menus <- pushToList(navbar_menus, do.call(bslib::nav_menu, assaydata_menu))
 
   # If there are contrasts present, add the differential tab
 
   if (length(eselist@contrasts) > 0) {
-    differential_menu <- list("Differential", tabPanel("Tables", value = "diff_tables", sidebarLayout(
+    differential_menu <- list("Differential", bslib::nav_panel("Tables", value = "diff_tables", sidebarLayout(
       sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3),
       mainPanel(differentialtableOutput(ns("differential")), width = 9)
-    ), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(
+    ), icon = icon("table")), bslib::nav_panel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(
       ns("foldchange"),
       eselist
-    ), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("chart-line")), tabPanel("MA plots", sidebarLayout(sidebarPanel(maplotInput(
+    ), width = 3), mainPanel(foldchangeplotOutput(ns("foldchange")), width = 9)), icon = icon("chart-line")), bslib::nav_panel("MA plots", sidebarLayout(sidebarPanel(maplotInput(
       ns("ma"),
       eselist
     ), width = 3), mainPanel(maplotOutput(ns("ma")), width = 9)), icon = icon("chart-line")))
@@ -90,7 +90,7 @@ chipseqInput <- function(id, eselist) {
     if (any(unlist(lapply(eselist, function(ese) {
       length(ese@contrast_stats) > 0
     })))) {
-      differential_menu <- pushToList(differential_menu, tabPanel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist),
+      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Volcano plots", sidebarLayout(sidebarPanel(volcanoplotInput(ns("volcano"), eselist),
         width = 3
       ), mainPanel(volcanoplotOutput(ns("volcano")), width = 9)), icon = icon("chart-line")))
     }
@@ -100,12 +100,12 @@ chipseqInput <- function(id, eselist) {
     if (any(unlist(lapply(eselist, function(ese) {
       length(ese@gene_set_analyses) > 0
     })))) {
-      differential_menu <- pushToList(differential_menu, tabPanel("Gene set analyses", value = "geneset_analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(
+      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Gene set analyses", value = "geneset_analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(
         ns("genesetanalysis"),
         eselist
       ), width = 3), mainPanel(genesetanalysistableOutput(ns("genesetanalysis")), width = 9)), icon = icon("tasks", verify_fa = FALSE)))
 
-      differential_menu <- pushToList(differential_menu, tabPanel("Gene set barcode plots", value = "genesetbarcode", sidebarLayout(sidebarPanel(genesetbarcodeplotInput(
+      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Gene set barcode plots", value = "genesetbarcode", sidebarLayout(sidebarPanel(genesetbarcodeplotInput(
         ns("chipseq"),
         eselist
       ), width = 3), mainPanel(genesetbarcodeplotOutput(ns("chipseq")), width = 9)), icon = icon("barcode")))
@@ -114,28 +114,27 @@ chipseqInput <- function(id, eselist) {
     # If there's more than one contrast we can compare differential sets
 
     if (length(eselist@contrasts) > 1) {
-      differential_menu <- pushToList(differential_menu, tabPanel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(
+      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Differential set intersection", sidebarLayout(sidebarPanel(upsetInput(
         ns("upset"),
         eselist
-      ), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("bar-chart-o", verify_fa = FALSE)))
+      ), width = 3), mainPanel(upsetOutput(ns("upset"), eselist), width = 9)), icon = icon("chart-bar", verify_fa = FALSE)))
     }
 
     differential_menu$icon <- icon("chart-line")
 
-    navbar_menus <- pushToList(navbar_menus, do.call("navbarMenu", differential_menu))
+    navbar_menus <- pushToList(navbar_menus, do.call(bslib::nav_menu, differential_menu))
   }
 
   # Add the gene info plots
 
-  navbar_menus <- pushToList(navbar_menus, tabPanel("Gene info", value = "geneinfo", sidebarLayout(
+  navbar_menus <- pushToList(navbar_menus, bslib::nav_panel("Gene info", value = "geneinfo", sidebarLayout(
     sidebarPanel(geneInput(ns("gene"), eselist), width = 3),
     mainPanel(geneOutput(ns("gene"), eselist), width = 9)
-  ), icon = icon("bar-chart-o", verify_fa = FALSE)))
+  ), icon = icon("chart-bar", verify_fa = FALSE)))
 
   # Add the final wrappers
 
-  cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
-  fluidPage(includeCSS(cssfile), theme = shinythemes::shinytheme("cosmo"), shinyjs::useShinyjs(), do.call(navbarPage, navbar_menus))
+  shinyngsPageNavbar(navbar_menus)
 }
 
 #' The server function of the chipseq module. Currently a near-clone of the
