@@ -53,13 +53,21 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #'
 genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
   moduleServer(id, function(input, output, session) {
+    # Fetch the gene sets keyed for the current experiment's label field,
+    # guarding against experiments with no gene sets available for that field
+
+    getGeneSetsForLabelfield <- reactive({
+      ese <- getExperiment()
+      gene_sets <- eselist@gene_sets[[ese@labelfield]]
+      validate(need(length(gene_sets) > 0, paste0("No gene sets available for identifier type '", ese@labelfield, "'")))
+      gene_sets
+    })
+
     # Allow user to select the type of gene set
 
     output$geneSetTypes <- renderUI({
       if (filter_by_type) {
-        ese <- getExperiment()
-
-        gene_set_types <- names(eselist@gene_sets[[ese@labelfield]])
+        gene_set_types <- names(getGeneSetsForLabelfield())
         ns <- session$ns
         selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
       }
@@ -68,9 +76,8 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
     # Reactive to fetch the gene set types (if used)
 
     getGeneSetTypes <- reactive({
-      ese <- getExperiment()
       if (!filter_by_type) {
-        names(eselist@gene_sets[[ese@labelfield]])
+        names(getGeneSetsForLabelfield())
       } else {
         validate(need(input$geneSetTypes, "Waiting for gene set type"))
         input$geneSetTypes
@@ -108,8 +115,7 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
     # Get gene sets with the proper label field keying
 
     getGeneSets <- reactive({
-      ese <- getExperiment()
-      gene_sets <- eselist@gene_sets[[ese@labelfield]]
+      gene_sets <- getGeneSetsForLabelfield()
       gene_set_types <- getGeneSetTypes()
       gene_sets[gene_set_types]
     })

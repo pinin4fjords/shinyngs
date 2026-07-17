@@ -49,7 +49,7 @@ boxplotInput <- function(id, eselist) {
 
   # Don't create an empty field set if we're not grouping
 
-  if (length(eselist@group_vars) > 0) {
+  if (has_slot_data(eselist, "group_vars")) {
     field_sets$distribution_plot_filters <- distribution_plot_filters
   } else {
     naked_fields[[1]] <- distribution_plot_filters

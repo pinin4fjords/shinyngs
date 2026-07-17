@@ -52,7 +52,7 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
 
   # Only consider experiments with DEXSeq results
 
-  eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
+  eselist <- eselist[unlist(lapply(eselist, function(ese) has_slot_data(ese, "dexseq_results")))]
 
   field_sets <- list(differential_exon_usage = list(selectmatrixInput(ns("expression"), eselist), contrastsInput(ns("deuContrast"),
     allow_filtering = allow_filtering,
@@ -140,7 +140,7 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
 
     # Only use experiments with gene set analyses available
 
-    eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@dexseq_results) > 0))]
+    eselist <- eselist[unlist(lapply(eselist, function(ese) has_slot_data(ese, "dexseq_results")))]
 
     # Call the selectmatrix module and unpack the reactives it sends back
 

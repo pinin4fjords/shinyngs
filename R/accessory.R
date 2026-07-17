@@ -10,9 +10,9 @@
 #' @keywords internal
 #'
 defaultGroupvar <- function(eselist) {
-  if (length(eselist@default_groupvar) > 0) {
+  if (has_slot_data(eselist, "default_groupvar")) {
     eselist@default_groupvar
-  } else if (length(eselist@group_vars) > 0) {
+  } else if (has_slot_data(eselist, "group_vars")) {
     eselist@group_vars[1]
   } else {
     NULL
@@ -1639,6 +1639,53 @@ compile_contrast_data <-
     }
     contrast_stats_rearranged
   }
+
+#' Check whether a list-type slot on an S4 object is populated
+#'
+#' Centralises the \code{length(x@some_slot) > 0} idiom used in several Shiny
+#' modules to decide whether optional data (contrasts, gene sets, read
+#' reports, DEXSeq results etc) is available before showing or hiding UI for
+#' it.
+#'
+#' @param x An S4 object (e.g. \code{ExploratorySummarizedExperiment} or
+#'   \code{ExploratorySummarizedExperimentList})
+#' @param slot_name Name of the slot to check
+#'
+#' @return output Boolean- is the slot populated?
+#'
+#' @keywords shiny
+#'
+#' @examples
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#' has_slot_data(eselist, "contrasts")
+#'
+#' @export
+
+has_slot_data <- function(x, slot_name) {
+  length(slot(x, slot_name)) > 0
+}
+
+#' Evaluate an expression, converting any error into a Shiny validation message
+#'
+#' Wraps \code{tryCatch()} around an expression so that an error raised by a
+#' computation (e.g. \code{runPCA()} or \code{runClustering()} rejecting
+#' degenerate input) surfaces as a \code{\link[shiny]{validate}} message in
+#' the UI rather than crashing the app.
+#'
+#' @param expr Expression to evaluate
+#'
+#' @return output Result of \code{expr}, or triggers a Shiny validation error
+#'   with the original condition's message
+#'
+#' @keywords shiny
+#'
+#' @export
+
+validateOrCatch <- function(expr) {
+  tryCatch(expr, error = function(e) validate(need(FALSE, conditionMessage(e))))
+}
 
 #' Call the various read/ validate methods for input data surrounding an experiment
 #'

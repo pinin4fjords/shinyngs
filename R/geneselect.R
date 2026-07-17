@@ -69,7 +69,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       ese <- getExperiment()
 
       # length(eselist@gene_sets) > 0 & all(unlist(lapply(c("gene_set_id_type", "labelfield"), function(x) length(slot(ese, x)) > 0)))
-      length(eselist@gene_set_id_type) > 0 && eselist@gene_set_id_type %in% colnames(mcols(ese))
+      has_slot_data(eselist, "gene_set_id_type") && eselist@gene_set_id_type %in% colnames(mcols(ese))
     })
 
     # Grab the gene set functionality from it's module if we need it. We must also have gene sets and a way of mapping them to our results
@@ -211,7 +211,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
           # Use annotation for gene names if specified, otherwise use matrix rows
 
-          if (length(ese@labelfield) > 0) {
+          if (has_slot_data(ese, "labelfield")) {
             annotation <- data.frame(mcols(ese))
             selected_rows <- as.character(annotation[which(tolower(annotation[[ese@labelfield]]) %in% tolower(selected_genes)), ese@idfield])
           } else {

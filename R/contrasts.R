@@ -344,7 +344,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # Get all the contrasts the user specified in their StructuredExperiment- if any
 
     getAllContrasts <- reactive({
-      if (length(eselist@contrasts) > 0) {
+      if (has_slot_data(eselist, "contrasts")) {
         contrasts <- eselist@contrasts
 
         contrasts <- lapply(contrasts, function(cont) {
@@ -444,7 +444,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       assay <- getAssay()
       ese <- getExperiment()
 
-      length(ese@contrast_stats) > 0 && assay %in% names(ese@contrast_stats) && "fold_changes" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$fold_changes)
+      has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "fold_changes" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$fold_changes)
     })
 
     # Report the scale that pre-computed fold changes were interpreted as when
@@ -469,7 +469,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       assay <- getAssay()
       ese <- getExperiment()
 
-      length(ese@contrast_stats) > 0 && assay %in% names(ese@contrast_stats) && "pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)
+      has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)
     })
 
     # Test for the presence of q values in the input object
@@ -478,7 +478,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       assay <- getAssay()
       ese <- getExperiment()
 
-      length(ese@contrast_stats) > 0 && assay %in% names(ese@contrast_stats) && "qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)
+      has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)
     })
 
     ########################################################################### Subsetting using the rows in the input matrix. This does NOT involve the filters from this module, but simply subsets the base data to the rows pertinent
@@ -687,7 +687,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     linkedLabelledContrastsTable <- reactive({
       lct <- labelledContrastsTable()
-      if (length(eselist@url_roots) > 0) {
+      if (has_slot_data(eselist, "url_roots")) {
         lct <- linkMatrix(lct, eselist@url_roots)
       }
       lct
