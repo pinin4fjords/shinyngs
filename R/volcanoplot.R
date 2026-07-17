@@ -94,21 +94,19 @@ volcanoplotOutput <- function(id) {
 
 #' The server function of the \code{volcanoplot} module
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example). Essentially this just passes the results of \code{colData()}
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 #' applied to the specified SummarizedExperiment object to the
 #' \code{simpletable} module
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(differentialtable, "differentialtable", eselist)
+#' differentialtable("differentialtable", eselist)
 #'
 #' # However, almost certainly called via application creation:
 #'
@@ -116,136 +114,129 @@ volcanoplotOutput <- function(id) {
 #' app <- prepareApp("volcanoplot", zhangneurons)
 #' shinyApp(ui = app$ui, server = app$server)
 #'
-volcanoplot <- function(input, output, session, eselist) {
-  output$volcanotable <- renderUI({
-    ns <- session$ns
+volcanoplot <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    output$volcanotable <- renderUI({
+      ns <- session$ns
 
-    simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]][[1]], sep = ": "))
-  })
+      simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]][[1]], sep = ": "))
+    })
 
-  # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and unpack the reactives it sends back
 
-  selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist,
-    var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE,
-    require_contrast_stats = TRUE
-  )
-  unpack.list(selectmatrix_reactives)
+    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE, require_contrast_stats = TRUE)
+    unpack.list(selectmatrix_reactives)
 
-  # Pass the matrix to the contrasts module for processing
+    # Pass the matrix to the contrasts module for processing
 
-  unpack.list(callModule(contrasts, "differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE))
+    unpack.list(contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE))
 
-  # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
+    # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
 
-  unpack.list(callModule(geneselect, "volcano", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    unpack.list(geneselect("volcano", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
 
-  # Pass the matrix to the scatterplot module for display
+    # Pass the matrix to the scatterplot module for display
 
-  callModule(scatterplot, "volcano",
-    getDatamatrix = volcanoTable, getTitle = getTitle, allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, colorBy = colorBy,
-    getLines = plotLines
-  )
+    scatterplot("volcano", getDatamatrix = volcanoTable, getTitle = getTitle, allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
 
-  # Make a title by selecting the single contrast name of the single filter set
+    # Make a title by selecting the single contrast name of the single filter set
 
-  getTitle <- reactive({
-    contrast_names <- getSelectedContrastNames()
-    contrast_names[[1]][[1]]
-  })
+    getTitle <- reactive({
+      contrast_names <- getSelectedContrastNames()
+      contrast_names[[1]][[1]]
+    })
 
-  # Make a set of dashed lines to overlay on the plot representing thresholds
+    # Make a set of dashed lines to overlay on the plot representing thresholds
 
-  plotLines <- reactive({
-    withProgress(message = "Calculating lines", value = 0, {
+    plotLines <- reactive({
+      withProgress(message = "Calculating lines", value = 0, {
+        vt <- volcanoTable()
+
+        fclim <- getFoldChange()
+        qvallim <- getQval()
+
+        normal_y <- !is.infinite(vt[, 2])
+        normal_x <- !is.infinite(vt[, 1])
+
+        ymax <- max(vt[normal_y, 2], na.rm = TRUE)
+        ymin <- min(vt[normal_y, 2], na.rm = TRUE)
+
+        xmax <- max(vt[normal_x, 1], na.rm = TRUE)
+        xmin <- min(vt[normal_x, 1], na.rm = TRUE)
+
+        lines <- data.frame(
+          name = c(
+            rep(paste0(abs(fclim), "-fold down"), 2),
+            rep(paste0(abs(fclim), "-fold up"), 2),
+            rep(paste("q <", qvallim), 2)
+          ),
+          x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax),
+          y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2))
+        )
+
+        # Use lines dependent on how the fold change filter is applied
+
+        fccard <- getFoldChangeCard()
+
+        if (fccard %in% c(">= or <= -", "<= and >= -")) {
+          lines <- lines
+        } else if (fccard == "<=" && sign(fclim) == "-1") {
+          lines <- droplevels(lines[1, 2, 5, 6, ])
+        } else {
+          lines <- droplevels(lines[1:4, ])
+        }
+        lines
+      })
+    })
+
+    # Extract labels from the volcano table
+
+    volcanoLabels <- reactive({
+      withProgress(message = "Making labels", value = 0, {
+        vt <- volcanoTable()
+        vt$label
+      })
+    })
+
+    # Extract a vector use to make colors by group
+
+    colorBy <- reactive({
       vt <- volcanoTable()
-
-      fclim <- getFoldChange()
-      qvallim <- getQval()
-
-      normal_y <- !is.infinite(vt[, 2])
-      normal_x <- !is.infinite(vt[, 1])
-
-      ymax <- max(vt[normal_y, 2], na.rm = TRUE)
-      ymin <- min(vt[normal_y, 2], na.rm = TRUE)
-
-      xmax <- max(vt[normal_x, 1], na.rm = TRUE)
-      xmin <- min(vt[normal_x, 1], na.rm = TRUE)
-
-      lines <- data.frame(
-        name = c(
-          rep(paste0(abs(fclim), "-fold down"), 2),
-          rep(paste0(abs(fclim), "-fold up"), 2),
-          rep(paste("q <", qvallim), 2)
-        ),
-        x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax),
-        y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2))
-      )
-
-      # Use lines dependent on how the fold change filter is applied
-
-      fccard <- getFoldChangeCard()
-
-      if (fccard %in% c(">= or <= -", "<= and >= -")) {
-        lines <- lines
-      } else if (fccard == "<=" && sign(fclim) == "-1") {
-        lines <- droplevels(lines[1, 2, 5, 6, ])
-      } else {
-        lines <- droplevels(lines[1:4, ])
-      }
-      lines
+      vt$colorby
     })
-  })
 
-  # Extract labels from the volcano table
+    # Make a table of values to use in the volcano plot. Round the values to save space in the JSON
 
-  volcanoLabels <- reactive({
-    withProgress(message = "Making labels", value = 0, {
-      vt <- volcanoTable()
-      vt$label
+    volcanoTable <- reactive({
+      withProgress(message = "Compiling volcano plot data", value = 0, {
+        sct <- selectedContrastsTables()
+        ct <- sct[[1]][[1]]
+
+        # q values of 0 cause trouble
+
+        ct$`q value`[ct$`q value` == 0] <- min(ct$`q value`[ct$`q value` != 0]) / 10
+
+        ct <- ct[, c("Fold change", "q value")]
+        ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
+        ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
+
+        cont <- getSelectedContrasts()[[1]][[1]]
+        colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
+
+        fct <- filteredContrastsTables()[[1]][[1]]
+        ct$colorby <- "hidden"
+        ct[rownames(fct), "colorby"] <- "match contrast filters"
+        ct[selectRows(), "colorby"] <- "in highlighted gene set"
+        ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
+
+        ct$label <- idToLabel(rownames(ct), getExperiment())
+        ct$label[!rownames(ct) %in% c(rownames(fct), selectRows())] <- NA
+      })
+      ct
     })
+
+    # Display the data as a table alongside
+
+    simpletable("volcanotable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", rownames = FALSE, pageLength = 10)
   })
-
-  # Extract a vector use to make colors by group
-
-  colorBy <- reactive({
-    vt <- volcanoTable()
-    vt$colorby
-  })
-
-  # Make a table of values to use in the volcano plot. Round the values to save space in the JSON
-
-  volcanoTable <- reactive({
-    withProgress(message = "Compiling volcano plot data", value = 0, {
-      sct <- selectedContrastsTables()
-      ct <- sct[[1]][[1]]
-
-      # q values of 0 cause trouble
-
-      ct$`q value`[ct$`q value` == 0] <- min(ct$`q value`[ct$`q value` != 0]) / 10
-
-      ct <- ct[, c("Fold change", "q value")]
-      ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
-      ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
-
-      cont <- getSelectedContrasts()[[1]][[1]]
-      colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
-
-      fct <- filteredContrastsTables()[[1]][[1]]
-      ct$colorby <- "hidden"
-      ct[rownames(fct), "colorby"] <- "match contrast filters"
-      ct[selectRows(), "colorby"] <- "in highlighted gene set"
-      ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
-
-      ct$label <- idToLabel(rownames(ct), getExperiment())
-      ct$label[!rownames(ct) %in% c(rownames(fct), selectRows())] <- NA
-    })
-    ct
-  })
-
-  # Display the data as a table alongside
-
-  callModule(simpletable, "volcanotable",
-    downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "volcano", rownames = FALSE,
-    pageLength = 10
-  )
 }

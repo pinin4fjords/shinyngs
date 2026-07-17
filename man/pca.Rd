@@ -4,14 +4,10 @@
 \alias{pca}
 \title{The server function of the pca module}
 \usage{
-pca(input, output, session, eselist)
+pca(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -23,13 +19,13 @@ It uses a common set of controls, generated with the
 and loadings produced by the \code{scatterplots} module.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 
 Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
-callModule(pca, "pca", eselist)
+pca("pca", eselist)
 
 # Almost certainly used via application creation
 

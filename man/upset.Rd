@@ -4,14 +4,10 @@
 \alias{upset}
 \title{The server function of the upstart module}
 \usage{
-upset(input, output, session, eselist, setlimit = 16)
+upset(id, eselist, setlimit = 16)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -27,11 +23,11 @@ components, and to allow plotting of all elements in given intersections
 also seems to have sped things up.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(upstart, "myid", eselist)
+upstart("myid", eselist)
 
 }
 \references{

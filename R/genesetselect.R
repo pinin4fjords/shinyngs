@@ -34,9 +34,7 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #' to thousands of entries. This would be difficult to do client-side using a
 #' standard select field.
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist An ExploratorySummarizedExperimentList with its gene_sets
 #' slot set
 #' @param getExperiment Accessor for returning an
@@ -51,133 +49,135 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #' @keywords shiny
 #'
 #' @examples
-#' geneset_functions <- callModule(genesetselect, "heatmap", getExperiment)
+#' geneset_functions <- genesetselect("heatmap", getExperiment)
 #'
-genesetselect <- function(input, output, session, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
-  # Allow user to select the type of gene set
+genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
+  moduleServer(id, function(input, output, session) {
+    # Allow user to select the type of gene set
 
-  output$geneSetTypes <- renderUI({
-    if (filter_by_type) {
-      ese <- getExperiment()
+    output$geneSetTypes <- renderUI({
+      if (filter_by_type) {
+        ese <- getExperiment()
 
-      gene_set_types <- names(eselist@gene_sets[[ese@labelfield]])
-      ns <- session$ns
-      selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
-    }
-  })
-
-  # Reactive to fetch the gene set types (if used)
-
-  getGeneSetTypes <- reactive({
-    ese <- getExperiment()
-    if (!filter_by_type) {
-      names(eselist@gene_sets[[ese@labelfield]])
-    } else {
-      validate(need(input$geneSetTypes, "Waiting for gene set type"))
-      input$geneSetTypes
-    }
-  })
-
-  # Get a list of names to show for the gene sets
-
-  getGeneSetNames <- reactive({
-    gene_sets <- getGeneSets()
-
-    structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
-      names(gene_sets),
-      function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")")
-    )))
-  })
-
-  # A reactive for relating codes back to gene set IDs
-
-  getGeneSetCodesByIDs <- reactive({
-    gene_sets <- getGeneSets()
-    structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
-      names(gene_sets),
-      function(settype) names(gene_sets[[settype]])
-    )))
-  })
-
-  # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list.  This reactive must be called by
-  # the calling module.
-
-  updateGeneSetsList <- reactive({
-    updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
-  })
-
-  # Get gene sets with the proper label field keying
-
-  getGeneSets <- reactive({
-    ese <- getExperiment()
-    gene_sets <- eselist@gene_sets[[ese@labelfield]]
-    gene_set_types <- getGeneSetTypes()
-    gene_sets[gene_set_types]
-  })
-
-  # Rerieve and validate the gene set selection
-
-  getInputGeneSets <- reactive({
-    if (require_select) {
-      validate(need(input$geneSets, "Please select a gene set"))
-    }
-
-    if ((!multiple)) {
-      validate(need(length(input$geneSets) == 1, "Please select a single gene set only"))
-    }
-
-    input$geneSets
-  })
-
-  # Return list of reactive expressions
-
-  list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getGenesetNames = reactive({
-    gene_sets <- getGeneSets()
-    input_gene_sets <- getInputGeneSets()
-
-    if (is.null(input_gene_sets)) {
-      return(NULL)
-    }
-
-    unlist(lapply(input_gene_sets, function(pathcode) {
-      pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
-      names(gene_sets[[pathparts[1]]])[pathparts[2]]
-    }))
-  }), getGenesetTypes = reactive({
-    gene_sets <- getGeneSets()
-    input_gene_sets <- getInputGeneSets()
-
-    unique(unlist(lapply(input_gene_sets, function(pathcode) {
-      pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
-      names(gene_sets)[pathparts[1]]
-    })))
-  }), getPathwayGenes = reactive({
-    gene_sets <- getGeneSets()
-    input_gene_sets <- getInputGeneSets()
-
-    gene_sets <- getGeneSets()
-    path_gene_sets <- lapply(input_gene_sets, function(pathcode) {
-      pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
-      gene_sets[[pathparts[1]]][[pathparts[2]]]
+        gene_set_types <- names(eselist@gene_sets[[ese@labelfield]])
+        ns <- session$ns
+        selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
+      }
     })
 
-    if (input$overlapType == "union") {
-      # Use c to preserve names
+    # Reactive to fetch the gene set types (if used)
 
-      Reduce(c, path_gene_sets)
-    } else {
-      # Again- this is more than a simple Reduce(intersect because of the need to preserve names
+    getGeneSetTypes <- reactive({
+      ese <- getExperiment()
+      if (!filter_by_type) {
+        names(eselist@gene_sets[[ese@labelfield]])
+      } else {
+        validate(need(input$geneSetTypes, "Waiting for gene set type"))
+        input$geneSetTypes
+      }
+    })
 
-      path_gene_sets[[1]][Reduce(intersect, lapply(path_gene_sets, names))]
-    }
-  }), updateGeneset = reactive({
-    query <- parseQueryString(session$clientData$url_search)
-    geneset_codes <- getGeneSetCodesByIDs()
-    validate(need(query$geneset %in% names(geneset_codes), "Invalid gene set ID entered"))
+    # Get a list of names to show for the gene sets
 
-    geneset_code <- getGeneSetCodesByIDs()[query$geneset]
-    updateSelectizeInput(session, "geneSets", selected = geneset_code, choices = getGeneSetNames(), server = TRUE)
-  }))
+    getGeneSetNames <- reactive({
+      gene_sets <- getGeneSets()
+
+      structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
+        names(gene_sets),
+        function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")")
+      )))
+    })
+
+    # A reactive for relating codes back to gene set IDs
+
+    getGeneSetCodesByIDs <- reactive({
+      gene_sets <- getGeneSets()
+      structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
+        names(gene_sets),
+        function(settype) names(gene_sets[[settype]])
+      )))
+    })
+
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list.  This reactive must be called by
+    # the calling module.
+
+    updateGeneSetsList <- reactive({
+      updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
+    })
+
+    # Get gene sets with the proper label field keying
+
+    getGeneSets <- reactive({
+      ese <- getExperiment()
+      gene_sets <- eselist@gene_sets[[ese@labelfield]]
+      gene_set_types <- getGeneSetTypes()
+      gene_sets[gene_set_types]
+    })
+
+    # Rerieve and validate the gene set selection
+
+    getInputGeneSets <- reactive({
+      if (require_select) {
+        validate(need(input$geneSets, "Please select a gene set"))
+      }
+
+      if ((!multiple)) {
+        validate(need(length(input$geneSets) == 1, "Please select a single gene set only"))
+      }
+
+      input$geneSets
+    })
+
+    # Return list of reactive expressions
+
+    list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getGenesetNames = reactive({
+      gene_sets <- getGeneSets()
+      input_gene_sets <- getInputGeneSets()
+
+      if (is.null(input_gene_sets)) {
+        return(NULL)
+      }
+
+      unlist(lapply(input_gene_sets, function(pathcode) {
+        pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
+        names(gene_sets[[pathparts[1]]])[pathparts[2]]
+      }))
+    }), getGenesetTypes = reactive({
+      gene_sets <- getGeneSets()
+      input_gene_sets <- getInputGeneSets()
+
+      unique(unlist(lapply(input_gene_sets, function(pathcode) {
+        pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
+        names(gene_sets)[pathparts[1]]
+      })))
+    }), getPathwayGenes = reactive({
+      gene_sets <- getGeneSets()
+      input_gene_sets <- getInputGeneSets()
+
+      gene_sets <- getGeneSets()
+      path_gene_sets <- lapply(input_gene_sets, function(pathcode) {
+        pathparts <- unlist(lapply(strsplit(pathcode, "-"), as.numeric))
+        gene_sets[[pathparts[1]]][[pathparts[2]]]
+      })
+
+      if (input$overlapType == "union") {
+        # Use c to preserve names
+
+        Reduce(c, path_gene_sets)
+      } else {
+        # Again- this is more than a simple Reduce(intersect because of the need to preserve names
+
+        path_gene_sets[[1]][Reduce(intersect, lapply(path_gene_sets, names))]
+      }
+    }), updateGeneset = reactive({
+      query <- parseQueryString(session$clientData$url_search)
+      geneset_codes <- getGeneSetCodesByIDs()
+      validate(need(query$geneset %in% names(geneset_codes), "Invalid gene set ID entered"))
+
+      geneset_code <- getGeneSetCodesByIDs()[query$geneset]
+      updateSelectizeInput(session, "geneSets", selected = geneset_code, choices = getGeneSetNames(), server = TRUE)
+    }))
+  })
 }
 
 #' Prettify gene set names like those from MSigDB

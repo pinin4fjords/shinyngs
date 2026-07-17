@@ -73,58 +73,58 @@ dendroOutput <- function(id) {
 #' provided by the \code{selectmatrix} module, as well distance matrix
 #' generation and clustering method.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(dendro, "myid", eselist)
+#' dendro("myid", eselist)
 #'
-dendro <- function(input, output, session, eselist) {
-  # Get the expression matrix - no need for a gene selection
+dendro <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Get the expression matrix - no need for a gene selection
 
-  unpack.list(callModule(selectmatrix, "dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
-  unpack.list(callModule(groupby, "dendro", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    unpack.list(selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
+    unpack.list(groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectColData))
 
-  # Call to plotdownload module
+    # Call to plotdownload module
 
-  callModule(plotdownload, "dendro", makePlot = plotSampleDendroPlot, filename = "dendrogram.png", plotHeight = 600, plotWidth = 800)
+    plotdownload("dendro", makePlot = plotSampleDendroPlot, filename = "dendrogram.png", plotHeight = 600, plotWidth = 800)
 
-  # Reactive for making a plot for download
+    # Reactive for making a plot for download
 
-  plotSampleDendroPlot <- reactive({
-    clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-      cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-      palette = getPalette()
+    plotSampleDendroPlot <- reactive({
+      clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
+        cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
+        palette = getPalette()
+      )
+    })
+
+    # Fetch the label spacing
+
+    getLabelspace <- reactive({
+      input$labelspace
+    })
+
+    # Render the actual plot
+
+    output$sampleDendroPlot <- renderPlot(
+      {
+        withProgress(message = "Making sample dendrogram", value = 0, {
+          clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
+            cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
+            labelspace = getLabelspace(), palette = getPalette()
+          )
+        })
+      },
+      height = 600
     )
   })
-
-  # Fetch the label spacing
-
-  getLabelspace <- reactive({
-    input$labelspace
-  })
-
-  # Render the actual plot
-
-  output$sampleDendroPlot <- renderPlot(
-    {
-      withProgress(message = "Making sample dendrogram", value = 0, {
-        clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-          cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-          labelspace = getLabelspace(), palette = getPalette()
-        )
-      })
-    },
-    height = 600
-  )
 }
 
 #' Make a clustering dendrogram with coloring by experimental variable
@@ -167,7 +167,7 @@ dendro <- function(input, output, session, eselist) {
 #' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 #'
 clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2,
-                                 palette = NULL, palette_name = 'Set1') {
+                                 palette = NULL, palette_name = "Set1") {
   plotmatrix <- log2(plotmatrix + 1)
 
   hcd <- calculateDendrogram(plotmatrix, cor_method, cluster_method)
@@ -191,7 +191,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0), size = 4)
   } else {
     if (is.null(palette)) {
-        palette <- makeColorScale(length(unique(experiment[[colorby]])), palette = palette_name)
+      palette <- makeColorScale(length(unique(experiment[[colorby]])), palette = palette_name)
     }
     labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
     labs[[colorby]] <- na.replace(labs[[colorby]], replacement = "N/A")
@@ -199,13 +199,13 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], "N/A")))
     shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
 
-    p3 <- p2 + 
+    p3 <- p2 +
       geom_text(
-        data = labs, 
-        angle = 90, 
-        hjust = 1, 
-        size = rel(5), 
-        aes_string(label = "label", x = "x", y = -(ymax / 40), colour = as.name(colorby)), 
+        data = labs,
+        angle = 90,
+        hjust = 1,
+        size = rel(5),
+        aes_string(label = "label", x = "x", y = -(ymax / 40), colour = as.name(colorby)),
         show.legend = F
       )
 
@@ -213,10 +213,10 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 
     p3 <- p3 + ggdendro::theme_dendro() + ylim(-(total_axis_size * labelspace), ymax) + scale_color_manual(name = prettifyVariablename(colorby), values = palette)
 
-    p3 <- p3 + 
-      geom_point(data = labs, aes_string(x = "x", y = 0, colour = as.name(colorby), shape = as.name(colorby)), size = 4) + 
+    p3 <- p3 +
+      geom_point(data = labs, aes_string(x = "x", y = 0, colour = as.name(colorby), shape = as.name(colorby)), size = 4) +
       scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) +
-      theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) + 
+      theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) +
       ggtitle(plot_title)
   }
 

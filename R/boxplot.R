@@ -91,19 +91,17 @@ boxplotOutput <- function(id) {
 #' boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 #' a line-based alternative using \code{plotly}.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(boxplot, "boxplot", eselist)
+#' boxplot("boxplot", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
@@ -111,55 +109,57 @@ boxplotOutput <- function(id) {
 #' app <- prepareApp("boxplot", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
-boxplot <- function(input, output, session, eselist) {
-  # Get the expression matrix - no need for a gene selection
+boxplot <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Get the expression matrix - no need for a gene selection
 
-  unpack.list(callModule(selectmatrix, "sampleBoxplot", eselist, select_genes = FALSE))
-  unpack.list(callModule(groupby, "boxplot", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    unpack.list(selectmatrix("sampleBoxplot", eselist, select_genes = FALSE))
+    unpack.list(groupby("boxplot", eselist = eselist, group_label = "Color by", selectColData = selectColData))
 
-  # Render the plot
+    # Render the plot
 
-  output$quartilesPlot <- renderUI({
-    ns <- session$ns
-    if (input$plotType == "boxes") {
-      plotOutput(ns("sampleBoxplot"))
-    } else if (input$plotType == "density") {
-      plotlyOutput(ns("densityPlotly"), height = "600px")
-    } else {
-      plotlyOutput(ns("quartilesPlotly"), height = "600px")
-    }
+    output$quartilesPlot <- renderUI({
+      ns <- session$ns
+      if (input$plotType == "boxes") {
+        plotOutput(ns("sampleBoxplot"))
+      } else if (input$plotType == "density") {
+        plotlyOutput(ns("densityPlotly"), height = "600px")
+      } else {
+        plotlyOutput(ns("quartilesPlotly"), height = "600px")
+      }
+    })
+
+    output$quartilesPlotly <- renderPlotly({
+      selected_matrix <- selectMatrix()
+      ese <- getExperiment()
+      plotly_quartiles(selectMatrix(), idToLabel(rownames(selected_matrix), ese), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+    })
+
+    output$densityPlotly <- renderPlotly({
+      plotly_densityplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), palette = getPalette())
+    })
+
+    output$sampleBoxplot <- renderPlot(
+      {
+        withProgress(message = "Making sample boxplot", value = 0, {
+          p <- ggplot_boxplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance, palette = getPalette())
+          print(p)
+        })
+      },
+      height = 600
+    )
+
+    # Provide the plot for download
+
+    plotSampleBoxplot <- reactive({
+      p <- ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
+      print(p)
+    })
+
+    # Call to plotdownload module
+
+    plotdownload("boxplot", makePlot = plotSampleBoxplot, filename = "boxplot.png", plotHeight = 600, plotWidth = 800)
   })
-
-  output$quartilesPlotly <- renderPlotly({
-    selected_matrix <- selectMatrix()
-    ese <- getExperiment()
-    plotly_quartiles(selectMatrix(), idToLabel(rownames(selected_matrix), ese), getAssayMeasure(), whisker_distance = input$whiskerDistance)
-  })
-
-  output$densityPlotly <- renderPlotly({
-    plotly_densityplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), palette = getPalette())
-  })
-
-  output$sampleBoxplot <- renderPlot(
-    {
-      withProgress(message = "Making sample boxplot", value = 0, {
-        p <- ggplot_boxplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance, palette = getPalette())
-        print(p)
-      })
-    },
-    height = 600
-  )
-
-  # Provide the plot for download
-
-  plotSampleBoxplot <- reactive({
-    p <- ggplot_boxplot(selectMatrix(), selectColData(), colorBy())
-    print(p)
-  })
-
-  # Call to plotdownload module
-
-  callModule(plotdownload, "boxplot", makePlot = plotSampleBoxplot, filename = "boxplot.png", plotHeight = 600, plotWidth = 800)
 }
 
 #' Make a boxplot with coloring by experimental variable
@@ -195,7 +195,7 @@ boxplot <- function(input, output, session, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_transform = should_transform)
 
   if (!is.null(colorby)) {
@@ -215,10 +215,10 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 
   if (is.list(plotmatrices) && length(plotmatrices) > 1) {
     n_col <- ifelse(sum(unlist(lapply(plotmatrices, ncol))) < 20, length(plotmatrices), 1)
-    p <- p + facet_wrap(~ type, ncol = n_col)
+    p <- p + facet_wrap(~type, ncol = n_col)
   }
 
-  p <- p + theme_bw(base_size=base_size) + theme(
+  p <- p + theme_bw(base_size = base_size) + theme(
     axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom",
     axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3)),
     strip.text.x = element_text(size = 10)
@@ -252,7 +252,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #'
 #' @keywords keywords
 
-plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, expressiontype = "expression", palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples = annotate_samples, should_transform = should_transform)
 
   ncats <- length(unique(plotdata$colorby))
@@ -320,7 +320,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))
@@ -370,7 +370,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'
 #' @return output A \code{plotly} output
 
-plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = 'Set1', annotate_samples = FALSE, should_transform = NULL) {
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))

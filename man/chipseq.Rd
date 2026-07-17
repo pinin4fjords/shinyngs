@@ -5,24 +5,20 @@
 \title{The server function of the chipseq module. Currently a near-clone of the
 RNA-seq module, with ChIP-seq optimisations planned.}
 \usage{
-chipseq(input, output, session, eselist)
+chipseq(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
 }
 \description{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(chipseq, "chipseq", eselist)
+chipseq("chipseq", eselist)
 
 }
 \keyword{shiny}

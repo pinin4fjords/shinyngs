@@ -102,166 +102,163 @@ genesetbarcodeplotOutput <- function(id) {
 #' from the \code{gene_set_analyses} slot of the selected
 #' \code{ExploratorySummarizedExperiment} are displayed where provided.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(genesetbarcodeplot, "genesetbarcodeplot", eselist)
+#' genesetbarcodeplot("genesetbarcodeplot", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
 #' app <- prepareApp("genesetbarcodeplot", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
-genesetbarcodeplot <- function(input, output, session, eselist) {
-  # Only use experiments with gene set analyses available
+genesetbarcodeplot <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Only use experiments with gene set analyses available
 
-  eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
+    eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
 
-  # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
+    # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
 
-  for (exp in names(eselist)) {
-    assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
-  }
-
-  # Call the selectmatrix module and unpack the reactives it sends back
-
-  selectmatrix_reactives <- callModule(selectmatrix, "expression", eselist, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
-  unpack.list(selectmatrix_reactives)
-
-  # Pass the matrix to the contrasts module for processing
-
-  unpack.list(callModule(contrasts, "genesetbarcodeplot", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
-
-  # Parse the gene sets for ease of use
-
-  unpack.list(callModule(genesetselect, "genesetbarcodeplot", eselist, getExperiment, multiple = FALSE))
-
-  # Call to plotdownload module
-
-  callModule(plotdownload, "genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, plotWidth = 800)
-
-  observe({
-    updateGeneSetsList()
-  })
-
-  # Make a sensible title for the plot
-
-  barcodeplotTitle <- reactive({
-    ese <- getExperiment()
-
-    title_components <- c(prettifyGeneSetName(unlist(getGenesetNames())), getSelectedContrastNames()[[1]])
-
-    gene_set_types <- getGenesetTypes()
-    assay <- getAssay()
-    gene_set_names <- getGenesetNames()
-    contrast_numbers <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
-
-    enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_numbers, eselist@contrasts[[contrast_numbers]])
-
-    if (!is.null(enrichment) && all(gene_set_names %in% rownames(enrichment$gst))) {
-      gst <- enrichment$gst
-      col_map <- enrichment$col_map
-      fdr <- paste(signif(gst[gene_set_names, col_map$fdr], 3), collapse = ",")
-      direction <- paste(gst[gene_set_names, col_map$direction], collapse = ",")
-      title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
-    } else {
-      title_components <- c(title_components, "(no association)")
+    for (exp in names(eselist)) {
+      assays(eselist[[exp]]) <- assays(eselist[[exp]])[names(eselist[[exp]]@gene_set_analyses)]
     }
 
-    plot_title <- paste(title_components, collapse = "\n")
+    # Call the selectmatrix module and unpack the reactives it sends back
 
-    plot_title
-  })
+    selectmatrix_reactives <- selectmatrix("expression", eselist, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
+    unpack.list(selectmatrix_reactives)
 
-  # Get the list of fold changes by which to rank genes
+    # Pass the matrix to the contrasts module for processing
 
-  getFoldChanges <- reactive({
-    ct <- filteredContrastsTables()[[1]][[1]]
-    ct$`Fold change`
-  })
+    unpack.list(contrasts("genesetbarcodeplot", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives))
 
-  # Get gene IDs of the same type as used for gene sets
+    # Parse the gene sets for ease of use
 
-  getGeneIDs <- reactive({
-    convertIds(rownames(filteredContrastsTables()[[1]][[1]]), getExperiment(), eselist@gene_set_id_type)
-  })
+    unpack.list(genesetselect("genesetbarcodeplot", eselist, getExperiment, multiple = FALSE))
 
-  # Make the barcode plot using limma for download
+    # Call to plotdownload module
 
-  plotGenesetBarcodeplot <- reactive({
-    set_genes <- getPathwayGenes()
-    fold_changes <- getFoldChanges()
-    gene_ids <- getGeneIDs()
-    title <- barcodeplotTitle()
+    plotdownload("genesetbarcodeplot", makePlot = plotGenesetBarcodeplot, filename = "genesetbarcodeplot.png", plotHeight = 600, plotWidth = 800)
 
-    barcode_plot(fold_changes, gene_ids, names(set_genes), title)
-  })
-
-  # Render the barcode plot
-
-  output$genesetbarcodeplot <- renderPlot({
-    set_genes <- getPathwayGenes()
-    fold_changes <- getFoldChanges()
-    gene_ids <- getGeneIDs()
-    title <- barcodeplotTitle()
-
-    barcode_plot(fold_changes, gene_ids, names(set_genes), title)
-  })
-
-  # Make a table of contrast data for the gene set Subset the linked contrasts table for the gene set genes
-
-  gsbpContrastsTable <- reactive({
-    lct <- labelledContrastsTable()
-    ese <- getExperiment()
-    set_genes <- getPathwayGenes()
-
-    lct[which(lct[[prettifyVariablename(ese@labelfield)]] %in% set_genes), ]
-  })
-
-  # Add links for display
-
-  gsbpLinkedContrastsTable <- reactive({
-    # Force the table (and its gene-set validation) here rather than letting it
-    # evaluate lazily inside linkMatrix()'s colnames() call, where a pending
-    # validation would surface as an error instead of a clean prompt.
-    contrasts_table <- gsbpContrastsTable()
-    linkMatrix(contrasts_table, eselist@url_roots)
-  })
-
-  # Provide the gene set genes in a table of contrst data
-
-  callModule(simpletable, "genesetbarcodeplot",
-    downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast",
-    rownames = FALSE, pageLength = 10
-  )
-
-  # Catch the gene set from the URL
-
-  observe({
-    query <- parseQueryString(session$clientData$url_search)
-
-    if (length(intersect(c("geneset"), names(query))) == 0) {
-      return()
-    }
-
-    url_observe <- observe({
-      if ("geneset" %in% names(query)) {
-        updateGeneset()
-      }
-      url_observe$suspend()
+    observe({
+      updateGeneSetsList()
     })
-  })
 
-  updateGeneset
+    # Make a sensible title for the plot
+
+    barcodeplotTitle <- reactive({
+      ese <- getExperiment()
+
+      title_components <- c(prettifyGeneSetName(unlist(getGenesetNames())), getSelectedContrastNames()[[1]])
+
+      gene_set_types <- getGenesetTypes()
+      assay <- getAssay()
+      gene_set_names <- getGenesetNames()
+      contrast_numbers <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
+
+      enrichment <- resolve_enrichment(ese, assay, gene_set_types, contrast_numbers, eselist@contrasts[[contrast_numbers]])
+
+      if (!is.null(enrichment) && all(gene_set_names %in% rownames(enrichment$gst))) {
+        gst <- enrichment$gst
+        col_map <- enrichment$col_map
+        fdr <- paste(signif(gst[gene_set_names, col_map$fdr], 3), collapse = ",")
+        direction <- paste(gst[gene_set_names, col_map$direction], collapse = ",")
+        title_components <- c(title_components, paste(paste("Direction:", direction), paste("FDR:", fdr)))
+      } else {
+        title_components <- c(title_components, "(no association)")
+      }
+
+      plot_title <- paste(title_components, collapse = "\n")
+
+      plot_title
+    })
+
+    # Get the list of fold changes by which to rank genes
+
+    getFoldChanges <- reactive({
+      ct <- filteredContrastsTables()[[1]][[1]]
+      ct$`Fold change`
+    })
+
+    # Get gene IDs of the same type as used for gene sets
+
+    getGeneIDs <- reactive({
+      convertIds(rownames(filteredContrastsTables()[[1]][[1]]), getExperiment(), eselist@gene_set_id_type)
+    })
+
+    # Make the barcode plot using limma for download
+
+    plotGenesetBarcodeplot <- reactive({
+      set_genes <- getPathwayGenes()
+      fold_changes <- getFoldChanges()
+      gene_ids <- getGeneIDs()
+      title <- barcodeplotTitle()
+
+      barcode_plot(fold_changes, gene_ids, names(set_genes), title)
+    })
+
+    # Render the barcode plot
+
+    output$genesetbarcodeplot <- renderPlot({
+      set_genes <- getPathwayGenes()
+      fold_changes <- getFoldChanges()
+      gene_ids <- getGeneIDs()
+      title <- barcodeplotTitle()
+
+      barcode_plot(fold_changes, gene_ids, names(set_genes), title)
+    })
+
+    # Make a table of contrast data for the gene set Subset the linked contrasts table for the gene set genes
+
+    gsbpContrastsTable <- reactive({
+      lct <- labelledContrastsTable()
+      ese <- getExperiment()
+      set_genes <- getPathwayGenes()
+
+      lct[which(lct[[prettifyVariablename(ese@labelfield)]] %in% set_genes), ]
+    })
+
+    # Add links for display
+
+    gsbpLinkedContrastsTable <- reactive({
+      # Force the table (and its gene-set validation) here rather than letting it
+      # evaluate lazily inside linkMatrix()'s colnames() call, where a pending
+      # validation would surface as an error instead of a clean prompt.
+      contrasts_table <- gsbpContrastsTable()
+      linkMatrix(contrasts_table, eselist@url_roots)
+    })
+
+    # Provide the gene set genes in a table of contrst data
+
+    simpletable("genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, pageLength = 10)
+
+    # Catch the gene set from the URL
+
+    observe({
+      query <- parseQueryString(session$clientData$url_search)
+
+      if (length(intersect(c("geneset"), names(query))) == 0) {
+        return()
+      }
+
+      url_observe <- observe({
+        if ("geneset" %in% names(query)) {
+          updateGeneset()
+        }
+        url_observe$suspend()
+      })
+    })
+
+    updateGeneset
+  })
 }
 
 #' Make a gene set barcode plot using Limma

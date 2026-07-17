@@ -5,9 +5,7 @@
 \title{The server function of the \code{labelselectfield} module}
 \usage{
 labelselectfield(
-  input,
-  output,
-  session,
+  id,
   eselist,
   getExperiment = NULL,
   labels_from_all_experiments = FALSE,
@@ -20,11 +18,7 @@ labelselectfield(
 )
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -65,6 +59,6 @@ to thousands of entries. This would be difficult to do client-side using a
 standard select field.
 }
 \examples{
-callModule(labelselectfield, "myid", eselist)
+labelselectfield("myid", eselist)
 
 }

@@ -62,54 +62,54 @@ illuminaarrayqcOutput <- function(id) {
 #'
 #' This module plots control probes from an illumina microarray experiment.
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(illuminaarayqc, "myid", eselist)
+#' illuminaarayqc("myid", eselist)
 #'
-illuminaarrayqc <- function(input, output, session, eselist) {
-  unpack.list(callModule(selectmatrix, "illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
+illuminaarrayqc <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    unpack.list(selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
 
-  output$qcplot <- renderPlotly({
-    ese <- getExperiment()
-    experiment <- selectColData()
-    control_annotation <- getAnnotation()
-    controls <- selectMatrix()
+    output$qcplot <- renderPlotly({
+      ese <- getExperiment()
+      experiment <- selectColData()
+      control_annotation <- getAnnotation()
+      controls <- selectMatrix()
 
-    controls_merged <- merge(control_annotation, controls, by.x = "Array_Address_Id", by.y = "row.names")
+      controls_merged <- merge(control_annotation, controls, by.x = "Array_Address_Id", by.y = "row.names")
 
-    qc_groups <- list(
-      cy3_low = "phage_lambda_genome:low", cy3_med = "phage_lambda_genome:med", cy3_high = "phage_lambda_genome:high", low_stringency_pm = "phage_lambda_genome:pm",
-      low_stringency_mm = "phage_lambda_genome:mm2", negative = "permuted_negative", biotin = "phage_lambda_genome", labeling = "thrB", housekeeping = "housekeeping"
-    )
+      qc_groups <- list(
+        cy3_low = "phage_lambda_genome:low", cy3_med = "phage_lambda_genome:med", cy3_high = "phage_lambda_genome:high", low_stringency_pm = "phage_lambda_genome:pm",
+        low_stringency_mm = "phage_lambda_genome:mm2", negative = "permuted_negative", biotin = "phage_lambda_genome", labeling = "thrB", housekeeping = "housekeeping"
+      )
 
-    plotdata <- reshape2::melt(do.call(cbind, lapply(qc_groups, function(qcg) {
-      colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
-    })))
+      plotdata <- reshape2::melt(do.call(cbind, lapply(qc_groups, function(qcg) {
+        colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
+      })))
 
-    group_by(plotdata, Var2) %>%
-      plot_ly() %>%
-      add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c(
-        "red", "red", "red", "orange", "orange", "black",
-        "purple", "blue", "green"
-      ), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")) %>%
-      layout(xaxis = list(
-        categoryarray = rownames(experiment),
-        categoryorder = "array", title = ""
-      ), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>%
-      config(showLink = TRUE)
+      group_by(plotdata, Var2) %>%
+        plot_ly() %>%
+        add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c(
+          "red", "red", "red", "orange", "orange", "black",
+          "purple", "blue", "green"
+        ), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")) %>%
+        layout(xaxis = list(
+          categoryarray = rownames(experiment),
+          categoryorder = "array", title = ""
+        ), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>%
+        config(showLink = TRUE)
+    })
+
+    # Render the table and provide for download, using the simpletable module.
+
+    simpletable("qctable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE)
   })
-
-  # Render the table and provide for download, using the simpletable module.
-
-  callModule(simpletable, "qctable", downloadMatrix = selectLabelledMatrix, displayMatrix = selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE)
 }

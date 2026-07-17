@@ -84,8 +84,8 @@ dexseqplotOutput <- function(id, eselist) {
 
 #' The server function of the dexseqplot Shiny module
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example).
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example).
 #'
 #' This module produces a differential exon usage plot using the \code{plotDEXSeq}
 #' function of the DEXSeq package.
@@ -98,96 +98,93 @@ dexseqplotOutput <- function(id, eselist) {
 #' to the contrasts listed in the \code{contrasts} slot of the
 #' \code{ExploratorySummarizedExperiment}.
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(dexseqplot, "dexseqplot", eselist)
+#' dexseqplot("dexseqplot", eselist)
 #'
-dexseqplot <- function(input, output, session, eselist) {
-  # Fetch the table of values for the gene
+dexseqplot <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    # Fetch the table of values for the gene
 
-  unpack.list(callModule(dexseqtable, "deuPlotTable",
-    eselist = eselist, allow_filtering = FALSE, getDEUGeneID = getDEUGeneID, show_controls = FALSE, page_length = 50,
-    link_to_deu_plot = FALSE
-  ))
+    unpack.list(dexseqtable("deuPlotTable", eselist = eselist, allow_filtering = FALSE, getDEUGeneID = getDEUGeneID, show_controls = FALSE, page_length = 50, link_to_deu_plot = FALSE))
 
-  # Create a field for selecting the gene ID
+    # Create a field for selecting the gene ID
 
-  unpack.list(callModule(labelselectfield, "genesymbol", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "deu_gene"))
+    unpack.list(labelselectfield("genesymbol", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "deu_gene"))
 
-  # Get the a gene ID for the currently input gene symbol. Could be a composite
+    # Get the a gene ID for the currently input gene symbol. Could be a composite
 
-  getDEUGeneID <- reactive({
-    ese <- getExperiment()
-    gene_id <- getSelectedIds()
-    deu <- ese@dexseq_results
-    selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
+    getDEUGeneID <- reactive({
+      ese <- getExperiment()
+      gene_id <- getSelectedIds()
+      deu <- ese@dexseq_results
+      selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
 
-    d <- deu[[as.numeric(selected_contrast_number)]]
+      d <- deu[[as.numeric(selected_contrast_number)]]
 
-    # Sometimes an exon can be part of multiple Ensembl gene records. The group ID will then be a composite like
-    # 'ENSRNOG00000051235+ENSRNOG00000051158+ENSRNOG00000000419'
+      # Sometimes an exon can be part of multiple Ensembl gene records. The group ID will then be a composite like
+      # 'ENSRNOG00000051235+ENSRNOG00000051158+ENSRNOG00000000419'
 
-    if (!gene_id %in% rownames(d)) {
-      gene_id <- unique(grep(gene_id, deu[[1]]$groupID, value = TRUE))[1]
-    }
+      if (!gene_id %in% rownames(d)) {
+        gene_id <- unique(grep(gene_id, deu[[1]]$groupID, value = TRUE))[1]
+      }
 
-    gene_id
-  })
+      gene_id
+    })
 
-  # Display the DEU plot
+    # Display the DEU plot
 
-  output$deuPlot <- renderPlot(
-    {
+    output$deuPlot <- renderPlot(
+      {
+        ese <- getExperiment()
+
+        selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
+        dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
+
+        selected_contrast <- getSelectedContrasts()[[1]][[1]]
+        gene_label <- getSelectedLabels()
+        gene_id <- getDEUGeneID()
+
+        withProgress(message = "Making differential exon usage plot", value = 0, {
+          DEXSeq::plotDEXSeq(dexseq_result,
+            geneID = gene_id, FDR = input$deuQvalPlotMax, fitExpToVar = selected_contrast[[1]][1], norCounts = input$deuNorcounts,
+            splicing = input$deuSplicing, displayTranscripts = input$deuDisplayTranscripts, expression = input$deuExpression, names = TRUE, legend = TRUE,
+            cex.axis = 1.2, cex = 1.3, lwd = 2
+          )
+        })
+      },
+      height = 600
+    )
+
+    # Provide the plot for download
+
+    makeDEUPlotForDownload <- reactive({
       ese <- getExperiment()
 
       selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
       dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
-
       selected_contrast <- getSelectedContrasts()[[1]][[1]]
       gene_label <- getSelectedLabels()
       gene_id <- getDEUGeneID()
 
-      withProgress(message = "Making differential exon usage plot", value = 0, {
-        DEXSeq::plotDEXSeq(dexseq_result,
-          geneID = gene_id, FDR = input$deuQvalPlotMax, fitExpToVar = selected_contrast[[1]][1], norCounts = input$deuNorcounts,
-          splicing = input$deuSplicing, displayTranscripts = input$deuDisplayTranscripts, expression = input$deuExpression, names = TRUE, legend = TRUE,
-          cex.axis = 1.2, cex = 1.3, lwd = 2
-        )
-      })
-    },
-    height = 600
-  )
+      DEXSeq::plotDEXSeq(dexseq_result,
+        geneID = gene_id, FDR = input$deuQvalPlotMax, fitExpToVar = selected_contrast[[1]][1], norCounts = input$deuNorcounts,
+        splicing = input$deuSplicing, displayTranscripts = input$deuDisplayTranscripts, expression = input$deuExpression, names = TRUE, legend = TRUE,
+        cex.axis = 1.2, cex = 1.3, lwd = 2
+      )
+    })
 
-  # Provide the plot for download
+    # Call to plotdownload module
 
-  makeDEUPlotForDownload <- reactive({
-    ese <- getExperiment()
+    plotdownload("deuPlot", makePlot = makeDEUPlotForDownload, filename = "deuplot.png", plotHeight = 800, plotWidth = 1200)
 
-    selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
-    dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
-    selected_contrast <- getSelectedContrasts()[[1]][[1]]
-    gene_label <- getSelectedLabels()
-    gene_id <- getDEUGeneID()
+    # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
 
-    DEXSeq::plotDEXSeq(dexseq_result,
-      geneID = gene_id, FDR = input$deuQvalPlotMax, fitExpToVar = selected_contrast[[1]][1], norCounts = input$deuNorcounts,
-      splicing = input$deuSplicing, displayTranscripts = input$deuDisplayTranscripts, expression = input$deuExpression, names = TRUE, legend = TRUE,
-      cex.axis = 1.2, cex = 1.3, lwd = 2
-    )
+    updateLabelField
   })
-
-  # Call to plotdownload module
-
-  callModule(plotdownload, "deuPlot", makePlot = makeDEUPlotForDownload, filename = "deuplot.png", plotHeight = 800, plotWidth = 1200)
-
-  # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
-
-  updateLabelField
 }

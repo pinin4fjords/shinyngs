@@ -55,9 +55,7 @@ scatterplotOutput <- function(id) {
 #' server function. This setup allows the same set of controls to power
 #' multiple scatter plots.
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param getDatamatrix Reactive supplying a matrix. If using external controls
 #' this should match the one supplied to \code{scatterplotcontrols}
 #' @param getThreedee A reactive defining whether to plot in 3D. If set to NULL
@@ -106,114 +104,115 @@ scatterplotOutput <- function(id) {
 #' Three columns required: name, x and y, with two rows for every value of
 #' name. These two rows represent the start and end of a line.
 
-scatterplot <- function(input, output, session, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL,
-                        getPointSize = NULL, getPalette = NULL, colorBy = NULL, getTitle = reactive({
+scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, colorBy = NULL, getTitle = reactive({
                           ""
                         }), getLabels = reactive({
                           rownames(getDatamatrix())
                         }), allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = reactive({
                           NULL
                         })) {
-  # If inputs are not provided, render controls to provide them
+  moduleServer(id, function(input, output, session) {
+    # If inputs are not provided, render controls to provide them
 
-  ns <- session$ns
+    ns <- session$ns
 
-  # If no colors are provided, make our own if necessary. This will cause the 'getPalette' reactive to be passed back from scatterplotcontrols.
+    # If no colors are provided, make our own if necessary. This will cause the 'getPalette' reactive to be passed back from scatterplotcontrols.
 
-  getNumberColors <- reactive({
-    make_colors <- is.null(getPalette) && !is.null(colorBy)
-    if (make_colors) {
-      cb <- colorBy()
-      nlevels(cb)
-    } else {
-      NULL
-    }
-  })
-
-  # getThreedee used to determine whether the controls were provided.
-
-  if (is.null(getThreedee)) {
-    output$controls <- renderUI({
-      make_colors <- !is.null(getNumberColors())
-      controls <- list(scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d, make_colors = make_colors))
-    })
-    unpack.list(callModule(scatterplotcontrols, "scatter", getDatamatrix, x = x, y = y, z = z, makeColors = getNumberColors))
-  }
-
-  # Axis data accessors
-
-  xdata <- reactive({
-    getDatamatrix()[, getXAxis()]
-  })
-
-  ydata <- reactive({
-    getDatamatrix()[, getYAxis()]
-  })
-
-  zdata <- reactive({
-    if (is.null(getZAxis())) {
-      NULL
-    } else {
-      getDatamatrix()[, getZAxis()]
-    }
-  })
-
-  # Slight offset for labels on the y axis
-
-  yLabData <- reactive({
-    if (!getThreedee()) {
-      label_offset_y <- (max(getDatamatrix()[[getYAxis()]]) - min(getDatamatrix()[[getYAxis()]])) / 40
-      ydata() + label_offset_y
-    } else {
-      ydata()
-    }
-  })
-
-  # Choose the right plot type
-
-  plotType <- reactive({
-    if (getThreedee()) {
-      "scatter3d"
-    } else {
-      "scatter"
-    }
-  })
-
-  # Only show a legend if we're coloring points
-
-  showLegend <- reactive({
-    if (is.null(colorBy)) {
-      FALSE
-    } else {
-      TRUE
-    }
-  })
-
-  # Chain the various steps together.
-
-  output$scatter <- renderPlotly({
-    withProgress(message = "Drawing scatter plot", value = 0, {
-      if (!is.null(colorBy)) {
-        cb = colorBy()
-          
-        # If a palette was supplied, or if we made our own...
-
-        if (is.null(getPalette)) {
-          palette <- getScatterPalette()
-        } else {
-          palette <- getPalette()
-        }
-      }else{
-        cb = NULL
+    getNumberColors <- reactive({
+      make_colors <- is.null(getPalette) && !is.null(colorBy)
+      if (make_colors) {
+        cb <- colorBy()
+        nlevels(cb)
+      } else {
+        NULL
       }
+    })
 
-      plotly_scatterplot(
-        x = xdata(), y = ydata(), z = zdata(), colorby = cb, plot_type = plotType(), title = getTitle(),
-        xlab = colnames(getDatamatrix())[getXAxis()], ylab = colnames(getDatamatrix())[getYAxis()],
-        zlab = colnames(getDatamatrix())[geZXAxis()], palette = palette, labels = getLabels(),
-        show_labels = getShowLabels(), lines = getLines(), showlegend =showLegend(), 
-        point_size = getPointSize()
-      )
+    # getThreedee used to determine whether the controls were provided.
+
+    if (is.null(getThreedee)) {
+      output$controls <- renderUI({
+        make_colors <- !is.null(getNumberColors())
+        controls <- list(scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d, make_colors = make_colors))
+      })
+      unpack.list(scatterplotcontrols("scatter", getDatamatrix, x = x, y = y, z = z, makeColors = getNumberColors))
+    }
+
+    # Axis data accessors
+
+    xdata <- reactive({
+      getDatamatrix()[, getXAxis()]
+    })
+
+    ydata <- reactive({
+      getDatamatrix()[, getYAxis()]
+    })
+
+    zdata <- reactive({
+      if (is.null(getZAxis())) {
+        NULL
+      } else {
+        getDatamatrix()[, getZAxis()]
+      }
+    })
+
+    # Slight offset for labels on the y axis
+
+    yLabData <- reactive({
+      if (!getThreedee()) {
+        label_offset_y <- (max(getDatamatrix()[[getYAxis()]]) - min(getDatamatrix()[[getYAxis()]])) / 40
+        ydata() + label_offset_y
+      } else {
+        ydata()
+      }
+    })
+
+    # Choose the right plot type
+
+    plotType <- reactive({
+      if (getThreedee()) {
+        "scatter3d"
+      } else {
+        "scatter"
+      }
+    })
+
+    # Only show a legend if we're coloring points
+
+    showLegend <- reactive({
+      if (is.null(colorBy)) {
+        FALSE
+      } else {
+        TRUE
+      }
+    })
+
+    # Chain the various steps together.
+
+    output$scatter <- renderPlotly({
+      withProgress(message = "Drawing scatter plot", value = 0, {
+        if (!is.null(colorBy)) {
+          cb <- colorBy()
+
+          # If a palette was supplied, or if we made our own...
+
+          if (is.null(getPalette)) {
+            palette <- getScatterPalette()
+          } else {
+            palette <- getPalette()
+          }
+        } else {
+          cb <- NULL
+        }
+
+        plotly_scatterplot(
+          x = xdata(), y = ydata(), z = zdata(), colorby = cb, plot_type = plotType(), title = getTitle(),
+          xlab = colnames(getDatamatrix())[getXAxis()], ylab = colnames(getDatamatrix())[getYAxis()],
+          zlab = colnames(getDatamatrix())[geZXAxis()], palette = palette, labels = getLabels(),
+          show_labels = getShowLabels(), lines = getLines(), showlegend = showLegend(),
+          point_size = getPointSize()
+        )
+      })
     })
   })
 }
@@ -394,8 +393,8 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
-                               show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL, 
-                               showlegend = TRUE, palette_name = 'Set1') {
+                               show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL,
+                               showlegend = TRUE, palette_name = "Set1") {
   # We'll only label and color points with non-NA labels
 
   if (is.null(labels)) {
@@ -408,10 +407,10 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     colorby <- factor(colorby)
   }
 
-  if (is.null(palette)){
+  if (is.null(palette)) {
     if (any(labelled) && !is.null(colorby)) {
       palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
-    }else{
+    } else {
       palette <- makeColorScale(1)
     }
   }
@@ -507,21 +506,21 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = NULL,
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 1, labels = colorby,
                                show_labels = FALSE, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE,
-                               palette_name = 'Set1') {
+                               palette_name = "Set1") {
   labelled <- !is.na(labels)
 
   if ((!is.null(colorby)) && !is.factor(colorby)) {
     colorby <- factor(colorby)
   }
-  
-  if (is.null(palette)){
+
+  if (is.null(palette)) {
     if (any(labelled) && !is.null(colorby)) {
       palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
-    }else{
+    } else {
       palette <- makeColorScale(1)
     }
   }
-  
+
   if (plot_type == "scatter") {
     plotdata <- data.frame(
       x = x,

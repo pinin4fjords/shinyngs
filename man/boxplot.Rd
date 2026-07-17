@@ -4,14 +4,10 @@
 \alias{boxplot}
 \title{The server function of the boxplot module}
 \usage{
-boxplot(input, output, session, eselist)
+boxplot(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -23,11 +19,11 @@ boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 a line-based alternative using \code{plotly}.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(boxplot, "boxplot", eselist)
+boxplot("boxplot", eselist)
 
 # Almost certainly used via application creation
 

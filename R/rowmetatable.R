@@ -55,34 +55,34 @@ rowmetatableOutput <- function(id) {
 
 #' The server function of the rowmetatable module
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example). Essentially this just passes the results of \code{colData()}
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 #' applied to the specified SummarizedExperiment object to the
 #' \code{simpletable} module
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(rowmetatable, "rowmetatable", eselist)
+#' rowmetatable("rowmetatable", eselist)
 #'
-rowmetatable <- function(input, output, session, eselist) {
-  getRowMeta <- reactive({
-    meta <- getAnnotation()
-    meta
-  })
+rowmetatable <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    getRowMeta <- reactive({
+      meta <- getAnnotation()
+      meta
+    })
 
-  getLinkedRowMeta <- reactive({
-    meta <- getRowMeta()
-    colnames(meta) <- prettifyVariablename(colnames(meta))
-    linkMatrix(meta, eselist@url_roots)
-  })
+    getLinkedRowMeta <- reactive({
+      meta <- getRowMeta()
+      colnames(meta) <- prettifyVariablename(colnames(meta))
+      linkMatrix(meta, eselist@url_roots)
+    })
 
-  unpack.list(callModule(selectmatrix, "rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
-  callModule(simpletable, "rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
+    unpack.list(selectmatrix("rowmetatable", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
+    simpletable("rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
+  })
 }

@@ -77,21 +77,19 @@ experimenttableOutput <- function(id) {
 
 #' The server function of the experimenttable module
 #'
-#' This function is not called directly, but rather via callModule() (see
-#' example). Essentially this just passes the results of \code{colData()}
+#' This function is called directly, using the same id as its UI counterpart,
+#' and wraps its logic in \code{moduleServer()} (see example). Essentially this just passes the results of \code{colData()}
 #' applied to the specified SummarizedExperiment object to the
 #' \code{simpletable} module
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #'
 #' @keywords shiny
 #'
 #' @examples
-#' callModule(experimenttable, "experimenttable", eselist)
+#' experimenttable("experimenttable", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
@@ -99,12 +97,14 @@ experimenttableOutput <- function(id) {
 #' app <- prepareApp("experimenttable", zhangneurons)
 #' shiny::shinyApp(ui = app$ui, server = app$server)
 #'
-experimenttable <- function(input, output, session, eselist) {
-  getExperiment <- reactive({
-    experiment <- data.frame(colData(eselist[[input$experiment]]), check.names = FALSE)
-    colnames(experiment) <- prettifyVariablename(colnames(experiment))
-    experiment
-  })
+experimenttable <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    getExperiment <- reactive({
+      experiment <- data.frame(colData(eselist[[input$experiment]]), check.names = FALSE)
+      colnames(experiment) <- prettifyVariablename(colnames(experiment))
+      experiment
+    })
 
-  callModule(simpletable, "experimenttable", displayMatrix = getExperiment, filename = "experiment", rownames = TRUE)
+    simpletable("experimenttable", displayMatrix = getExperiment, filename = "experiment", rownames = TRUE)
+  })
 }

@@ -4,14 +4,10 @@
 \alias{illuminaarrayqc}
 \title{The server function of the illuminaarrayqc module}
 \usage{
-illuminaarrayqc(input, output, session, eselist)
+illuminaarrayqc(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -20,11 +16,11 @@ ExploratorySummarizedExperiment objects}
 This module plots control probes from an illumina microarray experiment.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(illuminaarayqc, "myid", eselist)
+illuminaarayqc("myid", eselist)
 
 }
 \keyword{shiny}

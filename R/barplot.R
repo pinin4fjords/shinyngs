@@ -37,42 +37,42 @@ barplotOutput <- function(id, height = "400") {
 #'
 #' Display grouped, stacked or overlaid bars for a matrix
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param getPlotmatrix Reactive supplying a matrix to plot
 #' @param getYLabel Reactive supplying the Y axis label
 #' @param barmode Bar mode: 'stack', 'group' or 'overlay'
 
-barplot <- function(input, output, session, getPlotmatrix, getYLabel, barmode = "stack") {
-  # If we're doing an overlay plot, let's re-order the rows such that we've a better chance of seeing each group
+barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
+  moduleServer(id, function(input, output, session) {
+    # If we're doing an overlay plot, let's re-order the rows such that we've a better chance of seeing each group
 
-  formatPlotMatrix <- reactive({
-    pm <- getPlotmatrix()
+    formatPlotMatrix <- reactive({
+      pm <- getPlotmatrix()
 
-    validate(need(input$barMode, "Waiting for bar mode"))
+      validate(need(input$barMode, "Waiting for bar mode"))
 
-    if (input$barMode == "overlay") {
-      pm <- pm[order(rowMeans(pm), decreasing = TRUE), ]
-    }
-    pm
-  })
+      if (input$barMode == "overlay") {
+        pm <- pm[order(rowMeans(pm), decreasing = TRUE), ]
+      }
+      pm
+    })
 
-  # Render the plot
+    # Render the plot
 
-  output$barPlot <- renderPlotly({
-    fpm <- formatPlotMatrix()
-    plotdata <- reshape2::melt(fpm)
+    output$barPlot <- renderPlotly({
+      fpm <- formatPlotMatrix()
+      plotdata <- reshape2::melt(fpm)
 
-    # Prevent interpretation of row names as numbers
+      # Prevent interpretation of row names as numbers
 
-    plotdata$Var2 <- as.character(plotdata$Var2)
-    plotdata %>%
-      plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>%
-      layout(
-        margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "),
-        yaxis = list(title = getYLabel())
-      ) %>%
-      config(showLink = TRUE)
+      plotdata$Var2 <- as.character(plotdata$Var2)
+      plotdata %>%
+        plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>%
+        layout(
+          margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "),
+          yaxis = list(title = getYLabel())
+        ) %>%
+        config(showLink = TRUE)
+    })
   })
 }

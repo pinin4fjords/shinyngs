@@ -53,97 +53,97 @@ readreportsOutput <- function(id, eselist) {
 #' Display plots and tables relating to read mapping, attrition during
 #' analysis etc.
 #'
-#' @param input Input object
-#' @param output Output object
-#' @param session Session object
+#' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperiment with \code{read_distribution}
 #' slot filled
 
-readreports <- function(input, output, session, eselist) {
-  ns <- session$ns
+readreports <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
 
-  unpack.list(callModule(selectmatrix, "readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
+    unpack.list(selectmatrix("readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))
 
-  # Render a select for the report type based on what's in the 'read_reports' slot
+    # Render a select for the report type based on what's in the 'read_reports' slot
 
-  output$reportType <- renderUI({
-    ese <- getExperiment()
-    selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettifyVariablename(names(ese@read_reports))))
+    output$reportType <- renderUI({
+      ese <- getExperiment()
+      selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettifyVariablename(names(ese@read_reports))))
+    })
+
+    # Render bar plot controls with default behaviour dependent on report type
+
+    output$barplotControls <- renderUI({
+      default_mode <- getDefaultMode()
+      barplotInput(ns("barplot"), default_mode = default_mode)
+    })
+
+    # Render the bar plot with height dependent on the number of columns in the report (so that the legend fits)
+
+    output$barplotOutput <- renderUI({
+      ese <- getExperiment()
+      report_type <- getReportType()
+      min_height <- 400
+      height <- max(min_height, ncol(ese@read_reports[[report_type]]) * 20)
+      barplotOutput(ns("barplot"), height)
+    })
+
+    # Dynamic title for the plot
+
+    output$plotTitle <- renderUI({
+      report_type <- getReportType()
+      h3(paste(prettifyVariablename(report_type), "plot"))
+    })
+
+    # Dynamic title for the table
+
+    output$tableTitle <- renderUI({
+      report_type <- getReportType()
+      h4(paste(prettifyVariablename(report_type), "data"))
+    })
+
+    # Return the selected plot type when available
+
+    getReportType <- reactive({
+      validate(need(input$reportType, FALSE))
+      input$reportType
+    })
+
+    # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at the previous, it
+    # makes sense to use overlapped bars.
+
+    getDefaultMode <- reactive({
+      report_type <- getReportType()
+      if (report_type == "read_attrition") {
+        "overlay"
+      } else {
+        "stack"
+      }
+    })
+
+    # The barplot module expects data in columns by sample, so transform the table.
+
+    getPlotmatrix <- reactive({
+      report_table <- getReportTable()
+      t(report_table)
+    })
+
+    # Get the report table from the slot
+
+    getReportTable <- reactive({
+      ese <- getExperiment()
+      report_type <- getReportType()
+      plotmatrix <- ese@read_reports[[report_type]]
+      plotmatrix <- plotmatrix[, apply(plotmatrix, 2, function(x) sum(x > 10) > 0)]
+      plotmatrix <- plotmatrix[, order(colMeans(plotmatrix), decreasing = TRUE)]
+      colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
+      plotmatrix
+    })
+
+    # Call the modules to produce the plot and table
+
+    barplot("barplot", getPlotmatrix = getPlotmatrix, getYLabel = reactive({
+      "Reads"
+    }))
+    simpletable("readrep", displayMatrix = getReportTable, filename = "read_report", rownames = TRUE)
   })
-
-  # Render bar plot controls with default behaviour dependent on report type
-
-  output$barplotControls <- renderUI({
-    default_mode <- getDefaultMode()
-    barplotInput(ns("barplot"), default_mode = default_mode)
-  })
-
-  # Render the bar plot with height dependent on the number of columns in the report (so that the legend fits)
-
-  output$barplotOutput <- renderUI({
-    ese <- getExperiment()
-    report_type <- getReportType()
-    min_height <- 400
-    height <- max(min_height, ncol(ese@read_reports[[report_type]]) * 20)
-    barplotOutput(ns("barplot"), height)
-  })
-
-  # Dynamic title for the plot
-
-  output$plotTitle <- renderUI({
-    report_type <- getReportType()
-    h3(paste(prettifyVariablename(report_type), "plot"))
-  })
-
-  # Dynamic title for the table
-
-  output$tableTitle <- renderUI({
-    report_type <- getReportType()
-    h4(paste(prettifyVariablename(report_type), "data"))
-  })
-
-  # Return the selected plot type when available
-
-  getReportType <- reactive({
-    validate(need(input$reportType, FALSE))
-    input$reportType
-  })
-
-  # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at the previous, it
-  # makes sense to use overlapped bars.
-
-  getDefaultMode <- reactive({
-    report_type <- getReportType()
-    if (report_type == "read_attrition") {
-      "overlay"
-    } else {
-      "stack"
-    }
-  })
-
-  # The barplot module expects data in columns by sample, so transform the table.
-
-  getPlotmatrix <- reactive({
-    report_table <- getReportTable()
-    t(report_table)
-  })
-
-  # Get the report table from the slot
-
-  getReportTable <- reactive({
-    ese <- getExperiment()
-    report_type <- getReportType()
-    plotmatrix <- ese@read_reports[[report_type]]
-    plotmatrix <- plotmatrix[, apply(plotmatrix, 2, function(x) sum(x > 10) > 0)]
-    plotmatrix <- plotmatrix[, order(colMeans(plotmatrix), decreasing = TRUE)]
-    colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
-    plotmatrix
-  })
-
-  # Call the modules to produce the plot and table
-
-  callModule(barplot, "barplot", getPlotmatrix = getPlotmatrix, getYLabel = reactive({
-    "Reads"
-  }))
-  callModule(simpletable, "readrep", displayMatrix = getReportTable, filename = "read_report", rownames = TRUE)
 }

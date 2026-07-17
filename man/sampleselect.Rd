@@ -4,21 +4,10 @@
 \alias{sampleselect}
 \title{The server function of the sampleselect module}
 \usage{
-sampleselect(
-  input,
-  output,
-  session,
-  eselist,
-  getExperiment,
-  allow_summarise = TRUE
-)
+sampleselect(id, eselist, getExperiment, allow_summarise = TRUE)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -38,11 +27,11 @@ This module provides controls for selecting matrix columns by sample or
 group name.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-selectSamples <- callModule(sampleselect, "selectmatrix", getExperiment)
+selectSamples <- sampleselect("selectmatrix", getExperiment)
 
 }
 \keyword{shiny}

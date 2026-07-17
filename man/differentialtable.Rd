@@ -4,14 +4,10 @@
 \alias{differentialtable}
 \title{The server function of the differentialtable module}
 \usage{
-differentialtable(input, output, session, eselist)
+differentialtable(id, eselist)
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -21,14 +17,14 @@ This module provides information on the comparison betwen pairs of groups
 defined in a 'contrasts' slot of a ExploratorySummarizedExperimentList
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 
 Essentially this funnction uses the \code{contrasts} module to group samples
 and calculate fold changes, adding test statistics where available.
 }
 \examples{
-callModule(differentialtable, "differentialtable", eselist)
+differentialtable("differentialtable", eselist)
 
 }
 \keyword{shiny}

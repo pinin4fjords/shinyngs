@@ -28,7 +28,7 @@ Imports:
     reformulas,
     reshape2,
     scatterplot3d,
-    shiny,
+    shiny (>= 1.5.0),
     shinyBS,
     shinyjs,
     shinythemes,

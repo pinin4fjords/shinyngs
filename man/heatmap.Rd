@@ -4,14 +4,10 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(input, output, session, eselist, type = "expression")
+heatmap(id, eselist, type = "expression")
 }
 \arguments{
-\item{input}{Input object}
-
-\item{output}{Output object}
-
-\item{session}{Session object}
+\item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
@@ -28,11 +24,11 @@ A pca heatmap plots the results of anova tests applied to examine the
 associations between principal components and experimental variables.
 }
 \details{
-This function is not called directly, but rather via callModule() (see
-example).
+This function is called directly, using the same id as its UI counterpart,
+and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-callModule(heatmap, "heatmap", eselist, type = "pca")
+heatmap("heatmap", eselist, type = "pca")
 
 # Almost certainly used via application creation
 
