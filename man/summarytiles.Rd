@@ -22,13 +22,15 @@ optional content (contrasts, gene sets) are only shown when that content is
 present.
 }
 \examples{
-summarytiles("summary", eselist)
+if (interactive()) {
+  data(zhangneurons)
+  summarytiles("summary", zhangneurons)
 
-# Almost certainly used via application creation
+  # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("summarytiles", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+  app <- prepareApp("summarytiles", zhangneurons)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}
