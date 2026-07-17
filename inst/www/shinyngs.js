@@ -69,4 +69,15 @@
   $(document).on("shiny:connected", function () {
     setTimeout(themeAllPlots, 300);
   });
+
+  // The URL is generated server-side, so it arrives as a message; the "Share
+  // view" click is recent enough to still count as a user gesture for the
+  // clipboard write.
+  if (window.Shiny && Shiny.addCustomMessageHandler) {
+    Shiny.addCustomMessageHandler("shinyngs_copy_link", function (url) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).catch(function () {});
+      }
+    });
+  }
 })();
