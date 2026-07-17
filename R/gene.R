@@ -1,3 +1,5 @@
+gene_modal <- list(id = "gene", title = "Gene information")
+
 #' The input function of the gene module
 #'
 #' The gene module picks specified rows out the assay data, either simply by id
@@ -64,6 +66,7 @@ geneOutput <- function(id, eselist) {
   out <- list()
 
   out <- c(out, list(
+    modalInput(ns(gene_modal$id), "help", "help"),
     uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"),
     simpletableOutput(ns("geneContrastsTable"))
   ))
@@ -90,6 +93,8 @@ geneOutput <- function(id, eselist) {
 #'
 gene <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(gene_modal$id, gene_modal$title)
+
     # Call all the required modules and hold on to their reactives
 
     selectmatrix_reactives <- selectmatrix("gene", eselist, var_n = 1000, select_samples = TRUE, select_genes = FALSE, provide_all_genes = FALSE)

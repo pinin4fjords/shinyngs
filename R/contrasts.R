@@ -223,7 +223,10 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     output$combine_operator <- renderUI({
       scn <- getSelectedContrastNumbers()
       if (length(scn) > 1) {
-        inlineField(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")), label = "Combine using", 6)
+        inlineField(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")),
+          label = "Combine using", 6,
+          tooltip = "'Intersect' requires rows to satisfy every selected contrast filter; 'union' includes rows matching any one of them."
+        )
       } else {
         hiddenInput(ns("combine_operator"), "intersect")
       }
@@ -869,7 +872,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
     if ("pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)) {
       pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)),
         value = default_pval, label = "p value", min = 0,
-        max = 1, step = 0.01
+        max = 1, step = 0.01,
+        tooltip = "Only include results with an unadjusted p value meeting this threshold and cardinality."
       )
     } else {
       pval_field <- hiddenInput(ns(paste0("p_value", index)), values = "NULL")
@@ -882,7 +886,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
     if ("qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)) {
       qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)),
         value = default_qval, label = "q value", min = 0,
-        max = 1, step = 0.01
+        max = 1, step = 0.01,
+        tooltip = "Only include results with a multiple-testing-adjusted q value (FDR) meeting this threshold and cardinality."
       )
     } else {
       qval_field <- hiddenInput(ns(paste0("q_value", index)), values = "NULL")
@@ -892,7 +897,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
 
     fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)),
       value = default_foldchange, label = "fold change",
-      cardinality = ">= or <= -", step = 0.5
+      cardinality = ">= or <= -", step = 0.5,
+      tooltip = "Only include results with a fold change meeting this threshold; '>= or <= -' matches changes of this magnitude in either direction."
     )
     contrast_field_set <- c(contrast_field_set, list(fold_change_field))
   }

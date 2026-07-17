@@ -40,7 +40,7 @@ boxplotInput <- function(id, eselist) {
 
   expression_filters <- selectmatrixInput(ns("sampleBoxplot"), eselist)
   distribution_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines", "density"), selected = default_type), numericInput(ns("whiskerDistance"),
-    "Whisker distance in multiples of IQR",
+    withHelpIcon("Whisker distance in multiples of IQR", "Points further from the box than this many multiples of the interquartile range (IQR) are drawn as outliers."),
     value = 1.5
   ), groupbyInput(ns("boxplot")))
 

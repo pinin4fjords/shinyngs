@@ -57,3 +57,19 @@ modalServer <- function(id, title, content = NULL) {
     })
   })
 }
+
+# Ids of every panel-level help modal registered across the app.
+#
+# Each entry corresponds to a `<id>_modal$id` (or, for the shared heatmap
+# module, a `heatmap_modal_specs[[type]]$id`) that loads its default content
+# from `inst/inlinehelp/<id>.md` via modalServer(). Kept as a single vector so
+# a test can assert this stays a 1:1 mapping with the files in
+# inst/inlinehelp, i.e. that help coverage cannot silently regress as panels
+# are added, renamed or removed.
+help_modal_ids <- c(
+  "assaydatatable", "boxplot", "clustering", "clusteringheatmap", "dendro",
+  "dexseqplot", "dexseqtable", "differentialtable", "experimenttable",
+  "expressionheatmap", "foldchangeplot", "gene", "genesetanalysistable",
+  "genesetbarcodeplot", "illuminaarrayqc", "maplot", "pca", "pcavsexperiment",
+  "readreports", "rowmetatable", "upset", "volcanoplot"
+)
