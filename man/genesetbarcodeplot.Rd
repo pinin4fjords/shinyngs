@@ -14,10 +14,11 @@ ExploratorySummarizedExperiment objects}
 }
 \description{
 This module leverages gene sets stored in the \code{gene_sets} slot of an
-\code{ExploratorySummarizedExperimentList} object to produce barcode plots
-using Limma's \code{\link[limma]{barcodeplot}} function. Genes are ranked by
-fold changes calculated with the \code{contrasts} module, and FDR values
-from the \code{gene_set_analyses} slot of the selected
+\code{ExploratorySummarizedExperimentList} object to produce interactive
+barcode plots, reproducing the statistics behind Limma's
+\code{\link[limma]{barcodeplot}} function. Genes are ranked by fold changes
+calculated with the \code{contrasts} module, and FDR values from the
+\code{gene_set_analyses} slot of the selected
 \code{ExploratorySummarizedExperiment} are displayed where provided.
 }
 \details{
