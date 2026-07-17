@@ -12,11 +12,12 @@ interactiveHeatmap(
   cluster_cols = FALSE,
   scale = "row",
   row_labels,
-  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100),
+  colors = viridisLite::viridis(100),
   cexCol = 0.7,
   cexRow = 0.7,
   display_numbers = FALSE,
   hide_colorbar = FALSE,
+  plot_height = 600,
   ...
 )
 }
@@ -47,6 +48,12 @@ column side colors and an accompanying legend}
 values in \code{plotmatrix} be displayed on the heatmap cells?}
 
 \item{hide_colorbar}{Boolean, should the color scale legend be hidden?}
+
+\item{plot_height}{The total rendered height of the plot in pixels, used to
+convert the fixed-pixel annotation row height into the fraction
+\code{heatmaply()} expects. Should match the \code{height} the plot is
+actually rendered at (e.g. the \code{height} argument of the
+\code{plotlyOutput()} it's displayed in).}
 
 \item{...}{Additional arguments passed to \code{heatmaply()}}
 }

@@ -2,21 +2,26 @@
 % Please edit documentation in R/colormaker.R
 \name{makeColorScale}
 \alias{makeColorScale}
-\title{Make a color palette of a specified length}
+\title{Make a colour-blind-safe categorical colour scale of a specified length}
 \usage{
-makeColorScale(ncolors, palette = "Set1")
+makeColorScale(ncolors, palette = NULL)
 }
 \arguments{
 \item{ncolors}{Integer specifying the number of colors}
 
-\item{palette}{RColorBrewer palette name. (default: 'Set1')}
+\item{palette}{Ignored. Accepted so callers can pass a palette name
+argument without it being an error.}
 }
 \value{
 output Character vector of colors
 }
 \description{
-Given an integer, make a palette with a specified number of colors using
-palettes from RColorBrewer, and interpolation where necessary.
+Returns colours drawn, in order, from shinyngs' fixed colour-blind-safe
+categorical palette (\code{\link{COLORBLIND_PALETTE}}), so the same
+position always gets the same colour and a group keeps its colour across
+plots. When more colours are requested than the base palette provides,
+additional shades are interpolated between them and a message is emitted,
+since colour-blind separation can no longer be guaranteed for every pair.
 }
 \examples{
 makeColorScale(10)
