@@ -101,12 +101,15 @@ gene <- function(id, eselist) {
     # Help modals are shown from the reactive info/model links, with titles
     # that track the currently selected experiment and gene
 
-    modalServer("geneInfo",
+    gene_info_modal_id <- "geneInfo"
+    gene_model_modal_id <- "geneModel"
+
+    modalServer(gene_info_modal_id,
       title = function() paste(getExperimentName(), "information for", paste(getSelectedLabels(), sep = ", ")),
       content = DT::dataTableOutput(session$ns("geneInfoTable"))
     )
 
-    modalServer("geneModel",
+    modalServer(gene_model_modal_id,
       title = function() paste(getSelectedLabels()[1], "gene model"),
       content = plotOutput(session$ns("geneModel"), height = "600px")
     )
@@ -122,7 +125,7 @@ gene <- function(id, eselist) {
       ns <- session$ns
       en <- getExperimentName()
 
-      list(modalInput(ns("geneInfo"), paste(en, " info"), "help"))
+      list(modalInput(ns(gene_info_modal_id), paste(en, " info"), "help"))
     })
 
     # Render the gene model plot
@@ -131,7 +134,7 @@ gene <- function(id, eselist) {
       ns <- session$ns
 
       if (length(eselist@ensembl_species) > 0) {
-        out <- list(modalInput(ns("geneModel"), "Gene model", "help"))
+        out <- list(modalInput(ns(gene_model_modal_id), "Gene model", "help"))
       }
     })
 

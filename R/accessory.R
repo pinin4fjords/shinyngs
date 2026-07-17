@@ -192,8 +192,10 @@ fieldSets <- function(id, fieldset_list, open = NULL) {
     open <- names(fieldset_list)
   }
 
+  ns <- NS(id)
+
   panels <- lapply(names(fieldset_list), function(listname) {
-    panel_id <- paste0(id, "-", make.names(listname))
+    panel_id <- ns(make.names(listname))
     heading_id <- paste0(panel_id, "-heading")
     collapse_id <- paste0(panel_id, "-collapse")
     is_open <- listname %in% open

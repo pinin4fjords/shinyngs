@@ -1,3 +1,5 @@
+dendro_modal <- list(id = "dendro", title = "Sample clustering dendrogram")
+
 #' The input function of the dendrogram module
 #'
 #' This module will produce a sample clustering dendrogram based on
@@ -61,7 +63,7 @@ dendroInput <- function(id, eselist) {
 #'
 dendroOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns("dendro"), "help", "help"), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
+  list(modalInput(ns(dendro_modal$id), "help", "help"), h3("Sample clustering dendrogram"), plotOutput(ns("sampleDendroPlot"), height = 600))
 }
 
 #' The server function of the dendrogram module
@@ -85,7 +87,7 @@ dendroOutput <- function(id) {
 #'
 dendro <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("dendro", "Sample clustering dendrogram")
+    modalServer(dendro_modal$id, dendro_modal$title)
 
     # Get the expression matrix - no need for a gene selection
 
