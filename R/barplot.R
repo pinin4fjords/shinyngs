@@ -61,7 +61,7 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
 
     output$barPlot <- renderPlotly({
       fpm <- formatPlotMatrix()
-      plotdata <- reshape2::melt(fpm)
+      plotdata <- melt_matrix(fpm)
 
       # Prevent interpretation of row names as numbers
 
@@ -71,8 +71,7 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
         layout(
           margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "),
           yaxis = list(title = getYLabel())
-        ) %>%
-        config(showLink = TRUE)
+        )
     })
   })
 }

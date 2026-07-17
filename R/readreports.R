@@ -1,3 +1,5 @@
+readreports_modal <- list(id = "readreports", title = "Read reports")
+
 #' Input function of the \code{readreports} module
 #'
 #' Display plots and tables relating to read mapping, attrition during
@@ -43,9 +45,7 @@ readreportsInput <- function(id, eselist) {
 readreportsOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(modalInput(ns("readreports"), "help", "help"), modalOutput(ns("readreports"), "Read reports", includeMarkdown(system.file("inlinehelp", "readreports.md",
-    package = packageName()
-  ))), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
+  list(modalInput(ns(readreports_modal$id), "help", "help"), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
 }
 
 #' Server function of the \code{readreports} module
@@ -59,6 +59,8 @@ readreportsOutput <- function(id, eselist) {
 
 readreports <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(readreports_modal$id, readreports_modal$title)
+
     ns <- session$ns
 
     unpack.list(selectmatrix("readreports", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE))

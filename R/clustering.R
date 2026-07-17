@@ -1,3 +1,5 @@
+clustering_modal <- list(id = "clustering", title = "Feature-wise clustering")
+
 #' The input function of the clustering module
 #'
 #' This module plots the expression profiles (scaled for comparison) of the
@@ -75,9 +77,7 @@ clusteringInput <- function(id, eselist) {
 clusteringOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns("clustering"), "help", "help"), modalOutput(ns("clustering"), "Feature-wise clustering", includeMarkdown(system.file("inlinehelp", "clustering.md",
-      package = packageName()
-    ))), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
+    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
     simpletableOutput(ns("geneClusteringTable"))
   )
 }
@@ -106,6 +106,8 @@ clusteringOutput <- function(id) {
 #'
 clustering <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(clustering_modal$id, clustering_modal$title)
+
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
 
     unpack.list(selectmatrix("clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
@@ -216,7 +218,7 @@ clustering <- function(id, eselist) {
 
       withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
         lapply(matrices_by_cluster, function(mbc) {
-          summarySE(reshape2::melt(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
+          summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
         })
       })
     })
@@ -237,9 +239,9 @@ clustering <- function(id, eselist) {
 
           x <- matrices_by_cluster[[c]]
           if (nrow(x) > 100) {
-            x <- x[sample(1:nrow(x), 100), ]
+            x <- x[sample(seq_len(nrow(x)), 100), ]
           }
-          x <- reshape2::melt(as.matrix(x))
+          x <- melt_matrix(as.matrix(x))
           x %>%
             group_by(Var1) %>%
             plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), line = list(color = cluster_color))
@@ -297,7 +299,7 @@ clustering <- function(id, eselist) {
         withProgress(message = "Making a plot for each cluster", value = 0, {
           plots <- makeClusterPlots()
         })
-        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>% config(showLink = TRUE)
+        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots)
       })
     })
 
@@ -337,7 +339,7 @@ clustering <- function(id, eselist) {
 #' Uses bootstrapping to return the standard error/ deviation of the median.
 #'
 #' @param data A data frame. Expects all values for summarisation to be in one
-#'   column, which may requie judicious use of \code{\link[reshape2]{melt}}.
+#'   column, which may require judicious use of \code{melt_matrix}.
 #' @param measurevar The name of a column that contains the variable to be
 #'   summariezed
 #' @param groupvars A vector containing names of columns that contain grouping
@@ -348,11 +350,10 @@ clustering <- function(id, eselist) {
 #' @param add_medians Logical indicating whether medians should be added to the
 #'   output. Standard error estimates for the median require bootstrapping, so
 #'   TRUE for this variables make summary statistic calculation take longer.
-#' @param .drop Logical passed to ddply()
+#' @param .drop Logical controlling whether unobserved combinations of
+#'   \code{groupvars} are dropped, passed to \code{dplyr::group_by()}.
 #'
 #' @return out Data frame with summary statistics
-#' @rawNamespace import(plyr, except = c('mutate', 'arrange', 'rename',
-#' 'summarise'))
 #'
 #' @export
 #'
@@ -361,7 +362,7 @@ clustering <- function(id, eselist) {
 #' summarySE(tg, measurevar = "len", groupvars = c("supp", "dose"))
 #'
 summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
-  # New version of length which can handle NA's: if na.rm==T, don't count them
+  # New version of length which can handle NA's: if na.rm==TRUE, don't count them
   length2 <- function(x, na.rm = FALSE) {
     if (na.rm) {
       sum(!is.na(x))
@@ -370,18 +371,17 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
     }
   }
 
-  # This is does the summary; it's not easy to understand...
-  datac <- ddply(data, groupvars, .drop = .drop, .fun = function(xx, col, na.rm) {
-    stats <- c(N = length2(xx[, col], na.rm = na.rm), mean = mean(xx[, col], na.rm = na.rm), sd = sd(xx[, col], na.rm = na.rm))
-
-    if (add_medians) {
-      stats["median"] <- median(xx[, col], na.rm = na.rm)
-      stats["median.se"] <- bootstrapMedian(xx[, col], 1000)$std.err
-    }
-    stats
-  }, measurevar, na.rm)
-
-  # Rename the 'mean' column
+  datac <- data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(groupvars)), .drop = .drop) %>%
+    dplyr::summarise(
+      N = length2(.data[[measurevar]], na.rm = na.rm),
+      mean = mean(.data[[measurevar]], na.rm = na.rm),
+      sd = sd(.data[[measurevar]], na.rm = na.rm),
+      median = if (add_medians) median(.data[[measurevar]], na.rm = na.rm) else NULL,
+      median.se = if (add_medians) bootstrapMedian(.data[[measurevar]], 1000)$std.err else NULL,
+      .groups = "drop"
+    ) %>%
+    as.data.frame()
 
   datac$se <- datac$sd / sqrt(datac$N) # Calculate standard error of the mean
 
@@ -408,7 +408,7 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
 #' @export
 
 bootstrapMedian <- function(data, num) {
-  resamples <- lapply(1:num, function(i) sample(data, replace = T))
+  resamples <- lapply(seq_len(num), function(i) sample(data, replace = TRUE))
   r.median <- sapply(resamples, median)
   std.err <- sqrt(var(r.median))
   list(std.err = std.err, resamples = resamples, medians = r.median)
@@ -459,8 +459,8 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 
     mads <- do.call(rbind, lapply(names(matrices), function(g) {
       corrs <- cor(matrices[[g]])
-      corrs_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[x, -x])))
-      corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
+      corrs_involving <- unlist(lapply(seq_len(ncol(corrs)), function(x) mean(corrs[x, -x])))
+      corrs_not_involving <- unlist(lapply(seq_len(ncol(corrs)), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
 
       correlation_difference <- structure(corrs_involving - corrs_not_involving, names = colnames(corrs))
       median_correlation_differences <- median(correlation_difference)

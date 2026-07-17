@@ -72,6 +72,12 @@ heatmapInput <- function(id, eselist, type = "expression") {
   filters
 }
 
+heatmap_modal_specs <- list(
+  pca = list(id = "pcavsexperiment", title = "Principal components vs experimental variables"),
+  samples = list(id = "clusteringheatmap", title = "Sample clustering heatmap"),
+  expression = list(id = "expressionheatmap", title = "Expression heatmap")
+)
+
 #' The output function of the heatmap module
 #'
 #' Three types of heatmaps are provided, employed in various places in the
@@ -110,21 +116,9 @@ heatmapOutput <- function(id, type = "") {
 
   help <- list()
 
-  if (type == "pca") {
-    help <- list(modalInput(ns("pcavsexperiment"), "help", "help"), modalOutput(
-      ns("pcavsexperiment"), "Principal components vs experimental variables",
-      includeMarkdown(system.file("inlinehelp", "pcavsexperiment.md", package = packageName()))
-    ))
-  } else if (type == "samples") {
-    help <- list(modalInput(ns("clusteringheatmap"), "help", "help"), modalOutput(ns("clusteringheatmap"), "Sample clustering heatmap", includeMarkdown(system.file("inlinehelp",
-      "clusteringheatmap.md",
-      package = packageName()
-    ))))
-  } else if (type == "expression") {
-    help <- list(modalInput(ns("expressionheatmap"), "help", "help"), modalOutput(ns("expressionheatmap"), "Expression heatmap", includeMarkdown(system.file("inlinehelp",
-      "expressionheatmap.md",
-      package = packageName()
-    ))))
+  spec <- heatmap_modal_specs[[type]]
+  if (!is.null(spec)) {
+    help <- list(modalInput(ns(spec$id), "help", "help"))
   }
 
   # Return outputs and help link
@@ -169,6 +163,11 @@ heatmapOutput <- function(id, type = "") {
 heatmap <- function(id, eselist, type = "expression") {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    spec <- heatmap_modal_specs[[type]]
+    if (!is.null(spec)) {
+      modalServer(spec$id, spec$title)
+    }
 
     # Make the groupby UI element
 
@@ -224,7 +223,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
           ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[, x], levels = unique(ed[, x]))),
             check.names = FALSE,
-            stringsAsFactors = FALSE, row.names = rownames(ed)
+            row.names = rownames(ed)
           )
 
           # Order by the group variables for display purposes
@@ -408,7 +407,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
 #'   values in \code{plotmatrix} be displayed on the heatmap cells?
 #' @param hide_colorbar Boolean, should the color scale legend be hidden?
-#' @param ... Additional argments passed to \code{heatmaply()}
+#' @param ... Additional arguments passed to \code{heatmaply()}
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
 #'
@@ -638,9 +637,9 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
       dimnames = list(
         colnames(pcameta),
         paste(
-          paste("PC", 1:last_pc, sep = ""),
+          paste("PC", seq_len(last_pc), sep = ""),
           " (",
-          fraction_explained[1:last_pc],
+          fraction_explained[seq_len(last_pc)],
           "%)",
           sep = ""
         )
@@ -649,8 +648,8 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
 
   # Fill the matrix with anova p values
 
-  for (i in 1:ncol(pcameta)) {
-    for (j in 1:last_pc) {
+  for (i in seq_len(ncol(pcameta))) {
+    for (j in seq_len(last_pc)) {
       fit <- aov(pca_coords[, j] ~ factor(pcameta[, i]))
       if ("Pr(>F)" %in% names(summary(fit)[[1]])) {
         pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]

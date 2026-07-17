@@ -2,7 +2,7 @@
 % Please edit documentation in R/dendro.R
 \name{calculateDendrogram}
 \alias{calculateDendrogram}
-\title{Calculate a clustering dendgrogram based on correlation}
+\title{Calculate a clustering dendrogram based on correlation}
 \usage{
 calculateDendrogram(
   plotmatrix,
@@ -21,7 +21,7 @@ calculateDendrogram(
 output Object of class 'dist'
 }
 \description{
-Calculate a clustering dendgrogram based on correlation
+Calculate a clustering dendrogram based on correlation
 }
 \examples{
 data(airway, package = "airway")

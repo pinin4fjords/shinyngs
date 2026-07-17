@@ -423,7 +423,7 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
           fvs_for_href <- strsplit(fvs_for_href, " ")
           fvs_for_display <- strsplit(fvs_for_display, " ")
 
-          matrix[[fieldname]][notna] <- unlist(lapply(1:length(fvs_for_href), function(x) {
+          matrix[[fieldname]][notna] <- unlist(lapply(seq_along(fvs_for_href), function(x) {
             paste(paste0("<a href='", url_roots[fieldname], fvs_for_href[[x]], "'>", fvs_for_display[[x]], "</a>"), collapse = " ")
           }))
         } else {

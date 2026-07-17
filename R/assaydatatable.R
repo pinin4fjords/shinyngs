@@ -1,3 +1,5 @@
+assaydatatable_modal <- list(id = "assaydatatable", title = "Assay data table")
+
 #' The UI input function of the assaydatatable module
 #'
 #' This module displays the content of the currently selected experiment and
@@ -66,10 +68,7 @@ assaydatatableInput <- function(id, eselist) {
 assaydatatableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("assaydatatable"), "help", "help"), modalOutput(ns("assaydatatable"), "Assay data table", includeMarkdown(system.file("inlinehelp",
-    "assaydatatable.md",
-    package = packageName()
-  ))), htmlOutput(ns("assaydatatable")))
+  list(modalInput(ns(assaydatatable_modal$id), "help", "help"), htmlOutput(ns("assaydatatable")))
 }
 
 #' The server function of the assaydatatable module
@@ -100,6 +99,8 @@ assaydatatableOutput <- function(id) {
 #'
 assaydatatable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(assaydatatable_modal$id, assaydatatable_modal$title)
+
     # Render the output area - and provide an input-dependent title
 
     output$assaydatatable <- renderUI({

@@ -1,3 +1,24 @@
-.Rproj.user
+.Rproj.user/
 .Rhistory
 .RData
+*.Rproj
+
+# macOS
+.DS_Store
+._*
+
+# Profiling / coverage artifacts
+*.profraw
+default.profraw
+
+# CI logs
+.nf-test.log
+
+# Local test fixtures downloaded during CI runs
+SRP254919.*
+
+# Stray large local data files
+/data
+
+# pkgdown local build output
+/docs

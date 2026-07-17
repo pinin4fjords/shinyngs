@@ -1,3 +1,5 @@
+illuminaarrayqc_modal <- list(id = "illuminaarrayqc", title = "Quality control plot for Illumina microarray data")
+
 #' The input function of the illuminaarrayqc module
 #'
 #' This module plots control probes from an illumina microarray experiment.
@@ -50,10 +52,7 @@ illuminaarrayqcOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", includeMarkdown(system.file("inlinehelp",
-      "illuminaarrayqc.md",
-      package = packageName()
-    ))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
+    modalInput(ns(illuminaarrayqc_modal$id), "help", "help"), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
     simpletableOutput(ns("qctable"))
   )
 }
@@ -76,6 +75,8 @@ illuminaarrayqcOutput <- function(id) {
 #'
 illuminaarrayqc <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(illuminaarrayqc_modal$id, illuminaarrayqc_modal$title)
+
     unpack.list(selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
 
     output$qcplot <- renderPlotly({
@@ -91,7 +92,7 @@ illuminaarrayqc <- function(id, eselist) {
         low_stringency_mm = "phage_lambda_genome:mm2", negative = "permuted_negative", biotin = "phage_lambda_genome", labeling = "thrB", housekeeping = "housekeeping"
       )
 
-      plotdata <- reshape2::melt(do.call(cbind, lapply(qc_groups, function(qcg) {
+      plotdata <- melt_matrix(do.call(cbind, lapply(qc_groups, function(qcg) {
         colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
       })))
 
@@ -104,8 +105,7 @@ illuminaarrayqc <- function(id, eselist) {
         layout(xaxis = list(
           categoryarray = rownames(experiment),
           categoryorder = "array", title = ""
-        ), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>%
-        config(showLink = TRUE)
+        ), yaxis = list(title = "Intensity"), margin = list(b = 200))
     })
 
     # Render the table and provide for download, using the simpletable module.

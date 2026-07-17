@@ -147,10 +147,14 @@ Through the magic of the Bioconda and Biocontainers teams there is also
 a [Docker image](https://quay.io/repository/biocontainers/r-shinyngs)
 available.
 
-## Install with devtools
+## Development version from GitHub
+
+The Conda package above is the recommended, supported way to install
+`shinyngs`. To track development instead, install directly from GitHub
+with `devtools`:
 
 ``` r
-devtools::install_github('pinin4fjords/shinyngs', upgrade_dependencies = FALSE)
+devtools::install_github('pinin4fjords/shinyngs')
 ```
 
 # Example

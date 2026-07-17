@@ -27,7 +27,7 @@ option_list <- list(
     c("-m", "--report_markdown_file"),
     type = "character",
     default = NULL,
-    help = "Path to file with descripion/ reporting in markdown. Alternative to 'description' for more extensive description content."
+    help = "Path to file with description/ reporting in markdown. Alternative to 'description' for more extensive description content."
   ),
   make_option(
     c("-s", "--sample_metadata"),
@@ -239,9 +239,8 @@ if (length(missing_args) > 0) {
 }
 
 if (opt$deploy_app) {
-  
   # Check we have what we need for an app deployment
-  
+
   mandatory <- c(
     "shinyapps_account",
     "shinyapps_name"
@@ -250,31 +249,31 @@ if (opt$deploy_app) {
   if (length(missing_args) > 0) {
     stop(paste("Missing mandatory arguments for shinyapps deployment:", paste(missing_args, collapse = ", ")))
   }
-  
+
   mandatory <- c(
-    'SHINYAPPS_SECRET',
-    'SHINYAPPS_TOKEN'
+    "SHINYAPPS_SECRET",
+    "SHINYAPPS_TOKEN"
   )
   missing_secrets <- mandatory[!mandatory %in% names(Sys.getenv())]
   if (length(missing_secrets) > 0) {
     stop(paste("Environment variables not defined for shinyapps deployment:", paste(missing_secrets, collapse = ", ")))
   }
-  
+
   # The app deployment will often fail if BioC packages are out of date, but we
   # can't assume we have access to the system R directories. So re-install
   # outdated ones to a local dir before any important library calls.
-  
+
   print("Updating BioC packages as will be required for shinyapps.io deployment")
-  
+
   library(BiocManager)
   options(repos = BiocManager::repositories())
   ood <- data.frame(BiocManager::valid()$out_of_date)
-  ood_packages <- ood[grep('bioconductor', ood$Repository), 'Package']
-  
-  dir.create('libs', showWarnings = FALSE) 
-  .libPaths('libs')
-  
-  BiocManager::install(ood_packages, update = TRUE, ask = FALSE, lib = 'libs')
+  ood_packages <- ood[grep("bioconductor", ood$Repository), "Package"]
+
+  dir.create("libs", showWarnings = FALSE)
+  .libPaths("libs")
+
+  BiocManager::install(ood_packages, update = TRUE, ask = FALSE, lib = "libs")
 }
 
 library(shinyngs)
@@ -296,8 +295,8 @@ contrast_stats_assay <- opt$contrast_stats_assay
 
 # Pick last assay by default to relate the stats to
 
-if (is.null(contrast_stats_assay)){
-    contrast_stats_assay <- length(assay_files)
+if (is.null(contrast_stats_assay)) {
+  contrast_stats_assay <- length(assay_files)
 }
 names(contrast_stats_files) <- names(assay_files)[contrast_stats_assay]
 
@@ -335,9 +334,9 @@ if (!is.null(opt$enrichment_filename_template)) {
   names(genesets_files) <- tools::file_path_sans_ext(basename(genesets_files))
 
   gene_set_analyses <- list(
-    lapply(setNames(nm=names(genesets_files)), function(geneset_type) {
-      lapply(setNames(nm=contrasts_df$id), function(contrast_name) {
-        ctrst_info <- as.list(contrasts_df[contrasts_df$id == contrast_name,])
+    lapply(setNames(nm = names(genesets_files)), function(geneset_type) {
+      lapply(setNames(nm = contrasts_df$id), function(contrast_name) {
+        ctrst_info <- as.list(contrasts_df[contrasts_df$id == contrast_name, ])
         # Two types of opt$enrichment_filename_template are supported:
         # - The template points to a single file for each contrast and geneset_type
         # - The template points to two files for each contrast and geneset_type. In
@@ -450,11 +449,11 @@ shiny_config <- list(
   "experiments" = experiments
 )
 
-if (! is.null(opt$contrast_file)){
-  shiny_config$contrasts = list(
+if (!is.null(opt$contrast_file)) {
+  shiny_config$contrasts <- list(
     "comparisons_file" = opt$contrast_file,
     "stats" = contrast_stats
-  )  
+  )
 }
 
 if (!is.null(opt$group_vars)) {
@@ -464,9 +463,9 @@ if (!is.null(opt$group_vars)) {
 }
 
 if (!is.null(opt$description)) {
-  shiny_config[['description']] <- opt$description
+  shiny_config[["description"]] <- opt$description
 } else if (!is.null(opt$report_markdown_file)) {
-  shiny_config[['report']] <- opt$report_markdown_file
+  shiny_config[["report"]] <- opt$report_markdown_file
 }
 
 if (length(genesets_files) > 0) {
@@ -487,6 +486,8 @@ dir.create(opt$output_directory, showWarnings = FALSE, recursive = TRUE)
 saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
 writeLines(
   c(
+    '# See installation instructions at:',
+    '# https://github.com/pinin4fjords/shinyngs?tab=readme-ov-file#installation',
     "library(shinyngs)",
     "library(markdown)",
     'esel <- readRDS("data.rds")',
@@ -503,6 +504,6 @@ if (opt$deploy_app) {
   library(rsconnect)
 
   options(BiocManager.check_repositories = FALSE)
-  rsconnect::setAccountInfo(name = opt$shinyapps_account, token = Sys.getenv('SHINYAPPS_TOKEN'), secret = Sys.getenv('SHINYAPPS_SECRET'))
+  rsconnect::setAccountInfo(name = opt$shinyapps_account, token = Sys.getenv("SHINYAPPS_TOKEN"), secret = Sys.getenv("SHINYAPPS_SECRET"))
   deployApp(appDir = opt$output_directory, appName = opt$shinyapps_name, forceUpdate = TRUE, launch.browser = FALSE)
 }

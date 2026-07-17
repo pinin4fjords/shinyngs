@@ -1,3 +1,5 @@
+foldchangeplot_modal <- list(id = "foldchangeplot", title = "Fold change plots")
+
 #' The UI input function of the \code{foldchangeplot} module
 #'
 #' This module is for making scatter plots comparing pairs of groups defined in
@@ -85,10 +87,7 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("foldchangeplot"), "help", "help"), modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp",
-    "foldchangeplot.md",
-    package = packageName()
-  ))), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+  list(modalInput(ns(foldchangeplot_modal$id), "help", "help"), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -118,6 +117,8 @@ foldchangeplotOutput <- function(id) {
 #'
 foldchangeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer(foldchangeplot_modal$id, foldchangeplot_modal$title)
+
     output$foldchangetable <- renderUI({
       ns <- session$ns
 
@@ -171,8 +172,7 @@ foldchangeplot <- function(id, eselist) {
         name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(
           min, max,
           min, max, min, max
-        ), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim)))),
-        stringsAsFactors = FALSE
+        ), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim))))
       )
       lines$name <- factor(lines$name, levels = unique(lines$name))
 
