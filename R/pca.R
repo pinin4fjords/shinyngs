@@ -138,7 +138,7 @@ pca <- function(id, eselist) {
 
     pcaDisplayMatrix <- reactive({
       pcam <- pcaMatrix()
-      pcam <- apply(pcam[, 1:min(ncol(pcam), 10)], 2, function(x) round(x, 2))
+      pcam <- apply(pcam[, seq_len(min(ncol(pcam), 10))], 2, function(x) round(x, 2))
       pcam
     })
 
@@ -185,7 +185,7 @@ pca <- function(id, eselist) {
         fraction_explained <- calculatePCAFractionExplained()
         colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
 
-        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
+        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[seq_len(input$n_loadings)]]))
 
         # Also return a table with the loadings converted to fractions
 
@@ -274,7 +274,7 @@ runPCA <- function(matrix, do_log = TRUE) {
 
 compilePCAData <- function(matrix, ntop = NULL) {
   if (is.null(ntop)) {
-    select <- 1:nrow(matrix)
+    select <- seq_len(nrow(matrix))
   } else {
     select <- selectVariableGenes(matrix = matrix, ntop = ntop)
   }

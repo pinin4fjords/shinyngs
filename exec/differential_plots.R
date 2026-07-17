@@ -113,9 +113,9 @@ option_list <- list(
 )
 
 opt_parser <- OptionParser(option_list = option_list)
-opt        <- parse_args(opt_parser)
+opt <- parse_args(opt_parser)
 
-for (input in c('differential_file', 'feature_metadata', 'outdir', 'reference_level', 'treatment_level')){
+for (input in c("differential_file", "feature_metadata", "outdir", "reference_level", "treatment_level")) {
   if (is.null(opt[[input]])) {
     print_help(opt_parser)
     stop(paste0("Please provide a ", input), call. = FALSE)
@@ -126,13 +126,13 @@ for (input in c('differential_file', 'feature_metadata', 'outdir', 'reference_le
 
 print("Creating output paths...")
 
-png_outdir <- file.path(opt$outdir, 'png')
-html_outdir <- file.path(opt$outdir, 'html') 
+png_outdir <- file.path(opt$outdir, "png")
+html_outdir <- file.path(opt$outdir, "html")
 
 dir.create(path = png_outdir, recursive = TRUE, showWarnings = FALSE)
 
-if (opt$write_html){
-    dir.create(path = html_outdir, recursive = TRUE, showWarnings = FALSE)
+if (opt$write_html) {
+  dir.create(path = html_outdir, recursive = TRUE, showWarnings = FALSE)
 }
 
 ################################################
@@ -151,26 +151,25 @@ library(plotly)
 ################################################
 
 differential <- read_differential(
-    filename = opt$differential_file,
-    feature_id_column = opt$diff_feature_id_col,
-    pval_column = opt$p_value_column,
-    qval_column = opt$p_value_column,
-    fc_column = opt$fold_change_col,
-    unlog_foldchanges = opt$unlog_foldchanges
+  filename = opt$differential_file,
+  feature_id_column = opt$diff_feature_id_col,
+  pval_column = opt$p_value_column,
+  qval_column = opt$p_value_column,
+  fc_column = opt$fold_change_col,
+  unlog_foldchanges = opt$unlog_foldchanges
 )
 
-differential <- subset(differential, (! is.na(differential[[opt$fold_change_col]])) & (! is.na(differential[[opt$p_value_column]])) )
+differential <- subset(differential, (!is.na(differential[[opt$fold_change_col]])) & (!is.na(differential[[opt$p_value_column]])))
 
 feature_metadata <-
   read_metadata(
     opt$feature_metadata,
-    id_col = opt$feature_id_col,
-    stringsAsFactors = FALSE
+    id_col = opt$feature_id_col
   )
 
 # Label features with symbol as well as identifier
 
-differential$label <- feature_metadata[differential[[opt$feature_id_col]],opt$feature_name_col]
+differential$label <- feature_metadata[differential[[opt$feature_id_col]], opt$feature_name_col]
 
 # We'll color by whether features are differential according to supplied thresholds
 
@@ -179,14 +178,14 @@ differential$differential_status[abs(differential[[opt$fold_change_col]]) > opt$
 
 # Define the thresholds we'll draw
 
-hline_thresholds = vline_thresholds = list()
-hline_thresholds[[paste(opt$p_value_column, '=', opt$p_value_threshold)]] = -log10(opt$p_value_threshold)
-vline_thresholds[[paste(opt$fold_change_col, '<-', opt$fold_change_threshold)]] = -log2(opt$fold_change_threshold)
-vline_thresholds[[paste(opt$fold_change_col, '>', opt$fold_change_threshold)]] = log2(opt$fold_change_threshold)
+hline_thresholds <- vline_thresholds <- list()
+hline_thresholds[[paste(opt$p_value_column, "=", opt$p_value_threshold)]] <- -log10(opt$p_value_threshold)
+vline_thresholds[[paste(opt$fold_change_col, "<-", opt$fold_change_threshold)]] <- -log2(opt$fold_change_threshold)
+vline_thresholds[[paste(opt$fold_change_col, ">", opt$fold_change_threshold)]] <- log2(opt$fold_change_threshold)
 
-if (opt$unlog_foldchanges){
-  x <- sign(differential[[opt$fold_change_col]]) * log2(abs(differential[[opt$fold_change_col]])) 
-}else{
+if (opt$unlog_foldchanges) {
+  x <- sign(differential[[opt$fold_change_col]]) * log2(abs(differential[[opt$fold_change_col]]))
+} else {
   x <- differential[[opt$fold_change_col]]
 }
 
@@ -195,7 +194,7 @@ plot_args <- list(
   y = -log10(differential[[opt$p_value_column]]),
   colorby = differential$differential_status,
   ylab = paste("-log(10)", opt$p_value_column),
-  xlab = xlabel <- paste("higher in", opt$reference_level, "          <<", opt$fold_change_col, ">>           higher in", opt$treatment_level) ,
+  xlab = xlabel <- paste("higher in", opt$reference_level, "          <<", opt$fold_change_col, ">>           higher in", opt$treatment_level),
   labels = differential$label,
   hline_thresholds = hline_thresholds,
   vline_thresholds = vline_thresholds,
@@ -211,14 +210,14 @@ print("... static")
 # Let's show labels for significant features in the static plot
 
 plot_args$show_labels <- TRUE
-plot_args$labels[! differential$differential_status] <- NA
+plot_args$labels[!differential$differential_status] <- NA
 
-png(filename = file.path(png_outdir, "volcano.png"), width=800, height=600)
+png(filename = file.path(png_outdir, "volcano.png"), width = 800, height = 600)
 do.call(static_scatterplot, plot_args)
 dev.off()
 
-if (opt$write_html){
-    print("...interactive")
-    interactive_volcanoplot <- do.call(plotly_scatterplot, plot_args)
-    htmlwidgets::saveWidget(as_widget(interactive_volcanoplot), file.path(html_outdir, "volcano.html"), selfcontained = TRUE)
+if (opt$write_html) {
+  print("...interactive")
+  interactive_volcanoplot <- do.call(plotly_scatterplot, plot_args)
+  htmlwidgets::saveWidget(as_widget(interactive_volcanoplot), file.path(html_outdir, "volcano.html"), selfcontained = TRUE)
 }

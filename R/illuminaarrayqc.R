@@ -105,8 +105,7 @@ illuminaarrayqc <- function(id, eselist) {
         layout(xaxis = list(
           categoryarray = rownames(experiment),
           categoryorder = "array", title = ""
-        ), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>%
-        config(showLink = TRUE)
+        ), yaxis = list(title = "Intensity"), margin = list(b = 200))
     })
 
     # Render the table and provide for download, using the simpletable module.

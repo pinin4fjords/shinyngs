@@ -199,11 +199,11 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
   # Things are much simpler without coloring the samples
 
   if (is.null(colorby)) {
-    p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes_string(label = "label", x = "x", y = -(ymax / 40)), show.legend = F)
+    p3 <- p2 + geom_text(data = labs, angle = 90, hjust = 1, size = rel(6), aes(label = .data[["label"]], x = .data[["x"]], y = -(ymax / 40)), show.legend = FALSE)
 
     p3 <- p3 + ggdendro::theme_dendro() + ylim(-(ymax / 3), ymax)
 
-    p3 <- p3 + geom_point(data = labs, aes_string(x = "x", y = 0), size = 4)
+    p3 <- p3 + geom_point(data = labs, aes(x = .data[["x"]], y = 0), size = 4)
   } else {
     if (is.null(palette)) {
       palette <- makeColorScale(length(unique(experiment[[colorby]])), palette = palette_name)
@@ -212,7 +212,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     labs[[colorby]] <- na.replace(labs[[colorby]], replacement = "N/A")
 
     labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], "N/A")))
-    shapes <- rep(15:20, 10)[1:length(unique(experiment[[colorby]]))]
+    shapes <- rep(15:20, 10)[seq_along(unique(experiment[[colorby]]))]
 
     p3 <- p2 +
       geom_text(
@@ -220,8 +220,8 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
         angle = 90,
         hjust = 1,
         size = rel(5),
-        aes_string(label = "label", x = "x", y = -(ymax / 40), colour = as.name(colorby)),
-        show.legend = F
+        aes(label = .data[["label"]], x = .data[["x"]], y = -(ymax / 40), colour = .data[[colorby]]),
+        show.legend = FALSE
       )
 
     total_axis_size <- ymax * (1 / (1 - labelspace))
@@ -229,7 +229,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
     p3 <- p3 + ggdendro::theme_dendro() + ylim(-(total_axis_size * labelspace), ymax) + scale_color_manual(name = prettifyVariablename(colorby), values = palette)
 
     p3 <- p3 +
-      geom_point(data = labs, aes_string(x = "x", y = 0, colour = as.name(colorby), shape = as.name(colorby)), size = 4) +
+      geom_point(data = labs, aes(x = .data[["x"]], y = 0, colour = .data[[colorby]], shape = .data[[colorby]]), size = 4) +
       scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) +
       theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) +
       ggtitle(plot_title)

@@ -82,7 +82,7 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
     getGeneSetNames <- reactive({
       gene_sets <- getGeneSets()
 
-      structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
+      structure(paste(unlist(lapply(seq_along(gene_sets), function(x) paste(x, seq_along(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
         names(gene_sets),
         function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")")
       )))
@@ -92,7 +92,7 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
 
     getGeneSetCodesByIDs <- reactive({
       gene_sets <- getGeneSets()
-      structure(paste(unlist(lapply(1:length(gene_sets), function(x) paste(x, 1:length(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
+      structure(paste(unlist(lapply(seq_along(gene_sets), function(x) paste(x, seq_along(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
         names(gene_sets),
         function(settype) names(gene_sets[[settype]])
       )))

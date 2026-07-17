@@ -275,7 +275,7 @@ upset <- function(id, eselist, setlimit = 16) {
     getSets <- reactive({
       valid_sets <- getValidSets()
       nsets <- getNsets()
-      valid_sets[1:nsets]
+      valid_sets[seq_len(nsets)]
     })
 
     # Calculate intersections between sets
@@ -293,8 +293,8 @@ upset <- function(id, eselist, setlimit = 16) {
           lapply(seq_len(ncol(x)), function(i) x[, i])
         }
 
-        combos <- lapply(1:nsets, function(x) {
-          combinations(1:length(selected_sets), x)
+        combos <- lapply(seq_len(nsets), function(x) {
+          combinations(seq_along(selected_sets), x)
         })
 
         # Calculate the intersections of all these combinations
@@ -311,7 +311,7 @@ upset <- function(id, eselist, setlimit = 16) {
 
         assignment_type <- getIntersectionAssignmentType()
 
-        intersects <- lapply(1:length(intersects), function(i) {
+        intersects <- lapply(seq_along(intersects), function(i) {
           intersectno <- intersects[[i]]
           members_in_higher_levels <- unlist(intersects[(i + 1):length(intersects)])
           lapply(intersectno, function(intersect) {
@@ -401,15 +401,15 @@ upset <- function(id, eselist, setlimit = 16) {
       nsets <- getNsets()
       setnames <- getSetNames()
 
-      lines <- data.table::rbindlist(lapply(1:nintersections, function(combono) {
+      lines <- data.table::rbindlist(lapply(seq_len(nintersections), function(combono) {
         data.frame(combo = combono, x = rep(combono, max(2, length(combos[[combono]]))), y = (nsets - combos[[combono]]) + 1, name = setnames[combos[[combono]]])
       }))
 
       plot_ly(type = "scatter", mode = "markers", marker = list(color = "lightgrey", size = 8)) %>%
         add_trace(type = "scatter", x = rep(
-          1:nintersections,
+          seq_len(nintersections),
           length(selected_sets)
-        ), y = unlist(lapply(1:length(selected_sets), function(x) rep(x - 0.5, nintersections))), hoverinfo = "none") %>%
+        ), y = unlist(lapply(seq_along(selected_sets), function(x) rep(x - 0.5, nintersections))), hoverinfo = "none") %>%
         add_trace(
           type = "scatter",
           data = group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y - 0.5, line = list(color = "black", width = 3), marker = list(
@@ -437,7 +437,7 @@ upset <- function(id, eselist, setlimit = 16) {
       combos <- ints$combinations
       nintersections <- getNintersections()
 
-      p <- plot_ly(showlegend = FALSE) %>% add_trace(x = 1:nintersections, y = unlist(intersects[1:nintersections]), type = "bar", marker = list(
+      p <- plot_ly(showlegend = FALSE) %>% add_trace(x = seq_len(nintersections), y = unlist(intersects[seq_len(nintersections)]), type = "bar", marker = list(
         color = "black",
         hoverinfo = "none"
       ))
@@ -446,8 +446,8 @@ upset <- function(id, eselist, setlimit = 16) {
 
       if (bar_numbers) {
         p <- p %>% add_trace(
-          type = "scatter", mode = "text", x = 1:nintersections, y = unlist(intersects[1:nintersections]) + (max(intersects) * 0.05),
-          text = unlist(intersects[1:nintersections]), textfont = list(color = "black")
+          type = "scatter", mode = "text", x = seq_len(nintersections), y = unlist(intersects[seq_len(nintersections)]) + (max(intersects) * 0.05),
+          text = unlist(intersects[seq_len(nintersections)]), textfont = list(color = "black")
         )
       }
 

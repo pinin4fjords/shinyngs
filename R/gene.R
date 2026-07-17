@@ -182,7 +182,7 @@ gene <- function(id, eselist) {
       ese <- getExperiment()
 
       withProgress(message = paste("Fetching gene models from Ensembl for gene", gene_labels[1]), value = 0, {
-        annotation <- data.frame(SummarizedExperiment::mcols(ese), stringsAsFactors = FALSE)
+        annotation <- data.frame(SummarizedExperiment::mcols(ese))
         annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
 
         geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = min(annotation$start_position), end = max(annotation$end_position))
@@ -276,7 +276,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
 
   ax <- list(title = "", showline = FALSE, showticklabels = FALSE, range = list(0, max(expression) * 1.05))
 
-  plots <- lapply(1:nrow(expression), function(rowno) {
+  plots <- lapply(seq_len(nrow(expression)), function(rowno) {
     row <- expression[rowno, ]
 
     if (rowno == 1) {
@@ -303,7 +303,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
   } else {
     p <- plots[[1]]
   }
-  p %>% config(showLink = TRUE)
+  p
 }
 
 

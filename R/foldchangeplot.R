@@ -159,8 +159,7 @@ foldchangeplot <- function(id, eselist) {
         name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(
           min, max,
           min, max, min, max
-        ), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim)))),
-        stringsAsFactors = FALSE
+        ), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim))))
       )
       lines$name <- factor(lines$name, levels = unique(lines$name))
 
