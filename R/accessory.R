@@ -231,6 +231,38 @@ fieldSets <- function(id, fieldset_list, open = NULL) {
   tags$div(id = id, class = "panel-group", role = "tablist", panels)
 }
 
+#' Reshape a matrix into long format
+#'
+#' Produces a three-column long format for a matrix: a row identifier, a
+#' column identifier and the value, with rows ordered so the column
+#' identifier varies slowest. Row and column identifiers are factors levelled
+#' in the matrix's original row/column order when dimnames are present, or
+#' plain integer indices otherwise.
+#'
+#' @param m A matrix
+#' @param varnames Column names for the row and column identifiers
+#' @param value.name Column name for the value
+#'
+#' @return A data frame with columns \code{varnames[1]}, \code{varnames[2]}
+#'   and \code{value.name}
+#'
+#' @noRd
+melt_matrix <- function(m, varnames = c("Var1", "Var2"), value.name = "value") {
+  dn <- dimnames(m)
+  if (is.null(dn)) dn <- list(NULL, NULL)
+  dimnames(m) <- list(
+    if (is.null(dn[[1]])) seq_len(nrow(m)) else dn[[1]],
+    if (is.null(dn[[2]])) seq_len(ncol(m)) else dn[[2]]
+  )
+
+  out <- as.data.frame(as.table(m), stringsAsFactors = TRUE)
+  colnames(out) <- c(varnames, value.name)
+
+  if (is.null(dn[[1]])) out[[varnames[1]]] <- as.integer(as.character(out[[varnames[1]]]))
+  if (is.null(dn[[2]])) out[[varnames[2]]] <- as.integer(as.character(out[[varnames[2]]]))
+  out
+}
+
 #' Reshape data to the way \code{ggplot2} likes it
 #'
 #' @param plotmatrices A matrix of values, e.g. expression data
@@ -279,7 +311,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
         data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {
-      plotdata <- reshape2::melt(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
+      plotdata <- melt_matrix(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
       plotdata <- plotdata[which(plotdata$value > 0), ]
       colnames(plotdata) <- c("gene", "name", "value")
       plotdata$value <- cond_log2_transform_matrix(plotdata$value, should_transform = should_transform)
