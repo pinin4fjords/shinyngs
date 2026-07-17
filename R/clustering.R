@@ -190,10 +190,7 @@ clustering <- function(id, eselist) {
       scaled_inmatrix <- scaleMatrix()
       cluster_number <- getClusterNumber()
       withProgress(message = "Calculating clusters with clara()", value = 0, {
-        tryCatch(
-          runClustering(scaled_inmatrix, cluster_number),
-          error = function(e) validate(need(FALSE, conditionMessage(e)))
-        )
+        validateOrCatch(runClustering(scaled_inmatrix, cluster_number))
       })
     })
 

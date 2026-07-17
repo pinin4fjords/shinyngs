@@ -170,10 +170,7 @@ pca <- function(id, eselist) {
     pca <- reactive({
       pcamatrix <- selectMatrix()
       withProgress(message = "Running principal component analysis", value = 0, {
-        tryCatch(
-          runPCA(pcamatrix),
-          error = function(e) validate(need(FALSE, conditionMessage(e)))
-        )
+        validateOrCatch(runPCA(pcamatrix))
       })
     })
 

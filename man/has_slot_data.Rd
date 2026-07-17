@@ -16,8 +16,8 @@ has_slot_data(x, slot_name)
 output Boolean- is the slot populated?
 }
 \description{
-Centralises the \code{length(x@some_slot) > 0} idiom used throughout the
-Shiny modules to decide whether optional data (contrasts, gene sets, read
+Centralises the \code{length(x@some_slot) > 0} idiom used in several Shiny
+modules to decide whether optional data (contrasts, gene sets, read
 reports, DEXSeq results etc) is available before showing or hiding UI for
 it.
 }
