@@ -567,7 +567,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 
 combinedAnnotationColors <- function(sample_annotation) {
   levels_all <- unique(unlist(lapply(sample_annotation, function(x) levels(factor(x)))))
-  stats::setNames(makeColorScale(length(levels_all), "Paired"), levels_all)
+  stats::setNames(makeColorScale(length(levels_all)), levels_all)
 }
 
 #' Replace heatmaply's combined annotation legend with one split by variable
