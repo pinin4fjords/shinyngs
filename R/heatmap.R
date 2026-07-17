@@ -285,7 +285,10 @@ heatmap <- function(id, eselist, type = "expression") {
       pm
     })
 
-    # Run a PCA with the currently selected matrix
+    # Run a PCA with the currently selected matrix, and associate components
+    # with experimental variables via anova. Cached on the inputs read below,
+    # since neither prcomp() nor the per-variable anova calls need to re-run
+    # when e.g. only the clustering/scale controls change.
 
     getPCAMatrix <- reactive({
       pcameta <- getExperimentData()
@@ -304,7 +307,7 @@ heatmap <- function(id, eselist, type = "expression") {
       )
 
       anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
-    })
+    }) %>% bindCache(getExperimentData(), selectMatrix())
 
     # Calculate heights for the the various types of heatmap
 
@@ -372,15 +375,23 @@ heatmap <- function(id, eselist, type = "expression") {
       type == "pca"
     })
 
-    # Make the interactive heatmap
+    # Build the interactive heatmap. Cached on exactly the inputs read below,
+    # since this covers heatmaply()'s own layout work as well as the row/column
+    # clustering it performs internally.
+
+    getHeatmapPlot <- reactive({
+      validateOrCatch(interactiveHeatmap(
+        plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
+        cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
+        display_numbers = FALSE, hide_colorbar = hideColorbar()
+      ))
+    }) %>% bindCache(
+      getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels(), makeColors(), hideColorbar()
+    )
 
     output$interactiveHeatmap <- plotly::renderPlotly({
       withProgress(message = "Building interactive heatmap", value = 0, {
-        validateOrCatch(interactiveHeatmap(
-          plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
-          cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
-          display_numbers = FALSE, hide_colorbar = hideColorbar()
-        ))
+        getHeatmapPlot()
       })
     })
   })

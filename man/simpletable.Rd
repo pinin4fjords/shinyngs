@@ -12,7 +12,8 @@ simpletable(
   filename,
   rownames = FALSE,
   show_controls = TRUE,
-  filter = "none"
+  filter = "none",
+  server = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,15 @@ names of the input matrix? (default: FALSE)}
 (default: TRUE)}
 
 \item{filter}{Passed to \code{DT::renderDataTable()}}
+
+\item{server}{Passed to \code{DT::renderDataTable()}. Leave at the default
+(TRUE) for most tables, since it keeps only the current page's data in the
+browser. Set to FALSE if \code{displayMatrix()} can produce a table with
+the same dimensions but different column *names* from one render to the
+next (e.g. column headers derived from a recalculated statistic) - DT's
+server-side mode matches an in-flight page/sort/search request to fresh
+data by column name, so a name change between the request and the
+response raises "the column name ... is not found in data".}
 }
 \description{
 This function is called directly, using the same id as its UI counterpart,
