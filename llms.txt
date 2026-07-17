@@ -57,7 +57,7 @@ applications:
 
 # Screenshot
 
-![Example: the gene page](screenshots/gene_page.png)
+![Example: the gene page](reference/figures/gene_page.png)
 
 Example: the gene page
 
@@ -814,6 +814,9 @@ v3.0](https://pinin4fjords.github.io/shinyngs/LICENSE.txt)
 
 - [`read_differential()`](https://pinin4fjords.github.io/shinyngs/reference/read_differential.md)
   : Read tables of differential statistics
+
+- [`read_gmt()`](https://pinin4fjords.github.io/shinyngs/reference/read_gmt.md)
+  : Read a GMT-format gene set file
 
 - [`read_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/read_matrix.md)
   : Read an expression matrix file and match to specified samples and

@@ -70,10 +70,12 @@ ExploratorySummarizedExperimentList(
 
 - gene_sets:
 
-  A named list of GeneSetCollections as might be produced by reading
-  .gmt format gene sets (for example from MSigDB) using
-  GSEABase::getGmt(). These must contain identifiers of the type
-  specified in `gene_set_id_type`.
+  A list of named lists of character vectors of gene identifiers, as
+  produced by reading .gmt format gene sets (for example from MSigDB)
+  with
+  [`read_gmt`](https://pinin4fjords.github.io/shinyngs/reference/read_gmt.md).
+  These must contain identifiers of the type specified in
+  `gene_set_id_type`.
 
 - gene_set_id_type:
 

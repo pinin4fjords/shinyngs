@@ -480,6 +480,9 @@
 - [`read_differential()`](https://pinin4fjords.github.io/shinyngs/reference/read_differential.md)
   : Read tables of differential statistics
 
+- [`read_gmt()`](https://pinin4fjords.github.io/shinyngs/reference/read_gmt.md)
+  : Read a GMT-format gene set file
+
 - [`read_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/read_matrix.md)
   : Read an expression matrix file and match to specified samples and
   features
