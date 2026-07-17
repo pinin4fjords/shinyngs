@@ -61,11 +61,15 @@ jobs:
           # Vignette-only Suggests (biomaRt, Gviz, DEXSeq, zhangneurons, devtools,
           # BiocStyle, rmarkdown, rsconnect) are skipped here: CI builds with
           # --no-build-vignettes / checks with --no-vignettes below, and
-          # _R_CHECK_FORCE_SUGGESTS_ is false, so they aren't needed. testthat and
-          # optparse are explicit since the "dependencies" restriction below would
-          # otherwise exclude them (they're only Suggests, not Imports).
-          extra-packages: any::rcmdcheck, any::testthat, any::optparse, local::.
+          # _R_CHECK_FORCE_SUGGESTS_ is false, so they aren't needed. testthat,
+          # optparse, withr and shinytest2 (which pulls in chromote) are explicit
+          # since the "dependencies" restriction below would otherwise exclude
+          # them (they're only Suggests, not Imports).
+          extra-packages: any::rcmdcheck, any::testthat, any::optparse, any::withr, any::shinytest2, local::.
           dependencies: 'c("Imports", "Depends", "LinkingTo")'
+
+      - name: Install Chrome for headless shinytest2 tests
+        uses: browser-actions/setup-chrome@v1
 
       - uses: r-lib/actions/check-r-package@v2
         with:
