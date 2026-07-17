@@ -43,6 +43,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
+          dependencies: 'c("Imports", "Depends", "LinkingTo", "Suggests")'
           needs: website
 
       - name: Build site
