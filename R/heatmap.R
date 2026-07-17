@@ -280,7 +280,7 @@ heatmap <- function(id, eselist, type = "expression") {
         pm <- log2(pm + 1)
       } else if (type == "pca") {
         pm[pm < 0.001] <- 0.001
-        pm <- log10(pm[!matrixStats::rowAlls(is.na(pm)), ])
+        pm <- log10(pm[!matrixStats::rowAlls(is.na(pm)), , drop = FALSE])
       }
       pm
     })
@@ -289,7 +289,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
     getPCAMatrix <- reactive({
       pcameta <- getExperimentData()
-      pcavals <- selectMatrix()[, rownames(pcameta)]
+      pcavals <- selectMatrix()[, rownames(pcameta), drop = FALSE]
 
       pca <- runPCA(pcavals)
       fraction_explained <- calculatePCAFractionExplained(pca)
@@ -504,7 +504,7 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 
   p <- heatmaply::heatmaply(plotmatrix,
     dendrogram = dendrogram, custom_hovertext = hovertext, Rowv = Rowv, Colv = Colv, scale = scale,
-    colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = row_labels,
+    colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = rownames(plotmatrix),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
     subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = 1, hide_colorbar = hide_colorbar,
     cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers, ...

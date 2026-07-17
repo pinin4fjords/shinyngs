@@ -9,6 +9,9 @@ Transcritome Analysis Resource
 Tool](https://github.com/jminnier/STARTapp) (START), though it was
 probably developed at the same time as that work.
 
+Full documentation and function reference:
+<https://pinin4fjords.github.io/shinyngs/>
+
 # Examples
 
 ## Data structure

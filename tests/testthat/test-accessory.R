@@ -657,3 +657,244 @@ test_that("validate_inputs surfaces a fold-change-scale contradiction as an erro
     "look like log2 fold changes"
   )
 })
+
+# checkListIsSubset()
+
+test_that("checkListIsSubset returns TRUE when the test list is a subset", {
+  expect_true(checkListIsSubset(c("a", "b"), c("a", "b", "c"), "test", "reference"))
+})
+
+test_that("checkListIsSubset errors with a descriptive message when values are missing", {
+  expect_error(
+    checkListIsSubset(c("a", "z"), c("a", "b", "c"), "contrast variables", "sample metadata"),
+    paste0(
+      "Not all contrast variables are available in the sample metadata.\n",
+      "Missing contrast variables: z\n",
+      "Available sample metadata: a, b, c"
+    ),
+    fixed = TRUE
+  )
+})
+
+# read_matrix()
+
+test_that("read_matrix reads a tsv file and matches columns to sample metadata", {
+  matrix_content <- "id\tSample1\tSample2\tSample3\ngene1\t1\t2\t3\ngene2\t4\t5\t6\n"
+  matrix_file <- tempfile(fileext = ".tsv")
+  writeLines(matrix_content, matrix_file)
+  on.exit(unlink(matrix_file))
+
+  samples <- data.frame(row.names = c("Sample1", "Sample2", "Sample3"))
+
+  result <- read_matrix(matrix_file, samples)
+
+  expect_true(is.matrix(result))
+  expect_equal(colnames(result), c("Sample1", "Sample2", "Sample3"))
+  expect_equal(rownames(result), c("gene1", "gene2"))
+  expect_equal(result["gene1", "Sample2"], 2)
+})
+
+test_that("read_matrix errors when sample metadata names are absent from the matrix", {
+  matrix_content <- "id\tSample1\tSample2\ngene1\t1\t2\n"
+  matrix_file <- tempfile(fileext = ".tsv")
+  writeLines(matrix_content, matrix_file)
+  on.exit(unlink(matrix_file))
+
+  samples <- data.frame(row.names = c("Sample1", "SampleMissing"))
+
+  expect_error(
+    read_matrix(matrix_file, samples),
+    "SampleMissing.*absent from the matrix"
+  )
+})
+
+test_that("read_matrix falls back to the first column for feature identifiers", {
+  matrix_content <- "row_id\tfeature\tSample1\tSample2\n1\tgeneA\t1\t2\n2\tgeneB\t3\t4\n"
+  matrix_file <- tempfile(fileext = ".tsv")
+  writeLines(matrix_content, matrix_file)
+  on.exit(unlink(matrix_file))
+
+  samples <- data.frame(row.names = c("Sample1", "Sample2"))
+  features <- data.frame(row.names = c("geneA", "geneB"))
+
+  result <- read_matrix(matrix_file, samples, feature_metadata = features)
+
+  expect_equal(colnames(result), c("Sample1", "Sample2"))
+})
+
+# read_metadata()
+
+test_that("read_metadata reads a csv file", {
+  metadata_content <- "sample,condition\nSample1,Control\nSample2,Treated\n"
+  metadata_file <- tempfile(fileext = ".csv")
+  writeLines(metadata_content, metadata_file)
+  on.exit(unlink(metadata_file))
+
+  result <- read_metadata(metadata_file)
+
+  expect_equal(result$sample, c("Sample1", "Sample2"))
+  expect_equal(result$condition, c("Control", "Treated"))
+})
+
+test_that("read_metadata sets row names and de-duplicates using id_col", {
+  metadata_content <- "sample,condition\nSample1,Control\nSample1,Control\nSample2,Treated\n"
+  metadata_file <- tempfile(fileext = ".csv")
+  writeLines(metadata_content, metadata_file)
+  on.exit(unlink(metadata_file))
+
+  result <- read_metadata(metadata_file, id_col = "sample")
+
+  expect_equal(nrow(result), 2)
+  expect_equal(rownames(result), c("Sample1", "Sample2"))
+})
+
+test_that("read_metadata errors when the file does not exist", {
+  expect_error(
+    read_metadata(tempfile(fileext = ".csv")),
+    "does not exist"
+  )
+})
+
+test_that("read_metadata errors when id_col is not a column in the file", {
+  metadata_content <- "sample,condition\nSample1,Control\n"
+  metadata_file <- tempfile(fileext = ".csv")
+  writeLines(metadata_content, metadata_file)
+  on.exit(unlink(metadata_file))
+
+  expect_error(
+    read_metadata(metadata_file, id_col = "missing_col"),
+    "does not exist in metadata"
+  )
+})
+
+# read_contrasts() additional validation coverage
+
+test_that("read_contrasts parses a CSV contrasts file", {
+  samples <- data.frame(
+    row.names = c("Sample1", "Sample2", "Sample3", "Sample4"),
+    treatment = c("Control", "Control", "Treated", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  csv_content <- "id,variable,reference,target\ntreatment_effect,treatment,Control,Treated\n"
+  csv_file <- tempfile(fileext = ".csv")
+  writeLines(csv_content, csv_file)
+  on.exit(unlink(csv_file))
+
+  contrasts <- read_contrasts(csv_file, samples)
+
+  expect_equal(nrow(contrasts), 1)
+  expect_equal(contrasts$variable, "treatment")
+  expect_equal(contrasts$reference, "Control")
+  expect_equal(contrasts$target, "Treated")
+})
+
+test_that("read_contrasts errors on duplicate contrast ids in a CSV file", {
+  samples <- data.frame(
+    row.names = c("Sample1", "Sample2"),
+    treatment = c("Control", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  csv_content <- "id,variable,reference,target\ndup,treatment,Control,Treated\ndup,treatment,Control,Treated\n"
+  csv_file <- tempfile(fileext = ".csv")
+  writeLines(csv_content, csv_file)
+  on.exit(unlink(csv_file))
+
+  expect_error(
+    read_contrasts(csv_file, samples),
+    "Duplicate contrast ids found in CSV contrasts file."
+  )
+})
+
+test_that("read_contrasts errors when a blocking variable is absent from sample metadata", {
+  samples <- data.frame(
+    row.names = c("Sample1", "Sample2", "Sample3", "Sample4"),
+    treatment = c("Control", "Control", "Treated", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  yaml_content <- "
+contrasts:
+  - id: treatment_effect
+    comparison: [\"treatment\", \"Control\", \"Treated\"]
+    blocking_factors: [\"nonexistent_batch\"]
+"
+  yaml_file <- tempfile(fileext = ".yaml")
+  writeLines(yaml_content, yaml_file)
+  on.exit(unlink(yaml_file))
+
+  expect_error(
+    read_contrasts(yaml_file, samples),
+    "Not all blocking variables are available in the sample metadata."
+  )
+})
+
+test_that("read_contrasts errors when the design matrix is not full rank", {
+  samples <- data.frame(
+    row.names = c("Sample1", "Sample2", "Sample3", "Sample4"),
+    treatment = c("Control", "Control", "Treated", "Treated"),
+    duplicate_of_treatment = c("Control", "Control", "Treated", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  yaml_content <- "
+contrasts:
+  - id: treatment_effect
+    comparison: [\"treatment\", \"Control\", \"Treated\"]
+    blocking_factors: [\"duplicate_of_treatment\"]
+"
+  yaml_file <- tempfile(fileext = ".yaml")
+  writeLines(yaml_content, yaml_file)
+  on.exit(unlink(yaml_file))
+
+  expect_error(
+    read_contrasts(yaml_file, samples),
+    "Design matrix is not full rank."
+  )
+})
+
+test_that("read_contrasts warns when reference and target levels are identical", {
+  samples <- data.frame(
+    row.names = c("Sample1", "Sample2"),
+    treatment = c("Control", "Control"),
+    stringsAsFactors = FALSE
+  )
+
+  yaml_content <- "
+contrasts:
+  - id: same_level_contrast
+    comparison: [\"treatment\", \"Control\", \"Control\"]
+"
+  yaml_file <- tempfile(fileext = ".yaml")
+  writeLines(yaml_content, yaml_file)
+  on.exit(unlink(yaml_file))
+
+  expect_warning(
+    read_contrasts(yaml_file, samples, validate_design = FALSE),
+    "identical reference and target levels"
+  )
+})
+
+test_that("read_contrasts requires both exclude_samples_col and exclude_samples_values together", {
+  samples <- data.frame(
+    row.names = c("Sample1", "Sample2"),
+    treatment = c("Control", "Treated"),
+    stringsAsFactors = FALSE
+  )
+
+  yaml_content <- "
+contrasts:
+  - id: missing_exclude_values
+    comparison: [\"treatment\", \"Control\", \"Treated\"]
+    exclude_samples_col: \"treatment\"
+"
+  yaml_file <- tempfile(fileext = ".yaml")
+  writeLines(yaml_content, yaml_file)
+  on.exit(unlink(yaml_file))
+
+  expect_error(
+    read_contrasts(yaml_file, samples),
+    "must provide both 'exclude_samples_col' and 'exclude_samples_values'"
+  )
+})
