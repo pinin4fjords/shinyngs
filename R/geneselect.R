@@ -177,10 +177,14 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
     })
 
     # Debounce the "top N most variant rows" slider so dragging it doesn't
-    # trigger a row/expression matrix recompute on every tick
+    # trigger a row/expression matrix recompute on every tick. Fall back to
+    # var_n while input$obs hasn't reached the server yet - a debounced
+    # reactive's first value is primed synchronously, before the client has
+    # necessarily sent its initial slider value, and downstream consumers
+    # treat NULL here as "no limit" rather than "not ready yet".
 
     getObs <- reactive({
-      input$obs
+      if (is.null(input$obs)) var_n else input$obs
     }) %>% debounce(300)
 
     # Make all the reactive expressions that will be needed by calling modules.
