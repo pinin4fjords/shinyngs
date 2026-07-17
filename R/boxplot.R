@@ -131,8 +131,8 @@ boxplot <- function(id, eselist) {
 
     # Get the expression matrix - no need for a gene selection
 
-    unpack.list(selectmatrix("sampleBoxplot", eselist, select_genes = FALSE))
-    unpack.list(groupby("boxplot", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    selectmatrix_reactives <- selectmatrix("sampleBoxplot", eselist, select_genes = FALSE)
+    groupby_reactives <- groupby("boxplot", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
     # Render the plot
 
@@ -149,30 +149,30 @@ boxplot <- function(id, eselist) {
     })
 
     output$quartilesPlotly <- renderPlotly({
-      selected_matrix <- selectMatrix()
-      ese <- getExperiment()
-      plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+      selected_matrix <- selectmatrix_reactives$selectMatrix()
+      ese <- selectmatrix_reactives$getExperiment()
+      plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance)
     })
 
     output$densityPlotly <- renderPlotly({
-      plotly_densityplot(selectMatrix(), selectColData(), getGroupby(), expressiontype = getAssayMeasure(), palette = getPalette())
+      plotly_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette())
     })
 
     plot_source <- session$ns("sampleBoxplot")
 
     getLevels <- reactive({
-      groupLevels(selectColData(), getGroupby())
+      groupLevels(selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby())
     })
 
     # Box traces come first (one per group, in getLevels() order) with no
     # leading trace, so a restyled trace index maps directly onto a group.
-    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, getGroupby, trace_offset = 0L)
+    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, groupby_reactives$getGroupby, trace_offset = 0L)
 
     output$sampleBoxplot <- renderPlotly({
       withProgress(message = "Making sample boxplot", value = 0, {
-        plotly_boxplot(selectMatrix(), selectColData(), getGroupby(),
-          expressiontype = getAssayMeasure(), whisker_distance = input$whiskerDistance,
-          palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+        plotly_boxplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+          expressiontype = selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance,
+          palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
         )
       })
     })

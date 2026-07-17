@@ -114,29 +114,37 @@ pca <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(pca_modal$id, pca_modal$title)
 
-    unpack.list(selectmatrix("pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, default_gene_select = "variance", select_meta = FALSE))
+    selectmatrix_reactives <- selectmatrix("pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, default_gene_select = "variance", select_meta = FALSE)
 
     # Call the groupby module to define sample groups and group colors
 
-    unpack.list(groupby("pca", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    groupby_reactives <- groupby("pca", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
     # Make a common set of controls to be used for components and loadings plots
 
-    unpack.list(scatterplotcontrols("pca", pcaMatrix))
+    scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix)
 
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
 
-    scatterplot("pca", getDatamatrix = pcaMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = getPalette)
-    scatterplot("loading", getDatamatrix = loadingMatrix, getThreedee = getThreedee, getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getShowLabels = getShowLabels, getPointSize = getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels)
+    scatterplot("pca",
+      getDatamatrix = pcaMatrix, getThreedee = scatterplotcontrols_reactives$getThreedee, getXAxis = scatterplotcontrols_reactives$getXAxis,
+      getYAxis = scatterplotcontrols_reactives$getYAxis, getZAxis = scatterplotcontrols_reactives$getZAxis, getShowLabels = scatterplotcontrols_reactives$getShowLabels,
+      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = groupby_reactives$getPalette
+    )
+    scatterplot("loading",
+      getDatamatrix = loadingMatrix, getThreedee = scatterplotcontrols_reactives$getThreedee, getXAxis = scatterplotcontrols_reactives$getXAxis,
+      getYAxis = scatterplotcontrols_reactives$getYAxis, getZAxis = scatterplotcontrols_reactives$getZAxis, getShowLabels = scatterplotcontrols_reactives$getShowLabels,
+      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels
+    )
 
     # Simple title functions
 
     getComponentsTitle <- reactive({
-      paste("Components plot for PCA on matrix:", tolower(matrixTitle()))
+      paste("Components plot for PCA on matrix:", tolower(selectmatrix_reactives$matrixTitle()))
     })
 
     getLoadingTitle <- reactive({
-      paste("Loading plot for PCA on matrix:", tolower(matrixTitle()))
+      paste("Loading plot for PCA on matrix:", tolower(selectmatrix_reactives$matrixTitle()))
     })
 
     # Make a matrix of values to the PCA
@@ -157,10 +165,10 @@ pca <- function(id, eselist) {
     })
 
     pcaColorBy <- reactive({
-      if (is.null(getGroupby())) {
+      if (is.null(groupby_reactives$getGroupby())) {
 
       } else {
-        pcb <- na.replace(selectColData()[[getGroupby()]], "N/A")
+        pcb <- na.replace(selectmatrix_reactives$selectColData()[[groupby_reactives$getGroupby()]], "N/A")
         factor(pcb, levels = unique(pcb))
       }
     })
@@ -169,11 +177,11 @@ pca <- function(id, eselist) {
     # (loadings count, axis choice, coloring) doesn't re-run prcomp().
 
     pca <- reactive({
-      pcamatrix <- selectMatrix()
+      pcamatrix <- selectmatrix_reactives$selectMatrix()
       withProgress(message = "Running principal component analysis", value = 0, {
         validateOrCatch(runPCA(pcamatrix))
       })
-    }) %>% bindCache(selectMatrix())
+    }) %>% bindCache(selectmatrix_reactives$selectMatrix())
 
     # Fractional variance for each component
 
@@ -189,7 +197,7 @@ pca <- function(id, eselist) {
     })
 
     selectedComponents <- reactive({
-      c(getXAxis(), getYAxis(), getZAxis())
+      c(scatterplotcontrols_reactives$getXAxis(), scatterplotcontrols_reactives$getYAxis(), scatterplotcontrols_reactives$getZAxis())
     })
 
     # Debounce the loadings-count slider so dragging it doesn't refetch the
@@ -233,11 +241,11 @@ pca <- function(id, eselist) {
     # Make a version of the loading table for display with rounded values and links
 
     makeDisplayLoadingTable <- reactive({
-      linkMatrix(labelMatrix(data.frame(signif(makeLoadingTable(), 5), check.names = FALSE), getExperiment()), url_roots = eselist@url_roots)
+      linkMatrix(labelMatrix(data.frame(signif(makeLoadingTable(), 5), check.names = FALSE), selectmatrix_reactives$getExperiment()), url_roots = eselist@url_roots)
     })
 
     makeDownloadLoadingTable <- reactive({
-      labelMatrix(data.frame(makeLoadingTable(), check.names = FALSE), getExperiment())
+      labelMatrix(data.frame(makeLoadingTable(), check.names = FALSE), selectmatrix_reactives$getExperiment())
     })
 
     # Make labels for the laoding plot detailing the percent contributions to components etc
@@ -250,7 +258,7 @@ pca <- function(id, eselist) {
       })
       percent_contributions$sep <- "<br />"
 
-      loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
+      loadlabels <- paste(idToLabel(rownames(load$fraction), selectmatrix_reactives$getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
 
     # server = FALSE: column headers here embed the percent variance explained,

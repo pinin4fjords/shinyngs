@@ -177,31 +177,30 @@ genesetanalysistable <- function(id, eselist) {
       genesetselectInput(ns("genesetanalysistable"))
     })
 
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, select_assays = TRUE, select_samples = FALSE, select_genes = FALSE, select_meta = FALSE)
-    unpack.list(selectmatrix_reactives)
 
     # Pass the matrix to the contrasts module for processing
 
-    unpack.list(contrasts("genesetanalysistable", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_foldchange = 1, default_pval = 0.05, default_qval = 1))
+    contrast_reactives <- contrasts("genesetanalysistable", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE, default_foldchange = 1, default_pval = 0.05, default_qval = 1)
 
     # Parse the gene sets for ease of use
 
-    unpack.list(genesetselect("genesetanalysistable", eselist, getExperiment, filter_by_type = TRUE, require_select = FALSE))
+    genesetselect_reactives <- genesetselect("genesetanalysistable", eselist, selectmatrix_reactives$getExperiment, filter_by_type = TRUE, require_select = FALSE)
 
     observe({
-      updateGeneSetsList()
+      genesetselect_reactives$updateGeneSetsList()
     })
 
     # Resolve the enrichment table, column mapping and tool once per selection,
     # shared between the table itself and the method label above it.
 
     getEnrichmentInfo <- reactive({
-      ese <- getExperiment()
-      assay <- getAssay()
-      gene_set_types <- getGeneSetTypes()
-      contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]])
+      ese <- selectmatrix_reactives$getExperiment()
+      assay <- selectmatrix_reactives$getAssay()
+      gene_set_types <- genesetselect_reactives$getGeneSetTypes()
+      contrast_number <- as.numeric(contrast_reactives$getSelectedContrastNumbers()[[1]])
 
       resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
     })
@@ -217,8 +216,8 @@ genesetanalysistable <- function(id, eselist) {
     getGeneSetAnalysis <- reactive({
       validate(need(input$pval, "Waiting for p value"), need(input$fdr, "Waiting for FDR value"))
 
-      ese <- getExperiment()
-      gene_set_types <- getGeneSetTypes()
+      ese <- selectmatrix_reactives$getExperiment()
+      gene_set_types <- genesetselect_reactives$getGeneSetTypes()
 
       enrichment <- getEnrichmentInfo()
       validate(need(!is.null(enrichment), "No enrichment results for this contrast"))
@@ -227,7 +226,7 @@ genesetanalysistable <- function(id, eselist) {
 
       # Select out specific gene sets if they've been provided
 
-      selected_gene_sets <- getGenesetNames()
+      selected_gene_sets <- genesetselect_reactives$getGenesetNames()
       if (!is.null(selected_gene_sets)) {
         validate(need(any(selected_gene_sets %in% rownames(gst)), "Selected gene sets not available in test results"))
         gst <- gst[selected_gene_sets, , drop = FALSE]
@@ -248,11 +247,11 @@ genesetanalysistable <- function(id, eselist) {
       if (nrow(gst) > 0) {
         # Add in the differential genes
 
-        ct <- filteredContrastsTables()[[1]][[1]]
+        ct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
         up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
         down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
 
-        gene_sets <- getGeneSets()
+        gene_sets <- genesetselect_reactives$getGeneSets()
 
         gst$significant_genes <- apply(gst, 1, function(row) {
           direction_genes <- if (row[col_map$direction] == "Up") up else down
@@ -280,7 +279,7 @@ genesetanalysistable <- function(id, eselist) {
     # Make an explanatory file name
 
     makeFileName <- reactive({
-      gsub("[^a-zA-Z0-9_]", "_", paste("gsa", getSelectedContrastNames(), getGeneSetTypes()))
+      gsub("[^a-zA-Z0-9_]", "_", paste("gsa", contrast_reactives$getSelectedContrastNames(), genesetselect_reactives$getGeneSetTypes()))
     })
 
     # Pass the matrix to the simpletable module for display
