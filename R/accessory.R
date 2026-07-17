@@ -311,7 +311,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
         data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {
-      plotdata <- melt_matrix(as.matrix(plotmatrices[[pm]][, rownames(experiment)]))
+      plotdata <- melt_matrix(as.matrix(plotmatrices[[pm]][, rownames(experiment), drop = FALSE]))
       plotdata <- plotdata[which(plotdata$value > 0), ]
       colnames(plotdata) <- c("gene", "name", "value")
       plotdata$value <- cond_log2_transform_matrix(plotdata$value, should_transform = should_transform)
@@ -923,7 +923,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  as.matrix(matrix_data[, rownames(sample_metadata)])
+  as.matrix(matrix_data[, rownames(sample_metadata), drop = FALSE])
 }
 
 #' Read a metadata file

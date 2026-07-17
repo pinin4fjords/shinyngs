@@ -166,7 +166,7 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
           selected_contrast_samples <- contrast_samples[[contrast]]
 
           mean_counts <- lapply(selected_contrast_samples, function(scs) {
-            rowMeans(counts[, scs])
+            rowMeans(counts[, scs, drop = FALSE])
           })
 
           d$mean1 <- round(mean_counts[[1]], 2)
