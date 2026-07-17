@@ -91,43 +91,12 @@ dendro <- function(id, eselist) {
 
     plot_source <- session$ns("sampleDendroPlot")
 
-    # Groups the user has toggled off via the legend; their samples are dropped
-    # from the matrix so the tree is recomputed on the remainder.
-    hiddenGroups <- reactiveVal(character(0))
-
     getLevels <- reactive({
-      dendroGroupLevels(selectColData(), getGroupby())
+      groupLevels(selectColData(), getGroupby())
     })
 
-    # A change of grouping variable invalidates the toggled-off group names
-    observeEvent(getGroupby(),
-      {
-        hiddenGroups(character(0))
-      },
-      ignoreNULL = FALSE
-    )
-
-    # Clicking a legend entry emits plotly_restyle with the trace's new
-    # visibility; translate that into showing/hiding the group's samples. Trace 0
-    # is the branch tree, so trace i corresponds to the i-th group.
-    observeEvent(event_data("plotly_restyle", source = plot_source), {
-      ed <- event_data("plotly_restyle", source = plot_source)
-      visible <- ed[[1]][["visible"]]
-      if (is.null(visible)) {
-        return()
-      }
-      traces <- unlist(ed[[2]])
-      levels_all <- getLevels()
-      current <- hiddenGroups()
-      for (j in seq_along(traces)) {
-        trace <- traces[j]
-        if (trace < 1 || trace > length(levels_all)) next
-        level <- levels_all[trace]
-        state <- if (length(visible) >= j) visible[[j]] else visible[[1]]
-        current <- if (identical(state, "legendonly")) union(current, level) else setdiff(current, level)
-      }
-      hiddenGroups(current)
-    })
+    # Trace 0 is the branch tree, so the per-group traces start at index 1.
+    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, getGroupby, trace_offset = 1L)
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
@@ -239,24 +208,6 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
   print(p3 + theme(title = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.5)), legend.position = "bottom") + ggtitle(plot_title))
 }
 
-#' Group levels for a dendrogram, in the order legend traces are built
-#'
-#' Shared by \code{plotly_clusteringDendrogram()} and its Shiny module so the
-#' trace order and the server's trace-index-to-group mapping cannot drift apart.
-#'
-#' @param experiment Sample annotation data frame
-#' @param colorby Column name in \code{experiment}, or NULL for no grouping
-#'
-#' @return Character vector of unique group values, with \code{"N/A"} for missing
-#'
-#' @noRd
-dendroGroupLevels <- function(experiment, colorby) {
-  if (is.null(colorby)) {
-    return(character(0))
-  }
-  unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
-}
-
 #' Make an interactive clustering dendrogram colored by experimental variable
 #'
 #' A \code{plotly} counterpart to \code{clusteringDendrogram()}: the branch
@@ -299,17 +250,14 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
   # Group membership per sample, and the full set of groups. Both are derived
   # from the complete sample set so the palette, symbols and legend stay stable
   # as groups are toggled on and off.
-  levels_all <- dendroGroupLevels(experiment, colorby)
+  levels_all <- groupLevels(experiment, colorby)
   if (is.null(colorby)) {
     col_groups <- character(ncol(plotmatrix))
   } else {
     col_groups <- na.replace(as.character(experiment[[colorby]][match(colnames(plotmatrix), rownames(experiment))]), "N/A")
   }
 
-  if (is.null(palette) || any(is.na(palette[seq_along(levels_all)]))) {
-    palette <- makeColorScale(max(length(levels_all), 1), palette = palette_name)
-  }
-  palette <- stats::setNames(palette[seq_along(levels_all)], levels_all)
+  palette <- resolvePalette(palette, levels_all, palette_name)
   symbols <- stats::setNames(rep(c("circle", "square", "diamond", "triangle-up", "cross", "x"), length.out = length(levels_all)), levels_all)
 
   visible_matrix <- plotmatrix[, !(col_groups %in% hidden_groups), drop = FALSE]

@@ -134,7 +134,7 @@ boxplot <- function(id, eselist) {
     output$quartilesPlotly <- renderPlotly({
       selected_matrix <- selectMatrix()
       ese <- getExperiment()
-      plotly_quartiles(selectMatrix(), idToLabel(rownames(selected_matrix), ese), getAssayMeasure(), whisker_distance = input$whiskerDistance)
+      plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), getAssayMeasure(), whisker_distance = input$whiskerDistance)
     })
 
     output$densityPlotly <- renderPlotly({
@@ -143,44 +143,13 @@ boxplot <- function(id, eselist) {
 
     plot_source <- session$ns("sampleBoxplot")
 
-    # Groups the user has toggled off via the legend; their samples are dropped
-    # so the plot is redrawn on the remainder.
-    hiddenGroups <- reactiveVal(character(0))
-
     getLevels <- reactive({
-      boxplotGroupLevels(selectColData(), getGroupby())
+      groupLevels(selectColData(), getGroupby())
     })
 
-    # A change of grouping variable invalidates the toggled-off group names
-    observeEvent(getGroupby(),
-      {
-        hiddenGroups(character(0))
-      },
-      ignoreNULL = FALSE
-    )
-
-    # Clicking a legend entry emits plotly_restyle with the trace's new
-    # visibility; translate that into showing/hiding the group's samples. Box
-    # traces come first (one per group, in getLevels() order), so trace i
-    # corresponds to the (i + 1)-th group; the trailing outlier trace is ignored.
-    observeEvent(event_data("plotly_restyle", source = plot_source), {
-      ed <- event_data("plotly_restyle", source = plot_source)
-      visible <- ed[[1]][["visible"]]
-      if (is.null(visible)) {
-        return()
-      }
-      traces <- unlist(ed[[2]])
-      levels_all <- getLevels()
-      current <- hiddenGroups()
-      for (j in seq_along(traces)) {
-        trace <- traces[j]
-        if (trace < 0 || trace >= length(levels_all)) next
-        level <- levels_all[trace + 1]
-        state <- if (length(visible) >= j) visible[[j]] else visible[[1]]
-        current <- if (identical(state, "legendonly")) union(current, level) else setdiff(current, level)
-      }
-      hiddenGroups(current)
-    })
+    # Box traces come first (one per group, in getLevels() order) with no
+    # leading trace, so a restyled trace index maps directly onto a group.
+    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, getGroupby, trace_offset = 0L)
 
     output$sampleBoxplot <- renderPlotly({
       withProgress(message = "Making sample boxplot", value = 0, {
@@ -315,24 +284,6 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
   )
 }
 
-#' Group levels for a boxplot, in the order the legend traces are built
-#'
-#' Shared by \code{plotly_boxplot()} and its Shiny module so the box-trace order
-#' and the server's trace-index-to-group mapping cannot drift apart.
-#'
-#' @param experiment Sample annotation data frame
-#' @param colorby Column name in \code{experiment} used for grouping, or NULL
-#'
-#' @return A character vector of group levels
-#'
-#' @keywords internal
-boxplotGroupLevels <- function(experiment, colorby = NULL) {
-  if (is.null(colorby)) {
-    return(" ")
-  }
-  unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
-}
-
 #' Make an interactive boxplot with coloring by experimental variable
 #'
 #' Draws a \code{plotly} box plot of the value distribution in each sample.
@@ -383,21 +334,17 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   # Order samples so members of the same group sit together, preserving
   # first-seen order of both samples and groups (mirrors ggplotify()).
 
-  group_levels <- boxplotGroupLevels(experiment, colorby)
   if (!is.null(colorby)) {
     groups <- na.replace(as.character(experiment[[colorby]]), "N/A")
   } else {
     groups <- rep(" ", nrow(experiment))
   }
+  group_levels <- unique(groups)
   sample_order <- order(factor(groups, levels = group_levels))
   samples <- rownames(experiment)[sample_order]
   groups <- groups[sample_order]
 
-  if (is.null(palette)) {
-    palette <- makeColorScale(length(group_levels), palette = palette_name)
-  }
-  palette <- palette[seq_along(group_levels)]
-  names(palette) <- group_levels
+  palette <- resolvePalette(palette, group_levels, palette_name)
 
   axis_labels <- samples
   if (annotate_samples && !is.null(colorby)) {
@@ -426,9 +373,6 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 
     for (g in group_levels) {
       grp_samples <- samples[groups == g]
-      if (length(grp_samples) == 0) {
-        next
-      }
       s_stats <- stats[grp_samples]
       p <- add_trace(
         p,

@@ -79,10 +79,23 @@ test_that("plotly_boxplot handles no grouping and multiple matrices", {
   )
 })
 
-test_that("boxplotGroupLevels returns grouping levels in first-seen order", {
+test_that("groupLevels returns grouping levels in first-seen order", {
   experiment <- data.frame(row.names = paste0("s", 1:4), group = c("B", "A", "B", "A"))
-  expect_equal(boxplotGroupLevels(experiment, "group"), c("B", "A"))
-  expect_equal(boxplotGroupLevels(experiment, NULL), " ")
+  expect_equal(groupLevels(experiment, "group"), c("B", "A"))
+  expect_equal(groupLevels(experiment, NULL), character(0))
+})
+
+test_that("resolvePalette names colours by level and regenerates when too short", {
+  levels <- c("A", "B", "C")
+
+  named <- resolvePalette(c("red", "green", "blue"), levels)
+  expect_equal(names(named), levels)
+  expect_equal(unname(named), c("red", "green", "blue"))
+
+  # A palette that cannot cover the levels is regenerated rather than padded with NA
+  regenerated <- resolvePalette(c("red", "green"), levels)
+  expect_equal(names(regenerated), levels)
+  expect_false(any(is.na(regenerated)))
 })
 
 test_that("plotly_boxplot drops hidden groups but keeps them in the legend", {
