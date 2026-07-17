@@ -38,7 +38,7 @@ volcanoplotInput <- function(id, eselist) {
   # Only consider experiments that actually have p-values to use in a volcano plot
 
   eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-    length(ese@contrast_stats) > 0
+    has_slot_data(ese, "contrast_stats")
   })))]
   expression_filters <- selectmatrixInput(ns("expression"), eselist, require_contrast_stats = TRUE)
 

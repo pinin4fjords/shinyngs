@@ -38,7 +38,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
 
   # Only use experiments with gene set analyses available
 
-  eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
+  eselist <- eselist[unlist(lapply(eselist, function(ese) has_slot_data(ese, "gene_set_analyses")))]
 
   # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
 
@@ -142,7 +142,7 @@ genesetbarcodeplot <- function(id, eselist) {
 
     # Only use experiments with gene set analyses available
 
-    eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
+    eselist <- eselist[unlist(lapply(eselist, function(ese) has_slot_data(ese, "gene_set_analyses")))]
 
     # For each experiment with gene set analysis, only keep assays associated with gene set results, so that the assay select doesn't have invalid options.
 

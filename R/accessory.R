@@ -10,9 +10,9 @@
 #' @keywords internal
 #'
 defaultGroupvar <- function(eselist) {
-  if (length(eselist@default_groupvar) > 0) {
+  if (has_slot_data(eselist, "default_groupvar")) {
     eselist@default_groupvar
-  } else if (length(eselist@group_vars) > 0) {
+  } else if (has_slot_data(eselist, "group_vars")) {
     eselist@group_vars[1]
   } else {
     NULL

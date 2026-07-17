@@ -71,7 +71,7 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
   }
   jump_items <- pushToList(jump_items, navLink(tagList(icon("magnifying-glass", verify_fa = FALSE), "Look up a gene"), nav[["geneinfo"]]))
 
-  if (length(eselist@static_pdf) > 0) {
+  if (has_slot_data(eselist, "static_pdf")) {
     pdf <- tags$iframe(style = "height:800px; width:100%; scrolling=yes", src = eselist@static_pdf)
   } else {
     pdf <- NULL

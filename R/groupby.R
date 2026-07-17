@@ -61,7 +61,7 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
       if (multiple) {
         eselist@group_vars
       } else {
-        if (length(eselist@default_groupvar) > 0) {
+        if (has_slot_data(eselist, "default_groupvar")) {
           eselist@default_groupvar
         } else {
           eselist@group_vars[1]
@@ -75,7 +75,7 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
       withProgress(message = "Rendering group by", value = 0, {
         ns <- session$ns
 
-        if (length(eselist@group_vars) > 0) {
+        if (has_slot_data(eselist, "group_vars")) {
           dynamic <- isDynamic()
 
           group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))

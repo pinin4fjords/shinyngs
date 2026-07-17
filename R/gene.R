@@ -133,7 +133,7 @@ gene <- function(id, eselist) {
     output$model <- renderUI({
       ns <- session$ns
 
-      if (length(eselist@ensembl_species) > 0) {
+      if (has_slot_data(eselist, "ensembl_species")) {
         out <- list(modalInput(ns(gene_model_modal_id), "Gene model", "help"))
       }
     })
@@ -162,7 +162,7 @@ gene <- function(id, eselist) {
         barplot_expression <- selectMatrix()
         barplot_expression <- barplot_expression[rows, , drop = FALSE]
 
-        if (length(ese@labelfield) > 0) {
+        if (has_slot_data(ese, "labelfield")) {
           rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
         }
 
