@@ -211,6 +211,15 @@ button} \item{summarizematrix}{Module which takes a matrix and a factor which
 groups columns, and summarises by a supplied method, mean by default} }}
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://pinin4fjords.github.io/shinyngs/}
+  \item \url{https://github.com/pinin4fjords/shinyngs}
+  \item Report bugs at \url{https://github.com/pinin4fjords/shinyngs/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jonathan Manning \email{jonathan.manning@seqera.io}
 
