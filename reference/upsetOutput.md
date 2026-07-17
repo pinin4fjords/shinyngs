@@ -1,0 +1,53 @@
+# The output function of the clustering module
+
+This module illustrates the intersection of differential sets using a
+reimplementation of the `upset` tool of Lex, Gehlenborg et al. The
+reimplementation was done to allow use of more dynamic components, and
+to allow plotting of all elements in given intersections (rather than
+assigning every item to its highest-order intersection). It also seems
+to have sped things up.
+
+## Usage
+
+``` r
+upsetOutput(id, eselist)
+```
+
+## Arguments
+
+- id:
+
+  Submodule namespace
+
+- eselist:
+
+  ExploratorySummarizedExperimentList object containing
+  ExploratorySummarizedExperiment objects
+
+## Value
+
+output An HTML tag object that can be rendered as HTML using
+as.character()
+
+## Details
+
+This function provides the form elements to control the display
+
+This provides actual plot element for display by applications
+
+## References
+
+Lex and Gehlenborg (2014). Points of view: Sets and intersections.
+\<em\>Nature Methods\</em\> 11, 779 (2014).
+[http://www.nature.com/nmeth/journal/v11/n8/abs/nmeth.3033.html](http://www.nature.com/nmeth/journal/v11/n8/abs/nmeth.3033.md)
+
+Gehlenborg N (2016). \<em\>UpSetR: A More Scalable Alternative to Venn
+and Euler Diagrams for Visualizing Intersecting Sets\</em\>. R package
+version 1.3.0, <https://CRAN.R-project.org/package=UpSetR>
+
+## Examples
+
+``` r
+upsetOutput("myid", eselist)
+#> Error in upsetOutput("myid", eselist): could not find function "upsetOutput"
+```

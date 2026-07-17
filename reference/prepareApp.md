@@ -1,0 +1,120 @@
+# Make UI and server functions for Shiny apps based on data supplied as modfied SummarizedExperiments
+
+Draws on various components (heatmaps, tables etc) to produce the UI and
+server components of a variety of shiny apps, based on the type and data
+specified, using modularised Shiny components.
+
+## Usage
+
+``` r
+prepareApp(type, eselist, ui_only = FALSE, ...)
+```
+
+## Arguments
+
+- type:
+
+  A string specifying the type of shiny app required. Currently,
+  'rnaseq' or 'chipseq' produce large multi-panel applications designed
+  to facilitate analysis of those data types. For any other 'type', the
+  call is passed to
+  [`simpleApp()`](https://pinin4fjords.github.io/shinyngs/reference/simpleApp.md),
+  which will attempt to build an application using `Input` and `Output`
+  functions of the same module.
+
+- eselist:
+
+  An ExploratorySummarizedExperimentList object containing assay data
+  (expression, counts...), sample data and annotation data for the rows.
+
+- ui_only:
+
+  Don't add server components (for UI testing)
+
+- ...:
+
+  Additional arguments passed to
+  [`simpleApp()`](https://pinin4fjords.github.io/shinyngs/reference/simpleApp.md)
+
+## Value
+
+output A list of length 2 containing: the UI and server components
+
+## Examples
+
+``` r
+library(shinyngs)
+
+# 1: BASIC RNA-SEQ APP
+
+# Get an example RNA-seq dataset from the `airway` package
+
+data(airway, package = "airway")
+
+# Get some information about these data from the package description
+
+expinfo <- packageDescription("airway")
+
+# Convert to an ExploratorySummarizedExperiment (with extra slots)
+
+ese <- as(airway, "ExploratorySummarizedExperiment")
+
+# Make the ExploratorySummarizedExperimentList that represents the study as a
+# whole.
+
+eselist <- ExploratorySummarizedExperimentList(
+  ese,
+  title = expinfo$Title,
+  author = expinfo$Author,
+  description = expinfo$Description
+)
+#> [1] "Creating ExploratorySummarizedExperimentList object"
+
+# Make and run the app
+
+if (interactive()) {
+  app <- prepareApp("rnaseq", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
+
+# 2: AUGMENT WITH ANNOTATION INFO FOR MORE INFORMATIVE APP
+
+# Use Biomart to retrieve some annotation, add it to the object, then choose a
+# different default grouping variable and re-make the app.
+
+if (interactive()) {
+  library(biomaRt)
+  attributes <- c(
+    "ensembl_gene_id", # The sort of ID your results are keyed by
+    "entrezgene", # Could be used for gene sets keyed by Entrez ID
+    "external_gene_name" # Used to annotate gene names on the plot
+  )
+
+  mart <- useMart(
+    biomart = "ENSEMBL_MART_ENSEMBL",
+    dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org"
+  )
+  annotation <- getBM(attributes = attributes, mart = mart)
+  annotation <- annotation[order(annotation$entrezgene), ]
+
+  mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
+  ese@labelfield <- "external_gene_name"
+
+  eselist <- ExploratorySummarizedExperimentList(
+    ese,
+    title = expinfo$Title,
+    author = expinfo$Author,
+    description = expinfo$Description,
+    default_groupvar = "dex"
+  )
+  app <- prepareApp("rnaseq", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
+
+# 3. MORE COMPLEX DATA FOR DIFFERENTIAL EXPRESSION ETC
+
+# See the vignette for how to populate the extra slots of an
+# ExploratorySummarizedExperimentList (contrasts, differential statistics,
+# gene set analyses etc.). With those in place the resulting app gains
+# additional panels for differential analyses.
+```
