@@ -1,12 +1,18 @@
-# Make a color palette of a specified length
+# Make a colour-blind-safe categorical colour scale of a specified length
 
-Given an integer, make a palette with a specified number of colors using
-palettes from RColorBrewer, and interpolation where necessary.
+Returns colours drawn, in order, from shinyngs' fixed colour-blind-safe
+categorical palette
+([`COLORBLIND_PALETTE`](https://pinin4fjords.github.io/shinyngs/reference/COLORBLIND_PALETTE.md)),
+so the same position always gets the same colour and a group keeps its
+colour across plots. When more colours are requested than the base
+palette provides, additional shades are interpolated between them and a
+message is emitted, since colour-blind separation can no longer be
+guaranteed for every pair.
 
 ## Usage
 
 ``` r
-makeColorScale(ncolors, palette = "Set1")
+makeColorScale(ncolors, palette = NULL)
 ```
 
 ## Arguments
@@ -17,7 +23,8 @@ makeColorScale(ncolors, palette = "Set1")
 
 - palette:
 
-  RColorBrewer palette name. (default: 'Set1')
+  Ignored. Accepted so callers can pass a palette name argument without
+  it being an error.
 
 ## Value
 
@@ -27,6 +34,7 @@ output Character vector of colors
 
 ``` r
 makeColorScale(10)
-#>  [1] "#999999" "#EC83BA" "#B75F49" "#E1C62F" "#FFB716" "#D16948" "#7E6E85"
-#>  [8] "#48A462" "#4A72A6" "#E41A1C"
+#> makeColorScale: 10 categories requested, more than the 8 colours in shinyngs' colour-blind-safe palette. Interpolating additional shades, which will be harder to tell apart than the base palette.
+#>  [1] "#E69F00" "#76AFB5" "#26A7A7" "#50B562" "#D5D74E" "#1A7EA5" "#8E643B"
+#>  [8] "#D1694A" "#B27195" "#595959"
 ```

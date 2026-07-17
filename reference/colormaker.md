@@ -1,8 +1,9 @@
 # The output function of the colorby module
 
-This module provides a drop-down for picking an RColorBrewer color
-palette and provides that palette given a reactive which supplied the
-required number of colors.
+Supplies a reactive returning shinyngs' fixed colour-blind-safe palette
+(see
+[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)),
+sized to the number of categories the caller reports.
 
 ## Usage
 
@@ -22,8 +23,7 @@ colormaker(id, getNumberCategories)
 
 ## Value
 
-output An HTML tag object that can be rendered as HTML using
-as.character()
+output A reactive returning a character vector of hex colors
 
 ## Details
 

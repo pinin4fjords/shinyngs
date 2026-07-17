@@ -382,7 +382,8 @@
   : Calculate MAD scores as per OmicSoft
 
 - [`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)
-  : Make a color palette of a specified length
+  : Make a colour-blind-safe categorical colour scale of a specified
+  length
 
 - [`makeContrastControl()`](https://pinin4fjords.github.io/shinyngs/reference/makeContrastControl.md)
   : Make a select field for picking one or more contrasts

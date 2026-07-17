@@ -16,11 +16,12 @@ interactiveHeatmap(
   cluster_cols = FALSE,
   scale = "row",
   row_labels,
-  colors = colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdYlBu")))(100),
+  colors = viridisLite::viridis(100),
   cexCol = 0.7,
   cexRow = 0.7,
   display_numbers = FALSE,
   hide_colorbar = FALSE,
+  plot_height = 600,
   ...
 )
 ```
@@ -77,6 +78,14 @@ interactiveHeatmap(
 - hide_colorbar:
 
   Boolean, should the color scale legend be hidden?
+
+- plot_height:
+
+  The total rendered height of the plot in pixels, used to convert the
+  fixed-pixel annotation row height into the fraction `heatmaply()`
+  expects. Should match the `height` the plot is actually rendered at
+  (e.g. the `height` argument of the `plotlyOutput()` it's displayed
+  in).
 
 - ...:
 
