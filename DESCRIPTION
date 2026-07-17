@@ -15,7 +15,6 @@ LazyData: true
 Imports:
     bslib (>= 0.9.0),
     cluster,
-    cpp11,
     data.table,
     dplyr,
     DT (>= 0.2),
@@ -27,6 +26,7 @@ Imports:
     matrixStats,
     methods,
     plotly (>= 4.8.0),
+    RColorBrewer,
     reformulas,
     scatterplot3d,
     shiny (>= 1.7.0),
@@ -47,7 +47,6 @@ Suggests:
     Gviz,
     knitr,
     lintr,
-    markdown,
     optparse,
     pkgdown,
     rmarkdown,

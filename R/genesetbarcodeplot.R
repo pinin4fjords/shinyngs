@@ -100,7 +100,7 @@ genesetbarcodeplotOutput <- function(id) {
 
   moduleMain(
     "Gene set barcode plot",
-    plotlyOutput(ns("genesetbarcodeplot"), height = "460px"),
+    shinycssloaders::withSpinner(plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), color = shinyngsSpinnerColor()),
     h4("Gene set differential expression"),
     simpletableOutput(ns("genesetbarcodeplot")),
     help = modalInput(ns(genesetbarcodeplot_modal$id), "help", "help")
@@ -231,7 +231,8 @@ genesetbarcodeplot <- function(id, eselist) {
       plotly_barcodeplot(
         fold_changes = getFoldChanges(), gene_ids = getGeneIDs(), set_gene_ids = names(set_genes), labels = getLabels(),
         plot_title = barcodeplotTitle()
-      )
+      ) %>%
+        shinyngsPlotlyConfig("barcodeplot")
     })
 
     # Make a table of contrast data for the gene set Subset the linked contrasts table for the gene set genes

@@ -12,7 +12,7 @@ plotly_clusteringDendrogram(
   cluster_method = "ward.D",
   plot_title = "",
   palette = NULL,
-  palette_name = "Set1",
+  palette_name = COLORBLIND_PALETTE_NAME,
   hidden_groups = character(0),
   source = NULL
 )

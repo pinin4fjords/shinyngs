@@ -53,7 +53,7 @@ illuminaarrayqcOutput <- function(id) {
 
   moduleMain(
     "Illumina microarray QC plot",
-    plotlyOutput(ns("qcplot"), height = 600),
+    shinycssloaders::withSpinner(plotlyOutput(ns("qcplot"), height = 600), color = shinyngsSpinnerColor()),
     h4("Table of data"),
     simpletableOutput(ns("qctable")),
     help = modalInput(ns(illuminaarrayqc_modal$id), "help", "help")
@@ -108,7 +108,8 @@ illuminaarrayqc <- function(id, eselist) {
         layout(xaxis = list(
           categoryarray = rownames(experiment),
           categoryorder = "array", title = ""
-        ), yaxis = list(title = "Intensity"), margin = list(b = 200))
+        ), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>%
+        shinyngsPlotlyConfig("array_qc")
     })
 
     # Render the table and provide for download, using the simpletable module.

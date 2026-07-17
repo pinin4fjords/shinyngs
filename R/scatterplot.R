@@ -221,7 +221,8 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
           zlab = colnames(getDatamatrix())[geZXAxis()], palette = palette, labels = getLabels(),
           show_labels = getShowLabels(), lines = getLines(), showlegend = showLegend(),
           point_size = getPointSize()
-        )
+        ) %>%
+          shinyngsPlotlyConfig("scatterplot")
       })
     })
   })
@@ -434,7 +435,7 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
                                show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL,
-                               showlegend = TRUE, palette_name = "Set1") {
+                               showlegend = TRUE, palette_name = COLORBLIND_PALETTE_NAME) {
   # We'll only label and color points with non-NA labels
 
   if (is.null(labels)) {
@@ -546,7 +547,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = NULL,
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 1, labels = colorby,
                                show_labels = FALSE, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE,
-                               palette_name = "Set1") {
+                               palette_name = COLORBLIND_PALETTE_NAME) {
   labelled <- !is.na(labels)
 
   if ((!is.null(colorby)) && !is.factor(colorby)) {

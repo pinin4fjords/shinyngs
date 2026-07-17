@@ -83,7 +83,7 @@ upsetOutput <- function(id, eselist) {
   moduleMain(
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
-    plotlyOutput(ns("plotly_upset"), height = "600px"),
+    shinycssloaders::withSpinner(plotlyOutput(ns("plotly_upset"), height = "600px"), color = shinyngsSpinnerColor()),
     h4("Differential set summary"),
     uiOutput(ns("differential_parameters")),
     simpletableOutput(ns("upset")),
@@ -182,7 +182,7 @@ upset <- function(id, eselist, setlimit = 16) {
     getNsets <- reactive({
       validate(need(!is.null(input$nsets), "Waiting for nsets"))
       input$nsets
-    })
+    }) %>% debounce(300)
 
     # Accessor for the minorder parameter
 
@@ -342,7 +342,7 @@ upset <- function(id, eselist, setlimit = 16) {
 
         list(combinations = combos, intersections = intersects)
       })
-    })
+    }) %>% bindCache(getSets(), getShowEmptyIntersections(), getIntersectionAssignmentType())
 
     # Post-process intersections to remove lower-order interactions from display if requested
 
@@ -369,7 +369,7 @@ upset <- function(id, eselist, setlimit = 16) {
       )
       s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE) %>% layout(showlegend = FALSE)
 
-      subplot(s1, s2, widths = c(0.3, 0.7))
+      subplot(s1, s2, widths = c(0.3, 0.7)) %>% shinyngsPlotlyConfig("upset")
     })
 
     # Calculate the maximum number of sets in an intersection

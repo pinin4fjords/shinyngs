@@ -18,8 +18,12 @@ test_that("makeColorScale returns colours stably for the same count", {
   expect_equal(makeColorScale(8), COLORBLIND_PALETTE)
 })
 
-test_that("makeColorScale ignores an (unused) palette name argument", {
-  expect_equal(makeColorScale(4, palette = "Set1"), makeColorScale(4))
+test_that("makeColorScale defaults to the colour-blind palette but honours a named RColorBrewer palette", {
+  expect_equal(makeColorScale(4, palette = "colorblind"), makeColorScale(4))
+
+  brewer <- makeColorScale(4, palette = "Set1")
+  expect_length(brewer, 4)
+  expect_false(identical(brewer, makeColorScale(4)))
 })
 
 test_that("makeColorScale still returns the requested count when ncolors is below 3", {

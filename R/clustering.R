@@ -293,7 +293,11 @@ clustering <- function(id, eselist) {
           margin = list(b = 150)
         )
       })
-    })
+    }) %>%
+      bindCache(
+        getMatricesByCluster(), getSummarisedMatricesByCluster(), getPalette(),
+        getLimits(), getAverageType(), getClusterDisplay(), selectmatrix_reactives$selectColData()
+      )
 
     # Take individual cluster plots and display them together using subplot.
 
@@ -305,7 +309,8 @@ clustering <- function(id, eselist) {
         withProgress(message = "Making a plot for each cluster", value = 0, {
           plots <- makeClusterPlots()
         })
-        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots)
+        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>%
+          shinyngsPlotlyConfig("clustering")
       })
     })
 

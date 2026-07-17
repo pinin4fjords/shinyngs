@@ -81,8 +81,8 @@ pcaOutput <- function(id) {
   moduleMain(
     "Principal components analysis",
     tabsetPanel(
-      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
-      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))
+      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"), spinner = TRUE)),
+      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings", spinner = TRUE)))
     ),
     help = modalInput(ns(pca_modal$id), "help", "help")
   )

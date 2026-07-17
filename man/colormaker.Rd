@@ -16,9 +16,9 @@ that require a color.}
 output A reactive returning a character vector of hex colors
 }
 \description{
-Supplies a reactive returning shinyngs' fixed colour-blind-safe palette
-(see \code{\link{makeColorScale}}), sized to the number of categories the
-caller reports.
+Supplies a reactive returning the palette selected in the drop-down, sized
+to the number of categories the caller reports (see
+\code{\link{makeColorScale}}).
 }
 \details{
 This function is called directly, using the same id as its UI counterpart,

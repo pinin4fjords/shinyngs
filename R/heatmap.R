@@ -402,7 +402,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
     output$interactiveHeatmap <- plotly::renderPlotly({
       withProgress(message = "Building interactive heatmap", value = 0, {
-        getHeatmapPlot()
+        getHeatmapPlot() %>% shinyngsPlotlyConfig("heatmap")
       })
     })
   })

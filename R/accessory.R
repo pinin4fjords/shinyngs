@@ -4,6 +4,11 @@
 # used at runtime.
 requireNamespace <- NULL
 
+# The brand accent colour. bslib's bs_theme() and shinycssloaders both need a
+# literal hex here (neither resolves a var(--bs-primary) reference), so this
+# constant is the single source both derive from.
+SHINYNGS_ACCENT <- "#2780e3"
+
 #' Resolve the default grouping variable for an experiment list
 #'
 #' Returns \code{default_groupvar} if set, otherwise the first of
@@ -217,7 +222,7 @@ pushToList <- function(input_list, element) {
 shinyngsPageNavbar <- function(navbar_menus) {
   cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
   jsfile <- system.file("www", paste0(packageName(), ".js"), package = packageName())
-  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo", primary = "#2780e3")
+  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo", primary = SHINYNGS_ACCENT)
   navbar_menus$navbar_options <- bslib::navbar_options(bg = "dark", theme = "dark")
 
   # Resolve the light/dark theme in <head> before first paint. input_dark_mode
@@ -288,17 +293,40 @@ moduleMain <- function(title, ..., help = NULL) {
 #'
 #' \code{shinycssloaders::withSpinner()} bakes its colour into a literal CSS
 #' value rather than accepting a \code{var(--bs-primary)} reference, so it
-#' can't pick up the Bootstrap theme variable directly. This returns the same
-#' hex value used as the theme's \code{primary} colour in
-#' \code{shinyngsPageNavbar()}, kept as a single source so the two stay in
-#' sync.
+#' can't pick up the Bootstrap theme variable directly. This returns the
+#' brand accent (\code{SHINYNGS_ACCENT}), the same value the theme's
+#' \code{primary} colour derives from.
 #'
 #' @return A hex colour string
 #'
 #' @keywords internal
 #'
 shinyngsSpinnerColor <- function() {
-  "#2780e3"
+  SHINYNGS_ACCENT
+}
+
+#' Apply shinyngs' shared plotly toolbar configuration
+#'
+#' Gives every interactive plot the same modebar: the plotly logo is dropped,
+#' the noisier selection buttons are removed, and the "download plot" button
+#' produces a PNG named after the plot rather than the generic
+#' \code{newplot.png}. Call once on the assembled plotly object before
+#' returning it from a \code{renderPlotly()}.
+#'
+#' @param p A plotly object
+#' @param filename Base name (no extension) for the PNG download
+#'
+#' @return The plotly object with a shared \code{config()} applied
+#'
+#' @keywords internal
+#'
+shinyngsPlotlyConfig <- function(p, filename = "shinyngs_plot") {
+  plotly::config(
+    p,
+    displaylogo = FALSE,
+    modeBarButtonsToRemove = c("sendDataToCloud", "lasso2d", "select2d"),
+    toImageButtonOptions = list(format = "png", filename = filename)
+  )
 }
 
 #' Create sets of fields for display
@@ -582,7 +610,7 @@ withHelpIcon <- function(label, tooltip = NULL, placement = "right") {
   }
 
   tagList(label, " ", bslib::tooltip(
-    tags$span(icon("circle-info", verify_fa = FALSE), style = "cursor: help; color: #6c757d;"),
+    tags$span(icon("circle-info", verify_fa = FALSE), style = "cursor: help; color: var(--bs-secondary-color);"),
     tooltip,
     placement = placement
   ))
@@ -2367,7 +2395,7 @@ groupLevels <- function(experiment, colorby = NULL) {
 #' @return A character vector of colours named by \code{levels}
 #'
 #' @noRd
-resolvePalette <- function(palette, levels, palette_name = "Set1") {
+resolvePalette <- function(palette, levels, palette_name = COLORBLIND_PALETTE_NAME) {
   if (is.null(palette) || any(is.na(palette[seq_along(levels)]))) {
     palette <- makeColorScale(max(length(levels), 1), palette = palette_name)
   }

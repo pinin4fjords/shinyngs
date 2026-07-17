@@ -152,11 +152,13 @@ boxplot <- function(id, eselist) {
     output$quartilesPlotly <- renderPlotly({
       selected_matrix <- selectmatrix_reactives$selectMatrix()
       ese <- selectmatrix_reactives$getExperiment()
-      plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance)
+      plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance) %>%
+        shinyngsPlotlyConfig("quartiles")
     })
 
     output$densityPlotly <- renderPlotly({
-      plotly_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette())
+      plotly_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette()) %>%
+        shinyngsPlotlyConfig("density")
     })
 
     plot_source <- session$ns("sampleBoxplot")
@@ -174,7 +176,8 @@ boxplot <- function(id, eselist) {
         plotly_boxplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
           expressiontype = selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance,
           palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
-        )
+        ) %>%
+          shinyngsPlotlyConfig("boxplot")
       })
     })
   })
@@ -213,7 +216,7 @@ boxplot <- function(id, eselist) {
 #' data(airway, package = "airway")
 #' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
+ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_transform = should_transform)
 
   if (!is.null(colorby)) {
@@ -333,7 +336,7 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
 #' data(airway, package = "airway")
 #' plotly_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = "Set1", whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL) {
+plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL) {
   if (!is.list(plotmatrices)) {
     plotmatrices <- list(" " = plotmatrices)
   }
@@ -482,7 +485,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #'
 #' @return output A \code{ggplot} output
 
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
+ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))
@@ -532,7 +535,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'
 #' @return output A \code{plotly} output
 
-plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = "Set1", annotate_samples = FALSE, should_transform = NULL) {
+plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {
     ncats <- length(unique(plotdata$colorby))

@@ -18,8 +18,8 @@ A \code{bslib::layout_sidebar()}
 }
 \description{
 Wraps the standard "controls on the left, output on the right" arrangement
-used by every analysis tab in a \code{bslib::layout_sidebar()}, replacing the
-Bootstrap-3-era \code{sidebarLayout()} grid. The sidebar collapses on narrow
-screens; the main area holds the output (typically a \code{moduleMain()}).
+used by every analysis tab in a \code{bslib::layout_sidebar()}. The sidebar
+collapses on narrow screens; the main area holds the output (typically a
+\code{moduleMain()}).
 }
 \keyword{internal}

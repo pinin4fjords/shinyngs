@@ -2,26 +2,29 @@
 % Please edit documentation in R/colormaker.R
 \name{makeColorScale}
 \alias{makeColorScale}
-\title{Make a colour-blind-safe categorical colour scale of a specified length}
+\title{Make a categorical colour scale of a specified length}
 \usage{
-makeColorScale(ncolors, palette = NULL)
+makeColorScale(ncolors, palette = COLORBLIND_PALETTE_NAME)
 }
 \arguments{
 \item{ncolors}{Integer specifying the number of colors}
 
-\item{palette}{Ignored. Accepted so callers can pass a palette name
-argument without it being an error.}
+\item{palette}{\code{"colorblind"} (or \code{NULL}) for the colour-blind-safe
+palette, otherwise an RColorBrewer palette name. (default: 'colorblind')}
 }
 \value{
 output Character vector of colors
 }
 \description{
-Returns colours drawn, in order, from shinyngs' fixed colour-blind-safe
-categorical palette (\code{\link{COLORBLIND_PALETTE}}), so the same
-position always gets the same colour and a group keeps its colour across
-plots. When more colours are requested than the base palette provides,
-additional shades are interpolated between them and a message is emitted,
-since colour-blind separation can no longer be guaranteed for every pair.
+With the default \code{palette = "colorblind"} (or \code{NULL}), returns
+colours drawn, in order, from shinyngs' fixed colour-blind-safe categorical
+palette (\code{\link{COLORBLIND_PALETTE}}), so the same position always gets
+the same colour and a group keeps its colour across plots; when more colours
+are requested than the base palette provides, additional shades are
+interpolated between them and a message is emitted, since colour-blind
+separation can no longer be guaranteed for every pair. Any other value is
+treated as an RColorBrewer palette name and expanded with interpolation
+where necessary.
 }
 \examples{
 makeColorScale(10)

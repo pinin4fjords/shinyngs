@@ -80,7 +80,7 @@ dexseqplotOutput <- function(id, eselist) {
 
   moduleMain(
     "Gene-wise differential exon usage",
-    plotOutput(ns("deuPlot"), height = 620),
+    shinycssloaders::withSpinner(plotOutput(ns("deuPlot"), height = 620), color = shinyngsSpinnerColor()),
     dexseqtableOutput(ns("deuPlotTable")),
     help = modalInput(ns(dexseqplot_modal$id), "help", "help")
   )
