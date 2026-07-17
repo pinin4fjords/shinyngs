@@ -117,9 +117,15 @@ gene <- function(id, eselist) {
       content = DT::dataTableOutput(session$ns("geneInfoTable"))
     )
 
+    gene_model_content <- if (requireNamespace("igvShiny", quietly = TRUE)) {
+      igvShiny::igvShinyOutput(session$ns("geneModel"), height = "600px")
+    } else {
+      p("The igvShiny package must be installed to view gene model plots.")
+    }
+
     modalServer(gene_model_modal_id,
       title = function() paste(gene_label_reactives$getSelectedLabels()[1], "gene model"),
-      content = igvShiny::igvShinyOutput(session$ns("geneModel"), height = "600px")
+      content = gene_model_content
     )
 
     # The title and info link are reactive to the currently active experiment
@@ -193,27 +199,35 @@ gene <- function(id, eselist) {
       annotation <- data.frame(SummarizedExperiment::mcols(ese))
       annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
 
-      list(
-        chromosome = annotation$chromosome_name[1],
-        start = min(annotation$start_position),
-        end = max(annotation$end_position)
-      )
+      # start_position/end_position may come through as character (e.g. from
+      # annotation originally read from a text file), so coerce explicitly
+      # rather than relying on the columns already being numeric.
+      chromosome <- as.character(annotation$chromosome_name[1])
+      start <- suppressWarnings(min(as.numeric(annotation$start_position), na.rm = TRUE))
+      end <- suppressWarnings(max(as.numeric(annotation$end_position), na.rm = TRUE))
+
+      validate(need(
+        !is.na(chromosome) && is.finite(start) && is.finite(end),
+        paste0("No genomic location is annotated for gene '", gene_labels[1], "'")
+      ))
+
+      list(chromosome = chromosome, start = start, end = end)
     })
 
-    output$geneModel <- igvShiny::renderIgvShiny({
-      validate(need(requireNamespace("igvShiny", quietly = TRUE), "The igvShiny package must be installed to view gene model plots."))
+    if (requireNamespace("igvShiny", quietly = TRUE)) {
+      output$geneModel <- igvShiny::renderIgvShiny({
+        locus <- getGeneModelLocus()
+        genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
 
-      locus <- getGeneModelLocus()
-      genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
+        validate(need(!is.null(genome_info), paste0("No igv.js genome build is known for species '", eselist@ensembl_species, "'")))
 
-      validate(need(!is.null(genome_info), paste0("No igv.js genome build is known for species '", eselist@ensembl_species, "'")))
-
-      genomeOptions <- igvShiny::parseAndValidateGenomeSpec(
-        genomeName = genome_info$genome,
-        initialLocus = paste0("chr", locus$chromosome, ":", locus$start, "-", locus$end)
-      )
-      igvShiny::igvShiny(genomeOptions, displayMode = "EXPANDED")
-    })
+        genomeOptions <- igvShiny::parseAndValidateGenomeSpec(
+          genomeName = genome_info$genome,
+          initialLocus = paste0("chr", locus$chromosome, ":", locus$start, "-", locus$end)
+        )
+        igvShiny::igvShiny(genomeOptions, displayMode = "EXPANDED")
+      })
+    }
 
     # Once the widget signals it's ready, layer the full Ensembl transcript
     # catalog (colored by biotype) on top of the browser's own bundled RefSeq
@@ -221,20 +235,22 @@ gene <- function(id, eselist) {
     # known (see geneModelGenomeInfo() -- currently hg38 only; other builds
     # fall back to the widget's default annotation track).
 
-    observeEvent(input$igvReady, {
-      locus <- getGeneModelLocus()
-      genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
+    if (requireNamespace("igvShiny", quietly = TRUE)) {
+      observeEvent(input$igvReady, {
+        locus <- getGeneModelLocus()
+        genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
 
-      if (!is.null(genome_info) && !is.null(genome_info$gff3_url)) {
-        igvShiny::loadGFF3TrackFromURL(session,
-          id = session$ns("geneModel"), trackName = "Ensembl transcripts (biotype)",
-          gff3URL = genome_info$gff3_url, indexURL = genome_info$gff3_index_url,
-          color = "black", colorTable = geneModelBiotypeColors(), colorByAttribute = "biotype",
-          displayMode = "EXPANDED", trackHeight = 700, visibilityWindow = 100000,
-          deleteTracksOfSameName = TRUE
-        )
-      }
-    })
+        if (!is.null(genome_info) && !is.null(genome_info$gff3_url)) {
+          igvShiny::loadGFF3TrackFromURL(session,
+            id = session$ns("geneModel"), trackName = "Ensembl transcripts (biotype)",
+            gff3URL = genome_info$gff3_url, indexURL = genome_info$gff3_index_url,
+            color = "black", colorTable = geneModelBiotypeColors(), colorByAttribute = "biotype",
+            displayMode = "EXPANDED", trackHeight = 700, visibilityWindow = 100000,
+            deleteTracksOfSameName = TRUE
+          )
+        }
+      })
+    }
 
     # Make a table of the annotation data
 

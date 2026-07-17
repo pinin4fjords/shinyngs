@@ -1,21 +1,91 @@
-# These tests exercise the requireNamespace() guards added around DEXSeq,
-# Gviz and biomaRt calls (all Suggests-only, heavy Bioconductor packages).
-# requireNamespace() is mocked to report the package as absent, so the guard
-# path is exercised deterministically regardless of whether these packages
-# actually happen to be installed in the environment running the tests.
+# These tests exercise the requireNamespace() guards added around DEXSeq
+# and igvShiny calls (all Suggests-only, heavy dependencies). requireNamespace()
+# is mocked to report the package as absent, so the guard path is exercised
+# deterministically regardless of whether these packages actually happen to
+# be installed in the environment running the tests.
 
-# geneModelPlot() (biomaRt + Gviz)
+# gene() module's gene model view (igvShiny)
 
-test_that("geneModelPlot fails with a friendly message when biomaRt/Gviz are missing", {
-  testthat::local_mocked_bindings(requireNamespace = function(...) FALSE)
+gene_model_eselist <- function() {
+  n_genes <- 60
+  n_samples <- 4
 
-  result <- tryCatch(
-    geneModelPlot(ensembl_species = "mmusculus", chromosome = 1, start = 1, end = 100),
-    error = function(e) e
+  counts <- matrix(
+    stats::rnbinom(n_genes * n_samples, mu = 200, size = 5),
+    nrow = n_genes, ncol = n_samples,
+    dimnames = list(paste0("gene", seq_len(n_genes)), paste0("sample", seq_len(n_samples)))
   )
 
-  expect_s3_class(result, "validation")
-  expect_match(conditionMessage(result), "biomaRt and Gviz packages must be installed")
+  coldata <- S4Vectors::DataFrame(
+    row.names = colnames(counts),
+    condition = rep(c("control", "treated"), each = n_samples / 2)
+  )
+
+  annotation <- data.frame(
+    gene_id = rownames(counts),
+    gene_name = paste0("Gene", seq_len(n_genes)),
+    chromosome_name = c("17", rep(NA, n_genes - 1)),
+    start_position = c(7661779, rep(NA, n_genes - 1)),
+    end_position = c(7687546, rep(NA, n_genes - 1)),
+    row.names = rownames(counts)
+  )
+
+  ese <- ExploratorySummarizedExperiment(
+    assays = S4Vectors::SimpleList(counts = counts),
+    colData = coldata,
+    annotation = annotation,
+    idfield = "gene_id",
+    labelfield = "gene_name"
+  )
+
+  eselist <- ExploratorySummarizedExperimentList(
+    eses = list(counts = ese),
+    group_vars = "condition",
+    default_groupvar = "condition",
+    ensembl_species = "hsapiens"
+  )
+  eselist@contrasts <- list(
+    list(id = "condition_control_treated", Variable = "condition", Group.1 = "control", Group.2 = "treated")
+  )
+  eselist
+}
+
+test_that("gene model view falls back to a friendly message when igvShiny is missing", {
+  testthat::local_mocked_bindings(requireNamespace = function(...) FALSE)
+
+  eselist <- gene_model_eselist()
+
+  shiny::testServer(gene, args = list(id = "gene", eselist = eselist), {
+    session$setInputs(
+      "gene-experiment" = "counts",
+      "gene-assay" = "counts",
+      "gene_label-label" = "Gene1"
+    )
+
+    # output$geneModel is never registered at all in this case -- gene()
+    # only assigns it inside its own requireNamespace("igvShiny") guard, so
+    # the modal content falls back to a plain message instead, which is what
+    # a user actually sees.
+    expect_match(as.character(gene_model_content), "igvShiny package must be installed")
+  })
+})
+
+test_that("gene model view reports an unrecognised species with a friendly message", {
+  eselist <- gene_model_eselist()
+  eselist@ensembl_species <- "not_a_real_species"
+
+  shiny::testServer(gene, args = list(id = "gene", eselist = eselist), {
+    session$setInputs(
+      "gene-experiment" = "counts",
+      "gene-assay" = "counts",
+      "gene_label-label" = "Gene1"
+    )
+
+    result <- tryCatch(output$geneModel, error = function(e) e)
+
+    expect_s3_class(result, "validation")
+    expect_match(conditionMessage(result), "No igv.js genome build is known")
+  })
 })
 
 # dexseqtable() / dexseqplot() (DEXSeq)
