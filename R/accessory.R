@@ -1429,6 +1429,33 @@ compile_contrast_data <-
     contrast_stats_rearranged
   }
 
+#' Check whether a list-type slot on an S4 object is populated
+#'
+#' Centralises the \code{length(x@some_slot) > 0} idiom used throughout the
+#' Shiny modules to decide whether optional data (contrasts, gene sets, read
+#' reports, DEXSeq results etc) is available before showing or hiding UI for
+#' it.
+#'
+#' @param x An S4 object (e.g. \code{ExploratorySummarizedExperiment} or
+#'   \code{ExploratorySummarizedExperimentList})
+#' @param slot_name Name of the slot to check
+#'
+#' @return output Boolean- is the slot populated?
+#'
+#' @keywords shiny
+#'
+#' @examples
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#' has_slot_data(eselist, "contrasts")
+#'
+#' @export
+
+has_slot_data <- function(x, slot_name) {
+  length(slot(x, slot_name)) > 0
+}
+
 #' Call the various read/ validate methods for input data surrounding an experiment
 #'
 #' @param samples_metadata Sample metadata data frame

@@ -212,7 +212,7 @@ summaryTileSpecs <- function(eselist) {
     ))
   }
 
-  if (length(eselist@contrasts) > 0) {
+  if (has_slot_data(eselist, "contrasts")) {
     specs <- pushToList(specs, list(
       key = "contrasts", value = length(eselist@contrasts), label = "Contrasts", icon = "code-compare", group = "analysis",
       detail = function() detailContrasts(eselist)

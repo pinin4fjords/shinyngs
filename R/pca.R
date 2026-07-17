@@ -170,7 +170,10 @@ pca <- function(id, eselist) {
     pca <- reactive({
       pcamatrix <- selectMatrix()
       withProgress(message = "Running principal component analysis", value = 0, {
-        runPCA(pcamatrix)
+        tryCatch(
+          runPCA(pcamatrix),
+          error = function(e) validate(need(FALSE, conditionMessage(e)))
+        )
       })
     })
 
@@ -266,11 +269,19 @@ pca <- function(id, eselist) {
 #' runPCA(mymatrix)
 #'
 runPCA <- function(matrix, do_log = TRUE) {
+  if (ncol(matrix) < 2) {
+    stop("PCA requires at least 2 samples; only ", ncol(matrix), " were supplied.")
+  }
+
   if (do_log) {
     matrix <- log2(matrix + 1)
   }
 
   matrix <- matrix[rowsWithMultipleValues(matrix), , drop = FALSE]
+
+  if (nrow(matrix) == 0) {
+    stop("PCA requires at least one feature with variable values across samples; none remain after filtering.")
+  }
 
   prcomp(t(as.matrix(matrix)), scale. = TRUE)
 }

@@ -77,7 +77,7 @@ rnaseqInput <- function(id, eselist) {
 
   # If there are contrasts present, add the differential tab
 
-  if (length(eselist@contrasts) > 0) {
+  if (has_slot_data(eselist, "contrasts")) {
     differential_menu <- list("Differential", tabPanel("Tables", value = "diff_tables", sidebarLayout(
       sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3),
       mainPanel(differentialtableOutput(ns("differential")), width = 9)
@@ -118,7 +118,7 @@ rnaseqInput <- function(id, eselist) {
     # If any of the experiments have differential exon usage results
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@dexseq_results) > 0
+      has_slot_data(ese, "dexseq_results")
     })))) {
       differential_menu <- pushToList(differential_menu, tabPanel("Differential exon usage table", sidebarLayout(sidebarPanel(dexseqtableInput(
         ns("deutable"),
@@ -207,7 +207,7 @@ rnaseq <- function(id, eselist) {
       readreports("readrep", eselist)
     }
 
-    if (length(eselist@contrasts) > 0) {
+    if (has_slot_data(eselist, "contrasts")) {
       differentialtable("differential", eselist)
       volcanoplot("volcano", eselist)
       foldchangeplot("foldchange", eselist)
@@ -220,7 +220,7 @@ rnaseq <- function(id, eselist) {
     }
 
     if (any(unlist(lapply(eselist, function(ese) {
-      length(ese@dexseq_results) > 0
+      has_slot_data(ese, "dexseq_results")
     })))) {
       dexseqtable("deutable", eselist)
       updateDEUGeneLabel <- dexseqplot("deuplot", eselist)

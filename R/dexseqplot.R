@@ -118,15 +118,28 @@ dexseqplot <- function(id, eselist) {
 
     unpack.list(labelselectfield("genesymbol", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "deu_gene"))
 
+    # Fetch the DEXSeqResults object for the currently selected contrast,
+    # guarding against a selected contrast number with no corresponding entry
+    # in the experiment's dexseq_results slot
+
+    getSelectedDEUResult <- reactive({
+      ese <- getExperiment()
+      deu <- ese@dexseq_results
+      selected_contrast_number <- as.numeric(getSelectedContrastNumbers()[[1]][[1]])
+      validate(need(
+        selected_contrast_number %in% seq_along(deu),
+        "No differential exon usage results available for the selected contrast"
+      ))
+      deu[[selected_contrast_number]]
+    })
+
     # Get the a gene ID for the currently input gene symbol. Could be a composite
 
     getDEUGeneID <- reactive({
       ese <- getExperiment()
       gene_id <- getSelectedIds()
       deu <- ese@dexseq_results
-      selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
-
-      d <- deu[[as.numeric(selected_contrast_number)]]
+      d <- getSelectedDEUResult()
 
       # Sometimes an exon can be part of multiple Ensembl gene records. The group ID will then be a composite like
       # 'ENSRNOG00000051235+ENSRNOG00000051158+ENSRNOG00000000419'
@@ -144,8 +157,7 @@ dexseqplot <- function(id, eselist) {
       {
         ese <- getExperiment()
 
-        selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
-        dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
+        dexseq_result <- getSelectedDEUResult()
 
         selected_contrast <- getSelectedContrasts()[[1]][[1]]
         gene_label <- getSelectedLabels()
@@ -167,8 +179,7 @@ dexseqplot <- function(id, eselist) {
     makeDEUPlotForDownload <- reactive({
       ese <- getExperiment()
 
-      selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
-      dexseq_result <- ese@dexseq_results[[as.numeric(selected_contrast_number)]]
+      dexseq_result <- getSelectedDEUResult()
       selected_contrast <- getSelectedContrasts()[[1]][[1]]
       gene_label <- getSelectedLabels()
       gene_id <- getDEUGeneID()

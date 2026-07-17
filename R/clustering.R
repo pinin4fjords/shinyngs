@@ -190,7 +190,10 @@ clustering <- function(id, eselist) {
       scaled_inmatrix <- scaleMatrix()
       cluster_number <- getClusterNumber()
       withProgress(message = "Calculating clusters with clara()", value = 0, {
-        cluster::clara(scaled_inmatrix, cluster_number, samples = 50)
+        tryCatch(
+          runClustering(scaled_inmatrix, cluster_number),
+          error = function(e) validate(need(FALSE, conditionMessage(e)))
+        )
       })
     })
 
@@ -329,6 +332,38 @@ clustering <- function(id, eselist) {
 
     simpletable("geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix", rownames = FALSE)
   })
+}
+
+#' Partition the rows of a matrix into clusters with clara()
+#'
+#' Common function for the clustering module, validating the requested
+#' cluster count against the number of rows available before calling
+#' \code{\link[cluster]{clara}}.
+#'
+#' @param matrix Matrix with the rows to be clustered (features by row)
+#' @param k Number of clusters requested
+#'
+#' @return output Output of \code{cluster::clara}
+#'
+#' @keywords shiny
+#'
+#' @export
+#'
+#' @examples
+#' runClustering(matrix(rnorm(40), nrow = 10), 3)
+#'
+runClustering <- function(matrix, k) {
+  k <- as.numeric(k)
+
+  if (nrow(matrix) < 2) {
+    stop("Clustering requires at least 2 features; only ", nrow(matrix), " were supplied.")
+  }
+
+  if (k < 1 || k > nrow(matrix)) {
+    stop("Number of clusters (", k, ") must be between 1 and the number of available features (", nrow(matrix), ").")
+  }
+
+  cluster::clara(matrix, k, samples = 50)
 }
 
 #' Summarise an input matrix

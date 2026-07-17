@@ -344,7 +344,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     # Get all the contrasts the user specified in their StructuredExperiment- if any
 
     getAllContrasts <- reactive({
-      if (length(eselist@contrasts) > 0) {
+      if (has_slot_data(eselist, "contrasts")) {
         contrasts <- eselist@contrasts
 
         contrasts <- lapply(contrasts, function(cont) {

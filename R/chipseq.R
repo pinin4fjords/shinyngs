@@ -73,7 +73,7 @@ chipseqInput <- function(id, eselist) {
 
   # If there are contrasts present, add the differential tab
 
-  if (length(eselist@contrasts) > 0) {
+  if (has_slot_data(eselist, "contrasts")) {
     differential_menu <- list("Differential", tabPanel("Tables", value = "diff_tables", sidebarLayout(
       sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3),
       mainPanel(differentialtableOutput(ns("differential")), width = 9)
@@ -188,7 +188,7 @@ chipseq <- function(id, eselist) {
       readreports("readrep", eselist)
     }
 
-    if (length(eselist@contrasts) > 0) {
+    if (has_slot_data(eselist, "contrasts")) {
       differentialtable("differential", eselist)
       volcanoplot("volcano", eselist)
       foldchangeplot("foldchange", eselist)
