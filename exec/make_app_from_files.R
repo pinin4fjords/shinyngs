@@ -97,6 +97,12 @@ option_list <- list(
     help = "Comma-separated list of variables in the sample metadata to use as grouping variables. Shinyngs will guess these variables by default."
   ),
   make_option(
+    c("--ensembl_species"),
+    type = "character",
+    default = NULL,
+    help = "Ensembl species definition, e.g. 'hsapiens' or 'mmusculus'. If set, and --feature_metadata provides chromosome_name/start_position/end_position columns, enables the gene model view in the gene module."
+  ),
+  make_option(
     c("-c", "--contrast_file"),
     type = "character",
     default = NULL,
@@ -479,6 +485,10 @@ if (!is.null(opt$description)) {
 if (length(genesets_files) > 0) {
   shiny_config[["gene_set_id_type"]] <- opt$enrichment_gene_type_id
   shiny_config[["gene_sets"]] <- genesets_files
+}
+
+if (!is.null(opt$ensembl_species)) {
+  shiny_config[["ensembl_species"]] <- opt$ensembl_species
 }
 
 

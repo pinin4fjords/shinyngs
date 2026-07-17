@@ -101,6 +101,33 @@ test_that("make_app_from_files.R runs against fixtures and writes a loadable app
   eselist <- readRDS(rds_path)
   expect_s4_class(eselist, "ExploratorySummarizedExperimentList")
   expect_length(eselist, 1)
+  expect_equal(eselist@ensembl_species, character())
+})
+
+test_that("make_app_from_files.R passes --ensembl_species through to the eselist", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+  second_differential_file <- withr::local_tempfile(fileext = ".tsv")
+  file.copy(exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv"), second_differential_file)
+
+  result <- run_exec_script("make_app_from_files.R", c(
+    "--title", "Smoke test app",
+    "--author", "Smoke test",
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--contrast_file", exec_smoke_fixture("SRP254919.contrasts.csv"),
+    "--contrast_stats_assay", "1",
+    "--differential_results", paste(exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv"), second_differential_file, sep = ","),
+    "--ensembl_species", "mmusculus",
+    "--output_directory", outdir
+  ))
+
+  expect_exec_success(result)
+
+  eselist <- readRDS(file.path(outdir, "data.rds"))
+  expect_equal(eselist@ensembl_species, "mmusculus")
 })
 
 test_that("make_app_from_files.R populates gene_set_analyses from GSEA-format up/down enrichment files", {
