@@ -487,6 +487,8 @@ dir.create(opt$output_directory, showWarnings = FALSE, recursive = TRUE)
 saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
 writeLines(
   c(
+    '# See installation instructions at:',
+    '# https://github.com/pinin4fjords/shinyngs?tab=readme-ov-file#installation',
     "library(shinyngs)",
     "library(markdown)",
     'esel <- readRDS("data.rds")',
