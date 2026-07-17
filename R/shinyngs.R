@@ -121,7 +121,7 @@
 #' set at the time of writing:
 #'
 #' \subsection{Top-level}{\describe{\item{rnaseq}{Pull together PCA analysis,
-#' heat maps, dendgrograms, volcano plots, gene sets etc to make a comprehensive
+#' heat maps, dendrograms, volcano plots, gene sets etc to make a comprehensive
 #' data mining tool.} \item{chipseq}{Currently a near clone of \code{rnaseq}, to
 #' be optimised for ChIP-seq in due course.} }}
 #'
@@ -131,7 +131,7 @@
 #'
 #' \describe{ \item{assaydatatable}{Provide access to asay matrices of input
 #' object} \item{boxplot}{Make quartile/ boxplots} \item{dendro}{Make
-#' sample-clustering dendgrograms.} \item{dexseqplot}{Differential exon usage
+#' sample-clustering dendrograms.} \item{dexseqplot}{Differential exon usage
 #' plot (where relevant slot populated)} \item{dexseqtable}{Differential exon
 #' usage table (where relevant slot populated)}
 #' \item{differentialtable}{Differential table showing summarised group values

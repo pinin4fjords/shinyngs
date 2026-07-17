@@ -246,7 +246,7 @@ calculateDist <- function(plotmatrix, cor_method = "spearman") {
   as.dist(1 - cor(plotmatrix, method = cor_method))
 }
 
-#' Calculate a clustering dendgrogram based on correlation
+#' Calculate a clustering dendrogram based on correlation
 #'
 #' @param plotmatrix Expression/ other data matrix
 #' @param cor_method 'spearman' or 'perason'

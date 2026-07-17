@@ -9,7 +9,6 @@
 ^screenshots$
 ^SRP254919\..*$
 ^data$
-^default\.profraw$
 ^.*\.profraw$
 ^\.nf-test\.log$
 ^\.DS_Store$
