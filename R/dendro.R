@@ -90,23 +90,23 @@ dendro <- function(id, eselist) {
 
     # Get the expression matrix - no need for a gene selection
 
-    unpack.list(selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance"))
-    unpack.list(groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    selectmatrix_reactives <- selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance")
+    groupby_reactives <- groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
     plot_source <- session$ns("sampleDendroPlot")
 
     getLevels <- reactive({
-      groupLevels(selectColData(), getGroupby())
+      groupLevels(selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby())
     })
 
     # Trace 0 is the branch tree, so the per-group traces start at index 1.
-    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, getGroupby, trace_offset = 1L)
+    hiddenGroups <- legendHiddenGroups(plot_source, getLevels, groupby_reactives$getGroupby, trace_offset = 1L)
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
-        validateOrCatch(plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-          cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-          palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+        validateOrCatch(plotly_clusteringDendrogram(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+          cor_method = input$corMethod, cluster_method = input$clusterMethod, selectmatrix_reactives$matrixTitle(),
+          palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
         ))
       })
     })

@@ -128,24 +128,23 @@ maplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(maplot_modal$id, maplot_modal$title)
 
-    output$matable <- renderUI({
-      ns <- session$ns
-
-      simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]], sep = ": "))
-    })
-
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
-    unpack.list(selectmatrix_reactives)
 
     # Pass the matrix to the contrasts module for processing
 
-    unpack.list(contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE))
+    contrast_reactives <- contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE)
 
     # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
 
-    unpack.list(geneselect("ma", eselist = eselist, getExperiment = getExperiment, getAssay = getAssay, provide_all = FALSE, provide_none = TRUE))
+    geneselect_reactives <- geneselect("ma", eselist = eselist, getExperiment = selectmatrix_reactives$getExperiment, getAssay = selectmatrix_reactives$getAssay, provide_all = FALSE, provide_none = TRUE)
+
+    output$matable <- renderUI({
+      ns <- session$ns
+
+      simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "))
+    })
 
     # Pass the matrix to the scatterplot module for display
 
@@ -155,7 +154,7 @@ maplot <- function(id, eselist) {
     # Make a title by selecting the single contrast name of the single filter set
 
     getTitle <- reactive({
-      contrast_names <- getSelectedContrastNames()
+      contrast_names <- contrast_reactives$getSelectedContrastNames()
       contrast_names[[1]][[1]]
     })
 
@@ -165,7 +164,7 @@ maplot <- function(id, eselist) {
       withProgress(message = "Calculating lines", value = 0, {
         mat <- maTable()
 
-        fclim <- getFoldChange()
+        fclim <- contrast_reactives$getFoldChange()
 
         normal_y <- !is.infinite(mat[, 2])
         normal_x <- !is.infinite(mat[, 1])
@@ -183,7 +182,7 @@ maplot <- function(id, eselist) {
 
         # Use lines dependent on how the fold change filter is applied
 
-        fccard <- getFoldChangeCard()
+        fccard <- contrast_reactives$getFoldChangeCard()
         if (fccard %in% c("> or <-", "< and >-")) {
           lines
         } else if (fccard == "<" && sign(fclim) == "-1") {
@@ -213,27 +212,27 @@ maplot <- function(id, eselist) {
 
     maTable <- reactive({
       withProgress(message = "Compiling fold change plot data", value = 0, {
-        sct <- selectedContrastsTables()
+        sct <- contrast_reactives$selectedContrastsTables()
         ct <- sct[[1]][[1]]
 
         matable <- data.frame(round(log10(rowMeans(ct[, 1:2])), 3), round(sign(ct[["Fold change"]]) *
           log2(abs(ct[["Fold change"]])), 3), row.names = rownames(ct), check.names = FALSE)
-        colnames(matable) <- c("log(10) mean expression", paste0("log(2) fold change [source scale: ", getFoldChangeScale(), "]"))
+        colnames(matable) <- c("log(10) mean expression", paste0("log(2) fold change [source scale: ", contrast_reactives$getFoldChangeScale(), "]"))
 
-        fct <- filteredContrastsTables()[[1]][[1]]
+        fct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
         matable$colorby <- "hidden"
         matable[rownames(fct), "colorby"] <- "match contrast filters"
-        matable[selectRows(), "colorby"] <- "in highlighted gene set"
+        matable[geneselect_reactives$selectRows(), "colorby"] <- "in highlighted gene set"
         matable$colorby <- factor(matable$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
 
-        matable$label <- idToLabel(rownames(matable), getExperiment())
-        matable$label[!rownames(matable) %in% c(rownames(fct), selectRows())] <- NA
+        matable$label <- idToLabel(rownames(matable), selectmatrix_reactives$getExperiment())
+        matable$label[!rownames(matable) %in% c(rownames(fct), geneselect_reactives$selectRows())] <- NA
       })
       matable
     })
 
     # Display the data as a table alongside
 
-    simpletable("matable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "ma", rownames = FALSE, pageLength = 10)
+    simpletable("matable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "ma", rownames = FALSE, pageLength = 10)
   })
 }

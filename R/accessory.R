@@ -405,19 +405,6 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
   paste(unlist(strings), collapse = "\n")
 }
 
-#' Unpack a list to the environment. Handy when many reactive functions are
-#' returned by a call to a module's server function
-#'
-#' @param object A named list of objects to unpack
-#'
-#' @export
-
-unpack.list <- function(object) {
-  for (.x in names(object)) {
-    assign(value = object[[.x]], x = .x, envir = parent.frame())
-  }
-}
-
 #' Interleave the columns of two matrices of equal dimensions
 #'
 #' @param mat1 First numeric matrix

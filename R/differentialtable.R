@@ -75,23 +75,24 @@ differentialtable <- function(id, eselist) {
 
     # Render the output area - and provide an input-dependent title
 
-    output$differentialtable <- renderUI({
-      ns <- session$ns
-
-      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", getAssay(), sep = ": "))
-    })
-
-    # Call the selectmatrix module and unpack the reactives it sends back
+    # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
-    unpack.list(selectmatrix_reactives)
 
     # Pass the matrix to the contrasts module for processing
 
-    unpack.list(contrasts("differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE))
+    contrast_reactives <- contrasts("differential", selectmatrix_reactives = selectmatrix_reactives, eselist = eselist, multiple = TRUE)
+
+    # Render the output area - and provide an input-dependent title
+
+    output$differentialtable <- renderUI({
+      ns <- session$ns
+
+      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", selectmatrix_reactives$getAssay(), sep = ": "))
+    })
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("differentialtable", downloadMatrix = labelledContrastsTable, displayMatrix = linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    simpletable("differentialtable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
   })
 }

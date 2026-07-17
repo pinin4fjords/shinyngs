@@ -135,7 +135,17 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
         make_colors <- !is.null(getNumberColors())
         controls <- list(scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d, make_colors = make_colors))
       })
-      unpack.list(scatterplotcontrols("scatter", getDatamatrix, x = x, y = y, z = z, makeColors = getNumberColors))
+
+      # Provide the reactives from the scatterplotcontrols module in place of the (unsupplied) arguments of the same name
+
+      scatterplotcontrols_reactives <- scatterplotcontrols("scatter", getDatamatrix, x = x, y = y, z = z, makeColors = getNumberColors)
+      getThreedee <- scatterplotcontrols_reactives$getThreedee
+      getXAxis <- scatterplotcontrols_reactives$getXAxis
+      getYAxis <- scatterplotcontrols_reactives$getYAxis
+      getZAxis <- scatterplotcontrols_reactives$getZAxis
+      getShowLabels <- scatterplotcontrols_reactives$getShowLabels
+      getPointSize <- scatterplotcontrols_reactives$getPointSize
+      getScatterPalette <- scatterplotcontrols_reactives$getScatterPalette
     }
 
     # Axis data accessors
