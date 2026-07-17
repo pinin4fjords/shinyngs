@@ -1,9 +1,9 @@
 # Create sets of fields for display
 
 Shiny apps can get cluttered with many inputs. This method wraps sets of
-fields in collapsible Bootstrap panels, one per named element, using
-Bootstrap's own `data-toggle="collapse"` markup rather than a separate
-collapsible-panel package. Every panel collapses/expands independently
+fields in a
+[`bslib::accordion()`](https://rstudio.github.io/bslib/reference/accordion.html),
+one panel per named element, with every panel able to be open at once
 (there is no "close others on open" behaviour).
 
 ## Usage
@@ -30,4 +30,5 @@ fieldSets(id, fieldset_list, open = NULL)
 
 ## Value
 
-A `tagList` of Bootstrap panels
+A
+[`bslib::accordion()`](https://rstudio.github.io/bslib/reference/accordion.html)
