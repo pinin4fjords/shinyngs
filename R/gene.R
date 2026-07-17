@@ -111,7 +111,7 @@ gene <- function(id, eselist) {
 
     modalServer(gene_model_modal_id,
       title = function() paste(getSelectedLabels()[1], "gene model"),
-      content = plotOutput(session$ns("geneModel"), height = "600px")
+      content = igvShiny::igvShinyOutput(session$ns("geneModel"), height = "600px")
     )
 
     # The title and info link are reactive to the currently active experiment
@@ -175,18 +175,57 @@ gene <- function(id, eselist) {
       })
     })
 
-    # Make a gene region plot
+    # Make a gene region plot with igvShiny (a real, interactive genome
+    # browser widget, rather than static Gviz graphics)
 
-    output$geneModel <- renderPlot({
+    getGeneModelLocus <- reactive({
       gene_labels <- getSelectedLabels()
       ese <- getExperiment()
 
-      withProgress(message = paste("Fetching gene models from Ensembl for gene", gene_labels[1]), value = 0, {
-        annotation <- data.frame(SummarizedExperiment::mcols(ese))
-        annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
+      annotation <- data.frame(SummarizedExperiment::mcols(ese))
+      annotation <- annotation[which(annotation[[ese@labelfield]] == gene_labels[1]), ]
 
-        geneModelPlot(ensembl_species = eselist@ensembl_species, chromosome = annotation$chromosome_name, start = min(annotation$start_position), end = max(annotation$end_position))
-      })
+      list(
+        chromosome = annotation$chromosome_name[1],
+        start = min(annotation$start_position),
+        end = max(annotation$end_position)
+      )
+    })
+
+    output$geneModel <- igvShiny::renderIgvShiny({
+      validate(need(requireNamespace("igvShiny", quietly = TRUE), "The igvShiny package must be installed to view gene model plots."))
+
+      locus <- getGeneModelLocus()
+      genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
+
+      validate(need(!is.null(genome_info), paste0("No igv.js genome build is known for species '", eselist@ensembl_species, "'")))
+
+      genomeOptions <- igvShiny::parseAndValidateGenomeSpec(
+        genomeName = genome_info$genome,
+        initialLocus = paste0("chr", locus$chromosome, ":", locus$start, "-", locus$end)
+      )
+      igvShiny::igvShiny(genomeOptions, displayMode = "EXPANDED")
+    })
+
+    # Once the widget signals it's ready, layer the full Ensembl transcript
+    # catalog (colored by biotype) on top of the browser's own bundled RefSeq
+    # track, for genome builds where a hosted, tabix-indexed Ensembl GFF3 is
+    # known (see geneModelGenomeInfo() -- currently hg38 only; other builds
+    # fall back to the widget's default annotation track).
+
+    observeEvent(input$igvReady, {
+      locus <- getGeneModelLocus()
+      genome_info <- geneModelGenomeInfo(eselist@ensembl_species)
+
+      if (!is.null(genome_info) && !is.null(genome_info$gff3_url)) {
+        igvShiny::loadGFF3TrackFromURL(session,
+          id = session$ns("geneModel"), trackName = "Ensembl transcripts (biotype)",
+          gff3URL = genome_info$gff3_url, indexURL = genome_info$gff3_index_url,
+          color = "black", colorTable = geneModelBiotypeColors(), colorByAttribute = "biotype",
+          displayMode = "EXPANDED", trackHeight = 700, visibilityWindow = 100000,
+          deleteTracksOfSameName = TRUE
+        )
+      }
     })
 
     # Make a table of the annotation data
@@ -307,46 +346,50 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
 }
 
 
-#' Make a gene model plot for a chromosomal location
+#' Map an Ensembl species name to an igv.js genome build and, where known, a
+#' hosted Ensembl GFF3 annotation for that build
 #'
-#' Uses the Gviz module to show transcripts and exon locations for a given gene
-#' id.
+#' igv.js ships a handful of stock genomes with their own default annotation
+#' track (RefSeq), which only shows canonical/collapsed transcripts. Where a
+#' hosted, tabix-indexed Ensembl GFF3 is publicly available for that build, we
+#' additionally load it as a second track to show the full transcript
+#' catalog, matching what the old Gviz-based plot displayed.
 #'
-#' @param ensembl_species Ensembl species definition like 'mmuscululus'
-#' @param chromosome Chromosome number
-#' @param start Chromosome start coordinate
-#' @param end Chromosome end coordinate
+#' @param ensembl_species Ensembl species definition like 'hsapiens'
+#'
+#' @return A list with \code{genome} (an igv.js genome build name) and,
+#' optionally, \code{gff3_url}/\code{gff3_index_url}; or \code{NULL} if no
+#' igv.js build is known for \code{ensembl_species}.
 
-geneModelPlot <- function(ensembl_species, chromosome, start, end) {
-  # Initialise a connection to Ensembl
-
-  ensembl <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = paste0(ensembl_species, "_gene_ensembl"), host = "www.ensembl.org")
-
-  options(ucscChromosomeNames = FALSE)
-
-  # Create a basic axis
-
-  gtrack <- Gviz::GenomeAxisTrack()
-
-  # We should know the start_position and end_position. Fetch a track showing genes in the region
-
-  geneTrack <- Gviz::BiomartGeneRegionTrack(
-    chromosome = chromosome, start = start, end = end, name = "Gene", biomart = ensembl, transcriptAnnotation = "symbol",
-    collapseTranscripts = TRUE, shape = "arrow"
+geneModelGenomeInfo <- function(ensembl_species) {
+  genome_map <- list(
+    hsapiens = list(
+      genome = "hg38",
+      gff3_url = "https://s3.amazonaws.com/igv.org.genomes/hg38/Homo_sapiens.GRCh38.94.chr.gff3.gz",
+      gff3_index_url = "https://s3.amazonaws.com/igv.org.genomes/hg38/Homo_sapiens.GRCh38.94.chr.gff3.gz.tbi"
+    ),
+    mmusculus = list(genome = "mm10"),
+    drerio = list(genome = "danRer11"),
+    scerevisiae = list(genome = "sacCer3"),
+    dmelanogaster = list(genome = "dm6")
   )
 
-  # Move gene labels to above
+  genome_map[[ensembl_species]]
+}
 
-  Gviz::displayPars(geneTrack) <- list(showId = TRUE, fontcolor.title = "black", just.group = "above")
+#' Default color table for Ensembl transcript biotypes, used to color the
+#' full transcript catalog track loaded by the \code{gene} module's gene
+#' model view
+#'
+#' @return A named list mapping biotype strings to colors, plus a "default"
+#' fallback
 
-  transcriptTrack <- Gviz::BiomartGeneRegionTrack(chromosome = chromosome, start = start, end = end, name = "Transcripts", biomart = ensembl, transcriptAnnotation = "transcript")
-
-  # Move transcript labels to above
-
-  Gviz::displayPars(transcriptTrack) <- list(showId = TRUE, fontcolor.title = "black", just.group = "above")
-
-  Gviz::plotTracks(list(gtrack, geneTrack, transcriptTrack),
-    from = start, to = end, extend.left = 1000, extend.right = 1000, cex = 1, cex.legend = 0.8, cex.group = 0.8,
-    cex.title = 0.8
+geneModelBiotypeColors <- function() {
+  list(
+    protein_coding = "#E69F00",
+    nonsense_mediated_decay = "#56B4E9",
+    retained_intron = "#999999",
+    processed_transcript = "#CC79A7",
+    default = "black"
   )
 }
