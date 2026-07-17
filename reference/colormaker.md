@@ -1,9 +1,8 @@
 # The output function of the colorby module
 
-Supplies a reactive returning shinyngs' fixed colour-blind-safe palette
-(see
-[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)),
-sized to the number of categories the caller reports.
+Supplies a reactive returning the palette selected in the drop-down,
+sized to the number of categories the caller reports (see
+[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)).
 
 ## Usage
 

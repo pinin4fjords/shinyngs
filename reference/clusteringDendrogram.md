@@ -14,7 +14,7 @@ clusteringDendrogram(
   plot_title = "",
   labelspace = 0.2,
   palette = NULL,
-  palette_name = "Set1"
+  palette_name = COLORBLIND_PALETTE_NAME
 )
 ```
 

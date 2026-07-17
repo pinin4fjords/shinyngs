@@ -220,6 +220,12 @@
 - [`fieldSets()`](https://pinin4fjords.github.io/shinyngs/reference/fieldSets.md)
   : Create sets of fields for display
 
+- [`fixedEffectsFormula()`](https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsFormula.md)
+  : Remove random effects from a model formula
+
+- [`fixedEffectsModelMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsModelMatrix.md)
+  : Build a model matrix from the fixed-effects part of a formula
+
 - [`foldChange()`](https://pinin4fjords.github.io/shinyngs/reference/foldChange.md)
   : Calculate fold change between two vectors
 
@@ -382,8 +388,7 @@
   : Calculate MAD scores as per OmicSoft
 
 - [`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)
-  : Make a colour-blind-safe categorical colour scale of a specified
-  length
+  : Make a categorical colour scale of a specified length
 
 - [`makeContrastControl()`](https://pinin4fjords.github.io/shinyngs/reference/makeContrastControl.md)
   : Make a select field for picking one or more contrasts
@@ -647,6 +652,10 @@
 
 - [`upsetOutput()`](https://pinin4fjords.github.io/shinyngs/reference/upsetOutput.md)
   : The output function of the clustering module
+
+- [`validateFormulaBasedContrast()`](https://pinin4fjords.github.io/shinyngs/reference/validateFormulaBasedContrast.md)
+  : Validate a formula-based contrast string against fixed-effect
+  coefficients
 
 - [`validateOrCatch()`](https://pinin4fjords.github.io/shinyngs/reference/validateOrCatch.md)
   : Evaluate an expression, converting any error into a Shiny validation

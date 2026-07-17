@@ -39,7 +39,7 @@ withHelpIcon("Whisker distance", "How far outliers may sit from the box")
 #>  
 #> <bslib-tooltip placement="right" bsOptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
 #>   <template>How far outliers may sit from the box</template>
-#>   <span style="cursor: help; color: #6c757d;">
+#>   <span style="cursor: help; color: var(--bs-secondary-color);">
 #>     <i class="fas fa-circle-info" role="presentation" aria-label="circle-info icon" verify_fa="FALSE"></i>
 #>   </span>
 #> </bslib-tooltip>

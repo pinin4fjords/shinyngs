@@ -1,11 +1,10 @@
 # The input function of the colorby module
 
-shinyngs colours every plot from the single, fixed colour-blind-safe
-palette in
-[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md),
-so there is no per-plot palette choice to expose. Modules that build
-their form from a list of inputs can include this call unconditionally;
-it contributes no UI element.
+Provides a drop-down for picking the plot colour palette. The default is
+shinyngs' fixed colour-blind-safe palette (see
+[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md));
+the remaining choices are RColorBrewer qualitative palettes for users
+who prefer them.
 
 ## Usage
 
@@ -21,7 +20,12 @@ colormakerInput(id)
 
 ## Value
 
-output NULL
+output An HTML tag object that can be rendered as HTML using
+as.character()
+
+## Details
+
+This function provides the form elements to control the display
 
 ## Examples
 

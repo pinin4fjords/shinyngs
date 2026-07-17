@@ -25,7 +25,7 @@ static_scatterplot(
   hline_thresholds = NULL,
   vline_thresholds = NULL,
   showlegend = TRUE,
-  palette_name = "Set1"
+  palette_name = COLORBLIND_PALETTE_NAME
 )
 ```
 

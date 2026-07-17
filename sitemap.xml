@@ -74,6 +74,8 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/experimenttableInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/experimenttableOutput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/fieldSets.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsFormula.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsModelMatrix.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/foldChange.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/foldchangeplot.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/foldchangeplotInput.html</loc></url>
@@ -182,6 +184,8 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectmatrix.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectmatrixInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/shinyngs.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/shinyngsPageNavbar.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/shinyngsPlotlyConfig.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/shinyngsSpinnerColor.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/simpleApp.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/simpleSplit.html</loc></url>
@@ -207,6 +211,7 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/upset.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/upsetInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/upsetOutput.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/validateFormulaBasedContrast.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/validateOrCatch.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/validate_indices.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/validate_inputs.html</loc></url>
