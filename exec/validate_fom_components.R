@@ -146,7 +146,7 @@ if (! is.null(opt$output_directory)){
   for (infile in c('sample_metadata', 'feature_metadata', 'contrasts_file')){
     filename <- opt[[infile]]
     if ((! is.null(filename)) && filename %in% names(validated_parts)){
-      write(paste("...", infile))
+      print(paste("...", infile))
 
       # Write contrasts file with empty strings for NAs in blocking
       write_table(validated_parts[[filename]], filename, infile, na = ifelse(infile == 'contrasts_file', '', 'NA'))
