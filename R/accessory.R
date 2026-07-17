@@ -200,8 +200,10 @@ pushToList <- function(input_list, element) {
 #' Build the top-level bslib page shell shared by the app modules
 #'
 #' Applies the package's Bootstrap 5 theme and dark navbar styling, injects
-#' the package CSS and shinyjs, and constructs the resulting
-#' \code{bslib::page_navbar()}.
+#' the package CSS/JS and shinyjs, adds a light/dark mode toggle to the
+#' navbar, and constructs the resulting \code{bslib::page_navbar()}. The
+#' accent colour is defined once here, on the theme, and everything else
+#' (CSS, plots) derives from the resulting Bootstrap variables.
 #'
 #' @param navbar_menus A named list of arguments accepted by
 #' \code{bslib::page_navbar()} (\code{id}, \code{title}, \code{window_title},
@@ -214,9 +216,22 @@ pushToList <- function(input_list, element) {
 #'
 shinyngsPageNavbar <- function(navbar_menus) {
   cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
-  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo")
+  jsfile <- system.file("www", paste0(packageName(), ".js"), package = packageName())
+  navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo", primary = "#2780e3")
   navbar_menus$navbar_options <- bslib::navbar_options(bg = "dark", theme = "dark")
-  navbar_menus$header <- tagList(includeCSS(cssfile), shinyjs::useShinyjs())
+
+  # Resolve the light/dark theme in <head> before first paint. input_dark_mode
+  # only sets data-bs-theme once its web component hydrates, so a dark-resolved
+  # load (dark OS scheme) would otherwise paint the default light theme for a
+  # frame or two first, flashing white (most visibly across large plots).
+  no_flash <- tags$head(tags$script(HTML(
+    "(function(){try{var d=document.documentElement;if(!d.getAttribute('data-bs-theme')){var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;d.setAttribute('data-bs-theme',m?'dark':'light');}}catch(e){}})();"
+  )))
+  navbar_menus$header <- tagList(no_flash, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
+  navbar_menus <- c(navbar_menus, list(
+    bslib::nav_spacer(),
+    bslib::nav_item(bslib::input_dark_mode(id = "shinyngs_dark_mode"))
+  ))
   do.call(bslib::page_navbar, navbar_menus)
 }
 
