@@ -25,9 +25,14 @@ assaydatatableOutput("experiment")
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("assaydatatable", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+if (interactive()) {
+  app <- prepareApp("assaydatatable", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

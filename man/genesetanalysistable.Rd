@@ -34,24 +34,16 @@ applied to the specified SummarizedExperiment object to the
 }
 \examples{
 
-# Example of structures using provided example data
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
-data(zhangneurons)
-names(assays(zhangneurons$gene))
+# This module needs an eselist whose experiments carry gene_set_analyses
+# results (see the vignette). Given those, the module server is called like:
 
-# The normalised matrix was used to perform gene set analysis, using 6 types
-# of gene set
-
-names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-
-# Gene set can be related back to individual genes via information in the
-# containing object's 'gene_sets' slot. These are keyed first to indicate
-# which metadata field gene set members pertain to, and secondly by gene
-# set type.
-
-names(zhangneurons@gene_sets)
-
-genesetanalysistable("genesetanalysistable", eselist)
+if (interactive()) {
+  genesetanalysistable("genesetanalysistable", eselist)
+}
 
 }
 \keyword{shiny}

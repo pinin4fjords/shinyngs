@@ -24,13 +24,18 @@ assay, also allowing grouping by mean etc.
 Leverages the \code{simpletable} module
 }
 \examples{
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
 assaydatatableInput("experiment", eselist)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("assaydatatable", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  app <- prepareApp("assaydatatable", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

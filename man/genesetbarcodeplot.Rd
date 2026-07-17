@@ -26,12 +26,17 @@ This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-genesetbarcodeplot("genesetbarcodeplot", eselist)
+if (interactive()) {
+  data(airway, package = "airway")
+  ese <- as(airway, "ExploratorySummarizedExperiment")
+  eselist <- ExploratorySummarizedExperimentList(ese)
+  genesetbarcodeplot("genesetbarcodeplot", eselist)
 
-# Almost certainly used via application creation
+  # Almost certainly used via application creation
 
-app <- prepareApp("genesetbarcodeplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+  app <- prepareApp("genesetbarcodeplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

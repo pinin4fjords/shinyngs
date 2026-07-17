@@ -16,13 +16,18 @@ pca_modal <- list(id = "pca", title = "Principal components analysis")
 #' @keywords shiny
 #'
 #' @examples
-#' pcaInput("pca", ese, group_vars, default_groupvar, tructure(1:10, names = paste0("PC", 1:10)))
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' pcaInput("pca", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("pca", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("pca", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 pcaInput <- function(id, eselist) {
   ns <- NS(id)
@@ -56,9 +61,14 @@ pcaInput <- function(id, eselist) {
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("pca", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("pca", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 pcaOutput <- function(id) {
   ns <- NS(id)
@@ -88,13 +98,17 @@ pcaOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' pca("pca", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("pca", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   pca("pca", eselist)
+#'   app <- prepareApp("pca", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 pca <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
@@ -256,7 +270,7 @@ runPCA <- function(matrix, do_log = TRUE) {
     matrix <- log2(matrix + 1)
   }
 
-  matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, , drop = FALSE]
+  matrix <- matrix[rowsWithMultipleValues(matrix), , drop = FALSE]
 
   prcomp(t(as.matrix(matrix)), scale. = TRUE)
 }

@@ -19,13 +19,17 @@ applied to the specified SummarizedExperiment object to the
 \code{simpletable} module
 }
 \examples{
-differentialtable("differentialtable", eselist)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
 # However, almost certainly called via application creation:
 
-data(zhangneurons)
-app <- prepareApp("volcanoplot", zhangneurons)
-shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  differentialtable("differentialtable", eselist)
+  app <- prepareApp("volcanoplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

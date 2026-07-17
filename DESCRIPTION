@@ -22,6 +22,7 @@ Imports:
     heatmaply,
     limma,
     markdown,
+    matrixStats,
     methods,
     plotly (>= 4.8.0),
     RColorBrewer,
@@ -49,10 +50,7 @@ Suggests:
     rmarkdown,
     rsconnect,
     styler,
-    testthat (>= 3.0.0),
-    zhangneurons
-Remotes:
-    pinin4fjords/zhangneurons
+    testthat (>= 3.0.0)
 biocViews: Software
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
