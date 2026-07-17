@@ -293,10 +293,11 @@ clustering <- function(id, eselist) {
           margin = list(b = 150)
         )
       })
-    }) %>% bindCache(
-      getMatricesByCluster(), getSummarisedMatricesByCluster(), getPalette(),
-      getLimits(), getAverageType(), getClusterDisplay(), selectmatrix_reactives$selectColData()
-    )
+    }) %>%
+      bindCache(
+        getMatricesByCluster(), getSummarisedMatricesByCluster(), getPalette(),
+        getLimits(), getAverageType(), getClusterDisplay(), selectmatrix_reactives$selectColData()
+      )
 
     # Take individual cluster plots and display them together using subplot.
 
