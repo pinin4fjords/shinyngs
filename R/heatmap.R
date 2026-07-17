@@ -101,20 +101,11 @@ heatmapOutput <- function(id, type = "") {
   help <- list()
 
   if (type == "pca") {
-    help <- list(modalInput(ns("pcavsexperiment"), "help", "help"), modalOutput(
-      ns("pcavsexperiment"), "Principal components vs experimental variables",
-      includeMarkdown(system.file("inlinehelp", "pcavsexperiment.md", package = packageName()))
-    ))
+    help <- list(modalInput(ns("pcavsexperiment"), "help", "help"))
   } else if (type == "samples") {
-    help <- list(modalInput(ns("clusteringheatmap"), "help", "help"), modalOutput(ns("clusteringheatmap"), "Sample clustering heatmap", includeMarkdown(system.file("inlinehelp",
-      "clusteringheatmap.md",
-      package = packageName()
-    ))))
+    help <- list(modalInput(ns("clusteringheatmap"), "help", "help"))
   } else if (type == "expression") {
-    help <- list(modalInput(ns("expressionheatmap"), "help", "help"), modalOutput(ns("expressionheatmap"), "Expression heatmap", includeMarkdown(system.file("inlinehelp",
-      "expressionheatmap.md",
-      package = packageName()
-    ))))
+    help <- list(modalInput(ns("expressionheatmap"), "help", "help"))
   }
 
   # Return outputs and help link
@@ -155,6 +146,14 @@ heatmapOutput <- function(id, type = "") {
 heatmap <- function(id, eselist, type = "expression") {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    if (type == "pca") {
+      modalServer("pcavsexperiment", "Principal components vs experimental variables")
+    } else if (type == "samples") {
+      modalServer("clusteringheatmap", "Sample clustering heatmap")
+    } else if (type == "expression") {
+      modalServer("expressionheatmap", "Expression heatmap")
+    }
 
     # Make the groupby UI element
 

@@ -134,10 +134,7 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("genesetanalysistable"), "help", "help"), modalOutput(ns("genesetanalysistable"), "Gene set analysis", includeMarkdown(system.file("inlinehelp",
-    "genesetanalysistable.md",
-    package = packageName()
-  ))), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
+  list(modalInput(ns("genesetanalysistable"), "help", "help"), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
 }
 
 #' The server function of the genesetanalysistable module
@@ -189,6 +186,8 @@ genesetanalysistableOutput <- function(id) {
 #'
 genesetanalysistable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("genesetanalysistable", "Gene set analysis")
+
     # Only use experiments with gene set analyses available
 
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]

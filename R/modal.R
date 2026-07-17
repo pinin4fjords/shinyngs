@@ -1,13 +1,13 @@
 #' The input function for the \code{modal} module
 #'
-#' This module uses modals from \code{shinyBS} to create overlaid text for the
-#' current panel which displays when a link is clicked. Input and output
-#' functions are placed in the output function of the calling module (see
-#' example).
+#' This module uses Shiny's \code{modalDialog()} to create overlaid text for the
+#' current panel which displays when a link is clicked. The link is placed in
+#' the output function of the calling module, and the modal is shown by
+#' \code{modalServer()} in the calling module's server function (see example).
 #'
 #' This is handy, for example when adding help text.
 #'
-#' @param id Modal ID. Must match that passed to \code{inlinehelpOutput}
+#' @param id Modal ID. Must match that passed to \code{modalServer}
 #' @param label A label to use for the link
 #' @param class A class to apply to the link
 #' @param icon Icon used to activate modal
@@ -22,26 +22,34 @@ modalInput <- function(id, label, class, icon = "info-circle") {
     label <- HTML(paste(icon(icon, verify_fa = FALSE), label))
   }
 
-  actionLink(ns("link"), label = label, `data-toggle` = "modal", `data-target` = paste0("#", ns(id)), class = class)
+  actionLink(ns("link"), label = label, class = class)
 }
 
-#' The output function of the \code{modal} module
+#' The server function of the \code{modal} module
 #'
-#' This module uses modals from \code{shinyBS} to create overlaid text for the
-#' current panel which displays when a link is clicked. Input and output
-#' functions are placed in the output function of the calling module (see
-#' example).
+#' This module uses Shiny's \code{modalDialog()} to create overlaid text for the
+#' current panel which displays when the link produced by \code{modalInput()} is
+#' clicked. It is called from the server function of the calling module, using
+#' the same id passed to \code{modalInput} (see example).
 #'
 #' This is handy, for example when adding help text.
 #'
-#' @param id Modal ID. Must match that passed to \code{inlinehelpInput}
+#' @param id Modal ID. Must match that passed to \code{modalInput}
 #' @param title Title to show on the help modal
-#' @param content String with content to inlude in modal
+#' @param content Content to include in the modal. When \code{NULL} (the
+#'   default), Markdown is loaded from \code{inst/inlinehelp/<id>.md}.
 #'
 #' @examples
-#' modalOutput(ns("dendro"), "Sample clustering dendrogram", includeMarkdown(system.file("inlinehelp", "dendro.Rmd", package = packageName())))
+#' modalServer("dendro", "Sample clustering dendrogram")
 #'
-modalOutput <- function(id, title, content) {
-  ns <- NS(id)
-  shinyBS::bsModal(ns(id), title, ns(id), size = "large", content)
+modalServer <- function(id, title, content = NULL) {
+  moduleServer(id, function(input, output, session) {
+    observeEvent(input$link, {
+      body <- content
+      if (is.null(body)) {
+        body <- includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
+      }
+      showModal(modalDialog(body, title = title, size = "l", easyClose = TRUE, footer = modalButton("Close")))
+    })
+  })
 }

@@ -4,7 +4,7 @@
 \alias{fieldSets}
 \title{Create sets of fields for display}
 \usage{
-fieldSets(id, fieldset_list, open = NULL, use_shinybs = TRUE)
+fieldSets(id, fieldset_list, open = NULL)
 }
 \arguments{
 \item{id}{ID field to apply to the overall container}
@@ -12,18 +12,15 @@ fieldSets(id, fieldset_list, open = NULL, use_shinybs = TRUE)
 \item{fieldset_list}{A named list, each element containing one or more
 fields.}
 
-\item{open}{Only applicable for output with shinyBS, controls which panels
-are open by default. In most cases all should be left open (the default),
-since shiny doesn't receive the inputs of fields in collapsed elements.}
-
-\item{use_shinybs}{Use collapsible panels from shinyBS if installed}
+\item{open}{Controls which panels are open by default, as a character vector
+of panel names. In most cases all should be left open (the default), since
+fields in collapsed panels may be less discoverable.}
 }
 \value{
-list
+A \code{bslib} accordion
 }
 \description{
 Shiny apps can get cluttered with many inputs. This method wraps sets of
-fields in either a \code{bsCollapse} from \code{shinyBS} (if installed) or
-a simple div element with a title and class 'shinyngsFieldset' (which can
-then be used for styling)
+fields in a \code{bslib} \code{accordion()}, with one collapsible panel per
+named element.
 }

@@ -173,40 +173,28 @@ pushToList <- function(input_list, element) {
 #' Create sets of fields for display
 #'
 #' Shiny apps can get cluttered with many inputs. This method wraps sets of
-#' fields in either a \code{bsCollapse} from \code{shinyBS} (if installed) or
-#' a simple div element with a title and class 'shinyngsFieldset' (which can
-#' then be used for styling)
+#' fields in a \code{bslib} \code{accordion()}, with one collapsible panel per
+#' named element.
 #'
 #' @param id ID field to apply to the overall container
 #' @param fieldset_list A named list, each element containing one or more
 #' fields.
-#' @param open Only applicable for output with shinyBS, controls which panels
-#' are open by default. In most cases all should be left open (the default),
-#' since shiny doesn't receive the inputs of fields in collapsed elements.
-#' @param use_shinybs Use collapsible panels from shinyBS if installed
+#' @param open Controls which panels are open by default, as a character vector
+#' of panel names. In most cases all should be left open (the default), since
+#' fields in collapsed panels may be less discoverable.
 #'
-#' @return list
+#' @return A \code{bslib} accordion
 
-fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
+fieldSets <- function(id, fieldset_list, open = NULL) {
   if (is.null(open)) {
     open <- names(fieldset_list)
   }
 
-  if (requireNamespace("shinyBS", quietly = TRUE) && use_shinybs) {
-    collapse_panels <- lapply(names(fieldset_list), function(listname) {
-      shinyBS::bsCollapsePanel(prettifyVariablename(listname), value = listname, fieldset_list[[listname]])
-    })
+  panels <- lapply(names(fieldset_list), function(listname) {
+    bslib::accordion_panel(title = prettifyVariablename(listname), value = listname, fieldset_list[[listname]])
+  })
 
-    collapse_panels$id <- id
-    collapse_panels$multiple <- TRUE
-    collapse_panels$open <- open
-
-    do.call(shinyBS::bsCollapse, collapse_panels)
-  } else {
-    lapply(names(fieldset_list), function(listname) {
-      div(id = id, class = "shinyngsFieldset", h4(prettifyVariablename(listname)), fieldset_list[[listname]])
-    })
-  }
+  do.call(bslib::accordion, c(panels, list(id = id, multiple = TRUE, open = open)))
 }
 
 #' Reshape data to the way \code{ggplot2} likes it

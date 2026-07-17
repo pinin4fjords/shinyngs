@@ -80,7 +80,7 @@ maplotOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("maplot"), "help", "help"), modalOutput(ns("maplot"), "MA plots", includeMarkdown(system.file("inlinehelp", "maplot.md", package = packageName()))),
+    modalInput(ns("maplot"), "help", "help"),
     h3("MA plot"), scatterplotOutput(ns("ma")), htmlOutput(ns("matable"))
   )
 }
@@ -110,6 +110,8 @@ maplotOutput <- function(id) {
 #'
 maplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("maplot", "MA plots")
+
     output$matable <- renderUI({
       ns <- session$ns
 

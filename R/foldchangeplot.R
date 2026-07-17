@@ -76,10 +76,7 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("foldchangeplot"), "help", "help"), modalOutput(ns("foldchangeplot"), "Fold change plots", includeMarkdown(system.file("inlinehelp",
-    "foldchangeplot.md",
-    package = packageName()
-  ))), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+  list(modalInput(ns("foldchangeplot"), "help", "help"), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -105,6 +102,8 @@ foldchangeplotOutput <- function(id) {
 #'
 foldchangeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("foldchangeplot", "Fold change plots")
+
     output$foldchangetable <- renderUI({
       ns <- session$ns
 
