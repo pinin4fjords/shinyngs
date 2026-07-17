@@ -235,6 +235,58 @@ shinyngsPageNavbar <- function(navbar_menus) {
   do.call(bslib::page_navbar, navbar_menus)
 }
 
+#' Lay out a module's controls beside its output
+#'
+#' Wraps the standard "controls on the left, output on the right" arrangement
+#' used by every analysis tab in a \code{bslib::layout_sidebar()}, replacing the
+#' Bootstrap-3-era \code{sidebarLayout()} grid. The sidebar collapses on narrow
+#' screens; the main area holds the output (typically a \code{moduleCard()}).
+#'
+#' @param controls Sidebar content, usually a module's input UI
+#' @param main Main content, usually a \code{moduleCard()}
+#' @param width Sidebar width in pixels
+#'
+#' @return A \code{bslib::layout_sidebar()}
+#'
+#' @keywords internal
+#'
+moduleLayout <- function(controls, main, width = 320) {
+  bslib::layout_sidebar(
+    sidebar = bslib::sidebar(controls, width = width, open = "desktop"),
+    main,
+    fillable = FALSE,
+    class = "shinyngs-panel"
+  )
+}
+
+#' Wrap a module's primary output in a themed card
+#'
+#' Produces the standard main-panel card: a \code{bslib::card()} with a header
+#' carrying the section title and an optional help-modal trigger, and a body
+#' holding the plots and tables. The card reads Bootstrap theme variables, so it
+#' tracks the light/dark toggle.
+#'
+#' @param title Header title (a string or tag)
+#' @param ... Body content (plots, tables, sub-headings)
+#' @param help Optional help-modal trigger, placed at the right of the header
+#'
+#' @return A \code{bslib::card()}
+#'
+#' @keywords internal
+#'
+moduleCard <- function(title, ..., help = NULL) {
+  bslib::card(
+    full_screen = TRUE,
+    class = "shinyngs-card",
+    bslib::card_header(
+      class = "shinyngs-card-head",
+      span(class = "shinyngs-card-title", title),
+      help
+    ),
+    bslib::card_body(fillable = FALSE, ...)
+  )
+}
+
 #' Create sets of fields for display
 #'
 #' Shiny apps can get cluttered with many inputs. This method wraps sets of

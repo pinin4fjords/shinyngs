@@ -98,9 +98,12 @@ genesetbarcodeplotInput <- function(id, eselist) {
 genesetbarcodeplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(
-    modalInput(ns(genesetbarcodeplot_modal$id), "help", "help"), h3("Gene set barcode plot"), plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), h4("Gene set differential expression"),
-    simpletableOutput(ns("genesetbarcodeplot"))
+  moduleCard(
+    "Gene set barcode plot",
+    plotlyOutput(ns("genesetbarcodeplot"), height = "460px"),
+    h4("Gene set differential expression"),
+    simpletableOutput(ns("genesetbarcodeplot")),
+    help = modalInput(ns(genesetbarcodeplot_modal$id), "help", "help")
   )
 }
 

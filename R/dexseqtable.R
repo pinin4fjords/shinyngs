@@ -96,7 +96,11 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
 dexseqtableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(dexseqtable_modal$id), "help", "help"), simpletableOutput(ns("dexseqtable"), tabletitle = "Differential exon usage"))
+  moduleCard(
+    "Differential exon usage",
+    simpletableOutput(ns("dexseqtable")),
+    help = modalInput(ns(dexseqtable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the dexseqtable module

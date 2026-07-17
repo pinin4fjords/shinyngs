@@ -62,7 +62,11 @@ dendroInput <- function(id, eselist) {
 #'
 dendroOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns(dendro_modal$id), "help", "help"), h3("Sample clustering dendrogram"), plotlyOutput(ns("sampleDendroPlot"), height = "480px"))
+  moduleCard(
+    "Sample clustering dendrogram",
+    plotlyOutput(ns("sampleDendroPlot"), height = "480px"),
+    help = modalInput(ns(dendro_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the dendrogram module

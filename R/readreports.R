@@ -45,7 +45,14 @@ readreportsInput <- function(id, eselist) {
 readreportsOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(modalInput(ns(readreports_modal$id), "help", "help"), uiOutput(ns("plotTitle")), uiOutput(ns("barplotOutput")), uiOutput(ns("tableTitle")), simpletableOutput(ns("readrep")))
+  moduleCard(
+    "Read reports",
+    uiOutput(ns("plotTitle")),
+    uiOutput(ns("barplotOutput")),
+    uiOutput(ns("tableTitle")),
+    simpletableOutput(ns("readrep")),
+    help = modalInput(ns(readreports_modal$id), "help", "help")
+  )
 }
 
 #' Server function of the \code{readreports} module

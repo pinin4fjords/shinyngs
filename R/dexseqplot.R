@@ -78,7 +78,12 @@ dexseqplotInput <- function(id, eselist) {
 dexseqplotOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(modalInput(ns(dexseqplot_modal$id), "help", "help"), h4("Gene-wise differential exon usage"), plotOutput(ns("deuPlot"), height = 620), dexseqtableOutput(ns("deuPlotTable")))
+  moduleCard(
+    "Gene-wise differential exon usage",
+    plotOutput(ns("deuPlot"), height = 620),
+    dexseqtableOutput(ns("deuPlotTable")),
+    help = modalInput(ns(dexseqplot_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the dexseqplot Shiny module

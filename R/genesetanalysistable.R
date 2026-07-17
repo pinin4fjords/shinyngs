@@ -109,7 +109,11 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(genesetanalysistable_modal$id), "help", "help"), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
+  moduleCard(
+    "Gene set analysis",
+    simpletableOutput(ns("genesetanalysistable")),
+    help = modalInput(ns(genesetanalysistable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the genesetanalysistable module

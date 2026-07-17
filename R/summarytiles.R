@@ -108,10 +108,11 @@ summarytiles <- function(id, eselist) {
         if (length(gspecs) == 0) {
           return(NULL)
         }
+        tiles <- lapply(gspecs, function(s) summaryTileTag(ns, s))
         div(
           class = paste0("cluster cluster-", g),
           p(class = "shinyngs-eyebrow", groups[[g]]),
-          div(class = "shinyngs-tiles", lapply(gspecs, function(s) summaryTileTag(ns, s)))
+          do.call(bslib::layout_column_wrap, c(list(width = "190px", fill = FALSE, class = "shinyngs-tilegrid"), unname(tiles)))
         )
       })
       tagList(
@@ -251,14 +252,15 @@ summaryTileTag <- function(ns, spec) {
     value <- fmtInt(value)
   }
   tags$a(
-    id = ns(tileId(spec$key)), href = "#", class = "shinyngs-tile action-button",
-    span(class = "shinyngs-tile-icon", icon(spec$icon, verify_fa = FALSE)),
-    span(
-      class = "shinyngs-tile-body",
-      span(class = "shinyngs-tile-value", value),
-      span(class = "shinyngs-tile-label", spec$label)
-    ),
-    span(class = "shinyngs-tile-chev", icon("chevron-down", verify_fa = FALSE))
+    id = ns(tileId(spec$key)), href = "#", class = "shinyngs-tilelink action-button",
+    bslib::value_box(
+      title = spec$label,
+      value = value,
+      showcase = icon(spec$icon, verify_fa = FALSE),
+      theme = bslib::value_box_theme(bg = "var(--bs-body-bg)", fg = "var(--bs-body-color)"),
+      class = "shinyngs-tilebox",
+      span(class = "shinyngs-tile-hint", "View breakdown", icon("chevron-down", verify_fa = FALSE))
+    )
   )
 }
 

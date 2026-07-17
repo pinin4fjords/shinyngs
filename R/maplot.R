@@ -91,9 +91,11 @@ maplotInput <- function(id, eselist) {
 maplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(
-    modalInput(ns(maplot_modal$id), "help", "help"),
-    h3("MA plot"), scatterplotOutput(ns("ma")), htmlOutput(ns("matable"))
+  moduleCard(
+    "MA plot",
+    scatterplotOutput(ns("ma")),
+    htmlOutput(ns("matable")),
+    help = modalInput(ns(maplot_modal$id), "help", "help")
   )
 }
 

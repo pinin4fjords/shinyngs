@@ -51,9 +51,12 @@ illuminaarrayqcInput <- function(id, eselist) {
 illuminaarrayqcOutput <- function(id) {
   ns <- NS(id)
 
-  list(
-    modalInput(ns(illuminaarrayqc_modal$id), "help", "help"), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
-    simpletableOutput(ns("qctable"))
+  moduleCard(
+    "Illumina microarray QC plot",
+    plotlyOutput(ns("qcplot"), height = 600),
+    h4("Table of data"),
+    simpletableOutput(ns("qctable")),
+    help = modalInput(ns(illuminaarrayqc_modal$id), "help", "help")
   )
 }
 
