@@ -761,6 +761,14 @@ output (<code>p value</code>/<code>PValue</code>, <code>FDR</code>,
 extra configuration. The optional <code>gene_set_analyses_tool</code>
 slot (nested like <code>gene_set_analyses</code>) can force a particular
 format; it defaults to <code>"auto"</code>.</p>
+<p>Every non-<code>NULL</code> table in <code>gene_set_analyses</code>
+is validated against its resolved tool’s expected columns when the
+<code>ExploratorySummarizedExperiment</code> is constructed, so a
+malformed or mismatched enrichment file is rejected immediately with an
+actionable error rather than only surfacing when a user happens to view
+that contrast in the app. The resolved tool (e.g. “GSEA”, “ROAST”, or a
+custom mapping) is also shown to app users, above the gene set analysis
+table and in the gene set barcode plot title.</p>
 <p>To support a tool <code>shinyngs</code> doesn’t recognise natively,
 set the corresponding <code>gene_set_analyses_tool</code> entry to a
 named vector giving the columns to filter on, instead of a tool

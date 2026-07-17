@@ -840,6 +840,15 @@ filtered on the correct columns without extra configuration. The
 optional `gene_set_analyses_tool` slot (nested like `gene_set_analyses`)
 can force a particular format; it defaults to `"auto"`.
 
+Every non-`NULL` table in `gene_set_analyses` is validated against its
+resolved tool’s expected columns when the
+`ExploratorySummarizedExperiment` is constructed, so a malformed or
+mismatched enrichment file is rejected immediately with an actionable
+error rather than only surfacing when a user happens to view that
+contrast in the app. The resolved tool (e.g. “GSEA”, “ROAST”, or a
+custom mapping) is also shown to app users, above the gene set analysis
+table and in the gene set barcode plot title.
+
 To support a tool `shinyngs` doesn’t recognise natively, set the
 corresponding `gene_set_analyses_tool` entry to a named vector giving
 the columns to filter on, instead of a tool name:

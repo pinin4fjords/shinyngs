@@ -206,7 +206,7 @@
 <li>Contrasts (which sample groups to compare)</li>
 <li>Differential resutls (e.g. from DESeq2) containing P values and fold changes</li>
 </ul>
-<p>.. and produce an app.R. This currently covers the basic use cases and I haven’t go to the gene sets etc, that will be future work.</p>
+<p>.. and produce an app.R. Gene set enrichment results (GSEA, ROAST, or other tools via a custom column mapping) can also be wired in via <code>--enrichment_gene_sets</code> and <code>--enrichment_filename_template</code> - see <a href="https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html#building-an-app-from-files-with-enrichment-results">“Building an app from files with enrichment results”</a> in the vignette for a worked example.</p>
 <p>You can start the resulting app locally, by running the <code>app.R</code> resulting from the above command.</p>
 <p>See <code>make_app_from_files.R --help</code> for more info.</p>
 <div class="section level3">
