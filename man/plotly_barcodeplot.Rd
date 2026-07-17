@@ -18,12 +18,14 @@ plotly_barcodeplot(
 statistic), one per gene}
 
 \item{gene_ids}{Gene IDs for the values in \code{fold_changes}, in the
-same ID space as \code{set_gene_ids}}
+same ID space as \code{set_gene_ids}. Must be the same length and gene
+order as \code{fold_changes} and \code{labels}}
 
 \item{set_gene_ids}{Gene IDs for the gene set}
 
 \item{labels}{Display labels for the values in \code{fold_changes}, used
-in hover text (default: \code{gene_ids})}
+in hover text (default: \code{gene_ids}). Must be the same length and
+gene order as \code{fold_changes} and \code{gene_ids}}
 
 \item{plot_title}{A title for the plot}
 
