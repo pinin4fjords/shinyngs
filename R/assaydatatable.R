@@ -106,7 +106,7 @@ assaydatatable <- function(id, eselist) {
     output$assaydatatable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", getAssay(), sep = ": "))
+      simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", getAssay(), sep = ": "), spinner = TRUE)
     })
 
     # Call the selectmatrix module and unpack the reactives it sends back

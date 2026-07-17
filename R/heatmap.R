@@ -185,7 +185,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
     output$heatmap_ui <- renderUI({
       withProgress(message = "Preparing heatmap container", value = 0, {
-        list(h3(makeTitle()), plotly::plotlyOutput(ns("interactiveHeatmap"), height = plotHeight()))
+        list(h3(makeTitle()), shinycssloaders::withSpinner(plotly::plotlyOutput(ns("interactiveHeatmap"), height = plotHeight()), color = shinyngsSpinnerColor()))
       })
     })
 

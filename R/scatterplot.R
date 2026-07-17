@@ -42,7 +42,7 @@ scatterplotInput <- function(id) {
 scatterplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(plotlyOutput(ns("scatter"), height = "600px"))
+  list(shinycssloaders::withSpinner(plotlyOutput(ns("scatter"), height = "600px"), color = shinyngsSpinnerColor()))
 }
 
 #' Server function for the scatterplot module

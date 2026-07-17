@@ -77,8 +77,10 @@ clusteringInput <- function(id, eselist) {
 clusteringOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
-    simpletableOutput(ns("geneClusteringTable"))
+    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")),
+    shinycssloaders::withSpinner(plotlyOutput(ns("geneClusteringPlot"), height = 600), color = shinyngsSpinnerColor()),
+    h4("Table of values by cluster"),
+    simpletableOutput(ns("geneClusteringTable"), spinner = TRUE)
   )
 }
 

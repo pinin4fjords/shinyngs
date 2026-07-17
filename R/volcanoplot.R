@@ -135,7 +135,7 @@ volcanoplot <- function(id, eselist) {
     output$volcanotable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]][[1]], sep = ": "))
+      simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", getSelectedContrastNames()[[1]][[1]], sep = ": "), spinner = TRUE)
     })
 
     # Call the selectmatrix module and unpack the reactives it sends back
