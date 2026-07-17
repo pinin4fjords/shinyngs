@@ -51,8 +51,10 @@ Suggests:
     pkgdown,
     rmarkdown,
     rsconnect,
+    shinytest2,
     styler,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 biocViews: Software
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr

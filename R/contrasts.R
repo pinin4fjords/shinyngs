@@ -141,7 +141,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
         # Restrict contrasts to those valid for the input matrix
 
         valid_contrasts <- unlist(lapply(contrasts, function(cont) {
-          all(c(cont["Group.1"], cont["Group.2"]) %in% coldata[[cont["Variable"]]])
+          all(c(cont[["Group.1"]], cont[["Group.2"]]) %in% coldata[[cont[["Variable"]]]])
         }))
         contrasts <- contrasts[valid_contrasts]
         contrast_numbers <- contrast_numbers[valid_contrasts]
@@ -382,7 +382,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       contrasts <- getAllContrasts()
 
       lapply(contrasts, function(c) {
-        list(colnames(ese)[coldata[c["Variable"]] == c["Group.1"]], colnames(ese)[coldata[c["Variable"]] == c["Group.2"]])
+        list(colnames(ese)[coldata[[c[["Variable"]]]] == c[["Group.1"]]], colnames(ese)[coldata[[c[["Variable"]]]] == c[["Group.2"]]])
       })
     })
 
@@ -405,10 +405,10 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
         contrast_tables <- lapply(names(contrasts), function(c) {
           cont <- contrasts[[c]]
 
-          smry1 <- summaries[[cont["Variable"]]][, cont["Group.1"]]
-          smry2 <- summaries[[cont["Variable"]]][, cont["Group.2"]]
+          smry1 <- summaries[[cont[["Variable"]]]][, cont[["Group.1"]]]
+          smry2 <- summaries[[cont[["Variable"]]]][, cont[["Group.2"]]]
 
-          ct <- data.frame(cont["Variable"], cont["Group.1"], cont["Group.2"], round(smry1, 2), round(smry2, 2), row.names = names(smry1))
+          ct <- data.frame(cont[["Variable"]], cont[["Group.1"]], cont[["Group.2"]], round(smry1, 2), round(smry2, 2), row.names = names(smry1))
           names(ct) <- c("Variable", "Condition 1", "Condition 2", "Average 1", "Average 2")
 
           # Use pre-computed fold changes where provided.
@@ -445,6 +445,22 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       ese <- getExperiment()
 
       has_slot_data(ese, "contrast_stats") && assay %in% names(ese@contrast_stats) && "fold_changes" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$fold_changes)
+    })
+
+    # Report the scale that pre-computed fold changes were interpreted as when
+    # they were read in (see resolve_foldchange_scale()). Fold changes
+    # calculated on the fly via foldChange() are always linear.
+
+    getFoldChangeScale <- reactive({
+      if (!fcsAvailable()) {
+        return("linear")
+      }
+
+      assay <- getAssay()
+      ese <- getExperiment()
+
+      scale <- attr(ese@contrast_stats[[assay]]$fold_changes, "fold_change_scale")
+      if (is.null(scale)) "unspecified" else scale
     })
 
     # Test for the presence of p values in the input object
@@ -790,7 +806,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
     ########################################################################### Return the reactive that allow other modules to interact with this one
 
     list(
-      getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
+      getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard, getFoldChangeScale = getFoldChangeScale, getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
       getAllContrasts = getAllContrasts, getSelectedContrasts = getSelectedContrasts, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrastNames = getSelectedContrastNames,
       getSafeSelectedContrastNames = getSafeSelectedContrastNames, getContrastSamples = getContrastSamples, getSelectedContrastSamples = getSelectedContrastSamples,
       contrastsTables = contrastsTables, filteredContrastsTables = filteredContrastsTables, labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable,

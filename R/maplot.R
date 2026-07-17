@@ -216,8 +216,9 @@ maplot <- function(id, eselist) {
         sct <- selectedContrastsTables()
         ct <- sct[[1]][[1]]
 
-        matable <- data.frame(`log(10) mean expression` = round(log10(rowMeans(ct[, 1:2])), 3), `log(2) fold change` = round(sign(ct[["Fold change"]]) *
+        matable <- data.frame(round(log10(rowMeans(ct[, 1:2])), 3), round(sign(ct[["Fold change"]]) *
           log2(abs(ct[["Fold change"]])), 3), row.names = rownames(ct), check.names = FALSE)
+        colnames(matable) <- c("log(10) mean expression", paste0("log(2) fold change [source scale: ", getFoldChangeScale(), "]"))
 
         fct <- filteredContrastsTables()[[1]][[1]]
         matable$colorby <- "hidden"

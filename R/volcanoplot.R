@@ -237,7 +237,8 @@ volcanoplot <- function(id, eselist) {
         ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
 
         cont <- getSelectedContrasts()[[1]][[1]]
-        colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), "log2(fold change)", paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
+        fc_axis_label <- paste0("log2(fold change) [source scale: ", getFoldChangeScale(), "]")
+        colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), fc_axis_label, paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
 
         fct <- filteredContrastsTables()[[1]][[1]]
         ct$colorby <- "hidden"
