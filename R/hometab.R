@@ -79,8 +79,9 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
 
   intro_text <- sprintf("This is an interface designed to facilitate downstream %s (and similar) analysis, generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages. Most pages have a 'help' link to guide you.", platform)
 
-  sidebar <- sidebarPanel(
-    width = 3,
+  sidebar <- bslib::sidebar(
+    width = 320,
+    open = "desktop",
     div(
       class = "shinyngs-jump",
       h3(class = "shinyngs-eyebrow", "Jump to analysis"),
@@ -97,8 +98,8 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
     )
   )
 
-  mainpanel <- mainPanel(
-    width = 9,
+  mainpanel <- div(
+    class = "shinyngs-home",
     h2(class = "shinyngs-study-title", eselist@title),
     h3(class = "shinyngs-study-author", eselist@author),
     div(class = "shinyngs-overview", summarytilesOutput(ns("summarytiles"))),
@@ -112,7 +113,7 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
 
   bslib::nav_panel(
     "Home",
-    sidebarLayout(sidebar, mainpanel),
+    bslib::layout_sidebar(sidebar = sidebar, mainpanel, fillable = FALSE),
     icon = icon("house")
   )
 }

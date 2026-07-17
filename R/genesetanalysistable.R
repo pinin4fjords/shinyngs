@@ -109,10 +109,11 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
   ns <- NS(id)
 
-  list(
-    modalInput(ns(genesetanalysistable_modal$id), "help", "help"),
+  moduleMain(
+    "Gene set analysis",
     uiOutput(ns("enrichmentMethod")),
-    simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis")
+    simpletableOutput(ns("genesetanalysistable")),
+    help = modalInput(ns(genesetanalysistable_modal$id), "help", "help")
   )
 }
 

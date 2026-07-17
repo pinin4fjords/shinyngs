@@ -99,7 +99,12 @@ volcanoplotInput <- function(id, eselist) {
 volcanoplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(volcanoplot_modal$id), "help", "help"), h3("Volcano plot"), scatterplotOutput(ns("volcano")), htmlOutput(ns("volcanotable")))
+  moduleMain(
+    "Volcano plot",
+    scatterplotOutput(ns("volcano")),
+    htmlOutput(ns("volcanotable")),
+    help = modalInput(ns(volcanoplot_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the \code{volcanoplot} module

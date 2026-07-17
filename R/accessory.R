@@ -235,6 +235,55 @@ shinyngsPageNavbar <- function(navbar_menus) {
   do.call(bslib::page_navbar, navbar_menus)
 }
 
+#' Lay out a module's controls beside its output
+#'
+#' Wraps the standard "controls on the left, output on the right" arrangement
+#' used by every analysis tab in a \code{bslib::layout_sidebar()}. The sidebar
+#' collapses on narrow screens; the main area holds the output (typically a
+#' \code{moduleMain()}).
+#'
+#' @param controls Sidebar content, usually a module's input UI
+#' @param main Main content, usually a \code{moduleMain()}
+#' @param width Sidebar width in pixels
+#'
+#' @return A \code{bslib::layout_sidebar()}
+#'
+#' @keywords internal
+#'
+moduleLayout <- function(controls, main, width = 320) {
+  bslib::layout_sidebar(
+    sidebar = bslib::sidebar(controls, width = width, open = "desktop"),
+    main,
+    fillable = FALSE,
+    border = FALSE,
+    class = "shinyngs-panel"
+  )
+}
+
+#' Assemble a module's main-panel content
+#'
+#' Lays out a module's output: an optional help-modal trigger floated to the top
+#' right, the section title, and the output body (plots, tables). The content
+#' sits directly in the panel with no surrounding card, keeping the plot area
+#' uncluttered. Pass \code{title = NULL} for modules that render their own
+#' (often dynamic) heading, to avoid a duplicate title.
+#'
+#' @param title Section title (a string or tag), or \code{NULL} to omit it
+#' @param ... Body content (plots, tables, sub-headings)
+#' @param help Optional help-modal trigger, floated to the top right
+#'
+#' @return A \code{tagList}
+#'
+#' @keywords internal
+#'
+moduleMain <- function(title, ..., help = NULL) {
+  tagList(
+    help,
+    if (!is.null(title)) h3(class = "shinyngs-section-title", title),
+    ...
+  )
+}
+
 #' Accent colour for loading spinners
 #'
 #' \code{shinycssloaders::withSpinner()} bakes its colour into a literal CSS

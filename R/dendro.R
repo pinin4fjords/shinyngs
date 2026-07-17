@@ -62,9 +62,10 @@ dendroInput <- function(id, eselist) {
 #'
 dendroOutput <- function(id) {
   ns <- NS(id)
-  list(
-    modalInput(ns(dendro_modal$id), "help", "help"), h3("Sample clustering dendrogram"),
-    shinycssloaders::withSpinner(plotlyOutput(ns("sampleDendroPlot"), height = "480px"), color = shinyngsSpinnerColor())
+  moduleMain(
+    "Sample clustering dendrogram",
+    shinycssloaders::withSpinner(plotlyOutput(ns("sampleDendroPlot"), height = "480px"), color = shinyngsSpinnerColor()),
+    help = modalInput(ns(dendro_modal$id), "help", "help")
   )
 }
 

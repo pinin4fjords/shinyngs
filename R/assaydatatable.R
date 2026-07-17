@@ -68,7 +68,11 @@ assaydatatableInput <- function(id, eselist) {
 assaydatatableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(assaydatatable_modal$id), "help", "help"), htmlOutput(ns("assaydatatable")))
+  moduleMain(
+    NULL,
+    htmlOutput(ns("assaydatatable")),
+    help = modalInput(ns(assaydatatable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the assaydatatable module
