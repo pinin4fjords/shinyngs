@@ -10,7 +10,8 @@ drawLines(
   y,
   lines = NULL,
   hline_thresholds = list(),
-  vline_thresholds = list()
+  vline_thresholds = list(),
+  plot_type = "scatter"
 )
 }
 \arguments{
@@ -28,6 +29,9 @@ a named list of y values at which to place hlines}
 
 \item{vline_thresholds}{Alternatively or in addition to 'lines', just specify
 a named list of x values at which to place vlines}
+
+\item{plot_type}{Plot type: 'scatter' or 'scatter3d'. The axis range fix
+that makes threshold lines reach the plot edges only applies to 2D plots.}
 }
 \value{
 output Plotly object

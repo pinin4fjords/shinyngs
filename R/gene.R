@@ -90,13 +90,15 @@ geneOutput <- function(id, eselist) {
 #'
 gene <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    # Call all the required modules and unpack their reactives
+    # Call all the required modules and hold on to their reactives
 
     selectmatrix_reactives <- selectmatrix("gene", eselist, var_n = 1000, select_samples = TRUE, select_genes = FALSE, provide_all_genes = FALSE)
-    unpack.list(selectmatrix_reactives)
-    unpack.list(labelselectfield("gene_label", eselist = eselist, getExperiment = getExperiment, labels_from_all_experiments = TRUE, url_field = "gene", id_selection = TRUE, getNonEmptyRows = getNonEmptyRows))
-    unpack.list(contrasts("gene", eselist = eselist, multiple = TRUE, show_controls = FALSE, selectmatrix_reactives = selectmatrix_reactives, select_all_contrasts = TRUE))
-    unpack.list(groupby("gene", eselist = eselist, group_label = "Color by", selectColData = selectColData))
+    gene_label_reactives <- labelselectfield("gene_label",
+      eselist = eselist, getExperiment = selectmatrix_reactives$getExperiment, labels_from_all_experiments = TRUE,
+      url_field = "gene", id_selection = TRUE, getNonEmptyRows = selectmatrix_reactives$getNonEmptyRows
+    )
+    contrast_reactives <- contrasts("gene", eselist = eselist, multiple = TRUE, show_controls = FALSE, selectmatrix_reactives = selectmatrix_reactives, select_all_contrasts = TRUE)
+    groupby_reactives <- groupby("gene", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
     # Help modals are shown from the reactive info/model links, with titles
     # that track the currently selected experiment and gene
@@ -105,25 +107,25 @@ gene <- function(id, eselist) {
     gene_model_modal_id <- "geneModel"
 
     modalServer(gene_info_modal_id,
-      title = function() paste(getExperimentName(), "information for", paste(getSelectedLabels(), sep = ", ")),
+      title = function() paste(selectmatrix_reactives$getExperimentName(), "information for", paste(gene_label_reactives$getSelectedLabels(), sep = ", ")),
       content = DT::dataTableOutput(session$ns("geneInfoTable"))
     )
 
     modalServer(gene_model_modal_id,
-      title = function() paste(getSelectedLabels()[1], "gene model"),
+      title = function() paste(gene_label_reactives$getSelectedLabels()[1], "gene model"),
       content = plotOutput(session$ns("geneModel"), height = "600px")
     )
 
     # The title and info link are reactive to the currently active experiment
 
     output$title <- renderUI({
-      en <- getExperimentName()
+      en <- selectmatrix_reactives$getExperimentName()
       h3(paste(en, "expression bar plot"))
     })
 
     output$info <- renderUI({
       ns <- session$ns
-      en <- getExperimentName()
+      en <- selectmatrix_reactives$getExperimentName()
 
       list(modalInput(ns(gene_info_modal_id), paste(en, " info"), "help"))
     })
@@ -141,12 +143,12 @@ gene <- function(id, eselist) {
     # Get the rows with valid data. Some rows of some assays may be blank
 
     getSelectedIdsWithData <- reactive({
-      rowids <- getSelectedIds()
+      rowids <- gene_label_reactives$getSelectedIds()
 
-      sm <- selectMatrix()
+      sm <- selectmatrix_reactives$selectMatrix()
       rowids <- rowids[rowids %in% rownames(sm)]
-      gene_labels <- getSelectedLabels()
-      assay <- getAssay()
+      gene_labels <- gene_label_reactives$getSelectedLabels()
+      assay <- selectmatrix_reactives$getAssay()
 
       validate(need(length(rowids) > 0, paste0("No values for gene labels '", paste(gene_labels, collapse = "', '"), "' in assay '", assay, "'")))
 
@@ -157,19 +159,19 @@ gene <- function(id, eselist) {
 
     output$barPlot <- renderPlotly({
       withProgress(message = "Making bar plot", value = 0, {
-        ese <- getExperiment()
+        ese <- selectmatrix_reactives$getExperiment()
         rows <- getSelectedIdsWithData()
-        barplot_expression <- selectMatrix()
+        barplot_expression <- selectmatrix_reactives$selectMatrix()
         barplot_expression <- barplot_expression[rows, , drop = FALSE]
 
         if (has_slot_data(ese, "labelfield")) {
           rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
         }
 
-        coldata <- selectColData()
-        groupby <- getGroupby()
-        assaymeasure <- getAssayMeasure()
-        palette <- getPalette()
+        coldata <- selectmatrix_reactives$selectColData()
+        groupby <- groupby_reactives$getGroupby()
+        assaymeasure <- selectmatrix_reactives$getAssayMeasure()
+        palette <- groupby_reactives$getPalette()
 
         p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette)
       })
@@ -178,8 +180,8 @@ gene <- function(id, eselist) {
     # Make a gene region plot
 
     output$geneModel <- renderPlot({
-      gene_labels <- getSelectedLabels()
-      ese <- getExperiment()
+      gene_labels <- gene_label_reactives$getSelectedLabels()
+      ese <- selectmatrix_reactives$getExperiment()
 
       withProgress(message = paste("Fetching gene models from Ensembl for gene", gene_labels[1]), value = 0, {
         annotation <- data.frame(SummarizedExperiment::mcols(ese))
@@ -193,8 +195,8 @@ gene <- function(id, eselist) {
 
     output$geneInfoTable <- DT::renderDataTable(
       {
-        rows <- getSelectedIds()
-        ese <- getExperiment()
+        rows <- gene_label_reactives$getSelectedIds()
+        ese <- selectmatrix_reactives$getExperiment()
 
         validate(need(all(rows %in% rownames(ese)), FALSE))
 
@@ -215,8 +217,8 @@ gene <- function(id, eselist) {
 
     getGeneContrastsTable <- reactive({
       rows <- getSelectedIdsWithData()
-      contrasts_table <- labelledContrastsTable()
-      id_field <- getIdField()
+      contrasts_table <- contrast_reactives$labelledContrastsTable()
+      id_field <- selectmatrix_reactives$getIdField()
 
       contrasts_table[contrasts_table[[prettifyVariablename(id_field)]] %in% rows, , drop = FALSE]
     })
@@ -234,7 +236,7 @@ gene <- function(id, eselist) {
 
     # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
 
-    updateLabelField
+    gene_label_reactives$updateLabelField
   })
 }
 

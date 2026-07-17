@@ -145,17 +145,15 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
     # Call the selectmatrix module and unpack the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, select_assays = FALSE, select_samples = FALSE, select_genes = FALSE)
-    unpack.list(selectmatrix_reactives)
 
     # Just use the contrasts module to select a comparison
 
     contrast_reactives <- contrasts("deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
-    unpack.list(contrast_reactives)
 
     makeDEUTables <- reactive({
       validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage tables."))
 
-      ese <- getExperiment()
+      ese <- selectmatrix_reactives$getExperiment()
 
       withProgress(message = "Making DEU table for each contrast", value = 0, {
         deu_tables <- lapply(seq_along(ese@dexseq_results), function(contrast) {
@@ -164,7 +162,7 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
           # Add the mean values for the counts
 
           counts <- DEXSeq::counts(d, normalized = TRUE)
-          contrast_samples <- getContrastSamples()
+          contrast_samples <- contrast_reactives$getContrastSamples()
           selected_contrast_samples <- contrast_samples[[contrast]]
 
           mean_counts <- lapply(selected_contrast_samples, function(scs) {
@@ -211,7 +209,7 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
 
     makeDEUTable <- reactive({
       deu_tables <- makeDEUTables()
-      selected_contrast_number <- getSelectedContrastNumbers()[[1]][[1]]
+      selected_contrast_number <- contrast_reactives$getSelectedContrastNumbers()[[1]][[1]]
       deu_table <- deu_tables[[as.numeric(selected_contrast_number)]]
 
       if (allow_filtering) {
@@ -219,12 +217,12 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
           deu_table <- deu_table[match(unique(deu_table[, 1]), deu_table[, 1]), ]
         }
 
-        fclim <- getFoldChange()
-        fclim_card <- getFoldChangeCard()
-        pvallim <- getPval()
-        pvallim_card <- getPvalCard()
-        qvallim <- getQval()
-        qvallim_card <- getQvalCard()
+        fclim <- contrast_reactives$getFoldChange()
+        fclim_card <- contrast_reactives$getFoldChangeCard()
+        pvallim <- contrast_reactives$getPval()
+        pvallim_card <- contrast_reactives$getPvalCard()
+        qvallim <- contrast_reactives$getQval()
+        qvallim_card <- contrast_reactives$getQvalCard()
 
         # deu_table <- deu_table[which(deu_table[['FDR corrected p value']] < qvallim & abs(deu_table[['Relative exon usage fold change']]) > fclim), ]
 
@@ -244,8 +242,8 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
 
       # Add labels
 
-      ese <- getExperiment()
-      labelMatrix(deu_table, ese, "groupID", metafields = getMetafields())
+      ese <- selectmatrix_reactives$getExperiment()
+      labelMatrix(deu_table, ese, "groupID", metafields = selectmatrix_reactives$getMetafields())
     })
 
     # Make a linked version of the table for display. Override the label links so they point to DEU plots rather than gene pages
@@ -254,7 +252,7 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
       deu_table <- makeDEUTable()
       url_roots <- eselist@url_roots
       if (link_to_deu_plot) {
-        ese <- getExperiment()
+        ese <- selectmatrix_reactives$getExperiment()
         url_roots[[ese@labelfield]] <- "?deu_gene="
       }
       linkMatrix(deu_table, url_roots)
@@ -266,6 +264,9 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
 
     # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
 
-    c(contrast_reactives, list(getExperiment = getExperiment, getSelectedContrastNumbers = getSelectedContrastNumbers, getSelectedContrasts = getSelectedContrasts))
+    c(contrast_reactives, list(
+      getExperiment = selectmatrix_reactives$getExperiment, getSelectedContrastNumbers = contrast_reactives$getSelectedContrastNumbers,
+      getSelectedContrasts = contrast_reactives$getSelectedContrasts
+    ))
   })
 }
