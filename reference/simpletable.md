@@ -14,7 +14,8 @@ simpletable(
   filename,
   rownames = FALSE,
   show_controls = TRUE,
-  filter = "none"
+  filter = "none",
+  server = TRUE
 )
 ```
 
@@ -55,6 +56,19 @@ simpletable(
 
   Passed to
   [`DT::renderDataTable()`](https://rdrr.io/pkg/DT/man/dataTableOutput.html)
+
+- server:
+
+  Passed to
+  [`DT::renderDataTable()`](https://rdrr.io/pkg/DT/man/dataTableOutput.html).
+  Leave at the default (TRUE) for most tables, since it keeps only the
+  current page's data in the browser. Set to FALSE if `displayMatrix()`
+  can produce a table with the same dimensions but different column
+  \*names\* from one render to the next (e.g. column headers derived
+  from a recalculated statistic) - DT's server-side mode matches an
+  in-flight page/sort/search request to fresh data by column name, so a
+  name change between the request and the response raises "the column
+  name ... is not found in data".
 
 ## Examples
 
