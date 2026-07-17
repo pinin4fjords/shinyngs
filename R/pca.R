@@ -256,7 +256,7 @@ runPCA <- function(matrix, do_log = TRUE) {
 
   matrix <- matrix[apply(matrix, 1, function(x) length(unique(x))) > 1, ]
 
-  prcomp(as.matrix(t(matrix), scale = T))
+  prcomp(t(as.matrix(matrix)), scale. = TRUE)
 }
 
 #' Run PCA on a given matrix, expected to be variance stabilised (at least
