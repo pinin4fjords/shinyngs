@@ -55,7 +55,10 @@ Suggests:
     shinytest2,
     styler,
     testthat (>= 3.0.0),
-    withr
+    withr,
+    zhangneurons
+Remotes:
+    pinin4fjords/zhangneurons
 biocViews: Software
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
