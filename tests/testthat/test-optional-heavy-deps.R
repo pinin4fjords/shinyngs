@@ -1,21 +1,13 @@
 # These tests exercise the requireNamespace() guards added around DEXSeq,
 # Gviz and biomaRt calls (all Suggests-only, heavy Bioconductor packages).
-# None of the three are installed in this test environment, so the guard
-# paths below are exercised for real rather than via mocking.
-
-test_that("DEXSeq, Gviz and biomaRt are absent in this test environment", {
-  # Documents the precondition the tests below rely on: if any of these ever
-  # get pulled in as a transitive dependency of something else, the
-  # skip_if()s further down would silently stop testing the guard path.
-  expect_false(requireNamespace("DEXSeq", quietly = TRUE))
-  expect_false(requireNamespace("Gviz", quietly = TRUE))
-  expect_false(requireNamespace("biomaRt", quietly = TRUE))
-})
+# requireNamespace() is mocked to report the package as absent, so the guard
+# path is exercised deterministically regardless of whether these packages
+# actually happen to be installed in the environment running the tests.
 
 # geneModelPlot() (biomaRt + Gviz)
 
 test_that("geneModelPlot fails with a friendly message when biomaRt/Gviz are missing", {
-  skip_if(requireNamespace("biomaRt", quietly = TRUE) && requireNamespace("Gviz", quietly = TRUE))
+  testthat::local_mocked_bindings(requireNamespace = function(...) FALSE)
 
   result <- tryCatch(
     geneModelPlot(ensembl_species = "mmusculus", chromosome = 1, start = 1, end = 100),
@@ -78,7 +70,7 @@ dexseq_eselist <- function() {
 }
 
 test_that("dexseqtable fails with a friendly message when DEXSeq is missing", {
-  skip_if(requireNamespace("DEXSeq", quietly = TRUE))
+  testthat::local_mocked_bindings(requireNamespace = function(...) FALSE)
 
   eselist <- dexseq_eselist()
 

@@ -1,3 +1,9 @@
+# Placeholder binding so tests can mock requireNamespace() via
+# testthat::local_mocked_bindings() - R skips non-function bindings when
+# resolving a call, so this doesn't affect the real base::requireNamespace()
+# used at runtime.
+requireNamespace <- NULL
+
 #' Resolve the default grouping variable for an experiment list
 #'
 #' Returns \code{default_groupvar} if set, otherwise the first of
