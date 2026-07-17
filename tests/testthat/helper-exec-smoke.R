@@ -60,12 +60,7 @@ run_exec_script <- function(script, args) {
 
   lib <- exec_smoke_libpath()
   r_libs <- paste(c(lib, .libPaths()), collapse = .Platform$path.sep)
-
-  old_r_libs <- Sys.getenv("R_LIBS", unset = NA)
-  Sys.setenv(R_LIBS = r_libs)
-  on.exit({
-    if (is.na(old_r_libs)) Sys.unsetenv("R_LIBS") else Sys.setenv(R_LIBS = old_r_libs)
-  })
+  withr::local_envvar(list(R_LIBS = r_libs))
 
   rscript_bin <- file.path(R.home("bin"), "Rscript")
   output <- system2(
@@ -76,4 +71,12 @@ run_exec_script <- function(script, args) {
   status <- attr(output, "status")
 
   list(status = if (is.null(status)) 0L else status, output = output)
+}
+
+# expect_exec_success()
+#
+# Assert an exec/*.R script exited cleanly, showing its output on failure.
+
+expect_exec_success <- function(result) {
+  testthat::expect_equal(result$status, 0, info = paste(result$output, collapse = "\n"))
 }

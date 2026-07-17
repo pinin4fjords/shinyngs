@@ -13,7 +13,7 @@ test_that("validate_fom_components.R runs against fixtures and rewrites normaliz
     "--output_directory", outdir
   ))
 
-  expect_equal(result$status, 0, info = paste(result$output, collapse = "\n"))
+  expect_exec_success(result)
 
   expect_true(file.exists(file.path(outdir, "SRP254919.samplesheet.sample_metadata.tsv")))
   expect_true(file.exists(file.path(outdir, "SRP254919.gene_meta.feature_metadata.tsv")))
@@ -36,7 +36,7 @@ test_that("exploratory_plots.R runs against fixtures and writes plot PNGs", {
     "--outdir", outdir
   ))
 
-  expect_equal(result$status, 0, info = paste(result$output, collapse = "\n"))
+  expect_exec_success(result)
 
   expected_pngs <- c("boxplot.png", "density.png", "pca2d.png", "pca3d.png", "sample_dendrogram.png", "mad_correlation.png")
   for (png_file in expected_pngs) {
@@ -61,7 +61,7 @@ test_that("differential_plots.R runs against fixtures and writes a volcano plot"
     "--outdir", outdir
   ))
 
-  expect_equal(result$status, 0, info = paste(result$output, collapse = "\n"))
+  expect_exec_success(result)
 
   volcano_path <- file.path(outdir, "png", "volcano.png")
   expect_true(file.exists(volcano_path))
@@ -92,7 +92,7 @@ test_that("make_app_from_files.R runs against fixtures and writes a loadable app
     "--output_directory", outdir
   ))
 
-  expect_equal(result$status, 0, info = paste(result$output, collapse = "\n"))
+  expect_exec_success(result)
 
   rds_path <- file.path(outdir, "data.rds")
   expect_true(file.exists(rds_path))
