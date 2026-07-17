@@ -87,10 +87,7 @@ genesetbarcodeplotOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("genesetbarcodeplot"), "help", "help"), modalOutput(ns("genesetbarcodeplot"), "Gene set barcode plot", includeMarkdown(system.file("inlinehelp",
-      "genesetbarcodeplot.md",
-      package = packageName()
-    ))), h3("Gene set barcode plot"), plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), h4("Gene set differential expression"),
+    modalInput(ns("genesetbarcodeplot"), "help", "help"), h3("Gene set barcode plot"), plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), h4("Gene set differential expression"),
     simpletableOutput(ns("genesetbarcodeplot"))
   )
 }
@@ -124,6 +121,8 @@ genesetbarcodeplotOutput <- function(id) {
 #'
 genesetbarcodeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("genesetbarcodeplot", "Gene set barcode plot")
+
     # Only use experiments with gene set analyses available
 
     eselist <- eselist[unlist(lapply(eselist, function(ese) length(ese@gene_set_analyses) > 0))]
