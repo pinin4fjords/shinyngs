@@ -308,10 +308,12 @@ addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_la
 #'   a named list of y values at which to place hlines
 #' @param vline_thresholds Alternatively or in addition to 'lines', just specify
 #'   a named list of x values at which to place vlines
+#' @param plot_type Plot type: 'scatter' or 'scatter3d'. The axis range fix
+#'   that makes threshold lines reach the plot edges only applies to 2D plots.
 #'
 #' @return output Plotly object
 
-drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_thresholds = list()) {
+drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_thresholds = list(), plot_type = "scatter") {
   line_coords <- list()
   if (!is.null(lines)) {
     line_coords[["specified"]] <- lines
@@ -329,9 +331,37 @@ drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_th
   }
 
   if (length(line_coords) > 0) {
-    lines <- group_by(do.call(rbind, line_coords), name)
+    lines <- do.call(rbind, line_coords)
+
+    # Horizontal/vertical threshold lines are conventionally meant to span
+    # the whole plot, but their endpoints are only ever known in terms of the
+    # point data range. Plotly's own axis autorange then pads beyond that
+    # range, leaving a visible gap between the line ends and the plot edges.
+    # Extending the lines to a slightly padded data range, and pinning the
+    # axis range to match, closes that gap so the lines reach the edges.
+    if (plot_type != "scatter3d") {
+      xrange <- range(x[is.finite(x)])
+      yrange <- range(y[is.finite(y)])
+      xrange <- xrange + c(-1, 1) * diff(xrange) * 0.05
+      yrange <- yrange + c(-1, 1) * diff(yrange) * 0.05
+
+      lines <- do.call(rbind, lapply(split(lines, lines$name), function(segment) {
+        if (length(unique(segment$y)) == 1) {
+          segment$x <- xrange
+        } else if (length(unique(segment$x)) == 1) {
+          segment$y <- yrange
+        }
+        segment
+      }))
+    }
+
+    lines <- group_by(lines, name)
 
     p <- add_lines(p, data = lines, x = ~x, y = ~y, linetype = ~name, line = list(color = "black"))
+
+    if (plot_type != "scatter3d") {
+      p <- plotly::layout(p, xaxis = list(range = xrange), yaxis = list(range = yrange))
+    }
   }
   p
 }
@@ -452,7 +482,8 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
       y = y,
       lines = lines,
       hline_thresholds = hline_thresholds,
-      vline_thresholds = vline_thresholds
+      vline_thresholds = vline_thresholds,
+      plot_type = plot_type
     ) %>%
     addTextLabels(
       x = x[labelled],
