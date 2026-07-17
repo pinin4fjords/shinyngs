@@ -61,14 +61,15 @@ geneInput <- function(id, eselist) {
 geneOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  out <- list()
-
-  out <- c(out, list(
-    uiOutput(ns("model")), uiOutput(ns("info")), uiOutput(ns("title")), plotlyOutput(ns("barPlot"), height = 500), h4("Contrasts table"),
+  moduleMain(
+    NULL,
+    uiOutput(ns("model")),
+    uiOutput(ns("info")),
+    uiOutput(ns("title")),
+    plotlyOutput(ns("barPlot"), height = 500),
+    h4("Contrasts table"),
     simpletableOutput(ns("geneContrastsTable"))
-  ))
-
-  out
+  )
 }
 
 #' The server function of the gene module

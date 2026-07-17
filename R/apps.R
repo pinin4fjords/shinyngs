@@ -162,10 +162,7 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     ui <- shinyngsPageNavbar(list(
       id = "pages", title = moduletitle,
       window_title = moduletitle,
-      bslib::nav_panel(prettifyVariablename(module), sidebarLayout(sidebarPanel(inputFunc(module, eselist, ...), width = 3), mainPanel(outputFunc(
-        module,
-        ...
-      ), width = 9)))
+      bslib::nav_panel(prettifyVariablename(module), moduleLayout(inputFunc(module, eselist, ...), outputFunc(module, ...)))
     ))
 
     if (ui_only) {

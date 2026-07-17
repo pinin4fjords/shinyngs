@@ -87,7 +87,12 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(foldchangeplot_modal$id), "help", "help"), h3("Fold change plot"), scatterplotOutput(ns("foldchange")), htmlOutput(ns("foldchangetable")))
+  moduleMain(
+    "Fold change plot",
+    scatterplotOutput(ns("foldchange")),
+    htmlOutput(ns("foldchangetable")),
+    help = modalInput(ns(foldchangeplot_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the \code{foldchangeplot} module

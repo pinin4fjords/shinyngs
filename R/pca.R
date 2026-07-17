@@ -73,10 +73,14 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(pca_modal$id), "help", "help"), h3("Principal components analysis"), tabsetPanel(
-    tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
-    tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))
-  ))
+  moduleMain(
+    "Principal components analysis",
+    tabsetPanel(
+      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
+      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))
+    ),
+    help = modalInput(ns(pca_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the pca module

@@ -46,7 +46,12 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns(differentialtable_modal$id), "help", "help"), htmlOutput(ns("differentialtable")), contrastsOutput(ns("differential")))
+  moduleMain(
+    NULL,
+    htmlOutput(ns("differentialtable")),
+    contrastsOutput(ns("differential")),
+    help = modalInput(ns(differentialtable_modal$id), "help", "help")
+  )
 }
 
 #' The server function of the differentialtable module

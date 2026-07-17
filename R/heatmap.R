@@ -111,19 +111,9 @@ heatmap_modal_specs <- list(
 #'
 heatmapOutput <- function(id, type = "") {
   ns <- NS(id)
-
-  # Add in the help modal
-
-  help <- list()
-
   spec <- heatmap_modal_specs[[type]]
-  if (!is.null(spec)) {
-    help <- list(modalInput(ns(spec$id), "help", "help"))
-  }
-
-  # Return outputs and help link
-
-  list(help, uiOutput(ns("heatmap_ui")))
+  help <- if (is.null(spec)) NULL else modalInput(ns(spec$id), "help", "help")
+  moduleMain(NULL, uiOutput(ns("heatmap_ui")), help = help)
 }
 
 #' The server function of the heatmap module

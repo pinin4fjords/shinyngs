@@ -80,9 +80,14 @@ upsetInput <- function(id, eselist) {
 upsetOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  list(
-    modalInput(ns(upset_modal$id), "help", "help"), h3("Intersection of differential sets"), uiOutput(ns("subset_notice")), plotlyOutput(ns("plotly_upset"), height = "600px"),
-    h4("Differential set summary"), uiOutput(ns("differential_parameters")), simpletableOutput(ns("upset"))
+  moduleMain(
+    "Intersection of differential sets",
+    uiOutput(ns("subset_notice")),
+    plotlyOutput(ns("plotly_upset"), height = "600px"),
+    h4("Differential set summary"),
+    uiOutput(ns("differential_parameters")),
+    simpletableOutput(ns("upset")),
+    help = modalInput(ns(upset_modal$id), "help", "help")
   )
 }
 
