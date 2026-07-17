@@ -1,3 +1,5 @@
+boxplot_modal <- list(id = "boxplot", title = "Value distributions")
+
 #' The input function of the boxplot module
 #'
 #' This module produces displays of the distributions of the values in the
@@ -79,7 +81,7 @@ boxplotInput <- function(id, eselist) {
 boxplotOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns("boxplot"), "help", "help"),
+    modalInput(ns(boxplot_modal$id), "help", "help"),
     h3("Value distributions"), uiOutput(ns("quartilesPlot"))
   )
 }
@@ -111,7 +113,7 @@ boxplotOutput <- function(id) {
 #'
 boxplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("boxplot", "Value distributions")
+    modalServer(boxplot_modal$id, boxplot_modal$title)
 
     # Get the expression matrix - no need for a gene selection
 
@@ -416,8 +418,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
       layout(
         xaxis = xaxis,
         yaxis = list(title = yaxis_title, zeroline = FALSE)
-      ) %>%
-      config(showLink = TRUE)
+      )
   })
 
   if (length(facet_plots) == 1) {
@@ -552,8 +553,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
             x = 0.5,
             y = -0.2
           )
-        ) %>%
-        config(showLink = TRUE),
+        ),
       .keep = TRUE
     ) %>%
     subplot(
@@ -600,7 +600,7 @@ plotly_quartiles <- function(matrix, labels = rownames(matrix), expressiontype =
     outlier_rows <- which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)
     ol <- y[outlier_rows]
     if (length(ol) > 0) {
-      data.frame(x = x, y = ol, label = labels[outlier_rows], stringsAsFactors = FALSE)
+      data.frame(x = x, y = ol, label = labels[outlier_rows])
     } else {
       NULL
     }

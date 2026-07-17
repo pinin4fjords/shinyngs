@@ -1,3 +1,5 @@
+genesetanalysistable_modal <- list(id = "genesetanalysistable", title = "Gene set analysis")
+
 #' The UI input function of the genesetanalysistable module
 #'
 #' This module displays gene set analysis tables stored as a list in the
@@ -134,7 +136,7 @@ genesetanalysistableInput <- function(id, eselist) {
 genesetanalysistableOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("genesetanalysistable"), "help", "help"), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
+  list(modalInput(ns(genesetanalysistable_modal$id), "help", "help"), simpletableOutput(ns("genesetanalysistable"), tabletitle = "Gene set analysis"))
 }
 
 #' The server function of the genesetanalysistable module
@@ -186,7 +188,7 @@ genesetanalysistableOutput <- function(id) {
 #'
 genesetanalysistable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("genesetanalysistable", "Gene set analysis")
+    modalServer(genesetanalysistable_modal$id, genesetanalysistable_modal$title)
 
     # Only use experiments with gene set analyses available
 
@@ -246,7 +248,7 @@ genesetanalysistable <- function(id, eselist) {
 
       # Move the row names to an actual column
 
-      gst <- data.frame(gst, check.names = FALSE, stringsAsFactors = FALSE)
+      gst <- data.frame(gst, check.names = FALSE)
       gst$gene_set_id <- rownames(gst)
       gst <- gst[, c("gene_set_id", colnames(gst)[colnames(gst) != "gene_set_id"]), drop = FALSE]
 
@@ -282,7 +284,7 @@ genesetanalysistable <- function(id, eselist) {
 
       # Add links, but use a prettified version of the gene set name that re-flows to take up less space
 
-      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id), stringsAsFactors = FALSE))
+      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id)))
       colnames(gst) <- prettifyVariablename(colnames(gst))
 
       gst

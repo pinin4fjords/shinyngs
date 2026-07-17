@@ -1,3 +1,5 @@
+genesetbarcodeplot_modal <- list(id = "genesetbarcodeplot", title = "Gene set barcode plot")
+
 #' The UI input function of the genesetbarcodeplot module
 #'
 #' This module leverages gene sets stored in the \code{gene_sets} slot of an
@@ -87,7 +89,7 @@ genesetbarcodeplotOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("genesetbarcodeplot"), "help", "help"), h3("Gene set barcode plot"), plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), h4("Gene set differential expression"),
+    modalInput(ns(genesetbarcodeplot_modal$id), "help", "help"), h3("Gene set barcode plot"), plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), h4("Gene set differential expression"),
     simpletableOutput(ns("genesetbarcodeplot"))
   )
 }
@@ -121,7 +123,7 @@ genesetbarcodeplotOutput <- function(id) {
 #'
 genesetbarcodeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("genesetbarcodeplot", "Gene set barcode plot")
+    modalServer(genesetbarcodeplot_modal$id, genesetbarcodeplot_modal$title)
 
     # Only use experiments with gene set analyses available
 

@@ -1,3 +1,5 @@
+volcanoplot_modal <- list(id = "volcanoplot", title = "Volcano plots")
+
 #' The UI input function of the \code{volcanoplot} module
 #'
 #' A volcano plot displays -log(10) of a p value/ FDR against a log(2) fold
@@ -87,7 +89,7 @@ volcanoplotInput <- function(id, eselist) {
 volcanoplotOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("volcanoplot"), "help", "help"), h3("Volcano plot"), scatterplotOutput(ns("volcano")), htmlOutput(ns("volcanotable")))
+  list(modalInput(ns(volcanoplot_modal$id), "help", "help"), h3("Volcano plot"), scatterplotOutput(ns("volcano")), htmlOutput(ns("volcanotable")))
 }
 
 #' The server function of the \code{volcanoplot} module
@@ -114,7 +116,7 @@ volcanoplotOutput <- function(id) {
 #'
 volcanoplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("volcanoplot", "Volcano plots")
+    modalServer(volcanoplot_modal$id, volcanoplot_modal$title)
 
     output$volcanotable <- renderUI({
       ns <- session$ns

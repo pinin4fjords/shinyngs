@@ -354,7 +354,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
           cont
         })
 
-        names(contrasts) <- as.character(1:length(contrasts))
+        names(contrasts) <- as.character(seq_along(contrasts))
         contrasts
       } else {
         NULL
@@ -599,7 +599,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
         q_value_card <- getQvalCard()
 
         withProgress(message = "Applying filters", value = 0, {
-          fcts <- lapply(1:length(selected_contrasts_tables), function(i) {
+          fcts <- lapply(seq_along(selected_contrasts_tables), function(i) {
             sct <- selected_contrasts_tables[[i]]
 
             lapply(sct, function(s) {
@@ -685,7 +685,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       queries <- getQueryStrings()
       eid <- getExperimentId()
 
-      summaries <- lapply(1:length(fcts), function(i) {
+      summaries <- lapply(seq_along(fcts), function(i) {
         summary <- data.frame(cbind(query = queries[i], do.call(rbind, selected_contrasts[[i]])))
         colnames(summary) <- c("Query", "Variable", "group 1", "group 2")
         summary[[paste0("Differential ", eid, "s (up)")]] <- unlist(lapply(fcts[[i]], function(x) sum(x[, "Fold change"] > 0)))
@@ -728,7 +728,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
       # Make a table of the number of features resulting from each filter
 
-      query_summary <- data.frame(filter = filters, features = unlist(lapply(filter_final_features, length)), stringsAsFactors = FALSE)
+      query_summary <- data.frame(filter = filters, features = unlist(lapply(filter_final_features, length)))
 
       exp_id <- getExperimentId()
       colnames(query_summary)[2] <- paste0(exp_id, "s")
@@ -761,7 +761,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       }
 
       makeFluidRow <- function(row) {
-        do.call(fluidRow, lapply(1:length(row), function(r) {
+        do.call(fluidRow, lapply(seq_along(row), function(r) {
           column(column_widths[r], HTML(row[r]))
         }))
       }
@@ -932,7 +932,7 @@ makeContrastControl <- function(id, contrasts, contrast_numbers, multiple = FALS
 #' @return output Simplified table
 
 simplifyContrastTable <- function(table) {
-  if (length(unique(table$Variable)) > 1 | length(unique(table[["Condition 1"]])) > 1 | length(unique(table[["Condition 2"]])) > 1) {
+  if (length(unique(table$Variable)) > 1 || length(unique(table[["Condition 1"]])) > 1 || length(unique(table[["Condition 2"]])) > 1) {
     stop("Table represents multiple contrasts, it cannot be simplified.")
   }
 

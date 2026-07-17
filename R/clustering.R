@@ -1,3 +1,5 @@
+clustering_modal <- list(id = "clustering", title = "Feature-wise clustering")
+
 #' The input function of the clustering module
 #'
 #' This module plots the expression profiles (scaled for comparison) of the
@@ -73,7 +75,7 @@ clusteringInput <- function(id, eselist) {
 clusteringOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns("clustering"), "help", "help"), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
+    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
     simpletableOutput(ns("geneClusteringTable"))
   )
 }
@@ -102,7 +104,7 @@ clusteringOutput <- function(id) {
 #'
 clustering <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("clustering", "Feature-wise clustering")
+    modalServer(clustering_modal$id, clustering_modal$title)
 
     # Call the selectmatrix module to get the expression matrix - no need for a gene selection
 
@@ -235,7 +237,7 @@ clustering <- function(id, eselist) {
 
           x <- matrices_by_cluster[[c]]
           if (nrow(x) > 100) {
-            x <- x[sample(1:nrow(x), 100), ]
+            x <- x[sample(seq_len(nrow(x)), 100), ]
           }
           x <- reshape2::melt(as.matrix(x))
           x %>%
@@ -295,7 +297,7 @@ clustering <- function(id, eselist) {
         withProgress(message = "Making a plot for each cluster", value = 0, {
           plots <- makeClusterPlots()
         })
-        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>% config(showLink = TRUE)
+        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots)
       })
     })
 
@@ -359,7 +361,7 @@ clustering <- function(id, eselist) {
 #' summarySE(tg, measurevar = "len", groupvars = c("supp", "dose"))
 #'
 summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
-  # New version of length which can handle NA's: if na.rm==T, don't count them
+  # New version of length which can handle NA's: if na.rm==TRUE, don't count them
   length2 <- function(x, na.rm = FALSE) {
     if (na.rm) {
       sum(!is.na(x))
@@ -406,7 +408,7 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
 #' @export
 
 bootstrapMedian <- function(data, num) {
-  resamples <- lapply(1:num, function(i) sample(data, replace = T))
+  resamples <- lapply(seq_len(num), function(i) sample(data, replace = TRUE))
   r.median <- sapply(resamples, median)
   std.err <- sqrt(var(r.median))
   list(std.err = std.err, resamples = resamples, medians = r.median)
@@ -457,8 +459,8 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 
     mads <- do.call(rbind, lapply(names(matrices), function(g) {
       corrs <- cor(matrices[[g]])
-      corrs_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[x, -x])))
-      corrs_not_involving <- unlist(lapply(1:ncol(corrs), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
+      corrs_involving <- unlist(lapply(seq_len(ncol(corrs)), function(x) mean(corrs[x, -x])))
+      corrs_not_involving <- unlist(lapply(seq_len(ncol(corrs)), function(x) mean(corrs[-x, -x][upper.tri(corrs[-x, -x])])))
 
       correlation_difference <- structure(corrs_involving - corrs_not_involving, names = colnames(corrs))
       median_correlation_differences <- median(correlation_difference)

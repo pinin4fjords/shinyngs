@@ -63,7 +63,7 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
       withProgress(message = "Making scatter plot controls", value = 0, {
         ns <- session$ns
         datamatrix <- getDatamatrix()
-        vars <- structure(1:ncol(datamatrix), names = colnames(datamatrix))
+        vars <- structure(seq_len(ncol(datamatrix)), names = colnames(datamatrix))
 
         # Work out how many axes we need
 
@@ -74,7 +74,7 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
 
         # Make a select for each axis
 
-        axis_filters <- lapply(1:length(axes), function(n) {
+        axis_filters <- lapply(seq_along(axes), function(n) {
           ax <- names(axes)[n]
 
           if (is.na(axes[n])) {

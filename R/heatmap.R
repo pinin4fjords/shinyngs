@@ -209,7 +209,7 @@ heatmap <- function(id, eselist, type = "expression") {
 
           ed <- data.frame(lapply(structure(group_vars, names = group_vars), function(x) factor(ed[, x], levels = unique(ed[, x]))),
             check.names = FALSE,
-            stringsAsFactors = FALSE, row.names = rownames(ed)
+            row.names = rownames(ed)
           )
 
           # Order by the group variables for display purposes
@@ -623,9 +623,9 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
       dimnames = list(
         colnames(pcameta),
         paste(
-          paste("PC", 1:last_pc, sep = ""),
+          paste("PC", seq_len(last_pc), sep = ""),
           " (",
-          fraction_explained[1:last_pc],
+          fraction_explained[seq_len(last_pc)],
           "%)",
           sep = ""
         )
@@ -634,8 +634,8 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
 
   # Fill the matrix with anova p values
 
-  for (i in 1:ncol(pcameta)) {
-    for (j in 1:last_pc) {
+  for (i in seq_len(ncol(pcameta))) {
+    for (j in seq_len(last_pc)) {
       fit <- aov(pca_coords[, j] ~ factor(pcameta[, i]))
       if ("Pr(>F)" %in% names(summary(fit)[[1]])) {
         pvals[i, j] <- summary(fit)[[1]][["Pr(>F)"]][[1]]

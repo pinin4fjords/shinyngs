@@ -110,11 +110,11 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   # Annotations need to be strings
 
-  annotation <- data.frame(lapply(annotation, as.character), stringsAsFactors = FALSE, check.names = FALSE, row.names = rownames(annotation))[all_rows, ]
+  annotation <- data.frame(lapply(annotation, as.character), check.names = FALSE, row.names = rownames(annotation))[all_rows, ]
 
   # Ensure consistency between gene_set_analyses with gene_set_analyses_tool
   gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(gene_set_analyses, gene_set_analyses_tool)
-  
+
   # Build the object
 
   sumexp <- SummarizedExperiment(assays = assays, colData = DataFrame(colData, check.names = FALSE))
@@ -148,10 +148,12 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
     ok <- (is.character(tool) && length(tool) == 1 && tool %in% c("auto", "gsea", "roast")) ||
       is_enrichment_mapping(tool)
     if (!ok) {
-      stop("Invalid gene_set_analyses_tool for ", where,
-           ". Expected 'auto', 'gsea', 'roast', or a named vector giving ",
-           paste(enrichment_mapping_fields, collapse = "/"), " columns. Found ",
-           paste(tool, collapse = ","))
+      stop(
+        "Invalid gene_set_analyses_tool for ", where,
+        ". Expected 'auto', 'gsea', 'roast', or a named vector giving ",
+        paste(enrichment_mapping_fields, collapse = "/"), " columns. Found ",
+        paste(tool, collapse = ",")
+      )
     }
     tool
   }
@@ -163,10 +165,12 @@ check_gene_set_analyses_tool_consistency <- function(gene_set_analyses, gene_set
       node <- analyses[[name]]
       tool_node <- if (is.null(tools)) NULL else tools[[name]]
       if (is.list(node) && !is.data.frame(node)) {
-        mirror(node, tool_node, c(path, name))              # assay / gene-set-type container
+        mirror(node, tool_node, c(path, name)) # assay / gene-set-type container
       } else {
-        validate_tool(if (is.null(tool_node)) "auto" else tool_node,
-                      paste(c(path, name), collapse = "/")) # contrast leaf (table or NULL)
+        validate_tool(
+          if (is.null(tool_node)) "auto" else tool_node,
+          paste(c(path, name), collapse = "/")
+        ) # contrast leaf (table or NULL)
       }
     })
   }

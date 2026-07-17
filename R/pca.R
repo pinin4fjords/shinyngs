@@ -1,3 +1,5 @@
+pca_modal <- list(id = "pca", title = "Principal components analysis")
+
 #' The input function of the pca module
 #'
 #' This provides the form elements to control the pca display, derived from the
@@ -61,7 +63,7 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("pca"), "help", "help"), h3("Principal components analysis"), tabsetPanel(
+  list(modalInput(ns(pca_modal$id), "help", "help"), h3("Principal components analysis"), tabsetPanel(
     tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
     tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))
   ))
@@ -96,7 +98,7 @@ pcaOutput <- function(id) {
 #'
 pca <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
-    modalServer("pca", "Principal components analysis")
+    modalServer(pca_modal$id, pca_modal$title)
 
     unpack.list(selectmatrix("pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, default_gene_select = "variance", select_meta = FALSE))
 
@@ -136,7 +138,7 @@ pca <- function(id, eselist) {
 
     pcaDisplayMatrix <- reactive({
       pcam <- pcaMatrix()
-      pcam <- apply(pcam[, 1:min(ncol(pcam), 10)], 2, function(x) round(x, 2))
+      pcam <- apply(pcam[, seq_len(min(ncol(pcam), 10))], 2, function(x) round(x, 2))
       pcam
     })
 
@@ -183,7 +185,7 @@ pca <- function(id, eselist) {
         fraction_explained <- calculatePCAFractionExplained()
         colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
 
-        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[1:input$n_loadings]]))
+        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[seq_len(input$n_loadings)]]))
 
         # Also return a table with the loadings converted to fractions
 
@@ -272,7 +274,7 @@ runPCA <- function(matrix, do_log = TRUE) {
 
 compilePCAData <- function(matrix, ntop = NULL) {
   if (is.null(ntop)) {
-    select <- 1:nrow(matrix)
+    select <- seq_len(nrow(matrix))
   } else {
     select <- selectVariableGenes(matrix = matrix, ntop = ntop)
   }
