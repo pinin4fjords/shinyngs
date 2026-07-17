@@ -28,7 +28,7 @@ This function checks if the provided index string represents valid assays in the
 The function can handle index strings that are comma-separated integers or assay names.
 }
 \examples{
-assay_data_example <- list(a = matrix(1:9, ncol=3), b = matrix(1:12, ncol=3), c = matrix(1:6, ncol=2))
+assay_data_example <- list(a = matrix(1:9, ncol = 3), b = matrix(1:12, ncol = 3), c = matrix(1:6, ncol = 2))
 valid_assays1 <- validate_indices(assay_data_example, "1,2")
 valid_assays2 <- validate_indices(assay_data_example, "a,b")
 

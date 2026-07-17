@@ -338,7 +338,7 @@ unpack.list <- function(object) {
 
 interleaveColumns <- function(mat1, mat2) {
   out <- cbind(mat1, mat2)
-  out[, unlist(lapply(1:ncol(mat1), function(n) c(n, n + ncol(mat1))))]
+  out[, unlist(lapply(seq_len(ncol(mat1)), function(n) c(n, n + ncol(mat1))))]
 }
 
 #' Return a usable citation string for a package
@@ -562,7 +562,7 @@ eselistFromYAML <- function(configfile) {
 #' - a path to a file (e.g. the table output from roast)
 #' - a named list with elements "up" and "down" with paths to files (e.g.
 #'  corresponding to gsea up-regulated and down-regulated output tables).
-#'  
+#'
 #'  The two tables from GSEA output will be combined into a single data frame. A column "Direction" with
 #'  values "Up" and "Down" will be added.
 #'
@@ -575,14 +575,16 @@ read_enrichment_file <- function(contrast_spec) {
   }
 
   read_one <- function(path) {
-    read.csv(path, sep = getSeparator(path), check.names = FALSE, 
-             stringsAsFactors = FALSE, row.names = 1)
+    read.csv(path,
+      sep = getSeparator(path), check.names = FALSE,
+      row.names = 1
+    )
   }
-  
+
   if (length(contrast_spec) == 1) {
     return(read_one(contrast_spec))
   }
-  
+
   if (length(contrast_spec) == 2) {
     # This is useful for GSEA output, that splits up and down in two tsv files.
     # We read both files and set the direction
@@ -645,8 +647,7 @@ eselistfromConfig <-
       annotation <-
         read_metadata(
           exp$annotation$file,
-          id_col = exp$annotation$id,
-          stringsAsFactors = FALSE
+          id_col = exp$annotation$id
         )
 
       # Read the expression data
@@ -723,7 +724,7 @@ eselistfromConfig <-
       )
 
       if ("read_reports" %in% names(exp)) {
-        ese_list$read_reports <- lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE, stringsAsFactors = FALSE))
+        ese_list$read_reports <- lapply(exp$read_reports, function(rrfile) read.csv(rrfile, row.names = 1, check.names = FALSE))
       }
 
       if ("gene_set_analyses" %in% names(exp)) {
@@ -1010,16 +1011,16 @@ validateFormulaBasedContrast <- function(contrast_id,
 
 #' Read and validate a contrasts file against sample metadata
 #'
-#' Checks: 
-#' 1. No duplicate contrast IDs. Ensure that the required columns (variable, reference, target) are present.  
+#' Checks:
+#' 1. No duplicate contrast IDs. Ensure that the required columns (variable, reference, target) are present.
 #' 2. Values in the contrast variable column exist as column names in the sample metadata.
 #' 3. If blocking factors are supplied, checks that they are present in the sample metadata.
 #' 4. Design matrix is full rank.
 #' 5. Warn about continuous covariates (e.g. numeric patient IDs treated as continuous).
 #' 6. Values of specified columns don't contain special characters.
-#' 7. Verify that the specified reference and target values exist in the corresponding sample metadata column.  
+#' 7. Verify that the specified reference and target values exist in the corresponding sample metadata column.
 #' 8. Issue a warning if the reference and target levels are identical.
-#' 
+#'
 #' @param filename Contrasts file
 #' @param samples Data frame of sample information
 #' @param variable_column Column in contrasts file referencing sample sheet
@@ -1040,221 +1041,218 @@ validateFormulaBasedContrast <- function(contrast_id,
 
 read_contrasts <-
   function(filename,
-          samples,
-          variable_column = "variable",
-          reference_column = "reference",
-          target_column = "target",
-          blocking_column = "blocking",
-          convert_to_list = FALSE,
-          validate_design = TRUE) {
-
-  # Read the contrasts depending on the file format (CSV or YAML)
-  if (grepl("\\.csv$", filename)) {
-    contrasts <- read_metadata(filename)
-    # Check for duplicates in constrasts id
-    if (any(duplicated(contrasts$id))) {
-      stop("Duplicate contrast ids found in CSV contrasts file.")
-    }
-    contrast_cols <- c(variable_column, reference_column, target_column)
-    if (!blocking_column %in% names(contrasts)) {
-      contrasts[[blocking_column]] <- NA
-    }
-
-    # Check contrast headers are as expected
-    if (!all(contrast_cols %in% colnames(contrasts))) {
-      stop(paste("Contrasts file must contain all of", paste(contrast_cols, collapse = ", ")))
-    }
-
-  } else if (grepl("\\.ya?ml$", filename)) {
-    contrasts_yaml <- yaml::read_yaml(filename)
-
-    if (is.null(contrasts_yaml$contrasts)) {
-      stop("YAML file must contain a 'contrasts' section.")
-    }
-
-    # Parse YAML contrasts into a data frame
-    contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
-    stopifnot(!is.null(x$id))  # Require that each contrast has an 'id'
-
-    row <- data.frame(
-      id = x$id,
-      variable = NA, reference = NA, target = NA,
-      blocking = NA,
-      exclude_samples_col = NA,
-      exclude_samples_values = NA,
-      formula = NA,
-      make_contrasts_str = NA,
-      stringsAsFactors = FALSE
-    )
-
-    # A contrast can be defined in two ways:
-    #
-    # 1 . Specifying a column in the sample sheet, and two values from that column which define two groups of samples to compare. Tools using a contrast defined in this way would need to generate a model and contrast using that information.
-    # 2. Specifying the formula and contrast string explicitly. Tools using those contrasts can then pass these directly to function of suites such as DESeq2. 
-
-    if (!is.null(x$comparison)) {
-      if (!is.null(x$formula) || !is.null(x$make_contrasts_str)) {
-        stop(sprintf("Contrast id '%s' with 'comparison' must not have 'formula' or 'make_contrasts_str'.", x$id))
+           samples,
+           variable_column = "variable",
+           reference_column = "reference",
+           target_column = "target",
+           blocking_column = "blocking",
+           convert_to_list = FALSE,
+           validate_design = TRUE) {
+    # Read the contrasts depending on the file format (CSV or YAML)
+    if (grepl("\\.csv$", filename)) {
+      contrasts <- read_metadata(filename)
+      # Check for duplicates in constrasts id
+      if (any(duplicated(contrasts$id))) {
+        stop("Duplicate contrast ids found in CSV contrasts file.")
+      }
+      contrast_cols <- c(variable_column, reference_column, target_column)
+      if (!blocking_column %in% names(contrasts)) {
+        contrasts[[blocking_column]] <- NA
       }
 
-      fields <- setNames(rep(NA, 3), c("variable", "reference", "target"))
-      fields[names(fields)[seq_along(x$comparison)]] <- x$comparison
+      # Check contrast headers are as expected
+      if (!all(contrast_cols %in% colnames(contrasts))) {
+        stop(paste("Contrasts file must contain all of", paste(contrast_cols, collapse = ", ")))
+      }
+    } else if (grepl("\\.ya?ml$", filename)) {
+      contrasts_yaml <- yaml::read_yaml(filename)
 
-      if (any(is.na(fields)) || any(fields == "")) {
-        stop(sprintf("Contrast id '%s' must provide non-empty 'variable', 'reference', and 'target' fields.", x$id))
+      if (is.null(contrasts_yaml$contrasts)) {
+        stop("YAML file must contain a 'contrasts' section.")
       }
 
-      row$variable <- fields["variable"]
-      row$reference <- fields["reference"]
-      row$target <- fields["target"]
+      # Parse YAML contrasts into a data frame
+      contrasts <- do.call(rbind, lapply(contrasts_yaml$contrasts, function(x) {
+        stopifnot(!is.null(x$id)) # Require that each contrast has an 'id'
 
-      if (!is.null(x$blocking_factors)) {
-        row$blocking <- paste(x$blocking_factors, collapse = ";")
-      }
-
-    } else if (!is.null(x$formula)) {
-      if (is.null(x$make_contrasts_str) || !is.null(x$blocking_factors)) {
-        stop(sprintf("Contrast id '%s' with 'formula' must have 'make_contrasts_str' and no 'blocking_factors'.", x$id))
-      }
-
-      row$formula <- x$formula
-      row$make_contrasts_str <- x$make_contrasts_str
-
-    } else {
-      stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
-    }
-
-    if (!is.null(x$exclude_samples_col) || !is.null(x$exclude_samples_values)) {
-      if (is.null(x$exclude_samples_col) || is.null(x$exclude_samples_values)) {
-        stop(sprintf("Contrast id '%s' must provide both 'exclude_samples_col' and 'exclude_samples_values'.", x$id))
-      }
-
-      row$exclude_samples_col <- x$exclude_samples_col
-      row$exclude_samples_values <- paste(x$exclude_samples_values, collapse = ";")
-    }
-
-    row
-  }))
-    if (any(duplicated(contrasts$id))) {
-      stop("Duplicate contrast ids found in YAML contrasts file.")
-    }
-  } else {
-    stop("Invalid file format. Please provide a CSV or YAML file.")
-  }
-
-  # Check contrast content is appropriate to sample sheet
-  variables_without_na <- na.omit(contrasts$variable)
-  if (length(variables_without_na) > 0) {
-    success <- checkListIsSubset(variables_without_na, colnames(samples), "contrast variables", "sample metadata")
-  }
-  # Check blocking variables, where supplied
-  blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
-  blocking <- blocking[!is.na(blocking)]
-  if (length(blocking) > 0) {
-    success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
-  }
-  if ("exclude_samples_col" %in% colnames(contrasts)) {
-    exclude_cols <- na.omit(contrasts$exclude_samples_col)
-    if (length(exclude_cols) > 0) {
-      success <- checkListIsSubset(exclude_cols, colnames(samples), "exclude sample columns", "sample metadata")
-    }
-  }
-
-  # Ensure reference and target are valid for their variable
-  for (i in 1:nrow(contrasts)) {
-    blocking_vars <- simpleSplit(contrasts[[blocking_column]][i], ";")
-    design_cols <- character(0)
-
-    # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
-    # For formula-based contrasts, extract variables from the formula itself.
-    if (validate_design) {
-      # Filter samples if exclude columns are specified for this contrast
-      contrast_samples <- samples
-      if ("exclude_samples_col" %in% colnames(contrasts) && "exclude_samples_values" %in% colnames(contrasts)) {
-        if (!is.na(contrasts$exclude_samples_col[i]) && !is.na(contrasts$exclude_samples_values[i])) {
-          exclude_col <- contrasts$exclude_samples_col[i]
-          exclude_vals <- simpleSplit(contrasts$exclude_samples_values[i], ";")
-          contrast_samples <- samples[!samples[[exclude_col]] %in% exclude_vals, , drop = FALSE]
-        }
-      }
-
-      if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
-        design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
-        success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
-        mm <- fixedEffectsModelMatrix(contrasts$formula[i], contrast_samples)
-
-        validateFormulaBasedContrast(
-          contrast_id = contrasts[i, "id"],
-          contrast_formula = contrasts$formula[i],
-          contrast_string = contrasts$make_contrasts_str[i],
-          model_matrix = mm,
-          samples = contrast_samples
+        row <- data.frame(
+          id = x$id,
+          variable = NA, reference = NA, target = NA,
+          blocking = NA,
+          exclude_samples_col = NA,
+          exclude_samples_values = NA,
+          formula = NA,
+          make_contrasts_str = NA
         )
-      } else {
-        design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
-        mm <- model.matrix(~ . - 1, data = contrast_samples[, design_cols, drop = FALSE])
-      }
 
-      design_matrix <- contrast_samples[, design_cols, drop = FALSE]
+        # A contrast can be defined in two ways:
+        #
+        # 1 . Specifying a column in the sample sheet, and two values from that column which define two groups of samples to compare. Tools using a contrast defined in this way would need to generate a model and contrast using that information.
+        # 2. Specifying the formula and contrast string explicitly. Tools using those contrasts can then pass these directly to function of suites such as DESeq2.
 
-      # Ensure there are no NA values in the design matrix.
-      if (any(is.na(design_matrix))) {
-        stop("NA values found in one or more design matrix columns.")
-      }
+        if (!is.null(x$comparison)) {
+          if (!is.null(x$formula) || !is.null(x$make_contrasts_str)) {
+            stop(sprintf("Contrast id '%s' with 'comparison' must not have 'formula' or 'make_contrasts_str'.", x$id))
+          }
 
-      # Check that the design matrix is full rank.
-      if (qr(mm)$rank < ncol(mm)) {
-        stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
-      }
+          fields <- setNames(rep(NA, 3), c("variable", "reference", "target"))
+          fields[names(fields)[seq_along(x$comparison)]] <- x$comparison
 
-      # Warn about continuous covariates in the design matrix columns.
-      for (col in design_cols) {
-        if (is.numeric(samples[[col]])) {
-          warning(paste("Column", col, "is numeric and may be treated as continuous."))
+          if (any(is.na(fields)) || any(fields == "")) {
+            stop(sprintf("Contrast id '%s' must provide non-empty 'variable', 'reference', and 'target' fields.", x$id))
+          }
+
+          row$variable <- fields["variable"]
+          row$reference <- fields["reference"]
+          row$target <- fields["target"]
+
+          if (!is.null(x$blocking_factors)) {
+            row$blocking <- paste(x$blocking_factors, collapse = ";")
+          }
+        } else if (!is.null(x$formula)) {
+          if (is.null(x$make_contrasts_str) || !is.null(x$blocking_factors)) {
+            stop(sprintf("Contrast id '%s' with 'formula' must have 'make_contrasts_str' and no 'blocking_factors'.", x$id))
+          }
+
+          row$formula <- x$formula
+          row$make_contrasts_str <- x$make_contrasts_str
+        } else {
+          stop(sprintf("Contrast id '%s' must provide either 'comparison' or 'formula' + 'make_contrasts_str'.", x$id))
         }
-      }
 
-      # Check that values in design matrix columns do not contain disallowed special characters.
-      for (col in design_cols) {
-        vals <- as.character(samples[[col]])
-        for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
-          if (any(grepl(sc, vals))) {
-            warning(paste("Column", col, "contains special character", sc,
-                          "which may cause issues downstream."))
+        if (!is.null(x$exclude_samples_col) || !is.null(x$exclude_samples_values)) {
+          if (is.null(x$exclude_samples_col) || is.null(x$exclude_samples_values)) {
+            stop(sprintf("Contrast id '%s' must provide both 'exclude_samples_col' and 'exclude_samples_values'.", x$id))
+          }
+
+          row$exclude_samples_col <- x$exclude_samples_col
+          row$exclude_samples_values <- paste(x$exclude_samples_values, collapse = ";")
+        }
+
+        row
+      }))
+      if (any(duplicated(contrasts$id))) {
+        stop("Duplicate contrast ids found in YAML contrasts file.")
+      }
+    } else {
+      stop("Invalid file format. Please provide a CSV or YAML file.")
+    }
+
+    # Check contrast content is appropriate to sample sheet
+    variables_without_na <- na.omit(contrasts$variable)
+    if (length(variables_without_na) > 0) {
+      success <- checkListIsSubset(variables_without_na, colnames(samples), "contrast variables", "sample metadata")
+    }
+    # Check blocking variables, where supplied
+    blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
+    blocking <- blocking[!is.na(blocking)]
+    if (length(blocking) > 0) {
+      success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+    }
+    if ("exclude_samples_col" %in% colnames(contrasts)) {
+      exclude_cols <- na.omit(contrasts$exclude_samples_col)
+      if (length(exclude_cols) > 0) {
+        success <- checkListIsSubset(exclude_cols, colnames(samples), "exclude sample columns", "sample metadata")
+      }
+    }
+
+    # Ensure reference and target are valid for their variable
+    for (i in seq_len(nrow(contrasts))) {
+      blocking_vars <- simpleSplit(contrasts[[blocking_column]][i], ";")
+      design_cols <- character(0)
+
+      # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
+      # For formula-based contrasts, extract variables from the formula itself.
+      if (validate_design) {
+        # Filter samples if exclude columns are specified for this contrast
+        contrast_samples <- samples
+        if ("exclude_samples_col" %in% colnames(contrasts) && "exclude_samples_values" %in% colnames(contrasts)) {
+          if (!is.na(contrasts$exclude_samples_col[i]) && !is.na(contrasts$exclude_samples_values[i])) {
+            exclude_col <- contrasts$exclude_samples_col[i]
+            exclude_vals <- simpleSplit(contrasts$exclude_samples_values[i], ";")
+            contrast_samples <- samples[!samples[[exclude_col]] %in% exclude_vals, , drop = FALSE]
+          }
+        }
+
+        if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
+          design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
+          success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
+          mm <- fixedEffectsModelMatrix(contrasts$formula[i], contrast_samples)
+
+          validateFormulaBasedContrast(
+            contrast_id = contrasts[i, "id"],
+            contrast_formula = contrasts$formula[i],
+            contrast_string = contrasts$make_contrasts_str[i],
+            model_matrix = mm,
+            samples = contrast_samples
+          )
+        } else {
+          design_cols <- unique(na.omit(c(contrasts[[variable_column]][i], blocking_vars)))
+          mm <- model.matrix(~ . - 1, data = contrast_samples[, design_cols, drop = FALSE])
+        }
+
+        design_matrix <- contrast_samples[, design_cols, drop = FALSE]
+
+        # Ensure there are no NA values in the design matrix.
+        if (any(is.na(design_matrix))) {
+          stop("NA values found in one or more design matrix columns.")
+        }
+
+        # Check that the design matrix is full rank.
+        if (qr(mm)$rank < ncol(mm)) {
+          stop(paste("Design matrix is not full rank.", "Model matrix columns:", paste(colnames(mm), collapse = ", "), "\n"))
+        }
+
+        # Warn about continuous covariates in the design matrix columns.
+        for (col in design_cols) {
+          if (is.numeric(samples[[col]])) {
+            warning(paste("Column", col, "is numeric and may be treated as continuous."))
+          }
+        }
+
+        # Check that values in design matrix columns do not contain disallowed special characters.
+        for (col in design_cols) {
+          vals <- as.character(samples[[col]])
+          for (sc in c("/", "\\\\")) { # Default special characters: c("/", "\\\\")
+            if (any(grepl(sc, vals))) {
+              warning(paste(
+                "Column", col, "contains special character", sc,
+                "which may cause issues downstream."
+              ))
+            }
           }
         }
       }
-    }
 
-    var <- contrasts[i, variable_column]
-    ref <- contrasts[i, reference_column]
-    tgt <- contrasts[i, target_column]
+      var <- contrasts[i, variable_column]
+      ref <- contrasts[i, reference_column]
+      tgt <- contrasts[i, target_column]
 
-    # Only check values if both reference and target are present
-    if (!is.na(ref) && !is.na(tgt)) {
-      success <- checkListIsSubset(ref, samples[[var]], "contrast levels", "sample metadata variable")
-      success <- checkListIsSubset(tgt, samples[[var]], "contrast levels", "sample metadata variable")
+      # Only check values if both reference and target are present
+      if (!is.na(ref) && !is.na(tgt)) {
+        success <- checkListIsSubset(ref, samples[[var]], "contrast levels", "sample metadata variable")
+        success <- checkListIsSubset(tgt, samples[[var]], "contrast levels", "sample metadata variable")
 
-      if (ref == tgt) {
-        warning(sprintf("Contrast id '%s' has identical reference and target levels.", contrasts[i, "id"]))
+        if (ref == tgt) {
+          warning(sprintf("Contrast id '%s' has identical reference and target levels.", contrasts[i, "id"]))
+        }
       }
     }
-  }
 
-  # Convert contrasts to a list if requested
-  if (convert_to_list) {
-    contrasts <- apply(contrasts, 1, function(x) {
-      conlist <- split(unname(x), names(x))[names(x)]
-      rename <- c('variable' = 'Variable', 'reference' = 'Group.1', 'target' = 'Group.2')
-      rename_ind <- match(names(rename), names(conlist))
-      names(conlist)[rename_ind] <- rename
-      nonempty <- unlist(lapply(conlist, function(y) !(is.na(y) || is.null(y) || grepl("^\\s*$", y))))
-      conlist[nonempty]
-    })
-  }
+    # Convert contrasts to a list if requested
+    if (convert_to_list) {
+      contrasts <- apply(contrasts, 1, function(x) {
+        conlist <- split(unname(x), names(x))[names(x)]
+        rename <- c("variable" = "Variable", "reference" = "Group.1", "target" = "Group.2")
+        rename_ind <- match(names(rename), names(conlist))
+        names(conlist)[rename_ind] <- rename
+        nonempty <- unlist(lapply(conlist, function(y) !(is.na(y) || is.null(y) || grepl("^\\s*$", y))))
+        conlist[nonempty]
+      })
+    }
 
-  contrasts
-}
+    contrasts
+  }
 
 
 #' Read tables of differential statistics
@@ -1339,7 +1337,7 @@ compile_contrast_data <-
       df <- do.call(cbind, lapply(contrast_stats, function(x) {
         x[, source, drop = FALSE]
       }))
-      names(df) <- paste0("V", 1:ncol(df))
+      names(df) <- paste0("V", seq_len(ncol(df)))
       rownames(df) <- contrast_stats[[1]][[feature_id_column]]
       df
     }
@@ -1483,7 +1481,6 @@ validate_inputs <- function(samples_metadata,
 
 # Function to check if a comma-separated string can be parsed to a positive integer vector
 is_valid_positive_integer_vector <- function(string) {
-
   # as.integer() will truncate floats without throwing an error and also
   # accept negatives, so check if string contains NOT 0-9 or comma
   if (grepl("[^0-9,]", string)) {
@@ -1517,9 +1514,7 @@ is_valid_positive_integer_vector <- function(string) {
 #' transformed_mat1 <- cond_log2_transform_matrix(mat, should_transform = TRUE)
 #' transformed_mat2 <- cond_log2_transform_matrix(mat, should_transform = NULL, threshold = 40)
 #' transformed_mat3 <- cond_log2_transform_matrix(mat, rmzeros = TRUE)
-
 cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, threshold = 30, rmzeros = FALSE, small_value = 1, reverse = FALSE) {
-
   # Determine if transformation is needed
   if (is.null(should_transform)) {
     if (reverse) {
@@ -1534,7 +1529,6 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
     if (reverse) {
       return(2^(matrix_data))
     } else {
-
       # Handle zeros before any log transform - either removing them or applying a small minimum
       matrix_data[matrix_data == 0] <- if (rmzeros) NA else small_value
 
@@ -1558,14 +1552,13 @@ cond_log2_transform_matrix <- function(matrix_data, should_transform = NULL, thr
 #' @return A vector of valid indices (either as integers or assay names).
 #'
 #' @examples
-#' assay_data_example <- list(a = matrix(1:9, ncol=3), b = matrix(1:12, ncol=3), c = matrix(1:6, ncol=2))
+#' assay_data_example <- list(a = matrix(1:9, ncol = 3), b = matrix(1:12, ncol = 3), c = matrix(1:6, ncol = 2))
 #' valid_assays1 <- validate_indices(assay_data_example, "1,2")
 #' valid_assays2 <- validate_indices(assay_data_example, "a,b")
 #'
 #' @export
 
 validate_indices <- function(assay_data, index_string, invert_assays = FALSE, prettify_names = TRUE) {
-
   indices_are_names <- TRUE
 
   if (is_valid_positive_integer_vector(index_string)) {
@@ -1578,14 +1571,14 @@ validate_indices <- function(assay_data, index_string, invert_assays = FALSE, pr
     }
   }
 
-  valid_indices <- c(1:length(assay_data), names(assay_data))
+  valid_indices <- c(seq_along(assay_data), names(assay_data))
   invalid_indices <- indices[!indices %in% valid_indices]
   if (length(invalid_indices) > 0) {
     stop(
       "Invalid assays: ",
-      paste(invalid_indices, collapse=', '),
+      paste(invalid_indices, collapse = ", "),
       ", valid indices are:",
-      paste(valid_indices, collapse=', ')
+      paste(valid_indices, collapse = ", ")
     )
   }
 
@@ -1593,7 +1586,7 @@ validate_indices <- function(assay_data, index_string, invert_assays = FALSE, pr
     if (indices_are_names) {
       indices <- names(assay_data)[!names(assay_data) %in% indices]
     } else {
-      indices <- setdiff(1:length(assay_data), indices)
+      indices <- setdiff(seq_along(assay_data), indices)
     }
   }
 
@@ -1617,9 +1610,8 @@ validate_indices <- function(assay_data, index_string, invert_assays = FALSE, pr
 #' @export
 
 cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, reverse = FALSE, prettify_names = TRUE, invert_assays = FALSE) {
-
-  indices_to_transform = c()
-  should_transform = FALSE
+  indices_to_transform <- c()
+  should_transform <- FALSE
 
   # Check if log2_assays is null
   if (is.null(log2_assays)) {
@@ -1642,11 +1634,11 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
 
 
 #' Build path to the enrichment results
-#' 
+#'
 #' @details
-#' 
+#'
 #' The template accepts the following:
-#' 
+#'
 #' \describe{
 #'   \item{\code{\{contrast_name\}}}{Will be replaced by \code{contrast_info$id} argument}
 #'   \item{\code{\{geneset_type\}}}{Will be replaced by the \code{geneset_type} argument}
@@ -1666,11 +1658,11 @@ cond_log2_transform_assays <- function(assay_data, log2_assays, threshold = 30, 
 #' @examples
 #' build_enrichment_path(
 #'   template = "./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv",
-#'   contrast_info = list(id="disease_vs_ctrl", reference="control", target="disease"),
+#'   contrast_info = list(id = "disease_vs_ctrl", reference = "control", target = "disease"),
 #'   geneset_type = "m2.cp.v2024.1.Mm.entrez",
 #'   direction = "up"
 #' )
-#' 
+#'
 build_enrichment_path <- function(template, contrast_info, geneset_type, direction = NULL) {
   path <- template
   path <- gsub("{contrast_name}", contrast_info$id, path, fixed = TRUE)
@@ -1690,8 +1682,12 @@ build_enrichment_path <- function(template, contrast_info, geneset_type, directi
 #' @returns The enrichment tool as a string, based on whether "NOM p-val" is a column ("gsea") or
 #' either "p value" or "PValue" are found ("roast")
 detect_enrichment_tool <- function(gst) {
-  if ("NOM p-val" %in% colnames(gst)) return("gsea")
-  if (any(c("p value", "PValue") %in% colnames(gst))) return("roast")
+  if ("NOM p-val" %in% colnames(gst)) {
+    return("gsea")
+  }
+  if (any(c("p value", "PValue") %in% colnames(gst))) {
+    return("roast")
+  }
   stop("Could not detect enrichment tool from column names")
 }
 
@@ -1728,8 +1724,10 @@ get_enrichment_mapping <- function(gst, gs_tool) {
     mappings[["roast"]][["pvalue"]] <- "PValue"
   }
   if (!is.character(gs_tool) || length(gs_tool) != 1 || !gs_tool %in% names(mappings)) {
-    stop("Invalid enrichment tool: ", paste(gs_tool, collapse = ", "),
-         ". Use 'gsea', 'roast', or a mapping naming ", paste(enrichment_mapping_fields, collapse = "/"), ".")
+    stop(
+      "Invalid enrichment tool: ", paste(gs_tool, collapse = ", "),
+      ". Use 'gsea', 'roast', or a mapping naming ", paste(enrichment_mapping_fields, collapse = "/"), "."
+    )
   }
   mappings[[gs_tool]]
 }
@@ -1749,7 +1747,7 @@ clean_enrichment_table <- function(gst, gs_tool) {
   if (identical(gs_tool, "gsea")) {
     # gsea tsv files have two useless columns that can be removed:
     cols_to_remove <- c("GS<br> follow link to MSigDB", "GS DETAILS")
-    gst <- gst[ , !(colnames(gst) %in% cols_to_remove), drop=FALSE]
+    gst <- gst[, !(colnames(gst) %in% cols_to_remove), drop = FALSE]
   }
   gst
 }

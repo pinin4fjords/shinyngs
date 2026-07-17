@@ -469,8 +469,7 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
       xlab = xlab,
       ylab = ylab,
       zlab = zlab
-    ) %>%
-    config(showLink = TRUE)
+    )
 }
 
 #' Make scatterplots with \code{ggplot()} or \code{scatterplot3d}

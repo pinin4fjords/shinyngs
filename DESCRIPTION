@@ -44,10 +44,12 @@ Suggests:
     DEXSeq,
     Gviz,
     knitr,
+    lintr,
     markdown,
     optparse,
     rmarkdown,
     rsconnect,
+    styler,
     testthat (>= 3.0.0),
     zhangneurons
 Remotes:

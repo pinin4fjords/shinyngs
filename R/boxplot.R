@@ -287,8 +287,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby, palette = NULL, ex
             x = 0.5,
             y = -0.3
           )
-        ) %>%
-        config(showLink = TRUE),
+        ),
       .keep = TRUE
     ) %>%
     subplot(
@@ -407,8 +406,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
             x = 0.5,
             y = -0.2
           )
-        ) %>%
-        config(showLink = TRUE),
+        ),
       .keep = TRUE
     ) %>%
     subplot(
@@ -455,7 +453,7 @@ plotly_quartiles <- function(matrix, labels = rownames(matrix), expressiontype =
     outlier_rows <- which(y > quantiles["75%", x] + iqrs[[x]] * whisker_distance | y < quantiles["25%", x] - iqrs[[x]] * whisker_distance)
     ol <- y[outlier_rows]
     if (length(ol) > 0) {
-      data.frame(x = x, y = ol, label = labels[outlier_rows], stringsAsFactors = FALSE)
+      data.frame(x = x, y = ol, label = labels[outlier_rows])
     } else {
       NULL
     }

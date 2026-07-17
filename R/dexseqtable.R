@@ -155,7 +155,7 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
       ese <- getExperiment()
 
       withProgress(message = "Making DEU table for each contrast", value = 0, {
-        deu_tables <- lapply(1:length(ese@dexseq_results), function(contrast) {
+        deu_tables <- lapply(seq_along(ese@dexseq_results), function(contrast) {
           d <- ese@dexseq_results[[contrast]]
 
           # Add the mean values for the counts

@@ -150,8 +150,7 @@ sample_metadata <- read_metadata(
 feature_metadata <-
   read_metadata(
     opt$feature_metadata,
-    id_col = opt$feature_id_col,
-    stringsAsFactors = FALSE
+    id_col = opt$feature_id_col
   )
 
 # Read any provided expression matrices
@@ -167,7 +166,7 @@ assay_files <-
 
 # Valid samples are those with values in the specified sample metadata field
 
-valid_samples <- Filter(function(x) !is.na(x) && x != '' && !is.null(x), sample_metadata[[opt$contrast_variable]])
+valid_samples <- Filter(function(x) !is.na(x) && x != "" && !is.null(x), sample_metadata[[opt$contrast_variable]])
 sample_metadata <- sample_metadata[sample_metadata[[opt$contrast_variable]] %in% valid_samples, ]
 
 # Expect that 'variance stabilised' expression profiles will already be logged
@@ -185,9 +184,9 @@ assay_data <- lapply(assay_files, function(x) {
 
 # Check an indicated final assay is among what we have
 
-if (is.null(opt$final_assay)){
+if (is.null(opt$final_assay)) {
   final_assay <- names(assay_data)[length(assay_data)]
-}else{
+} else {
   final_assay <- opt$final_assay
   if (!final_assay %in% names(assay_data)) {
     if (!grepl("\\D", final_assay)) {
@@ -204,18 +203,18 @@ assay_data <- cond_log2_transform_assays(assay_data, log2_assays = opt$log2_assa
 # Prettify assay names
 names(assay_data) <- prettifyVariablename(names(assay_data))
 final_assay <- prettifyVariablename(final_assay)
-                        
+
 # Create output paths
 
 print("Creating output paths...")
 
-png_outdir <- file.path(opt$outdir, 'png')
-html_outdir <- file.path(opt$outdir, 'html') 
+png_outdir <- file.path(opt$outdir, "png")
+html_outdir <- file.path(opt$outdir, "html")
 
 dir.create(path = png_outdir, recursive = TRUE, showWarnings = FALSE)
 
-if (opt$write_html){
-    dir.create(path = html_outdir, recursive = TRUE, showWarnings = FALSE)
+if (opt$write_html) {
+  dir.create(path = html_outdir, recursive = TRUE, showWarnings = FALSE)
 }
 
 # Add symbols to matrix rows for display purposes
@@ -234,7 +233,7 @@ assay_data <- lapply(assay_data, function(x) {
 
 print("Writing boxplots...")
 
-if (opt$write_html){
+if (opt$write_html) {
   print("... interactive")
   interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
   htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
@@ -254,7 +253,7 @@ dev.off()
 
 print("Writing density plots...")
 
-if (opt$write_html){
+if (opt$write_html) {
   print("...interactive")
   interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
   htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
@@ -288,7 +287,6 @@ ncats <- length(unique(plotdata$colorby))
 plot_types <- list("2" = "scatter", "3" = "scatter3d")
 
 for (d in names(plot_types)) {
-
   # Default plot args whatever we're doing
 
   plot_args <- list(
@@ -316,7 +314,7 @@ for (d in names(plot_types)) {
   print(p)
   dev.off()
 
-  if (opt$write_html){
+  if (opt$write_html) {
     print(paste0("...interactive (", d, "d)"))
     interactive_pcaplot <- do.call("plotly_scatterplot", plot_args)
     htmlwidgets::saveWidget(plotly::as_widget(interactive_pcaplot), file.path(html_outdir, paste0("pca", d, "d.html")), selfcontained = TRUE)
@@ -359,7 +357,7 @@ plotdata <-
     groupby = opt$contrast_variable
   )
 
-if (! is.null(plotdata)){
+if (!is.null(plotdata)) {
   mad_plot_args <- list(
     x = plotdata$group,
     y = plotdata$mad,
@@ -374,7 +372,7 @@ if (! is.null(plotdata)){
   )
 
   print("MAD correlation plots...")
-  if (opt$write_html){
+  if (opt$write_html) {
     print("...interactive")
     interactive_madplot <- do.call(plotly_scatterplot, mad_plot_args)
     htmlwidgets::saveWidget(plotly::as_widget(interactive_madplot), file.path(html_outdir, "mad_correlation.html"), selfcontained = TRUE)

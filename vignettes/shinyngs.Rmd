@@ -355,7 +355,7 @@ Many displays are more useful if they can be limited to biologically meaningful 
 The constructor for `ExploratorySummarizedExperimentList` assumes that gene sets are represented by the ID type specified in the `gene_set_id_type_slot`, and that they are specified as a list of `GeneSetCollection`s. You might generate such a list as follows:
 
 ```{r eval=FALSE}
-genesets_files = list(
+genesets_files <- list(
   'KEGG' =  "/path/to/MSigDB/c2.cp.kegg.v5.0.entrez.gmt",
   'MSigDB canonical pathway' = "/path/to/MSigDB/c2.cp.v5.0.entrez.gmt",
   'GO biological process' = "/path/to/MSigDB/c5.bp.v5.0.entrez.gmt",

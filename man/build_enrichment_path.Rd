@@ -36,7 +36,7 @@ The template accepts the following:
 \examples{
 build_enrichment_path(
   template = "./{contrast_name}/{geneset_type}/report_for_{target|reference}.csv",
-  contrast_info = list(id="disease_vs_ctrl", reference="control", target="disease"),
+  contrast_info = list(id = "disease_vs_ctrl", reference = "control", target = "disease"),
   geneset_type = "m2.cp.v2024.1.Mm.entrez",
   direction = "up"
 )

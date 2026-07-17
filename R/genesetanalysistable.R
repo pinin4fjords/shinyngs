@@ -247,7 +247,7 @@ genesetanalysistable <- function(id, eselist) {
 
       # Move the row names to an actual column
 
-      gst <- data.frame(gst, check.names = FALSE, stringsAsFactors = FALSE)
+      gst <- data.frame(gst, check.names = FALSE)
       gst$gene_set_id <- rownames(gst)
       gst <- gst[, c("gene_set_id", colnames(gst)[colnames(gst) != "gene_set_id"]), drop = FALSE]
 
@@ -283,7 +283,7 @@ genesetanalysistable <- function(id, eselist) {
 
       # Add links, but use a prettified version of the gene set name that re-flows to take up less space
 
-      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id), stringsAsFactors = FALSE))
+      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id)))
       colnames(gst) <- prettifyVariablename(colnames(gst))
 
       gst
