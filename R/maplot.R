@@ -18,13 +18,18 @@ maplot_modal <- list(id = "maplot", title = "MA plots")
 #' @keywords shiny
 #'
 #' @examples
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
 #' maplotInput("myid", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("maplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("maplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 maplotInput <- function(id, eselist) {
   ns <- NS(id)
@@ -74,9 +79,14 @@ maplotInput <- function(id, eselist) {
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("maplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("maplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 maplotOutput <- function(id) {
   ns <- NS(id)
@@ -102,13 +112,17 @@ maplotOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' maplot("maplot", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("maplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   maplot("maplot", eselist)
+#'   app <- prepareApp("maplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 maplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {

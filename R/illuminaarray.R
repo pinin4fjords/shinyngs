@@ -20,17 +20,7 @@
 illuminaarrayInput <- function(id, eselist) {
   ns <- NS(id)
 
-  navbar_menus <- list(id = ns("illuminaarray"), title = paste0("Illumina expression array explorer: ", eselist@title), windowTitle = eselist@title, tabPanel("Home",
-    sidebarLayout(sidebarPanel(column(12,
-      offset = 0, p(HTML("This is an interface designed to facilitate downstream RNA-seq (and similar) analysis. It is generated using the Shinyngs package, which makes extensive use of <a href='http://shiny.rstudio.com/'>Shiny</a> and related packages.")),
-      p(HTML(paste0(icon("github"), "&nbsp;Please report any bugs you see to <a href='https://github.com/pinin4fjords/shinyngs'>Shinyngs's Github page</a>"))),
-      p(HTML(paste0(icon("chrome"), "&nbsp;This app is best viewed with the Chrome browser.")))
-    ), width = 3), mainPanel(fluidRow(column(12,
-      offset = 0,
-      h2(eselist@title), h3(eselist@author), HTML(eselist@description)
-    )), width = 9)),
-    icon = icon("house")
-  ), navbarMenu("Sample data", tabPanel("Experiment",
+  navbar_menus <- list(id = ns("illuminaarray"), title = paste0("Illumina expression array explorer: ", eselist@title), windowTitle = eselist@title, homeTab(ns, eselist, "expression array"), navbarMenu("Sample data", tabPanel("Experiment", value = "Experiment",
     sidebarLayout(sidebarPanel(experimenttableInput(ns("experimenttable"), eselist), width = 3), mainPanel(experimenttableOutput(ns("experimenttable")),
       width = 9
     )),
@@ -44,7 +34,7 @@ illuminaarrayInput <- function(id, eselist) {
 
   exploratory_menu <- list("QC/ exploratory", tabPanel("Quartile plots", sidebarLayout(sidebarPanel(boxplotInput(ns("boxplot"), eselist), width = 3), mainPanel(boxplotOutput(ns("boxplot")),
     width = 9
-  )), icon = icon("bar-chart-o", verify_fa = FALSE)), tabPanel("PCA", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
+  )), icon = icon("bar-chart-o", verify_fa = FALSE)), tabPanel("PCA", value = "pca", sidebarLayout(sidebarPanel(pcaInput(ns("pca"), eselist), width = 3), mainPanel(pcaOutput(ns("pca")),
     width = 9
   )), icon = icon("cube")), tabPanel("PCA vs Experiment", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-pca"), eselist, type = "pca"),
     width = 3
@@ -85,7 +75,7 @@ illuminaarrayInput <- function(id, eselist) {
 
   # Add the assay data menu
 
-  assaydata_menu <- list("Assay data", tabPanel("Tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")),
+  assaydata_menu <- list("Assay data", tabPanel("Tables", value = "assay_tables", sidebarLayout(sidebarPanel(assaydatatableInput(ns("expression"), eselist), width = 3), mainPanel(assaydatatableOutput(ns("expression")),
     width = 9
   )), icon = icon("table")), tabPanel("Heatmaps", sidebarLayout(sidebarPanel(heatmapInput(ns("heatmap-expression"), eselist, type = "expression"),
     width = 3
@@ -98,7 +88,7 @@ illuminaarrayInput <- function(id, eselist) {
   # If there are contrasts present, add the differential tab
 
   if (length(eselist@contrasts) > 0) {
-    differential_menu <- list("Differential", tabPanel("Tables", sidebarLayout(
+    differential_menu <- list("Differential", tabPanel("Tables", value = "diff_tables", sidebarLayout(
       sidebarPanel(differentialtableInput(ns("differential"), eselist), width = 3),
       mainPanel(differentialtableOutput(ns("differential")), width = 9)
     ), icon = icon("table")), tabPanel("Fold change plots", sidebarLayout(sidebarPanel(foldchangeplotInput(
@@ -124,7 +114,7 @@ illuminaarrayInput <- function(id, eselist) {
     if (any(unlist(lapply(eselist, function(ese) {
       length(ese@gene_set_analyses) > 0
     })))) {
-      differential_menu <- pushToList(differential_menu, tabPanel("Gene set analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(
+      differential_menu <- pushToList(differential_menu, tabPanel("Gene set analyses", value = "geneset_analyses", sidebarLayout(sidebarPanel(genesetanalysistableInput(
         ns("genesetanalysis"),
         eselist
       ), width = 3), mainPanel(genesetanalysistableOutput(ns("genesetanalysis")), width = 9)), icon = icon("tasks", verify_fa = FALSE)))
@@ -207,6 +197,7 @@ illuminaarray <- function(id, eselist) {
 
     # Now a lot of boring calls to all the modules to activate the UI parts
 
+    summarytiles("summarytiles", eselist)
     experimenttable("experimenttable", eselist)
     rowmetatable("rowmetatable", eselist)
     heatmap("heatmap-clustering", eselist, type = "samples")

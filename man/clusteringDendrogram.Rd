@@ -47,7 +47,7 @@ A simple function using \code{ggdendro} to make a sample dendrogram
 # Make a dendrogram with the data in airway
 
 require(airway)
-data(airway, pakckage = "airway")
+data(airway, package = "airway")
 clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 
 # Do the same, but only usig the 1000 most variant rows and see how the

@@ -23,8 +23,10 @@ clustering_modal <- list(id = "clustering", title = "Feature-wise clustering")
 #'
 #' @examples
 #' library(shinyngs)
-#' data(zhangneurons)
-#' clusteringInput("myid", zhangneurons)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#' clusteringInput("myid", eselist)
 #'
 clusteringInput <- function(id, eselist) {
   ns <- NS(id)

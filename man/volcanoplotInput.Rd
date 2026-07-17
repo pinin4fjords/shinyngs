@@ -25,13 +25,18 @@ change on the x axis. This module produces such a plot using the
 \code{eselist}.
 }
 \examples{
-volcanoplotInput("myid", eselist)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
-# However, almost certainly called via application creation:
+# The volcano module needs an eselist carrying differential statistics
+# (contrast_stats); see the vignette. It is used via application creation:
 
-data(zhangneurons)
-app <- prepareApp("volcanoplot", zhangneurons)
-shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  volcanoplotInput("myid", eselist)
+  app <- prepareApp("volcanoplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

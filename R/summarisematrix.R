@@ -103,7 +103,11 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
 #' @export
 
 colGeomMeans <- function(x) {
-  apply(x, 2, geom_mean)
+  x <- as.matrix(x)
+  positive <- !is.na(x) & x > 0
+  logs <- matrix(0, nrow = nrow(x), ncol = ncol(x))
+  logs[positive] <- log(x[positive])
+  stats::setNames(exp(colSums(logs) / nrow(x)), colnames(x))
 }
 
 #' Geometric mean
@@ -128,5 +132,30 @@ geom_mean <- function(x, na.rm = TRUE) {
 #' @export
 
 colMedians <- function(x) {
-  apply(x, 2, median)
+  x <- as.matrix(x)
+  stats::setNames(matrixStats::colMedians(x), colnames(x))
+}
+
+#' Identify matrix rows that contain more than one distinct value
+#'
+#' Missing values are treated as a distinct value, matching the semantics of
+#' \code{length(unique(x)) > 1} applied row-wise, so a row of a single non-NA
+#' value alongside any \code{NA} counts as having multiple values.
+#'
+#' @param matrix Numeric matrix
+#'
+#' @return Logical vector, one element per row, \code{TRUE} where the row holds
+#'   more than one distinct value
+#'
+#' @noRd
+rowsWithMultipleValues <- function(matrix) {
+  matrix <- as.matrix(matrix)
+  n_nan <- rowSums(is.nan(matrix))
+  n_missing <- rowSums(is.na(matrix))
+  n_na <- n_missing - n_nan
+  has_value <- n_missing < ncol(matrix)
+  row_min <- matrixStats::rowMins(matrix)
+  row_max <- matrixStats::rowMaxs(matrix)
+  finite_differs <- has_value & n_missing == 0L & (row_min != row_max)
+  (has_value & n_missing > 0L) | finite_differs | (!has_value & n_na > 0L & n_nan > 0L)
 }

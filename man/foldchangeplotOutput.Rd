@@ -23,9 +23,14 @@ Leverages the \code{scatterplot} module
 \examples{
 foldchangeplotOutput("myid")
 
-data(zhangneurons)
-app <- prepareApp("foldchangeplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+if (interactive()) {
+  app <- prepareApp("foldchangeplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

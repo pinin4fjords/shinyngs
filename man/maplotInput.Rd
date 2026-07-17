@@ -25,13 +25,18 @@ for contrasts defined in the `contrasts` slot of an
 Leverages the \code{contrasts} and \code{scatterplot} modules
 }
 \examples{
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
 maplotInput("myid", eselist)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("maplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  app <- prepareApp("maplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

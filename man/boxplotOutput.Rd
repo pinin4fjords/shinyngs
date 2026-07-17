@@ -24,9 +24,14 @@ boxplotOutput("boxplot")
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("boxplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+if (interactive()) {
+  app <- prepareApp("boxplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

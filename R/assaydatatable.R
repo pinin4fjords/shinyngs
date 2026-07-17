@@ -17,13 +17,18 @@ assaydatatable_modal <- list(id = "assaydatatable", title = "Assay data table")
 #' @keywords shiny
 #'
 #' @examples
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
 #' assaydatatableInput("experiment", eselist)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("assaydatatable", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   app <- prepareApp("assaydatatable", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 assaydatatableInput <- function(id, eselist) {
   ns <- NS(id)
@@ -51,9 +56,14 @@ assaydatatableInput <- function(id, eselist) {
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("assaydatatable", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
+#'
+#' if (interactive()) {
+#'   app <- prepareApp("assaydatatable", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 assaydatatableOutput <- function(id) {
   ns <- NS(id)
@@ -75,13 +85,17 @@ assaydatatableOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' assaydatatable("assaydatatable", eselist)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("assaydatatable", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   assaydatatable("assaydatatable", eselist)
+#'   app <- prepareApp("assaydatatable", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 assaydatatable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {

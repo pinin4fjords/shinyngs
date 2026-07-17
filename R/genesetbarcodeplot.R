@@ -20,13 +20,18 @@ genesetbarcodeplot_modal <- list(id = "genesetbarcodeplot", title = "Gene set ba
 #' @keywords shiny
 #'
 #' @examples
-#' data(zhangneurons)
-#' genesetbarcodeplotInput("myid", zhangneurons)
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
-#' # Almost certainly used via application creation
+#' # The gene set modules need an eselist with populated gene_set_analyses (see
+#' # the vignette). Given such data, they are used via application creation:
 #'
-#' app <- prepareApp("genesetbarcodeplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   genesetbarcodeplotInput("myid", eselist)
+#'   app <- prepareApp("genesetbarcodeplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 genesetbarcodeplotInput <- function(id, eselist) {
   ns <- NS(id)
@@ -82,8 +87,13 @@ genesetbarcodeplotInput <- function(id, eselist) {
 #'
 #' # Almost certainly used via application creation
 #'
-#' app <- prepareApp("genesetbarcodeplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#' if (interactive()) {
+#'   data(airway, package = "airway")
+#'   ese <- as(airway, "ExploratorySummarizedExperiment")
+#'   eselist <- ExploratorySummarizedExperimentList(ese)
+#'   app <- prepareApp("genesetbarcodeplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 genesetbarcodeplotOutput <- function(id) {
   ns <- NS(id)
@@ -114,12 +124,17 @@ genesetbarcodeplotOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' genesetbarcodeplot("genesetbarcodeplot", eselist)
+#' if (interactive()) {
+#'   data(airway, package = "airway")
+#'   ese <- as(airway, "ExploratorySummarizedExperiment")
+#'   eselist <- ExploratorySummarizedExperimentList(ese)
+#'   genesetbarcodeplot("genesetbarcodeplot", eselist)
 #'
-#' # Almost certainly used via application creation
+#'   # Almost certainly used via application creation
 #'
-#' app <- prepareApp("genesetbarcodeplot", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#'   app <- prepareApp("genesetbarcodeplot", eselist)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 genesetbarcodeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {

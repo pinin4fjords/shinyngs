@@ -23,13 +23,18 @@ boxplot produced using \code{ggplot2}. For higher sample numbers, the default is
 a line-based alternative using \code{plotly}.
 }
 \examples{
-boxplotInput(ns("boxplot"), eselist)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
+
+boxplotInput("boxplot", eselist)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("boxplot", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  app <- prepareApp("boxplot", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

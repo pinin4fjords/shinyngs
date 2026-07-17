@@ -25,13 +25,17 @@ and wraps its logic in \code{moduleServer()} (see example).
 Matrix and UI selection elements provided by the selectmatrix module
 }
 \examples{
-pca("pca", eselist)
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
 # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("pca", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+if (interactive()) {
+  pca("pca", eselist)
+  app <- prepareApp("pca", eselist)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

@@ -34,26 +34,16 @@ column, so the output of other methods should be easily adapted to suit.
 Leverages the \code{simpletable} module
 }
 \examples{
-# Example of structures using provided example data
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese)
 
-data(zhangneurons)
-names(assays(zhangneurons$gene))
+# This module needs an eselist whose experiments carry gene_set_analyses
+# results (see the vignette). Given those, module input is produced like:
 
-# The normalised matrix was used to perform gene set analysis, using 6 types
-# of gene set
-
-names(zhangneurons$gene@gene_set_analyses$`normalised-filtered`)
-
-# Gene set can be related back to individual genes via information in the
-# containing object's 'gene_sets' slot. These are keyed first to indicate
-# which metadata field gene set members pertain to, and secondly by gene
-# set type.
-
-names(zhangneurons@gene_sets)
-
-# Module input produced like:
-
-genesetanalysistableInput("experiment", eselist)
+if (interactive()) {
+  genesetanalysistableInput("experiment", eselist)
+}
 
 }
 \keyword{shiny}
