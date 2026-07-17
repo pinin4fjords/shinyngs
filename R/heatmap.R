@@ -396,7 +396,9 @@ heatmap <- function(id, eselist, type = "expression") {
 
     # Build the interactive heatmap. Cached on exactly the inputs read below,
     # since this covers heatmaply()'s own layout work as well as the row/column
-    # clustering it performs internally.
+    # clustering it performs internally. plot_height is deliberately not listed
+    # as its own cache key: it's fully derived from getDisplayMatrix(),
+    # input$cluster_cols and getPlotAnnotation(), which already are.
 
     getHeatmapPlot <- reactive({
       validateOrCatch(interactiveHeatmap(
