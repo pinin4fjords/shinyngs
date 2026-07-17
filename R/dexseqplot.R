@@ -155,6 +155,8 @@ dexseqplot <- function(id, eselist) {
 
     output$deuPlot <- renderPlot(
       {
+        validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage plots."))
+
         ese <- getExperiment()
 
         dexseq_result <- getSelectedDEUResult()
@@ -177,6 +179,8 @@ dexseqplot <- function(id, eselist) {
     # Provide the plot for download
 
     makeDEUPlotForDownload <- reactive({
+      validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage plots."))
+
       ese <- getExperiment()
 
       dexseq_result <- getSelectedDEUResult()
