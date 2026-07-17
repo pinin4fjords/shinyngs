@@ -1,6 +1,6 @@
 #### Introduction
 
-This page shows a barcode plot as ouput by limma's [1] `barcodeplot()` function, building on the work of Subramanian et al [2]. Please cite both if you use these plots in a publication.   
+This page shows an interactive barcode plot, reproducing the statistics behind limma's [1] `barcodeplot()` function and building on the work of Subramanian et al [2]. Please cite both if you use these plots in a publication.   
 
 #### Controls
 
@@ -14,7 +14,7 @@ Controls for this page are simple:
 
 This plot shows where members of a gene set appear in the overall list of genes ranked by fold change between a pair of conditions. Where gene sets show strong up- or down- regulation, you expect to see 'bunching up' of its members at one extreme or the other of this ranking. This is useful to make a visual check of a gene set indicated by an FDR or a p value, and may enable you to decide how interesting a result is.
 
-The FDR is annotated to the plot (where available).
+The FDR is annotated to the plot (where available). Hover over a tick mark to see the gene and its fold change, and use the toolbar in the top-right corner of the plot to zoom, pan or download a PNG.
 
 #### The table
 
