@@ -387,3 +387,24 @@ test_that("check_gene_set_analyses_tool_consistency accepts a custom mapping", {
     )
   )
 })
+
+# cond_log2_transform_matrix()
+
+test_that("cond_log2_transform_matrix guesses reverse (unlog) status correctly", {
+  raw_counts <- matrix(c(10, 2, 4, 181, 14, 12), nrow = 2, byrow = TRUE)
+
+  # Raw counts (max well above threshold) should be left alone when guessing
+  # whether to unlog, not exponentiated.
+  expect_equal(
+    cond_log2_transform_matrix(raw_counts, reverse = TRUE, threshold = 30),
+    raw_counts
+  )
+
+  log_scale <- matrix(c(1, 2, 3, 4, 5, 6), nrow = 2, byrow = TRUE)
+
+  # Small, log-scale-looking values should be unlogged when guessing.
+  expect_equal(
+    cond_log2_transform_matrix(log_scale, reverse = TRUE, threshold = 30),
+    2^log_scale
+  )
+})
