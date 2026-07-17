@@ -134,7 +134,7 @@ foldchangeplot <- function(id, eselist) {
     output$foldchangetable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "))
+      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "), spinner = TRUE)
     })
 
     # Pass the matrix to the scatterplot module for display

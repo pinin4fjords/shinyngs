@@ -77,8 +77,10 @@ clusteringInput <- function(id, eselist) {
 clusteringOutput <- function(id) {
   ns <- NS(id)
   list(
-    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")), plotlyOutput(ns("geneClusteringPlot"), height = 600), h4("Table of values by cluster"),
-    simpletableOutput(ns("geneClusteringTable"))
+    modalInput(ns(clustering_modal$id), "help", "help"), uiOutput(ns("geneClusteringTitle")),
+    shinycssloaders::withSpinner(plotlyOutput(ns("geneClusteringPlot"), height = 600), color = shinyngsSpinnerColor()),
+    h4("Table of values by cluster"),
+    simpletableOutput(ns("geneClusteringTable"), spinner = TRUE)
   )
 }
 
@@ -184,7 +186,9 @@ clustering <- function(id, eselist) {
       data.frame(t(scale(t(inmatrix))), check.names = FALSE)
     })
 
-    # Do the actual clustering. Assign genes/rows to clusters.
+    # Do the actual clustering. Assign genes/rows to clusters. Cached on the
+    # scaled matrix and cluster count so display-only controls (colors, error
+    # bar type, average type) don't re-run clara().
 
     makeClusters <- reactive({
       scaled_inmatrix <- scaleMatrix()
@@ -192,7 +196,7 @@ clustering <- function(id, eselist) {
       withProgress(message = "Calculating clusters with clara()", value = 0, {
         validateOrCatch(runClustering(scaled_inmatrix, cluster_number))
       })
-    })
+    }) %>% bindCache(scaleMatrix(), getClusterNumber())
 
     # Get the matrix of values for each cluster
 
@@ -221,7 +225,7 @@ clustering <- function(id, eselist) {
           summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
         })
       })
-    })
+    }) %>% bindCache(getMatricesByCluster(), addMedians())
 
     # The business end of the cluster plotting. Use the above parameters and processing to produce one plot object for each cluster of matrix rows.
 

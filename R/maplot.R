@@ -143,7 +143,7 @@ maplot <- function(id, eselist) {
     output$matable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "))
+      simpletableOutput(ns("matable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "), spinner = TRUE)
     })
 
     # Pass the matrix to the scatterplot module for display

@@ -138,13 +138,14 @@ boxplot <- function(id, eselist) {
 
     output$quartilesPlot <- renderUI({
       ns <- session$ns
-      if (input$plotType == "boxes") {
-        plotlyOutput(ns("sampleBoxplot"), height = "600px")
+      plotOutputId <- if (input$plotType == "boxes") {
+        "sampleBoxplot"
       } else if (input$plotType == "density") {
-        plotlyOutput(ns("densityPlotly"), height = "600px")
+        "densityPlotly"
       } else {
-        plotlyOutput(ns("quartilesPlotly"), height = "600px")
+        "quartilesPlotly"
       }
+      shinycssloaders::withSpinner(plotlyOutput(ns(plotOutputId), height = "600px"), color = shinyngsSpinnerColor())
     })
 
     output$quartilesPlotly <- renderPlotly({

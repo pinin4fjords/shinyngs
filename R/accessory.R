@@ -235,6 +235,23 @@ shinyngsPageNavbar <- function(navbar_menus) {
   do.call(bslib::page_navbar, navbar_menus)
 }
 
+#' Accent colour for loading spinners
+#'
+#' \code{shinycssloaders::withSpinner()} bakes its colour into a literal CSS
+#' value rather than accepting a \code{var(--bs-primary)} reference, so it
+#' can't pick up the Bootstrap theme variable directly. This returns the same
+#' hex value used as the theme's \code{primary} colour in
+#' \code{shinyngsPageNavbar()}, kept as a single source so the two stay in
+#' sync.
+#'
+#' @return A hex colour string
+#'
+#' @keywords internal
+#'
+shinyngsSpinnerColor <- function() {
+  "#2780e3"
+}
+
 #' Create sets of fields for display
 #'
 #' Shiny apps can get cluttered with many inputs. This method wraps sets of

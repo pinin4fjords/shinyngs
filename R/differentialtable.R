@@ -73,8 +73,6 @@ differentialtable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(differentialtable_modal$id, differentialtable_modal$title)
 
-    # Render the output area - and provide an input-dependent title
-
     # Call the selectmatrix module and hold on to the reactives it sends back
 
     selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = TRUE, provide_all_genes = TRUE)
@@ -88,7 +86,7 @@ differentialtable <- function(id, eselist) {
     output$differentialtable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", selectmatrix_reactives$getAssay(), sep = ": "))
+      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", selectmatrix_reactives$getAssay(), sep = ": "), spinner = TRUE)
     })
 
     # Pass the matrix to the simpletable module for display

@@ -147,7 +147,7 @@ volcanoplot <- function(id, eselist) {
     output$volcanotable <- renderUI({
       ns <- session$ns
 
-      simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": "))
+      simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": "), spinner = TRUE)
     })
 
     # Pass the matrix to the scatterplot module for display
