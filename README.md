@@ -59,7 +59,7 @@ applications:
 
 # Screenshot
 
-![Example: the gene page](screenshots/gene_page.png)
+![Example: the gene page](man/figures/gene_page.png)
 
 ## Objectives
 
