@@ -51,7 +51,7 @@ illuminaarrayqcInput <- function(id, eselist) {
 illuminaarrayqcOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Illumina microarray QC plot",
     plotlyOutput(ns("qcplot"), height = 600),
     h4("Table of data"),

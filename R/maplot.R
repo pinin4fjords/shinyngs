@@ -91,7 +91,7 @@ maplotInput <- function(id, eselist) {
 maplotOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "MA plot",
     scatterplotOutput(ns("ma")),
     htmlOutput(ns("matable")),

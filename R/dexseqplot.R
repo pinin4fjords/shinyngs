@@ -78,7 +78,7 @@ dexseqplotInput <- function(id, eselist) {
 dexseqplotOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Gene-wise differential exon usage",
     plotOutput(ns("deuPlot"), height = 620),
     dexseqtableOutput(ns("deuPlotTable")),

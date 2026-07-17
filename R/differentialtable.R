@@ -46,8 +46,8 @@ differentialtableInput <- function(id, eselist) {
 differentialtableOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
-    "Differential results",
+  moduleMain(
+    NULL,
     htmlOutput(ns("differentialtable")),
     contrastsOutput(ns("differential")),
     help = modalInput(ns(differentialtable_modal$id), "help", "help")

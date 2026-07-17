@@ -87,7 +87,7 @@ foldchangeplotInput <- function(id, eselist) {
 foldchangeplotOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Fold change plot",
     scatterplotOutput(ns("foldchange")),
     htmlOutput(ns("foldchangetable")),

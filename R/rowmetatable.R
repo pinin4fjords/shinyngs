@@ -49,7 +49,7 @@ rowmetatableInput <- function(id, eselist) {
 #'
 rowmetatableOutput <- function(id) {
   ns <- NS(id)
-  moduleCard(
+  moduleMain(
     "Row metadata",
     simpletableOutput(ns("rowmetatable")),
     help = modalInput(ns(rowmetatable_modal$id), "help", "help")

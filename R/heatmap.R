@@ -112,7 +112,7 @@ heatmap_modal_specs <- list(
 heatmapOutput <- function(id, type = "") {
   ns <- NS(id)
   spec <- heatmap_modal_specs[[type]]
-  moduleCard(
+  moduleMain(
     if (!is.null(spec)) spec$title else "Heatmap",
     uiOutput(ns("heatmap_ui")),
     help = if (!is.null(spec)) modalInput(ns(spec$id), "help", "help") else NULL

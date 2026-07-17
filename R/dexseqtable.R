@@ -96,7 +96,7 @@ dexseqtableInputFields <- function(id, eselist, allow_filtering = TRUE) {
 dexseqtableOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Differential exon usage",
     simpletableOutput(ns("dexseqtable")),
     help = modalInput(ns(dexseqtable_modal$id), "help", "help")

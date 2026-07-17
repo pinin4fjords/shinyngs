@@ -45,8 +45,8 @@ readreportsInput <- function(id, eselist) {
 readreportsOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  moduleCard(
-    "Read reports",
+  moduleMain(
+    NULL,
     uiOutput(ns("plotTitle")),
     uiOutput(ns("barplotOutput")),
     uiOutput(ns("tableTitle")),

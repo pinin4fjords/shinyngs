@@ -193,10 +193,11 @@ h3{
 .shinyngs-tilelink.active .shinyngs-tile-hint { color: var(--bs-primary); }
 .shinyngs-tilelink.active .shinyngs-tile-hint .fa, .shinyngs-tilelink.active .shinyngs-tile-hint svg { transform: rotate(180deg); }
 
-/* Analysis-tab output cards: header carries the section title + help link */
-.shinyngs-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.shinyngs-card-title { font-size: 15px; font-weight: 600; color: var(--bs-emphasis-color); }
-.shinyngs-card-head .help { float: none; padding-left: 0; font-size: inherit; }
+/* Analysis-tab main panel: plain title above the output, no card chrome */
+.shinyngs-section-title { margin-top: 0; margin-bottom: 0.6em; }
+
+/* Space out stacked download buttons in the control sidebar so they don't touch */
+.bslib-sidebar-layout .sidebar-content .shiny-download-link { margin: 0 6px 8px 0; }
 
 /* Detail drawer */
 .shinyngs-drawer { margin: 14px 0 2px; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); border-radius: 7px; }

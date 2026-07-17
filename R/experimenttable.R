@@ -81,7 +81,7 @@ experimenttableInput <- function(id, eselist) {
 #'
 experimenttableOutput <- function(id) {
   ns <- NS(id)
-  moduleCard(
+  moduleMain(
     "Experimental data",
     simpletableOutput(ns("experimenttable")),
     help = modalInput(ns(experimenttable_modal$id), "help", "help")

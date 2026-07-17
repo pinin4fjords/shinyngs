@@ -90,7 +90,7 @@ boxplotInput <- function(id, eselist) {
 #'
 boxplotOutput <- function(id) {
   ns <- NS(id)
-  moduleCard(
+  moduleMain(
     "Value distributions",
     uiOutput(ns("quartilesPlot")),
     help = modalInput(ns(boxplot_modal$id), "help", "help")

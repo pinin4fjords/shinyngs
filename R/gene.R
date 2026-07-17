@@ -61,8 +61,8 @@ geneInput <- function(id, eselist) {
 geneOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  moduleCard(
-    "Gene expression",
+  moduleMain(
+    NULL,
     uiOutput(ns("model")),
     uiOutput(ns("info")),
     uiOutput(ns("title")),

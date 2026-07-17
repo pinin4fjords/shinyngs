@@ -98,7 +98,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
 genesetbarcodeplotOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Gene set barcode plot",
     plotlyOutput(ns("genesetbarcodeplot"), height = "460px"),
     h4("Gene set differential expression"),

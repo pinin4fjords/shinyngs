@@ -76,8 +76,8 @@ clusteringInput <- function(id, eselist) {
 #'
 clusteringOutput <- function(id) {
   ns <- NS(id)
-  moduleCard(
-    "Feature-wise clustering",
+  moduleMain(
+    NULL,
     uiOutput(ns("geneClusteringTitle")),
     plotlyOutput(ns("geneClusteringPlot"), height = 600),
     h4("Table of values by cluster"),

@@ -73,7 +73,7 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Principal components analysis",
     help = modalInput(ns(pca_modal$id), "help", "help"),
     tabsetPanel(

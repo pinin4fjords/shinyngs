@@ -80,7 +80,7 @@ upsetInput <- function(id, eselist) {
 upsetOutput <- function(id, eselist) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
     plotlyOutput(ns("plotly_upset"), height = "600px"),

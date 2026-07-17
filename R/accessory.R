@@ -240,10 +240,10 @@ shinyngsPageNavbar <- function(navbar_menus) {
 #' Wraps the standard "controls on the left, output on the right" arrangement
 #' used by every analysis tab in a \code{bslib::layout_sidebar()}, replacing the
 #' Bootstrap-3-era \code{sidebarLayout()} grid. The sidebar collapses on narrow
-#' screens; the main area holds the output (typically a \code{moduleCard()}).
+#' screens; the main area holds the output (typically a \code{moduleMain()}).
 #'
 #' @param controls Sidebar content, usually a module's input UI
-#' @param main Main content, usually a \code{moduleCard()}
+#' @param main Main content, usually a \code{moduleMain()}
 #' @param width Sidebar width in pixels
 #'
 #' @return A \code{bslib::layout_sidebar()}
@@ -255,35 +255,32 @@ moduleLayout <- function(controls, main, width = 320) {
     sidebar = bslib::sidebar(controls, width = width, open = "desktop"),
     main,
     fillable = FALSE,
+    border = FALSE,
     class = "shinyngs-panel"
   )
 }
 
-#' Wrap a module's primary output in a themed card
+#' Assemble a module's main-panel content
 #'
-#' Produces the standard main-panel card: a \code{bslib::card()} with a header
-#' carrying the section title and an optional help-modal trigger, and a body
-#' holding the plots and tables. The card reads Bootstrap theme variables, so it
-#' tracks the light/dark toggle.
+#' Lays out a module's output: an optional help-modal trigger floated to the top
+#' right, the section title, and the output body (plots, tables). The content
+#' sits directly in the panel with no surrounding card, keeping the plot area
+#' uncluttered. Pass \code{title = NULL} for modules that render their own
+#' (often dynamic) heading, to avoid a duplicate title.
 #'
-#' @param title Header title (a string or tag)
+#' @param title Section title (a string or tag), or \code{NULL} to omit it
 #' @param ... Body content (plots, tables, sub-headings)
-#' @param help Optional help-modal trigger, placed at the right of the header
+#' @param help Optional help-modal trigger, floated to the top right
 #'
-#' @return A \code{bslib::card()}
+#' @return A \code{tagList}
 #'
 #' @keywords internal
 #'
-moduleCard <- function(title, ..., help = NULL) {
-  bslib::card(
-    full_screen = TRUE,
-    class = "shinyngs-card",
-    bslib::card_header(
-      class = "shinyngs-card-head",
-      span(class = "shinyngs-card-title", title),
-      help
-    ),
-    bslib::card_body(fillable = FALSE, ...)
+moduleMain <- function(title, ..., help = NULL) {
+  tagList(
+    help,
+    if (!is.null(title) && !identical(title, "")) h3(class = "shinyngs-section-title", title),
+    ...
   )
 }
 

@@ -68,8 +68,8 @@ assaydatatableInput <- function(id, eselist) {
 assaydatatableOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
-    "Assay data",
+  moduleMain(
+    NULL,
     htmlOutput(ns("assaydatatable")),
     help = modalInput(ns(assaydatatable_modal$id), "help", "help")
   )

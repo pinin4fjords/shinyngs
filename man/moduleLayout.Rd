@@ -9,7 +9,7 @@ moduleLayout(controls, main, width = 320)
 \arguments{
 \item{controls}{Sidebar content, usually a module's input UI}
 
-\item{main}{Main content, usually a \code{moduleCard()}}
+\item{main}{Main content, usually a \code{moduleMain()}}
 
 \item{width}{Sidebar width in pixels}
 }
@@ -20,6 +20,6 @@ A \code{bslib::layout_sidebar()}
 Wraps the standard "controls on the left, output on the right" arrangement
 used by every analysis tab in a \code{bslib::layout_sidebar()}, replacing the
 Bootstrap-3-era \code{sidebarLayout()} grid. The sidebar collapses on narrow
-screens; the main area holds the output (typically a \code{moduleCard()}).
+screens; the main area holds the output (typically a \code{moduleMain()}).
 }
 \keyword{internal}

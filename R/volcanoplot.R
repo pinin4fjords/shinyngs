@@ -99,7 +99,7 @@ volcanoplotInput <- function(id, eselist) {
 volcanoplotOutput <- function(id) {
   ns <- NS(id)
 
-  moduleCard(
+  moduleMain(
     "Volcano plot",
     scatterplotOutput(ns("volcano")),
     htmlOutput(ns("volcanotable")),
