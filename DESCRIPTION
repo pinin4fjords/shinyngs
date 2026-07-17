@@ -41,6 +41,7 @@ Suggests:
     BiocStyle,
     BiocManager,
     biomaRt,
+    covr,
     devtools,
     DEXSeq,
     Gviz,

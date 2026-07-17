@@ -62,10 +62,10 @@ jobs:
           # BiocStyle, rmarkdown, rsconnect) are skipped here: CI builds with
           # --no-build-vignettes / checks with --no-vignettes below, and
           # _R_CHECK_FORCE_SUGGESTS_ is false, so they aren't needed. testthat,
-          # optparse, withr and shinytest2 (which pulls in chromote) are explicit
-          # since the "dependencies" restriction below would otherwise exclude
-          # them (they're only Suggests, not Imports).
-          extra-packages: any::rcmdcheck, any::testthat, any::optparse, any::withr, any::shinytest2, local::.
+          # optparse, withr, shinytest2 (which pulls in chromote) and covr are
+          # explicit since the "dependencies" restriction below would otherwise
+          # exclude them (they're only Suggests, not Imports).
+          extra-packages: any::rcmdcheck, any::testthat, any::optparse, any::withr, any::shinytest2, any::covr, local::.
           dependencies: 'c("Imports", "Depends", "LinkingTo")'
 
       - name: Install Chrome for headless shinytest2 tests
@@ -76,6 +76,32 @@ jobs:
           error-on: '"error"'
           args: 'c("--no-manual", "--as-cran", "--no-examples", "--no-vignettes")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
+
+      - name: Report test coverage
+        # Reporting only: a flaky covr instrumentation run shouldn't fail a PR
+        # that R-CMD-check has already passed on its own.
+        continue-on-error: true
+        run: |
+          Rscript -e '
+            cov <- covr::package_coverage(quiet = FALSE)
+            print(cov)
+
+            overall <- covr::percent_coverage(cov)
+            tallied <- covr::tally_coverage(cov, by = "line")
+            per_file <- aggregate(value ~ filename, data = tallied, FUN = function(v) round(100 * mean(v > 0), 1))
+            per_file <- per_file[order(per_file$value), ]
+
+            summary_lines <- c(
+              sprintf("## Test coverage: %.1f%%", overall),
+              "",
+              "| File | Coverage |",
+              "| --- | --- |",
+              sprintf("| %s | %.1f%% |", per_file$filename, per_file$value)
+            )
+            summary_md <- paste(summary_lines, collapse = "\n")
+            cat(summary_md, "\n", file = Sys.getenv("GITHUB_STEP_SUMMARY"), append = TRUE)
+            cat(summary_md, "\n")
+          '
 
       - name: Download test data from nf-core tests data repo
         run: |
