@@ -86,7 +86,16 @@ h3{
 }
 
 .dataTables_wrapper{
-  overflow-x: scroll; 
+  overflow-x: scroll;
+}
+
+/* DT's own bundled CSS (jquery.dataTables.min.css) sets a flat 4px padding
+   on its "Show N entries" <select> via a selector more specific than
+   Bootstrap 5's .form-select/.form-select-sm classes, which otherwise
+   reserve the right-hand padding for the select's arrow background-image;
+   restore just that padding so the arrow doesn't sit on top of the value. */
+.dataTables_wrapper .dataTables_length select.form-select{
+  padding-right: 2.25rem;
 }
 
 /* Contrast field sets */
