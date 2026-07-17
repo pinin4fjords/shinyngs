@@ -69,10 +69,7 @@ experimenttableInput <- function(id, eselist) {
 #'
 experimenttableOutput <- function(id) {
   ns <- NS(id)
-  list(modalInput(ns("experimenttable"), "help", "help"), modalOutput(ns("experimenttable"), "Experimental data table", includeMarkdown(system.file("inlinehelp",
-    "experimenttable.md",
-    package = packageName()
-  ))), simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data"))
+  list(modalInput(ns("experimenttable"), "help", "help"), simpletableOutput(ns("experimenttable"), tabletitle = "Experimental data"))
 }
 
 #' The server function of the experimenttable module
@@ -99,6 +96,8 @@ experimenttableOutput <- function(id) {
 #'
 experimenttable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("experimenttable", "Experimental data table")
+
     getExperiment <- reactive({
       experiment <- data.frame(colData(eselist[[input$experiment]]), check.names = FALSE)
       colnames(experiment) <- prettifyVariablename(colnames(experiment))

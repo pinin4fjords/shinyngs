@@ -61,9 +61,7 @@ pcaInput <- function(id, eselist) {
 pcaOutput <- function(id) {
   ns <- NS(id)
 
-  list(modalInput(ns("pca"), "help", "help"), modalOutput(ns("pca"), "Principal components analysis", includeMarkdown(system.file("inlinehelp", "pca.md",
-    package = packageName()
-  ))), h3("Principal components analysis"), tabsetPanel(
+  list(modalInput(ns("pca"), "help", "help"), h3("Principal components analysis"), tabsetPanel(
     tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
     tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings")))
   ))
@@ -98,6 +96,8 @@ pcaOutput <- function(id) {
 #'
 pca <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("pca", "Principal components analysis")
+
     unpack.list(selectmatrix("pca", eselist, var_n = 1000, select_genes = TRUE, provide_all_genes = TRUE, default_gene_select = "variance", select_meta = FALSE))
 
     # Call the groupby module to define sample groups and group colors

@@ -173,40 +173,60 @@ pushToList <- function(input_list, element) {
 #' Create sets of fields for display
 #'
 #' Shiny apps can get cluttered with many inputs. This method wraps sets of
-#' fields in either a \code{bsCollapse} from \code{shinyBS} (if installed) or
-#' a simple div element with a title and class 'shinyngsFieldset' (which can
-#' then be used for styling)
+#' fields in collapsible Bootstrap panels, one per named element, using
+#' Bootstrap's own \code{data-toggle="collapse"} markup rather than a
+#' separate collapsible-panel package. Every panel collapses/expands
+#' independently (there is no "close others on open" behaviour).
 #'
 #' @param id ID field to apply to the overall container
 #' @param fieldset_list A named list, each element containing one or more
 #' fields.
-#' @param open Only applicable for output with shinyBS, controls which panels
-#' are open by default. In most cases all should be left open (the default),
-#' since shiny doesn't receive the inputs of fields in collapsed elements.
-#' @param use_shinybs Use collapsible panels from shinyBS if installed
+#' @param open Controls which panels are open by default, as a character vector
+#' of panel names. In most cases all should be left open (the default), since
+#' fields in collapsed panels may be less discoverable.
 #'
-#' @return list
+#' @return A \code{tagList} of Bootstrap panels
 
-fieldSets <- function(id, fieldset_list, open = NULL, use_shinybs = TRUE) {
+fieldSets <- function(id, fieldset_list, open = NULL) {
   if (is.null(open)) {
     open <- names(fieldset_list)
   }
 
-  if (requireNamespace("shinyBS", quietly = TRUE) && use_shinybs) {
-    collapse_panels <- lapply(names(fieldset_list), function(listname) {
-      shinyBS::bsCollapsePanel(prettifyVariablename(listname), value = listname, fieldset_list[[listname]])
-    })
+  panels <- lapply(names(fieldset_list), function(listname) {
+    panel_id <- paste0(id, "-", make.names(listname))
+    heading_id <- paste0(panel_id, "-heading")
+    collapse_id <- paste0(panel_id, "-collapse")
+    is_open <- listname %in% open
 
-    collapse_panels$id <- id
-    collapse_panels$multiple <- TRUE
-    collapse_panels$open <- open
+    tags$div(
+      class = "panel panel-default",
+      tags$div(
+        class = "panel-heading",
+        role = "tab",
+        id = heading_id,
+        tags$h4(
+          class = "panel-title",
+          tags$a(
+            role = "button",
+            `data-toggle` = "collapse",
+            href = paste0("#", collapse_id),
+            `aria-expanded` = tolower(as.character(is_open)),
+            `aria-controls` = collapse_id,
+            prettifyVariablename(listname)
+          )
+        )
+      ),
+      tags$div(
+        id = collapse_id,
+        class = paste("panel-collapse collapse", if (is_open) "in" else ""),
+        role = "tabpanel",
+        `aria-labelledby` = heading_id,
+        tags$div(class = "panel-body", fieldset_list[[listname]])
+      )
+    )
+  })
 
-    do.call(shinyBS::bsCollapse, collapse_panels)
-  } else {
-    lapply(names(fieldset_list), function(listname) {
-      div(id = id, class = "shinyngsFieldset", h4(prettifyVariablename(listname)), fieldset_list[[listname]])
-    })
-  }
+  tags$div(id = id, class = "panel-group", role = "tablist", panels)
 }
 
 #' Reshape data to the way \code{ggplot2} likes it

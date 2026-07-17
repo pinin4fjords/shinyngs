@@ -59,8 +59,8 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # Vignette-only Suggests (biomaRt, Gviz, DEXSeq, zhangneurons, devtools,
-          # BiocStyle, rmarkdown, markdown, rsconnect) are skipped here: CI builds
-          # with --no-build-vignettes / checks with --no-vignettes below, and
+          # BiocStyle, rmarkdown, rsconnect) are skipped here: CI builds with
+          # --no-build-vignettes / checks with --no-vignettes below, and
           # _R_CHECK_FORCE_SUGGESTS_ is false, so they aren't needed. testthat and
           # optparse are explicit since the "dependencies" restriction below would
           # otherwise exclude them (they're only Suggests, not Imports).

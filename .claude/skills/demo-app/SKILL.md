@@ -66,6 +66,17 @@ Rscript -e 'suppressMessages({library(testthat); library(shinyngs)}); \
   test_dir("tests/testthat", env = asNamespace("shinyngs"))'
 ```
 
+If the fix under test changes a function's roxygen comment (signature,
+`@return`, `@description`), regenerate its `.Rd` page too. Neither
+`devtools` nor `roxygen2` ships with the `r-shinyngs`/`r-testthat` env from
+step 1, so `devtools::document()` fails with "there is no package called
+'devtools'" — either install `roxygen2` into the env yourself
+(`micromamba install -n shinyngs-dev -c conda-forge r-roxygen2` — much
+lighter than pulling in all of `devtools`) and run
+`roxygen2::roxygenise()`, or hand-edit the affected `man/*.Rd` block to match
+(safe for a single small change; not a substitute for regenerating when
+several signatures change at once).
+
 ## 3. Get test data
 
 Pick whichever is closest to what the change touches.
@@ -113,10 +124,15 @@ tail. This is the part that's identical every time and where manual attempts
 go wrong (see the first pitfall below), so it's worth using even for a quick
 check.
 
+The scripts live inside this skill's own folder, not the repo — use the
+absolute path shown as "Base directory for this skill" when this skill was
+loaded (e.g. `<skill base dir>/scripts/run-app.sh`), not a `scripts/` path
+relative to the repo checkout, which won't exist there.
+
 ```bash
-scripts/run-app.sh --help   # read this first
-scripts/run-app.sh 8110 genesetanalysistable /tmp/data.rds   # single module — fastest, isolates one screen
-scripts/run-app.sh 8110 rnaseq zhangneurons                  # full app — click-through, cross-module changes
+<skill base dir>/scripts/run-app.sh --help   # read this first
+<skill base dir>/scripts/run-app.sh 8110 genesetanalysistable /tmp/data.rds   # single module — fastest, isolates one screen
+<skill base dir>/scripts/run-app.sh 8110 rnaseq zhangneurons                  # full app — click-through, cross-module changes
 ```
 
 `MODULE` is any shinyngs module name (`heatmap`, `pca`, `differentialtable`,
@@ -141,9 +157,9 @@ needs two separate R processes, each pointed at its own private copy of
 does this:
 
 ```bash
-scripts/compare-app.sh --help
-scripts/compare-app.sh develop . genesetanalysistable zhangneurons
-#                      ^old    ^new (this checkout, incl. uncommitted changes)
+<skill base dir>/scripts/compare-app.sh --help
+<skill base dir>/scripts/compare-app.sh develop . genesetanalysistable zhangneurons
+#                                       ^old    ^new (this checkout, incl. uncommitted changes)
 ```
 
 `OLD_REF`/`NEW_REF` are each either a git ref (branch/tag/commit) or an
@@ -166,11 +182,24 @@ with the *older* version's package so the comparison also exercises backward
 compatibility with it — usually the more informative direction, and it can
 turn up real bugs on its own, not just cosmetic differences.
 
+**Refreshing just one side after a local fix.** If the comparison turns up a
+real bug and you fix the code, you don't need to re-run the whole
+`compare-app.sh` (which reinstalls both sides) — reinstall only the side that
+changed into its existing isolated library, then relaunch just that side with
+`run-app.sh`, reusing the same library directory `compare-app.sh` created:
+
+```bash
+R CMD INSTALL --no-docs --no-multiarch --no-byte-compile -l /tmp/shinyngs-compare/new-lib .
+R_LIB_OVERRIDE=/tmp/shinyngs-compare/new-lib <skill base dir>/scripts/run-app.sh 8111 rnaseq zhangneurons
+```
+
+The other side keeps running untouched, so the comparison stays apples-to-apples.
+
 When done, tear everything down in one command — both apps' processes are
 otherwise easy to forget since there are two of them, not one:
 
 ```bash
-scripts/compare-app.sh --cleanup develop . 8110 8111
+<skill base dir>/scripts/compare-app.sh --cleanup develop . 8110 8111
 ```
 
 This kills both ports, deletes the temporary libraries, and removes any
@@ -225,3 +254,32 @@ from memory.
   both statuses, rather than stopping at the first failure. Check the
   printed log path before assuming the comparison scripts themselves are
   broken.
+
+- **Forgetting to activate the env in any single command silently serves a
+  different app, not an error.** Each tool-invoked shell command starts
+  fresh — a `micromamba activate` from a previous command does not carry
+  over, even mid-task. Drop the `eval "$(micromamba shell hook ...)" &&
+  micromamba activate shinyngs-dev` prefix from just one `run-app.sh` /
+  `R CMD INSTALL` call and R falls back to whatever `R`/`Rscript` resolves to
+  on the bare PATH (a system R install, a different env, whatever's first) —
+  it still launches and still answers on the port, just running stale or
+  unrelated package versions with none of the fix under test. This is
+  especially easy to trigger — and especially confusing — when refreshing
+  one side of a running comparison (the step above): the symptom looks like
+  a real regression (misbehaving JS, console errors, elements rendering
+  differently) that reappeared after being fixed. Before concluding a bug
+  came back, diff the loaded dependency versions between the two ports (e.g.
+  compare every `link[rel=stylesheet]`/`script[src]` href via Playwright) —
+  if versions that should be identical between old/new suddenly differ
+  (shiny, jquery, DT, plotly...), it's a dropped activation, not a
+  regression. Re-run the exact command with the activation prefix restored.
+
+- **Playwright text-selectors can match a hidden element from a different,
+  inactive tab.** shinyngs renders every module's UI into the DOM up front
+  and toggles visibility per tab rather than mounting on demand, so a
+  selector like `page.locator("a", has_text="help")` can resolve to a
+  same-named link sitting in a tab that isn't currently displayed, then hang
+  or time out on `.click()` ("element is not visible"). Scope locators to
+  the visible instance, e.g. `page.locator("a.help:visible").first` or
+  `.filter(has_text=...)` combined with `:visible`, rather than bare
+  text-based locators.

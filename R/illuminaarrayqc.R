@@ -50,10 +50,7 @@ illuminaarrayqcOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    modalInput(ns("illuminaarrayqc"), "help", "help"), modalOutput(ns("illuminaarrayqc"), "Quality control plot for Illumina microarray data", includeMarkdown(system.file("inlinehelp",
-      "illuminaarrayqc.md",
-      package = packageName()
-    ))), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
+    modalInput(ns("illuminaarrayqc"), "help", "help"), h3("Illumina microarray QC plot"), plotlyOutput(ns("qcplot"), height = 600), h4("Table of data"),
     simpletableOutput(ns("qctable"))
   )
 }
@@ -76,6 +73,8 @@ illuminaarrayqcOutput <- function(id) {
 #'
 illuminaarrayqc <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
+    modalServer("illuminaarrayqc", "Quality control plot for Illumina microarray data")
+
     unpack.list(selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE))
 
     output$qcplot <- renderPlotly({
