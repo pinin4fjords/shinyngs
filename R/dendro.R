@@ -104,10 +104,10 @@ dendro <- function(id, eselist) {
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
-        plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
+        validateOrCatch(plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
           cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
           palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
-        )
+        ))
       })
     })
   })

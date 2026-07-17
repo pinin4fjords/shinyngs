@@ -345,7 +345,7 @@ heatmap <- function(id, eselist, type = "expression") {
       ese <- getExperiment()
       plot_matrix <- getPlotMatrix()
 
-      if (length(ese@labelfield) > 0 && type == "expression") {
+      if (has_slot_data(ese, "labelfield") && type == "expression") {
         annotation <- as.data.frame(mcols(ese))
         labels <- annotation[match(rownames(plot_matrix), annotation[[ese@idfield]]), ese@labelfield]
         labels[!is.na(labels)] <- paste(labels[!is.na(labels)], rownames(plot_matrix)[!is.na(labels)], sep = " / ")
@@ -376,11 +376,11 @@ heatmap <- function(id, eselist, type = "expression") {
 
     output$interactiveHeatmap <- plotly::renderPlotly({
       withProgress(message = "Building interactive heatmap", value = 0, {
-        interactiveHeatmap(
+        validateOrCatch(interactiveHeatmap(
           plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
           cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
           display_numbers = FALSE, hide_colorbar = hideColorbar()
-        )
+        ))
       })
     })
   })
