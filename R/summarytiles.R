@@ -20,13 +20,15 @@
 #' @keywords shiny
 #'
 #' @examples
-#' summarytilesInput("summary", eselist)
+#' if (interactive()) {
+#'   data(zhangneurons)
+#'   summarytilesInput("summary", zhangneurons)
 #'
-#' # Almost certainly used via application creation
+#'   # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("summarytiles", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#'   app <- prepareApp("summarytiles", zhangneurons)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 summarytilesInput <- function(id, eselist) {
   ns <- NS(id)
@@ -49,13 +51,15 @@ summarytilesInput <- function(id, eselist) {
 #' @keywords shiny
 #'
 #' @examples
-#' summarytilesOutput("summary")
+#' if (interactive()) {
+#'   summarytilesOutput("summary")
 #'
-#' # Almost certainly used via application creation
+#'   # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("summarytiles", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#'   data(zhangneurons)
+#'   app <- prepareApp("summarytiles", zhangneurons)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 summarytilesOutput <- function(id) {
   ns <- NS(id)
@@ -79,13 +83,15 @@ summarytilesOutput <- function(id) {
 #' @keywords shiny
 #'
 #' @examples
-#' summarytiles("summary", eselist)
+#' if (interactive()) {
+#'   data(zhangneurons)
+#'   summarytiles("summary", zhangneurons)
 #'
-#' # Almost certainly used via application creation
+#'   # Almost certainly used via application creation
 #'
-#' data(zhangneurons)
-#' app <- prepareApp("summarytiles", zhangneurons)
-#' shiny::shinyApp(ui = app$ui, server = app$server)
+#'   app <- prepareApp("summarytiles", zhangneurons)
+#'   shiny::shinyApp(ui = app$ui, server = app$server)
+#' }
 #'
 summarytiles <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {

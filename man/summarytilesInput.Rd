@@ -29,13 +29,15 @@ module is run standalone; in a full application the tiles are placed in a
 main panel via \code{summarytilesOutput()}.
 }
 \examples{
-summarytilesInput("summary", eselist)
+if (interactive()) {
+  data(zhangneurons)
+  summarytilesInput("summary", zhangneurons)
 
-# Almost certainly used via application creation
+  # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("summarytiles", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+  app <- prepareApp("summarytiles", zhangneurons)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}

@@ -21,13 +21,15 @@ are rendered server-side from the supplied
 the placeholder into which they are drawn.
 }
 \examples{
-summarytilesOutput("summary")
+if (interactive()) {
+  summarytilesOutput("summary")
 
-# Almost certainly used via application creation
+  # Almost certainly used via application creation
 
-data(zhangneurons)
-app <- prepareApp("summarytiles", zhangneurons)
-shiny::shinyApp(ui = app$ui, server = app$server)
+  data(zhangneurons)
+  app <- prepareApp("summarytiles", zhangneurons)
+  shiny::shinyApp(ui = app$ui, server = app$server)
+}
 
 }
 \keyword{shiny}
