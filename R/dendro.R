@@ -102,12 +102,20 @@ dendro <- function(id, eselist) {
     # Trace 0 is the branch tree, so the per-group traces start at index 1.
     hiddenGroups <- legendHiddenGroups(plot_source, getLevels, getGroupby, trace_offset = 1L)
 
+    # Cached on exactly the inputs read below, so re-rendering the tab (or
+    # another session viewing the same matrix/settings) doesn't re-run the
+    # underlying distance/hclust computation.
+
+    getDendroPlot <- reactive({
+      validateOrCatch(plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
+        cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
+        palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+      ))
+    }) %>% bindCache(selectMatrix(), selectColData(), getGroupby(), input$corMethod, input$clusterMethod, matrixTitle(), getPalette(), hiddenGroups())
+
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
-        validateOrCatch(plotly_clusteringDendrogram(selectMatrix(), selectColData(), getGroupby(),
-          cor_method = input$corMethod, cluster_method = input$clusterMethod, matrixTitle(),
-          palette = getPalette(), hidden_groups = hiddenGroups(), source = plot_source
-        ))
+        getDendroPlot()
       })
     })
   })

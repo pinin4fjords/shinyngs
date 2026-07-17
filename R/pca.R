@@ -165,14 +165,15 @@ pca <- function(id, eselist) {
       }
     })
 
-    # Run the PCA
+    # Run the PCA. Cached on the input matrix so tweaking display-only controls
+    # (loadings count, axis choice, coloring) doesn't re-run prcomp().
 
     pca <- reactive({
       pcamatrix <- selectMatrix()
       withProgress(message = "Running principal component analysis", value = 0, {
         validateOrCatch(runPCA(pcamatrix))
       })
-    })
+    }) %>% bindCache(selectMatrix())
 
     # Fractional variance for each component
 
@@ -191,6 +192,13 @@ pca <- function(id, eselist) {
       c(getXAxis(), getYAxis(), getZAxis())
     })
 
+    # Debounce the loadings-count slider so dragging it doesn't refetch the
+    # loadings on every tick
+
+    getNLoadings <- reactive({
+      input$n_loadings
+    }) %>% debounce(300)
+
     # Fetch the loadings
 
     getLoadings <- reactive({
@@ -199,7 +207,7 @@ pca <- function(id, eselist) {
         fraction_explained <- calculatePCAFractionExplained()
         colnames(rot) <- paste0(colnames(rot), ": ", fraction_explained, "%")
 
-        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[seq_len(input$n_loadings)]]))
+        loaded_rows <- Reduce(union, lapply(selectedComponents(), function(pc) rownames(rot)[order(abs(rot[, pc]), decreasing = TRUE)[seq_len(getNLoadings())]]))
 
         # Also return a table with the loadings converted to fractions
 
@@ -245,9 +253,14 @@ pca <- function(id, eselist) {
       loadlabels <- paste(idToLabel(rownames(load$fraction), getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
 
-    simpletable("components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE)
+    # server = FALSE: column headers here embed the percent variance explained,
+    # which changes with every PCA re-run, so DT's server-side paging can race
+    # a debounced control change and fetch a page against headers that no
+    # longer match (see simpletable()'s `server` argument).
 
-    simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE)
+    simpletable("components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE, server = FALSE)
+
+    simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE, server = FALSE)
   })
 }
 

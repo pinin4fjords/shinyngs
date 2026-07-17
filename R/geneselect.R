@@ -176,6 +176,13 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       input$geneSelect
     })
 
+    # Debounce the "top N most variant rows" slider so dragging it doesn't
+    # trigger a row/expression matrix recompute on every tick
+
+    getObs <- reactive({
+      input$obs
+    }) %>% debounce(300)
+
     # Make all the reactive expressions that will be needed by calling modules.
 
     geneselect_functions <- list(getNonEmptyRows = getNonEmptyRows)
@@ -195,7 +202,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
           return(nonempty)
         } else if (gene_select == "variance") {
           vars <- rowVariances()
-          return(names(vars)[selectVariableGenes(input$obs, row_variances = vars)])
+          return(names(vars)[selectVariableGenes(getObs(), row_variances = vars)])
         } else if (gene_select == "metadata_pick") {
           selected_rows <- lsf_picked_methods$getSelectedIds()
           return(intersect(selected_rows, nonempty))
@@ -232,7 +239,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       if (gene_select == "all") {
         title <- "All rows"
       } else if (gene_select == "variance") {
-        title <- paste(paste("Top", input$obs, "rows"), "by variance")
+        title <- paste(paste("Top", getObs(), "rows"), "by variance")
       } else if (gene_select == "gene set") {
         title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(getGenesetNames()), collapse = "\n"))
         # } else if (gene_select == 'list') { title <- 'Rows for specifified gene list'

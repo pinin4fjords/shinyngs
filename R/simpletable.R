@@ -72,13 +72,21 @@ simpletableOutput <- function(id, tabletitle = NULL) {
 #' @param show_controls Show search box, controls etc on resulting data table?
 #' (default: TRUE)
 #' @param filter Passed to \code{DT::renderDataTable()}
+#' @param server Passed to \code{DT::renderDataTable()}. Leave at the default
+#' (TRUE) for most tables, since it keeps only the current page's data in the
+#' browser. Set to FALSE if \code{displayMatrix()} can produce a table with
+#' the same dimensions but different column *names* from one render to the
+#' next (e.g. column headers derived from a recalculated statistic) - DT's
+#' server-side mode matches an in-flight page/sort/search request to fresh
+#' data by column name, so a name change between the request and the
+#' response raises "the column name ... is not found in data".
 #'
 #' @keywords shiny
 #'
 #' @examples
 #' simpletable("simpletable", my_data_frame)
 #'
-simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none") {
+simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none", server = TRUE) {
   moduleServer(id, function(input, output, session) {
     if (is.null(downloadMatrix)) {
       downloadMatrix <- displayMatrix
@@ -97,7 +105,8 @@ simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 1
       options = options,
       filter = filter,
       rownames = rownames,
-      escape = FALSE
+      escape = FALSE,
+      server = server
     )
 
     output$downloadTable <- downloadHandler(filename = function() {
