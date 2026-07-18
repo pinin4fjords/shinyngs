@@ -47,18 +47,22 @@ modalInput <- function(id, label, class, icon = "info-circle", tooltip = "Open d
 #'   stay current.
 #' @param content Content to include in the modal. May be a function, called
 #'   each time the modal opens. When \code{NULL} (the default), Markdown is
-#'   loaded once from \code{inst/inlinehelp/<id>.md}.
+#'   loaded from \code{inst/inlinehelp/<id>.md} the first time the modal is
+#'   opened, then cached for the life of the session.
 #'
 #' @examples
 #' modalServer("dendro", "Sample clustering dendrogram")
 #'
 modalServer <- function(id, title, content = NULL) {
   moduleServer(id, function(input, output, session) {
-    default_body <- if (is.null(content)) {
-      includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
-    }
+    default_body <- NULL
     observeEvent(input$link, {
-      body <- if (is.null(content)) default_body else if (is.function(content)) content() else content
+      body <- if (is.null(content)) {
+        if (is.null(default_body)) {
+          default_body <<- includeMarkdown(system.file("inlinehelp", paste0(id, ".md"), package = packageName()))
+        }
+        default_body
+      } else if (is.function(content)) content() else content
       dialog_title <- if (is.function(title)) title() else title
       showModal(modalDialog(body, title = dialog_title, size = "l", easyClose = TRUE, footer = modalButton("Close")))
     })
