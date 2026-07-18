@@ -26,12 +26,6 @@ jobs:
       repository-projects: read
 
     steps:
-      - name: Validate event is release
-        if: github.event_name != 'release'
-        run: |
-          echo "This workflow should only be triggered by release events"
-          exit 1
-
       - name: Checkout calling repository
         uses: actions/checkout@v4
 
@@ -51,11 +45,10 @@ jobs:
         run: |
           set -euo pipefail
           perl -0pi -e 'my ($o, $n) = ($ENV{OLD_INSTALL}, $ENV{NEW_INSTALL}); s/\Q$o\E/$n/g' "$CODE_R"
-          if ! grep -qF 'r-lib/pkgdepends@026e5c1' "$CODE_R"; then
+          if grep -qF "$OLD_INSTALL" "$CODE_R" || ! grep -qF "$NEW_INSTALL" "$CODE_R"; then
             echo "::error::pkgdepends pin failed to apply; upstream code.R install line changed. Re-check the workaround for pinin4fjords/shinyngs#74."
             exit 1
           fi
-          grep -n 'pak::pak' "$CODE_R"
 
       - name: Find `Config/Needs/wasm` in DESCRIPTION
         id: needs
