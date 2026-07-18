@@ -46,12 +46,17 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          # rsconnect refuses to bundle a package installed from an untracked
-          # local source (no reproducible origin to reinstall from
-          # server-side), so shinyngs itself is installed as a GitHub remote
-          # pinned to the commit being deployed, rather than via local::.
-          extra-packages: any::rsconnect, pinin4fjords/shinyngs@${{ github.sha }}
+          extra-packages: any::rsconnect, any::remotes
           dependencies: 'c("Imports", "Depends", "LinkingTo")'
+
+      - name: Install shinyngs as a pinned GitHub remote
+        # rsconnect refuses to bundle a package with no reproducible install
+        # origin, which a pak-resolved extra-packages spec doesn't reliably
+        # provide (shinyapps.io rejected the resulting manifest with "Unknown
+        # repository for package source: deps"). A plain remotes::install_github
+        # call records proper GitHub remote metadata instead.
+        run: |
+          Rscript -e 'remotes::install_github("pinin4fjords/shinyngs", ref = "${{ github.sha }}", upgrade = "never")'
 
       - name: Build and deploy the shinyapps.io example app
         run: |
