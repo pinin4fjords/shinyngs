@@ -9,7 +9,13 @@ in the calling module's server function (see example).
 ## Usage
 
 ``` r
-modalInput(id, label, class, icon = "info-circle")
+modalInput(
+  id,
+  label,
+  class,
+  icon = "info-circle",
+  tooltip = "Open detailed help"
+)
 ```
 
 ## Arguments
@@ -29,6 +35,11 @@ modalInput(id, label, class, icon = "info-circle")
 - icon:
 
   Icon used to activate modal
+
+- tooltip:
+
+  Hover/focus hint describing where the link leads, shown via
+  [`bslib::tooltip()`](https://rstudio.github.io/bslib/reference/tooltip.html)
 
 ## Details
 
