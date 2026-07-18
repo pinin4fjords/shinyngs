@@ -17,14 +17,7 @@ make_minimal_eselist <- function() {
     assays = S4Vectors::SimpleList(counts = counts), colData = coldata, annotation = annotation,
     idfield = "gene_id", labelfield = "gene_name"
   )
-  eselist <- ExploratorySummarizedExperimentList(eses = list(counts = ese))
-
-  # The constructor's group_vars[1] fallback turns "no candidate columns" into
-  # a stray NA rather than a genuinely empty default_groupvar; clear both
-  # slots directly so has_slot_data() reports what this fixture intends.
-  eselist@group_vars <- character(0)
-  eselist@default_groupvar <- character(0)
-  eselist
+  ExploratorySummarizedExperimentList(eses = list(counts = ese))
 }
 
 make_full_eselist <- function(n_contrasts = 15) {

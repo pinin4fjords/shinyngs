@@ -52,7 +52,7 @@ make_upset_eselist <- function() {
 # them set explicitly rather than relying on the widget defaults.
 
 run_upset_server <- function(eselist, extra_inputs = list(), expr) {
-  args <- c(
+  args <- modifyList(
     list(
       "upset-experiment" = "counts",
       "upset-assay" = "counts",
@@ -72,7 +72,6 @@ run_upset_server <- function(eselist, extra_inputs = list(), expr) {
     ),
     extra_inputs
   )
-  args <- args[!duplicated(names(args), fromLast = TRUE)]
 
   shiny::testServer(upset, args = list(id = "upset", eselist = eselist), {
     session$userData$plotFormat <- function() "png"
