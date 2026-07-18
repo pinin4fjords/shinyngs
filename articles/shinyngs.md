@@ -32,6 +32,11 @@ for data mining at the end of an analysis pipeline.
 - Takes input in an extension of the commonly used
   `SummarizedExperiment` format, called
   `ExploratorySummarizedExperiment`
+- A **Share view** button in the navbar that captures the current
+  selections (experiment, matrix, samples, genes, contrast filters,
+  colouring and active panel) in the page URL and copies a shareable
+  link to the clipboard, so a configured view can be shared or revisited
+  by opening that link.
 - Interface kept simple where possible, with complexity automatically
   added where required:
   - Input field clutter reduced with the use of collapses from
