@@ -636,6 +636,9 @@ back the modules above. These aren’t part of the public API and are
 listed here only so the reference index build succeeds; see the package
 vignette for the supported way to build and combine modules.
 
+- [`COLORBLIND_PALETTE`](https://pinin4fjords.github.io/shinyngs/reference/COLORBLIND_PALETTE.md)
+  : shinyngs' fixed categorical colour palette
+
 - [`ExploratorySummarizedExperiment-class`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperiment-class.md)
   : The ExploratorySummarizedExperiment class
 
@@ -643,6 +646,9 @@ vignette for the supported way to build and combine modules.
   [`` `[`( ``*`<ExploratorySummarizedExperimentList>`*`,`*`<numeric>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList-class.md)
   [`` `[`( ``*`<ExploratorySummarizedExperimentList>`*`,`*`<logical>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList-class.md)
   : The ExploratorySummaizedExperimentList class
+
+- [`a11yControl()`](https://pinin4fjords.github.io/shinyngs/reference/a11yControl.md)
+  : Give a terse control an accessible name and a hover/focus tooltip
 
 - [`addPoints()`](https://pinin4fjords.github.io/shinyngs/reference/addPoints.md)
   : Add points to a plotly object
@@ -652,6 +658,9 @@ vignette for the supported way to build and combine modules.
 
 - [`adjustLayout()`](https://pinin4fjords.github.io/shinyngs/reference/adjustLayout.md)
   : Apply layout adjustments to plotly object
+
+- [`annotateDifferentialTable()`](https://pinin4fjords.github.io/shinyngs/reference/annotateDifferentialTable.md)
+  : Annotate a differential-scatter table with colorby and label columns
 
 - [`assaydatatable()`](https://pinin4fjords.github.io/shinyngs/reference/assaydatatable.md)
   : The server function of the assaydatatable module
@@ -676,6 +685,12 @@ vignette for the supported way to build and combine modules.
   :
 
   Output function of the `barplot` module
+
+- [`bookmarkedInputValue()`](https://pinin4fjords.github.io/shinyngs/reference/bookmarkedInputValue.md)
+  : Read a bookmarked input value from a restore state
+
+- [`box_summary()`](https://pinin4fjords.github.io/shinyngs/reference/box_summary.md)
+  : Summarise a vector into the statistics a box plot needs
 
 - [`boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/boxplot.md)
   : The server function of the boxplot module
@@ -723,6 +738,9 @@ vignette for the supported way to build and combine modules.
 - [`compile_contrast_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_contrast_data.md)
   : Compile contrast stats for inclusion in shinyngs
 
+- [`configureBookmarking()`](https://pinin4fjords.github.io/shinyngs/reference/configureBookmarking.md)
+  : Configure URL bookmarking for the top-level session
+
 - [`contrasts()`](https://pinin4fjords.github.io/shinyngs/reference/contrasts.md)
   : The server function of the contrasts module
 
@@ -732,6 +750,9 @@ vignette for the supported way to build and combine modules.
 - [`contrastsOutput()`](https://pinin4fjords.github.io/shinyngs/reference/contrastsOutput.md)
   : The output function of the contrasts module
 
+- [`defaultGroupvar()`](https://pinin4fjords.github.io/shinyngs/reference/defaultGroupvar.md)
+  : Resolve the default grouping variable for an experiment list
+
 - [`dendro()`](https://pinin4fjords.github.io/shinyngs/reference/dendro.md)
   : The server function of the dendrogram module
 
@@ -740,6 +761,14 @@ vignette for the supported way to build and combine modules.
 
 - [`dendroOutput()`](https://pinin4fjords.github.io/shinyngs/reference/dendroOutput.md)
   : The output function of the dendro module
+
+- [`detailSamples()`](https://pinin4fjords.github.io/shinyngs/reference/detailSamples.md)
+  [`detailFeatures()`](https://pinin4fjords.github.io/shinyngs/reference/detailSamples.md)
+  [`detailAssays()`](https://pinin4fjords.github.io/shinyngs/reference/detailSamples.md)
+  [`detailGroups()`](https://pinin4fjords.github.io/shinyngs/reference/detailSamples.md)
+  [`detailContrasts()`](https://pinin4fjords.github.io/shinyngs/reference/detailSamples.md)
+  [`detailGenesets()`](https://pinin4fjords.github.io/shinyngs/reference/detailSamples.md)
+  : Detail-drawer builders, one per tile
 
 - [`dexseqplot()`](https://pinin4fjords.github.io/shinyngs/reference/dexseqplot.md)
   : The server function of the dexseqplot Shiny module
@@ -763,6 +792,16 @@ vignette for the supported way to build and combine modules.
 
 - [`dexseqtableOutput()`](https://pinin4fjords.github.io/shinyngs/reference/dexseqtableOutput.md)
   : The output function of the dexseqtable module
+
+- [`differentialScatterInput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterInput.md)
+  : Shared UI input scaffolding for the differential-scatter plot
+  modules
+
+- [`differentialScatterOutput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterOutput.md)
+  : Shared output scaffolding for the differential-scatter plot modules
+
+- [`differentialScatterServer()`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterServer.md)
+  : Shared server logic for the differential-scatter plot modules
 
 - [`differentialtable()`](https://pinin4fjords.github.io/shinyngs/reference/differentialtable.md)
   : The server function of the differentialtable module
@@ -793,6 +832,9 @@ vignette for the supported way to build and combine modules.
 
 - [`fieldSets()`](https://pinin4fjords.github.io/shinyngs/reference/fieldSets.md)
   : Create sets of fields for display
+
+- [`finiteAxisRange()`](https://pinin4fjords.github.io/shinyngs/reference/finiteAxisRange.md)
+  : Finite x/y bounds of a differential-scatter table
 
 - [`fixedEffectsFormula()`](https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsFormula.md)
   : Remove random effects from a model formula
@@ -883,6 +925,14 @@ vignette for the supported way to build and combine modules.
 - [`heatmapOutput()`](https://pinin4fjords.github.io/shinyngs/reference/heatmapOutput.md)
   : The output function of the heatmap module
 
+- [`homeNavTargets()`](https://pinin4fjords.github.io/shinyngs/reference/homeNavTargets.md)
+  :
+
+  Shared tab-panel `value`s targeted from the landing page
+
+- [`homeTab()`](https://pinin4fjords.github.io/shinyngs/reference/homeTab.md)
+  : Build the landing ("Home") tab for a full shinyngs application
+
 - [`illuminaarray()`](https://pinin4fjords.github.io/shinyngs/reference/illuminaarray.md)
   : The server function of the illuminaarray module
 
@@ -948,6 +998,15 @@ vignette for the supported way to build and combine modules.
   :
 
   The server function of the `modal` module
+
+- [`moduleLayout()`](https://pinin4fjords.github.io/shinyngs/reference/moduleLayout.md)
+  : Lay out a module's controls beside its output
+
+- [`moduleMain()`](https://pinin4fjords.github.io/shinyngs/reference/moduleMain.md)
+  : Assemble a module's main-panel content
+
+- [`navLink()`](https://pinin4fjords.github.io/shinyngs/reference/navLink.md)
+  : Build a link that activates a navbar tab client-side
 
 - [`pca()`](https://pinin4fjords.github.io/shinyngs/reference/pca.md) :
   The server function of the pca module
@@ -1018,6 +1077,15 @@ vignette for the supported way to build and combine modules.
 - [`scatterplotcontrolsInput()`](https://pinin4fjords.github.io/shinyngs/reference/scatterplotcontrolsInput.md)
   : Input function for scatterplotcontrols module
 
+- [`selectFoldchangeLines()`](https://pinin4fjords.github.io/shinyngs/reference/selectFoldchangeLines.md)
+  : Select which fold change plot threshold lines to draw
+
+- [`selectMaLines()`](https://pinin4fjords.github.io/shinyngs/reference/selectMaLines.md)
+  : Select which MA plot threshold lines to draw
+
+- [`selectVolcanoLines()`](https://pinin4fjords.github.io/shinyngs/reference/selectVolcanoLines.md)
+  : Select which volcano plot threshold lines to draw
+
 - [`selectmatrix()`](https://pinin4fjords.github.io/shinyngs/reference/selectmatrix.md)
   : The server function of the selectmatrix module
 
@@ -1027,6 +1095,15 @@ vignette for the supported way to build and combine modules.
 - [`shinyngs-package`](https://pinin4fjords.github.io/shinyngs/reference/shinyngs.md)
   [`shinyngs`](https://pinin4fjords.github.io/shinyngs/reference/shinyngs.md)
   : Interactive downstream analysis with ShinyNGS.
+
+- [`shinyngsPageNavbar()`](https://pinin4fjords.github.io/shinyngs/reference/shinyngsPageNavbar.md)
+  : Build the top-level bslib page shell shared by the app modules
+
+- [`shinyngsPlotlyConfig()`](https://pinin4fjords.github.io/shinyngs/reference/shinyngsPlotlyConfig.md)
+  : Apply shinyngs' shared plotly toolbar configuration
+
+- [`shinyngsSpinnerColor()`](https://pinin4fjords.github.io/shinyngs/reference/shinyngsSpinnerColor.md)
+  : Accent colour for loading spinners
 
 - [`simpleApp()`](https://pinin4fjords.github.io/shinyngs/reference/simpleApp.md)
   :
@@ -1055,6 +1132,12 @@ vignette for the supported way to build and combine modules.
 
 - [`summarisematrixInput()`](https://pinin4fjords.github.io/shinyngs/reference/summarisematrixInput.md)
   : The input function of the summarizematrix module
+
+- [`summaryTileSpecs()`](https://pinin4fjords.github.io/shinyngs/reference/summaryTileSpecs.md)
+  : Assemble the summary tile specifications for an experiment list
+
+- [`summaryTileTag()`](https://pinin4fjords.github.io/shinyngs/reference/summaryTileTag.md)
+  : Build a single clickable summary tile
 
 - [`summarytiles()`](https://pinin4fjords.github.io/shinyngs/reference/summarytiles.md)
   : The server function of the summarytiles module

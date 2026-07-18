@@ -15,6 +15,7 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/addPoints.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/addTextLabels.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/adjustLayout.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/annotateDifferentialTable.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/anova_pca_metadata.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/assaydatatable.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/assaydatatableInput.html</loc></url>
@@ -67,6 +68,9 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/dexseqtableInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/dexseqtableInputFields.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/dexseqtableOutput.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialScatterInput.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialScatterOutput.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialScatterServer.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialtable.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialtableInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialtableOutput.html</loc></url>
@@ -78,6 +82,7 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/experimenttableInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/experimenttableOutput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/fieldSets.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/finiteAxisRange.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsFormula.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsModelMatrix.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/foldChange.html</loc></url>
@@ -185,6 +190,8 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/scatterplotOutput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/scatterplotcontrols.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/scatterplotcontrolsInput.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectFoldchangeLines.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectMaLines.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectVariableGenes.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectVolcanoLines.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/selectmatrix.html</loc></url>

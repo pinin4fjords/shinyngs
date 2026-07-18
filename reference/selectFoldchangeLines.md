@@ -1,16 +1,16 @@
-# Select which volcano plot threshold lines to draw
+# Select which fold change plot threshold lines to draw
 
 The fold change filter can apply symmetrically (both up and down) or
 only in one direction, depending on the cardinality operator and the
 sign of the limit. This picks the matching subset of rows from the
-`lines` data frame built in `buildVolcanoLines`, where rows 1-2 are the
-fold-down threshold, rows 3-4 the fold-up threshold, and rows 5-6 the
-q-value threshold.
+`lines` data frame built in `buildFoldchangeLines`, where rows 1-2 are
+the "no change" diagonal, rows 3-4 the fold-down threshold, and rows 5-6
+the fold-up threshold.
 
 ## Usage
 
 ``` r
-selectVolcanoLines(lines, fccard, fclim)
+selectFoldchangeLines(lines, fccard, fclim)
 ```
 
 ## Arguments
