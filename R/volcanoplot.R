@@ -107,6 +107,35 @@ volcanoplotOutput <- function(id) {
   )
 }
 
+#' Select which volcano plot threshold lines to draw
+#'
+#' The fold change filter can apply symmetrically (both up and down) or only
+#' in one direction, depending on the cardinality operator and the sign of
+#' the limit. This picks the matching subset of rows from the \code{lines}
+#' data frame built in the \code{plotLines} reactive of the
+#' \code{volcanoplot} module, where rows 1-2 are the fold-down threshold,
+#' rows 3-4 the fold-up threshold, and rows 5-6 the q-value threshold.
+#'
+#' @param lines data.frame of threshold lines with six rows, in the row
+#'   order described above
+#' @param fccard Fold change cardinality operator, as returned by
+#'   \code{getFoldChangeCard()} from the \code{contrasts} module
+#' @param fclim Fold change limit, as returned by \code{getFoldChange()}
+#'   from the \code{contrasts} module
+#'
+#' @return A subset of \code{lines}, with unused factor levels dropped
+#'
+#' @keywords internal
+selectVolcanoLines <- function(lines, fccard, fclim) {
+  if (fccard %in% c(">= or <= -", "<= and >= -")) {
+    lines
+  } else if (fccard == "<=" && sign(fclim) == -1) {
+    droplevels(lines[c(1, 2, 5, 6), ])
+  } else {
+    droplevels(lines[1:4, ])
+  }
+}
+
 #' The server function of the \code{volcanoplot} module
 #'
 #' This function is called directly, using the same id as its UI counterpart,
@@ -198,14 +227,7 @@ volcanoplot <- function(id, eselist) {
 
         fccard <- contrast_reactives$getFoldChangeCard()
 
-        if (fccard %in% c(">= or <= -", "<= and >= -")) {
-          lines <- lines
-        } else if (fccard == "<=" && sign(fclim) == "-1") {
-          lines <- droplevels(lines[1, 2, 5, 6, ])
-        } else {
-          lines <- droplevels(lines[1:4, ])
-        }
-        lines
+        selectVolcanoLines(lines, fccard, fclim)
       })
     })
 
