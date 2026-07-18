@@ -326,6 +326,35 @@ vignette('shinyngs')
 
 - More useful non-RNAseq functionality to be added
 
+# Credits
+
+Shinyngs combines a number of other open-source packages to do its work.
+Deployed apps also carry a “Credits” link in the navbar crediting these
+directly, but for reference:
+
+- [Shiny](https://shiny.posit.co/) and
+  [bslib](https://rstudio.github.io/bslib/) - the application framework
+  and Bootstrap 5 theming.
+- [DT](https://rstudio.github.io/DT/), wrapping the
+  [DataTables](https://datatables.net/) jQuery plugin - interactive
+  tables.
+- [plotly](https://plotly.com/r/), wrapping
+  [plotly.js](https://plotly.com/javascript/) - interactive plots.
+- [heatmaply](https://talgalili.github.io/heatmaply/) - interactive
+  heatmaps.
+- [ggplot2](https://ggplot2.tidyverse.org/) and
+  [ggdendro](https://cran.r-project.org/package=ggdendro) - static
+  plotting.
+- [igvShiny](https://github.com/gladkia/igvShiny), wrapping the
+  [Integrative Genomics Viewer](https://igv.org/) (igv.js) - the gene
+  model browser.
+- [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment/),
+  [limma](https://bioconductor.org/packages/limma/) and
+  [DEXSeq](https://bioconductor.org/packages/DEXSeq/) from Bioconductor.
+
+The full dependency list, with versions, is in
+[DESCRIPTION](DESCRIPTION).
+
 # Contributors
 
 I can be reached on @pinin4fjords with any queries. Other contributors

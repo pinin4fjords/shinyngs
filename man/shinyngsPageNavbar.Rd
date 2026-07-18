@@ -17,9 +17,11 @@ A \code{bslib::page_navbar()}
 }
 \description{
 Applies the package's Bootstrap 5 theme and dark navbar styling, injects
-the package CSS/JS and shinyjs, adds a light/dark mode toggle to the
-navbar, and constructs the resulting \code{bslib::page_navbar()}. The
-accent colour is defined once here, on the theme, and everything else
-(CSS, plots) derives from the resulting Bootstrap variables.
+the package CSS/JS and shinyjs, adds a light/dark mode toggle and a
+"Credits" link (software acknowledgements, via the \code{shinyngs_credits}
+modal wired up in \code{configureBookmarking()}) to the navbar, and
+constructs the resulting \code{bslib::page_navbar()}. The accent colour is
+defined once here, on the theme, and everything else (CSS, plots) derives
+from the resulting Bootstrap variables.
 }
 \keyword{internal}
