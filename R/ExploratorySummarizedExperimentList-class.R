@@ -128,7 +128,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
 
   if (length(group_vars) == 0) {
     group_vars <- chooseGroupingVariables(data.frame(colData(eses[[1]]), check.names = FALSE))
-    default_groupvar <- group_vars[1]
+    default_groupvar <- if (length(group_vars) > 0) group_vars[1] else character(0)
   }
 
   # If gene sets are provided, key the gene sets by gene name for easier access
