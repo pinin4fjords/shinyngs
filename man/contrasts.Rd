@@ -46,6 +46,15 @@ users to add filters to progressively refine a query.
 \details{
 This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in \code{moduleServer()} (see example).
+
+The reactive graph is built by a sequence of internal factory functions,
+each owning one cohesive stage (contrast enumeration, naming, the dynamic
+filter-set engine, table building, selection, filtering, labelling, and
+the query summary) - see \code{contrastEnumeration}, \code{contrastNaming},
+\code{contrastFilterSetEngine}, \code{contrastTableBuilder},
+\code{contrastSelection}, \code{contrastFiltering}, \code{contrastLabelling}
+and \code{contrastQuerySummary}. This function itself just wires those
+stages together in dependency order and returns their public reactives.
 }
 \examples{
 contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
