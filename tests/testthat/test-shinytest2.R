@@ -26,7 +26,7 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-pca-pca-scatter" %in% outputs)
   expect_true("rnaseq-pca-components-datatable" %in% outputs)
-  expect_true("rnaseq-pca-pca-selectmatrix-geneSelect" %in% outputs)
+  expect_true("rnaseq-pca-pca-selectmatrix-geneSelect_ui" %in% outputs)
 
   # 12 samples in shinytest2_eselist(); assert the scatter actually plots one
   # point per sample rather than just checking the output registered.
@@ -65,7 +65,7 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
 
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-heatmap-clustering-interactiveHeatmap" %in% outputs)
-  expect_true("rnaseq-heatmap-clustering-heatmap-selectmatrix-geneSelect" %in% outputs)
+  expect_true("rnaseq-heatmap-clustering-heatmap-selectmatrix-geneSelect_ui" %in% outputs)
 
   # 12 samples in shinytest2_eselist(); the clustering heatmap's main trace is
   # a 12x12 sample-by-sample matrix, so assert that shape rather than just
