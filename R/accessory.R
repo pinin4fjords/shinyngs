@@ -230,7 +230,7 @@ shinyngsPageNavbar <- function(navbar_menus) {
   # load (dark OS scheme) would otherwise paint the default light theme for a
   # frame or two first, flashing white (most visibly across large plots).
   no_flash <- tags$head(tags$script(HTML(
-    "(function(){try{var d=document.documentElement;if(!d.getAttribute('data-bs-theme')){var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;d.setAttribute('data-bs-theme',m?'dark':'light');}}catch(e){}})();"
+    "(function(){try{var d=document.documentElement;if(!d.lang){d.lang='en';}if(!d.getAttribute('data-bs-theme')){var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;d.setAttribute('data-bs-theme',m?'dark':'light');}}catch(e){}})();"
   )))
   navbar_menus$header <- tagList(no_flash, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
   navbar_menus <- c(navbar_menus, list(
@@ -242,7 +242,11 @@ shinyngsPageNavbar <- function(navbar_menus) {
       class = "btn-sm",
       title = "Copy a shareable link that restores the current view"
     )),
-    bslib::nav_item(bslib::input_dark_mode(id = "shinyngs_dark_mode"))
+    bslib::nav_item(a11yControl(
+      bslib::input_dark_mode(id = "shinyngs_dark_mode"),
+      label = "Toggle light or dark mode",
+      placement = "bottom"
+    ))
   ))
   do.call(bslib::page_navbar, navbar_menus)
 }
@@ -729,6 +733,28 @@ withHelpIcon <- function(label, tooltip = NULL, placement = "right") {
     tooltip,
     placement = placement
   ))
+}
+
+#' Give a terse control an accessible name and a hover/focus tooltip
+#'
+#' Icon-only or single-word controls (the dark-mode toggle, plot/table
+#' download buttons, help-modal triggers) carry little visible text, so they
+#' are hard to identify by mouse, keyboard or screen reader. This sets an
+#' \code{aria-label} for assistive technology and wraps the control in a short
+#' \code{bslib::tooltip()} that surfaces on both hover and keyboard focus.
+#'
+#' @param tag A single UI element to annotate
+#' @param label Accessible name, applied as the tag's \code{aria-label}
+#' @param tooltip Tooltip text shown on hover/focus; defaults to \code{label}
+#' @param placement Tooltip placement, passed to \code{\link[bslib]{tooltip}}
+#'
+#' @return \code{tag} wrapped in a \code{bslib::tooltip()}
+#'
+#' @keywords internal
+#'
+a11yControl <- function(tag, label, tooltip = label, placement = "top") {
+  tag <- tagAppendAttributes(tag, `aria-label` = label)
+  bslib::tooltip(tag, tooltip, placement = placement)
 }
 
 #' Wrap a Shiny input so its label is displayed inline

@@ -11,18 +11,25 @@
 #' @param label A label to use for the link
 #' @param class A class to apply to the link
 #' @param icon Icon used to activate modal
+#' @param tooltip Hover/focus hint describing where the link leads, shown via
+#'   \code{bslib::tooltip()}
 #'
 #' @examples
 #' modalInput(ns("dendro"), "help")
 #'
-modalInput <- function(id, label, class, icon = "info-circle") {
+modalInput <- function(id, label, class, icon = "info-circle", tooltip = "Open detailed help") {
   ns <- NS(id)
 
+  accessible_name <- if (is.character(label)) label else "help"
   if (!is.null(icon)) {
     label <- HTML(paste(icon(icon, verify_fa = FALSE), label))
   }
 
-  actionLink(ns("link"), label = label, class = class)
+  a11yControl(
+    actionLink(ns("link"), label = label, class = class),
+    label = accessible_name,
+    tooltip = tooltip
+  )
 }
 
 #' The server function of the \code{modal} module
