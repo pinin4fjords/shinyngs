@@ -78,10 +78,14 @@ jobs:
           build_args: 'c("--no-manual", "--no-build-vignettes")'
 
       - name: Report and enforce test coverage
-        # covr instrumentation itself can be flaky (unrelated to actual test
-        # coverage), so that failure mode is caught and only warned about
-        # below. A genuine drop below the floor is not tolerated: it fails
-        # the job via stop(), with no continue-on-error on this step.
+        # covr instrumentation itself can be flaky, independent of actual
+        # coverage, so that failure mode is only warned about below. This
+        # step doesn't fail the job directly (continue-on-error below) so
+        # that the integration steps that follow still run and report their
+        # own failures in the same CI run; the final step fails the job if
+        # this one's outcome was a genuine coverage-floor failure.
+        id: coverage
+        continue-on-error: true
         run: |
           Rscript -e '
             coverage_floor <- 55
@@ -174,4 +178,10 @@ jobs:
             wait "$pid" || status=1
           done
           exit $status
+
+      - name: Fail the job if coverage was below the floor
+        if: always() && steps.coverage.outcome == 'failure'
+        run: |
+          echo "Test coverage was below the required floor; see the 'Report and enforce test coverage' step above for the measured percentage."
+          exit 1
 
