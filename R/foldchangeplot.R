@@ -31,31 +31,7 @@ foldchangeplot_modal <- list(id = "foldchangeplot", title = "Fold change plots")
 #' }
 #'
 foldchangeplotInput <- function(id, eselist) {
-  ns <- NS(id)
-
-  # Only consider experiments that actually have p-values to use in a volcano plot
-
-  expression_filters <- selectmatrixInput(ns("expression"), eselist)
-
-  # If there's only one experiment, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for them
-
-  fieldsets <- list(contrasts = list(contrastsInput(ns("differential"))))
-  if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
-    fieldsets$expression_matrix <- expression_filters
-  }
-
-  fieldsets <- c(fieldsets, list(
-    scatter_plot = scatterplotInput(ns("foldchange")), highlight_points = geneselectInput(ns("foldchange")),
-    export = simpletableInput(ns("foldchangetable"))
-  ))
-
-  inputs <- list(fieldSets(ns("fieldset"), fieldsets))
-
-  if (length(eselist) == 1 && length(assays(eselist[[1]])) == 1) {
-    inputs <- pushToList(inputs, expression_filters)
-  }
-
-  inputs
+  differentialScatterInput(id, eselist, scatter_id = "foldchange")
 }
 
 #' The output function of the \code{foldchangeplot} module
@@ -85,14 +61,36 @@ foldchangeplotInput <- function(id, eselist) {
 #' }
 #'
 foldchangeplotOutput <- function(id) {
-  ns <- NS(id)
+  differentialScatterOutput(id, scatter_id = "foldchange", title = "Fold change plot", modal = foldchangeplot_modal)
+}
 
-  moduleMain(
-    "Fold change plot",
-    scatterplotOutput(ns("foldchange")),
-    htmlOutput(ns("foldchangetable")),
-    help = modalInput(ns(foldchangeplot_modal$id), "help", "help")
-  )
+#' Select which fold change plot threshold lines to draw
+#'
+#' The fold change filter can apply symmetrically (both up and down) or only
+#' in one direction, depending on the cardinality operator and the sign of
+#' the limit. This picks the matching subset of rows from the \code{lines}
+#' data frame built in \code{\link{buildFoldchangeLines}}, where rows 1-2 are
+#' the "no change" diagonal, rows 3-4 the fold-down threshold, and rows 5-6
+#' the fold-up threshold.
+#'
+#' @param lines data.frame of threshold lines with six rows, in the row
+#'   order described above
+#' @param fccard Fold change cardinality operator, as returned by
+#'   \code{getFoldChangeCard()} from the \code{contrasts} module
+#' @param fclim Fold change limit, as returned by \code{getFoldChange()}
+#'   from the \code{contrasts} module
+#'
+#' @return A subset of \code{lines}, with unused factor levels dropped
+#'
+#' @keywords internal
+selectFoldchangeLines <- function(lines, fccard, fclim) {
+  if (fccard %in% c(">= or <= -", "<= and >= -")) {
+    lines
+  } else if (fccard == "<=" && sign(fclim) == -1) {
+    droplevels(lines[1:4, ])
+  } else {
+    droplevels(lines[c(1, 2, 5, 6), ])
+  }
 }
 
 #' The server function of the \code{foldchangeplot} module
@@ -124,113 +122,56 @@ foldchangeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(foldchangeplot_modal$id, foldchangeplot_modal$title)
 
-    # Call the selectmatrix module and hold on to the reactives it sends back
-
-    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE)
-
-    # Pass the matrix to the contrasts module for processing
-
-    contrast_reactives <- contrasts("differential", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
-
-    # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
-
-    geneselect_reactives <- geneselect("foldchange", eselist = eselist, getExperiment = selectmatrix_reactives$getExperiment, getAssay = selectmatrix_reactives$getAssay, provide_all = FALSE, provide_none = TRUE)
-
-    output$foldchangetable <- renderUI({
-      ns <- session$ns
-
-      simpletableOutput(ns("foldchangetable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]], sep = ": "), spinner = TRUE)
-    })
-
-    # Pass the matrix to the scatterplot module for display
-
-    scatterplot("foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
-
-    # Make a title by selecting the single contrast name of the single filter set
-
-    getTitle <- reactive({
-      contrast_names <- contrast_reactives$getSelectedContrastNames()
-      contrast_names[[1]][[1]]
-    })
-
-    # Make a set of dashed lines to overlay on the plot representing thresholds
-
-    plotLines <- reactive({
-      fct <- foldchangeTable()
-
-      fclim <- contrast_reactives$getFoldChange()
-
-      normal_y <- !is.infinite(fct[, 2])
-      normal_x <- !is.infinite(fct[, 1])
-
-      ymax <- max(fct[normal_y, 2])
-      ymin <- min(fct[normal_y, 2])
-
-      xmax <- max(fct[normal_x, 1])
-      xmin <- min(fct[normal_x, 1])
-
-      min <- min(xmin, ymin)
-      max <- max(xmax, ymax)
-
-      lines <- data.frame(
-        name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(
-          min, max,
-          min, max, min, max
-        ), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim))))
-      )
-      lines$name <- factor(lines$name, levels = unique(lines$name))
-
-      # Use lines dependent on how the fold change filter is applied
-
-      fccard <- contrast_reactives$getFoldChangeCard()
-      if (fccard %in% c(">= or <= -", "<= and >= -")) {
-        lines
-      } else if (fccard == "<=" && sign(fclim) == "-1") {
-        droplevels(lines[1:4, ])
-      } else {
-        droplevels(lines[c(1, 2, 5, 6), ])
-      }
-    })
-
-    # Extract labels from the volcano table
-
-    foldchangeLabels <- reactive({
-      fct <- foldchangeTable()
-      fct$label
-    })
-
-    # Extract a vector use to make colors by group
-
-    colorBy <- reactive({
-      fct <- foldchangeTable()
-      fct$colorby
-    })
-
-    # Make a table of values to use in the volcano plot. Round the values to save space in the JSON
-
-    foldchangeTable <- reactive({
-      withProgress(message = "Compiling fold change plot data", value = 0, {
-        sct <- contrast_reactives$selectedContrastsTables()
-        ct <- sct[[1]][[1]]
-        ct <- round(log2(ct[, 1:2]), 3)
-
-        cont <- contrast_reactives$getSelectedContrasts()[[1]][[1]]
-        colnames(ct) <- c(paste0("log2(", cont[2], ")"), paste0("log2(", cont[3], ")"))
-
-        fct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
-        ct$colorby <- "hidden"
-        ct[rownames(fct), "colorby"] <- "match contrast filters"
-        ct[geneselect_reactives$selectRows(), "colorby"] <- "in highlighted gene set"
-        ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
-
-        ct$label <- idToLabel(rownames(ct), selectmatrix_reactives$getExperiment())
-        ct$label[!rownames(ct) %in% c(rownames(fct), geneselect_reactives$selectRows())] <- NA
-      })
-      ct
-    })
-
-    # Display the data as a table alongside
-
-    simpletable("foldchangetable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "foldchange", rownames = FALSE, pageLength = 10)
+    differentialScatterServer(input, output, session, eselist,
+      scatter_id = "foldchange", filename = "foldchange",
+      buildTable = buildFoldchangeTable, buildLines = buildFoldchangeLines
+    )
   })
+}
+
+# Make a table of values to use in the fold change plot. Round the values to save space in the JSON
+
+buildFoldchangeTable <- function(contrast_reactives) {
+  withProgress(message = "Compiling fold change plot data", value = 0, {
+    sct <- contrast_reactives$selectedContrastsTables()
+    ct <- sct[[1]][[1]]
+    ct <- round(log2(ct[, 1:2]), 3)
+
+    cont <- contrast_reactives$getSelectedContrasts()[[1]][[1]]
+    colnames(ct) <- c(paste0("log2(", cont[2], ")"), paste0("log2(", cont[3], ")"))
+
+    ct
+  })
+}
+
+# Make a set of dashed lines to overlay on the plot representing thresholds
+
+buildFoldchangeLines <- function(fct, contrast_reactives) {
+  fclim <- contrast_reactives$getFoldChange()
+
+  normal_y <- !is.infinite(fct[, 2])
+  normal_x <- !is.infinite(fct[, 1])
+
+  ymax <- max(fct[normal_y, 2])
+  ymin <- min(fct[normal_y, 2])
+
+  xmax <- max(fct[normal_x, 1])
+  xmin <- min(fct[normal_x, 1])
+
+  min <- min(xmin, ymin)
+  max <- max(xmax, ymax)
+
+  lines <- data.frame(
+    name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(
+      min, max,
+      min, max, min, max
+    ), y = c(c(min, max), (min - log2(abs(fclim))), (max - log2(abs(fclim))), (min + log2(abs(fclim))), (max + log2(abs(fclim))))
+  )
+  lines$name <- factor(lines$name, levels = unique(lines$name))
+
+  # Use lines dependent on how the fold change filter is applied
+
+  fccard <- contrast_reactives$getFoldChangeCard()
+
+  selectFoldchangeLines(lines, fccard, fclim)
 }

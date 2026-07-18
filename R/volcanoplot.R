@@ -33,35 +33,10 @@ volcanoplot_modal <- list(id = "volcanoplot", title = "Volcano plots")
 #' }
 #'
 volcanoplotInput <- function(id, eselist) {
-  ns <- NS(id)
-
-  # Only consider experiments that actually have p-values to use in a volcano plot
-
-  eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-    has_slot_data(ese, "contrast_stats")
-  })))]
-  expression_filters <- selectmatrixInput(ns("expression"), eselist, require_contrast_stats = TRUE)
-
-  # If there's only one experiment with contrast_stats, then the expression filters will just be hidden fields, and there's no point in creating an empty fieldset for
-  # them
-
-  fieldsets <- list()
-  if (length(eselist) > 1) {
-    fieldsets$expression_matrix <- expression_filters
-  }
-
-  fieldsets <- c(fieldsets, list(
-    contrasts = list(contrastsInput(ns("differential"))), scatter_plot = scatterplotInput(ns("volcano")), highlight_points = geneselectInput(ns("volcano")),
-    export = simpletableInput(ns("volcanotable"))
-  ))
-
-  inputs <- list(fieldSets(ns("fieldset"), fieldsets))
-
-  if (length(eselist) == 1) {
-    inputs <- pushToList(inputs, expression_filters)
-  }
-
-  inputs
+  differentialScatterInput(id, eselist,
+    scatter_id = "volcano", require_contrast_stats = TRUE,
+    multi_view_fn = function(esel) length(esel) > 1
+  )
 }
 
 #' The output function of the \code{volcanoplot} module
@@ -97,14 +72,7 @@ volcanoplotInput <- function(id, eselist) {
 #' }
 #'
 volcanoplotOutput <- function(id) {
-  ns <- NS(id)
-
-  moduleMain(
-    "Volcano plot",
-    scatterplotOutput(ns("volcano")),
-    htmlOutput(ns("volcanotable")),
-    help = modalInput(ns(volcanoplot_modal$id), "help", "help")
-  )
+  differentialScatterOutput(id, scatter_id = "volcano", title = "Volcano plot", modal = volcanoplot_modal)
 }
 
 #' Select which volcano plot threshold lines to draw
@@ -112,9 +80,9 @@ volcanoplotOutput <- function(id) {
 #' The fold change filter can apply symmetrically (both up and down) or only
 #' in one direction, depending on the cardinality operator and the sign of
 #' the limit. This picks the matching subset of rows from the \code{lines}
-#' data frame built in the \code{plotLines} reactive of the
-#' \code{volcanoplot} module, where rows 1-2 are the fold-down threshold,
-#' rows 3-4 the fold-up threshold, and rows 5-6 the q-value threshold.
+#' data frame built in \code{\link{buildVolcanoLines}}, where rows 1-2 are
+#' the fold-down threshold, rows 3-4 the fold-up threshold, and rows 5-6 the
+#' q-value threshold.
 #'
 #' @param lines data.frame of threshold lines with six rows, in the row
 #'   order described above
@@ -166,120 +134,66 @@ volcanoplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(volcanoplot_modal$id, volcanoplot_modal$title)
 
-    # Call the selectmatrix module and hold on to the reactives it sends back
+    differentialScatterServer(input, output, session, eselist,
+      scatter_id = "volcano", require_contrast_stats = TRUE, filename = "volcano",
+      buildTable = buildVolcanoTable, buildLines = buildVolcanoLines
+    )
+  })
+}
 
-    selectmatrix_reactives <- selectmatrix("expression", eselist, var_n = 1000, select_samples = FALSE, select_genes = FALSE, provide_all_genes = TRUE, require_contrast_stats = TRUE)
+# Make a table of values to use in the volcano plot. Round the values to save space in the JSON
 
-    # Pass the matrix to the contrasts module for processing
+buildVolcanoTable <- function(contrast_reactives) {
+  withProgress(message = "Compiling volcano plot data", value = 0, {
+    sct <- contrast_reactives$selectedContrastsTables()
+    ct <- sct[[1]][[1]]
 
-    contrast_reactives <- contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE)
+    # q values of 0 cause trouble
 
-    # Call the geneselect module (indpependently of selectmatrix) to generate sets of genes to highlight
+    ct$`q value`[ct$`q value` == 0] <- min(ct$`q value`[ct$`q value` != 0]) / 10
 
-    geneselect_reactives <- geneselect("volcano", eselist = eselist, getExperiment = selectmatrix_reactives$getExperiment, getAssay = selectmatrix_reactives$getAssay, provide_all = FALSE, provide_none = TRUE)
+    ct <- ct[, c("Fold change", "q value")]
+    ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
+    ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
 
-    output$volcanotable <- renderUI({
-      ns <- session$ns
+    cont <- contrast_reactives$getSelectedContrasts()[[1]][[1]]
+    fc_axis_label <- paste0("log2(fold change) [source scale: ", contrast_reactives$getFoldChangeScale(), "]")
+    colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), fc_axis_label, paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
 
-      simpletableOutput(ns("volcanotable"), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": "), spinner = TRUE)
-    })
+    ct
+  })
+}
 
-    # Pass the matrix to the scatterplot module for display
+# Make a set of dashed lines to overlay on the plot representing thresholds
 
-    scatterplot("volcano", getDatamatrix = volcanoTable, getTitle = getTitle, allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+buildVolcanoLines <- function(vt, contrast_reactives) {
+  withProgress(message = "Calculating lines", value = 0, {
+    fclim <- contrast_reactives$getFoldChange()
+    qvallim <- contrast_reactives$getQval()
 
-    # Make a title by selecting the single contrast name of the single filter set
+    normal_y <- !is.infinite(vt[, 2])
+    normal_x <- !is.infinite(vt[, 1])
 
-    getTitle <- reactive({
-      contrast_names <- contrast_reactives$getSelectedContrastNames()
-      contrast_names[[1]][[1]]
-    })
+    ymax <- max(vt[normal_y, 2], na.rm = TRUE)
+    ymin <- min(vt[normal_y, 2], na.rm = TRUE)
 
-    # Make a set of dashed lines to overlay on the plot representing thresholds
+    xmax <- max(vt[normal_x, 1], na.rm = TRUE)
+    xmin <- min(vt[normal_x, 1], na.rm = TRUE)
 
-    plotLines <- reactive({
-      withProgress(message = "Calculating lines", value = 0, {
-        vt <- volcanoTable()
+    lines <- data.frame(
+      name = c(
+        rep(paste0(abs(fclim), "-fold down"), 2),
+        rep(paste0(abs(fclim), "-fold up"), 2),
+        rep(paste("q <", qvallim), 2)
+      ),
+      x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax),
+      y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2))
+    )
 
-        fclim <- contrast_reactives$getFoldChange()
-        qvallim <- contrast_reactives$getQval()
+    # Use lines dependent on how the fold change filter is applied
 
-        normal_y <- !is.infinite(vt[, 2])
-        normal_x <- !is.infinite(vt[, 1])
+    fccard <- contrast_reactives$getFoldChangeCard()
 
-        ymax <- max(vt[normal_y, 2], na.rm = TRUE)
-        ymin <- min(vt[normal_y, 2], na.rm = TRUE)
-
-        xmax <- max(vt[normal_x, 1], na.rm = TRUE)
-        xmin <- min(vt[normal_x, 1], na.rm = TRUE)
-
-        lines <- data.frame(
-          name = c(
-            rep(paste0(abs(fclim), "-fold down"), 2),
-            rep(paste0(abs(fclim), "-fold up"), 2),
-            rep(paste("q <", qvallim), 2)
-          ),
-          x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax),
-          y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2))
-        )
-
-        # Use lines dependent on how the fold change filter is applied
-
-        fccard <- contrast_reactives$getFoldChangeCard()
-
-        selectVolcanoLines(lines, fccard, fclim)
-      })
-    })
-
-    # Extract labels from the volcano table
-
-    volcanoLabels <- reactive({
-      withProgress(message = "Making labels", value = 0, {
-        vt <- volcanoTable()
-        vt$label
-      })
-    })
-
-    # Extract a vector use to make colors by group
-
-    colorBy <- reactive({
-      vt <- volcanoTable()
-      vt$colorby
-    })
-
-    # Make a table of values to use in the volcano plot. Round the values to save space in the JSON
-
-    volcanoTable <- reactive({
-      withProgress(message = "Compiling volcano plot data", value = 0, {
-        sct <- contrast_reactives$selectedContrastsTables()
-        ct <- sct[[1]][[1]]
-
-        # q values of 0 cause trouble
-
-        ct$`q value`[ct$`q value` == 0] <- min(ct$`q value`[ct$`q value` != 0]) / 10
-
-        ct <- ct[, c("Fold change", "q value")]
-        ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
-        ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
-
-        cont <- contrast_reactives$getSelectedContrasts()[[1]][[1]]
-        fc_axis_label <- paste0("log2(fold change) [source scale: ", contrast_reactives$getFoldChangeScale(), "]")
-        colnames(ct) <- c(paste(paste0("(higher in ", cont[2], ")"), fc_axis_label, paste0("(higher in ", cont[3], ")"), sep = "  "), "-log10(q value)")
-
-        fct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
-        ct$colorby <- "hidden"
-        ct[rownames(fct), "colorby"] <- "match contrast filters"
-        ct[geneselect_reactives$selectRows(), "colorby"] <- "in highlighted gene set"
-        ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
-
-        ct$label <- idToLabel(rownames(ct), selectmatrix_reactives$getExperiment())
-        ct$label[!rownames(ct) %in% c(rownames(fct), geneselect_reactives$selectRows())] <- NA
-      })
-      ct
-    })
-
-    # Display the data as a table alongside
-
-    simpletable("volcanotable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "volcano", rownames = FALSE, pageLength = 10)
+    selectVolcanoLines(lines, fccard, fclim)
   })
 }
