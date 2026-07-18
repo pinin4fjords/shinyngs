@@ -1,0 +1,15 @@
+// Bump the package logo 50% over pkgdown's defaults (100px / 120px on the
+// home page / 80px on narrow screens), keeping the same proportions between
+// contexts.
+img.logo {
+  width: 150px;
+}
+.template-home img.logo {
+  width: 180px;
+}
+
+@include media-breakpoint-down(sm) {
+  img.logo {
+    width: 120px;
+  }
+}
