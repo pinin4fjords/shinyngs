@@ -138,7 +138,7 @@ pca <- function(id, eselist) {
     scatterplot("pca",
       getDatamatrix = pcaMatrix, getThreedee = scatterplotcontrols_reactives$getThreedee, getXAxis = scatterplotcontrols_reactives$getXAxis,
       getYAxis = scatterplotcontrols_reactives$getYAxis, getZAxis = scatterplotcontrols_reactives$getZAxis, getShowLabels = scatterplotcontrols_reactives$getShowLabels,
-      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getComponentsTitle, colorBy = pcaColorBy, getPalette = groupby_reactives$getPalette
+      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getComponentsTitle, getColorby = getPcaColorby, getPalette = groupby_reactives$getPalette
     )
     scatterplot("loading",
       getDatamatrix = loadingMatrix, getThreedee = scatterplotcontrols_reactives$getThreedee, getXAxis = scatterplotcontrols_reactives$getXAxis,
@@ -173,7 +173,7 @@ pca <- function(id, eselist) {
       pcam
     })
 
-    pcaColorBy <- reactive({
+    getPcaColorby <- reactive({
       if (is.null(groupby_reactives$getGroupby())) {
 
       } else {

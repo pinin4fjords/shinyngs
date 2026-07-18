@@ -14,7 +14,7 @@ scatterplot(
   getShowLabels = NULL,
   getPointSize = NULL,
   getPalette = NULL,
-  colorBy = NULL,
+  getColorby = NULL,
   getTitle = reactive({
      ""
  }),
@@ -60,10 +60,10 @@ points.}
 reactive supplying an integer point size to pass to plotly.}
 
 \item{getPalette}{An optional palette of colors, one for each level of
-colorBy.}
+getColorby.}
 
-\item{colorBy}{A reactive returning a factor definining the groups in which
-points should be colored.}
+\item{getColorby}{A reactive returning a factor definining the groups in
+which points should be colored.}
 
 \item{getTitle}{A reactive expression supplying a title.}
 

@@ -152,13 +152,13 @@ differentialScatterServer <- function(input, output, session, eselist, scatter_i
     scatterTable()$label
   })
 
-  colorBy <- reactive({
+  getColorby <- reactive({
     scatterTable()$colorby
   })
 
   # Pass the matrix to the scatterplot module for display
 
-  scatterplot(scatter_id, getDatamatrix = scatterTable, getTitle = getTitle, allow_3d = FALSE, getLabels = scatterLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+  scatterplot(scatter_id, getDatamatrix = scatterTable, getTitle = getTitle, allow_3d = FALSE, getLabels = scatterLabels, x = 1, y = 2, getColorby = getColorby, getLines = plotLines)
 
   # Display the data as a table alongside
 

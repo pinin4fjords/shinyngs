@@ -65,23 +65,22 @@ if (interactive()) {
 
 # 2: AUGMENT WITH ANNOTATION INFO FOR MORE INFORMATIVE APP
 
-# Use Biomart to retrieve some annotation, add it to the object, then choose a
-# different default grouping variable and re-make the app.
+# Add row metadata (gene symbol, genomic coordinates) so plots and tables
+# are labelled meaningfully, then choose a different default grouping
+# variable and re-make the app. Any source of per-gene annotation works
+# here (a GTF, an annotation package, a pre-built CSV); the requirement is
+# a data.frame keyed by the same IDs as rownames(ese). Adding
+# chromosome_name/start_position/end_position columns plus ensembl_species
+# also enables the igv.js gene model view on the gene page.
 
 if (interactive()) {
-  library(biomaRt)
-  attributes <- c(
-    "ensembl_gene_id", # The sort of ID your results are keyed by
-    "entrezgene", # Could be used for gene sets keyed by Entrez ID
-    "external_gene_name" # Used to annotate gene names on the plot
+  annotation <- data.frame(
+    ensembl_gene_id = rownames(ese),
+    external_gene_name = rownames(ese), # substitute real gene symbols
+    chromosome_name = "1", # substitute real coordinates
+    start_position = seq_along(rownames(ese)),
+    end_position = seq_along(rownames(ese)) + 1000
   )
-
-  mart <- useMart(
-    biomart = "ENSEMBL_MART_ENSEMBL",
-    dataset = "hsapiens_gene_ensembl", host = "www.ensembl.org"
-  )
-  annotation <- getBM(attributes = attributes, mart = mart)
-  annotation <- annotation[order(annotation$entrezgene), ]
 
   mcols(ese) <- annotation[match(rownames(ese), annotation$ensembl_gene_id), ]
   ese@labelfield <- "external_gene_name"
@@ -91,7 +90,8 @@ if (interactive()) {
     title = expinfo$Title,
     author = expinfo$Author,
     description = expinfo$Description,
-    default_groupvar = "dex"
+    default_groupvar = "dex",
+    ensembl_species = "hsapiens" # enables the igv.js gene model view
   )
   app <- prepareApp("rnaseq", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)

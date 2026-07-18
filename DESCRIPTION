@@ -40,7 +40,6 @@ Suggests:
     airway,
     BiocStyle,
     BiocManager,
-    biomaRt,
     covr,
     devtools,
     DEXSeq,
