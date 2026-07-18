@@ -1,5 +1,9 @@
 # Workflow derived from https://github.com/r-wasm/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# Temporary workaround for pinin4fjords/shinyngs#74: the "Pin fixed pkgdepends"
+# step patches the r-wasm build container to use a pkgdepends commit CRAN has not
+# released. When it lands on CRAN, delete the workaround steps and revert to:
+#   uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2
 on:
   release:
     # Must republish release to update assets
@@ -9,9 +13,69 @@ name: Build and deploy wasm R package image
 
 jobs:
   release-file-system-image:
-    uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2
+    runs-on: ubuntu-22.04
+
+    concurrency:
+      group: release
+      cancel-in-progress: true
+
     permissions:
       # For publishing artifact files to the release
       contents: write
       # To download GitHub Packages within action
       repository-projects: read
+
+    steps:
+      - name: Checkout calling repository
+        uses: actions/checkout@v4
+
+      - name: Checkout r-wasm/actions repository
+        uses: actions/checkout@v4
+        with:
+          ref: v2
+          repository: r-wasm/actions
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: .actions
+
+      - name: Pin fixed pkgdepends in the build container
+        env:
+          CODE_R: ./.actions/build-rwasm/code.R
+          OLD_INSTALL: pak::pak(c("r-wasm/rwasm"))
+          NEW_INSTALL: pak::pak(c("r-lib/pkgdepends@026e5c1b655b6c1860e9b98f4af4b533a243eb3d", "r-wasm/rwasm"))
+        run: |
+          set -euo pipefail
+          perl -0pi -e 'my ($o, $n) = ($ENV{OLD_INSTALL}, $ENV{NEW_INSTALL}); s/\Q$o\E/$n/g' "$CODE_R"
+          if grep -qF "$OLD_INSTALL" "$CODE_R" || ! grep -qF "$NEW_INSTALL" "$CODE_R"; then
+            echo "::error::pkgdepends pin failed to apply; upstream code.R install line changed. Re-check the workaround for pinin4fjords/shinyngs#74."
+            exit 1
+          fi
+
+      - name: Find `Config/Needs/wasm` in DESCRIPTION
+        id: needs
+        shell: Rscript {0}
+        run: |
+          has_wasm_need <-
+            file.exists("DESCRIPTION") &&
+            "Config/Needs/wasm" %in% names(as.list(read.dcf("DESCRIPTION")[1,]))
+          pkg <- if (has_wasm_need) as.list(read.dcf("DESCRIPTION")[1,])$`Config/Needs/wasm` else ""
+          pkg <- paste0(strsplit(pkg, "[[:space:],]+")[[1]], collapse = ",")
+          cat("pkg=", pkg, "\n", file = Sys.getenv("GITHUB_OUTPUT"), sep = "", append = TRUE)
+
+      - name: Build wasm image
+        uses: ./.actions/build-rwasm
+        with:
+          packages: |
+            .
+            ${{ steps.needs.outputs.pkg }}
+          strip: "NULL"
+          image-path: ._rwasm
+          compress: false
+
+      - name: Upload wasm image to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "._rwasm/*"
+          tag: ${{ github.ref }}
+          file_glob: true
+          overwrite: true
