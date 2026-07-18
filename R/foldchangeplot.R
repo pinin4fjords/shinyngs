@@ -144,7 +144,7 @@ foldchangeplot <- function(id, eselist) {
 
     # Pass the matrix to the scatterplot module for display
 
-    scatterplot("foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    scatterplot("foldchange", getDatamatrix = foldchangeTable, getTitle = getTitle, allow_3d = FALSE, getLabels = foldchangeLabels, x = 1, y = 2, getColorby = getColorby, getLines = plotLines)
 
     # Make a title by selecting the single contrast name of the single filter set
 
@@ -201,7 +201,7 @@ foldchangeplot <- function(id, eselist) {
 
     # Extract a vector use to make colors by group
 
-    colorBy <- reactive({
+    getColorby <- reactive({
       fct <- foldchangeTable()
       fct$colorby
     })
