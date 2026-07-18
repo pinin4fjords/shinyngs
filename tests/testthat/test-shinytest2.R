@@ -77,9 +77,12 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
   heatmap_traces <- Filter(function(tr) identical(tr$type, "heatmap"), widget$x$data)
   expect_gt(length(heatmap_traces), 0)
 
+  # The main sample-by-sample trace is picked by row count, same as
+  # splitAnnotationLegend() (R/heatmap.R) does to tell it apart from any
+  # annotation-strip trace of the same type.
   row_counts <- vapply(heatmap_traces, function(tr) length(tr$z), integer(1))
-  expect_true(12 %in% row_counts)
-  main_trace <- heatmap_traces[[which(row_counts == 12)[1]]]
+  expect_equal(sum(row_counts == 12), 1)
+  main_trace <- heatmap_traces[[which.max(row_counts)]]
   expect_equal(length(main_trace$x), 12)
   expect_equal(length(main_trace$y), 12)
 })
