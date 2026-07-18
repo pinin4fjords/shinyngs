@@ -503,45 +503,37 @@ deploy_to_shinyapps <- function(opt) {
 }
 
 validate_mandatory_args <- function(opt) {
-  mandatory <-
-    c(
-      "title",
-      "author",
-      "sample_metadata",
-      "sample_id_col",
-      "feature_metadata",
-      "feature_id_col",
-      "diff_feature_id_col",
-      "assay_files",
-      "assay_entity_name",
-      "output_directory",
-      "contrast_stats_assay"
-    )
+  mandatory <- c(
+    "title",
+    "author",
+    "sample_metadata",
+    "sample_id_col",
+    "feature_metadata",
+    "feature_id_col",
+    "diff_feature_id_col",
+    "assay_files",
+    "assay_entity_name",
+    "output_directory",
+    "contrast_stats_assay"
+  )
 
-  missing_args <- mandatory[!mandatory %in% names(opt)]
-  if (length(missing_args) > 0) {
-    stop(paste("Missing mandatory arguments:", paste(missing_args, collapse = ", ")))
-  }
+  invisible(shinyngs::checkListIsSubset(mandatory, names(opt), "mandatory arguments", "provided options"))
 }
 
 validate_deploy_args <- function(opt) {
-  mandatory <- c(
-    "shinyapps_account",
-    "shinyapps_name"
+  shinyngs::checkListIsSubset(
+    c("shinyapps_account", "shinyapps_name"),
+    names(opt),
+    "mandatory arguments for shinyapps deployment",
+    "provided options"
   )
-  missing_args <- mandatory[!mandatory %in% names(opt)]
-  if (length(missing_args) > 0) {
-    stop(paste("Missing mandatory arguments for shinyapps deployment:", paste(missing_args, collapse = ", ")))
-  }
 
-  mandatory <- c(
-    "SHINYAPPS_SECRET",
-    "SHINYAPPS_TOKEN"
-  )
-  missing_secrets <- mandatory[!mandatory %in% names(Sys.getenv())]
-  if (length(missing_secrets) > 0) {
-    stop(paste("Environment variables not defined for shinyapps deployment:", paste(missing_secrets, collapse = ", ")))
-  }
+  invisible(shinyngs::checkListIsSubset(
+    c("SHINYAPPS_SECRET", "SHINYAPPS_TOKEN"),
+    names(Sys.getenv()),
+    "environment variables for shinyapps deployment",
+    "environment"
+  ))
 }
 
 ################################################
