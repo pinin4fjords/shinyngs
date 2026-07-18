@@ -44,10 +44,10 @@ contrastsInput <- function(id, allow_filtering = TRUE, summarise = TRUE, dynamic
   if (dynamic_filters) {
     contrast_filters <- c(
       list(hiddenInput(ns("dynamic"), 1)), list(helpText("Build up a complex query by adding filters below"), hr()), contrast_filters,
-      list(hr(), uiOutput(ns("combine_operator")), actionButton(ns("insertBtn"), "Add"), HTML("&nbsp;"), actionButton(ns("removeBtn"), "Remove"))
+      list(hr(), uiOutput(ns("combine_operator_ui")), actionButton(ns("insertBtn"), "Add"), HTML("&nbsp;"), actionButton(ns("removeBtn"), "Remove"))
     )
   } else {
-    contrast_filters <- pushToList(contrast_filters, uiOutput(ns("combine_operator")))
+    contrast_filters <- pushToList(contrast_filters, uiOutput(ns("combine_operator_ui")))
   }
 
   # inputs <- pushToList(inputs, conditionalPanel(condition = paste0('input['', ns('filterRows'), ''] == true '), contrast_filters))
@@ -392,7 +392,7 @@ contrastNaming <- function(getAllContrasts) {
 #' state. Also owns the accessors that just read \code{filterset_values} (the
 #' "form value" reactives), since they're only meaningful together with this
 #' state and folding them in here removes what would otherwise be a forward
-#' reference (the insert observer and \code{output$combine_operator} use
+#' reference (the insert observer and \code{output$combine_operator_ui} use
 #' \code{getFilterRows()}/\code{getSelectedContrastNumbers()} before those
 #' would be defined, if they lived in a separate stage called later).
 #'
@@ -570,7 +570,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 
   # The combine_operator field is only necessary with more than one filter set
 
-  output$combine_operator <- renderUI({
+  output$combine_operator_ui <- renderUI({
     scn <- getSelectedContrastNumbers()
     if (length(scn) > 1) {
       inlineField(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")),

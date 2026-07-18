@@ -20,7 +20,7 @@
 genesetselectInput <- function(id, multiple = TRUE) {
   ns <- NS(id)
 
-  tagList(uiOutput(ns("geneSetTypes")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(
+  tagList(uiOutput(ns("geneSetTypes_ui")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(
     placeholder = "Type a gene set keyword",
     maxItems = 5
   ), multiple = multiple), radioButtons(ns("overlapType"), withHelpIcon("Overlap type", "'Union' includes genes from any of the selected gene sets; 'intersect' includes only genes common to all of them."), c("union", "intersect")))
@@ -78,7 +78,7 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
 
     # Allow user to select the type of gene set
 
-    output$geneSetTypes <- renderUI({
+    output$geneSetTypes_ui <- renderUI({
       if (filter_by_type) {
         gene_set_types <- names(getGeneSetsForLabelfield())
         ns <- session$ns
