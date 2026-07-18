@@ -1,8 +1,11 @@
 # Build the top-level bslib page shell shared by the app modules
 
 Applies the package's Bootstrap 5 theme and dark navbar styling, injects
-the package CSS/JS and shinyjs, adds a light/dark mode toggle to the
-navbar, and constructs the resulting
+the package CSS/JS and shinyjs, adds a light/dark mode toggle and a
+"Credits" link (software acknowledgements, via the `shinyngs_credits`
+modal wired up in
+[`configureBookmarking()`](https://pinin4fjords.github.io/shinyngs/reference/configureBookmarking.md))
+to the navbar, and constructs the resulting
 [`bslib::page_navbar()`](https://rstudio.github.io/bslib/reference/page_navbar.html).
 The accent colour is defined once here, on the theme, and everything
 else (CSS, plots) derives from the resulting Bootstrap variables.

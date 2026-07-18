@@ -34,3 +34,7 @@ configureBookmarking(input, session, nav_input = NULL)
 
 On bookmark, the state URL is written to the address bar so it can be
 copied and shared directly, with a notification pointing the user there.
+
+Also wires up the `shinyngs_credits` modal server, since this is the one
+place called once per top-level session across every app type (rnaseq,
+chipseq, illuminaarray, simpleApp).

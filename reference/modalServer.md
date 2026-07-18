@@ -27,8 +27,9 @@ modalServer(id, title, content = NULL)
 - content:
 
   Content to include in the modal. May be a function, called each time
-  the modal opens. When `NULL` (the default), Markdown is loaded once
-  from `inst/inlinehelp/<id>.md`.
+  the modal opens. When `NULL` (the default), Markdown is loaded from
+  `inst/inlinehelp/<id>.md` the first time the modal is opened, then
+  cached for the life of the session.
 
 ## Details
 
