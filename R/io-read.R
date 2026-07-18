@@ -386,6 +386,10 @@ read_gmt <- function(file) {
 #' @export
 
 read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, sep = NULL, row.names = 1) {
+  if (!file.exists(matrix_file)) {
+    stop(paste("Matrix file", matrix_file, "does not exist."))
+  }
+
   if (is.null(sep)) {
     sep <- getSeparator(matrix_file)
   }
