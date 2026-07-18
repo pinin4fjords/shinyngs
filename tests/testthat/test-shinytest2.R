@@ -27,6 +27,28 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   expect_true("rnaseq-pca-pca-scatter" %in% outputs)
   expect_true("rnaseq-pca-components-datatable" %in% outputs)
   expect_true("rnaseq-pca-pca-selectmatrix-geneSelect" %in% outputs)
+
+  # 12 samples in shinytest2_eselist(); assert the scatter actually plots one
+  # point per sample rather than just checking the output registered.
+  scatter <- jsonlite::fromJSON(
+    app$get_value(output = "rnaseq-pca-pca-scatter"),
+    simplifyVector = FALSE
+  )
+  traces <- scatter$x$data
+  expect_gt(length(traces), 0)
+
+  point_traces <- Filter(function(tr) length(tr$x) > 0, traces)
+  expect_gt(length(point_traces), 0)
+  n_points <- sum(vapply(point_traces, function(tr) length(tr$x), integer(1)))
+  expect_equal(n_points, 12)
+  expect_equal(sum(vapply(point_traces, function(tr) length(tr$y), integer(1))), 12)
+
+  # The components datatable lists one row per sample.
+  components <- jsonlite::fromJSON(
+    app$get_value(output = "rnaseq-pca-components-datatable"),
+    simplifyVector = FALSE
+  )
+  expect_equal(length(components$x$data[[1]]), 12)
 })
 
 # heatmap module
@@ -44,6 +66,25 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-heatmap-clustering-interactiveHeatmap" %in% outputs)
   expect_true("rnaseq-heatmap-clustering-heatmap-selectmatrix-geneSelect" %in% outputs)
+
+  # 12 samples in shinytest2_eselist(); the clustering heatmap's main trace is
+  # a 12x12 sample-by-sample matrix, so assert that shape rather than just
+  # checking the output registered.
+  widget <- jsonlite::fromJSON(
+    app$get_value(output = "rnaseq-heatmap-clustering-interactiveHeatmap"),
+    simplifyVector = FALSE
+  )
+  heatmap_traces <- Filter(function(tr) identical(tr$type, "heatmap"), widget$x$data)
+  expect_gt(length(heatmap_traces), 0)
+
+  # The main sample-by-sample trace is picked by row count, same as
+  # splitAnnotationLegend() (R/heatmap.R) does to tell it apart from any
+  # annotation-strip trace of the same type.
+  row_counts <- vapply(heatmap_traces, function(tr) length(tr$z), integer(1))
+  expect_equal(sum(row_counts == 12), 1)
+  main_trace <- heatmap_traces[[which.max(row_counts)]]
+  expect_equal(length(main_trace$x), 12)
+  expect_equal(length(main_trace$y), 12)
 })
 
 # selectmatrix + contrasts modules, as composed by differentialtable()
@@ -74,10 +115,10 @@ test_that("a bookmark URL restores the active tab and a contrast filter value", 
   app$set_inputs(`rnaseq-rnaseq` = "diff_tables")
   app$wait_for_idle(timeout = 40000)
   app$set_inputs(`rnaseq-differential-differential-fold_change0` = 7)
-  Sys.sleep(2)
+  app$wait_for_idle(timeout = 40000)
 
   app$click("shinyngs_share_view")
-  Sys.sleep(3)
+  app$wait_for_idle(timeout = 40000)
   url <- app$get_js("window.location.href")
 
   expect_match(url, "\\?", info = "bookmark should put state in the address bar")
@@ -85,17 +126,23 @@ test_that("a bookmark URL restores the active tab and a contrast filter value", 
   expect_false(grepl("plotly_", url), info = "transient plotly inputs are excluded")
   expect_false(grepl("_rows_", url), info = "transient DataTable inputs are excluded")
 
+  # A full page navigation tears down the old page's Shiny JS object and boots
+  # a fresh session; wait_for_idle() errors ("An error occurred while waiting
+  # for Shiny to be stable") if called immediately afterwards, since there is
+  # no stable Shiny busy-state to observe yet. Poll the DOM directly instead.
   app$run_js(sprintf("window.location.href = %s;", jsonlite::toJSON(url, auto_unbox = TRUE)))
 
-  restored <- NA_character_
-  for (i in seq_len(20)) {
-    Sys.sleep(2)
-    val <- app$get_js("(function(){var e=document.getElementById('rnaseq-differential-differential-fold_change0'); return e ? String(e.value) : 'NOEL';})()")
-    if (!is.null(val) && val == "7") {
-      restored <- val
-      break
-    }
-  }
+  restored_condition <- paste(
+    "(function(){",
+    "var e = document.getElementById('rnaseq-differential-differential-fold_change0');",
+    "return !!e && e.value === '7';",
+    "})()"
+  )
+  app$wait_for_js(restored_condition, timeout = 40000, interval = 200)
+
+  restored <- app$get_js(
+    "(function(){var e=document.getElementById('rnaseq-differential-differential-fold_change0'); return e ? String(e.value) : 'NOEL';})()"
+  )
   expect_equal(restored, "7")
   expect_equal(
     app$get_js("(window.Shiny && Shiny.shinyapp) ? String(Shiny.shinyapp.$inputValues['rnaseq-rnaseq']) : 'NA'"),
@@ -116,7 +163,6 @@ test_that("differentialtable computes a table without error given a real contras
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all"
     )
-    Sys.sleep(0.5)
 
     rendered <- output$differentialtable
     expect_type(rendered, "list")
