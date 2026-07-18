@@ -122,12 +122,38 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     filter_observers <- list()
 
+    # insert_more is a bare counter the insert observer depends on, so restored
+    # filter sets beyond the first can be re-inserted one at a time.
+
+    restored_filtersets <- NULL
+    insert_more <- reactiveVal(0)
+
+    # Seed a freshly-inserted filter set's fields from bookmarked values. The
+    # per-field observers created alongside the set then propagate these into
+    # filterset_values, re-establishing the normal dependency chain.
+
+    applyRestoredFilterSet <- function(index, vals) {
+      if (!is.null(vals$contrasts)) {
+        updateSelectInput(session, paste0("contrasts", index), selected = vals$contrasts)
+      }
+      for (field in c("p_value", "q_value", "fold_change")) {
+        if (!is.null(vals[[field]])) {
+          updateNumericInput(session, paste0(field, index), value = as.numeric(vals[[field]]))
+        }
+        card <- paste0(field, "_card")
+        if (!is.null(vals[[card]])) {
+          updateSelectInput(session, paste0(card, index), selected = vals[[card]])
+        }
+      }
+    }
+
     # This observer adds a set of filters on the first page load and when the assocaited button is clicked.
 
     observeEvent(
       {
         selectmatrix_reactives$selectMatrix()
         input$insertBtn
+        insert_more()
       },
       {
         ese <- selectmatrix_reactives$getExperiment()
@@ -185,6 +211,21 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
             ignoreNULL = FALSE
           )
         })
+
+        # Re-seed this set from bookmarked values on every (re)creation while a
+        # restore is pending. The assay-change reset (priority 2) rebuilds the
+        # sets whenever selectMatrix() changes as inputs restore, so applying
+        # once would be wiped; re-applying here survives that churn until
+        # onRestored clears the pending state.
+
+        if (!is.null(restored_filtersets)) {
+          if (btn < length(restored_filtersets)) {
+            applyRestoredFilterSet(btn, restored_filtersets[[btn + 1]])
+          }
+          if (length(inserted) < length(restored_filtersets)) {
+            insert_more(insert_more() + 1)
+          }
+        }
       },
       ignoreNULL = FALSE,
       priority = 1
@@ -802,6 +843,32 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       }
 
       list(tags$br(), do.call(wellPanel, summary_bits))
+    })
+
+    ########################################################################### Bookmarking of the dynamically-built filter sets
+
+    # The filter-set inputs are inserted at runtime, so a bookmark URL cannot
+    # capture or restore them by itself. Snapshot filterset_values on bookmark
+    # and stash it on restore for the insert observer to replay. Keys are
+    # namespaced so multiple contrasts instances in one app don't collide.
+
+    onBookmark(function(state) {
+      state$values[[session$ns("contrast_filtersets")]] <- filterset_values
+    })
+
+    onRestore(function(state) {
+      saved <- state$values[[session$ns("contrast_filtersets")]]
+      if (!is.null(saved) && length(saved) > 0) {
+        restored_filtersets <<- unname(saved)
+      }
+    })
+
+    # Close the restore window once the restore flush has settled, so later
+    # user-driven filter sets start from defaults rather than the bookmarked
+    # values.
+
+    onRestored(function(state) {
+      restored_filtersets <<- NULL
     })
 
     ########################################################################### Return the reactive that allow other modules to interact with this one

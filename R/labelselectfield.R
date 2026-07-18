@@ -146,11 +146,26 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       }
     })
 
+    # A server-side selectize holds no options client-side, so a bookmarked
+    # input$label can't restore itself. Capture the value from the bookmark and
+    # re-apply it as the selection once choices are populated below.
+
+    restored_label <- NULL
+
+    onRestore(function(state) {
+      val <- bookmarkedInputValue(state, session, "label")
+      if (!is.null(val)) {
+        restored_label <<- val
+      }
+    })
+
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
 
     observeEvent(input$metaField, {
       if (!list_input) {
-        updateSelectizeInput(session, "label", choices = getValidLabels(), server = TRUE)
+        selected <- restored_label
+        restored_label <<- NULL
+        updateSelectizeInput(session, "label", choices = getValidLabels(), selected = selected, server = TRUE)
       }
     })
 

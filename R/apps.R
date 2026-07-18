@@ -98,42 +98,64 @@
 #' # gene set analyses etc.). With those in place the resulting app gains
 #' # additional panels for differential analyses.
 prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
-  if (type %in% c("rnaseq", "chipseq", "illuminaarray")) {
-    inputFunc <- get(paste0(type, "Input"))
+  # URL bookmarking lets a configured view be captured in a shareable link and
+  # restored. Set here (rather than via shinyApp(enableBookmarking=)) because
+  # callers invoke shiny::shinyApp()/runApp() themselves, so this is the only
+  # place the package controls.
+  shiny::enableBookmarking("url")
 
-    app <- list(ui = inputFunc(type, eselist), server = function(input, output, session) {
-      get(type)(type, eselist)
-    })
-  } else {
-    app <- simpleApp(eselist, type, ui_only = ui_only, ...)
+  big <- type %in% c("rnaseq", "chipseq", "illuminaarray")
+
+  # The UI is built afresh on every request so that the restoreInput() calls
+  # inside Shiny input constructors run within the restore context of a
+  # bookmark load and pick up the saved values. A UI built once, ahead of any
+  # request, would bake in defaults and never restore.
+  #
+  # attachDependencies preloads htmlwidget JS/CSS as <script>/<link> tags in the
+  # initial HTML so plugins like jQuery DataTables are attached at page-load.
+  # Otherwise htmlwidgets 1.6.4's shinyBinding.renderValue calls the synchronous
+  # Shiny.renderDependencies() and immediately runs bindingDef.renderValue (e.g.
+  # $().DataTable). The plugin <script> is appended to <head> but not awaited.
+  # Locally that's a <1ms race; behind a reverse proxy (Seqera Studios, Shiny
+  # Server behind nginx, etc.) it consistently loses, surfacing as
+  # "$table.DataTable is not a function" and empty plots/tables.
+  buildUI <- function() {
+    ui <- if (big) {
+      get(paste0(type, "Input"))(type, eselist)
+    } else {
+      simpleApp(eselist, type, ui_only = ui_only, ...)$ui
+    }
+    htmltools::attachDependencies(ui, htmlwidget_preload_deps(), append = TRUE)
   }
 
-  # Preload htmlwidget JS/CSS as <script>/<link> tags in the initial HTML so
-  # plugins like jQuery DataTables are attached at page-load. Otherwise
-  # htmlwidgets 1.6.4's shinyBinding.renderValue calls the synchronous
-  # Shiny.renderDependencies() and immediately runs bindingDef.renderValue
-  # (e.g. $().DataTable). The plugin <script> is appended to <head> but not
-  # awaited. Locally that's a <1ms race; behind a reverse proxy (Seqera
-  # Studios, Shiny Server behind nginx, etc.) it consistently loses, surfacing
-  # as "$table.DataTable is not a function" and empty plots/tables.
-  app$ui <- htmltools::attachDependencies(
-    app$ui,
-    htmlwidget_preload_deps(),
-    append = TRUE
-  )
+  server <- if (big) {
+    function(input, output, session) {
+      configureBookmarking(input, session, nav_input = paste0(type, "-", type))
+      get(type)(type, eselist)
+    }
+  } else {
+    simpleApp(eselist, type, ui_only = ui_only, ...)$server
+  }
 
-  app
+  list(ui = function(request) buildUI(), server = server)
 }
 
 # Dependencies for every htmlwidget type used anywhere in shinyngs, so they
 # load as blocking <script>/<link> tags in the initial HTML rather than lazily
-# via WebSocket-delivered dep messages. See prepareApp() for rationale.
-htmlwidget_preload_deps <- function() {
-  htmltools::resolveDependencies(c(
-    htmltools::findDependencies(DT::datatable(data.frame(a = 1))),
-    htmltools::findDependencies(plotly::plot_ly(x = 1, y = 1))
-  ))
-}
+# via WebSocket-delivered dep messages. See prepareApp() for rationale. The set
+# is constant, so it is computed once and cached (buildUI() runs per page-load).
+htmlwidget_preload_deps <- local({
+  cached <- NULL
+  function() {
+    if (is.null(cached)) {
+      cached <<- htmltools::resolveDependencies(c(
+        htmltools::findDependencies(DT::datatable(data.frame(a = 1))),
+        htmltools::findDependencies(plotly::plot_ly(x = 1, y = 1))
+      ))
+    }
+    cached
+  }
+})
 
 #' Produce a simple app with controls and layout for a single module, in a
 #' shiny \code{sideBarLayout()}.
@@ -170,6 +192,7 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
       }
     } else {
       server <- function(input, output, session) {
+        configureBookmarking(input, session, nav_input = "pages")
         get(module)(module, eselist, ...)
       }
     }
