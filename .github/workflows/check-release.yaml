@@ -77,13 +77,27 @@ jobs:
           args: 'c("--no-manual", "--as-cran", "--no-examples", "--no-vignettes")'
           build_args: 'c("--no-manual", "--no-build-vignettes")'
 
-      - name: Report test coverage
-        # Reporting only: a flaky covr instrumentation run shouldn't fail a PR
-        # that R-CMD-check has already passed on its own.
-        continue-on-error: true
+      - name: Report and enforce test coverage
+        # covr instrumentation itself can be flaky (unrelated to actual test
+        # coverage), so that failure mode is caught and only warned about
+        # below. A genuine drop below the floor is not tolerated: it fails
+        # the job via stop(), with no continue-on-error on this step.
         run: |
           Rscript -e '
-            cov <- covr::package_coverage(quiet = FALSE)
+            coverage_floor <- 55
+
+            cov <- tryCatch(
+              covr::package_coverage(quiet = FALSE),
+              error = function(e) {
+                cat("::warning::covr instrumentation failed, skipping coverage report and floor check:", conditionMessage(e), "\n")
+                NULL
+              }
+            )
+
+            if (is.null(cov)) {
+              quit(status = 0)
+            }
+
             print(cov)
 
             overall <- covr::percent_coverage(cov)
@@ -101,6 +115,13 @@ jobs:
             summary_md <- paste(summary_lines, collapse = "\n")
             cat(summary_md, "\n", file = Sys.getenv("GITHUB_STEP_SUMMARY"), append = TRUE)
             cat(summary_md, "\n")
+
+            if (overall < coverage_floor) {
+              stop(sprintf(
+                "Test coverage %.1f%% is below the required floor of %d%%. Restore the missing tests, or if the drop is justified, lower the floor in .github/workflows/check-release.yaml alongside an explanation in the PR.",
+                overall, coverage_floor
+              ))
+            }
           '
 
       - name: Download test data from nf-core tests data repo
