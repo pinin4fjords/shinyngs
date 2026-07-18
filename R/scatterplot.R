@@ -78,10 +78,10 @@ scatterplotOutput <- function(id) {
 #' @param getTitle A reactive expression supplying a title.
 #' @param getLabels A reactive supplying a list of labels to use instead of row
 #' names from \code{getDatamatrix()}
-#' @param colorBy A reactive returning a factor definining the groups in which
-#' points should be colored.
+#' @param getColorby A reactive returning a factor definining the groups in
+#' which points should be colored.
 #' @param getPalette An optional palette of colors, one for each level of
-#' colorBy.
+#' getColorby.
 #
 #' @param allow_3d Passed to \code{\link{scatterplotcontrolsInput}} to dermine
 #' if the user will be allowed to create 3D plots.
@@ -104,7 +104,7 @@ scatterplotOutput <- function(id) {
 #' Three columns required: name, x and y, with two rows for every value of
 #' name. These two rows represent the start and end of a line.
 
-scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, colorBy = NULL, getTitle = reactive({
+scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, getColorby = NULL, getTitle = reactive({
                           ""
                         }), getLabels = reactive({
                           rownames(getDatamatrix())
@@ -119,9 +119,9 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
     # If no colors are provided, make our own if necessary. This will cause the 'getPalette' reactive to be passed back from scatterplotcontrols.
 
     getNumberColors <- reactive({
-      make_colors <- is.null(getPalette) && !is.null(colorBy)
+      make_colors <- is.null(getPalette) && !is.null(getColorby)
       if (make_colors) {
-        cb <- colorBy()
+        cb <- getColorby()
         nlevels(cb)
       } else {
         NULL
@@ -190,7 +190,7 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
     # Only show a legend if we're coloring points
 
     showLegend <- reactive({
-      if (is.null(colorBy)) {
+      if (is.null(getColorby)) {
         FALSE
       } else {
         TRUE
@@ -201,8 +201,8 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
 
     output$scatter <- renderPlotly({
       withProgress(message = "Drawing scatter plot", value = 0, {
-        if (!is.null(colorBy)) {
-          cb <- colorBy()
+        if (!is.null(getColorby)) {
+          cb <- getColorby()
 
           # If a palette was supplied, or if we made our own...
 

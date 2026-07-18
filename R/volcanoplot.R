@@ -157,7 +157,7 @@ volcanoplot <- function(id, eselist) {
 
     # Pass the matrix to the scatterplot module for display
 
-    scatterplot("volcano", getDatamatrix = volcanoTable, getTitle = getTitle, allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, colorBy = colorBy, getLines = plotLines)
+    scatterplot("volcano", getDatamatrix = volcanoTable, getTitle = getTitle, allow_3d = FALSE, getLabels = volcanoLabels, x = 1, y = 2, getColorby = getColorby, getLines = plotLines)
 
     # Make a title by selecting the single contrast name of the single filter set
 
@@ -220,7 +220,7 @@ volcanoplot <- function(id, eselist) {
 
     # Extract a vector use to make colors by group
 
-    colorBy <- reactive({
+    getColorby <- reactive({
       vt <- volcanoTable()
       vt$colorby
     })
