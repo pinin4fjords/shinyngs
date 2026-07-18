@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">shinyngs</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -843,6 +843,17 @@ which can be run directly. See <code>make_app_from_files.R --help</code>
 for the full set of options, including <code>--ensembl_species</code>
 (see <a href="#included-modules">Included modules</a>) and
 <code>--deploy_app</code> for deploying straight to shinyapps.io.</p>
+<p>Or run it via Docker: the <a href="https://quay.io/repository/biocontainers/r-shinyngs" class="external-link">Biocontainers
+image</a> already has <code>shinyngs</code> and Shiny installed and can
+run the generated <code>app.R</code>/<code>data.rds</code> directly -
+there’s no <code>latest</code> tag, so use the most recent one from the
+<a href="https://quay.io/repository/biocontainers/r-shinyngs?tab=tags" class="external-link">image’s
+tag list</a> and mount <code>--output_dir</code>:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb79-1"><a href="#cb79-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 <span class="dt">\</span></span>
+<span id="cb79-2"><a href="#cb79-2" tabindex="-1"></a>  <span class="at">-v</span> <span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/app"</span>:/data <span class="at">-w</span> /data <span class="dt">\</span></span>
+<span id="cb79-3"><a href="#cb79-3" tabindex="-1"></a>  quay.io/biocontainers/r-shinyngs:<span class="op">&lt;</span>latest-tag<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb79-4"><a href="#cb79-4" tabindex="-1"></a>  Rscript <span class="at">-e</span> <span class="st">"shiny::runApp('/data', host = '0.0.0.0', port = 3838)"</span></span></code></pre></div>
+<p>Then browse to <code>http://localhost:3838</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="building-an-app-from-files-with-enrichment-results">Building an app from files with enrichment results<a class="anchor" aria-label="anchor" href="#building-an-app-from-files-with-enrichment-results"></a>
@@ -854,11 +865,11 @@ files live, with <code>{contrast_name}</code> and
 <code>{geneset_type}</code> substituted per contrast and gene set type,
 and an optional <code>{target|reference}</code> token to point at the
 split up/down GSEA files:</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb79-1"><a href="#cb79-1" tabindex="-1"></a><span class="ex">make_app_from_files.R</span> <span class="dt">\</span></span>
-<span id="cb79-2"><a href="#cb79-2" tabindex="-1"></a>  ... <span class="dt">\</span></span>
-<span id="cb79-3"><a href="#cb79-3" tabindex="-1"></a>  <span class="at">--contrast_file</span> contrasts.csv <span class="dt">\</span></span>
-<span id="cb79-4"><a href="#cb79-4" tabindex="-1"></a>  <span class="at">--enrichment_gene_sets</span> my_gene_sets.gmt <span class="dt">\</span></span>
-<span id="cb79-5"><a href="#cb79-5" tabindex="-1"></a>  <span class="at">--enrichment_filename_template</span> <span class="st">'gsea_{contrast_name}_{geneset_type}_for_{target|reference}.tsv'</span></span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb80-1"><a href="#cb80-1" tabindex="-1"></a><span class="ex">make_app_from_files.R</span> <span class="dt">\</span></span>
+<span id="cb80-2"><a href="#cb80-2" tabindex="-1"></a>  ... <span class="dt">\</span></span>
+<span id="cb80-3"><a href="#cb80-3" tabindex="-1"></a>  <span class="at">--contrast_file</span> contrasts.csv <span class="dt">\</span></span>
+<span id="cb80-4"><a href="#cb80-4" tabindex="-1"></a>  <span class="at">--enrichment_gene_sets</span> my_gene_sets.gmt <span class="dt">\</span></span>
+<span id="cb80-5"><a href="#cb80-5" tabindex="-1"></a>  <span class="at">--enrichment_filename_template</span> <span class="st">'gsea_{contrast_name}_{geneset_type}_for_{target|reference}.tsv'</span></span></code></pre></div>
 <p>Pass <code>--enrichment_skip_missing</code> to tolerate contrasts or
 gene set types with no result files; those contrasts simply show “No
 enrichment results for this contrast” in the app. For a tool that isn’t
@@ -974,7 +985,7 @@ subsetted matrix. Shiny modules make this recycling of code much, much
 simpler than it would be otherwise.</p>
 <p>Many of these can be called individually, for example to make an app
 for dendrograms only:</p>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">'dendro'</span>, <span class="va">eselist</span><span class="op">)</span></span>
 <span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span>ui <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">ui</span>, server <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">server</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -983,7 +994,7 @@ for dendrograms only:</p>
 </h2>
 <p>For technical information on package layout and functions, consult
 the package documentation:</p>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">shinyngs</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -994,7 +1005,7 @@ file called app.R in a directory of its own on your Shiny server. For
 example, If you’re created an
 <code>ExploratorySummarizedExperiment</code> and saved it to a file
 called ‘data.rds’:</p>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pinin4fjords.github.io/shinyngs/">shinyngs</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mydata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data.rds"</span><span class="op">)</span></span>
