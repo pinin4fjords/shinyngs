@@ -235,6 +235,13 @@ shinyngsPageNavbar <- function(navbar_menus) {
   navbar_menus$header <- tagList(no_flash, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
   navbar_menus <- c(navbar_menus, list(
     bslib::nav_spacer(),
+    bslib::nav_item(actionButton(
+      "shinyngs_share_view",
+      label = "Share view",
+      icon = icon("share-nodes"),
+      class = "btn-sm",
+      title = "Copy a shareable link that restores the current view"
+    )),
     bslib::nav_item(a11yControl(
       bslib::input_dark_mode(id = "shinyngs_dark_mode"),
       label = "Toggle light or dark mode",
@@ -242,6 +249,114 @@ shinyngsPageNavbar <- function(navbar_menus) {
     ))
   ))
   do.call(bslib::page_navbar, navbar_menus)
+}
+
+#' Read a bookmarked input value from a restore state
+#'
+#' Server-side selectize inputs hold no options client-side, so their bookmarked
+#' value can't restore itself and must be re-applied when the choices repopulate.
+#' This reads that value from an \code{onRestore} state, trying the module's
+#' namespaced id first and falling back to the bare id.
+#'
+#' @param state The restore state passed to an \code{onRestore} callback
+#' @param session The module session
+#' @param id The unqualified input id
+#'
+#' @return The bookmarked value, or \code{NULL} if absent
+#'
+#' @keywords internal
+#'
+bookmarkedInputValue <- function(state, session, id) {
+  val <- state$input[[session$ns(id)]]
+  if (is.null(val)) {
+    val <- state$input[[id]]
+  }
+  val
+}
+
+#' Configure URL bookmarking for the top-level session
+#'
+#' URL bookmarking serialises every input into the address bar. Some inputs are
+#' either transient (event streams, click counters) or would bloat the URL
+#' beyond usefulness (DataTable row/state inputs can enumerate every row). An
+#' observer keeps the exclude list in sync with those inputs as they appear
+#' (tables load and contrast filter sets are inserted after the initial page).
+#'
+#' On bookmark, the state URL is written to the address bar so it can be copied
+#' and shared directly, with a notification pointing the user there.
+#'
+#' @param input The top-level \code{input} object, which carries all inputs
+#'   across module namespaces under their fully-qualified names
+#' @param session The top-level session
+#' @param nav_input Fully-qualified id of the page navbar's tab input, captured
+#'   and restored explicitly because bslib navsets don't participate in
+#'   bookmarking
+#'
+#' @keywords internal
+#'
+configureBookmarking <- function(input, session, nav_input = NULL) {
+  # Also set here (not just in prepareApp) so bookmarking is active in whichever
+  # process actually runs the app, including harnesses that transport the app
+  # object to a fresh process where prepareApp's option would be lost.
+  enableBookmarking("url")
+
+  patterns <- c(
+    "_rows_current", "_rows_all", "_rows_selected", "_state", "_search",
+    "_cell_clicked", "_cells_selected", "_columns", # DT internals
+    "plotly_", ".clientValue-", # plotly event streams
+    "-link", # help-modal triggers
+    "shinyngs_dark_mode", "shinyngs_share_view", "insertBtn", "removeBtn"
+  )
+
+  # Grep only names that are new since the last fire (inputs stream in as tables
+  # load and filter sets are inserted) and only push the exclude list when it
+  # actually grows, since setBookmarkExclude replaces the whole set.
+  seen <- character(0)
+  excluded <- character(0)
+  observe({
+    nms <- names(input)
+    fresh <- setdiff(nms, seen)
+    seen <<- nms
+    if (length(fresh) == 0) {
+      return()
+    }
+    hits <- unique(unlist(lapply(patterns, grep, x = fresh, fixed = TRUE, value = TRUE)))
+    if (length(hits) > 0) {
+      excluded <<- union(excluded, hits)
+      setBookmarkExclude(excluded, session = session)
+    }
+  })
+
+  observeEvent(input$shinyngs_share_view, {
+    session$doBookmark()
+  })
+
+  if (!is.null(nav_input)) {
+    onBookmark(function(state) {
+      state$values$active_tab <- isolate(input[[nav_input]])
+    })
+    onRestored(function(state) {
+      tab <- state$values$active_tab
+      if (!is.null(tab)) {
+        updateTabsetPanel(session, nav_input, selected = tab)
+        # Selecting a panel that lives in a nav_menu leaves its dropdown
+        # visually open; close any open navbar dropdown once the selection has
+        # applied on the client.
+        shinyjs::runjs(
+          "setTimeout(function(){document.querySelectorAll('.navbar .dropdown-menu.show').forEach(function(e){e.classList.remove('show');});}, 300);"
+        )
+      }
+    })
+  }
+
+  onBookmarked(function(url) {
+    updateQueryString(url)
+    session$sendCustomMessage("shinyngs_copy_link", url)
+    showNotification(
+      "Shareable link copied to your clipboard (and shown in the address bar).",
+      type = "message", duration = 6, session = session
+    )
+  }, session = session)
 }
 
 #' Lay out a module's controls beside its output

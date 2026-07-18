@@ -285,7 +285,7 @@ if (opt$deploy_app) {
   ood_packages <- ood[grep("bioconductor", ood$Repository), "Package"]
 
   dir.create("libs", showWarnings = FALSE)
-  .libPaths("libs")
+  .libPaths(c("libs", .libPaths()))
 
   BiocManager::install(ood_packages, update = TRUE, ask = FALSE, lib = "libs")
 }

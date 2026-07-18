@@ -53,6 +53,19 @@ genesetselectInput <- function(id, multiple = TRUE) {
 #'
 genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by_type = FALSE, require_select = TRUE) {
   moduleServer(id, function(input, output, session) {
+    # The gene-set picker is a server-side selectize, so a bookmarked selection
+    # can't restore itself; stash it here and apply it when the list is next
+    # populated (see updateGeneSetsList).
+
+    restored_geneset <- NULL
+
+    onRestore(function(state) {
+      val <- bookmarkedInputValue(state, session, "geneSets")
+      if (!is.null(val)) {
+        restored_geneset <<- val
+      }
+    })
+
     # Fetch the gene sets keyed for the current experiment's label field,
     # guarding against experiments with no gene sets available for that field
 
@@ -109,7 +122,9 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
     # the calling module.
 
     updateGeneSetsList <- reactive({
-      updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), server = TRUE)
+      selected <- restored_geneset
+      restored_geneset <<- NULL
+      updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), selected = selected, server = TRUE)
     })
 
     # Get gene sets with the proper label field keying

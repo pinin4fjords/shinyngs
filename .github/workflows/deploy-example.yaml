@@ -1,0 +1,81 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+name: deploy-example
+
+concurrency:
+  group: deploy-example
+  cancel-in-progress: false
+
+jobs:
+  deploy-example:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.R_CI }}
+      SHINYAPPS_TOKEN: ${{ secrets.SHINYAPPS_TOKEN }}
+      SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
+      FIXTURES: tests/testthat/fixtures/exec-smoke
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+          r-version: '4.4.0'
+
+      - name: Install system libraries required by Rhtslib
+        # Per Rhtslib's DESCRIPTION: SystemRequirements: libbz2 & liblzma &
+        # libcurl (with header files), GNU make. Normally provided by
+        # setup-r-dependencies' own sysreqs resolution, but that step runs
+        # after this one (see next step), so install them explicitly here.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libbz2-dev liblzma-dev zlib1g-dev
+
+      - name: Pre-install Rhtslib directly (works around a pak parallel-install bug)
+        run: |
+          Rscript -e '
+            if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+            BiocManager::install("Rhtslib", update = FALSE, ask = FALSE)
+          '
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rsconnect, any::remotes
+          dependencies: 'c("Imports", "Depends", "LinkingTo")'
+
+      - name: Install shinyngs as a pinned GitHub remote
+        # rsconnect refuses to bundle a package with no reproducible install
+        # origin, which a pak-resolved extra-packages spec doesn't reliably
+        # provide (shinyapps.io rejected the resulting manifest with "Unknown
+        # repository for package source: deps"). A plain remotes::install_github
+        # call records proper GitHub remote metadata instead.
+        run: |
+          Rscript -e 'remotes::install_github("pinin4fjords/shinyngs", ref = "${{ github.sha }}", upgrade = "never")'
+
+      - name: Build and deploy the shinyapps.io example app
+        run: |
+          # The contrasts fixture has two rows; --differential_results expects
+          # one file per row, so a second copy stands in for the second
+          # contrast, matching tests/testthat/test-exec-smoke.R.
+          second_differential_file=$(mktemp --suffix .tsv)
+          cp "${FIXTURES}/SRP254919.salmon.merged.deseq2.results.tsv" "$second_differential_file"
+
+          ./exec/make_app_from_files.R \
+            --title "Shinyngs example" \
+            --author "shinyngs" \
+            --sample_metadata "${FIXTURES}/SRP254919.samplesheet.csv" \
+            --feature_metadata "${FIXTURES}/SRP254919.gene_meta.tsv" \
+            --assay_files "${FIXTURES}/SRP254919.salmon.merged.gene_counts.top1000cov.tsv" \
+            --contrast_file "${FIXTURES}/SRP254919.contrasts.csv" \
+            --contrast_stats_assay 1 \
+            --differential_results "${FIXTURES}/SRP254919.salmon.merged.deseq2.results.tsv,${second_differential_file}" \
+            --output_directory app \
+            --deploy_app \
+            --shinyapps_account pinin4fjords \
+            --shinyapps_name shinyngs_example
