@@ -27,7 +27,8 @@ ExploratorySummarizedExperiment objects}
 \code{\link{differentialScatterInput}}}
 
 \item{buildTable}{Function of \code{contrast_reactives} returning the
-module-specific data frame, before colorby/label annotation}
+module-specific data frame, before colorby/label annotation. Its first
+two columns are used as the plotted x and y values.}
 
 \item{buildLines}{Function of the annotated table and
 \code{contrast_reactives} returning the threshold-line data frame}

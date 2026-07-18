@@ -21,7 +21,9 @@ A subset of \code{lines}, with unused factor levels dropped
 }
 \description{
 The fold change filter can apply symmetrically (both up and down) or only
-in one direction, depending on the cardinality operator and the sign of
+in one direction, depending on the cardinality operator (one of the
+choices offered by \code{\link{cardinalNumericField}}: \code{"<="},
+\code{">="}, \code{">= or <= -"}, \code{"<= and >= -"}) and the sign of
 the limit. This picks the matching subset of rows from the \code{lines}
 data frame built in \code{\link{buildMaLines}}, where rows 1-2 are the
 fold-down threshold and rows 3-4 the fold-up threshold.

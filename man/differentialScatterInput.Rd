@@ -9,7 +9,7 @@ differentialScatterInput(
   eselist,
   scatter_id,
   require_contrast_stats = FALSE,
-  multi_view_fn = function(esel) length(esel) > 1 || length(assays(esel[[1]])) > 1
+  multi_view_fn = function(esel) !singleValidMatrix(esel)
 )
 }
 \arguments{

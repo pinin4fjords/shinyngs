@@ -1,4 +1,10 @@
 volcanoplot_modal <- list(id = "volcanoplot", title = "Volcano plots")
+volcanoplot_scatter <- list(
+  scatter_id = "volcano",
+  require_contrast_stats = TRUE,
+  multi_view_fn = function(esel) length(esel) > 1,
+  filename = "volcano"
+)
 
 #' The UI input function of the \code{volcanoplot} module
 #'
@@ -34,8 +40,9 @@ volcanoplot_modal <- list(id = "volcanoplot", title = "Volcano plots")
 #'
 volcanoplotInput <- function(id, eselist) {
   differentialScatterInput(id, eselist,
-    scatter_id = "volcano", require_contrast_stats = TRUE,
-    multi_view_fn = function(esel) length(esel) > 1
+    scatter_id = volcanoplot_scatter$scatter_id,
+    require_contrast_stats = volcanoplot_scatter$require_contrast_stats,
+    multi_view_fn = volcanoplot_scatter$multi_view_fn
   )
 }
 
@@ -72,7 +79,7 @@ volcanoplotInput <- function(id, eselist) {
 #' }
 #'
 volcanoplotOutput <- function(id) {
-  differentialScatterOutput(id, scatter_id = "volcano", title = "Volcano plot", modal = volcanoplot_modal)
+  differentialScatterOutput(id, scatter_id = volcanoplot_scatter$scatter_id, title = "Volcano plot", modal = volcanoplot_modal)
 }
 
 #' Select which volcano plot threshold lines to draw
@@ -135,7 +142,9 @@ volcanoplot <- function(id, eselist) {
     modalServer(volcanoplot_modal$id, volcanoplot_modal$title)
 
     differentialScatterServer(input, output, session, eselist,
-      scatter_id = "volcano", require_contrast_stats = TRUE, filename = "volcano",
+      scatter_id = volcanoplot_scatter$scatter_id,
+      require_contrast_stats = volcanoplot_scatter$require_contrast_stats,
+      filename = volcanoplot_scatter$filename,
       buildTable = buildVolcanoTable, buildLines = buildVolcanoLines
     )
   })
@@ -171,14 +180,7 @@ buildVolcanoLines <- function(vt, contrast_reactives) {
     fclim <- contrast_reactives$getFoldChange()
     qvallim <- contrast_reactives$getQval()
 
-    normal_y <- !is.infinite(vt[, 2])
-    normal_x <- !is.infinite(vt[, 1])
-
-    ymax <- max(vt[normal_y, 2], na.rm = TRUE)
-    ymin <- min(vt[normal_y, 2], na.rm = TRUE)
-
-    xmax <- max(vt[normal_x, 1], na.rm = TRUE)
-    xmin <- min(vt[normal_x, 1], na.rm = TRUE)
+    bounds <- finiteAxisRange(vt)
 
     lines <- data.frame(
       name = c(
@@ -186,8 +188,8 @@ buildVolcanoLines <- function(vt, contrast_reactives) {
         rep(paste0(abs(fclim), "-fold up"), 2),
         rep(paste("q <", qvallim), 2)
       ),
-      x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), xmin, xmax),
-      y = c(ymin, ymax, ymin, ymax, rep(-log10(qvallim), 2))
+      x = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2), bounds$xmin, bounds$xmax),
+      y = c(bounds$ymin, bounds$ymax, bounds$ymin, bounds$ymax, rep(-log10(qvallim), 2))
     )
 
     # Use lines dependent on how the fold change filter is applied

@@ -1,4 +1,5 @@
 maplot_modal <- list(id = "maplot", title = "MA plots")
+maplot_scatter <- list(scatter_id = "ma", filename = "ma")
 
 #' The UI input function of the \code{maplot} module
 #'
@@ -32,7 +33,7 @@ maplot_modal <- list(id = "maplot", title = "MA plots")
 #' }
 #'
 maplotInput <- function(id, eselist) {
-  differentialScatterInput(id, eselist, scatter_id = "ma")
+  differentialScatterInput(id, eselist, scatter_id = maplot_scatter$scatter_id)
 }
 
 #' The output function of the \code{maplot} module
@@ -65,13 +66,15 @@ maplotInput <- function(id, eselist) {
 #' }
 #'
 maplotOutput <- function(id) {
-  differentialScatterOutput(id, scatter_id = "ma", title = "MA plot", modal = maplot_modal)
+  differentialScatterOutput(id, scatter_id = maplot_scatter$scatter_id, title = "MA plot", modal = maplot_modal)
 }
 
 #' Select which MA plot threshold lines to draw
 #'
 #' The fold change filter can apply symmetrically (both up and down) or only
-#' in one direction, depending on the cardinality operator and the sign of
+#' in one direction, depending on the cardinality operator (one of the
+#' choices offered by \code{\link{cardinalNumericField}}: \code{"<="},
+#' \code{">="}, \code{">= or <= -"}, \code{"<= and >= -"}) and the sign of
 #' the limit. This picks the matching subset of rows from the \code{lines}
 #' data frame built in \code{\link{buildMaLines}}, where rows 1-2 are the
 #' fold-down threshold and rows 3-4 the fold-up threshold.
@@ -87,9 +90,9 @@ maplotOutput <- function(id) {
 #'
 #' @keywords internal
 selectMaLines <- function(lines, fccard, fclim) {
-  if (fccard %in% c("> or <-", "< and >-")) {
+  if (fccard %in% c(">= or <= -", "<= and >= -")) {
     lines
-  } else if (fccard == "<" && sign(fclim) == -1) {
+  } else if (fccard == "<=" && sign(fclim) == -1) {
     droplevels(lines[c(1, 2), ])
   } else {
     droplevels(lines[c(3, 4), ])
@@ -128,7 +131,7 @@ maplot <- function(id, eselist) {
     modalServer(maplot_modal$id, maplot_modal$title)
 
     differentialScatterServer(input, output, session, eselist,
-      scatter_id = "ma", filename = "ma",
+      scatter_id = maplot_scatter$scatter_id, filename = maplot_scatter$filename,
       buildTable = buildMaTable, buildLines = buildMaLines
     )
   })
@@ -155,17 +158,10 @@ buildMaLines <- function(mat, contrast_reactives) {
   withProgress(message = "Calculating lines", value = 0, {
     fclim <- contrast_reactives$getFoldChange()
 
-    normal_y <- !is.infinite(mat[, 2])
-    normal_x <- !is.infinite(mat[, 1])
-
-    ymax <- max(mat[normal_y, 2], na.rm = TRUE)
-    ymin <- min(mat[normal_y, 2], na.rm = TRUE)
-
-    xmax <- max(mat[normal_x, 1], na.rm = TRUE)
-    xmin <- min(mat[normal_x, 1], na.rm = TRUE)
+    bounds <- finiteAxisRange(mat)
 
     lines <- data.frame(
-      name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(xmin, xmax, xmin, xmax),
+      name = c(rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(bounds$xmin, bounds$xmax, bounds$xmin, bounds$xmax),
       y = c(rep(-log2(abs(fclim)), 2), rep(log2(abs(fclim)), 2))
     )
 

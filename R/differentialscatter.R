@@ -24,9 +24,12 @@
 #'
 #' @keywords shiny
 differentialScatterInput <- function(id, eselist, scatter_id, require_contrast_stats = FALSE,
-                                      multi_view_fn = function(esel) length(esel) > 1 || length(assays(esel[[1]])) > 1) {
+                                      multi_view_fn = function(esel) !singleValidMatrix(esel)) {
   ns <- NS(id)
 
+  # require_contrast_stats filters eselist here, not just in selectmatrixInput below, because
+  # multi_view_fn must see the same (possibly narrowed) set of experiments selectmatrixInput will
+  # end up offering, not the full unfiltered eselist.
   if (require_contrast_stats) {
     eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
       has_slot_data(ese, "contrast_stats")
@@ -34,9 +37,10 @@ differentialScatterInput <- function(id, eselist, scatter_id, require_contrast_s
   }
 
   expression_filters <- selectmatrixInput(ns("expression"), eselist, require_contrast_stats = require_contrast_stats)
+  is_multi_view <- multi_view_fn(eselist)
 
   fieldsets <- list(contrasts = list(contrastsInput(ns("differential"))))
-  if (multi_view_fn(eselist)) {
+  if (is_multi_view) {
     fieldsets$expression_matrix <- expression_filters
   }
 
@@ -47,7 +51,7 @@ differentialScatterInput <- function(id, eselist, scatter_id, require_contrast_s
 
   inputs <- list(fieldSets(ns("fieldset"), fieldsets))
 
-  if (!multi_view_fn(eselist)) {
+  if (!is_multi_view) {
     inputs <- pushToList(inputs, expression_filters)
   }
 
@@ -99,7 +103,8 @@ differentialScatterOutput <- function(id, scatter_id, title, modal) {
 #' @param scatter_id Sub-namespace matching the one passed to
 #'   \code{\link{differentialScatterInput}}
 #' @param buildTable Function of \code{contrast_reactives} returning the
-#'   module-specific data frame, before colorby/label annotation
+#'   module-specific data frame, before colorby/label annotation. Its first
+#'   two columns are used as the plotted x and y values.
 #' @param buildLines Function of the annotated table and
 #'   \code{contrast_reactives} returning the threshold-line data frame
 #' @param filename Base filename used for the exported table
@@ -194,4 +199,28 @@ annotateDifferentialTable <- function(ct, contrast_reactives, geneselect_reactiv
   ct$label[!rownames(ct) %in% c(rownames(fct), geneselect_reactives$selectRows())] <- NA
 
   ct
+}
+
+#' Finite x/y bounds of a differential-scatter table
+#'
+#' Threshold lines need finite endpoints to span the plotted axis, so
+#' infinite values (from log-transforming a zero) are excluded before taking
+#' the range.
+#'
+#' @param table Data frame whose first two columns are the plotted x and y
+#'   values
+#'
+#' @return A list with \code{xmin}, \code{xmax}, \code{ymin} and \code{ymax}
+#'
+#' @keywords internal
+finiteAxisRange <- function(table) {
+  normal_x <- !is.infinite(table[, 1])
+  normal_y <- !is.infinite(table[, 2])
+
+  list(
+    xmin = min(table[normal_x, 1], na.rm = TRUE),
+    xmax = max(table[normal_x, 1], na.rm = TRUE),
+    ymin = min(table[normal_y, 2], na.rm = TRUE),
+    ymax = max(table[normal_y, 2], na.rm = TRUE)
+  )
 }

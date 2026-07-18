@@ -1,4 +1,5 @@
 foldchangeplot_modal <- list(id = "foldchangeplot", title = "Fold change plots")
+foldchangeplot_scatter <- list(scatter_id = "foldchange", filename = "foldchange")
 
 #' The UI input function of the \code{foldchangeplot} module
 #'
@@ -31,7 +32,7 @@ foldchangeplot_modal <- list(id = "foldchangeplot", title = "Fold change plots")
 #' }
 #'
 foldchangeplotInput <- function(id, eselist) {
-  differentialScatterInput(id, eselist, scatter_id = "foldchange")
+  differentialScatterInput(id, eselist, scatter_id = foldchangeplot_scatter$scatter_id)
 }
 
 #' The output function of the \code{foldchangeplot} module
@@ -61,7 +62,7 @@ foldchangeplotInput <- function(id, eselist) {
 #' }
 #'
 foldchangeplotOutput <- function(id) {
-  differentialScatterOutput(id, scatter_id = "foldchange", title = "Fold change plot", modal = foldchangeplot_modal)
+  differentialScatterOutput(id, scatter_id = foldchangeplot_scatter$scatter_id, title = "Fold change plot", modal = foldchangeplot_modal)
 }
 
 #' Select which fold change plot threshold lines to draw
@@ -123,7 +124,7 @@ foldchangeplot <- function(id, eselist) {
     modalServer(foldchangeplot_modal$id, foldchangeplot_modal$title)
 
     differentialScatterServer(input, output, session, eselist,
-      scatter_id = "foldchange", filename = "foldchange",
+      scatter_id = foldchangeplot_scatter$scatter_id, filename = foldchangeplot_scatter$filename,
       buildTable = buildFoldchangeTable, buildLines = buildFoldchangeLines
     )
   })
@@ -149,17 +150,10 @@ buildFoldchangeTable <- function(contrast_reactives) {
 buildFoldchangeLines <- function(fct, contrast_reactives) {
   fclim <- contrast_reactives$getFoldChange()
 
-  normal_y <- !is.infinite(fct[, 2])
-  normal_x <- !is.infinite(fct[, 1])
+  bounds <- finiteAxisRange(fct)
 
-  ymax <- max(fct[normal_y, 2])
-  ymin <- min(fct[normal_y, 2])
-
-  xmax <- max(fct[normal_x, 1])
-  xmin <- min(fct[normal_x, 1])
-
-  min <- min(xmin, ymin)
-  max <- max(xmax, ymax)
+  min <- min(bounds$xmin, bounds$ymin)
+  max <- max(bounds$xmax, bounds$ymax)
 
   lines <- data.frame(
     name = c(rep("No change", 2), rep(paste0(abs(fclim), "-fold down"), 2), rep(paste0(abs(fclim), "-fold up"), 2)), x = c(
