@@ -222,6 +222,7 @@ pushToList <- function(input_list, element) {
 shinyngsPageNavbar <- function(navbar_menus) {
   cssfile <- system.file("www", paste0(packageName(), ".css"), package = packageName())
   jsfile <- system.file("www", paste0(packageName(), ".js"), package = packageName())
+  shiny::addResourcePath("shinyngs-www", system.file("www", package = packageName()))
   navbar_menus$theme <- bslib::bs_theme(version = 5, bootswatch = "cosmo", primary = SHINYNGS_ACCENT)
   navbar_menus$navbar_options <- bslib::navbar_options(bg = "dark", theme = "dark")
 

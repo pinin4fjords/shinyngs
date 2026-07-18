@@ -1,5 +1,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# shinyngs <img src="man/figures/logo.png" align="right" height="139" alt="shinyngs hex logo" />
+
 # Synopsis
 
 Shinyngs is an R package designed to facilitate downstream analysis of

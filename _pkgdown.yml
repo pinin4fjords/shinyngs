@@ -3,6 +3,10 @@ url: https://pinin4fjords.github.io/shinyngs/
 template:
   bootstrap: 5
   bootswatch: cosmo
+  opengraph:
+    image:
+      src: man/figures/logo.png
+      alt: "shinyngs hex logo, showing a PCA plot, a volcano plot, and boxplots"
 
 development:
   mode: auto

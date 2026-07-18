@@ -237,6 +237,7 @@ h3{
 @media (max-width: 767px) { .shinyngs-desc-body { column-count: 1; } }
 
 /* Sidebar: jump-to-analysis links + interface note (sits inside the sidebar well) */
+.shinyngs-home-logo { display: block; width: 180px; max-width: 100%; height: auto; margin: 0 auto 16px; }
 .shinyngs-jump a { display: flex; align-items: center; gap: 9px; padding: 8px 0; color: var(--bs-body-color); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--bs-border-color); }
 .shinyngs-jump a:last-child { border-bottom: 0; }
 .shinyngs-jump a:hover { color: var(--bs-primary); text-decoration: none; }
