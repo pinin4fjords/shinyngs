@@ -46,7 +46,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rsconnect, local::.
+          # rsconnect refuses to bundle a package installed from an untracked
+          # local source (no reproducible origin to reinstall from
+          # server-side), so shinyngs itself is installed as a GitHub remote
+          # pinned to the commit being deployed, rather than via local::.
+          extra-packages: any::rsconnect, pinin4fjords/shinyngs@${{ github.sha }}
           dependencies: 'c("Imports", "Depends", "LinkingTo")'
 
       - name: Build and deploy the shinyapps.io example app
