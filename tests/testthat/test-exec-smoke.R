@@ -21,6 +21,62 @@ test_that("validate_fom_components.R runs against fixtures and rewrites normaliz
   expect_true(file.exists(file.path(outdir, "SRP254919.salmon.merged.gene_counts.top1000cov.assay.tsv")))
 })
 
+test_that("validate_fom_components.R fails clearly when --assay_files does not exist", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("validate_fom_components.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("does_not_exist.tsv"),
+    "--output_directory", outdir
+  ))
+
+  expect_exec_failure(result, "does not exist")
+})
+
+test_that("validate_fom_components.R fails clearly when assay matrix columns don't match the sample sheet", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  # The feature metadata file has no sample-named columns at all, so it stands
+  # in for an assay matrix whose columns don't match the sample sheet.
+  result <- run_exec_script("validate_fom_components.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--output_directory", outdir
+  ))
+
+  expect_exec_failure(result, "Some sample metadata names")
+})
+
+test_that("validate_fom_components.R fails clearly when the contrasts file references an unknown variable", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+  bad_contrasts <- withr::local_tempfile(fileext = ".csv")
+  writeLines(
+    c(
+      "id,variable,reference,target,blocking",
+      "bad_contrast,not_a_real_variable,mCherry,hND6,"
+    ),
+    bad_contrasts
+  )
+
+  result <- run_exec_script("validate_fom_components.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--contrasts_file", bad_contrasts,
+    "--output_directory", outdir
+  ))
+
+  expect_exec_failure(result, "Not all contrast variables are available in the sample metadata")
+})
+
 # exec/exploratory_plots.R
 
 test_that("exploratory_plots.R runs against fixtures and writes plot PNGs", {
@@ -46,6 +102,54 @@ test_that("exploratory_plots.R runs against fixtures and writes plot PNGs", {
   }
 })
 
+test_that("exploratory_plots.R fails clearly when a mandatory argument is missing", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("exploratory_plots.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "Please provide a contrast_variable")
+})
+
+test_that("exploratory_plots.R fails clearly when --assay_files does not exist", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("exploratory_plots.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("does_not_exist.tsv"),
+    "--contrast_variable", "treatment",
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "does not exist")
+})
+
+test_that("exploratory_plots.R fails clearly when --final_assay is not among the supplied assays", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("exploratory_plots.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--contrast_variable", "treatment",
+    "--final_assay", "not_a_real_assay",
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "Indicated final assay 'not_a_real_assay' not among")
+})
+
 # exec/differential_plots.R
 
 test_that("differential_plots.R runs against fixtures and writes a volcano plot", {
@@ -66,6 +170,72 @@ test_that("differential_plots.R runs against fixtures and writes a volcano plot"
   volcano_path <- file.path(outdir, "png", "volcano.png")
   expect_true(file.exists(volcano_path))
   expect_gt(file.size(volcano_path), 0)
+})
+
+test_that("differential_plots.R fails clearly when --differential_file does not exist", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("differential_plots.R", c(
+    "--differential_file", exec_smoke_fixture("does_not_exist.tsv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--reference_level", "mCherry",
+    "--treatment_level", "hND6",
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "does not exist")
+})
+
+test_that("differential_plots.R fails clearly when --feature_metadata does not exist", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("differential_plots.R", c(
+    "--differential_file", exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv"),
+    "--feature_metadata", exec_smoke_fixture("does_not_exist.tsv"),
+    "--reference_level", "mCherry",
+    "--treatment_level", "hND6",
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "does not exist")
+})
+
+test_that("differential_plots.R fails clearly when --fold_change_col is absent from the differential file", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("differential_plots.R", c(
+    "--differential_file", exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--fold_change_col", "not_a_real_column",
+    "--reference_level", "mCherry",
+    "--treatment_level", "hND6",
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "Missing stats variables: not_a_real_column")
+})
+
+test_that("differential_plots.R fails clearly when --p_value_column is absent from the differential file", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("differential_plots.R", c(
+    "--differential_file", exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--p_value_column", "not_a_real_column",
+    "--reference_level", "mCherry",
+    "--treatment_level", "hND6",
+    "--outdir", outdir
+  ))
+
+  expect_exec_failure(result, "Missing stats variables: not_a_real_column")
 })
 
 # exec/make_app_from_files.R
@@ -267,7 +437,5 @@ test_that("make_app_from_files.R fails with an actionable error for a malformed 
     "--output_directory", outdir
   ))
 
-  expect_false(result$status == 0)
-  combined_output <- paste(result$output, collapse = "\n")
-  expect_match(combined_output, "FDR column not found", fixed = TRUE)
+  expect_exec_failure(result, "FDR column not found")
 })

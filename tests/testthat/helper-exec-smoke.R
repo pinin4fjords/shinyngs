@@ -80,3 +80,13 @@ run_exec_script <- function(script, args) {
 expect_exec_success <- function(result) {
   testthat::expect_equal(result$status, 0, info = paste(result$output, collapse = "\n"))
 }
+
+# expect_exec_failure()
+#
+# Assert an exec/*.R script exited with a non-zero status and that its
+# combined output matches the given pattern.
+
+expect_exec_failure <- function(result, pattern) {
+  testthat::expect_false(result$status == 0)
+  testthat::expect_match(paste(result$output, collapse = "\n"), pattern, fixed = TRUE)
+}
