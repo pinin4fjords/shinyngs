@@ -72,7 +72,7 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
           margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "),
           yaxis = list(title = getYLabel())
         ) %>%
-        shinyngsPlotlyConfig("barplot")
+        shinyngsPlotlyConfig("barplot", format = session$userData$plotFormat())
     })
   })
 }

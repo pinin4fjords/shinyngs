@@ -117,4 +117,26 @@
       }
     });
   }
+
+  // Plot download format toggle: a plain icon button (styled like the
+  // light/dark toggle) that flips between PNG and SVG. R never binds to this
+  // element directly; it just reads the resulting Shiny input value once, via
+  // session$userData in configureBookmarking(), so every renderPlotly() picks
+  // it up without taking it as an extra module argument.
+  var PLOT_FORMAT_ICON_CLASS = { png: "far fa-file-image", svg: "fas fa-bezier-curve" };
+
+  function setPlotFormatButtonState(btn, format) {
+    btn.setAttribute("data-format", format);
+    var i = btn.querySelector("i");
+    if (i) i.className = PLOT_FORMAT_ICON_CLASS[format];
+    var next = format === "png" ? "SVG" : "PNG";
+    btn.setAttribute("aria-label", "Plot download format: " + format.toUpperCase() + ". Click to switch to " + next + ".");
+  }
+
+  $(document).on("click", "#shinyngs_plot_format_toggle", function () {
+    var btn = this;
+    var next = btn.getAttribute("data-format") === "png" ? "svg" : "png";
+    setPlotFormatButtonState(btn, next);
+    if (window.Shiny) Shiny.setInputValue("shinyngs_plot_format", next, { priority: "event" });
+  });
 })();

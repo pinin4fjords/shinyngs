@@ -153,12 +153,12 @@ boxplot <- function(id, eselist) {
       selected_matrix <- selectmatrix_reactives$selectMatrix()
       ese <- selectmatrix_reactives$getExperiment()
       plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance) %>%
-        shinyngsPlotlyConfig("quartiles")
+        shinyngsPlotlyConfig("quartiles", format = session$userData$plotFormat())
     })
 
     output$densityPlotly <- renderPlotly({
       plotly_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette()) %>%
-        shinyngsPlotlyConfig("density")
+        shinyngsPlotlyConfig("density", format = session$userData$plotFormat())
     })
 
     plot_source <- session$ns("sampleBoxplot")
@@ -177,7 +177,7 @@ boxplot <- function(id, eselist) {
           expressiontype = selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance,
           palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
         ) %>%
-          shinyngsPlotlyConfig("boxplot")
+          shinyngsPlotlyConfig("boxplot", format = session$userData$plotFormat())
       })
     })
   })

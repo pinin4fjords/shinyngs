@@ -246,6 +246,18 @@ shinyngsPageNavbar <- function(navbar_menus) {
       bslib::input_dark_mode(id = "shinyngs_dark_mode"),
       label = "Toggle light or dark mode",
       placement = "bottom"
+    )),
+    bslib::nav_item(a11yControl(
+      tags$button(
+        id = "shinyngs_plot_format_toggle",
+        type = "button",
+        class = "btn btn-link shinyngs-navbar-icon-btn",
+        `data-format` = "png",
+        icon("file-image")
+      ),
+      label = "Plot download format: PNG. Click to switch to SVG.",
+      tooltip = "Format used by each plot's camera/download button - click to toggle PNG/SVG",
+      placement = "bottom"
     ))
   ))
   do.call(bslib::page_navbar, navbar_menus)
@@ -300,12 +312,20 @@ configureBookmarking <- function(input, session, nav_input = NULL) {
   # object to a fresh process where prepareApp's option would be lost.
   enableBookmarking("url")
 
+  # session$userData is shared with every nested module session, so plot
+  # modules can read the chosen download format without each one taking it
+  # as an extra constructor argument.
+  session$userData$plotFormat <- reactive({
+    fmt <- input$shinyngs_plot_format
+    if (is.null(fmt)) "png" else fmt
+  })
+
   patterns <- c(
     "_rows_current", "_rows_all", "_rows_selected", "_state", "_search",
     "_cell_clicked", "_cells_selected", "_columns", # DT internals
     "plotly_", ".clientValue-", # plotly event streams
     "-link", # help-modal triggers
-    "shinyngs_dark_mode", "shinyngs_share_view", "insertBtn", "removeBtn"
+    "shinyngs_dark_mode", "shinyngs_plot_format", "shinyngs_share_view", "insertBtn", "removeBtn"
   )
 
   # Grep only names that are new since the last fire (inputs stream in as tables
@@ -428,23 +448,25 @@ shinyngsSpinnerColor <- function() {
 #'
 #' Gives every interactive plot the same modebar: the plotly logo is dropped,
 #' the noisier selection buttons are removed, and the "download plot" button
-#' produces a PNG named after the plot rather than the generic
-#' \code{newplot.png}. Call once on the assembled plotly object before
-#' returning it from a \code{renderPlotly()}.
+#' produces an image named after the plot (rather than the generic
+#' \code{newplot.png}) in the user's chosen format. Call once on the assembled
+#' plotly object before returning it from a \code{renderPlotly()}.
 #'
 #' @param p A plotly object
-#' @param filename Base name (no extension) for the PNG download
+#' @param filename Base name (no extension) for the downloaded image
+#' @param format Image format for the download button, e.g. \code{"png"} or
+#'   \code{"svg"}
 #'
 #' @return The plotly object with a shared \code{config()} applied
 #'
 #' @keywords internal
 #'
-shinyngsPlotlyConfig <- function(p, filename = "shinyngs_plot") {
+shinyngsPlotlyConfig <- function(p, filename = "shinyngs_plot", format = "png") {
   plotly::config(
     p,
     displaylogo = FALSE,
     modeBarButtonsToRemove = c("sendDataToCloud", "lasso2d", "select2d"),
-    toImageButtonOptions = list(format = "png", filename = filename)
+    toImageButtonOptions = list(format = format, filename = filename)
   )
 }
 

@@ -4,12 +4,15 @@
 \alias{shinyngsPlotlyConfig}
 \title{Apply shinyngs' shared plotly toolbar configuration}
 \usage{
-shinyngsPlotlyConfig(p, filename = "shinyngs_plot")
+shinyngsPlotlyConfig(p, filename = "shinyngs_plot", format = "png")
 }
 \arguments{
 \item{p}{A plotly object}
 
-\item{filename}{Base name (no extension) for the PNG download}
+\item{filename}{Base name (no extension) for the downloaded image}
+
+\item{format}{Image format for the download button, e.g. \code{"png"} or
+\code{"svg"}}
 }
 \value{
 The plotly object with a shared \code{config()} applied
@@ -17,8 +20,8 @@ The plotly object with a shared \code{config()} applied
 \description{
 Gives every interactive plot the same modebar: the plotly logo is dropped,
 the noisier selection buttons are removed, and the "download plot" button
-produces a PNG named after the plot rather than the generic
-\code{newplot.png}. Call once on the assembled plotly object before
-returning it from a \code{renderPlotly()}.
+produces an image named after the plot (rather than the generic
+\code{newplot.png}) in the user's chosen format. Call once on the assembled
+plotly object before returning it from a \code{renderPlotly()}.
 }
 \keyword{internal}

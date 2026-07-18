@@ -232,7 +232,7 @@ genesetbarcodeplot <- function(id, eselist) {
         fold_changes = getFoldChanges(), gene_ids = getGeneIDs(), set_gene_ids = names(set_genes), labels = getLabels(),
         plot_title = barcodeplotTitle()
       ) %>%
-        shinyngsPlotlyConfig("barcodeplot")
+        shinyngsPlotlyConfig("barcodeplot", format = session$userData$plotFormat())
     })
 
     # Make a table of contrast data for the gene set Subset the linked contrasts table for the gene set genes
