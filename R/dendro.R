@@ -296,7 +296,9 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
       line = list(color = "black", width = 1), hoverinfo = "none", showlegend = FALSE
     )
   } else {
-    p <- plotly::add_lines(p, x = numeric(0), y = numeric(0), hoverinfo = "none", showlegend = FALSE)
+    # plotly::add_lines() rejects zero-length x/y outright, so a single NA
+    # point stands in for "nothing to draw" while keeping trace 0 present.
+    p <- plotly::add_lines(p, x = NA_real_, y = NA_real_, hoverinfo = "none", showlegend = FALSE)
   }
 
   if (is.null(colorby)) {
