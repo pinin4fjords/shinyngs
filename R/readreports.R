@@ -26,7 +26,7 @@ readreportsInput <- function(id, eselist) {
     naked_fields <- experiment_filter
   }
 
-  field_sets <- c(field_sets, list(report_type = uiOutput(ns("reportType")), bar_plot = uiOutput(ns("barplotControls")), export = simpletableInput(ns("readrep"))))
+  field_sets <- c(field_sets, list(report_type = uiOutput(ns("reportType_ui")), bar_plot = uiOutput(ns("barplotControls")), export = simpletableInput(ns("readrep"))))
 
   list(naked_fields, fieldSets(ns("fieldsets"), field_sets))
 }
@@ -74,7 +74,7 @@ readreports <- function(id, eselist) {
 
     # Render a select for the report type based on what's in the 'read_reports' slot
 
-    output$reportType <- renderUI({
+    output$reportType_ui <- renderUI({
       ese <- selectmatrix_reactives$getExperiment()
       selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettifyVariablename(names(ese@read_reports))))
     })

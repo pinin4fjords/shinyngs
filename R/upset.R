@@ -32,7 +32,7 @@ upsetInput <- function(id, eselist) {
   ns <- NS(id)
 
   upset_fields <- list(
-    uiOutput(ns("nsets")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, value = 20), uiOutput(ns("minorder")),
+    uiOutput(ns("nsets_ui")), sliderInput(ns("nintersects"), label = "Number of intersections", min = 2, max = 40, step = 1, value = 20), uiOutput(ns("minorder_ui")),
     checkboxInput(ns("separate_by_direction"), label = "Separate by direction of change?", value = TRUE), checkboxInput(ns("set_sort"), "Sort sets by size?", value = TRUE), checkboxInput(ns("bar_numbers"), "Show bar numbers?", value = FALSE), checkboxInput(ns("show_empty_intersections"),
       label = "Show empty intersections?", value = TRUE
     ), selectInput(ns("intersection_assignment_type"), "Intersection type", choices = c(
@@ -134,12 +134,12 @@ upset <- function(id, eselist, setlimit = 16) {
 
     ############################################################################# Render dynamic fields
 
-    output$nsets <- renderUI({
+    output$nsets_ui <- renderUI({
       max_sets <- getMaxSets()
       sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
     })
 
-    output$minorder <- renderUI({
+    output$minorder_ui <- renderUI({
       assignment_type <- getIntersectionAssignmentType()
       max_order <- getMaxIntersectionOrder()
 

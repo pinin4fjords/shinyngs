@@ -21,7 +21,7 @@ geneselectInput <- function(id, select_genes = TRUE) {
   ns <- NS(id)
 
   if (select_genes) {
-    uiOutput(ns("geneSelect"))
+    uiOutput(ns("geneSelect_ui"))
   } else {
     hiddenInput(ns("geneSelect"), "all")
   }
@@ -96,7 +96,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
     # Render the geneSelect UI element
 
-    output$geneSelect <- renderUI({
+    output$geneSelect_ui <- renderUI({
       withProgress(message = "Rendering row selection", value = 0, {
         ns <- session$ns
 

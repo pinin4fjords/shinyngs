@@ -39,7 +39,7 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
       has_slot_data(ese, "contrast_stats")
     })))]
   }
-  inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay")), uiOutput(ns("samples")), uiOutput(ns("rows")), uiOutput(ns("meta")))
+  inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay_ui")), uiOutput(ns("samples")), uiOutput(ns("rows")), uiOutput(ns("meta")))
 
   # Replace experiment with a hidden input if we've got just the one
 
@@ -114,7 +114,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     ns <- session$ns
 
-    output$assay <- renderUI({
+    output$assay_ui <- renderUI({
       withProgress(message = "Rendering assay drop-down", value = 0, {
         ns <- session$ns
 
