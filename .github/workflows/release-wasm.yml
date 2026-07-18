@@ -1,14 +1,9 @@
 # Workflow derived from https://github.com/r-wasm/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 #
-# The steps below inline r-wasm/actions' release-file-system-image.yml reusable
-# workflow so a patch step can run between checkout and build. CRAN's pkgdepends
-# 0.9.1 aborts rwasm::add_pkg() with "`nrow(out)` must equal `1`"
-# (https://github.com/r-lib/pkgdepends/issues/462); the fix is on r-lib/pkgdepends
-# main but unreleased on CRAN, and the build container reinstalls rwasm (pulling
-# CRAN pkgdepends) from scratch. The patch step forces the fixed pkgdepends commit
-# into that install. Once the fix reaches CRAN, drop the two workaround steps and
-# revert to `uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2`.
+# Temporary workaround for pinin4fjords/shinyngs#74: the "Pin fixed pkgdepends"
+# step patches the r-wasm build container to use a pkgdepends commit CRAN has not
+# released. When it lands on CRAN, delete the workaround steps and revert to:
+#   uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v2
 on:
   release:
     # Must republish release to update assets
