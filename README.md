@@ -242,14 +242,15 @@ resulting from the above command.
 Or run it via Docker: the
 [image](https://quay.io/repository/biocontainers/r-shinyngs)
 mentioned above already has `shinyngs` and Shiny installed, so it can
-run the generated `app.R`/`data.rds` directly - pick a tag from the
+run the generated `app.R`/`data.rds` directly - there's no `latest`
+tag, so use the most recent one from the
 [image's tag list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags)
 and mount the directory containing them:
 
 ``` bash
 docker run --rm -p 3838:3838 \
     -v "$(pwd)/app":/data -w /data \
-    quay.io/biocontainers/r-shinyngs:<tag> \
+    quay.io/biocontainers/r-shinyngs:<latest-tag> \
     Rscript -e "shiny::runApp('/data', host = '0.0.0.0', port = 3838)"
 ```
 

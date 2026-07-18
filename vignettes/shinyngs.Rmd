@@ -471,12 +471,12 @@ make_app_from_files.R \
 
 This produces an `app.R` in `--output_dir`, which can be run directly. See `make_app_from_files.R --help` for the full set of options, including `--ensembl_species` (see [Included modules](#included-modules)) and `--deploy_app` for deploying straight to shinyapps.io.
 
-Or run it via Docker: the [Biocontainers image](https://quay.io/repository/biocontainers/r-shinyngs) already has `shinyngs` and Shiny installed and can run the generated `app.R`/`data.rds` directly - pick a tag from the [image's tag list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags) and mount `--output_dir`:
+Or run it via Docker: the [Biocontainers image](https://quay.io/repository/biocontainers/r-shinyngs) already has `shinyngs` and Shiny installed and can run the generated `app.R`/`data.rds` directly - there's no `latest` tag, so use the most recent one from the [image's tag list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags) and mount `--output_dir`:
 
 ```sh
 docker run --rm -p 3838:3838 \
   -v "$(pwd)/app":/data -w /data \
-  quay.io/biocontainers/r-shinyngs:<tag> \
+  quay.io/biocontainers/r-shinyngs:<latest-tag> \
   Rscript -e "shiny::runApp('/data', host = '0.0.0.0', port = 3838)"
 ```
 
