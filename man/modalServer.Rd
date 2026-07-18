@@ -15,7 +15,8 @@ stay current.}
 
 \item{content}{Content to include in the modal. May be a function, called
 each time the modal opens. When \code{NULL} (the default), Markdown is
-loaded once from \code{inst/inlinehelp/<id>.md}.}
+loaded from \code{inst/inlinehelp/<id>.md} the first time the modal is
+opened, then cached for the life of the session.}
 }
 \description{
 This module uses Shiny's \code{modalDialog()} to create overlaid text for the

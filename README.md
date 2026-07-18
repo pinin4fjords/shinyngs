@@ -326,6 +326,43 @@ vignette('shinyngs')
 
 - More useful non-RNAseq functionality to be added
 
+# Credits
+
+Shinyngs combines a number of other open-source packages to do its work.
+Deployed apps also carry a “Credits” link in the navbar crediting these
+directly, but for reference:
+
+- [Shiny](https://shiny.posit.co/) (Winston Chang, Joe Cheng, JJ
+  Allaire, Carson Sievert et al., Posit Software) and
+  [bslib](https://rstudio.github.io/bslib/) (Carson Sievert, Joe Cheng,
+  Garrick Aden-Buie) - the application framework and Bootstrap 5
+  theming.
+- [DT](https://rstudio.github.io/DT/) (Yihui Xie, Joe Cheng, Xianying
+  Tan, Garrick Aden-Buie), wrapping the
+  [DataTables](https://datatables.net/) jQuery plugin (SpryMedia Ltd) -
+  interactive tables.
+- [plotly](https://plotly.com/r/) (Carson Sievert, Chris Parmer, Toby
+  Hocking, Scott Chamberlain, Karthik Ram, Marianne Corvellec, Pedro
+  Despouy), wrapping [plotly.js](https://plotly.com/javascript/) (Plotly
+  Technologies Inc.) - interactive plots.
+- [heatmaply](https://talgalili.github.io/heatmaply/) (Tal Galili, Alan
+  O’Callaghan) - interactive heatmaps.
+- [ggplot2](https://ggplot2.tidyverse.org/) (Hadley Wickham et al.) and
+  [ggdendro](https://cran.r-project.org/package=ggdendro) (Andrie de
+  Vries) - static plotting.
+- [igvShiny](https://github.com/gladkia/igvShiny) (Paul Shannon,
+  Arkadiusz Gladki, Karolina Ścigocka), wrapping the [Integrative
+  Genomics Viewer](https://igv.org/) (igv.js, Broad Institute) - the
+  gene model browser.
+- [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment/)
+  (Martin Morgan, Valerie Obenchain, Jim Hester, Hervé Pagès),
+  [limma](https://bioconductor.org/packages/limma/) (Gordon Smyth et
+  al.) and [DEXSeq](https://bioconductor.org/packages/DEXSeq/) (Simon
+  Anders, Alejandro Reyes) from Bioconductor.
+
+The full dependency list, with versions, is in
+[DESCRIPTION](DESCRIPTION).
+
 # Contributors
 
 I can be reached on @pinin4fjords with any queries. Other contributors

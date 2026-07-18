@@ -205,10 +205,12 @@ pushToList <- function(input_list, element) {
 #' Build the top-level bslib page shell shared by the app modules
 #'
 #' Applies the package's Bootstrap 5 theme and dark navbar styling, injects
-#' the package CSS/JS and shinyjs, adds a light/dark mode toggle to the
-#' navbar, and constructs the resulting \code{bslib::page_navbar()}. The
-#' accent colour is defined once here, on the theme, and everything else
-#' (CSS, plots) derives from the resulting Bootstrap variables.
+#' the package CSS/JS and shinyjs, adds a light/dark mode toggle and a
+#' "Credits" link (software acknowledgements, via the \code{shinyngs_credits}
+#' modal wired up in \code{configureBookmarking()}) to the navbar, and
+#' constructs the resulting \code{bslib::page_navbar()}. The accent colour is
+#' defined once here, on the theme, and everything else (CSS, plots) derives
+#' from the resulting Bootstrap variables.
 #'
 #' @param navbar_menus A named list of arguments accepted by
 #' \code{bslib::page_navbar()} (\code{id}, \code{title}, \code{window_title},
@@ -259,6 +261,11 @@ shinyngsPageNavbar <- function(navbar_menus) {
       label = "Plot download format: PNG. Click to switch to SVG.",
       tooltip = "Format used by each plot's camera/download button - click to toggle PNG/SVG",
       placement = "bottom"
+    )),
+    bslib::nav_item(modalInput(
+      "shinyngs_credits", "Credits",
+      class = "btn btn-sm",
+      tooltip = "Software this app is built on"
     ))
   ))
   do.call(bslib::page_navbar, navbar_menus)
@@ -298,6 +305,10 @@ bookmarkedInputValue <- function(state, session, id) {
 #' On bookmark, the state URL is written to the address bar so it can be copied
 #' and shared directly, with a notification pointing the user there.
 #'
+#' Also wires up the \code{shinyngs_credits} modal server, since this is the
+#' one place called once per top-level session across every app type
+#' (rnaseq, chipseq, illuminaarray, simpleApp).
+#'
 #' @param input The top-level \code{input} object, which carries all inputs
 #'   across module namespaces under their fully-qualified names
 #' @param session The top-level session
@@ -312,6 +323,8 @@ configureBookmarking <- function(input, session, nav_input = NULL) {
   # process actually runs the app, including harnesses that transport the app
   # object to a fresh process where prepareApp's option would be lost.
   enableBookmarking("url")
+
+  modalServer("shinyngs_credits", "Credits")
 
   # session$userData is shared with every nested module session, so plot
   # modules can read the chosen download format without each one taking it
