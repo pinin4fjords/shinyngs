@@ -37,6 +37,9 @@ for data mining at the end of an analysis pipeline.
   colouring and active panel) in the page URL and copies a shareable
   link to the clipboard, so a configured view can be shared or revisited
   by opening that link.
+- A “Color palette” picker on every plot, defaulting to a
+  colour-blind-safe categorical palette (Okabe & Ito, 2008), with
+  RColorBrewer qualitative palettes offered as alternatives.
 - Interface kept simple where possible, with complexity automatically
   added where required:
   - Input field clutter reduced with the use of collapses from
@@ -57,7 +60,7 @@ for data mining at the end of an analysis pipeline.
 
 ### Prerequisites
 
-`shinyngs` relies heavily on `SumamrizedExperiment`. Formerly found in
+`shinyngs` relies heavily on `SummarizedExperiment`. Formerly found in
 the `GenomicRanges` package, it now has its own package on Bioconductor:
 [http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html](http://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.md).
 This requires a recent version of R.
@@ -253,6 +256,7 @@ ExploratorySummarizedExperiment object. You might make a file like:
     title: My RNA seq experiment
     author: Joe Blogs
     report: report.md
+    ensembl_species: hsapiens
     group_vars:
       - Group
       - Replicate
@@ -299,6 +303,16 @@ You can then generate the object with a command like
 `eselist <- eselistFromYAML('my.yaml')`. This is how the `zhangneurons`
 dataset was generated- see `vignette(zhangneurons)` for details, and for
 the component input files themselves.
+
+The top-level `ensembl_species` key above is optional; when set (and the
+annotation supplies `chromosome_name`, `start_position` and
+`end_position` columns), it enables the gene model view described under
+[Included modules](#included-modules). Other optional top-level keys
+include `static_pdf` (to switch static plot downloads to PDF),
+`url_roots` (see [Other options](#other-options)), and
+`gene_set_id_type` plus `gene_sets` (a named list of GMT file paths, one
+per gene set collection) as a YAML-driven alternative to supplying gene
+sets via the R constructor (see [Gene sets](#gene-sets)).
 
 ## Building an application from scratch
 
@@ -467,8 +481,8 @@ head(mycoldata)
 
 ### Annotation
 
-Annotation is important to \`shinyngs’. You need a data frame with rows
-corresonding to those in the assays
+Annotation is important to `shinyngs`. You need a data frame with rows
+corresponding to those in the assays
 
 ``` r
 
@@ -572,9 +586,9 @@ shiny::shinyApp(app$ui, app$server)
 
 … for example, in the PCA plot
 
-![Example: the gene page](pca_highlighted.png)
+![Example: group highlighting in the PCA plot](pca_highlighted.png)
 
-Example: the gene page
+Example: group highlighting in the PCA plot
 
 ### Specifying contrasts for differential outputs
 
@@ -832,7 +846,7 @@ head(zhangneurons$gene@gene_set_analyses$`Filtered normalised`$GOBP$`MO-no-yes`)
     ## GO_OXIDATIVE_PHOSPHORYLATION                            0.001 0.01284807
     ## GO_DISTAL_TUBULE_DEVELOPMENT                            0.001 0.01284807
 
-This data struture is a bit cumbersome, and I’m thinking of ways of
+This data structure is a bit cumbersome, and I’m thinking of ways of
 better representing such data and the associated contrasts.
 
 #### Enrichment tool formats and auto-detection
@@ -884,13 +898,39 @@ gene_set_analyses <- list(
 )
 ```
 
+#### Building an app from files
+
+As well as building an `ExploratorySummarizedExperimentList` in R (or
+from a YAML file, above), `exec/make_app_from_files.R` can build an app
+directly from a regular file complement - expression matrices,
+sample/feature metadata, contrasts and differential results:
+
+``` sh
+make_app_from_files.R \
+  --assay_files raw.tsv,normalised_counts.tsv \
+  --sample_metadata samplesheet.csv \
+  --feature_metadata gene_meta.tsv \
+  --contrast_file contrasts.csv \
+  --differential_results treatment-saline-drug.deseq2.results.tsv \
+  --output_dir app \
+  --contrast_stats_assay 2 \
+  --fold_change_scale log2
+```
+
+This produces an `app.R` in `--output_dir`, which can be run directly.
+See `make_app_from_files.R --help` for the full set of options,
+including `--ensembl_species` (see [Included
+modules](#included-modules)) and `--deploy_app` for deploying straight
+to shinyapps.io.
+
 #### Building an app from files with enrichment results
 
-`exec/make_app_from_files.R` can wire GSEA (or `roast`) results into an
-app from the command line. `--enrichment_filename_template` describes
-where the result files live, with `{contrast_name}` and `{geneset_type}`
-substituted per contrast and gene set type, and an optional
-`{target|reference}` token to point at the split up/down GSEA files:
+`exec/make_app_from_files.R` can also wire GSEA (or `roast`) results
+into an app from the command line. `--enrichment_filename_template`
+describes where the result files live, with `{contrast_name}` and
+`{geneset_type}` substituted per contrast and gene set type, and an
+optional `{target|reference}` token to point at the split up/down GSEA
+files:
 
 ``` sh
 make_app_from_files.R \
@@ -905,6 +945,24 @@ with no result files; those contrasts simply show “No enrichment results
 for this contrast” in the app. For a tool that isn’t auto-detected, give
 `--enrichment_pval_column`, `--enrichment_fdr_column` and
 `--enrichment_direction_column` to name the columns to filter on.
+
+## Other command-line tools
+
+Besides `make_app_from_files.R`, the `exec/` directory has a few other
+scripts that reuse `shinyngs`’ plotting and validation code outside of
+the Shiny app itself. Each takes `--help` for its full set of options;
+see the package README for worked examples.
+
+- `exploratory_plots.R` - generates a generic complement of static
+  exploratory plots (PCA, boxplots, densities etc.) from a set of assay
+  files and sample metadata.
+- `differential_plots.R` - generates static differential analysis plots
+  (currently volcano plots) from differential results files.
+- `validate_fom_components.R` - runs `shinyngs`’ consistency checks
+  (matrices vs. sample/feature annotation vs. contrasts) on a file
+  complement without building an app, useful when writing FOM
+  (feature/observation matrix) pipelines that need to fail fast on
+  inconsistent inputs.
 
 ## Other options
 
@@ -928,7 +986,15 @@ Included modules are currently:
 - `dendro` - a clustering of samples in dendrogram plotted with
   `ggdendro`}.
 - `gene` - a bar plot showing gene expression and a table with fold
-  changes etc (where appropriate)
+  changes etc (where appropriate). If the
+  `ExploratorySummarizedExperimentList` has `ensembl_species` set
+  (e.g. `hsapiens`, `mmusculus`) and the feature metadata includes
+  `chromosome_name`, `start_position` and `end_position` columns, this
+  module also offers a “Gene model” view: an interactive
+  [igv.js](https://github.com/igvteam/igv.js) genome browser (via the
+  `igvShiny` package) showing the selected gene’s exon/transcript
+  structure alongside its expression. If `igvShiny` isn’t installed, or
+  `ensembl_species` isn’t set, this view is simply omitted.
 - `simpletable` - a simple display using datatables (via the `DT`
   package) to show a table and a download button. More complex table
   displays (with further controls, for example) can build on this

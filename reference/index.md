@@ -1,21 +1,259 @@
 # Package index
 
-## All functions
+## Building apps
 
-- [`ExploratorySummarizedExperiment-class`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperiment-class.md)
-  : The ExploratorySummarizedExperiment class
+Core classes and entry points for assembling an
+ExploratorySummarizedExperimentList and turning it into a Shiny app.
 
 - [`ExploratorySummarizedExperiment()`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperiment.md)
   : ExploratorySummarizedExperiments
+- [`ExploratorySummarizedExperimentList()`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList.md)
+  : ExploratorySummarizedExperimentLists, containers for
+  ExploratorySummarizedExperiments
+- [`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md)
+  : Make UI and server functions for Shiny apps based on data supplied
+  as modfied SummarizedExperiments
+- [`eselistFromYAML()`](https://pinin4fjords.github.io/shinyngs/reference/eselistFromYAML.md)
+  : Build an ExploratorySummarisedExperimentList from a YAML description
+- [`eselistfromConfig()`](https://pinin4fjords.github.io/shinyngs/reference/eselistfromConfig.md)
+  : Build an ExploratorySummarisedExperimentList from a description
+  provided in a list
+
+## Reading and validating input
+
+Helpers for reading matrices, metadata, contrasts and enrichment results
+from files, and validating them for consistency.
+
+- [`read_contrasts()`](https://pinin4fjords.github.io/shinyngs/reference/read_contrasts.md)
+  : Read and validate a contrasts file against sample metadata
+- [`read_differential()`](https://pinin4fjords.github.io/shinyngs/reference/read_differential.md)
+  : Read tables of differential statistics
+- [`read_gmt()`](https://pinin4fjords.github.io/shinyngs/reference/read_gmt.md)
+  : Read a GMT-format gene set file
+- [`read_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/read_matrix.md)
+  : Read an expression matrix file and match to specified samples and
+  features
+- [`read_metadata()`](https://pinin4fjords.github.io/shinyngs/reference/read_metadata.md)
+  : Read a metadata file
+- [`getExtension()`](https://pinin4fjords.github.io/shinyngs/reference/getExtension.md)
+  : Extract the extension of a file
+- [`getSeparator()`](https://pinin4fjords.github.io/shinyngs/reference/getSeparator.md)
+  : Infer a separator from the extension of an input file
+- [`checkListIsSubset()`](https://pinin4fjords.github.io/shinyngs/reference/checkListIsSubset.md)
+  : Check one list is a subset of another and throw an error if not
+- [`validate_indices()`](https://pinin4fjords.github.io/shinyngs/reference/validate_indices.md)
+  : Validate assay indices based on a given string.
+- [`validate_inputs()`](https://pinin4fjords.github.io/shinyngs/reference/validate_inputs.md)
+  : Call the various read/ validate methods for input data surrounding
+  an experiment
+- [`validateOrCatch()`](https://pinin4fjords.github.io/shinyngs/reference/validateOrCatch.md)
+  : Evaluate an expression, converting any error into a Shiny validation
+  message
+- [`is_valid_positive_integer_vector()`](https://pinin4fjords.github.io/shinyngs/reference/is_valid_positive_integer_vector.md)
+  : Check if a comma-separated string can be parsed to an integer vector
+- [`singleValidMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/singleValidMatrix.md)
+  : Is there only one matrix to plot from this object?
+- [`has_slot_data()`](https://pinin4fjords.github.io/shinyngs/reference/has_slot_data.md)
+  : Check whether a list-type slot on an S4 object is populated
+- [`build_enrichment_path()`](https://pinin4fjords.github.io/shinyngs/reference/build_enrichment_path.md)
+  : Build path to the enrichment results
+- [`chooseGroupingVariables()`](https://pinin4fjords.github.io/shinyngs/reference/chooseGroupingVariables.md)
+  : Choose a valid set of grouping variables from a targets/ experiment
+  data frame.
+
+## Matrix and statistics utilities
+
+Functions for transforming, summarising and clustering expression
+matrices.
+
+- [`bootstrapMedian()`](https://pinin4fjords.github.io/shinyngs/reference/bootstrapMedian.md)
+  : Bootstrap the standard error of the median
+
+- [`colGeomMeans()`](https://pinin4fjords.github.io/shinyngs/reference/colGeomMeans.md)
+  : Geometric means by matrix column
+
+- [`colMedians()`](https://pinin4fjords.github.io/shinyngs/reference/colMedians.md)
+  : Medians by matrix column
+
+- [`cond_log2_transform_assays()`](https://pinin4fjords.github.io/shinyngs/reference/cond_log2_transform_assays.md)
+  : Conditionally apply log2 transformation on assay data based on
+  log2_assays parameter.
+
+- [`cond_log2_transform_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/cond_log2_transform_matrix.md)
+  : Apply log2 transformation on a matrix.
+
+- [`foldChange()`](https://pinin4fjords.github.io/shinyngs/reference/foldChange.md)
+  : Calculate fold change between two vectors
+
+- [`geom_mean()`](https://pinin4fjords.github.io/shinyngs/reference/geom_mean.md)
+  : Geometric mean
+
+- [`guess_foldchange_scale()`](https://pinin4fjords.github.io/shinyngs/reference/guess_foldchange_scale.md)
+  : Guess whether fold change values are on a log2 or linear scale
+
+- [`madScore()`](https://pinin4fjords.github.io/shinyngs/reference/madScore.md)
+  : Calculate MAD scores as per OmicSoft
+
+- [`resolve_deprecated_unlog_foldchanges()`](https://pinin4fjords.github.io/shinyngs/reference/resolve_deprecated_unlog_foldchanges.md)
+  :
+
+  Map the deprecated `unlog_foldchanges`/`--unlog_foldchanges` argument
+  onto `fold_change_scale`, warning if it was used
+
+- [`resolve_foldchange_scale()`](https://pinin4fjords.github.io/shinyngs/reference/resolve_foldchange_scale.md)
+  : Resolve the scale of a fold-change column, cross-checking a user
+  declaration and a column-naming convention against the observed data
+
+- [`runClustering()`](https://pinin4fjords.github.io/shinyngs/reference/runClustering.md)
+  : Partition the rows of a matrix into clusters with clara()
+
+- [`selectVariableGenes()`](https://pinin4fjords.github.io/shinyngs/reference/selectVariableGenes.md)
+  : Generate an integer ordering to select the n most variable genes out
+  of a matrix
+
+- [`simpleSplit()`](https://pinin4fjords.github.io/shinyngs/reference/simpleSplit.md)
+  : Convenience interface to strsplit()
+
+- [`summarizeMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/summarizeMatrix.md)
+  : Summarise the rows of a matrix, applying a function to groups of
+  cells defined by a factor
+
+- [`summarySE()`](https://pinin4fjords.github.io/shinyngs/reference/summarySE.md)
+  : Summarise an input matrix
+
+- [`calculateDist()`](https://pinin4fjords.github.io/shinyngs/reference/calculateDist.md)
+  : Calculate a distance matrix based on correlation
+
+- [`calculateDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/calculateDendrogram.md)
+  : Calculate a clustering dendrogram based on correlation
+
+- [`clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/clusteringDendrogram.md)
+  : Make a clustering dendrogram with coloring by experimental variable
+
+- [`compilePCAData()`](https://pinin4fjords.github.io/shinyngs/reference/compilePCAData.md)
+  : Run PCA on a given matrix, expected to be variance stabilised (at
+  least log-transformed)
+
+- [`anova_pca_metadata()`](https://pinin4fjords.github.io/shinyngs/reference/anova_pca_metadata.md)
+  : Generate a matrix of anova values for associating principal
+  components with categorical covariates.
+
+- [`interleaveColumns()`](https://pinin4fjords.github.io/shinyngs/reference/interleaveColumns.md)
+  : Interleave the columns of two matrices of equal dimensions
+
+## Plotting functions
+
+Standalone plotting functions reused by the Shiny modules for static and
+interactive output.
+
+- [`ggplot_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_boxplot.md)
+  : Make a boxplot with coloring by experimental variable
+
+- [`ggplot_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_densityplot.md)
+  : Make a static density plot with ggplot2
+
+- [`ggplotify()`](https://pinin4fjords.github.io/shinyngs/reference/ggplotify.md)
+  :
+
+  Reshape data to the way `ggplot2` likes it
+
+- [`interactiveHeatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactiveHeatmap.md)
+  : Make an interactive heatmap with heatmaply
+
+- [`plotly_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barcodeplot.md)
+  : Make an interactive gene set barcode plot with plotly
+
+- [`plotly_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_boxplot.md)
+  : Make an interactive boxplot with coloring by experimental variable
+
+- [`plotly_clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_clusteringDendrogram.md)
+  : Make an interactive clustering dendrogram colored by experimental
+  variable
+
+- [`plotly_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.md)
+  : Make a dynamic density plot with plotly
+
+- [`plotly_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.md)
+  : Make a line-based alternative to boxplots
+
+- [`plotly_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.md)
+  :
+
+  Make scatterplots with `plot_ly()`
+
+- [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md)
+  :
+
+  Make scatterplots with `ggplot()` or `scatterplot3d`
+
+- [`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)
+  : Make a categorical colour scale of a specified length
+
+## Identifiers, labels and gene sets
+
+- [`convertIds()`](https://pinin4fjords.github.io/shinyngs/reference/convertIds.md)
+  : Convert row names to metadata identifiers
+
+- [`idToLabel()`](https://pinin4fjords.github.io/shinyngs/reference/idToLabel.md)
+  :
+
+  Create row labels based on the settings of `labelfield` in the
+  `ExploratorySummarizedExperiment` object and the annotation data in
+  `mcols`.
+
+- [`prettifyGeneSetName()`](https://pinin4fjords.github.io/shinyngs/reference/prettifyGeneSetName.md)
+  : Prettify gene set names like those from MSigDB
+
+- [`prettifyVariablename()`](https://pinin4fjords.github.io/shinyngs/reference/prettifyVariablename.md)
+  : Make machine variable names pretty for display
+
+- [`stringsToNamedVector()`](https://pinin4fjords.github.io/shinyngs/reference/stringsToNamedVector.md)
+  : Take two delimiter-separated strings and generate a named vector
+
+## Shiny UI helpers
+
+- [`hiddenInput()`](https://pinin4fjords.github.io/shinyngs/reference/hiddenInput.md)
+  : Make a hidden input field. Handy for replacing superfluous
+  single-value selects etc
+- [`inlineField()`](https://pinin4fjords.github.io/shinyngs/reference/inlineField.md)
+  : Wrap a Shiny input so its label is displayed inline
+- [`withHelpIcon()`](https://pinin4fjords.github.io/shinyngs/reference/withHelpIcon.md)
+  : Append a help icon carrying a tooltip to a label
+
+## General utilities
+
+- [`na.replace()`](https://pinin4fjords.github.io/shinyngs/reference/na.replace.md)
+  : Replace NAs with a string for convenience
+
+- [`nlines()`](https://pinin4fjords.github.io/shinyngs/reference/nlines.md)
+  : Count the number of lines in a string
+
+- [`pushToList()`](https://pinin4fjords.github.io/shinyngs/reference/pushToList.md)
+  : Simple list push
+
+- [`splitStringToFixedwidthLines()`](https://pinin4fjords.github.io/shinyngs/reference/splitStringToFixedwidthLines.md)
+  :
+
+  Given a string with spaces, try to split into multiple lines of \<
+  `linewidth` characters
+
+- [`ucfirst()`](https://pinin4fjords.github.io/shinyngs/reference/ucfirst.md)
+  : Capitalise the first letter of a string
+
+## Internal (Shiny module implementation)
+
+Shiny module UI/server function pairs and other internal helpers that
+back the modules above. These aren’t part of the public API and are
+listed here only so the reference index build succeeds; see the package
+vignette for the supported way to build and combine modules.
+
+- [`ExploratorySummarizedExperiment-class`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperiment-class.md)
+  : The ExploratorySummarizedExperiment class
 
 - [`` `[`( ``*`<ExploratorySummarizedExperimentList>`*`,`*`<ANY>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList-class.md)
   [`` `[`( ``*`<ExploratorySummarizedExperimentList>`*`,`*`<numeric>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList-class.md)
   [`` `[`( ``*`<ExploratorySummarizedExperimentList>`*`,`*`<logical>`*`,`*`<missing>`*`,`*`<ANY>`*`)`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList-class.md)
   : The ExploratorySummaizedExperimentList class
-
-- [`ExploratorySummarizedExperimentList()`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList.md)
-  : ExploratorySummarizedExperimentLists, containers for
-  ExploratorySummarizedExperiments
 
 - [`addPoints()`](https://pinin4fjords.github.io/shinyngs/reference/addPoints.md)
   : Add points to a plotly object
@@ -25,10 +263,6 @@
 
 - [`adjustLayout()`](https://pinin4fjords.github.io/shinyngs/reference/adjustLayout.md)
   : Apply layout adjustments to plotly object
-
-- [`anova_pca_metadata()`](https://pinin4fjords.github.io/shinyngs/reference/anova_pca_metadata.md)
-  : Generate a matrix of anova values for associating principal
-  components with categorical covariates.
 
 - [`assaydatatable()`](https://pinin4fjords.github.io/shinyngs/reference/assaydatatable.md)
   : The server function of the assaydatatable module
@@ -54,9 +288,6 @@
 
   Output function of the `barplot` module
 
-- [`bootstrapMedian()`](https://pinin4fjords.github.io/shinyngs/reference/bootstrapMedian.md)
-  : Bootstrap the standard error of the median
-
 - [`boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/boxplot.md)
   : The server function of the boxplot module
 
@@ -66,24 +297,12 @@
 - [`boxplotOutput()`](https://pinin4fjords.github.io/shinyngs/reference/boxplotOutput.md)
   : The output function of the boxplot module
 
-- [`build_enrichment_path()`](https://pinin4fjords.github.io/shinyngs/reference/build_enrichment_path.md)
-  : Build path to the enrichment results
-
-- [`calculateDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/calculateDendrogram.md)
-  : Calculate a clustering dendrogram based on correlation
-
-- [`calculateDist()`](https://pinin4fjords.github.io/shinyngs/reference/calculateDist.md)
-  : Calculate a distance matrix based on correlation
-
 - [`calculatePCAFractionExplained()`](https://pinin4fjords.github.io/shinyngs/reference/calculatePCAFractionExplained.md)
   : Extract the percent variance from a PCA analysis
 
 - [`cardinalNumericField()`](https://pinin4fjords.github.io/shinyngs/reference/cardinalNumericField.md)
   : Make a numeric field with selectable associated cardinality (\>, \<
   ..).
-
-- [`checkListIsSubset()`](https://pinin4fjords.github.io/shinyngs/reference/checkListIsSubset.md)
-  : Check one list is a subset of another and throw an error if not
 
 - [`chipseq()`](https://pinin4fjords.github.io/shinyngs/reference/chipseq.md)
   : The server function of the chipseq module. Currently a near-clone of
@@ -93,27 +312,14 @@
   : The input function of the chipseq module. Currently a near-clone of
   the RNA-seq module, with ChIP-seq optimisations planned.
 
-- [`chooseGroupingVariables()`](https://pinin4fjords.github.io/shinyngs/reference/chooseGroupingVariables.md)
-  : Choose a valid set of grouping variables from a targets/ experiment
-  data frame.
-
 - [`clustering()`](https://pinin4fjords.github.io/shinyngs/reference/clustering.md)
   : The server function of the clustering module
-
-- [`clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/clusteringDendrogram.md)
-  : Make a clustering dendrogram with coloring by experimental variable
 
 - [`clusteringInput()`](https://pinin4fjords.github.io/shinyngs/reference/clusteringInput.md)
   : The input function of the clustering module
 
 - [`clusteringOutput()`](https://pinin4fjords.github.io/shinyngs/reference/clusteringOutput.md)
   : The output function of the clustering module
-
-- [`colGeomMeans()`](https://pinin4fjords.github.io/shinyngs/reference/colGeomMeans.md)
-  : Geometric means by matrix column
-
-- [`colMedians()`](https://pinin4fjords.github.io/shinyngs/reference/colMedians.md)
-  : Medians by matrix column
 
 - [`colormaker()`](https://pinin4fjords.github.io/shinyngs/reference/colormaker.md)
   : The output function of the colorby module
@@ -125,19 +331,8 @@
   : Build one shared color palette across every value in an annotation
   data frame
 
-- [`compilePCAData()`](https://pinin4fjords.github.io/shinyngs/reference/compilePCAData.md)
-  : Run PCA on a given matrix, expected to be variance stabilised (at
-  least log-transformed)
-
 - [`compile_contrast_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_contrast_data.md)
   : Compile contrast stats for inclusion in shinyngs
-
-- [`cond_log2_transform_assays()`](https://pinin4fjords.github.io/shinyngs/reference/cond_log2_transform_assays.md)
-  : Conditionally apply log2 transformation on assay data based on
-  log2_assays parameter.
-
-- [`cond_log2_transform_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/cond_log2_transform_matrix.md)
-  : Apply log2 transformation on a matrix.
 
 - [`contrasts()`](https://pinin4fjords.github.io/shinyngs/reference/contrasts.md)
   : The server function of the contrasts module
@@ -147,9 +342,6 @@
 
 - [`contrastsOutput()`](https://pinin4fjords.github.io/shinyngs/reference/contrastsOutput.md)
   : The output function of the contrasts module
-
-- [`convertIds()`](https://pinin4fjords.github.io/shinyngs/reference/convertIds.md)
-  : Convert row names to metadata identifiers
 
 - [`dendro()`](https://pinin4fjords.github.io/shinyngs/reference/dendro.md)
   : The server function of the dendrogram module
@@ -195,13 +387,6 @@
 - [`drawLines()`](https://pinin4fjords.github.io/shinyngs/reference/drawLines.md)
   : Overlay lines on a plotly-generated plot
 
-- [`eselistFromYAML()`](https://pinin4fjords.github.io/shinyngs/reference/eselistFromYAML.md)
-  : Build an ExploratorySummarisedExperimentList from a YAML description
-
-- [`eselistfromConfig()`](https://pinin4fjords.github.io/shinyngs/reference/eselistfromConfig.md)
-  : Build an ExploratorySummarisedExperimentList from a description
-  provided in a list
-
 - [`evaluateCardinalFilter()`](https://pinin4fjords.github.io/shinyngs/reference/evaluateCardinalFilter.md)
   : Evaluate a vector of values with respect to a limit and a
   cardinality, being '\>', '\<' , '\> or \<-' (e.g. a fold change above
@@ -225,9 +410,6 @@
 
 - [`fixedEffectsModelMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsModelMatrix.md)
   : Build a model matrix from the fixed-effects part of a formula
-
-- [`foldChange()`](https://pinin4fjords.github.io/shinyngs/reference/foldChange.md)
-  : Calculate fold change between two vectors
 
 - [`foldchangeplot()`](https://pinin4fjords.github.io/shinyngs/reference/foldchangeplot.md)
   :
@@ -297,37 +479,11 @@
 - [`genesetselectInput()`](https://pinin4fjords.github.io/shinyngs/reference/genesetselectInput.md)
   : The UI function of the genesetselect module
 
-- [`geom_mean()`](https://pinin4fjords.github.io/shinyngs/reference/geom_mean.md)
-  : Geometric mean
-
-- [`getExtension()`](https://pinin4fjords.github.io/shinyngs/reference/getExtension.md)
-  : Extract the extension of a file
-
-- [`getSeparator()`](https://pinin4fjords.github.io/shinyngs/reference/getSeparator.md)
-  : Infer a separator from the extension of an input file
-
-- [`ggplot_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_boxplot.md)
-  : Make a boxplot with coloring by experimental variable
-
-- [`ggplot_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_densityplot.md)
-  : Make a static density plot with ggplot2
-
-- [`ggplotify()`](https://pinin4fjords.github.io/shinyngs/reference/ggplotify.md)
-  :
-
-  Reshape data to the way `ggplot2` likes it
-
 - [`groupby()`](https://pinin4fjords.github.io/shinyngs/reference/groupby.md)
   : The server function of the groupby module
 
 - [`groupbyInput()`](https://pinin4fjords.github.io/shinyngs/reference/groupbyInput.md)
   : The UI function of the groupby module
-
-- [`guess_foldchange_scale()`](https://pinin4fjords.github.io/shinyngs/reference/guess_foldchange_scale.md)
-  : Guess whether fold change values are on a log2 or linear scale
-
-- [`has_slot_data()`](https://pinin4fjords.github.io/shinyngs/reference/has_slot_data.md)
-  : Check whether a list-type slot on an S4 object is populated
 
 - [`heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/heatmap.md)
   : The server function of the heatmap module
@@ -337,17 +493,6 @@
 
 - [`heatmapOutput()`](https://pinin4fjords.github.io/shinyngs/reference/heatmapOutput.md)
   : The output function of the heatmap module
-
-- [`hiddenInput()`](https://pinin4fjords.github.io/shinyngs/reference/hiddenInput.md)
-  : Make a hidden input field. Handy for replacing superfluous
-  single-value selects etc
-
-- [`idToLabel()`](https://pinin4fjords.github.io/shinyngs/reference/idToLabel.md)
-  :
-
-  Create row labels based on the settings of `labelfield` in the
-  `ExploratorySummarizedExperiment` object and the annotation data in
-  `mcols`.
 
 - [`illuminaarray()`](https://pinin4fjords.github.io/shinyngs/reference/illuminaarray.md)
   : The server function of the illuminaarray module
@@ -364,18 +509,6 @@
 - [`illuminaarrayqcOutput()`](https://pinin4fjords.github.io/shinyngs/reference/illuminaarrayqcOutput.md)
   : The output function of the illuminaarrayqc module
 
-- [`inlineField()`](https://pinin4fjords.github.io/shinyngs/reference/inlineField.md)
-  : Wrap a Shiny input so its label is displayed inline
-
-- [`interactiveHeatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactiveHeatmap.md)
-  : Make an interactive heatmap with heatmaply
-
-- [`interleaveColumns()`](https://pinin4fjords.github.io/shinyngs/reference/interleaveColumns.md)
-  : Interleave the columns of two matrices of equal dimensions
-
-- [`is_valid_positive_integer_vector()`](https://pinin4fjords.github.io/shinyngs/reference/is_valid_positive_integer_vector.md)
-  : Check if a comma-separated string can be parsed to an integer vector
-
 - [`labelMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/labelMatrix.md)
   : Add columns to display ID and label in a table
 
@@ -391,12 +524,6 @@
 
 - [`linkMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/linkMatrix.md)
   : Add links to a table
-
-- [`madScore()`](https://pinin4fjords.github.io/shinyngs/reference/madScore.md)
-  : Calculate MAD scores as per OmicSoft
-
-- [`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)
-  : Make a categorical colour scale of a specified length
 
 - [`makeContrastControl()`](https://pinin4fjords.github.io/shinyngs/reference/makeContrastControl.md)
   : Make a select field for picking one or more contrasts
@@ -433,12 +560,6 @@
 
   The server function of the `modal` module
 
-- [`na.replace()`](https://pinin4fjords.github.io/shinyngs/reference/na.replace.md)
-  : Replace NAs with a string for convenience
-
-- [`nlines()`](https://pinin4fjords.github.io/shinyngs/reference/nlines.md)
-  : Count the number of lines in a string
-
 - [`pca()`](https://pinin4fjords.github.io/shinyngs/reference/pca.md) :
   The server function of the pca module
 
@@ -453,56 +574,6 @@
 
 - [`plotdownloadInput()`](https://pinin4fjords.github.io/shinyngs/reference/plotdownloadInput.md)
   : The input function of the gene plotdownload module
-
-- [`plotly_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barcodeplot.md)
-  : Make an interactive gene set barcode plot with plotly
-
-- [`plotly_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_boxplot.md)
-  : Make an interactive boxplot with coloring by experimental variable
-
-- [`plotly_clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_clusteringDendrogram.md)
-  : Make an interactive clustering dendrogram colored by experimental
-  variable
-
-- [`plotly_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.md)
-  : Make a dynamic density plot with plotly
-
-- [`plotly_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.md)
-  : Make a line-based alternative to boxplots
-
-- [`plotly_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.md)
-  :
-
-  Make scatterplots with `plot_ly()`
-
-- [`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md)
-  : Make UI and server functions for Shiny apps based on data supplied
-  as modfied SummarizedExperiments
-
-- [`prettifyGeneSetName()`](https://pinin4fjords.github.io/shinyngs/reference/prettifyGeneSetName.md)
-  : Prettify gene set names like those from MSigDB
-
-- [`prettifyVariablename()`](https://pinin4fjords.github.io/shinyngs/reference/prettifyVariablename.md)
-  : Make machine variable names pretty for display
-
-- [`pushToList()`](https://pinin4fjords.github.io/shinyngs/reference/pushToList.md)
-  : Simple list push
-
-- [`read_contrasts()`](https://pinin4fjords.github.io/shinyngs/reference/read_contrasts.md)
-  : Read and validate a contrasts file against sample metadata
-
-- [`read_differential()`](https://pinin4fjords.github.io/shinyngs/reference/read_differential.md)
-  : Read tables of differential statistics
-
-- [`read_gmt()`](https://pinin4fjords.github.io/shinyngs/reference/read_gmt.md)
-  : Read a GMT-format gene set file
-
-- [`read_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/read_matrix.md)
-  : Read an expression matrix file and match to specified samples and
-  features
-
-- [`read_metadata()`](https://pinin4fjords.github.io/shinyngs/reference/read_metadata.md)
-  : Read a metadata file
 
 - [`readreports()`](https://pinin4fjords.github.io/shinyngs/reference/readreports.md)
   :
@@ -519,16 +590,6 @@
 
   Output function of the `readreports` module
 
-- [`resolve_deprecated_unlog_foldchanges()`](https://pinin4fjords.github.io/shinyngs/reference/resolve_deprecated_unlog_foldchanges.md)
-  :
-
-  Map the deprecated `unlog_foldchanges`/`--unlog_foldchanges` argument
-  onto `fold_change_scale`, warning if it was used
-
-- [`resolve_foldchange_scale()`](https://pinin4fjords.github.io/shinyngs/reference/resolve_foldchange_scale.md)
-  : Resolve the scale of a fold-change column, cross-checking a user
-  declaration and a column-naming convention against the observed data
-
 - [`rnaseq()`](https://pinin4fjords.github.io/shinyngs/reference/rnaseq.md)
   : The server function of the rnaseq module
 
@@ -543,9 +604,6 @@
 
 - [`rowmetatableOutput()`](https://pinin4fjords.github.io/shinyngs/reference/rowmetatableOutput.md)
   : The output function of the rowmetatable module
-
-- [`runClustering()`](https://pinin4fjords.github.io/shinyngs/reference/runClustering.md)
-  : Partition the rows of a matrix into clusters with clara()
 
 - [`runPCA()`](https://pinin4fjords.github.io/shinyngs/reference/runPCA.md)
   : Run a simple PCA analysis
@@ -571,10 +629,6 @@
 - [`scatterplotcontrolsInput()`](https://pinin4fjords.github.io/shinyngs/reference/scatterplotcontrolsInput.md)
   : Input function for scatterplotcontrols module
 
-- [`selectVariableGenes()`](https://pinin4fjords.github.io/shinyngs/reference/selectVariableGenes.md)
-  : Generate an integer ordering to select the n most variable genes out
-  of a matrix
-
 - [`selectmatrix()`](https://pinin4fjords.github.io/shinyngs/reference/selectmatrix.md)
   : The server function of the selectmatrix module
 
@@ -591,9 +645,6 @@
   Produce a simple app with controls and layout for a single module, in
   a shiny `sideBarLayout()`.
 
-- [`simpleSplit()`](https://pinin4fjords.github.io/shinyngs/reference/simpleSplit.md)
-  : Convenience interface to strsplit()
-
 - [`simpletable()`](https://pinin4fjords.github.io/shinyngs/reference/simpletable.md)
   : The server function of the simpletable module
 
@@ -606,39 +657,15 @@
 - [`simplifyContrastTable()`](https://pinin4fjords.github.io/shinyngs/reference/simplifyContrastTable.md)
   : Simplify a contrast table
 
-- [`singleValidMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/singleValidMatrix.md)
-  : Is there only one matrix to plot from this object?
-
 - [`splitAnnotationLegend()`](https://pinin4fjords.github.io/shinyngs/reference/splitAnnotationLegend.md)
   : Replace heatmaply's combined annotation legend with one split by
   variable
-
-- [`splitStringToFixedwidthLines()`](https://pinin4fjords.github.io/shinyngs/reference/splitStringToFixedwidthLines.md)
-  :
-
-  Given a string with spaces, try to split into multiple lines of \<
-  `linewidth` characters
-
-- [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md)
-  :
-
-  Make scatterplots with `ggplot()` or `scatterplot3d`
-
-- [`stringsToNamedVector()`](https://pinin4fjords.github.io/shinyngs/reference/stringsToNamedVector.md)
-  : Take two delimiter-separated strings and generate a named vector
 
 - [`summarisematrix()`](https://pinin4fjords.github.io/shinyngs/reference/summarisematrix.md)
   : The server function of the summarisematrix module
 
 - [`summarisematrixInput()`](https://pinin4fjords.github.io/shinyngs/reference/summarisematrixInput.md)
   : The input function of the summarizematrix module
-
-- [`summarizeMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/summarizeMatrix.md)
-  : Summarise the rows of a matrix, applying a function to groups of
-  cells defined by a factor
-
-- [`summarySE()`](https://pinin4fjords.github.io/shinyngs/reference/summarySE.md)
-  : Summarise an input matrix
 
 - [`summarytiles()`](https://pinin4fjords.github.io/shinyngs/reference/summarytiles.md)
   : The server function of the summarytiles module
@@ -648,9 +675,6 @@
 
 - [`summarytilesOutput()`](https://pinin4fjords.github.io/shinyngs/reference/summarytilesOutput.md)
   : The output function of the summarytiles module
-
-- [`ucfirst()`](https://pinin4fjords.github.io/shinyngs/reference/ucfirst.md)
-  : Capitalise the first letter of a string
 
 - [`upset()`](https://pinin4fjords.github.io/shinyngs/reference/upset.md)
   : The server function of the upstart module
@@ -664,17 +688,6 @@
 - [`validateFormulaBasedContrast()`](https://pinin4fjords.github.io/shinyngs/reference/validateFormulaBasedContrast.md)
   : Validate a formula-based contrast string against fixed-effect
   coefficients
-
-- [`validateOrCatch()`](https://pinin4fjords.github.io/shinyngs/reference/validateOrCatch.md)
-  : Evaluate an expression, converting any error into a Shiny validation
-  message
-
-- [`validate_indices()`](https://pinin4fjords.github.io/shinyngs/reference/validate_indices.md)
-  : Validate assay indices based on a given string.
-
-- [`validate_inputs()`](https://pinin4fjords.github.io/shinyngs/reference/validate_inputs.md)
-  : Call the various read/ validate methods for input data surrounding
-  an experiment
 
 - [`volcanoplot()`](https://pinin4fjords.github.io/shinyngs/reference/volcanoplot.md)
   :
@@ -690,6 +703,3 @@
   :
 
   The output function of the `volcanoplot` module
-
-- [`withHelpIcon()`](https://pinin4fjords.github.io/shinyngs/reference/withHelpIcon.md)
-  : Append a help icon carrying a tooltip to a label

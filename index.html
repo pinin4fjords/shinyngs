@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Shiny apps for NGS data • shinyngs</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,8 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Shiny apps for NGS data">
 <meta name="description" content="Provides Shiny applications for various array and NGS applications. Currently very RNA-seq centric, with plans for expansion.">
 <meta property="og:description" content="Provides Shiny applications for various array and NGS applications. Currently very RNA-seq centric, with plans for expansion.">
+<meta property="og:image" content="https://pinin4fjords.github.io/shinyngs/reference/figures/logo.png">
+<meta property="og:image:alt" content="shinyngs hex logo, showing a PCA plot, a volcano plot, and boxplots">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,8 +54,14 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="synopsis">Synopsis<a class="anchor" aria-label="anchor" href="#synopsis"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="shinyngs-">shinyngs <a class="anchor" aria-label="anchor" href="#shinyngs-"></a>
+</h1>
+</div>
+</div>
+<div class="section level1">
+<h1 id="synopsis">Synopsis<a class="anchor" aria-label="anchor" href="#synopsis"></a>
+</h1>
 <p>Shinyngs is an R package designed to facilitate downstream analysis of RNA-seq and similar expression data with various exploratory plots and data mining tools. It is unrelated to the recently published <a href="https://github.com/jminnier/STARTapp" class="external-link">Shiny Transcritome Analysis Resource Tool</a> (START), though it was probably developed at the same time as that work.</p>
 <p>Full documentation and function reference: <a href="https://pinin4fjords.github.io/shinyngs/" class="uri">https://pinin4fjords.github.io/shinyngs/</a></p>
 </div>
@@ -81,6 +94,8 @@
 <li>Simple selection of gene sets by name/ annotation to modify the plots and tables shown.</li>
 <li>Progressive filters for differential analysis: “Show me all genes differential in these contrasts but NOT in these other contrasts”</li>
 <li>Large variety of visualisations: row-wise clustering, UpSet-style intersection plots, gene set enrichment barcode plots etc.</li>
+<li>An interactive <a href="https://github.com/igvteam/igv.js" class="external-link">igv.js</a>-powered gene model view in the gene page, showing exon/transcript structure alongside expression, when feature metadata includes genomic coordinates and an Ensembl species is configured (see <code>--ensembl_species</code> below).</li>
+<li>A “Share view” button that captures the current selections in the page URL, so a configured view can be bookmarked or shared with a link.</li>
 </ul>
 </div>
 <div class="section level1">
@@ -207,6 +222,7 @@
 <li>Differential resutls (e.g. from DESeq2) containing P values and fold changes</li>
 </ul>
 <p>.. and produce an app.R. Gene set enrichment results (GSEA, ROAST, or other tools via a custom column mapping) can also be wired in via <code>--enrichment_gene_sets</code> and <code>--enrichment_filename_template</code> - see <a href="https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html#building-an-app-from-files-with-enrichment-results">“Building an app from files with enrichment results”</a> in the vignette for a worked example.</p>
+<p>If <code>--feature_metadata</code> includes <code>chromosome_name</code>, <code>start_position</code> and <code>end_position</code> columns, passing <code>--ensembl_species</code> (e.g. <code>hsapiens</code>, <code>mmusculus</code>) enables the gene model view described above.</p>
 <p>You can start the resulting app locally, by running the <code>app.R</code> resulting from the above command.</p>
 <p>See <code>make_app_from_files.R --help</code> for more info.</p>
 <div class="section level3">
@@ -282,7 +298,7 @@
 <div class="section level1">
 <h1 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h1>
-<p><a href="LICENSE.txt">GNU Affero General Public License v3.0</a></p>
+<p><a href="LICENSE.html">GNU Affero General Public License v3.0</a></p>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
