@@ -471,6 +471,17 @@ make_app_from_files.R \
 
 This produces an `app.R` in `--output_dir`, which can be run directly. See `make_app_from_files.R --help` for the full set of options, including `--ensembl_species` (see [Included modules](#included-modules)) and `--deploy_app` for deploying straight to shinyapps.io.
 
+Or run it via Docker: the [Biocontainers image](https://quay.io/repository/biocontainers/r-shinyngs) already has `shinyngs` and Shiny installed and can run the generated `app.R`/`data.rds` directly - pick a tag from the [image's tag list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags) and mount `--output_dir`:
+
+```sh
+docker run --rm -p 3838:3838 \
+  -v "$(pwd)/app":/data -w /data \
+  quay.io/biocontainers/r-shinyngs:<tag> \
+  Rscript -e "shiny::runApp('/data', host = '0.0.0.0', port = 3838)"
+```
+
+Then browse to `http://localhost:3838`.
+
 ### Building an app from files with enrichment results
 
 `exec/make_app_from_files.R` can also wire GSEA (or `roast`) results into an app from the command line. `--enrichment_filename_template` describes where the result files live, with `{contrast_name}` and `{geneset_type}` substituted per contrast and gene set type, and an optional `{target|reference}` token to point at the split up/down GSEA files:

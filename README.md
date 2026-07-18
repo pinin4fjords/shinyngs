@@ -239,6 +239,25 @@ If `--feature_metadata` includes `chromosome_name`, `start_position` and
 You can start the resulting app locally, by running the `app.R`
 resulting from the above command.
 
+Or run it via Docker: the
+[image](https://quay.io/repository/biocontainers/r-shinyngs)
+mentioned above already has `shinyngs` and Shiny installed, so it can
+run the generated `app.R`/`data.rds` directly - pick a tag from the
+[image's tag list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags)
+and mount the directory containing them:
+
+``` bash
+docker run --rm -p 3838:3838 \
+    -v "$(pwd)/app":/data -w /data \
+    quay.io/biocontainers/r-shinyngs:<tag> \
+    Rscript -e "shiny::runApp('/data', host = '0.0.0.0', port = 3838)"
+```
+
+Then browse to <http://localhost:3838>. `host = '0.0.0.0'` is required
+for the app to be reachable from outside the container, and `-w /data`
+ensures the app's working directory (and anything it writes) lands in
+the mounted directory rather than the container's own filesystem.
+
 See `make_app_from_files.R --help` for more info.
 
 ### shinyapps.io deployment
