@@ -410,8 +410,8 @@ contrastNaming <- function(getAllContrasts) {
 #'   \code{getSelectedContrastNumbers}, \code{getFoldChange},
 #'   \code{getFoldChangeCard}, \code{getQval}, \code{getQvalCard},
 #'   \code{getPval}, \code{getPvalCard}, \code{getFilterSetCombinationOperator},
-#'   \code{isDynamic}, and \code{getFilterSetValues} (a raw accessor to the
-#'   whole \code{filterset_values} list, for \code{contrastQuerySummary})
+#'   and \code{getFilterSetValues} (a raw accessor to the whole
+#'   \code{filterset_values} list, for \code{contrastQuerySummary})
 #' @noRd
 contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_reactives,
                                      multiple, show_controls, default_foldchange, default_pval, default_qval, select_all_contrasts,
@@ -652,12 +652,6 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     input$combine_operator
   })
 
-  # Use presence of combine operator as a flag for use of dynamic contrasts, i.e. the possibility of multiple filter sets
-
-  isDynamic <- reactive({
-    !is.null(input$dynamic)
-  })
-
   ########################################################################### Bookmarking of the dynamically-built filter sets
 
   # The filter-set inputs are inserted at runtime, so a bookmark URL cannot
@@ -688,7 +682,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     getFilterRows = getFilterRows, getSelectedContrastNumbers = getSelectedContrastNumbers,
     getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard,
     getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
-    getFilterSetCombinationOperator = getFilterSetCombinationOperator, isDynamic = isDynamic,
+    getFilterSetCombinationOperator = getFilterSetCombinationOperator,
     getFilterSetValues = function() filterset_values
   )
 }
