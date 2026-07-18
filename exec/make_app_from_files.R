@@ -462,6 +462,9 @@ build_app_bundle <- function(opt) {
       "# https://github.com/pinin4fjords/shinyngs?tab=readme-ov-file#installation",
       "library(shinyngs)",
       "library(markdown)",
+      "# A Shiny server provides a default app cache for bindCache(); webR/shinylive does not.",
+      "# max_size matches Shiny's own default (200 MB) so behaviour is identical on a server.",
+      "shiny::shinyOptions(cache = cachem::cache_mem(max_size = 200 * 1024^2))",
       'esel <- readRDS("data.rds")',
       'app <- prepareApp("rnaseq", esel)',
       "shiny::shinyApp(app$ui, app$server)"
