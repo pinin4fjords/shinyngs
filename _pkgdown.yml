@@ -3,6 +3,252 @@ url: https://pinin4fjords.github.io/shinyngs/
 template:
   bootstrap: 5
   bootswatch: cosmo
+  opengraph:
+    image:
+      src: man/figures/logo.png
+      alt: "shinyngs hex logo, showing a PCA plot, a volcano plot, and boxplots"
 
 development:
   mode: auto
+
+reference:
+- title: Building apps
+  desc: >
+    Core classes and entry points for assembling an
+    ExploratorySummarizedExperimentList and turning it into a Shiny app.
+  contents:
+  - ExploratorySummarizedExperiment
+  - ExploratorySummarizedExperimentList
+  - prepareApp
+  - eselistFromYAML
+  - eselistfromConfig
+
+- title: Reading and validating input
+  desc: >
+    Helpers for reading matrices, metadata, contrasts and enrichment results
+    from files, and validating them for consistency.
+  contents:
+  - read_contrasts
+  - read_differential
+  - read_gmt
+  - read_matrix
+  - read_metadata
+  - getExtension
+  - getSeparator
+  - checkListIsSubset
+  - validate_indices
+  - validate_inputs
+  - validateOrCatch
+  - is_valid_positive_integer_vector
+  - singleValidMatrix
+  - has_slot_data
+  - build_enrichment_path
+  - chooseGroupingVariables
+
+- title: Matrix and statistics utilities
+  desc: >
+    Functions for transforming, summarising and clustering expression
+    matrices.
+  contents:
+  - bootstrapMedian
+  - colGeomMeans
+  - colMedians
+  - cond_log2_transform_assays
+  - cond_log2_transform_matrix
+  - foldChange
+  - geom_mean
+  - guess_foldchange_scale
+  - madScore
+  - resolve_deprecated_unlog_foldchanges
+  - resolve_foldchange_scale
+  - runClustering
+  - selectVariableGenes
+  - simpleSplit
+  - summarizeMatrix
+  - summarySE
+  - calculateDist
+  - calculateDendrogram
+  - clusteringDendrogram
+  - compilePCAData
+  - anova_pca_metadata
+  - interleaveColumns
+
+- title: Plotting functions
+  desc: >
+    Standalone plotting functions reused by the Shiny modules for static and
+    interactive output.
+  contents:
+  - ggplot_boxplot
+  - ggplot_densityplot
+  - ggplotify
+  - interactiveHeatmap
+  - plotly_barcodeplot
+  - plotly_boxplot
+  - plotly_clusteringDendrogram
+  - plotly_densityplot
+  - plotly_quartiles
+  - plotly_scatterplot
+  - static_scatterplot
+  - makeColorScale
+
+- title: Identifiers, labels and gene sets
+  contents:
+  - convertIds
+  - idToLabel
+  - prettifyGeneSetName
+  - prettifyVariablename
+  - stringsToNamedVector
+
+- title: Shiny UI helpers
+  contents:
+  - hiddenInput
+  - inlineField
+  - withHelpIcon
+
+- title: General utilities
+  contents:
+  - na.replace
+  - nlines
+  - pushToList
+  - splitStringToFixedwidthLines
+  - ucfirst
+
+- title: Internal (Shiny module implementation)
+  desc: >
+    Shiny module UI/server function pairs and other internal helpers that
+    back the modules above. These aren't part of the public API and are
+    listed here only so the reference index build succeeds; see the
+    package vignette for the supported way to build and combine modules.
+  contents:
+  - ExploratorySummarizedExperiment-class
+  - ExploratorySummarizedExperimentList-class
+  - addPoints
+  - addTextLabels
+  - adjustLayout
+  - assaydatatable
+  - assaydatatableInput
+  - assaydatatableOutput
+  - barplot
+  - barplotInput
+  - barplotOutput
+  - boxplot
+  - boxplotInput
+  - boxplotOutput
+  - calculatePCAFractionExplained
+  - cardinalNumericField
+  - chipseq
+  - chipseqInput
+  - clustering
+  - clusteringInput
+  - clusteringOutput
+  - colormaker
+  - colormakerInput
+  - combinedAnnotationColors
+  - compile_contrast_data
+  - contrasts
+  - contrastsInput
+  - contrastsOutput
+  - dendro
+  - dendroInput
+  - dendroOutput
+  - dexseqplot
+  - dexseqplotInput
+  - dexseqplotOutput
+  - dexseqtable
+  - dexseqtableInput
+  - dexseqtableInputFields
+  - dexseqtableOutput
+  - differentialtable
+  - differentialtableInput
+  - differentialtableOutput
+  - drawLines
+  - evaluateCardinalFilter
+  - experimenttable
+  - experimenttableInput
+  - experimenttableOutput
+  - fieldSets
+  - fixedEffectsFormula
+  - fixedEffectsModelMatrix
+  - foldchangeplot
+  - foldchangeplotInput
+  - foldchangeplotOutput
+  - gene
+  - geneBarplot
+  - geneInput
+  - geneModelBiotypeColors
+  - geneModelGenomeInfo
+  - geneOutput
+  - geneselect
+  - geneselectInput
+  - genesetanalysistable
+  - genesetanalysistableInput
+  - genesetanalysistableOutput
+  - genesetbarcodeplot
+  - genesetbarcodeplotInput
+  - genesetbarcodeplotOutput
+  - genesetselect
+  - genesetselectInput
+  - groupby
+  - groupbyInput
+  - heatmap
+  - heatmapInput
+  - heatmapOutput
+  - illuminaarray
+  - illuminaarrayInput
+  - illuminaarrayqc
+  - illuminaarrayqcInput
+  - illuminaarrayqcOutput
+  - labelMatrix
+  - labelselectfield
+  - labelselectfieldInput
+  - linkMatrix
+  - makeContrastControl
+  - makeContrastFilterSet
+  - makePackageCitation
+  - maplot
+  - maplotInput
+  - maplotOutput
+  - modalInput
+  - modalServer
+  - pca
+  - pcaInput
+  - pcaOutput
+  - plotdownload
+  - plotdownloadInput
+  - readreports
+  - readreportsInput
+  - readreportsOutput
+  - rnaseq
+  - rnaseqInput
+  - rowmetatable
+  - rowmetatableInput
+  - rowmetatableOutput
+  - runPCA
+  - sampleselect
+  - sampleselectInput
+  - scatterplot
+  - scatterplotInput
+  - scatterplotOutput
+  - scatterplotcontrols
+  - scatterplotcontrolsInput
+  - selectmatrix
+  - selectmatrixInput
+  - shinyngs
+  - simpleApp
+  - simpletable
+  - simpletableInput
+  - simpletableOutput
+  - simplifyContrastTable
+  - splitAnnotationLegend
+  - summarisematrix
+  - summarisematrixInput
+  - summarytiles
+  - summarytilesInput
+  - summarytilesOutput
+  - upset
+  - upsetInput
+  - upsetOutput
+  - validateFormulaBasedContrast
+  - volcanoplot
+  - volcanoplotInput
+  - volcanoplotOutput

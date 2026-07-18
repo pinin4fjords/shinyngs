@@ -82,6 +82,10 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
   sidebar <- bslib::sidebar(
     width = 320,
     open = "desktop",
+    img(
+      src = "shinyngs-www/shinyngs-logo.png", alt = "shinyngs logo",
+      class = "shinyngs-home-logo"
+    ),
     div(
       class = "shinyngs-jump",
       h3(class = "shinyngs-eyebrow", "Jump to analysis"),

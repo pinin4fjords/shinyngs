@@ -65,4 +65,3 @@ This is a generic function which may be useful outside of this package. It
 produces a heatmap based on an expression matrix and accompanying
 experiment data in the form of a frame, using \code{heatmaply::heatmaply()}.
 }
-\keyword{keywords}

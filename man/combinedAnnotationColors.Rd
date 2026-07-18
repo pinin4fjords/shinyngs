@@ -19,4 +19,3 @@ the values of all annotation variables onto a single combined color scale,
 so a single palette covering every unique value across every column is
 needed, rather than one palette per column.
 }
-\keyword{keywords}

@@ -206,7 +206,6 @@ boxplot <- function(id, eselist) {
 #'
 #' @return output A \code{ggplot} output
 #'
-#' @keywords keywords
 #'
 #' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @export
@@ -329,7 +328,6 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
 #' @export
 #' @return output A \code{plotly} output
 #'
-#' @keywords keywords
 #'
 #' @examples
 #' require(airway)

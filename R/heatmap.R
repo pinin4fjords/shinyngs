@@ -438,7 +438,6 @@ heatmap <- function(id, eselist, type = "expression") {
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
 #'
-#' @keywords keywords
 #'
 #' @importFrom viridisLite viridis
 #' @export
@@ -563,7 +562,6 @@ interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, clu
 #' @return output A named vector of colors, one per unique value across all
 #'   columns of \code{sample_annotation}
 #'
-#' @keywords keywords
 
 combinedAnnotationColors <- function(sample_annotation) {
   levels_all <- unique(unlist(lapply(sample_annotation, function(x) levels(factor(x)))))
@@ -589,7 +587,6 @@ combinedAnnotationColors <- function(sample_annotation) {
 #'
 #' @return output The modified plotly htmlwidget
 #'
-#' @keywords keywords
 
 splitAnnotationLegend <- function(p, col_side_colors, palette, ncol_heatmap) {
   # Identify the traces that make up the heatmap (main data plus one strip per

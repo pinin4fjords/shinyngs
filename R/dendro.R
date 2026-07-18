@@ -146,7 +146,6 @@ dendro <- function(id, eselist) {
 #'
 #' @return output A \code{ggplot} output
 #'
-#' @keywords keywords
 #'
 #' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @import ggdendro
@@ -252,7 +251,6 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 #'
 #' @return output A \code{plotly} plot object
 #'
-#' @keywords keywords
 #'
 #' @export
 #'
@@ -364,7 +362,6 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
 #'
 #' @return output Object of class 'dist'
 #'
-#' @keywords keywords
 #'
 #' @export
 #'
@@ -385,7 +382,6 @@ calculateDist <- function(plotmatrix, cor_method = "spearman") {
 #'
 #' @return output Object of class 'dist'
 #'
-#' @keywords keywords
 #'
 #' @export
 #'
