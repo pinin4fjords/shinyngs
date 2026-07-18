@@ -29,4 +29,3 @@ together. This hides that combined colorbar and adds one invisible,
 legend-only trace per value of each annotation variable instead, grouped
 and titled by variable name, using the same colors as the annotation bars.
 }
-\keyword{keywords}

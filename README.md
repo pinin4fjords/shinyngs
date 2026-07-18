@@ -56,6 +56,13 @@ applications:
   differential in these contrasts but NOT in these other contrasts”
 - Large variety of visualisations: row-wise clustering, UpSet-style
   intersection plots, gene set enrichment barcode plots etc.
+- An interactive [igv.js](https://github.com/igvteam/igv.js)-powered
+  gene model view in the gene page, showing exon/transcript structure
+  alongside expression, when feature metadata includes genomic
+  coordinates and an Ensembl species is configured (see
+  `--ensembl_species` below).
+- A “Share view” button that captures the current selections in the page
+  URL, so a configured view can be bookmarked or shared with a link.
 
 # Screenshot
 
@@ -216,11 +223,16 @@ This is designed to take a regular file complement of
 - Differential resutls (e.g. from DESeq2) containing P values and fold
   changes
 
-.. and produce an app.R. Gene set enrichment results (GSEA, ROAST, or other
-tools via a custom column mapping) can also be wired in via
+.. and produce an app.R. Gene set enrichment results (GSEA, ROAST, or
+other tools via a custom column mapping) can also be wired in via
 `--enrichment_gene_sets` and `--enrichment_filename_template` - see
-["Building an app from files with enrichment results"](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html#building-an-app-from-files-with-enrichment-results)
+[“Building an app from files with enrichment
+results”](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html#building-an-app-from-files-with-enrichment-results)
 in the vignette for a worked example.
+
+If `--feature_metadata` includes `chromosome_name`, `start_position` and
+`end_position` columns, passing `--ensembl_species` (e.g. `hsapiens`,
+`mmusculus`) enables the gene model view described above.
 
 You can start the resulting app locally, by running the `app.R`
 resulting from the above command.
@@ -319,4 +331,4 @@ welcome.
 
 # License
 
-[GNU Affero General Public License v3.0](LICENSE.txt)
+[GNU Affero General Public License v3.0](LICENSE.md)

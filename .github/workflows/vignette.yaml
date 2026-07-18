@@ -43,7 +43,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # Full Suggests set, including the vignette-only packages
-          # (biomaRt, Gviz, DEXSeq, zhangneurons, devtools, BiocStyle,
+          # (biomaRt, DEXSeq, zhangneurons, devtools, BiocStyle,
           # rmarkdown, markdown, rsconnect) that the fast PR check skips.
           extra-packages: any::rcmdcheck, local::.
           dependencies: 'c("Imports", "Depends", "LinkingTo", "Suggests")'

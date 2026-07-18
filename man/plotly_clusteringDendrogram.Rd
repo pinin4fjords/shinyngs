@@ -59,4 +59,3 @@ mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000], 
 plotly_clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 
 }
-\keyword{keywords}
