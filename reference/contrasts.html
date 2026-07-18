@@ -104,6 +104,14 @@ gain access to the data provided by those reaactive.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in <code>moduleServer()</code> (see example).</p>
+<p>The reactive graph is built by a sequence of internal factory functions,
+each owning one cohesive stage (contrast enumeration, naming, the dynamic
+filter-set engine, table building, selection, filtering, labelling, and
+the query summary) - see <code>contrastEnumeration</code>, <code>contrastNaming</code>,
+<code>contrastFilterSetEngine</code>, <code>contrastTableBuilder</code>,
+<code>contrastSelection</code>, <code>contrastFiltering</code>, <code>contrastLabelling</code>
+and <code>contrastQuerySummary</code>. This function itself just wires those
+stages together in dependency order and returns their public reactives.</p>
     </div>
 
     <div class="section level2">

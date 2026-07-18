@@ -67,6 +67,15 @@ contrasts(
 This function is called directly, using the same id as its UI
 counterpart, and wraps its logic in `moduleServer()` (see example).
 
+The reactive graph is built by a sequence of internal factory functions,
+each owning one cohesive stage (contrast enumeration, naming, the
+dynamic filter-set engine, table building, selection, filtering,
+labelling, and the query summary) - see `contrastEnumeration`,
+`contrastNaming`, `contrastFilterSetEngine`, `contrastTableBuilder`,
+`contrastSelection`, `contrastFiltering`, `contrastLabelling` and
+`contrastQuerySummary`. This function itself just wires those stages
+together in dependency order and returns their public reactives.
+
 ## Examples
 
 ``` r
