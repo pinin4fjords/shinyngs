@@ -41,3 +41,15 @@ test_that("threshold lines span the full plotted axis range instead of stopping 
   expect_equal(sort(hline_trace$x), sort(xaxis_range))
   expect_equal(sort(vline_trace$y), sort(yaxis_range))
 })
+
+test_that("3D scatter labels each scene axis with its own title", {
+  p <- plotly_scatterplot(
+    x = c(1, 2, 3), y = c(4, 5, 6), z = c(7, 8, 9),
+    plot_type = "scatter3d", xlab = "xtitle", ylab = "ytitle", zlab = "ztitle"
+  )
+  scene <- p$x$layoutAttrs[[1]]$scene
+
+  expect_equal(scene$xaxis$title, "xtitle")
+  expect_equal(scene$yaxis$title, "ytitle")
+  expect_equal(scene$zaxis$title, "ztitle")
+})

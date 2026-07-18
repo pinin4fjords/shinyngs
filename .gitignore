@@ -11,6 +11,12 @@
 *.profraw
 default.profraw
 
+# R plotting device default output
+Rplots.pdf
+
+# ruff cache
+.ruff_cache/
+
 # CI logs
 .nf-test.log
 
