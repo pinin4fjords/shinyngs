@@ -21,6 +21,7 @@ Imports:
     ggdendro,
     ggplot2,
     heatmaply,
+    htmltools,
     limma,
     markdown,
     matrixStats,

@@ -213,12 +213,13 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
           }
         } else {
           cb <- NULL
+          palette <- NULL
         }
 
         plotly_scatterplot(
           x = xdata(), y = ydata(), z = zdata(), colorby = cb, plot_type = plotType(), title = getTitle(),
           xlab = colnames(getDatamatrix())[getXAxis()], ylab = colnames(getDatamatrix())[getYAxis()],
-          zlab = colnames(getDatamatrix())[geZXAxis()], palette = palette, labels = getLabels(),
+          zlab = colnames(getDatamatrix())[getZAxis()], palette = palette, labels = getLabels(),
           show_labels = getShowLabels(), lines = getLines(), showlegend = showLegend(),
           point_size = getPointSize()
         ) %>%
@@ -398,7 +399,7 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
   layout_args <- c(list(p, hovermode = "closest", title = title), axis_layouts)
 
   if (plot_type == "scatter3d") {
-    axis_layouts$zaxis <- list(title = ylab)
+    axis_layouts$zaxis <- list(title = zlab)
     layout_args$scene <- axis_layouts
   }
 
@@ -510,7 +511,8 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
       legend_title = legend_title,
       xlab = xlab,
       ylab = ylab,
-      zlab = zlab
+      zlab = zlab,
+      plot_type = plot_type
     )
 }
 

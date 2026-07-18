@@ -514,7 +514,8 @@ validate_mandatory_args <- function(opt) {
     "assay_files",
     "assay_entity_name",
     "output_directory",
-    "contrast_stats_assay"
+    "contrast_stats_assay",
+    "differential_results"
   )
 
   invisible(shinyngs::checkListIsSubset(mandatory, names(opt), "mandatory arguments", "provided options"))

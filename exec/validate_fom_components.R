@@ -180,7 +180,7 @@ if (! is.null(opt$output_directory)){
   
   if ('differential_stats' %in% names(validated_parts)){
     for (ds in names(validated_parts[['differential_stats']])){
-      write_table(validated_parts[['differential_stats']][[ds]], ds)
+      write_table(validated_parts[['differential_stats']][[ds]], ds, 'differential')
     }
   }
   

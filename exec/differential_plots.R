@@ -183,7 +183,7 @@ feature_metadata <-
 
 # Label features with symbol as well as identifier
 
-differential$label <- feature_metadata[differential[[opt$feature_id_col]], opt$feature_name_col]
+differential$label <- feature_metadata[differential[[opt$diff_feature_id_col]], opt$feature_name_col]
 
 # We'll color by whether features are differential according to supplied thresholds
 

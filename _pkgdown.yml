@@ -120,17 +120,22 @@ reference:
     listed here only so the reference index build succeeds; see the
     package vignette for the supported way to build and combine modules.
   contents:
+  - COLORBLIND_PALETTE
   - ExploratorySummarizedExperiment-class
   - ExploratorySummarizedExperimentList-class
+  - a11yControl
   - addPoints
   - addTextLabels
   - adjustLayout
+  - annotateDifferentialTable
   - assaydatatable
   - assaydatatableInput
   - assaydatatableOutput
   - barplot
   - barplotInput
   - barplotOutput
+  - bookmarkedInputValue
+  - box_summary
   - boxplot
   - boxplotInput
   - boxplotOutput
@@ -145,12 +150,15 @@ reference:
   - colormakerInput
   - combinedAnnotationColors
   - compile_contrast_data
+  - configureBookmarking
   - contrasts
   - contrastsInput
   - contrastsOutput
+  - defaultGroupvar
   - dendro
   - dendroInput
   - dendroOutput
+  - detailSamples
   - dexseqplot
   - dexseqplotInput
   - dexseqplotOutput
@@ -158,6 +166,9 @@ reference:
   - dexseqtableInput
   - dexseqtableInputFields
   - dexseqtableOutput
+  - differentialScatterInput
+  - differentialScatterOutput
+  - differentialScatterServer
   - differentialtable
   - differentialtableInput
   - differentialtableOutput
@@ -167,6 +178,7 @@ reference:
   - experimenttableInput
   - experimenttableOutput
   - fieldSets
+  - finiteAxisRange
   - fixedEffectsFormula
   - fixedEffectsModelMatrix
   - foldchangeplot
@@ -193,6 +205,8 @@ reference:
   - heatmap
   - heatmapInput
   - heatmapOutput
+  - homeNavTargets
+  - homeTab
   - illuminaarray
   - illuminaarrayInput
   - illuminaarrayqc
@@ -210,6 +224,9 @@ reference:
   - maplotOutput
   - modalInput
   - modalServer
+  - moduleLayout
+  - moduleMain
+  - navLink
   - pca
   - pcaInput
   - pcaOutput
@@ -231,9 +248,15 @@ reference:
   - scatterplotOutput
   - scatterplotcontrols
   - scatterplotcontrolsInput
+  - selectFoldchangeLines
+  - selectMaLines
+  - selectVolcanoLines
   - selectmatrix
   - selectmatrixInput
   - shinyngs
+  - shinyngsPageNavbar
+  - shinyngsPlotlyConfig
+  - shinyngsSpinnerColor
   - simpleApp
   - simpletable
   - simpletableInput
@@ -242,6 +265,8 @@ reference:
   - splitAnnotationLegend
   - summarisematrix
   - summarisematrixInput
+  - summaryTileSpecs
+  - summaryTileTag
   - summarytiles
   - summarytilesInput
   - summarytilesOutput

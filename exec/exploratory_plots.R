@@ -354,7 +354,8 @@ plotdata <-
   madScore(
     matrix = assay_data[[final_assay]],
     sample_sheet = sample_metadata,
-    groupby = opt$contrast_variable
+    groupby = opt$contrast_variable,
+    outlier_threshold = opt$outlier_mad_threshold
   )
 
 if (!is.null(plotdata)) {
@@ -362,7 +363,7 @@ if (!is.null(plotdata)) {
     x = plotdata$group,
     y = plotdata$mad,
     color = plotdata$outlier,
-    hline_thresholds = c("Outlier threshold" = -5),
+    hline_thresholds = c("Outlier threshold" = opt$outlier_mad_threshold),
     legend_title = "Outlier status",
     labels = rownames(plotdata),
     show_labels = TRUE,

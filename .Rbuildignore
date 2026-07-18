@@ -11,3 +11,10 @@
 ^.*\.profraw$
 ^\.nf-test\.log$
 ^\.DS_Store$
+^Rplots\.pdf$
+^pkgdown$
+^\.lintr$
+^CONTRIBUTING\.md$
+^\.claude$
+^\.ruff_cache$
+^\.Rhistory$
