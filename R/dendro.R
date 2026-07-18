@@ -122,7 +122,7 @@ dendro <- function(id, eselist) {
 
     output$sampleDendroPlot <- renderPlotly({
       withProgress(message = "Making sample dendrogram", value = 0, {
-        getDendroPlot() %>% shinyngsPlotlyConfig("dendrogram")
+        getDendroPlot() %>% shinyngsPlotlyConfig("dendrogram", format = session$userData$plotFormat())
       })
     })
   })

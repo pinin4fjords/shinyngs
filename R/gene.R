@@ -188,7 +188,7 @@ gene <- function(id, eselist) {
         palette <- groupby_reactives$getPalette()
 
         p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette) %>%
-          shinyngsPlotlyConfig("gene_expression")
+          shinyngsPlotlyConfig("gene_expression", format = session$userData$plotFormat())
       })
     })
 

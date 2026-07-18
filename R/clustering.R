@@ -310,7 +310,7 @@ clustering <- function(id, eselist) {
           plots <- makeClusterPlots()
         })
         do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>%
-          shinyngsPlotlyConfig("clustering")
+          shinyngsPlotlyConfig("clustering", format = session$userData$plotFormat())
       })
     })
 

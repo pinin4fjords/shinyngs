@@ -369,7 +369,7 @@ upset <- function(id, eselist, setlimit = 16) {
       )
       s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE) %>% layout(showlegend = FALSE)
 
-      subplot(s1, s2, widths = c(0.3, 0.7)) %>% shinyngsPlotlyConfig("upset")
+      subplot(s1, s2, widths = c(0.3, 0.7)) %>% shinyngsPlotlyConfig("upset", format = session$userData$plotFormat())
     })
 
     # Calculate the maximum number of sets in an intersection

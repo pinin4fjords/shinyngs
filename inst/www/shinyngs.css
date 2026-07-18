@@ -264,6 +264,22 @@ h3{
   box-shadow: none;
 }
 
+/* Plain icon-style navbar buttons (e.g. the plot download format toggle):
+   blend into the dark navbar like the light/dark toggle does. Deliberately
+   NOT `.nav-link` - that class puts an element into the navbar's tablist
+   roving-tabindex behaviour, which set tabindex="-1" on a control that isn't
+   actually one of the page tabs. */
+.navbar .shinyngs-navbar-icon-btn {
+  color: var(--bs-navbar-color, rgba(255, 255, 255, 0.85));
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+}
+.navbar .shinyngs-navbar-icon-btn:hover,
+.navbar .shinyngs-navbar-icon-btn:focus {
+  color: var(--bs-navbar-hover-color, #fff);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shinyngs-tilebox, .shinyngs-tile-hint .fa, .shinyngs-tile-hint svg { transition: none; }
   .shinyngs-drawer-in { animation: none; }

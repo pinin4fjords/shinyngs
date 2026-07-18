@@ -222,7 +222,7 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
           show_labels = getShowLabels(), lines = getLines(), showlegend = showLegend(),
           point_size = getPointSize()
         ) %>%
-          shinyngsPlotlyConfig("scatterplot")
+          shinyngsPlotlyConfig("scatterplot", format = session$userData$plotFormat())
       })
     })
   })

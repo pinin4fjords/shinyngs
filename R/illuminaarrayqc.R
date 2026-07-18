@@ -109,7 +109,7 @@ illuminaarrayqc <- function(id, eselist) {
           categoryarray = rownames(experiment),
           categoryorder = "array", title = ""
         ), yaxis = list(title = "Intensity"), margin = list(b = 200)) %>%
-        shinyngsPlotlyConfig("array_qc")
+        shinyngsPlotlyConfig("array_qc", format = session$userData$plotFormat())
     })
 
     # Render the table and provide for download, using the simpletable module.
