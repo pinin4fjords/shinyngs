@@ -33,8 +33,7 @@ test_that("validate_fom_components.R fails clearly when --assay_files does not e
     "--output_directory", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(paste(result$output, collapse = "\n"), "does not exist", fixed = TRUE)
+  expect_exec_failure(result, "does not exist")
 })
 
 test_that("validate_fom_components.R fails clearly when assay matrix columns don't match the sample sheet", {
@@ -51,12 +50,7 @@ test_that("validate_fom_components.R fails clearly when assay matrix columns don
     "--output_directory", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(
-    paste(result$output, collapse = "\n"),
-    "Some sample metadata names",
-    fixed = TRUE
-  )
+  expect_exec_failure(result, "Some sample metadata names")
 })
 
 test_that("validate_fom_components.R fails clearly when the contrasts file references an unknown variable", {
@@ -80,12 +74,7 @@ test_that("validate_fom_components.R fails clearly when the contrasts file refer
     "--output_directory", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(
-    paste(result$output, collapse = "\n"),
-    "Not all contrast variables are available in the sample metadata",
-    fixed = TRUE
-  )
+  expect_exec_failure(result, "Not all contrast variables are available in the sample metadata")
 })
 
 # exec/exploratory_plots.R
@@ -125,8 +114,7 @@ test_that("exploratory_plots.R fails clearly when a mandatory argument is missin
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(paste(result$output, collapse = "\n"), "Please provide a contrast_variable", fixed = TRUE)
+  expect_exec_failure(result, "Please provide a contrast_variable")
 })
 
 test_that("exploratory_plots.R fails clearly when --assay_files does not exist", {
@@ -142,8 +130,7 @@ test_that("exploratory_plots.R fails clearly when --assay_files does not exist",
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(paste(result$output, collapse = "\n"), "does not exist", fixed = TRUE)
+  expect_exec_failure(result, "does not exist")
 })
 
 test_that("exploratory_plots.R fails clearly when --final_assay is not among the supplied assays", {
@@ -160,12 +147,7 @@ test_that("exploratory_plots.R fails clearly when --final_assay is not among the
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(
-    paste(result$output, collapse = "\n"),
-    "Indicated final assay 'not_a_real_assay' not among",
-    fixed = TRUE
-  )
+  expect_exec_failure(result, "Indicated final assay 'not_a_real_assay' not among")
 })
 
 # exec/differential_plots.R
@@ -203,8 +185,7 @@ test_that("differential_plots.R fails clearly when --differential_file does not 
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(paste(result$output, collapse = "\n"), "does not exist", fixed = TRUE)
+  expect_exec_failure(result, "does not exist")
 })
 
 test_that("differential_plots.R fails clearly when --feature_metadata does not exist", {
@@ -220,8 +201,7 @@ test_that("differential_plots.R fails clearly when --feature_metadata does not e
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(paste(result$output, collapse = "\n"), "does not exist", fixed = TRUE)
+  expect_exec_failure(result, "does not exist")
 })
 
 test_that("differential_plots.R fails clearly when --fold_change_col is absent from the differential file", {
@@ -238,12 +218,7 @@ test_that("differential_plots.R fails clearly when --fold_change_col is absent f
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(
-    paste(result$output, collapse = "\n"),
-    "Missing stats variables: not_a_real_column",
-    fixed = TRUE
-  )
+  expect_exec_failure(result, "Missing stats variables: not_a_real_column")
 })
 
 test_that("differential_plots.R fails clearly when --p_value_column is absent from the differential file", {
@@ -260,12 +235,7 @@ test_that("differential_plots.R fails clearly when --p_value_column is absent fr
     "--outdir", outdir
   ))
 
-  expect_false(result$status == 0)
-  expect_match(
-    paste(result$output, collapse = "\n"),
-    "Missing stats variables: not_a_real_column",
-    fixed = TRUE
-  )
+  expect_exec_failure(result, "Missing stats variables: not_a_real_column")
 })
 
 # exec/make_app_from_files.R
@@ -467,7 +437,5 @@ test_that("make_app_from_files.R fails with an actionable error for a malformed 
     "--output_directory", outdir
   ))
 
-  expect_false(result$status == 0)
-  combined_output <- paste(result$output, collapse = "\n")
-  expect_match(combined_output, "FDR column not found", fixed = TRUE)
+  expect_exec_failure(result, "FDR column not found")
 })

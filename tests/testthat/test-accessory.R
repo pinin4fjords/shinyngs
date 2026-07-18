@@ -764,6 +764,15 @@ test_that("read_matrix falls back to the first column for feature identifiers", 
   expect_equal(colnames(result), c("Sample1", "Sample2"))
 })
 
+test_that("read_matrix errors when the file does not exist", {
+  samples <- data.frame(row.names = c("Sample1", "Sample2"))
+
+  expect_error(
+    read_matrix(tempfile(fileext = ".tsv"), samples),
+    "does not exist"
+  )
+})
+
 # read_metadata()
 
 test_that("read_metadata reads a csv file", {
