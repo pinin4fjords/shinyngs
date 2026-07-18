@@ -17,7 +17,7 @@ scatterplot(
   getShowLabels = NULL,
   getPointSize = NULL,
   getPalette = NULL,
-  colorBy = NULL,
+  getColorby = NULL,
   getTitle = reactive({
      ""
  }),
@@ -81,9 +81,9 @@ scatterplot(
 
 - getPalette:
 
-  An optional palette of colors, one for each level of colorBy.
+  An optional palette of colors, one for each level of getColorby.
 
-- colorBy:
+- getColorby:
 
   A reactive returning a factor definining the groups in which points
   should be colored.

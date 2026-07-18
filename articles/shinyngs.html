@@ -180,7 +180,7 @@ add it to a list of such objects, which represent a study.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pinin4fjords.github.io/shinyngs/">shinyngs</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">airway</span>, package <span class="op">=</span> <span class="st">'airway'</span><span class="op">)</span></span>
-<span><span class="va">ese</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">airway</span>, <span class="st">'ExploratorySummarizedExperiment'</span><span class="op">)</span></span>
+<span><span class="va">ese</span> <span class="op">&lt;-</span> <span class="fu">as</span><span class="op">(</span><span class="va">airway</span>, <span class="st">'ExploratorySummarizedExperiment'</span><span class="op">)</span></span>
 <span><span class="va">eselist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ExploratorySummarizedExperimentList.html">ExploratorySummarizedExperimentList</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span></span></code></pre></div>
 <p>Then we build and run the app. For example, a basic app just for
 heatmaps:</p>
@@ -213,17 +213,20 @@ the object before we build the app:</p>
 informative for gene expression plots etc. We can add row metadata to
 fix that:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Use Biomart to retrieve some annotation, and add it to the object</span></span>
+<code class="sourceCode R"><span><span class="co"># Add annotation to the object. Any source of per-gene annotation works here</span></span>
+<span><span class="co"># (a GTF, an annotation package, a pre-built CSV); the requirement is a</span></span>
+<span><span class="co"># data.frame keyed by the same IDs as rownames(ese). Adding</span></span>
+<span><span class="co"># chromosome_name/start_position/end_position columns plus ensembl_species</span></span>
+<span><span class="co"># (below) also enables the igv.js gene model view on the gene page.</span></span>
 <span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grimbough/biomaRt" class="external-link">biomaRt</a></span><span class="op">)</span></span>
-<span><span class="va">attributes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">'ensembl_gene_id'</span>, <span class="co"># The sort of ID your results are keyed by</span></span>
-<span>  <span class="st">'entrezgene'</span>, <span class="co"># Will be used mostly for gene set based stuff</span></span>
-<span>  <span class="st">'external_gene_name'</span> <span class="co"># Used to annotate gene names on the plot</span></span>
+<span><span class="va">annotation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  ensembl_gene_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span>,</span>
+<span>  entrezgene <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span>, <span class="co"># substitute real Entrez IDs</span></span>
+<span>  external_gene_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span>, <span class="co"># substitute real gene symbols</span></span>
+<span>  chromosome_name <span class="op">=</span> <span class="st">'1'</span>, <span class="co"># substitute real coordinates</span></span>
+<span>  start_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  end_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1000</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mart</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/biomaRt/man/useMart.html" class="external-link">useMart</a></span><span class="op">(</span>biomart <span class="op">=</span> <span class="st">'ENSEMBL_MART_ENSEMBL'</span>, dataset <span class="op">=</span> <span class="st">'hsapiens_gene_ensembl'</span>, host<span class="op">=</span><span class="st">'www.ensembl.org'</span><span class="op">)</span></span>
-<span><span class="va">annotation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/biomaRt/man/getBM.html" class="external-link">getBM</a></span><span class="op">(</span>attributes <span class="op">=</span> <span class="va">attributes</span>, mart <span class="op">=</span> <span class="va">mart</span><span class="op">)</span></span>
 <span><span class="va">annotation</span> <span class="op">&lt;-</span> <span class="va">annotation</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">annotation</span><span class="op">$</span><span class="va">entrezgene</span><span class="op">)</span>,<span class="op">]</span></span>
 <span></span>
 <span><span class="fu">mcols</span><span class="op">(</span><span class="va">ese</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">annotation</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span>, <span class="va">annotation</span><span class="op">$</span><span class="va">ensembl_gene_id</span><span class="op">)</span>,<span class="op">]</span></span>
@@ -239,7 +242,8 @@ fix that:</p>
 <span>  <span class="va">ese</span>,</span>
 <span>  title <span class="op">=</span> <span class="va">expinfo</span><span class="op">@</span><span class="va">title</span>,</span>
 <span>  author <span class="op">=</span> <span class="va">expinfo</span><span class="op">@</span><span class="va">name</span>,</span>
-<span>  description <span class="op">=</span> <span class="fu">abstract</span><span class="op">(</span><span class="va">expinfo</span><span class="op">)</span></span>
+<span>  description <span class="op">=</span> <span class="fu">abstract</span><span class="op">(</span><span class="va">expinfo</span><span class="op">)</span>,</span>
+<span>  ensembl_species <span class="op">=</span> <span class="st">'hsapiens'</span> <span class="co"># enables the igv.js gene model view</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">'rnaseq'</span>, <span class="va">eselist</span><span class="op">)</span></span>
 <span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span>ui <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">ui</span>, server <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">server</span><span class="op">)</span></span></code></pre></div>

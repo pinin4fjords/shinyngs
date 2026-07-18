@@ -68,7 +68,7 @@ usage.</p>
   around experiments. These extra slots are not compulsory, however, and a
   simple SummarizedExperiment can be converted directly into an
   <code>ExploratorySummarizedExperiment</code>:</p>
-<p></p><div class="sourceCode"><pre><code><span> <span class="va">ese</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">airway</span>, <span class="st">'ExploratorySummarizedExperiment'</span><span class="op">)</span> </span></code></pre></div>
+<p></p><div class="sourceCode"><pre><code><span> <span class="va">ese</span> <span class="op">&lt;-</span> <span class="fu">as</span><span class="op">(</span><span class="va">airway</span>, <span class="st">'ExploratorySummarizedExperiment'</span><span class="op">)</span> </span></code></pre></div>
 
 <p>Because a single <code>ExploratorySummarizedExperiment</code> is limited to one
   set of features, <code><a href="ExploratorySummarizedExperimentList.html">ExploratorySummarizedExperimentList</a></code> was
@@ -141,7 +141,7 @@ usage.</p>
   data:</p>
 <p></p><div class="sourceCode"><pre><code><span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">airway</span>, package <span class="op">=</span> <span class="st">'airway'</span><span class="op">)</span></span>
-<span>  <span class="va">ese</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/methods/as.html" class="external-link">as</a></span><span class="op">(</span><span class="va">airway</span>, <span class="st">'ExploratorySummarizedExperiment'</span><span class="op">)</span></span>
+<span>  <span class="va">ese</span> <span class="op">&lt;-</span> <span class="fu">as</span><span class="op">(</span><span class="va">airway</span>, <span class="st">'ExploratorySummarizedExperiment'</span><span class="op">)</span></span>
 <span>  <span class="va">eselist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ExploratorySummarizedExperimentList.html">ExploratorySummarizedExperimentList</a></span><span class="op">(</span><span class="va">ese</span><span class="op">)</span></span>
 <span>  <span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">'heatmap'</span>,<span class="va">eselist</span><span class="op">)</span></span></code></pre></div>
 

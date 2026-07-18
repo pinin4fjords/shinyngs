@@ -51,7 +51,7 @@
 <span>  getShowLabels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  getPointSize <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  getPalette <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  colorBy <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  getColorby <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  getTitle <span class="op">=</span> <span class="fu">reactive</span><span class="op">(</span><span class="op">{</span></span>
 <span>     <span class="st">""</span></span>
 <span> <span class="op">}</span><span class="op">)</span>,</span>
@@ -118,12 +118,12 @@ reactive supplying an integer point size to pass to plotly.</p></dd>
 
 <dt id="arg-getpalette">getPalette<a class="anchor" aria-label="anchor" href="#arg-getpalette"></a></dt>
 <dd><p>An optional palette of colors, one for each level of
-colorBy.</p></dd>
+getColorby.</p></dd>
 
 
-<dt id="arg-colorby">colorBy<a class="anchor" aria-label="anchor" href="#arg-colorby"></a></dt>
-<dd><p>A reactive returning a factor definining the groups in which
-points should be colored.</p></dd>
+<dt id="arg-getcolorby">getColorby<a class="anchor" aria-label="anchor" href="#arg-getcolorby"></a></dt>
+<dd><p>A reactive returning a factor definining the groups in
+which points should be colored.</p></dd>
 
 
 <dt id="arg-gettitle">getTitle<a class="anchor" aria-label="anchor" href="#arg-gettitle"></a></dt>
