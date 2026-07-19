@@ -166,6 +166,19 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
   paste(unlist(strings), collapse = "\n")
 }
 
+#' Build a line-wrapped "log2(<expression type>)" axis label
+#'
+#' @param expressiontype Expression type for use in the label, e.g. "expression"
+#' @param width Maximum line length in characters, passed to
+#' \code{\link{splitStringToFixedwidthLines}}
+#'
+#' @return A string with newline characters added where appropriate
+#'
+#' @noRd
+expressionAxisLabel <- function(expressiontype, width = 15) {
+  splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), width)
+}
+
 #' Return a usable citation string for a package
 #'
 #' Adds just the tiny bit of wrapping code to make the output of
