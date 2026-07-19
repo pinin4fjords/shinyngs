@@ -83,8 +83,10 @@ reference:
   - ggplotify
   - interactiveHeatmap
   - plotly_barcodeplot
+  - plotly_barplot
   - plotly_boxplot
   - plotly_clusteringDendrogram
+  - plotly_count_barplot
   - plotly_densityplot
   - plotly_quartiles
   - plotly_scatterplot
