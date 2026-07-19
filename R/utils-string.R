@@ -5,7 +5,10 @@
 #'
 #' @return output Character vector of strings
 #' @export
-
+#'
+#' @examples
+#' simpleSplit("a,b,c")
+#'
 simpleSplit <- function(string, sep = ",") {
   if (is.na(string)) {
     NA
@@ -20,7 +23,10 @@ simpleSplit <- function(string, sep = ",") {
 #'
 #' @return extension Extension like 'csv' or 'tsv'
 #' @export
-
+#'
+#' @examples
+#' getExtension("my_metadata.tsv")
+#'
 getExtension <- function(file) {
   ex <- strsplit(basename(file), split = "\\.")[[1]]
   return(tolower(tail(ex, 1)))
@@ -32,7 +38,10 @@ getExtension <- function(file) {
 #'
 #' @return output Separator character like tab or ','
 #' @export
-
+#'
+#' @examples
+#' getSeparator("my_metadata.tsv")
+#'
 getSeparator <- function(file) {
   ext <- getExtension(file)
   if (ext == "tsv" || ext == "txt") {
@@ -57,7 +66,10 @@ getSeparator <- function(file) {
 #'
 #' @return output Named character vector
 #' @export
-
+#'
+#' @examples
+#' stringsToNamedVector("s1.tsv,s2.tsv", "sample_one,sample_two")
+#'
 stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ",", prettify_names = TRUE, simplify_files = FALSE) {
   elements <- simpleSplit(elements_string, sep = sep)
 
@@ -187,7 +199,10 @@ makePackageCitation <- function(package) {
 #' @return Vector or factor with NAs replaced
 #'
 #' @export
-
+#'
+#' @examples
+#' na.replace(c("a", NA, "b"))
+#'
 na.replace <- function(vec, replacement = "NA") {
   isfactor <- is.factor(vec)
   if (isfactor) {
@@ -211,7 +226,11 @@ na.replace <- function(vec, replacement = "NA") {
 #'
 #' @return output Boolean indicating whether the check passed
 #' @export
-
+#'
+#' @examples
+#' is_valid_positive_integer_vector("1,2,3")
+#' is_valid_positive_integer_vector("1,two,3")
+#'
 # Function to check if a comma-separated string can be parsed to a positive integer vector
 is_valid_positive_integer_vector <- function(string) {
   # as.integer() will truncate floats without throwing an error and also

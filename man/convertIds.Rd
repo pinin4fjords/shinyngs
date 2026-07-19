@@ -22,3 +22,25 @@ output Vector of converted ids
 \description{
 Convert row names to metadata identifiers
 }
+\examples{
+expression <- matrix(1:12, nrow = 3,
+  dimnames = list(c("ENSG1", "ENSG2", "ENSG3"), paste0("s", 1:4)))
+coldata <- data.frame(
+  condition = rep(c("treated", "control"), each = 2),
+  row.names = paste0("s", 1:4)
+)
+annotation <- data.frame(
+  gene_id = c("ENSG1", "ENSG2", "ENSG3"),
+  gene_name = c("GeneA", "GeneB", "GeneC"),
+  row.names = c("ENSG1", "ENSG2", "ENSG3")
+)
+ese <- ExploratorySummarizedExperiment(
+  assays = list(expression = expression),
+  colData = coldata,
+  annotation = annotation,
+  idfield = "gene_id",
+  labelfield = "gene_name"
+)
+convertIds(c("ENSG1", "ENSG2"), ese, "gene_name")
+
+}

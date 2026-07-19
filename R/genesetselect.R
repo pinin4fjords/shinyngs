@@ -207,7 +207,10 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
 #'
 #' @return output Prettified version
 #' @export
-
+#'
+#' @examples
+#' prettifyGeneSetName("KEGG_GLYCOLYSIS_GLUCONEOGENESIS")
+#'
 prettifyGeneSetName <- function(gsn) {
   words <- strsplit(gsn, "_")
 

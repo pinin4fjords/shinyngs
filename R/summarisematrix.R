@@ -101,7 +101,11 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
 #' @return Vector with column geometric means
 #'
 #' @export
-
+#'
+#' @examples
+#' m <- matrix(1:6, nrow = 2, dimnames = list(NULL, c("a", "b", "c")))
+#' colGeomMeans(m)
+#'
 colGeomMeans <- function(x) {
   x <- as.matrix(x)
   positive <- !is.na(x) & x > 0
@@ -118,7 +122,10 @@ colGeomMeans <- function(x) {
 #' @return A numeric value
 #'
 #' @export
-
+#'
+#' @examples
+#' geom_mean(c(1, 2, 4, 8))
+#'
 geom_mean <- function(x, na.rm = TRUE) {
   exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
 }
@@ -130,7 +137,11 @@ geom_mean <- function(x, na.rm = TRUE) {
 #' @return Vector with column medians
 #'
 #' @export
-
+#'
+#' @examples
+#' m <- matrix(1:6, nrow = 2, dimnames = list(NULL, c("a", "b", "c")))
+#' colMedians(m)
+#'
 colMedians <- function(x) {
   x <- as.matrix(x)
   stats::setNames(matrixStats::colMedians(x), colnames(x))

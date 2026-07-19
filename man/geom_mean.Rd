@@ -17,3 +17,7 @@ A numeric value
 \description{
 Geometric mean
 }
+\examples{
+geom_mean(c(1, 2, 4, 8))
+
+}

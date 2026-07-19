@@ -7,7 +7,10 @@
 #'
 #' @return output Returns TRUE if check passes
 #' @export
-
+#'
+#' @examples
+#' checkListIsSubset(c("treatment"), c("treatment", "batch"), "contrast variables", "sample metadata")
+#'
 checkListIsSubset <- function(test_list,
                               reference_list,
                               test_list_name,

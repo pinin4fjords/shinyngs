@@ -45,3 +45,13 @@ output A \code{ggplot} output
 \description{
 Make a static density plot with ggplot2
 }
+\examples{
+mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,
+  dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+experiment <- data.frame(
+  condition = rep(c("treated", "control"), each = 2),
+  row.names = colnames(mat)
+)
+ggplot_densityplot(mat, experiment, colorby = "condition")
+
+}

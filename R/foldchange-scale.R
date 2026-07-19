@@ -128,6 +128,11 @@ resolve_foldchange_scale <- function(values, fc_column = NULL, declared_scale = 
 #'
 #' @return The \code{fold_change_scale} to use.
 #' @export
+#'
+#' @examples
+#' resolve_deprecated_unlog_foldchanges("auto", NULL)
+#' resolve_deprecated_unlog_foldchanges("auto", TRUE)
+#'
 resolve_deprecated_unlog_foldchanges <- function(fold_change_scale, unlog_foldchanges) {
   if (is.null(unlog_foldchanges)) {
     return(fold_change_scale)

@@ -19,4 +19,8 @@ computation (e.g. \code{runPCA()} or \code{runClustering()} rejecting
 degenerate input) surfaces as a \code{\link[shiny]{validate}} message in
 the UI rather than crashing the app.
 }
+\examples{
+validateOrCatch(1 + 1)
+
+}
 \keyword{shiny}
