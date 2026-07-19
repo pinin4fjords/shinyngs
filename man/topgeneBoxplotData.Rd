@@ -12,7 +12,9 @@ topgeneBoxplotData(assay, groupby, genes, should_transform = NULL)
 \item{groupby}{Vector of group labels, one per column of \code{assay}}
 
 \item{genes}{Character vector of row names of \code{assay} to facet on, in
-the order facets should appear}
+the order facets should appear. Also used to look up values in
+\code{assay}, so must match its row names even when \code{labels} is
+supplied.}
 
 \item{should_transform}{A boolean indicating if the log2 transformation
 should be applied. If TRUE, log2 transformation is applied
