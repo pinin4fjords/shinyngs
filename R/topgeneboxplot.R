@@ -371,8 +371,7 @@ static_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
     scale_fill_manual(name = "Group", values = palette)
 
   if (beeswarm) {
-    p <- p + ggbeeswarm::geom_quasirandom(aes(color = group), width = 0.2, size = 1.5, alpha = 0.8) +
-      scale_color_manual(values = palette, guide = "none")
+    p <- p + ggbeeswarm::geom_quasirandom(shape = 21, color = "black", stroke = 0.3, width = 0.2, size = 1.5, alpha = 0.8)
   }
 
   p <- p + facet_wrap(~gene, ncol = ncol, scales = "free_y", labeller = as_labeller(topgeneFacetLabels(labels, genes)))
@@ -442,7 +441,7 @@ interactive_topgene_boxplots <- function(assay, groupby, genes, annotations = NU
         type = "box", y = values[groups == g], name = g, legendgroup = g,
         boxpoints = if (beeswarm) "all" else "outliers", jitter = 0.4, pointpos = 0,
         fillcolor = palette[[g]], line = list(color = "black"),
-        marker = list(color = palette[[g]]),
+        marker = list(color = palette[[g]], line = list(color = "black", width = 1)),
         showlegend = i == 1
       )
     }
