@@ -42,10 +42,11 @@ categorycountplotOutput <- function(id) {
 #' The server function of the categorycountplot module
 #'
 #' Lets the user tally rows of a data frame by a categorical column,
-#' optionally split by a second, rendered via \code{\link{plotly_count_barplot}}.
-#' Identifier-like columns (e.g. a gene or sample ID/name, where almost every
-#' row has its own distinct value) are excluded, since there would be little
-#' to count beyond '1' per row.
+#' optionally split by a second, rendered via \code{\link{plotly_barplot}}
+#' (the same tally that \code{\link{plotly_count_barplot}} exposes as a
+#' standalone function). Identifier-like columns (e.g. a gene or sample
+#' ID/name, where almost every row has its own distinct value) are excluded,
+#' since there would be little to count beyond '1' per row.
 #'
 #' @param id Module namespace
 #' @param getAnnotation Reactive supplying a data frame (one row per feature or
@@ -62,14 +63,19 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
     getCategoricalFields <- reactive({
       meta <- getAnnotation()
 
-      fields <- names(meta)[!vapply(meta, is.numeric, logical(1))]
+      # Only atomic columns (character/factor/logical) are safe to tally - list-columns (common in Bioconductor annotation, e.g. multi-value
+      # GO terms) would slip through a plain is.numeric() filter and break table()/unique() downstream
+
+      fields <- names(meta)[vapply(meta, function(x) is.atomic(x) && !is.numeric(x), logical(1))]
       non_na_counts <- vapply(fields, function(f) sum(!is.na(meta[[f]])), integer(1))
       cardinality <- vapply(fields, function(f) length(unique(stats::na.omit(meta[[f]]))), integer(1))
 
-      # Exclude fields with no non-missing values (nothing to count), and identifier-like fields (e.g. a gene/sample ID or name) where most
-      # values are near-unique and counts would mostly be 1
+      # Exclude fields with no non-missing values (nothing to count); identifier-like fields (e.g. a gene/sample ID or name) where most values
+      # are near-unique and counts would mostly be 1; and fields with more categories than MAX_CATEGORIES, which would be both unreadable as a
+      # chart and - for two such fields crossed together - a very large contingency table to build
 
-      fields <- fields[non_na_counts > 0 & cardinality <= non_na_counts / 2]
+      MAX_CATEGORIES <- 100
+      fields <- fields[non_na_counts > 0 & cardinality <= pmin(non_na_counts / 2, MAX_CATEGORIES)]
 
       # Order by ascending cardinality, so the most 'category-like' fields (fewest distinct non-missing values) are offered, and selected by
       # default, first
@@ -95,8 +101,6 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
       )
     })
 
-    # NULL when no split-by field is selected
-
     getFill <- reactive({
       validate(need(input$fill, "Waiting for split-by selection"))
       if (input$fill == "none") NULL else input$fill
@@ -106,14 +110,19 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
       if (is.null(input$barmode)) "group" else input$barmode
     })
 
+    # The tally itself only depends on category/fill, not on barmode - shared so the table and plot (and a barmode-only change) don't each
+    # re-tally the annotation data frame independently
+
+    getCountMatrix <- reactive({
+      validate(need(input$category, "Waiting for category selection"))
+      countMatrixByCategory(getAnnotation(), input$category, getFill())
+    })
+
     # A long-format count table backing the plot, for display/download
 
     countTable <- reactive({
-      meta <- getAnnotation()
-      validate(need(input$category, "Waiting for category selection"))
-
       fill <- getFill()
-      countdata <- melt_matrix(countMatrixByCategory(meta, input$category, fill), varnames = c("fill", "category"), value.name = "count")
+      countdata <- melt_matrix(getCountMatrix(), varnames = c("fill", "category"), value.name = "count")
 
       if (is.null(fill)) {
         countdata <- countdata[, c("category", "count")]
@@ -126,10 +135,9 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
     })
 
     output$plot <- renderPlotly({
-      meta <- getAnnotation()
-      validate(need(input$category, "Waiting for category selection"))
+      title <- paste("Counts by", prettifyVariablename(input$category))
 
-      plotly_count_barplot(meta, input$category, getFill(), barmode = getBarmode()) %>%
+      plotly_barplot(getCountMatrix(), barmode = getBarmode(), ylab = "Count", title = title) %>%
         shinyngsPlotlyConfig(filename, format = session$userData$plotFormat())
     })
 
