@@ -131,6 +131,14 @@ via <code>plotly_scatterplot</code> and the scree curve via
 <img src="img/pca.png" alt="Components plot for a 3D PCA, coloured by sample group"><div class="figcaption">Components plot for a 3D PCA, coloured by sample
 group</div>
 </div>
+<div class="float">
+<img src="img/pca-loadings.png" alt="Loading plot showing which features contribute most to each component"><div class="figcaption">Loading plot showing which features contribute
+most to each component</div>
+</div>
+<div class="float">
+<img src="img/pca-scree.png" alt="Scree plot: percentage and cumulative percentage of variance explained by component"><div class="figcaption">Scree plot: percentage and cumulative percentage
+of variance explained by component</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="pca-vs-experiment">PCA vs experiment<a class="anchor" aria-label="anchor" href="#pca-vs-experiment"></a>
@@ -145,6 +153,10 @@ to account for downstream.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows by default) and the
 set of experimental variables to test. <em>Backed by:</em>
 <code>plotly_pca_metadata_heatmap</code>.</p>
+<div class="float">
+<img src="img/pca-vs-experiment.png" alt="PCA-vs-experiment heatmap: association p-values between each component and each experimental variable"><div class="figcaption">PCA-vs-experiment heatmap: association p-values
+between each component and each experimental variable</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="sample-clustering-heatmap">Sample clustering heatmap<a class="anchor" aria-label="anchor" href="#sample-clustering-heatmap"></a>
@@ -175,6 +187,10 @@ samples by an experimental variable to aid interpretation.</p>
 selection may also be “all” or a supplied gene set) and
 distance/clustering choices. <em>Backed by:</em>
 <code>plotly_clusteringDendrogram</code>.</p>
+<div class="float">
+<img src="img/dendrogram.png" alt="Sample clustering dendrogram coloured by sample group"><div class="figcaption">Sample clustering dendrogram coloured by sample
+group</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="boxplots-density">Boxplots / density<a class="anchor" aria-label="anchor" href="#boxplots-density"></a>
@@ -191,6 +207,10 @@ in the line plots reveals its identity.</p>
 matrices can be informative. <em>Backed by:</em>
 <code>plotly_boxplot</code>, <code>plotly_densityplot</code>, and
 <code>plotly_quartiles</code>.</p>
+<div class="float">
+<img src="img/distribution.png" alt="Value distributions per sample, as box plots coloured by group"><div class="figcaption">Value distributions per sample, as box plots
+coloured by group</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="expression-heatmap">Expression heatmap<a class="anchor" aria-label="anchor" href="#expression-heatmap"></a>
@@ -204,6 +224,10 @@ means per sample group.</p>
 <p><em>Inputs:</em> an assay matrix, with rows selectable by variance,
 by an explicit list, or (where gene sets are uploaded) by a predefined
 gene set. <em>Backed by:</em> <code>interactiveHeatmap</code>.</p>
+<div class="float">
+<img src="img/expression-heatmap.png" alt="Expression heatmap of the top variable rows, clustered and scaled by row"><div class="figcaption">Expression heatmap of the top variable rows,
+clustered and scaled by row</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="clustering-profiles">Clustering profiles<a class="anchor" aria-label="anchor" href="#clustering-profiles"></a>
@@ -219,6 +243,10 @@ for further investigation.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows by default) and the
 number of clusters. <em>Backed by:</em>
 <code>plotly_cluster_profiles</code>.</p>
+<div class="float">
+<img src="img/clustering-profiles.png" alt="Feature-wise clustering profiles, one panel per cluster with a filled variability band"><div class="figcaption">Feature-wise clustering profiles, one panel per
+cluster with a filled variability band</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -276,6 +304,10 @@ as the volcano plot.</p>
 <p><em>Inputs:</em> a contrast, fold-change and q-value thresholds,
 optional highlight set. <em>Backed by:</em>
 <code>plotly_scatterplot</code>.</p>
+<div class="float">
+<img src="img/ma-plot.png" alt="MA plot for one contrast: log2 fold change against log10 mean expression"><div class="figcaption">MA plot for one contrast: log2 fold change
+against log10 mean expression</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="fold-change-plot">Fold change plot<a class="anchor" aria-label="anchor" href="#fold-change-plot"></a>
@@ -286,6 +318,10 @@ are grey, or blue where they pass the fold-change and (where available)
 q-value thresholds.</p>
 <p><em>Inputs:</em> an assay matrix, a contrast, thresholds, optional
 highlight set. <em>Backed by:</em> <code>plotly_scatterplot</code>.</p>
+<div class="float">
+<img src="img/fold-change-plot.png" alt="Fold change plot comparing mean expression between two groups"><div class="figcaption">Fold change plot comparing mean expression
+between two groups</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="top-gene-boxplots">Top gene boxplots<a class="anchor" aria-label="anchor" href="#top-gene-boxplots"></a>
@@ -319,6 +355,10 @@ downloadable.</p>
 <p><em>Inputs:</em> contrasts with thresholds, and an assay matrix for
 generating the comparisons. <em>Backed by:</em>
 <code>plotly_upset</code>.</p>
+<div class="float">
+<img src="img/upset.png" alt="UpSet plot showing the exclusive intersections between several contrasts’ differential gene sets"><div class="figcaption">UpSet plot showing the exclusive intersections
+between several contrasts’ differential gene sets</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -344,6 +384,10 @@ an Ensembl species (plus
 feature metadata) for the gene model. <em>Backed by:</em>
 <code>plotly_scatterplot</code> for the expression bar plot; the gene
 model view uses the <code>igvShiny</code> (igv.js) browser.</p>
+<div class="float">
+<img src="img/gene-page.png" alt="Gene page: expression bar plot, gene info and contrasts table"><div class="figcaption">Gene page: expression bar plot, gene info and
+contrasts table</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="gene-set-barcode-plot">Gene-set barcode plot<a class="anchor" aria-label="anchor" href="#gene-set-barcode-plot"></a>
@@ -359,6 +403,10 @@ change, and an accompanying table gives contrast detail for the set.</p>
 matrix (note the displayed FDR may correspond to only one of the
 available matrices). <em>Backed by:</em>
 <code>plotly_barcodeplot</code>.</p>
+<div class="float">
+<img src="img/geneset-barcode.png" alt="Gene-set barcode plot showing where a gene set’s members fall in the ranked fold-change list"><div class="figcaption">Gene-set barcode plot showing where a gene set’s
+members fall in the ranked fold-change list</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="gene-set-analysis-table">Gene-set analysis table<a class="anchor" aria-label="anchor" href="#gene-set-analysis-table"></a>
@@ -375,6 +423,10 @@ link through to the barcode plot, and individual genes to their
 expression bar plots.</p>
 <p><em>Inputs:</em> precomputed gene set analysis results, a gene-set
 type, and a contrast with gene-level thresholds.</p>
+<div class="float">
+<img src="img/geneset-analyses.png" alt="Gene set analysis table showing ROAST results with significant genes annotated per set"><div class="figcaption">Gene set analysis table showing ROAST results
+with significant genes annotated per set</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -391,6 +443,10 @@ stringency near zero, high stringency at or below cy3 high, housekeeping
 and biotin high, and negative controls near zero.</p>
 <p><em>Inputs:</em> Illumina control-probe measurements per sample.
 <em>Backed by:</em> <code>plotly_illumina_control_probes</code>.</p>
+<div class="float">
+<img src="img/illumina-qc.png" alt="Illumina control-probe QC plot across samples, one line per probe group"><div class="figcaption">Illumina control-probe QC plot across samples,
+one line per probe group</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="dexseq-plot">DEXSeq plot<a class="anchor" aria-label="anchor" href="#dexseq-plot"></a>
@@ -408,6 +464,11 @@ transcript structures. An accompanying table gives normalised exon
 counts and relative exon usage per condition.</p>
 <p><em>Inputs:</em> DEXSeq results, a gene to plot, an FDR threshold for
 colouring exons, and which sub-plots to show.</p>
+<div class="float">
+<img src="img/dexseqplot.png" alt="DEXSeq plot for a gene with a significant exon usage shift between conditions, showing expression, exon usage and gene model tracks"><div class="figcaption">DEXSeq plot for a gene with a significant exon
+usage shift between conditions, showing expression, exon usage and gene
+model tracks</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="dexseq-table">DEXSeq table<a class="anchor" aria-label="anchor" href="#dexseq-table"></a>
@@ -434,6 +495,10 @@ rRNA).</p>
 <p><em>Inputs:</em> precomputed read-summary tables provided with the
 dataset. <em>Backed by:</em> <code>plotly_barchart</code> /
 <code>plotly_count_barplot</code>.</p>
+<div class="float">
+<img src="img/read-reports.png" alt="Read attrition plot showing reads lost across analysis stages, per sample"><div class="figcaption">Read attrition plot showing reads lost across
+analysis stages, per sample</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -469,6 +534,13 @@ field (e.g. per treatment group), optionally split by a second field
 into grouped or stacked bars. Identifier-like fields (near-unique per
 row) are not offered for counting.</p>
 <p><em>Inputs:</em> sample (column) metadata.</p>
+<div class="float">
+<img src="img/sample-metadata.png" alt="Sample metadata table"><div class="figcaption">Sample metadata table</div>
+</div>
+<div class="float">
+<img src="img/sample-metadata-categorycounts.png" alt="Category counts for the sample metadata, split by group"><div class="figcaption">Category counts for the sample metadata, split
+by group</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="row-feature-metadata-table">Row / feature metadata table<a class="anchor" aria-label="anchor" href="#row-feature-metadata-table"></a>
@@ -481,6 +553,13 @@ biotype), optionally split by a second field, excluding identifier-like
 fields.</p>
 <p><em>Inputs:</em> row (feature) metadata for the selected
 experiment.</p>
+<div class="float">
+<img src="img/feature-metadata.png" alt="Row/feature metadata table"><div class="figcaption">Row/feature metadata table</div>
+</div>
+<div class="float">
+<img src="img/feature-metadata-categorycounts.png" alt="Category counts for the feature metadata, by annotation source"><div class="figcaption">Category counts for the feature metadata, by
+annotation source</div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

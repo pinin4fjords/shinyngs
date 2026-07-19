@@ -49,6 +49,17 @@ of which components to display, and a sample variable to colour by.
 
 Components plot for a 3D PCA, coloured by sample group
 
+![Loading plot showing which features contribute most to each
+component](img/pca-loadings.png)
+
+Loading plot showing which features contribute most to each component
+
+![Scree plot: percentage and cumulative percentage of variance explained
+by component](img/pca-scree.png)
+
+Scree plot: percentage and cumulative percentage of variance explained
+by component
+
 ### PCA vs experiment
 
 A companion to the PCA panel that helps interpret what the components
@@ -62,6 +73,12 @@ to account for downstream.
 *Inputs:* an assay matrix (variable rows by default) and the set of
 experimental variables to test. *Backed by:*
 `plotly_pca_metadata_heatmap`.
+
+![PCA-vs-experiment heatmap: association p-values between each component
+and each experimental variable](img/pca-vs-experiment.png)
+
+PCA-vs-experiment heatmap: association p-values between each component
+and each experimental variable
 
 ### Sample clustering heatmap
 
@@ -93,6 +110,11 @@ experimental variable to aid interpretation.
 also be “all” or a supplied gene set) and distance/clustering choices.
 *Backed by:* `plotly_clusteringDendrogram`.
 
+![Sample clustering dendrogram coloured by sample
+group](img/dendrogram.png)
+
+Sample clustering dendrogram coloured by sample group
+
 ### Boxplots / density
 
 Illustrates the distribution of values in each sample, as box plots (via
@@ -108,6 +130,11 @@ line plots reveals its identity.
 be informative. *Backed by:* `plotly_boxplot`, `plotly_densityplot`, and
 `plotly_quartiles`.
 
+![Value distributions per sample, as box plots coloured by
+group](img/distribution.png)
+
+Value distributions per sample, as box plots coloured by group
+
 ### Expression heatmap
 
 A standard expression heatmap plotted interactively with `heatmaply`.
@@ -119,6 +146,11 @@ rows. The data can optionally be summarised into means per sample group.
 *Inputs:* an assay matrix, with rows selectable by variance, by an
 explicit list, or (where gene sets are uploaded) by a predefined gene
 set. *Backed by:* `interactiveHeatmap`.
+
+![Expression heatmap of the top variable rows, clustered and scaled by
+row](img/expression-heatmap.png)
+
+Expression heatmap of the top variable rows, clustered and scaled by row
 
 ### Clustering profiles
 
@@ -133,6 +165,12 @@ further investigation.
 
 *Inputs:* an assay matrix (variable rows by default) and the number of
 clusters. *Backed by:* `plotly_cluster_profiles`.
+
+![Feature-wise clustering profiles, one panel per cluster with a filled
+variability band](img/clustering-profiles.png)
+
+Feature-wise clustering profiles, one panel per cluster with a filled
+variability band
 
 ## Differential
 
@@ -192,6 +230,11 @@ as the volcano plot.
 *Inputs:* a contrast, fold-change and q-value thresholds, optional
 highlight set. *Backed by:* `plotly_scatterplot`.
 
+![MA plot for one contrast: log2 fold change against log10 mean
+expression](img/ma-plot.png)
+
+MA plot for one contrast: log2 fold change against log10 mean expression
+
 ### Fold change plot
 
 A simple scatter plot comparing the mean expression value between two
@@ -201,6 +244,11 @@ q-value thresholds.
 
 *Inputs:* an assay matrix, a contrast, thresholds, optional highlight
 set. *Backed by:* `plotly_scatterplot`.
+
+![Fold change plot comparing mean expression between two
+groups](img/fold-change-plot.png)
+
+Fold change plot comparing mean expression between two groups
 
 ### Top gene boxplots
 
@@ -234,6 +282,12 @@ then overlap and no longer sum to the total). The plot is downloadable.
 *Inputs:* contrasts with thresholds, and an assay matrix for generating
 the comparisons. *Backed by:* `plotly_upset`.
 
+![UpSet plot showing the exclusive intersections between several
+contrasts’ differential gene sets](img/upset.png)
+
+UpSet plot showing the exclusive intersections between several
+contrasts’ differential gene sets
+
 ## Gene-level
 
 Panels centred on individual genes or gene sets.
@@ -256,6 +310,11 @@ metadata) for the gene model. *Backed by:* `plotly_scatterplot` for the
 expression bar plot; the gene model view uses the `igvShiny` (igv.js)
 browser.
 
+![Gene page: expression bar plot, gene info and contrasts
+table](img/gene-page.png)
+
+Gene page: expression bar plot, gene info and contrasts table
+
 ### Gene-set barcode plot
 
 An interactive barcode plot reproducing the statistics behind limma’s
@@ -269,6 +328,12 @@ change, and an accompanying table gives contrast detail for the set.
 *Inputs:* a single selected gene set, a contrast, and an assay matrix
 (note the displayed FDR may correspond to only one of the available
 matrices). *Backed by:* `plotly_barcodeplot`.
+
+![Gene-set barcode plot showing where a gene set’s members fall in the
+ranked fold-change list](img/geneset-barcode.png)
+
+Gene-set barcode plot showing where a gene set’s members fall in the
+ranked fold-change list
 
 ### Gene-set analysis table
 
@@ -285,6 +350,12 @@ barcode plot, and individual genes to their expression bar plots.
 *Inputs:* precomputed gene set analysis results, a gene-set type, and a
 contrast with gene-level thresholds.
 
+![Gene set analysis table showing ROAST results with significant genes
+annotated per set](img/geneset-analyses.png)
+
+Gene set analysis table showing ROAST results with significant genes
+annotated per set
+
 ## QC / platform-specific
 
 Panels tied to a particular assay platform or analysis method.
@@ -299,6 +370,11 @@ negative controls near zero.
 
 *Inputs:* Illumina control-probe measurements per sample. *Backed by:*
 `plotly_illumina_control_probes`.
+
+![Illumina control-probe QC plot across samples, one line per probe
+group](img/illumina-qc.png)
+
+Illumina control-probe QC plot across samples, one line per probe group
 
 ### DEXSeq plot
 
@@ -315,6 +391,13 @@ relative exon usage per condition.
 
 *Inputs:* DEXSeq results, a gene to plot, an FDR threshold for colouring
 exons, and which sub-plots to show.
+
+![DEXSeq plot for a gene with a significant exon usage shift between
+conditions, showing expression, exon usage and gene model
+tracks](img/dexseqplot.png)
+
+DEXSeq plot for a gene with a significant exon usage shift between
+conditions, showing expression, exon usage and gene model tracks
 
 ### DEXSeq table
 
@@ -338,6 +421,12 @@ coding or rRNA).
 
 *Inputs:* precomputed read-summary tables provided with the dataset.
 *Backed by:* `plotly_barchart` / `plotly_count_barplot`.
+
+![Read attrition plot showing reads lost across analysis stages, per
+sample](img/read-reports.png)
+
+Read attrition plot showing reads lost across analysis stages, per
+sample
 
 ## Data tables
 
@@ -372,6 +461,15 @@ offered for counting.
 
 *Inputs:* sample (column) metadata.
 
+![Sample metadata table](img/sample-metadata.png)
+
+Sample metadata table
+
+![Category counts for the sample metadata, split by
+group](img/sample-metadata-categorycounts.png)
+
+Category counts for the sample metadata, split by group
+
 ### Row / feature metadata table
 
 Shows the metadata associated with each matrix row (e.g. genes or
@@ -381,3 +479,12 @@ tab counts rows by a categorical field (e.g. genes per biotype),
 optionally split by a second field, excluding identifier-like fields.
 
 *Inputs:* row (feature) metadata for the selected experiment.
+
+![Row/feature metadata table](img/feature-metadata.png)
+
+Row/feature metadata table
+
+![Category counts for the feature metadata, by annotation
+source](img/feature-metadata-categorycounts.png)
+
+Category counts for the feature metadata, by annotation source
