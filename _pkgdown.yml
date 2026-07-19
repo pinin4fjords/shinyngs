@@ -91,6 +91,7 @@ reference:
   - plotly_densityplot
   - plotly_illumina_control_probes
   - plotly_pca_metadata_heatmap
+  - plotly_pca_variance_heatmap
   - plotly_quartiles
   - plotly_scatterplot
   - plotly_screeplot
@@ -179,6 +180,9 @@ reference:
   - dexseqtableInput
   - dexseqtableInputFields
   - dexseqtableOutput
+  - differentialscatterInput
+  - differentialscatterLogic
+  - differentialscatterOutput
   - differentialtable
   - differentialtableInput
   - differentialtableOutput
@@ -238,6 +242,7 @@ reference:
   - pca
   - pcaInput
   - pcaOutput
+  - pcLabels
   - plotdownload
   - plotdownloadInput
   - readreports
