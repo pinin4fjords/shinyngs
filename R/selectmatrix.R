@@ -44,7 +44,7 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
   # Replace experiment with a hidden input if we've got just the one
 
   if (length(eselist) == 1) {
-    inputs[[1]] <- hiddenInput(ns("experiment"), names(eselist)[1])
+    inputs[[1]] <- hidden_input(ns("experiment"), names(eselist)[1])
   }
 
   return(inputs)
@@ -121,7 +121,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
         if (length(validAssays()) > 1 && select_assays) {
           assayselect <- selectInput(ns("assay"), "Matrix", validAssays())
         } else {
-          assayselect <- hiddenInput(ns("assay"), validAssays()[1])
+          assayselect <- hidden_input(ns("assay"), validAssays()[1])
         }
 
         assayselect
@@ -138,12 +138,12 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
           metafields <- setdiff(metafields, ese@idfield)
         }
 
-        checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettifyVariablename(metafields)),
+        checkboxGroupInput(ns("metafields"), "Add meta fields", structure(metafields, names = prettify_variable_name(metafields)),
           selected = ese@labelfield,
           inline = TRUE
         )
       } else if (has_slot_data(ese, "labelfield")) {
-        hiddenInput(id = ns("metafields"), values = ese@labelfield)
+        hidden_input(id = ns("metafields"), values = ese@labelfield)
       }
     })
 
@@ -191,7 +191,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     getExperimentName <- reactive({
       eid <- getExperimentId()
-      prettifyVariablename(eid)
+      prettify_variable_name(eid)
     })
 
     # Get the row labels where available
@@ -200,7 +200,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       withProgress(message = "Deriving row labels", value = 0, {
         ese <- getExperiment()
         # if (!is.null(ese@idfield)) {
-        idToLabel(rownames(ese), ese)
+        id_to_label(rownames(ese), ese)
         # } else { rownames(ese) }
       })
     })
@@ -250,7 +250,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
         if (allow_summarise && sampleselect_reactives$getSampleSelect() == "group" && sampleselect_reactives$getSummaryType() != "none") {
-          selected_matrix <- summarizeMatrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
+          selected_matrix <- summarize_matrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
         }
 
         # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
@@ -376,17 +376,17 @@ labelMatrix <- function(matrix, ese, idcol = NULL, metafields = c()) {
   # Add in the meta fields if specified
 
   for (mf in metafields) {
-    matrix[[mf]] <- convertIds(matrix[[idfield]], ese, mf)
+    matrix[[mf]] <- convert_ids(matrix[[idfield]], ese, mf)
   }
 
   matrix <- matrix[, c(idfield, metafields, datacolnames), drop = FALSE]
-  colnames(matrix)[match(metafields, colnames(matrix))] <- prettifyVariablename(metafields)
-  colnames(matrix)[colnames(matrix) == idfield] <- prettifyVariablename(idfield)
+  colnames(matrix)[match(metafields, colnames(matrix))] <- prettify_variable_name(metafields)
+  colnames(matrix)[colnames(matrix) == idfield] <- prettify_variable_name(idfield)
 
-  # if (length(ese@labelfield) > 0) { labelfield <- ese@labelfield matrix[[labelfield]] <- convertIds(matrix[[idfield]], ese, labelfield) matrix <- matrix[,
+  # if (length(ese@labelfield) > 0) { labelfield <- ese@labelfield matrix[[labelfield]] <- convert_ids(matrix[[idfield]], ese, labelfield) matrix <- matrix[,
   # c(idfield, labelfield, datacolnames), drop = FALSE]
 
-  # colnames(matrix)[colnames(matrix) == labelfield] <- prettifyVariablename(labelfield) } else { matrix <- matrix[, c(idfield, datacolnames), drop = FALSE]
+  # colnames(matrix)[colnames(matrix) == labelfield] <- prettify_variable_name(labelfield) } else { matrix <- matrix[, c(idfield, datacolnames), drop = FALSE]
   # }
 
   matrix
@@ -409,7 +409,7 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
     # Add prettified version of each field in URL roots in case matrix column names are prettified
 
     for (fieldname in names(url_roots)) {
-      url_roots[[prettifyVariablename(fieldname)]] <- url_roots[[fieldname]]
+      url_roots[[prettify_variable_name(fieldname)]] <- url_roots[[fieldname]]
     }
 
     for (fieldname in names(url_roots)) {
@@ -468,13 +468,13 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 #'   idfield = "gene_id",
 #'   labelfield = "gene_name"
 #' )
-#' idToLabel(c("ENSG1", "ENSG2"), ese)
+#' id_to_label(c("ENSG1", "ENSG2"), ese)
 #'
-idToLabel <- function(ids, ese, sep = " / ") {
+id_to_label <- function(ids, ese, sep = " / ") {
   if (length(ese@labelfield) == 0) {
     ids
   } else {
-    labels <- convertIds(ids, ese, ese@labelfield)
+    labels <- convert_ids(ids, ese, ese@labelfield)
     labels[!is.na(labels)] <- paste(labels[!is.na(labels)], ids[!is.na(labels)], sep = sep)
     labels[is.na(labels)] <- ids[is.na(labels)]
     labels
@@ -511,9 +511,9 @@ idToLabel <- function(ids, ese, sep = " / ") {
 #'   idfield = "gene_id",
 #'   labelfield = "gene_name"
 #' )
-#' convertIds(c("ENSG1", "ENSG2"), ese, "gene_name")
+#' convert_ids(c("ENSG1", "ENSG2"), ese, "gene_name")
 #'
-convertIds <- function(ids, ese, to, remove_na = FALSE) {
+convert_ids <- function(ids, ese, to, remove_na = FALSE) {
   annotation <- data.frame(mcols(ese))
 
   multi <- grepl(" ", ids)
@@ -547,8 +547,8 @@ convertIds <- function(ids, ese, to, remove_na = FALSE) {
 #' data(airway, package = "airway")
 #' ese <- as(airway, "ExploratorySummarizedExperiment")
 #' eselist <- ExploratorySummarizedExperimentList(ese, title = "Airway study")
-#' singleValidMatrix(eselist)
+#' single_valid_matrix(eselist)
 #'
-singleValidMatrix <- function(eselist) {
+single_valid_matrix <- function(eselist) {
   length(eselist) == 1 && length(assays(eselist[[1]])) == 1
 }

@@ -128,7 +128,7 @@ clustering <- function(id, eselist) {
     })
 
     # How limits of error bars etc should be defined ('sd', 'se' or 'ci' -
-    # plotly_cluster_profiles() derives the mean/median-specific column name)
+    # interactive_cluster_profiles() derives the mean/median-specific column name)
 
     getLimits <- reactive({
       validate(need(!is.null(input$limits), "Waiting for limits"))
@@ -187,7 +187,7 @@ clustering <- function(id, eselist) {
       scaled_inmatrix <- scaleMatrix()
       cluster_number <- getClusterNumber()
       withProgress(message = "Calculating clusters with clara()", value = 0, {
-        validateOrCatch(runClustering(scaled_inmatrix, cluster_number))
+        validate_or_catch(run_clustering(scaled_inmatrix, cluster_number))
       })
     }) %>% bindCache(scaleMatrix(), getClusterNumber())
 
@@ -203,7 +203,7 @@ clustering <- function(id, eselist) {
     # plotting. Cached separately from getClusterPlot() below since it only
     # depends on the cluster assignments and average type, not the display
     # controls (cluster display mode, limits, colors) - those shouldn't force
-    # a rerun of summarySE()'s bootstrap-backed median standard error.
+    # a rerun of summary_se()'s bootstrap-backed median standard error.
 
     getSummarisedMatricesByCluster <- reactive({
       matrices_by_cluster <- getMatricesByCluster()
@@ -211,7 +211,7 @@ clustering <- function(id, eselist) {
 
       withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
         lapply(matrices_by_cluster, function(mbc) {
-          summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
+          summary_se(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
         })
       })
     }) %>% bindCache(getMatricesByCluster(), getAverageType())
@@ -223,7 +223,7 @@ clustering <- function(id, eselist) {
       experiment <- selectmatrix_reactives$selectColData()
 
       withProgress(message = "Plotting cluster profiles", value = 0, {
-        plotly_cluster_profiles(
+        interactive_cluster_profiles(
           matrices_by_cluster,
           cluster_display = getClusterDisplay(), average_type = getAverageType(), limits = getLimits(),
           colors = getPalette(), sample_order = rownames(experiment), summarised_matrices_by_cluster = getSummarisedMatricesByCluster()
@@ -281,9 +281,9 @@ clustering <- function(id, eselist) {
 #' @export
 #'
 #' @examples
-#' runClustering(matrix(rnorm(40), nrow = 10), 3)
+#' run_clustering(matrix(rnorm(40), nrow = 10), 3)
 #'
-runClustering <- function(matrix, k) {
+run_clustering <- function(matrix, k) {
   k <- as.numeric(k)
 
   if (nrow(matrix) < 2) {
@@ -325,9 +325,9 @@ runClustering <- function(matrix, k) {
 #'
 #' @examples
 #' tg <- ToothGrowth
-#' summarySE(tg, measurevar = "len", groupvars = c("supp", "dose"))
+#' summary_se(tg, measurevar = "len", groupvars = c("supp", "dose"))
 #'
-summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
+summary_se <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, conf.interval = 0.95, add_medians = FALSE, .drop = TRUE) {
   # New version of length which can handle NA's: if na.rm==TRUE, don't count them
   length2 <- function(x, na.rm = FALSE) {
     if (na.rm) {
@@ -344,7 +344,7 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
       mean = mean(.data[[measurevar]], na.rm = na.rm),
       sd = sd(.data[[measurevar]], na.rm = na.rm),
       median = if (add_medians) median(.data[[measurevar]], na.rm = na.rm) else NULL,
-      median.se = if (add_medians) bootstrapMedian(.data[[measurevar]], 1000)$std.err else NULL,
+      median.se = if (add_medians) bootstrap_median(.data[[measurevar]], 1000)$std.err else NULL,
       .groups = "drop"
     ) %>%
     as.data.frame()
@@ -374,9 +374,9 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
 #' @export
 #'
 #' @examples
-#' bootstrapMedian(rnorm(50), num = 100)
+#' bootstrap_median(rnorm(50), num = 100)
 #'
-bootstrapMedian <- function(data, num) {
+bootstrap_median <- function(data, num) {
   resamples <- lapply(seq_len(num), function(i) sample(data, replace = TRUE))
   r.median <- sapply(resamples, median)
   std.err <- sqrt(var(r.median))
@@ -409,9 +409,9 @@ bootstrapMedian <- function(data, num) {
 #'   condition = rep(c("treated", "control"), each = 5),
 #'   row.names = colnames(mat)
 #' )
-#' madScore(mat, sample_sheet, groupby = "condition")
+#' mad_score(mat, sample_sheet, groupby = "condition")
 #'
-madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5) {
+mad_score <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5) {
   # Double-check the matrix/ sample sheet synch
   matrix <- matrix[, rownames(sample_sheet), drop = FALSE]
 
@@ -454,15 +454,15 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 #' Plot expression profiles for a set of feature clusters with \code{plot_ly()}
 #'
 #' Draws one sub-plot per cluster of a scaled expression matrix (e.g. as
-#' produced by \code{\link{runClustering}}), combined with
+#' produced by \code{\link{run_clustering}}), combined with
 #' \code{plotly::subplot()}. Three display modes are available: individual
 #' sample lines, a mean/median line with error bars, or a mean/median line
 #' with a shaded error band. Summary statistics (mean, median and their
-#' spreads) are derived internally with \code{\link{summarySE}}.
+#' spreads) are derived internally with \code{\link{summary_se}}.
 #'
 #' @param matrices_by_cluster A named list of matrices/data frames, one per
 #'   cluster, features by row and samples by column (e.g. the input matrix
-#'   split by \code{clustering$clustering} from \code{\link{runClustering}}).
+#'   split by \code{clustering$clustering} from \code{\link{run_clustering}}).
 #'   Names should be the cluster numbers as produced by \code{split()}, since
 #'   \code{colors} is indexed by cluster number.
 #' @param cluster_display 'filled_line' (a mean/median line with a shaded
@@ -474,14 +474,14 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 #'   Ignored when \code{cluster_display = "sample_lines"}
 #' @param colors A vector of colors, indexed by cluster number (i.e.
 #'   \code{colors[[2]]} colors the cluster named "2" in
-#'   \code{matrices_by_cluster}). Defaults to \code{\link{makeColorScale}}
+#'   \code{matrices_by_cluster}). Defaults to \code{\link{make_color_scale}}
 #' @param sample_order Character vector giving the sample (x axis) display
 #'   order. Defaults to \code{colnames()} of the first cluster's matrix
 #' @param max_sample_lines Maximum number of sample lines drawn per cluster
 #'   under \code{cluster_display = "sample_lines"}; larger clusters are
 #'   randomly subsampled to this many rows
 #' @param summarised_matrices_by_cluster Precomputed summary statistics, one
-#'   element per cluster, as returned by \code{\link{summarySE}} on each
+#'   element per cluster, as returned by \code{\link{summary_se}} on each
 #'   element of \code{matrices_by_cluster}. Computed internally if not
 #'   supplied; callers that already have this (e.g. to cache it separately
 #'   from the display controls below) can pass it through directly
@@ -497,9 +497,9 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 #'   `2` = matrix(rnorm(30), nrow = 5, dimnames = list(paste0("gene", 6:10), paste0("sample", 1:6)))
 #' )
 #'
-#' plotly_cluster_profiles(matrices_by_cluster, cluster_display = "filled_line")
+#' interactive_cluster_profiles(matrices_by_cluster, cluster_display = "filled_line")
 #'
-plotly_cluster_profiles <- function(matrices_by_cluster, cluster_display = c("filled_line", "sample_lines", "error_bars"),
+interactive_cluster_profiles <- function(matrices_by_cluster, cluster_display = c("filled_line", "sample_lines", "error_bars"),
                                      average_type = c("mean", "median"), limits = c("sd", "se", "ci"), colors = NULL,
                                      sample_order = NULL, max_sample_lines = 100, summarised_matrices_by_cluster = NULL) {
   cluster_display <- match.arg(cluster_display)
@@ -510,14 +510,14 @@ plotly_cluster_profiles <- function(matrices_by_cluster, cluster_display = c("fi
     limits <- paste0("median.", limits)
   }
   if (is.null(colors)) {
-    colors <- makeColorScale(length(matrices_by_cluster))
+    colors <- make_color_scale(length(matrices_by_cluster))
   }
   if (is.null(sample_order)) {
     sample_order <- colnames(matrices_by_cluster[[1]])
   }
   if (is.null(summarised_matrices_by_cluster)) {
     summarised_matrices_by_cluster <- lapply(matrices_by_cluster, function(mbc) {
-      summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
+      summary_se(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
     })
   }
 

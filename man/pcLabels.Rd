@@ -13,9 +13,9 @@ pcLabels(n)
 output A character vector of length \code{n}
 }
 \description{
-Shared by \code{\link{plotly_screeplot}} and
+Shared by \code{\link{interactive_screeplot}} and
 \code{\link[=anova_pca_metadata]{anova_pca_metadata}} so the two produce
 identical, identically-ordered labels - required for
-\code{\link{plotly_pca_variance_heatmap}} to line the two plots up on a
+\code{\link{interactive_pca_variance_heatmap}} to line the two plots up on a
 shared x-axis.
 }

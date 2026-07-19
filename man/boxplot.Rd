@@ -31,7 +31,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   boxplot("boxplot", eselist)
-  app <- prepareApp("boxplot", eselist)
+  app <- prepare_app("boxplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

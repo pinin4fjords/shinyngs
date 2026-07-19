@@ -19,7 +19,7 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE) {
   if (allow_3d) {
     inputs <- list(radioButtons(ns("threedee"), "Plot type", c(`3D` = TRUE, `2D` = FALSE), inline = TRUE))
   } else {
-    inputs <- list(hiddenInput(ns("threedee"), FALSE))
+    inputs <- list(hidden_input(ns("threedee"), FALSE))
   }
 
   if (make_colors) {
@@ -80,7 +80,7 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
           if (is.na(axes[n])) {
             selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = n)
           } else {
-            hiddenInput(ns(paste0(ax, "Axis")), axes[n])
+            hidden_input(ns(paste0(ax, "Axis")), axes[n])
           }
         })
       })

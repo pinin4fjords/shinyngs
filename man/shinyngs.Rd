@@ -94,7 +94,7 @@ usage.
 
 
   Usage of modules defined in \code{shinyngs} is envisaged to be
-  predominantly via \code{\link{prepareApp}}. For most modules, this passes
+  predominantly via \code{\link{prepare_app}}. For most modules, this passes
   its arguments to \code{\link{simpleApp}}, which very simply takes its
   \code{ExploratorySummarizedExperimentList} and a module name, and attempts
   to call the UI and server functions of that module, creating a simple
@@ -105,12 +105,12 @@ usage.
   data(airway, package = 'airway')
   ese <- as(airway, 'ExploratorySummarizedExperiment')
   eselist <- ExploratorySummarizedExperimentList(ese)
-  app <- prepareApp('heatmap',eselist)}
+  app <- prepare_app('heatmap',eselist)}
 
   Other apps, for example \code{\link{rnaseq}} require more complex layouts
   and don't use \code{simpleApp}.
 
-  \code{prepareApp} returns list with UI and server applications components.
+  \code{prepare_app} returns list with UI and server applications components.
   Shiny's \code{\link[shiny]{shinyApp}} must then be called to actually run
   the app: \code{shiny::shinyApp(ui = app$ui, server = app$server)}.
 }
@@ -124,7 +124,7 @@ usage.
 
   \preformatted{
   library(shinyngs)
-  mydata <- readRDS('data.rds') app <- prepareApp('rnaseq', mydata)
+  mydata <- readRDS('data.rds') app <- prepare_app('rnaseq', mydata)
   shiny::shinyApp(app$ui, app$server)}
 }
 
@@ -145,7 +145,7 @@ be optimised for ChIP-seq in due course.} }}
 
 \subsection{Stand-alone}{
 
-These modules can also be called directly with \code{\link{prepareApp}}:
+These modules can also be called directly with \code{\link{prepare_app}}:
 
 \describe{ \item{assaydatatable}{Provide access to asay matrices of input
 object} \item{boxplot}{Make quartile/ boxplots} \item{dendro}{Make

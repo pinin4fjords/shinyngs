@@ -130,7 +130,7 @@ test_that("getGeneContrastsTable restricts the contrasts table to the selected g
     table <- getGeneContrastsTable()
 
     expect_true(nrow(table) >= 1)
-    expect_true(all(table[[prettifyVariablename("gene_id")]] == "gene1"))
+    expect_true(all(table[[prettify_variable_name("gene_id")]] == "gene1"))
   }))
 })
 

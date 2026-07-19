@@ -24,7 +24,7 @@
 #'
 #' @keywords shiny
 differentialscatterInput <- function(id, eselist, scatter_id, require_contrast_stats = FALSE,
-                                      multi_view_fn = function(esel) !singleValidMatrix(esel)) {
+                                      multi_view_fn = function(esel) !single_valid_matrix(esel)) {
   ns <- NS(id)
 
   # require_contrast_stats filters eselist here, not just in selectmatrixInput below, because
@@ -52,7 +52,7 @@ differentialscatterInput <- function(id, eselist, scatter_id, require_contrast_s
   inputs <- list(fieldSets(ns("fieldset"), fieldsets))
 
   if (!is_multi_view) {
-    inputs <- pushToList(inputs, expression_filters)
+    inputs <- push_to_list(inputs, expression_filters)
   }
 
   inputs
@@ -195,7 +195,7 @@ annotateDifferentialTable <- function(ct, contrast_reactives, geneselect_reactiv
   ct[geneselect_reactives$selectRows(), "colorby"] <- "in highlighted gene set"
   ct$colorby <- factor(ct$colorby, levels = c("hidden", "match contrast filters", "in highlighted gene set"))
 
-  ct$label <- idToLabel(rownames(ct), selectmatrix_reactives$getExperiment())
+  ct$label <- id_to_label(rownames(ct), selectmatrix_reactives$getExperiment())
   ct$label[!rownames(ct) %in% c(rownames(fct), geneselect_reactives$selectRows())] <- NA
 
   ct

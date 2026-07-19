@@ -2,7 +2,7 @@
 % Please edit documentation in R/topgeneboxplot.R
 \name{topgeneBoxplotData}
 \alias{topgeneBoxplotData}
-\title{Reshape an assay matrix into long form for \code{\link{ggplot_topgene_boxplots}}}
+\title{Reshape an assay matrix into long form for \code{\link{static_topgene_boxplots}}}
 \usage{
 topgeneBoxplotData(assay, groupby, genes, should_transform = NULL)
 }
@@ -26,6 +26,6 @@ A data frame with columns \code{gene} (factor, levels = \code{genes}),
 \code{group} (factor, first-seen order) and \code{value}
 }
 \description{
-Reshape an assay matrix into long form for \code{\link{ggplot_topgene_boxplots}}
+Reshape an assay matrix into long form for \code{\link{static_topgene_boxplots}}
 }
 \keyword{internal}

@@ -30,7 +30,7 @@ PCA_DEFAULT_N_LOADINGS <- 10
 #' # Almost certainly used via application creation
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("pca", eselist)
+#'   app <- prepare_app("pca", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -74,7 +74,7 @@ pcaInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("pca", eselist)
+#'   app <- prepare_app("pca", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -122,7 +122,7 @@ pcaOutput <- function(id) {
 #'
 #' if (interactive()) {
 #'   pca("pca", eselist)
-#'   app <- prepareApp("pca", eselist)
+#'   app <- prepare_app("pca", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -188,7 +188,7 @@ pca <- function(id, eselist) {
       if (is.null(groupby_reactives$getGroupby())) {
 
       } else {
-        pcb <- na.replace(selectmatrix_reactives$selectColData()[[groupby_reactives$getGroupby()]], "N/A")
+        pcb <- na_replace(selectmatrix_reactives$selectColData()[[groupby_reactives$getGroupby()]], "N/A")
         factor(pcb, levels = unique(pcb))
       }
     })
@@ -199,7 +199,7 @@ pca <- function(id, eselist) {
     pca <- reactive({
       pcamatrix <- selectmatrix_reactives$selectMatrix()
       withProgress(message = "Running principal component analysis", value = 0, {
-        validateOrCatch(runPCA(pcamatrix))
+        validate_or_catch(runPCA(pcamatrix))
       })
     }) %>% bindCache(selectmatrix_reactives$selectMatrix())
 
@@ -258,7 +258,7 @@ pca <- function(id, eselist) {
       fraction <- getLoadings()$fraction[, selectedComponents()]
       colnames(fraction) <- paste(colnames(fraction), "loading fraction")
 
-      interleaveColumns(load, fraction)
+      interleave_columns(load, fraction)
     })
 
     # Make a version of the loading table for display with rounded values and links
@@ -281,7 +281,7 @@ pca <- function(id, eselist) {
       })
       percent_contributions$sep <- "<br />"
 
-      loadlabels <- paste(idToLabel(rownames(load$fraction), selectmatrix_reactives$getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
+      loadlabels <- paste(id_to_label(rownames(load$fraction), selectmatrix_reactives$getExperiment()), do.call(paste, percent_contributions), sep = "<br />")
     })
 
     # server = FALSE: column headers here embed the percent variance explained,
@@ -294,7 +294,7 @@ pca <- function(id, eselist) {
     simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE, server = FALSE)
 
     output$screeplot <- renderPlotly({
-      plotly_screeplot(calculatePCAFractionExplained(), cumulative = TRUE, title = getScreeTitle()) %>%
+      interactive_screeplot(calculatePCAFractionExplained(), cumulative = TRUE, title = getScreeTitle()) %>%
         shinyngsPlotlyConfig("screeplot", format = session$userData$plotFormat())
     })
 
@@ -361,14 +361,14 @@ runPCA <- function(matrix, do_log = TRUE) {
 #' @examples
 #' mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
 #'   dimnames = list(paste0("gene", 1:15), paste0("s", 1:4)))
-#' pca <- compilePCAData(mat)
+#' pca <- compile_pca_data(mat)
 #' head(pca$coords)
 #'
-compilePCAData <- function(matrix, ntop = NULL) {
+compile_pca_data <- function(matrix, ntop = NULL) {
   if (is.null(ntop)) {
     select <- seq_len(nrow(matrix))
   } else {
-    select <- selectVariableGenes(matrix = matrix, ntop = ntop)
+    select <- select_variable_genes(matrix = matrix, ntop = ntop)
   }
 
   # perform a PCA on the data in assay(x) for the selected genes
@@ -397,10 +397,10 @@ calculatePCAFractionExplained <- function(pca) {
 
 #' Plain "PC1", "PC2", ... labels for the leading n components
 #'
-#' Shared by \code{\link{plotly_screeplot}} and
+#' Shared by \code{\link{interactive_screeplot}} and
 #' \code{\link[=anova_pca_metadata]{anova_pca_metadata}} so the two produce
 #' identical, identically-ordered labels - required for
-#' \code{\link{plotly_pca_variance_heatmap}} to line the two plots up on a
+#' \code{\link{interactive_pca_variance_heatmap}} to line the two plots up on a
 #' shared x-axis.
 #'
 #' @param n Number of components to label
@@ -419,7 +419,7 @@ pcLabels <- function(n) {
 #' @param fraction_explained Numeric vector of percent variance explained by
 #'   each principal component, in order (e.g. from
 #'   \code{\link{calculatePCAFractionExplained}}, or the \code{percentVar}
-#'   element returned by \code{\link{compilePCAData}}).
+#'   element returned by \code{\link{compile_pca_data}}).
 #' @param n_components Number of leading components to plot. Defaults to all
 #'   of \code{fraction_explained}.
 #' @param cumulative Boolean: add a cumulative variance explained trace?
@@ -431,9 +431,9 @@ pcLabels <- function(n) {
 #' @export
 #'
 #' @examples
-#' plotly_screeplot(c(45, 25, 15, 10, 5))
+#' interactive_screeplot(c(45, 25, 15, 10, 5))
 #'
-plotly_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot") {
+interactive_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot") {
   if (is.null(n_components)) {
     n_components <- length(fraction_explained)
   }
@@ -446,7 +446,7 @@ plotly_screeplot <- function(fraction_explained, n_components = NULL, cumulative
   if (cumulative) {
     traces <- c(traces, list(list(y = cumsum(fraction_explained), name = "cumulative % variance explained")))
   }
-  palette <- makeColorScale(length(traces), palette = palette_name)
+  palette <- make_color_scale(length(traces), palette = palette_name)
 
   p <- plot_ly()
   for (i in seq_along(traces)) {

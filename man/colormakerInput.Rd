@@ -15,7 +15,7 @@ output An HTML tag object that can be rendered as HTML using
 }
 \description{
 Provides a drop-down for picking the plot colour palette. The default is
-shinyngs' fixed colour-blind-safe palette (see \code{\link{makeColorScale}});
+shinyngs' fixed colour-blind-safe palette (see \code{\link{make_color_scale}});
 the remaining choices are RColorBrewer qualitative palettes for users who
 prefer them.
 }

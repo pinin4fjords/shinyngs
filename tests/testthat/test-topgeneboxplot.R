@@ -26,15 +26,15 @@ test_that("the absolute fold change option ranks by magnitude regardless of sign
   expect_equal(fc[ranked], c(-10, 8, 3, -1))
 })
 
-# plotly_topgene_boxplots()
+# interactive_topgene_boxplots()
 
-test_that("plotly_topgene_boxplots shows an all-zero group as a flat line at zero, not a missing box", {
+test_that("interactive_topgene_boxplots shows an all-zero group as a flat line at zero, not a missing box", {
   # A gene entirely off in one condition is exactly what an absolute
   # fold-change ranking surfaces, and shouldn't make that side's box vanish
   mat <- matrix(c(rep(0, 3), rep(500, 3)), nrow = 1, dimnames = list("gene1", paste0("s", 1:6)))
   groupby <- rep(c("A", "B"), each = 3)
 
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat)))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat)))
   box_traces <- Filter(function(t) identical(t$type, "box"), built$x$data)
   values_by_group <- stats::setNames(lapply(box_traces, function(t) t$y), vapply(box_traces, function(t) t$name, character(1)))
 
@@ -43,11 +43,11 @@ test_that("plotly_topgene_boxplots shows an all-zero group as a flat line at zer
   expect_equal(unique(values_by_group[["A"]]), 0)
 })
 
-test_that("plotly_topgene_boxplots draws one box trace per gene per group", {
+test_that("interactive_topgene_boxplots draws one box trace per gene per group", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
 
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat)))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat)))
   box_traces <- Filter(function(t) identical(t$type, "box"), built$x$data)
 
   # 4 genes x 2 groups
@@ -55,23 +55,23 @@ test_that("plotly_topgene_boxplots draws one box trace per gene per group", {
   expect_setequal(unique(vapply(box_traces, function(t) t$name, character(1))), c("A", "B"))
 })
 
-test_that("plotly_topgene_boxplots toggles the beeswarm point overlay", {
+test_that("interactive_topgene_boxplots toggles the beeswarm point overlay", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
 
-  with_points <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = TRUE))
-  without_points <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = FALSE))
+  with_points <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = TRUE))
+  without_points <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = FALSE))
 
   expect_true(all(vapply(with_points$x$data, function(t) t$boxpoints, character(1)) == "all"))
   expect_true(all(vapply(without_points$x$data, function(t) t$boxpoints, character(1)) == "outliers"))
 })
 
-test_that("plotly_topgene_boxplots renders supplied annotations per facet", {
+test_that("interactive_topgene_boxplots renders supplied annotations per facet", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
   annotations <- stats::setNames(paste0("q value = ", c(0.001, 0.01, 0.02, 0.03)), rownames(mat))
 
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), annotations = annotations))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat), annotations = annotations))
   xaxis_titles <- unlist(lapply(built$x$layout[grepl("^xaxis", names(built$x$layout))], function(x) x$title))
 
   for (g in rownames(mat)) {
@@ -79,7 +79,7 @@ test_that("plotly_topgene_boxplots renders supplied annotations per facet", {
   }
 })
 
-test_that("plotly_topgene_boxplots shows the y axis title on every row, not just the first facet", {
+test_that("interactive_topgene_boxplots shows the y axis title on every row, not just the first facet", {
   set.seed(2)
   mat <- matrix(rpois(6 * 4, lambda = 200) + 1, nrow = 6)
   rownames(mat) <- paste0("gene", 1:6)
@@ -88,7 +88,7 @@ test_that("plotly_topgene_boxplots shows the y axis title on every row, not just
 
   # 6 genes at the default ncol (3) means 2 rows of 3; genes 1 and 4 (facets
   # yaxis/yaxis4) start a row, genes 2/3/5/6 don't
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat)))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat)))
   layout <- built$x$layout
   has_title <- function(axis_name) is.character(layout[[axis_name]]$title)
 
@@ -100,7 +100,7 @@ test_that("plotly_topgene_boxplots shows the y axis title on every row, not just
   expect_false(has_title("yaxis6"))
 })
 
-test_that("plotly_topgene_boxplots keeps the legend inside the figure regardless of row count", {
+test_that("interactive_topgene_boxplots keeps the legend inside the figure regardless of row count", {
   groupby <- rep(c("A", "B"), each = 3)
 
   # legend.y is anchored to the figure container (not the plotting area), so
@@ -110,7 +110,7 @@ test_that("plotly_topgene_boxplots keeps the legend inside the figure regardless
   for (n_genes in c(1, 4, 9)) {
     mat <- matrix(rpois(n_genes * 6, lambda = 200) + 1, nrow = n_genes, dimnames = list(paste0("gene", 1:n_genes), paste0("s", 1:6)))
 
-    built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat)))
+    built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat)))
     legend <- built$x$layout$legend
     height <- built$x$layout$height
     margin_b <- built$x$layout$margin$b
@@ -121,12 +121,12 @@ test_that("plotly_topgene_boxplots keeps the legend inside the figure regardless
   }
 })
 
-test_that("plotly_topgene_boxplots titles facets with the supplied label instead of the raw gene id", {
+test_that("interactive_topgene_boxplots titles facets with the supplied label instead of the raw gene id", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
   labels <- stats::setNames(c("Symbol1", "Symbol2"), c("gene1", "gene2"))
 
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), labels = labels))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat), labels = labels))
   xaxis_titles <- unlist(lapply(built$x$layout[grepl("^xaxis", names(built$x$layout))], function(x) x$title))
 
   expect_true(any(grepl("Symbol1", xaxis_titles, fixed = TRUE)))
@@ -136,50 +136,50 @@ test_that("plotly_topgene_boxplots titles facets with the supplied label instead
   expect_true(any(grepl("gene4", xaxis_titles, fixed = TRUE)))
 })
 
-test_that("plotly_topgene_boxplots combines a supplied label and annotation in one facet title", {
+test_that("interactive_topgene_boxplots combines a supplied label and annotation in one facet title", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
   labels <- stats::setNames("Symbol1", "gene1")
   annotations <- stats::setNames("q value = 0.001", "gene1")
 
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), labels = labels, annotations = annotations))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat), labels = labels, annotations = annotations))
   xaxis_titles <- unlist(lapply(built$x$layout[grepl("^xaxis", names(built$x$layout))], function(x) x$title))
 
   expect_true(any(grepl("Symbol1<br>q value = 0.001", xaxis_titles, fixed = TRUE)))
 })
 
-test_that("plotly_topgene_boxplots applies the colour-blind palette by default", {
+test_that("interactive_topgene_boxplots applies the colour-blind palette by default", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
 
-  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat)))
+  built <- plotly::plotly_build(interactive_topgene_boxplots(mat, groupby, rownames(mat)))
   box_traces <- Filter(function(t) identical(t$type, "box"), built$x$data)
   fillcolors <- unique(vapply(box_traces, function(t) t$fillcolor, character(1)))
 
-  expect_setequal(fillcolors, unname(makeColorScale(2)))
+  expect_setequal(fillcolors, unname(make_color_scale(2)))
 })
 
-# ggplot_topgene_boxplots()
+# static_topgene_boxplots()
 
-test_that("ggplot_topgene_boxplots facets by gene and toggles the beeswarm layer", {
+test_that("static_topgene_boxplots facets by gene and toggles the beeswarm layer", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
 
-  with_swarm <- ggplot_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = TRUE)
+  with_swarm <- static_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = TRUE)
   expect_s3_class(with_swarm, "ggplot")
   expect_true("PositionQuasirandom" %in% vapply(with_swarm$layers, function(l) class(l$position)[1], character(1)))
 
-  without_swarm <- ggplot_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = FALSE)
+  without_swarm <- static_topgene_boxplots(mat, groupby, rownames(mat), beeswarm = FALSE)
   expect_false("PositionQuasirandom" %in% vapply(without_swarm$layers, function(l) class(l$position)[1], character(1)))
 })
 
-test_that("ggplot_topgene_boxplots draws a per-facet annotation layer when supplied", {
+test_that("static_topgene_boxplots draws a per-facet annotation layer when supplied", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
   annotations <- stats::setNames(paste0("q value = ", c(0.001, 0.01, 0.02, 0.03)), rownames(mat))
 
-  with_annotations <- ggplot_topgene_boxplots(mat, groupby, rownames(mat), annotations = annotations)
-  without_annotations <- ggplot_topgene_boxplots(mat, groupby, rownames(mat))
+  with_annotations <- static_topgene_boxplots(mat, groupby, rownames(mat), annotations = annotations)
+  without_annotations <- static_topgene_boxplots(mat, groupby, rownames(mat))
 
   geom_classes <- vapply(with_annotations$layers, function(l) class(l$geom)[1], character(1))
   expect_true("GeomText" %in% geom_classes)
@@ -188,12 +188,12 @@ test_that("ggplot_topgene_boxplots draws a per-facet annotation layer when suppl
   expect_false("GeomText" %in% geom_classes_none)
 })
 
-test_that("ggplot_topgene_boxplots facets by gene id but labels strips with the supplied display name", {
+test_that("static_topgene_boxplots facets by gene id but labels strips with the supplied display name", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
   labels <- stats::setNames(c("Symbol1", "Symbol2"), c("gene1", "gene2"))
 
-  p <- ggplot_topgene_boxplots(mat, groupby, rownames(mat), labels = labels)
+  p <- static_topgene_boxplots(mat, groupby, rownames(mat), labels = labels)
   facet_labeller <- p$facet$params$labeller
 
   strips <- facet_labeller(data.frame(gene = factor(rownames(mat), levels = rownames(mat))))

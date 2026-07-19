@@ -23,7 +23,7 @@ A list with scalar \code{q1}, \code{median}, \code{q3},
 Computes the quartiles, Tukey-style whisker extents (the most extreme
 observations still within \code{whisker_distance} IQRs of the box), and the
 outliers lying beyond them. This is the server-side reduction that lets
-\code{\link{plotly_boxplot}} draw genuine box glyphs while sending only a
+\code{\link{interactive_boxplot}} draw genuine box glyphs while sending only a
 handful of numbers per box to the browser rather than every observation.
 }
 \keyword{internal}

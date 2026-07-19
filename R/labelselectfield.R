@@ -30,7 +30,7 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
   filters <- list(uiOutput(ns("metaFields")), uiOutput(ns("metaValue")))
 
   if (id_selection) {
-    filters <- pushToList(filters, uiOutput(ns("labelIds")))
+    filters <- push_to_list(filters, uiOutput(ns("labelIds")))
   }
 
   filters
@@ -102,7 +102,7 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
 
       if (field_selection) {
         metaFields <- getMetaFields()
-        selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettifyVariablename(metaFields)), selected = ese@labelfield)
+        selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettify_variable_name(metaFields)), selected = ese@labelfield)
       } else {
         # 'id' means use the row IDs
 
@@ -116,7 +116,7 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
         } else {
           mf <- ese@labelfield
         }
-        hiddenInput(ns("metaField"), values = mf)
+        hidden_input(ns("metaField"), values = mf)
       }
     })
 
@@ -139,7 +139,7 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       if (list_input) {
         tags$textarea(id = ns("label"), rows = 3, cols = 20, "Paste list here, one per line")
       } else {
-        selectizeInput(ns("label"), prettifyVariablename(mf), choices = NULL, options = list(
+        selectizeInput(ns("label"), prettify_variable_name(mf), choices = NULL, options = list(
           placeholder = "Type a value or scroll", maxItems = max_items,
           addPrecedence = TRUE
         ))
@@ -214,7 +214,7 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       ids <- getAssociatedIds()
 
       if (length(ids) == 1) {
-        hiddenInput(ns("ids"), ids)
+        hidden_input(ns("ids"), ids)
       } else {
         checkboxGroupInput(ns("ids"), label = "Associated IDs", choices = getAssociatedIds(), selected = getAssociatedIds())
       }

@@ -1,44 +1,44 @@
-# prettifyVariablename()
+# prettify_variable_name()
 
-test_that("prettifyVariablename works", {
+test_that("prettify_variable_name works", {
   # Expect unpretty things to change
-  expect_equal(prettifyVariablename("ugly_name_of_thing"), "Ugly name of thing")
+  expect_equal(prettify_variable_name("ugly_name_of_thing"), "Ugly name of thing")
   # Expect pretty things to remain unchanged
-  expect_equal(prettifyVariablename("Ugly name of thing"), "Ugly name of thing")
+  expect_equal(prettify_variable_name("Ugly name of thing"), "Ugly name of thing")
 })
 
-# ucfirst()
+# capitalize_first()
 
 test_that("ucFirst works", {
   # Expect lowercase things to change
-  expect_equal(ucfirst("foo"), "Foo")
-  # Expect already ucfirst to not change
-  expect_equal(prettifyVariablename("FOO"), "FOO")
+  expect_equal(capitalize_first("foo"), "Foo")
+  # Expect already capitalize_first to not change
+  expect_equal(prettify_variable_name("FOO"), "FOO")
 })
 
-# nlines()
+# count_lines()
 
-test_that("nlines works", {
-  expect_equal(nlines("foo\nbar"), 2)
-  expect_equal(nlines("foo\nbar\nfi"), 3)
+test_that("count_lines works", {
+  expect_equal(count_lines("foo\nbar"), 2)
+  expect_equal(count_lines("foo\nbar\nfi"), 3)
 })
 
-# hiddenInput()
+# hidden_input()
 
-test_that("nlines works", {
+test_that("count_lines works", {
   test_html <- "<input type='text' id='myid' value='foo' style='display: none;'>"
-  expect_equal(as.character(hiddenInput("myid", "foo")), test_html)
+  expect_equal(as.character(hidden_input("myid", "foo")), test_html)
 })
 
-# pushToList()
+# push_to_list()
 
-test_that("pushToList appends an element to the end of a list", {
-  result <- pushToList(list("a", "b"), "c")
+test_that("push_to_list appends an element to the end of a list", {
+  result <- push_to_list(list("a", "b"), "c")
   expect_equal(result, list("a", "b", "c"))
 })
 
-test_that("pushToList appends to an empty list", {
-  result <- pushToList(list(), "only")
+test_that("push_to_list appends to an empty list", {
+  result <- push_to_list(list(), "only")
   expect_equal(result, list("only"))
 })
 
@@ -712,15 +712,15 @@ test_that("validate_inputs surfaces a fold-change-scale contradiction as an erro
   )
 })
 
-# checkListIsSubset()
+# check_list_is_subset()
 
-test_that("checkListIsSubset returns TRUE when the test list is a subset", {
-  expect_true(checkListIsSubset(c("a", "b"), c("a", "b", "c"), "test", "reference"))
+test_that("check_list_is_subset returns TRUE when the test list is a subset", {
+  expect_true(check_list_is_subset(c("a", "b"), c("a", "b", "c"), "test", "reference"))
 })
 
-test_that("checkListIsSubset errors with a descriptive message when values are missing", {
+test_that("check_list_is_subset errors with a descriptive message when values are missing", {
   expect_error(
-    checkListIsSubset(c("a", "z"), c("a", "b", "c"), "contrast variables", "sample metadata"),
+    check_list_is_subset(c("a", "z"), c("a", "b", "c"), "contrast variables", "sample metadata"),
     paste0(
       "Not all contrast variables are available in the sample metadata.\n",
       "Missing contrast variables: z\n",

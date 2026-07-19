@@ -34,7 +34,7 @@ volcanoplot_scatter <- list(
 #'
 #' if (interactive()) {
 #'   volcanoplotInput("myid", eselist)
-#'   app <- prepareApp("volcanoplot", eselist)
+#'   app <- prepare_app("volcanoplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -74,7 +74,7 @@ volcanoplotInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("volcanoplot", eselist)
+#'   app <- prepare_app("volcanoplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -133,7 +133,7 @@ selectVolcanoLines <- function(lines, fccard, fclim) {
 #'
 #' if (interactive()) {
 #'   differentialtable("differentialtable", eselist)
-#'   app <- prepareApp("volcanoplot", eselist)
+#'   app <- prepare_app("volcanoplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'

@@ -34,7 +34,7 @@ ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
-  app <- prepareApp("volcanoplot", eselist)
+  app <- prepare_app("volcanoplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

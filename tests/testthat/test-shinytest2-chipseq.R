@@ -1,4 +1,4 @@
-# chipseq shares prepareApp()'s multi-panel branch with rnaseq, so a boot +
+# chipseq shares prepare_app()'s multi-panel branch with rnaseq, so a boot +
 # one composed-module check is enough to confirm the branch wires up
 # correctly for this platform label and homeTab()/PCA composition, without
 # re-testing every rnaseq-covered panel (see test-shinytest2-rnaseq.R)

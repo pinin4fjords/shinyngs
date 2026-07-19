@@ -35,16 +35,16 @@ test_that("box_summary respects whisker_distance", {
   expect_gt(length(tight$outlier_values), length(loose$outlier_values))
 })
 
-# plotly_boxplot()
+# interactive_boxplot()
 
-test_that("plotly_boxplot draws precomputed boxes without shipping raw data", {
+test_that("interactive_boxplot draws precomputed boxes without shipping raw data", {
   set.seed(1)
   mat <- matrix(rpois(2000 * 6, lambda = 50) + 1, nrow = 2000)
   colnames(mat) <- paste0("s", 1:6)
   rownames(mat) <- paste0("gene", 1:2000)
   experiment <- data.frame(row.names = colnames(mat), group = rep(c("A", "B"), each = 3))
 
-  built <- plotly::plotly_build(plotly_boxplot(mat, experiment, colorby = "group"))
+  built <- plotly::plotly_build(interactive_boxplot(mat, experiment, colorby = "group"))
   box_traces <- Filter(function(t) identical(t$type, "box"), built$x$data)
 
   # One box trace per group
@@ -62,19 +62,19 @@ test_that("plotly_boxplot draws precomputed boxes without shipping raw data", {
   }
 })
 
-test_that("plotly_boxplot handles no grouping and multiple matrices", {
+test_that("interactive_boxplot handles no grouping and multiple matrices", {
   set.seed(2)
   mat <- matrix(rpois(500 * 4, lambda = 50) + 1, nrow = 500)
   colnames(mat) <- paste0("s", 1:4)
   rownames(mat) <- paste0("gene", 1:500)
   experiment <- data.frame(row.names = colnames(mat), group = rep(c("A", "B"), each = 2))
 
-  expect_s3_class(plotly_boxplot(mat, experiment), "plotly")
+  expect_s3_class(interactive_boxplot(mat, experiment), "plotly")
 
   # The multi-matrix path assembles a plotly subplot, which emits a benign
   # internal "No source found" warning
   expect_s3_class(
-    suppressWarnings(plotly_boxplot(list(Raw = mat, Filtered = mat[1:250, ]), experiment, colorby = "group")),
+    suppressWarnings(interactive_boxplot(list(Raw = mat, Filtered = mat[1:250, ]), experiment, colorby = "group")),
     "plotly"
   )
 })
@@ -98,7 +98,7 @@ test_that("resolvePalette names colours by level and regenerates when too short"
   expect_false(any(is.na(regenerated)))
 })
 
-test_that("plotly_boxplot drops hidden groups but keeps them in the legend", {
+test_that("interactive_boxplot drops hidden groups but keeps them in the legend", {
   set.seed(4)
   grps <- c("A", "B", "C")
   samp <- unlist(lapply(grps, function(g) paste0(g, 1:2)))
@@ -107,7 +107,7 @@ test_that("plotly_boxplot drops hidden groups but keeps them in the legend", {
   rownames(mat) <- paste0("gene", 1:300)
   experiment <- data.frame(row.names = samp, group = rep(grps, each = 2))
 
-  built <- plotly::plotly_build(plotly_boxplot(mat, experiment, colorby = "group", hidden_groups = "B"))
+  built <- plotly::plotly_build(interactive_boxplot(mat, experiment, colorby = "group", hidden_groups = "B"))
   box_traces <- Filter(function(t) identical(t$type, "box"), built$x$data)
   visibility <- setNames(lapply(box_traces, function(t) as.character(t$visible)), vapply(box_traces, function(t) t$name, character(1)))
 
@@ -121,7 +121,7 @@ test_that("plotly_boxplot drops hidden groups but keeps them in the legend", {
   expect_true(all(c("A1", "A2", "C1", "C2") %in% built$x$layout$xaxis$categoryarray))
 })
 
-test_that("plotly_boxplot bounds the number of outliers drawn", {
+test_that("interactive_boxplot bounds the number of outliers drawn", {
   set.seed(3)
   # A heavy tail guarantees many points beyond the whiskers
   mat <- matrix(c(rpois(1000 * 3, lambda = 5), rpois(1000 * 3, lambda = 500)), nrow = 2000)
@@ -129,54 +129,54 @@ test_that("plotly_boxplot bounds the number of outliers drawn", {
   rownames(mat) <- paste0("gene", 1:2000)
   experiment <- data.frame(row.names = colnames(mat), group = rep("A", 3))
 
-  built <- plotly::plotly_build(plotly_boxplot(mat, experiment, colorby = "group", max_outliers = 20))
+  built <- plotly::plotly_build(interactive_boxplot(mat, experiment, colorby = "group", max_outliers = 20))
   outlier_traces <- Filter(function(t) identical(t$type, "scatter"), built$x$data)
   total_outliers <- sum(vapply(outlier_traces, function(t) length(t$y), integer(1)))
   expect_lte(total_outliers, 20)
 })
 
-# ggplot_densityplot()
+# static_densityplot()
 
-test_that("ggplot_densityplot draws one density area per colorby level", {
+test_that("static_densityplot draws one density area per colorby level", {
   set.seed(1)
   mat <- matrix(rpois(80, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), paste0("s", 1:4)))
   experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 2))
 
-  p <- ggplot_densityplot(mat, experiment, colorby = "condition")
+  p <- static_densityplot(mat, experiment, colorby = "condition")
 
   expect_s3_class(p, "ggplot")
   built <- ggplot2::ggplot_build(p)
   expect_equal(length(unique(built$data[[1]]$fill)), 2)
 })
 
-test_that("ggplot_densityplot facets when given multiple matrices", {
+test_that("static_densityplot facets when given multiple matrices", {
   mat1 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
   mat2 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
   experiment <- data.frame(row.names = c("s1", "s2"))
 
-  p <- ggplot_densityplot(list(Raw = mat1, Filtered = mat2), experiment)
+  p <- static_densityplot(list(Raw = mat1, Filtered = mat2), experiment)
 
   expect_true("FacetWrap" %in% class(p$facet))
 })
 
-# plotly_densityplot()
+# interactive_densityplot()
 
-test_that("plotly_densityplot draws one density trace per colorby level", {
+test_that("interactive_densityplot draws one density trace per colorby level", {
   set.seed(1)
   mat <- matrix(rpois(80, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), paste0("s", 1:4)))
   experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 2))
 
-  built <- plotly::plotly_build(plotly_densityplot(mat, experiment, colorby = "condition"))
+  built <- plotly::plotly_build(interactive_densityplot(mat, experiment, colorby = "condition"))
 
   expect_length(built$x$data, 2)
 })
 
-test_that("plotly_densityplot subplots one panel per named matrix", {
+test_that("interactive_densityplot subplots one panel per named matrix", {
   mat1 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
   mat2 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
   experiment <- data.frame(row.names = c("s1", "s2"), condition = c("control", "treated"))
 
-  built <- plotly::plotly_build(plotly_densityplot(list(Raw = mat1, Filtered = mat2), experiment, colorby = "condition"))
+  built <- plotly::plotly_build(interactive_densityplot(list(Raw = mat1, Filtered = mat2), experiment, colorby = "condition"))
 
   expect_length(built$x$data, 4)
 })

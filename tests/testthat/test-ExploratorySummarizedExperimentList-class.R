@@ -6,7 +6,7 @@ test_that("ExploratorySummarizedExperimentList leaves default_groupvar empty whe
   rownames(counts) <- paste0("gene", 1:6)
   colnames(counts) <- paste0("s", seq_len(n_samples))
 
-  # A column with no repeated values gives chooseGroupingVariables() nothing
+  # A column with no repeated values gives choose_grouping_variables() nothing
   # to pick, so group_vars is auto-detected as empty.
   coldata <- S4Vectors::DataFrame(row.names = colnames(counts), uid = paste0("u", seq_len(n_samples)))
   annotation <- data.frame(gene_id = rownames(counts), row.names = rownames(counts))

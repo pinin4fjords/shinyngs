@@ -26,7 +26,7 @@ boxplot_modal <- list(id = "boxplot", title = "Value distributions")
 #' # Almost certainly used via application creation
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("boxplot", eselist)
+#'   app <- prepare_app("boxplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -40,7 +40,7 @@ boxplotInput <- function(id, eselist) {
 
   expression_filters <- selectmatrixInput(ns("sampleBoxplot"), eselist)
   distribution_plot_filters <- list(radioButtons(ns("plotType"), "Plot type", c("boxes", "lines", "density"), selected = default_type), numericInput(ns("whiskerDistance"),
-    withHelpIcon("Whisker distance in multiples of IQR", "Points further from the box than this many multiples of the interquartile range (IQR) are drawn as outliers."),
+    with_help_icon("Whisker distance in multiples of IQR", "Points further from the box than this many multiples of the interquartile range (IQR) are drawn as outliers."),
     value = 1.5
   ), groupbyInput(ns("boxplot")))
 
@@ -84,7 +84,7 @@ boxplotInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("boxplot", eselist)
+#'   app <- prepare_app("boxplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -122,7 +122,7 @@ boxplotOutput <- function(id) {
 #'
 #' if (interactive()) {
 #'   boxplot("boxplot", eselist)
-#'   app <- prepareApp("boxplot", eselist)
+#'   app <- prepare_app("boxplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -152,12 +152,12 @@ boxplot <- function(id, eselist) {
     output$quartilesPlotly <- renderPlotly({
       selected_matrix <- selectmatrix_reactives$selectMatrix()
       ese <- selectmatrix_reactives$getExperiment()
-      plotly_quartiles(selected_matrix, idToLabel(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance) %>%
+      interactive_quartiles(selected_matrix, id_to_label(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance) %>%
         shinyngsPlotlyConfig("quartiles", format = session$userData$plotFormat())
     })
 
     output$densityPlotly <- renderPlotly({
-      plotly_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette()) %>%
+      interactive_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette()) %>%
         shinyngsPlotlyConfig("density", format = session$userData$plotFormat())
     })
 
@@ -173,7 +173,7 @@ boxplot <- function(id, eselist) {
 
     output$sampleBoxplot <- renderPlotly({
       withProgress(message = "Making sample boxplot", value = 0, {
-        plotly_boxplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+        interactive_boxplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
           expressiontype = selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance,
           palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
         ) %>%
@@ -185,8 +185,8 @@ boxplot <- function(id, eselist) {
 
 #' Shared \code{theme_bw()} base for the static boxplot-family plots
 #'
-#' Common theme elements for \code{\link{ggplot_boxplot}} and
-#' \code{\link{ggplot_topgene_boxplots}}; callers layer their own
+#' Common theme elements for \code{\link{static_boxplot}} and
+#' \code{\link{static_topgene_boxplots}}; callers layer their own
 #' \code{theme()} on top for plot-specific tweaks.
 #'
 #' @param base_size Passed to ggplot's \code{theme_bw()}
@@ -231,9 +231,9 @@ boxplotTheme <- function(base_size) {
 #' @examples
 #' require(airway)
 #' data(airway, package = "airway")
-#' ggplot_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
+#' static_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
+static_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_transform = should_transform)
 
   if (!is.null(colorby)) {
@@ -242,7 +242,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 
     p <- ggplot(plotdata, aes(name, value, fill = colorby)) +
       geom_boxplot(coef = whisker_distance) +
-      scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
+      scale_fill_manual(name = prettify_variable_name(colorby), values = palette) +
       guides(fill = guide_legend(nrow = ceiling(length(group_levels) / 2)))
   } else {
     p <- ggplot(plotdata, aes(name, value)) +
@@ -266,7 +266,7 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' Computes the quartiles, Tukey-style whisker extents (the most extreme
 #' observations still within \code{whisker_distance} IQRs of the box), and the
 #' outliers lying beyond them. This is the server-side reduction that lets
-#' \code{\link{plotly_boxplot}} draw genuine box glyphs while sending only a
+#' \code{\link{interactive_boxplot}} draw genuine box glyphs while sending only a
 #' handful of numbers per box to the browser rather than every observation.
 #'
 #' @param values Numeric vector
@@ -345,9 +345,9 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
 #' @examples
 #' require(airway)
 #' data(airway, package = "airway")
-#' plotly_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
+#' interactive_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL) {
+interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL) {
   if (!is.list(plotmatrices)) {
     plotmatrices <- list(" " = plotmatrices)
   }
@@ -356,7 +356,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   # first-seen order of both samples and groups (mirrors ggplotify()).
 
   if (!is.null(colorby)) {
-    groups <- na.replace(as.character(experiment[[colorby]]), "N/A")
+    groups <- na_replace(as.character(experiment[[colorby]]), "N/A")
   } else {
     groups <- rep(" ", nrow(experiment))
   }
@@ -380,7 +380,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   # which is what the Shiny module produces.
   event_source <- if (length(plotmatrices) == 1) source else NULL
 
-  facet_names <- prettifyVariablename(names(plotmatrices))
+  facet_names <- prettify_variable_name(names(plotmatrices))
   yaxis_title <- expressionAxisLabel(expressiontype)
 
   facet_plots <- lapply(seq_along(plotmatrices), function(i) {
@@ -460,7 +460,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   p <- p %>%
     layout(
       legend = list(
-        title = list(text = if (!is.null(colorby)) prettifyVariablename(colorby) else ""),
+        title = list(text = if (!is.null(colorby)) prettify_variable_name(colorby) else ""),
         orientation = "h",
         xanchor = "center",
         x = 0.5,
@@ -503,19 +503,19 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #'   condition = rep(c("treated", "control"), each = 2),
 #'   row.names = colnames(mat)
 #' )
-#' ggplot_densityplot(mat, experiment, colorby = "condition")
+#' static_densityplot(mat, experiment, colorby = "condition")
 #'
-ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
+static_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)
 
   p <- ggplot(data = plotdata) +
     geom_area(aes(x = value, y = density, fill = colorby, color = colorby, group = name), alpha = 0.4) +
-    scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
-    scale_color_manual(name = prettifyVariablename(colorby), values = palette) +
+    scale_fill_manual(name = prettify_variable_name(colorby), values = palette) +
+    scale_color_manual(name = prettify_variable_name(colorby), values = palette) +
     ylab("Density") +
     xlab(expressionAxisLabel(expressiontype)) +
-    guides(fill = guide_legend(title = prettifyVariablename(colorby))) +
+    guides(fill = guide_legend(title = prettify_variable_name(colorby))) +
     theme(legend.position = "bottom")
 
   if (is.list(plotmatrices) && length(plotmatrices) > 1) {
@@ -556,9 +556,9 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'   condition = rep(c("treated", "control"), each = 2),
 #'   row.names = colnames(mat)
 #' )
-#' plotly_densityplot(mat, experiment, colorby = "condition")
+#' interactive_densityplot(mat, experiment, colorby = "condition")
 #'
-plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
+interactive_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)
 
@@ -622,9 +622,9 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' @export
 #' @examples
 #' data(airway, package = "airway")
-#' plotly_quartiles(assays(airway)[[1]], as(airway, "ExploratorySummarizedExperiment"))
+#' interactive_quartiles(assays(airway)[[1]], as(airway, "ExploratorySummarizedExperiment"))
 #'
-plotly_quartiles <- function(matrix, labels = rownames(matrix), expressiontype = "expression", whisker_distance = 1.5, should_transform = NULL) {
+interactive_quartiles <- function(matrix, labels = rownames(matrix), expressiontype = "expression", whisker_distance = 1.5, should_transform = NULL) {
   matrix <- cond_log2_transform_matrix(matrix, should_transform = should_transform)
 
   quantiles <- apply(matrix, 2, quantile, na.rm = TRUE)

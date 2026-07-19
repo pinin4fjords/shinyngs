@@ -45,7 +45,7 @@ addColoredPoints(
 output Plotly plot object
 }
 \description{
-Builds the labelled/unselected trace pair used by \code{plotly_scatterplot}
+Builds the labelled/unselected trace pair used by \code{interactive_scatterplot}
 when no \code{colorby_menu} is supplied: unlabelled rows are drawn as a
 grey background layer, and rows with a non-NA label are coloured by
 \code{colorby} and optionally given permanent text labels.

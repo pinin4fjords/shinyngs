@@ -3,7 +3,7 @@
 \name{topgeneAnnotationVector}
 \alias{topgeneAnnotationVector}
 \title{Build a per-gene annotation vector, in \code{genes} order, for
-\code{\link{plotly_topgene_boxplots}}}
+\code{\link{interactive_topgene_boxplots}}}
 \usage{
 topgeneAnnotationVector(annotations, genes)
 }
@@ -22,6 +22,6 @@ annotation was supplied/matched)
 }
 \description{
 Build a per-gene annotation vector, in \code{genes} order, for
-\code{\link{plotly_topgene_boxplots}}
+\code{\link{interactive_topgene_boxplots}}
 }
 \keyword{internal}

@@ -9,9 +9,9 @@
 #' @export
 #'
 #' @examples
-#' checkListIsSubset(c("treatment"), c("treatment", "batch"), "contrast variables", "sample metadata")
+#' check_list_is_subset(c("treatment"), c("treatment", "batch"), "contrast variables", "sample metadata")
 #'
-checkListIsSubset <- function(test_list,
+check_list_is_subset <- function(test_list,
                               reference_list,
                               test_list_name,
                               reference_list_name) {
@@ -323,24 +323,24 @@ read_contrasts <-
     # Check contrast content is appropriate to sample sheet
     variables_without_na <- na.omit(contrasts$variable)
     if (length(variables_without_na) > 0) {
-      success <- checkListIsSubset(variables_without_na, colnames(samples), "contrast variables", "sample metadata")
+      success <- check_list_is_subset(variables_without_na, colnames(samples), "contrast variables", "sample metadata")
     }
     # Check blocking variables, where supplied
-    blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simpleSplit(x, ";")))
+    blocking <- unlist(lapply(contrasts[[blocking_column]], function(x) simple_split(x, ";")))
     blocking <- blocking[!is.na(blocking)]
     if (length(blocking) > 0) {
-      success <- checkListIsSubset(blocking, colnames(samples), "blocking variables", "sample metadata")
+      success <- check_list_is_subset(blocking, colnames(samples), "blocking variables", "sample metadata")
     }
     if ("exclude_samples_col" %in% colnames(contrasts)) {
       exclude_cols <- na.omit(contrasts$exclude_samples_col)
       if (length(exclude_cols) > 0) {
-        success <- checkListIsSubset(exclude_cols, colnames(samples), "exclude sample columns", "sample metadata")
+        success <- check_list_is_subset(exclude_cols, colnames(samples), "exclude sample columns", "sample metadata")
       }
     }
 
     # Ensure reference and target are valid for their variable
     for (i in seq_len(nrow(contrasts))) {
-      blocking_vars <- simpleSplit(contrasts[[blocking_column]][i], ";")
+      blocking_vars <- simple_split(contrasts[[blocking_column]][i], ";")
       design_cols <- character(0)
 
       # Extract design matrix columns from contrasts: the variable column plus any blocking factors.
@@ -351,14 +351,14 @@ read_contrasts <-
         if ("exclude_samples_col" %in% colnames(contrasts) && "exclude_samples_values" %in% colnames(contrasts)) {
           if (!is.na(contrasts$exclude_samples_col[i]) && !is.na(contrasts$exclude_samples_values[i])) {
             exclude_col <- contrasts$exclude_samples_col[i]
-            exclude_vals <- simpleSplit(contrasts$exclude_samples_values[i], ";")
+            exclude_vals <- simple_split(contrasts$exclude_samples_values[i], ";")
             contrast_samples <- samples[!samples[[exclude_col]] %in% exclude_vals, , drop = FALSE]
           }
         }
 
         if ("formula" %in% colnames(contrasts) && !is.na(contrasts$formula[i])) {
           design_cols <- unique(all.vars(as.formula(contrasts$formula[i])))
-          success <- checkListIsSubset(design_cols, colnames(samples), "formula variables", "sample metadata")
+          success <- check_list_is_subset(design_cols, colnames(samples), "formula variables", "sample metadata")
           mm <- fixedEffectsModelMatrix(contrasts$formula[i], contrast_samples)
 
           validateFormulaBasedContrast(
@@ -412,8 +412,8 @@ read_contrasts <-
 
       # Only check values if both reference and target are present
       if (!is.na(ref) && !is.na(tgt)) {
-        success <- checkListIsSubset(ref, samples[[var]], "contrast levels", "sample metadata variable")
-        success <- checkListIsSubset(tgt, samples[[var]], "contrast levels", "sample metadata variable")
+        success <- check_list_is_subset(ref, samples[[var]], "contrast levels", "sample metadata variable")
+        success <- check_list_is_subset(tgt, samples[[var]], "contrast levels", "sample metadata variable")
 
         if (ref == tgt) {
           warning(sprintf("Contrast id '%s' has identical reference and target levels.", contrasts[i, "id"]))

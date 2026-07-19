@@ -17,14 +17,14 @@ is a viewer, not an analysis engine: it does not compute normalisation,
 differential expression or enrichment for you. Your job is to package the
 results of your pipeline into the two data structures the app understands. This
 article walks through those structures from the ground up, building a small but
-complete object you could hand straight to `prepareApp()`.
+complete object you could hand straight to `prepare_app()`.
 
 If you would rather describe your data in files and let `shinyngs` assemble the
 object for you, see [Building an app from files and YAML](build-from-files.html).
 
 There are two routes in, both converging on the same pair of container classes:
 
-![Both the CLI and direct R construction converge on an ExploratorySummarizedExperiment(List), which prepareApp() turns into a Shiny app](img/dataflow.svg)
+![Both the CLI and direct R construction converge on an ExploratorySummarizedExperiment(List), which prepare_app() turns into a Shiny app](img/dataflow.svg)
 
 ## The two containers
 
@@ -175,7 +175,7 @@ marked `eval=FALSE` here because a browser session cannot run during page build,
 but the code is exactly what you would run interactively:
 
 ```{r run-basic, eval = FALSE}
-app <- prepareApp("rnaseq", myesel)
+app <- prepare_app("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 

@@ -1,11 +1,11 @@
-# withHelpIcon()
+# with_help_icon()
 
-test_that("withHelpIcon returns the label unchanged when no tooltip is given", {
-  expect_equal(withHelpIcon("Some label"), "Some label")
+test_that("with_help_icon returns the label unchanged when no tooltip is given", {
+  expect_equal(with_help_icon("Some label"), "Some label")
 })
 
-test_that("withHelpIcon attaches a tooltip-triggering icon when tooltip is given", {
-  result <- withHelpIcon("Some label", "Explains the field")
+test_that("with_help_icon attaches a tooltip-triggering icon when tooltip is given", {
+  result <- with_help_icon("Some label", "Explains the field")
   html <- as.character(result)
 
   expect_true(grepl("Some label", html, fixed = TRUE))
@@ -13,18 +13,18 @@ test_that("withHelpIcon attaches a tooltip-triggering icon when tooltip is given
   expect_true(grepl("Explains the field", html, fixed = TRUE))
 })
 
-# inlineField()
+# inline_field()
 
-test_that("inlineField wraps a field definition with an inline bold label", {
-  result <- inlineField(shiny::numericInput("foo", label = NULL, value = 50), "FOO")
+test_that("inline_field wraps a field definition with an inline bold label", {
+  result <- inline_field(shiny::numericInput("foo", label = NULL, value = 50), "FOO")
   html <- as.character(result)
 
   expect_true(grepl("<b>FOO:</b>", html, fixed = TRUE))
   expect_true(grepl("id=\"foo\"", html, fixed = TRUE))
 })
 
-test_that("inlineField passes a tooltip through to the label", {
-  result <- inlineField(shiny::numericInput("foo", label = NULL, value = 50), "FOO", tooltip = "A tooltip")
+test_that("inline_field passes a tooltip through to the label", {
+  result <- inline_field(shiny::numericInput("foo", label = NULL, value = 50), "FOO", tooltip = "A tooltip")
   html <- as.character(result)
 
   expect_true(grepl("A tooltip", html, fixed = TRUE))

@@ -18,7 +18,7 @@ data}
 \item{...}{Additional arguments passed to the module output function}
 }
 \description{
-Internal function called by prepareApp() to make simple single-function
+Internal function called by prepare_app() to make simple single-function
 apps.
 }
 \examples{

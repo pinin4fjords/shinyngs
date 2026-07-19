@@ -14,7 +14,7 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
   if (allow_select) {
     selectInput(ns("barMode"), "Mode", choices = c("group", "stack", "overlay"), selected = default_mode)
   } else {
-    hiddenInput(ns("barMode"), default_mode)
+    hidden_input(ns("barMode"), default_mode)
   }
 }
 
@@ -47,7 +47,7 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
     output$barPlot <- renderPlotly({
       validate(need(input$barMode, "Waiting for bar mode"))
 
-      plotly_barchart(getPlotmatrix(), barmode = input$barMode, ylab = getYLabel()) %>%
+      interactive_barchart(getPlotmatrix(), barmode = input$barMode, ylab = getYLabel()) %>%
         shinyngsPlotlyConfig("barplot", format = session$userData$plotFormat())
     })
   })
@@ -57,7 +57,7 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
 #'
 #' Draws one bar trace per row of \code{matrix}, coloured and legended by row,
 #' with columns along the x axis. Used by the \code{barplot} module, and by
-#' \code{\link{plotly_count_barplot}} to render feature-annotation category
+#' \code{\link{interactive_count_barplot}} to render feature-annotation category
 #' counts.
 #'
 #' @param matrix A matrix to plot, e.g. counts by category (row) and sample
@@ -74,9 +74,9 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
 #'
 #' @examples
 #' m <- matrix(1:6, nrow = 2, dimnames = list(c("up", "down"), c("s1", "s2", "s3")))
-#' plotly_barchart(m, barmode = "stack", ylab = "Count")
+#' interactive_barchart(m, barmode = "stack", ylab = "Count")
 #'
-plotly_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), ylab = "", palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
+interactive_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), ylab = "", palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
   barmode <- match.arg(barmode)
 
   if (barmode == "overlay") {
@@ -93,7 +93,7 @@ plotly_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), yl
   column_order <- levels(plotdata$Var2)
   plotdata$Var2 <- as.character(plotdata$Var2)
 
-  palette <- makeColorScale(length(unique(plotdata$Var1)), palette = palette_name)
+  palette <- make_color_scale(length(unique(plotdata$Var1)), palette = palette_name)
 
   plotdata %>%
     plot_ly(x = ~Var2, y = ~value, color = ~Var1, colors = palette, type = "bar") %>%
@@ -104,7 +104,7 @@ plotly_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), yl
 }
 
 #' Tally a categorical annotation column, optionally split by a second, into a
-#' \code{\link{plotly_barchart}}-ready matrix
+#' \code{\link{interactive_barchart}}-ready matrix
 #'
 #' Rows of the returned matrix are the (optional) \code{fill} levels, columns
 #' are the \code{category} levels present in \code{annotation}, ordered by
@@ -133,7 +133,7 @@ countMatrixByCategory <- function(annotation, category, fill = NULL) {
 #' \code{mcols()}/\code{rowData()} of a \code{SummarizedExperiment}, or the
 #' data frame returned by the \code{selectmatrix} module's
 #' \code{getAnnotation()}) and renders the counts as a bar chart via
-#' \code{\link{plotly_barchart}}. Generalises the shape of the
+#' \code{\link{interactive_barchart}}. Generalises the shape of the
 #' differential-expression-by-biotype plot rendered by the
 #' nf-core/differentialabundance report to any categorical annotation column.
 #'
@@ -153,7 +153,7 @@ countMatrixByCategory <- function(annotation, category, fill = NULL) {
 #' @export
 #'
 #' @examples
-#' plotly_count_barplot(
+#' interactive_count_barplot(
 #'   data.frame(
 #'     biotype = c("protein_coding", "protein_coding", "lncRNA", "lncRNA"),
 #'     direction = c("Up", "Down", "Up", "Up")
@@ -161,25 +161,25 @@ countMatrixByCategory <- function(annotation, category, fill = NULL) {
 #'   category = "biotype", fill = "direction"
 #' )
 #'
-plotly_count_barplot <- function(annotation, category, fill = NULL, barmode = c("group", "stack"), palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
+interactive_count_barplot <- function(annotation, category, fill = NULL, barmode = c("group", "stack"), palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
   barmode <- match.arg(barmode)
 
   if (!category %in% colnames(annotation)) {
-    stop("plotly_count_barplot(): '", category, "' is not a column of annotation")
+    stop("interactive_count_barplot(): '", category, "' is not a column of annotation")
   }
   if (!is.null(fill) && !fill %in% colnames(annotation)) {
-    stop("plotly_count_barplot(): '", fill, "' is not a column of annotation")
+    stop("interactive_count_barplot(): '", fill, "' is not a column of annotation")
   }
 
   plotmatrix <- countMatrixByCategory(annotation, category, fill)
 
   if (ncol(plotmatrix) == 0) {
-    stop("plotly_count_barplot(): '", category, "' has no non-missing values to count")
+    stop("interactive_count_barplot(): '", category, "' has no non-missing values to count")
   }
 
   if (is.null(title)) {
-    title <- paste("Counts by", prettifyVariablename(category))
+    title <- paste("Counts by", prettify_variable_name(category))
   }
 
-  plotly_barchart(plotmatrix, barmode = barmode, ylab = "Count", palette_name = palette_name, title = title)
+  interactive_barchart(plotmatrix, barmode = barmode, ylab = "Count", palette_name = palette_name, title = title)
 }

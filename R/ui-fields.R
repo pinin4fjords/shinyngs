@@ -14,9 +14,9 @@
 #' @export
 #'
 #' @examples
-#' withHelpIcon("Whisker distance", "How far outliers may sit from the box")
+#' with_help_icon("Whisker distance", "How far outliers may sit from the box")
 #'
-withHelpIcon <- function(label, tooltip = NULL, placement = "right") {
+with_help_icon <- function(label, tooltip = NULL, placement = "right") {
   if (is.null(tooltip)) {
     return(label)
   }
@@ -56,16 +56,16 @@ a11yControl <- function(tag, label, tooltip = label, placement = "top") {
 #' @param label Field label
 #' @param labelwidth With (in units out of 12) for label
 #' @param tooltip Optional tooltip text explaining the field, shown via a help
-#'   icon next to the label (see \code{\link{withHelpIcon}})
+#'   icon next to the label (see \code{\link{with_help_icon}})
 #'
 #' @return output A UI definition that can be passed to the shinyUI function.
 #' @export
 #'
 #' @examples
-#' inlineField(numericInput("foo", label = NULL, min = 0, max = 100, value = 50), "FOO")
+#' inline_field(numericInput("foo", label = NULL, min = 0, max = 100, value = 50), "FOO")
 #'
-inlineField <- function(field_def, label, labelwidth = 6, tooltip = NULL) {
-  label_content <- withHelpIcon(HTML(paste0("<b>", label, ":</b>&nbsp;")), tooltip)
+inline_field <- function(field_def, label, labelwidth = 6, tooltip = NULL) {
+  label_content <- with_help_icon(HTML(paste0("<b>", label, ":</b>&nbsp;")), tooltip)
   fluidRow(column(labelwidth, label_content), column(12 - labelwidth, field_def))
 }
 
@@ -86,13 +86,13 @@ inlineField <- function(field_def, label, labelwidth = 6, tooltip = NULL) {
 #' @param min Passed to \code{\link[shiny]{numericInput}}
 #' @param max Passed to \code{\link[shiny]{numericInput}}
 #' @param tooltip Optional tooltip text explaining the field, shown via a help
-#'   icon next to the label (see \code{\link{withHelpIcon}})
+#'   icon next to the label (see \code{\link{with_help_icon}})
 #'
 #' @return out An HTML tag object that can be rendered as HTML using
 #' as.character()
 
 cardinalNumericField <- function(id, cardinal_id, label, value, cardinality = "<=", step = NA, min = NA, max = NA, tooltip = NULL) {
-  label_content <- withHelpIcon(HTML(paste0("<b>", label, ":</b>&nbsp;")), tooltip)
+  label_content <- with_help_icon(HTML(paste0("<b>", label, ":</b>&nbsp;")), tooltip)
   tags$div(
     fluidRow(column(4, label_content), column(3, selectInput(cardinal_id, label = NULL, choices = c(
       "<=", ">=", ">= or <= -",

@@ -7,9 +7,9 @@
 #' @export
 #'
 #' @examples
-#' simpleSplit("a,b,c")
+#' simple_split("a,b,c")
 #'
-simpleSplit <- function(string, sep = ",") {
+simple_split <- function(string, sep = ",") {
   if (is.na(string)) {
     NA
   } else {
@@ -25,9 +25,9 @@ simpleSplit <- function(string, sep = ",") {
 #' @export
 #'
 #' @examples
-#' getExtension("my_metadata.tsv")
+#' file_extension("my_metadata.tsv")
 #'
-getExtension <- function(file) {
+file_extension <- function(file) {
   ex <- strsplit(basename(file), split = "\\.")[[1]]
   return(tolower(tail(ex, 1)))
 }
@@ -40,10 +40,10 @@ getExtension <- function(file) {
 #' @export
 #'
 #' @examples
-#' getSeparator("my_metadata.tsv")
+#' guess_separator("my_metadata.tsv")
 #'
-getSeparator <- function(file) {
-  ext <- getExtension(file)
+guess_separator <- function(file) {
+  ext <- file_extension(file)
   if (ext == "tsv" || ext == "txt") {
     separator <- "\t"
   } else if (ext == "csv") {
@@ -68,10 +68,10 @@ getSeparator <- function(file) {
 #' @export
 #'
 #' @examples
-#' stringsToNamedVector("s1.tsv,s2.tsv", "sample_one,sample_two")
+#' strings_to_named_vector("s1.tsv,s2.tsv", "sample_one,sample_two")
 #'
-stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ",", prettify_names = TRUE, simplify_files = FALSE) {
-  elements <- simpleSplit(elements_string, sep = sep)
+strings_to_named_vector <- function(elements_string, names_string = NULL, sep = ",", prettify_names = TRUE, simplify_files = FALSE) {
+  elements <- simple_split(elements_string, sep = sep)
 
   if (is.null(names_string)) {
     element_names <- elements
@@ -79,14 +79,14 @@ stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ","
       element_names <- tools::file_path_sans_ext(gsub("_", " ", basename(element_names)))
     }
   } else {
-    element_names <- simpleSplit(names_string, sep = sep)
+    element_names <- simple_split(names_string, sep = sep)
   }
 
   if (length(elements) != length(element_names)) {
     stop(paste("List in", elements_string, "a different length to", names_string))
   }
   if (prettify_names) {
-    element_names <- prettifyVariablename(element_names)
+    element_names <- prettify_variable_name(element_names)
   }
 
   names(elements) <- element_names
@@ -110,11 +110,11 @@ stringsToNamedVector <- function(elements_string, names_string = NULL, sep = ","
 #' vn <- "ugly_name_of_thing"
 #' prettyifyVariablename(vn)
 #'
-prettifyVariablename <- function(vn, tolower = FALSE) {
+prettify_variable_name <- function(vn, tolower = FALSE) {
   if (tolower) {
     vn <- tolower(vn)
   }
-  gsub("_", " ", ucfirst(vn))
+  gsub("_", " ", capitalize_first(vn))
 }
 
 #' Capitalise the first letter of a string
@@ -126,9 +126,9 @@ prettifyVariablename <- function(vn, tolower = FALSE) {
 #' @export
 #'
 #' @examples
-#' ucfirst("Example")
+#' capitalize_first("Example")
 #'
-ucfirst <- function(string) {
+capitalize_first <- function(string) {
   paste0(toupper(substr(string, 1, 1)), substr(string, 2, nchar(string)))
 }
 
@@ -141,9 +141,9 @@ ucfirst <- function(string) {
 #' @export
 #'
 #' @examples
-#' nlines("foo\nbar")
-nlines <- function(string) {
-  length(simpleSplit(string, "\n"))
+#' count_lines("foo\nbar")
+count_lines <- function(string) {
+  length(simple_split(string, "\n"))
 }
 
 #' Given a string with spaces, try to split into multiple lines of <
@@ -157,10 +157,10 @@ nlines <- function(string) {
 #' @export
 #'
 #' @examples
-#' splitStringToFixedwidthLines("once upon a time there was a giant and a beanstalk and a pot of gold and some beans")
+#' split_string_to_fixed_width_lines("once upon a time there was a giant and a beanstalk and a pot of gold and some beans")
 #'
-splitStringToFixedwidthLines <- function(string, linewidth = 20) {
-  words <- simpleSplit(string, " ")
+split_string_to_fixed_width_lines <- function(string, linewidth = 20) {
+  words <- simple_split(string, " ")
 
   strings <- list()
   string <- words[1]
@@ -182,13 +182,13 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
 #'
 #' @param expressiontype Expression type for use in the label, e.g. "expression"
 #' @param width Maximum line length in characters, passed to
-#' \code{\link{splitStringToFixedwidthLines}}
+#' \code{\link{split_string_to_fixed_width_lines}}
 #'
 #' @return A string with newline characters added where appropriate
 #'
 #' @noRd
 expressionAxisLabel <- function(expressiontype, width = 15) {
-  splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), width)
+  split_string_to_fixed_width_lines(paste0("log2(", prettify_variable_name(expressiontype), ")"), width)
 }
 
 #' Replace NAs with a string for convenience
@@ -201,9 +201,9 @@ expressionAxisLabel <- function(expressiontype, width = 15) {
 #' @export
 #'
 #' @examples
-#' na.replace(c("a", NA, "b"))
+#' na_replace(c("a", NA, "b"))
 #'
-na.replace <- function(vec, replacement = "NA") {
+na_replace <- function(vec, replacement = "NA") {
   isfactor <- is.factor(vec)
   if (isfactor) {
     vec <- as.character(vec)

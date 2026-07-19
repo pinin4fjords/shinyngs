@@ -162,7 +162,7 @@ test_that("makeDEUTable keeps only the most significant exon per gene when deuMo
       table <- makeDEUTable()
 
       expect_equal(nrow(table), 3)
-      expect_equal(sort(unique(table[[prettifyVariablename("gene_id")]])), c("gene1", "gene2", "gene3"))
+      expect_equal(sort(unique(table[[prettify_variable_name("gene_id")]])), c("gene1", "gene2", "gene3"))
     })
   )
 })

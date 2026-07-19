@@ -27,7 +27,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   assaydatatable("assaydatatable", eselist)
-  app <- prepareApp("assaydatatable", eselist)
+  app <- prepare_app("assaydatatable", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

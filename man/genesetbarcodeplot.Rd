@@ -34,7 +34,7 @@ if (interactive()) {
 
   # Almost certainly used via application creation
 
-  app <- prepareApp("genesetbarcodeplot", eselist)
+  app <- prepare_app("genesetbarcodeplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

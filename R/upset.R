@@ -83,7 +83,7 @@ upsetOutput <- function(id, eselist) {
   moduleMain(
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
-    shinycssloaders::withSpinner(plotlyOutput(ns("plotly_upset"), height = "600px"), color = shinyngsSpinnerColor()),
+    shinycssloaders::withSpinner(plotlyOutput(ns("interactive_upset"), height = "600px"), color = shinyngsSpinnerColor()),
     h4("Differential set summary"),
     uiOutput(ns("differential_parameters")),
     simpletableOutput(ns("upset")),
@@ -284,7 +284,7 @@ upset <- function(id, eselist, setlimit = 16) {
 
     # Calculate intersections between sets. Only used to bound the minorder
     # slider (getMaxIntersectionOrder()) - the plot itself is built straight
-    # from plotly_upset() below, which recomputes intersections internally.
+    # from interactive_upset() below, which recomputes intersections internally.
 
     calculateIntersections <- reactive({
       withProgress(message = "Calculating set intersections", value = 0, {
@@ -294,14 +294,14 @@ upset <- function(id, eselist, setlimit = 16) {
 
     ########################################################################### Render the plot
 
-    # Cached on exactly the inputs plotly_upset() reads, so toggling e.g. the
+    # Cached on exactly the inputs interactive_upset() reads, so toggling e.g. the
     # plot download format doesn't recompute the intersection enumeration.
 
     getUpsetPlot <- reactive({
       display_sets <- getSets()
       names(display_sets) <- getSetNames()
 
-      plotly_upset(
+      interactive_upset(
         display_sets,
         nintersects = getNintersections(), minorder = getMinOrder(), set_sort = FALSE, bar_numbers = getBarNumbers(),
         show_empty_intersections = getShowEmptyIntersections(), intersection_assignment_type = getIntersectionAssignmentType()
@@ -310,7 +310,7 @@ upset <- function(id, eselist, setlimit = 16) {
       getSets(), getShowEmptyIntersections(), getIntersectionAssignmentType(), getNintersections(), getMinOrder(), getBarNumbers()
     )
 
-    output$plotly_upset <- renderPlotly({
+    output$interactive_upset <- renderPlotly({
       getUpsetPlot() %>% shinyngsPlotlyConfig("upset", format = session$userData$plotFormat())
     })
 
@@ -541,9 +541,9 @@ upset_intersect_size_chart <- function(ints, nintersects, bar_numbers = FALSE) {
 #'
 #' @examples
 #' sets <- list(a = paste0("gene", 1:6), b = paste0("gene", 4:10), c = paste0("gene", 8:12))
-#' plotly_upset(sets)
+#' interactive_upset(sets)
 #'
-plotly_upset <- function(sets, nintersects = 20, minorder = 1, set_sort = TRUE, bar_numbers = FALSE, show_empty_intersections = TRUE,
+interactive_upset <- function(sets, nintersects = 20, minorder = 1, set_sort = TRUE, bar_numbers = FALSE, show_empty_intersections = TRUE,
                           intersection_assignment_type = c("upset", "all")) {
   intersection_assignment_type <- match.arg(intersection_assignment_type)
 

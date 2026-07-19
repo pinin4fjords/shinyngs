@@ -27,7 +27,7 @@ foldchangeplot_scatter <- list(scatter_id = "foldchange", filename = "foldchange
 #' # Almost certainly used via application creation
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("foldchangeplot", eselist)
+#'   app <- prepare_app("foldchangeplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -57,7 +57,7 @@ foldchangeplotInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("foldchangeplot", eselist)
+#'   app <- prepare_app("foldchangeplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -115,7 +115,7 @@ selectFoldchangeLines <- function(lines, fccard, fclim) {
 #'
 #' if (interactive()) {
 #'   foldchangeplot("foldchangeplot", eselist)
-#'   app <- prepareApp("foldchangeplot", eselist)
+#'   app <- prepare_app("foldchangeplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'

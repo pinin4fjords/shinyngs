@@ -30,7 +30,7 @@ categorical covariates.
 \examples{
 mat <- matrix(rnorm(90), nrow = 15, ncol = 6,
   dimnames = list(paste0("gene", 1:15), paste0("s", 1:6)))
-pca <- compilePCAData(mat)
+pca <- compile_pca_data(mat)
 pcameta <- data.frame(
   condition = rep(c("treated", "control"), each = 3),
   batch = rep(c("A", "B", "C"), 2),

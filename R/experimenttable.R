@@ -27,7 +27,7 @@ experimenttable_modal <- list(id = "experimenttable", title = "Experimental data
 #' # Almost certainly used via application creation
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("experimenttable", eselist)
+#'   app <- prepare_app("experimenttable", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -42,7 +42,7 @@ experimenttableInput <- function(id, eselist) {
   )
 
   if (length(eselist) == 1) {
-    tagList(hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), fieldset_list))
+    tagList(hidden_input(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), fieldset_list))
   } else {
     fieldSets(ns("fieldset"), c(list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist))), fieldset_list))
   }
@@ -74,7 +74,7 @@ experimenttableInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("experimenttable", eselist)
+#'   app <- prepare_app("experimenttable", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -112,7 +112,7 @@ experimenttableOutput <- function(id) {
 #'
 #' if (interactive()) {
 #'   experimenttable("experimenttable", eselist)
-#'   app <- prepareApp("experimenttable", eselist)
+#'   app <- prepare_app("experimenttable", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -126,7 +126,7 @@ experimenttable <- function(id, eselist) {
 
     getExperiment <- reactive({
       experiment <- getRawExperiment()
-      colnames(experiment) <- prettifyVariablename(colnames(experiment))
+      colnames(experiment) <- prettify_variable_name(colnames(experiment))
       experiment
     })
 

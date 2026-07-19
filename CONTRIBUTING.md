@@ -2,23 +2,37 @@
 
 ## Naming convention
 
-New code should use `snake_case` for function and variable names. This is
-already the convention for I/O and validation helpers (`read_matrix()`,
-`guess_foldchange_scale()`, `validate_inputs()`).
+All function and variable names, exported or internal, use `snake_case`. This
+was not always true: exported functions used to mix `camelCase` and
+`snake_case` (e.g. `eselistFromYAML()` vs. `eselistfromConfig()`), and several
+plotting functions were named after the library that renders them
+(`plotly_scatterplot()`, `ggplot_boxplot()`) rather than what they do. The
+`plotly_*` prefix in particular collided in spirit with `plotly`'s own
+exports (`plotly_build()`, `plotly_json()`, etc.), so autocomplete and a
+skim of exported symbols couldn't tell shinyngs' wrappers from plotly's own
+API. That whole surface was renamed in one pass (the major version bump this
+shipped in) rather than left to calcify further — don't re-introduce
+camelCase or implementation-named functions in new code.
 
-Existing exported, user-facing functions use a mix of `camelCase` and
-`snake_case` (e.g. `eselistFromYAML()` vs. `eselistfromConfig()`). Renaming
-these is a breaking change for anyone scripting against the package, so they
-are left as-is; don't mass-rename exported functions to fit this convention.
-Internal helpers and new code are not subject to that constraint and should
-use `snake_case`.
+Plotting functions are named for what they produce, not for the library used
+to render them: `interactive_*` for the plotly-backed versions, `static_*`
+for the ggplot2/scatterplot3d-backed ones (e.g. `interactive_boxplot()` /
+`static_boxplot()`).
+
+A few exceptions to `snake_case` are intentional, not oversights: S4 class
+constructors (`ExploratorySummarizedExperiment`,
+`ExploratorySummarizedExperimentList`) stay `PascalCase`, matching the
+standing Bioconductor/S4 convention shared with `SummarizedExperiment` and
+friends.
 
 Where a Shiny module passes a reactive as an argument, prefix its parameter
 name with `get` (`getTitle`, `getPalette`, `getColorby`) to distinguish it
 from a plain value of the same concept (e.g. the `colorby` column-name string
 parameter used by the plotting/builder functions those modules call). Don't
 let the same name mean "a reactive" in one layer and "a plain value" in
-another.
+another. `getExtension()`/`getSeparator()` used to violate this themselves
+(plain functions returning a plain value, not a reactive) — they're now
+`file_extension()`/`guess_separator()`.
 
 ## Module architecture
 
@@ -39,7 +53,7 @@ that for free by embedding those submodules.
 
 A plotting module is a thin adapter: the actual drawing lives in an exported,
 Shiny-free standalone function (for example the `boxplot` module calls
-`ggplot_boxplot()` / `plotly_boxplot()`). Put new drawing logic in an exported
+`static_boxplot()` / `interactive_boxplot()`). Put new drawing logic in an exported
 `ggplot_*` / `plotly_*` function that takes plain data and give it a
 `palette_name = COLORBLIND_PALETTE_NAME` default, then have the module call it.
 

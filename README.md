@@ -202,11 +202,11 @@ library(shinyngs)
 library(zhangneurons)
 data("zhangneurons")
 
-app <- prepareApp("rnaseq", zhangneurons)
+app <- prepare_app("rnaseq", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 
-The function `eselistFromYAML()` is provided to help build your own
+The function `eselist_from_yaml()` is provided to help build your own
 objects given a config file.
 
 # Command-line interfaces

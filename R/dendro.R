@@ -111,7 +111,7 @@ dendro <- function(id, eselist) {
     # underlying distance/hclust computation.
 
     getDendroPlot <- reactive({
-      validateOrCatch(plotly_clusteringDendrogram(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+      validate_or_catch(interactive_clustering_dendrogram(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
         cor_method = input$corMethod, cluster_method = input$clusterMethod, selectmatrix_reactives$matrixTitle(),
         palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
       ))
@@ -157,20 +157,20 @@ dendro <- function(id, eselist) {
 #'
 #' require(airway)
 #' data(airway, package = "airway")
-#' clusteringDendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
+#' clustering_dendrogram(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
 #' # Do the same, but only usig the 1000 most variant rows and see how the
 #' # clustering improves.
 #'
 #' mymatrix <- assays(airway)[[1]]
 #' mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000], ]
-#' clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
+#' clustering_dendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 #'
-clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2,
+clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "", labelspace = 0.2,
                                  palette = NULL, palette_name = COLORBLIND_PALETTE_NAME) {
   plotmatrix <- log2(plotmatrix + 1)
 
-  hcd <- calculateDendrogram(plotmatrix, cor_method, cluster_method)
+  hcd <- calculate_dendrogram(plotmatrix, cor_method, cluster_method)
 
   ddata_x <- ggdendro::dendro_data(hcd)
 
@@ -192,9 +192,9 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
   } else {
     palette <- resolvePalette(palette, groupLevels(experiment, colorby), palette_name)
     labs[[colorby]] <- as.character(experiment[[colorby]][match(labs$label, rownames(experiment))])
-    labs[[colorby]] <- na.replace(labs[[colorby]], replacement = "N/A")
+    labs[[colorby]] <- na_replace(labs[[colorby]], replacement = "N/A")
 
-    labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na.replace(experiment[[colorby]], "N/A")))
+    labs[[colorby]] <- factor(labs[[colorby]], levels = unique(na_replace(experiment[[colorby]], "N/A")))
     shapes <- rep(15:20, 10)[seq_along(unique(experiment[[colorby]]))]
 
     p3 <- p2 +
@@ -209,11 +209,11 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 
     total_axis_size <- ymax * (1 / (1 - labelspace))
 
-    p3 <- p3 + ggdendro::theme_dendro() + ylim(-(total_axis_size * labelspace), ymax) + scale_color_manual(name = prettifyVariablename(colorby), values = palette)
+    p3 <- p3 + ggdendro::theme_dendro() + ylim(-(total_axis_size * labelspace), ymax) + scale_color_manual(name = prettify_variable_name(colorby), values = palette)
 
     p3 <- p3 +
       geom_point(data = labs, aes(x = .data[["x"]], y = 0, colour = .data[[colorby]], shape = .data[[colorby]]), size = 4) +
-      scale_shape_manual(values = shapes, name = prettifyVariablename(colorby)) +
+      scale_shape_manual(values = shapes, name = prettify_variable_name(colorby)) +
       theme(title = element_text(size = rel(1.8)), legend.text = element_text(size = rel(1.8))) +
       ggtitle(plot_title)
   }
@@ -226,7 +226,7 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 
 #' Make an interactive clustering dendrogram colored by experimental variable
 #'
-#' A \code{plotly} counterpart to \code{clusteringDendrogram()}: the branch
+#' A \code{plotly} counterpart to \code{clustering_dendrogram()}: the branch
 #' geometry is derived from the same \code{hclust()} tree, and the leaves are
 #' placed as markers colored by an experimental variable. Sample names sit on
 #' the x-axis (rotated, with plotly reserving the label margin), and hovering a
@@ -256,9 +256,9 @@ clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_met
 #' data(airway, package = "airway")
 #' mymatrix <- assays(airway)[[1]]
 #' mymatrix <- mymatrix[order(apply(mymatrix, 1, var), decreasing = TRUE)[1:1000], ]
-#' plotly_clusteringDendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
+#' interactive_clustering_dendrogram(mymatrix, data.frame(colData(airway)), colorby = "dex")
 #'
-plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "",
+interactive_clustering_dendrogram <- function(plotmatrix, experiment, colorby = NULL, cor_method = "pearson", cluster_method = "ward.D", plot_title = "",
                                         palette = NULL, palette_name = COLORBLIND_PALETTE_NAME, hidden_groups = character(0), source = NULL) {
   plot_title <- gsub("\n", "<br>", plot_title, fixed = TRUE)
 
@@ -269,7 +269,7 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
   if (is.null(colorby)) {
     col_groups <- character(ncol(plotmatrix))
   } else {
-    col_groups <- na.replace(as.character(experiment[[colorby]][match(colnames(plotmatrix), rownames(experiment))]), "N/A")
+    col_groups <- na_replace(as.character(experiment[[colorby]][match(colnames(plotmatrix), rownames(experiment))]), "N/A")
   }
 
   palette <- resolvePalette(palette, levels_all, palette_name)
@@ -284,7 +284,7 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
   labs <- NULL
   ymax <- 1
   if (ncol(visible_matrix) >= 2) {
-    hcd <- calculateDendrogram(log2(visible_matrix + 1), cor_method, cluster_method)
+    hcd <- calculate_dendrogram(log2(visible_matrix + 1), cor_method, cluster_method)
     ddata <- ggdendro::dendro_data(hcd)
     segs <- ggdendro::segment(ddata)
     labs <- ggdendro::label(ddata)
@@ -304,7 +304,7 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
       p <- plotly::add_markers(p, x = labs$x, y = rep(0, nrow(labs)), text = labs$label, hoverinfo = "text", marker = list(color = "black", size = 8), showlegend = FALSE)
     }
   } else {
-    leaf_group <- if (is.null(labs)) character(0) else na.replace(as.character(experiment[[colorby]][match(labs$label, rownames(experiment))]), "N/A")
+    leaf_group <- if (is.null(labs)) character(0) else na_replace(as.character(experiment[[colorby]][match(labs$label, rownames(experiment))]), "N/A")
     # One trace per group, in levels_all order, so a Shiny handler can map a
     # restyled trace index onto a group.
     for (level in levels_all) {
@@ -313,7 +313,7 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
       if (any(keep)) {
         p <- plotly::add_markers(p,
           x = labs$x[keep], y = rep(0, sum(keep)),
-          text = paste0(labs$label[keep], "<br>", prettifyVariablename(colorby), ": ", level), hoverinfo = "text", marker = marker, name = level
+          text = paste0(labs$label[keep], "<br>", prettify_variable_name(colorby), ": ", level), hoverinfo = "text", marker = marker, name = level
         )
       } else {
         # No leaves to place, but keep a clickable legend entry: dimmed
@@ -346,7 +346,7 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
 
   p <- plotly::layout(p,
     title = plot_title, xaxis = xaxis, yaxis = yaxis, hovermode = "closest", annotations = annotations,
-    legend = list(title = list(text = if (is.null(colorby)) "" else prettifyVariablename(colorby)))
+    legend = list(title = list(text = if (is.null(colorby)) "" else prettify_variable_name(colorby)))
   )
 
   if (!is.null(source)) {
@@ -368,9 +368,9 @@ plotly_clusteringDendrogram <- function(plotmatrix, experiment, colorby = NULL, 
 #' @examples
 #' data(airway, package = "airway")
 #' mymatrix <- assays(airway)[[1]]
-#' calculateDist(mymatrix)
+#' calculate_dist(mymatrix)
 #'
-calculateDist <- function(plotmatrix, cor_method = "spearman") {
+calculate_dist <- function(plotmatrix, cor_method = "spearman") {
   as.dist(1 - cor(plotmatrix, method = cor_method))
 }
 
@@ -388,10 +388,10 @@ calculateDist <- function(plotmatrix, cor_method = "spearman") {
 #' @examples
 #' data(airway, package = "airway")
 #' mymatrix <- assays(airway)[[1]]
-#' calculateDendrogram(mymatrix)
+#' calculate_dendrogram(mymatrix)
 #'
-calculateDendrogram <- function(plotmatrix, cor_method = "spearman", cluster_method = "ward.D2") {
-  dd <- calculateDist(plotmatrix, cor_method = cor_method)
+calculate_dendrogram <- function(plotmatrix, cor_method = "spearman", cluster_method = "ward.D2") {
+  dd <- calculate_dist(plotmatrix, cor_method = cor_method)
 
   hc <- hclust(dd, method = cluster_method)
 

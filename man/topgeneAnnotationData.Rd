@@ -3,7 +3,7 @@
 \name{topgeneAnnotationData}
 \alias{topgeneAnnotationData}
 \title{Build the per-facet annotation data frame used by
-\code{\link{ggplot_topgene_boxplots}}}
+\code{\link{static_topgene_boxplots}}}
 \usage{
 topgeneAnnotationData(annotations, genes)
 }
@@ -22,6 +22,6 @@ and \code{label}, or \code{NULL} if no annotations were supplied/matched
 }
 \description{
 Build the per-facet annotation data frame used by
-\code{\link{ggplot_topgene_boxplots}}
+\code{\link{static_topgene_boxplots}}
 }
 \keyword{internal}

@@ -20,7 +20,7 @@ groupbyInput <- function(id, color = TRUE) {
   fields <- list(uiOutput(ns("groupby_fields")))
 
   if (color) {
-    fields <- pushToList(fields, colormakerInput(ns("groupby")))
+    fields <- push_to_list(fields, colormakerInput(ns("groupby")))
   }
 
   fields
@@ -78,7 +78,7 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
         if (has_slot_data(eselist, "group_vars")) {
           dynamic <- isDynamic()
 
-          group_options <- structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars))
+          group_options <- structure(eselist@group_vars, names = prettify_variable_name(eselist@group_vars))
 
           if (multiple) {
             groupinput <- checkboxGroupInput(ns("groupby"), group_label, group_options, selected = group_options, inline = TRUE)
@@ -92,7 +92,7 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
 
           groupinput
         } else {
-          hiddenInput(ns("groupby"), "NULL")
+          hidden_input(ns("groupby"), "NULL")
         }
       })
     })

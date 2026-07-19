@@ -33,7 +33,7 @@ topgeneRankOptions <- function(available_columns) {
   Filter(function(opt) opt$column %in% available_columns, topgene_rank_options)
 }
 
-# Pixel budget for laying out plotly_topgene_boxplots()'s subplot grid: a
+# Pixel budget for laying out interactive_topgene_boxplots()'s subplot grid: a
 # fixed content height per row of boxes, plus a fixed gap between rows sized
 # to fit each facet's x axis tick labels and (multi-line) title/annotation
 # text. These are fixed absolute pixel targets rather than a constant margin
@@ -90,7 +90,7 @@ topgeneBoxplotLayout <- function(n_genes, ncol) {
 #' absolute-fold-change ranking surfaces - and dropping those to NA would
 #' erase that side's box entirely instead of showing it pinned at zero.
 #'
-#' @inheritParams ggplot_topgene_boxplots
+#' @inheritParams static_topgene_boxplots
 #'
 #' @return The transformed matrix, subset to \code{genes} in that order
 #'
@@ -128,7 +128,7 @@ topgeneboxplotInput <- function(id, eselist) {
 
   plot_filters <- list(
     uiOutput(ns("rank_by_ui")),
-    sliderInput(ns("n_genes"), withHelpIcon("Number of top genes to plot:", "Genes passing the significance filters below are ranked by the chosen metric; this many, from most to least extreme, are shown."), min = 2, max = 50, value = 12),
+    sliderInput(ns("n_genes"), with_help_icon("Number of top genes to plot:", "Genes passing the significance filters below are ranked by the chosen metric; this many, from most to least extreme, are shown."), min = 2, max = 50, value = 12),
     checkboxInput(ns("beeswarm"), "Show individual points (beeswarm)", value = TRUE),
     colormakerInput(ns("palette"))
   )
@@ -246,12 +246,12 @@ topgeneboxplot <- function(id, eselist) {
       )
     })
 
-    # Reactive so idToLabel() (which converts the full gene annotation table
+    # Reactive so id_to_label() (which converts the full gene annotation table
     # to look up a handful of ids) only runs once per change to the ranked
     # gene set, not once per reader
 
     getTopGeneLabels <- reactive({
-      idToLabel(getTopGeneIds(), selectmatrix_reactives$getExperiment(), sep = "<br />")
+      id_to_label(getTopGeneIds(), selectmatrix_reactives$getExperiment(), sep = "<br />")
     })
 
     getAnnotations <- reactive({
@@ -270,7 +270,7 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     # Facet columns and plot height are derived via the same
-    # topgeneBoxplotLayout() helper plotly_topgene_boxplots() itself uses, so
+    # topgeneBoxplotLayout() helper interactive_topgene_boxplots() itself uses, so
     # the reserved plotlyOutput height can never drift out of sync with the
     # subplot grid actually being drawn
 
@@ -294,11 +294,11 @@ topgeneboxplot <- function(id, eselist) {
         # Read the raw assay matrix directly and subset to the handful of
         # ranked genes before anything else touches it, rather than going via
         # selectMatrix() (which would round the full gene x sample matrix
-        # first) - the log2 transform in plotly_topgene_boxplots() doesn't
+        # first) - the log2 transform in interactive_topgene_boxplots() doesn't
         # need pre-rounded input anyway
         expression <- selectmatrix_reactives$getAssayMatrix()[rows, names(sample_groups), drop = FALSE]
 
-        plotly_topgene_boxplots(expression, sample_groups, rows,
+        interactive_topgene_boxplots(expression, sample_groups, rows,
           annotations = getAnnotations(), labels = stats::setNames(getTopGeneLabels(), rows),
           beeswarm = input$beeswarm, ncol = getNcol(),
           palette = getPalette(), expressiontype = selectmatrix_reactives$getAssayMeasure()
@@ -354,9 +354,9 @@ topgeneboxplot <- function(id, eselist) {
 #' data(airway, package = "airway")
 #' mat <- assays(airway)[[1]][1:4, ]
 #' groupby <- as.character(colData(airway)$dex)
-#' ggplot_topgene_boxplots(mat, groupby, rownames(mat))
+#' static_topgene_boxplots(mat, groupby, rownames(mat))
 #'
-ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, labels = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
+static_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, labels = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
                                      expressiontype = "expression", base_size = 11, should_transform = NULL) {
   plotdata <- topgeneBoxplotData(assay, groupby, genes, should_transform = should_transform)
 
@@ -390,13 +390,13 @@ ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
 #' Make an interactive faceted boxplot of the top differential genes in a
 #' contrast
 #'
-#' The \code{plotly} equivalent of \code{\link{ggplot_topgene_boxplots}}. One
+#' The \code{plotly} equivalent of \code{\link{static_topgene_boxplots}}. One
 #' subplot is drawn per gene, with samples grouped by condition. The beeswarm
 #' overlay is approximated using \code{plotly}'s native jittered box points,
 #' since all of the (typically few) per-sample values are drawn and shipping
 #' \code{ggbeeswarm}'s point layout to the browser isn't necessary here.
 #'
-#' @inheritParams ggplot_topgene_boxplots
+#' @inheritParams static_topgene_boxplots
 #'
 #' @return output A \code{plotly} output
 #'
@@ -407,14 +407,14 @@ ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
 #' data(airway, package = "airway")
 #' mat <- assays(airway)[[1]][1:4, ]
 #' groupby <- as.character(colData(airway)$dex)
-#' plotly_topgene_boxplots(mat, groupby, rownames(mat))
+#' interactive_topgene_boxplots(mat, groupby, rownames(mat))
 #'
-plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, labels = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
+interactive_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, labels = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
                                      expressiontype = "expression", should_transform = NULL) {
   assay <- topgeneTransformAssay(assay, genes, should_transform = should_transform)
 
-  group_levels <- unique(na.replace(as.character(groupby), "N/A"))
-  groups <- na.replace(as.character(groupby), "N/A")
+  group_levels <- unique(na_replace(as.character(groupby), "N/A"))
+  groups <- na_replace(as.character(groupby), "N/A")
   palette <- resolvePalette(palette, group_levels, palette_name)
 
   if (is.null(ncol)) {
@@ -491,9 +491,9 @@ plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
     )
 }
 
-#' Reshape an assay matrix into long form for \code{\link{ggplot_topgene_boxplots}}
+#' Reshape an assay matrix into long form for \code{\link{static_topgene_boxplots}}
 #'
-#' @inheritParams ggplot_topgene_boxplots
+#' @inheritParams static_topgene_boxplots
 #'
 #' @return A data frame with columns \code{gene} (factor, levels = \code{genes}),
 #' \code{group} (factor, first-seen order) and \code{value}
@@ -502,8 +502,8 @@ plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
 topgeneBoxplotData <- function(assay, groupby, genes, should_transform = NULL) {
   assay <- topgeneTransformAssay(assay, genes, should_transform = should_transform)
 
-  group_levels <- unique(na.replace(as.character(groupby), "N/A"))
-  groups <- factor(na.replace(as.character(groupby), "N/A"), levels = group_levels)
+  group_levels <- unique(na_replace(as.character(groupby), "N/A"))
+  groups <- factor(na_replace(as.character(groupby), "N/A"), levels = group_levels)
 
   plotdata <- do.call(rbind, lapply(genes, function(gene) {
     data.frame(gene = gene, group = groups, value = as.numeric(assay[gene, ]), stringsAsFactors = FALSE)
@@ -514,9 +514,9 @@ topgeneBoxplotData <- function(assay, groupby, genes, should_transform = NULL) {
 }
 
 #' Build the per-facet annotation data frame used by
-#' \code{\link{ggplot_topgene_boxplots}}
+#' \code{\link{static_topgene_boxplots}}
 #'
-#' @inheritParams ggplot_topgene_boxplots
+#' @inheritParams static_topgene_boxplots
 #'
 #' @return A data frame with columns \code{gene} (factor, levels = \code{genes})
 #' and \code{label}, or \code{NULL} if no annotations were supplied/matched
@@ -536,9 +536,9 @@ topgeneAnnotationData <- function(annotations, genes) {
 }
 
 #' Build a per-gene annotation vector, in \code{genes} order, for
-#' \code{\link{plotly_topgene_boxplots}}
+#' \code{\link{interactive_topgene_boxplots}}
 #'
-#' @inheritParams ggplot_topgene_boxplots
+#' @inheritParams static_topgene_boxplots
 #'
 #' @return A character vector parallel to \code{genes} (\code{NA} where no
 #' annotation was supplied/matched)
@@ -553,13 +553,13 @@ topgeneAnnotationVector <- function(annotations, genes) {
 }
 
 #' Build the named vector of facet titles used by
-#' \code{\link{ggplot_topgene_boxplots}} and \code{\link{plotly_topgene_boxplots}}
+#' \code{\link{static_topgene_boxplots}} and \code{\link{interactive_topgene_boxplots}}
 #'
 #' Genes with no entry in \code{labels} (or when \code{labels} is \code{NULL})
 #' fall back to their raw identifier, so callers always get one title per
 #' gene regardless of annotation coverage.
 #'
-#' @inheritParams ggplot_topgene_boxplots
+#' @inheritParams static_topgene_boxplots
 #'
 #' @return A character vector parallel to \code{genes}, named by \code{genes}
 #'

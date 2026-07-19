@@ -45,15 +45,15 @@ test_that("runPCA raises an informative error when no features vary across sampl
   expect_error(runPCA(mat), "at least one feature with variable values")
 })
 
-# compilePCAData()
+# compile_pca_data()
 
-test_that("compilePCAData returns coordinates and percent variance for all genes when ntop is NULL", {
+test_that("compile_pca_data returns coordinates and percent variance for all genes when ntop is NULL", {
   set.seed(1)
   mat <- matrix(rexp(200, rate = .1), nrow = 20)
   rownames(mat) <- paste0("gene", 1:20)
   colnames(mat) <- paste0("sample", 1:10)
 
-  result <- compilePCAData(mat)
+  result <- compile_pca_data(mat)
 
   expect_true(is.data.frame(result$coords))
   expect_equal(nrow(result$coords), ncol(mat))
@@ -61,21 +61,21 @@ test_that("compilePCAData returns coordinates and percent variance for all genes
   expect_equal(sum(result$percentVar), 100)
 })
 
-test_that("compilePCAData restricts the PCA to the ntop most variable genes", {
+test_that("compile_pca_data restricts the PCA to the ntop most variable genes", {
   set.seed(1)
   mat <- matrix(rexp(200, rate = .1), nrow = 20)
   rownames(mat) <- paste0("gene", 1:20)
   colnames(mat) <- paste0("sample", 1:10)
 
-  result <- compilePCAData(mat, ntop = 5)
-  full <- compilePCAData(mat)
+  result <- compile_pca_data(mat, ntop = 5)
+  full <- compile_pca_data(mat)
 
   # Using fewer genes changes the PCA result relative to using them all
   expect_false(isTRUE(all.equal(result$coords, full$coords)))
 
   # The selected genes should be exactly the 5 most variable ones
-  top5 <- selectVariableGenes(matrix = mat, ntop = 5)
-  expected <- compilePCAData(mat[top5, , drop = FALSE])
+  top5 <- select_variable_genes(matrix = mat, ntop = 5)
+  expected <- compile_pca_data(mat[top5, , drop = FALSE])
   expect_equal(result$coords, expected$coords)
 })
 
@@ -92,25 +92,25 @@ test_that("calculatePCAFractionExplained returns percentages that sum to 100", {
   expect_equal(length(fraction), length(pca$sdev))
 })
 
-# plotly_screeplot()
+# interactive_screeplot()
 
-test_that("plotly_screeplot draws one point per component with a single trace", {
-  built <- plotly::plotly_build(plotly_screeplot(c(45, 25, 15, 10, 5)))
+test_that("interactive_screeplot draws one point per component with a single trace", {
+  built <- plotly::plotly_build(interactive_screeplot(c(45, 25, 15, 10, 5)))
 
   expect_length(built$x$data, 1)
   expect_equal(as.character(built$x$data[[1]]$x), paste0("PC", 1:5))
   expect_equal(as.numeric(built$x$data[[1]]$y), c(45, 25, 15, 10, 5))
 })
 
-test_that("plotly_screeplot respects n_components", {
-  built <- plotly::plotly_build(plotly_screeplot(c(45, 25, 15, 10, 5), n_components = 3))
+test_that("interactive_screeplot respects n_components", {
+  built <- plotly::plotly_build(interactive_screeplot(c(45, 25, 15, 10, 5), n_components = 3))
 
   expect_equal(as.character(built$x$data[[1]]$x), paste0("PC", 1:3))
   expect_equal(as.numeric(built$x$data[[1]]$y), c(45, 25, 15))
 })
 
-test_that("plotly_screeplot adds a cumulative trace when requested", {
-  built <- plotly::plotly_build(plotly_screeplot(c(45, 25, 15, 10, 5), cumulative = TRUE))
+test_that("interactive_screeplot adds a cumulative trace when requested", {
+  built <- plotly::plotly_build(interactive_screeplot(c(45, 25, 15, 10, 5), cumulative = TRUE))
 
   expect_length(built$x$data, 2)
   expect_equal(as.numeric(built$x$data[[2]]$y), cumsum(c(45, 25, 15, 10, 5)))

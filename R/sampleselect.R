@@ -48,16 +48,16 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
     # Add in group selection if relevant
 
     if (has_slot_data(eselist, "group_vars")) {
-      inputs <- pushToList(inputs, conditionalPanel(
+      inputs <- push_to_list(inputs, conditionalPanel(
         condition = paste0("input['", ns("sampleSelect"), "'] == 'group' "), selectInput(ns("sampleGroupVar"),
-          "Define groups by:", structure(eselist@group_vars, names = prettifyVariablename(eselist@group_vars)),
+          "Define groups by:", structure(eselist@group_vars, names = prettify_variable_name(eselist@group_vars)),
           selected = defaultGroupvar(eselist)
         ),
         uiOutput(ns("groupSamples"))
       ))
     }
   } else {
-    inputs <- list(hiddenInput(ns("sampleSelect"), "all"))
+    inputs <- list(hidden_input(ns("sampleSelect"), "all"))
   }
 
   tagList(inputs)
@@ -105,7 +105,7 @@ sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
 
         inputs <- list(checkboxGroupInput(ns("sampleGroupVal"), "Groups", group_values, selected = group_values))
         if (allow_summarise) {
-          inputs <- pushToList(inputs, summarisematrixInput(ns("summarise")))
+          inputs <- push_to_list(inputs, summarisematrixInput(ns("summarise")))
         }
         inputs
       }

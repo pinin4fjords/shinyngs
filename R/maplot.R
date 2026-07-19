@@ -28,7 +28,7 @@ maplot_scatter <- list(scatter_id = "ma", filename = "ma")
 #' # Almost certainly used via application creation
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("maplot", eselist)
+#'   app <- prepare_app("maplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -61,7 +61,7 @@ maplotInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("maplot", eselist)
+#'   app <- prepare_app("maplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -122,7 +122,7 @@ selectMaLines <- function(lines, fccard, fclim) {
 #'
 #' if (interactive()) {
 #'   maplot("maplot", eselist)
-#'   app <- prepareApp("maplot", eselist)
+#'   app <- prepare_app("maplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'

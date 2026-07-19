@@ -134,15 +134,15 @@ module's job is to gather reactives and call that function.
 
 For the `boxplot` module (`R/boxplot.R`):
 
-- `ggplot_boxplot()` draws a static ggplot2 boxplot.
-- `plotly_boxplot()` draws the interactive plotly version.
-- `plotly_quartiles()` / `plotly_densityplot()` are the alternative renderings.
+- `static_boxplot()` draws a static ggplot2 boxplot.
+- `interactive_boxplot()` draws the interactive plotly version.
+- `interactive_quartiles()` / `interactive_densityplot()` are the alternative renderings.
 
 The server just wires reactives into them:
 
 ```r
 output$sampleBoxplot <- renderPlotly({
-  plotly_boxplot(
+  interactive_boxplot(
     selectmatrix_reactives$selectMatrix(),
     selectmatrix_reactives$selectColData(),
     groupby_reactives$getGroupby(),
@@ -224,12 +224,12 @@ module trio follows the package convention of `@keywords shiny` and is generally
 kept internal (unexported), matching the other modules. Run
 `devtools::document()` to regenerate `NAMESPACE` and `man/`.
 
-**4. Wire it into an app.** Because `prepareApp()` and `simpleApp()` locate a
+**4. Wire it into an app.** Because `prepare_app()` and `simpleApp()` locate a
 module by name (`get(paste0(module, "Input"))`, `get(module)`, etc.), a
 correctly-named trio is runnable standalone straight away:
 
 ```r
-app <- prepareApp("myplot", eselist)
+app <- prepare_app("myplot", eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 

@@ -30,7 +30,7 @@ geneInput <- function(id, eselist) {
 
   # Don't create an empty field set if we're not grouping
 
-  if (singleValidMatrix(eselist)) {
+  if (single_valid_matrix(eselist)) {
     naked_fields[[1]] <- expression_filters
   } else {
     field_sets$expression <- expression_filters
@@ -179,7 +179,7 @@ gene <- function(id, eselist) {
         barplot_expression <- barplot_expression[rows, , drop = FALSE]
 
         if (has_slot_data(ese, "labelfield")) {
-          rownames(barplot_expression) <- idToLabel(rows, ese, sep = "<br />")
+          rownames(barplot_expression) <- id_to_label(rows, ese, sep = "<br />")
         }
 
         coldata <- selectmatrix_reactives$selectColData()
@@ -269,9 +269,9 @@ gene <- function(id, eselist) {
 
         validate(need(all(rows %in% rownames(ese)), FALSE))
 
-        gene_info <- data.frame(SummarizedExperiment::mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = idToLabel(rows, ese, sep = " /<br/ >"))
+        gene_info <- data.frame(SummarizedExperiment::mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = id_to_label(rows, ese, sep = " /<br/ >"))
         gene_info <- t(linkMatrix(gene_info, eselist@url_roots))
-        rownames(gene_info) <- prettifyVariablename(rownames(gene_info))
+        rownames(gene_info) <- prettify_variable_name(rownames(gene_info))
         gene_info
       },
       options = list(rownames = TRUE, pageLength = 20, dom = "t"),
@@ -289,7 +289,7 @@ gene <- function(id, eselist) {
       contrasts_table <- contrast_reactives$labelledContrastsTable()
       id_field <- selectmatrix_reactives$getIdField()
 
-      contrasts_table[contrasts_table[[prettifyVariablename(id_field)]] %in% rows, , drop = FALSE]
+      contrasts_table[contrasts_table[[prettify_variable_name(id_field)]] %in% rows, , drop = FALSE]
     })
 
     # Link the contrasts table for display

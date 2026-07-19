@@ -23,7 +23,7 @@ genesetselectInput <- function(id, multiple = TRUE) {
   tagList(uiOutput(ns("geneSetTypes_ui")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(
     placeholder = "Type a gene set keyword",
     maxItems = 5
-  ), multiple = multiple), radioButtons(ns("overlapType"), withHelpIcon("Overlap type", "'Union' includes genes from any of the selected gene sets; 'intersect' includes only genes common to all of them."), c("union", "intersect")))
+  ), multiple = multiple), radioButtons(ns("overlapType"), with_help_icon("Overlap type", "'Union' includes genes from any of the selected gene sets; 'intersect' includes only genes common to all of them."), c("union", "intersect")))
 }
 
 #' The server function of the genesetselect module
@@ -104,7 +104,7 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
 
       structure(paste(unlist(lapply(seq_along(gene_sets), function(x) paste(x, seq_along(gene_sets[[x]]), sep = "-")))), names = unlist(lapply(
         names(gene_sets),
-        function(settype) paste0(prettifyGeneSetName(names(gene_sets[[settype]])), " (", settype, ")")
+        function(settype) paste0(prettify_gene_set_name(names(gene_sets[[settype]])), " (", settype, ")")
       )))
     })
 
@@ -209,9 +209,9 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
 #' @export
 #'
 #' @examples
-#' prettifyGeneSetName("KEGG_GLYCOLYSIS_GLUCONEOGENESIS")
+#' prettify_gene_set_name("KEGG_GLYCOLYSIS_GLUCONEOGENESIS")
 #'
-prettifyGeneSetName <- function(gsn) {
+prettify_gene_set_name <- function(gsn) {
   words <- strsplit(gsn, "_")
 
   unlist(lapply(words, function(w) paste(w[1], paste(tolower(w[-1]), collapse = " "))))

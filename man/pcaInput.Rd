@@ -31,7 +31,7 @@ pcaInput("pca", eselist)
 # Almost certainly used via application creation
 
 if (interactive()) {
-  app <- prepareApp("pca", eselist)
+  app <- prepare_app("pca", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

@@ -4,7 +4,7 @@
 #' overview of the study: sample count, feature counts, assay data types,
 #' contrasts and sample groupings. Clicking a tile opens a detail drawer with
 #' a breakdown of that quantity. It is intended for the landing page of an
-#' application, but can also be run standalone via \code{prepareApp()}.
+#' application, but can also be run standalone via \code{prepare_app()}.
 #'
 #' This input function supplies only the sidebar description used when the
 #' module is run standalone; in a full application the tiles are placed in a
@@ -26,7 +26,7 @@
 #'
 #'   # Almost certainly used via application creation
 #'
-#'   app <- prepareApp("summarytiles", zhangneurons)
+#'   app <- prepare_app("summarytiles", zhangneurons)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -57,7 +57,7 @@ summarytilesInput <- function(id, eselist) {
 #'   # Almost certainly used via application creation
 #'
 #'   data(zhangneurons)
-#'   app <- prepareApp("summarytiles", zhangneurons)
+#'   app <- prepare_app("summarytiles", zhangneurons)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -89,7 +89,7 @@ summarytilesOutput <- function(id) {
 #'
 #'   # Almost certainly used via application creation
 #'
-#'   app <- prepareApp("summarytiles", zhangneurons)
+#'   app <- prepare_app("summarytiles", zhangneurons)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -191,15 +191,15 @@ summaryTileSpecs <- function(eselist) {
   ese <- eselist[[1]]
   specs <- list()
 
-  specs <- pushToList(specs, list(
+  specs <- push_to_list(specs, list(
     key = "samples", value = ncol(ese), label = "Samples", icon = "users", group = "data",
     detail = function() detailSamples(eselist)
   ))
 
   for (esen in names(eselist)) {
-    specs <- pushToList(specs, local({
+    specs <- push_to_list(specs, local({
       en <- esen
-      label <- if (length(eselist) > 1) paste(prettifyVariablename(en), "features") else "Features"
+      label <- if (length(eselist) > 1) paste(prettify_variable_name(en), "features") else "Features"
       list(
         key = paste0("features_", en), value = nrow(eselist[[en]]), label = label, icon = "dna", group = "data",
         detail = function() detailFeatures(eselist, en)
@@ -207,20 +207,20 @@ summaryTileSpecs <- function(eselist) {
     }))
   }
 
-  specs <- pushToList(specs, list(
+  specs <- push_to_list(specs, list(
     key = "assays", value = length(assayNames(ese)), label = "Assay data types", icon = "layer-group", group = "data",
     detail = function() detailAssays(eselist)
   ))
 
   if (has_slot_data(eselist, "group_vars")) {
-    specs <- pushToList(specs, list(
+    specs <- push_to_list(specs, list(
       key = "groups", value = length(eselist@group_vars), label = "Sample groupings", icon = "object-group", group = "analysis",
       detail = function() detailGroups(eselist)
     ))
   }
 
   if (has_slot_data(eselist, "contrasts")) {
-    specs <- pushToList(specs, list(
+    specs <- push_to_list(specs, list(
       key = "contrasts", value = length(eselist@contrasts), label = "Contrasts", icon = "code-compare", group = "analysis",
       detail = function() detailContrasts(eselist)
     ))
@@ -228,7 +228,7 @@ summaryTileSpecs <- function(eselist) {
 
   n_gs <- sum(vapply(eselist, function(e) length(e@gene_set_analyses), numeric(1)))
   if (n_gs > 0) {
-    specs <- pushToList(specs, list(
+    specs <- push_to_list(specs, list(
       key = "genesets", value = n_gs, label = "Gene set analyses", icon = "list-check", group = "analysis",
       detail = function() detailGenesets(eselist)
     ))
@@ -296,7 +296,7 @@ detailSamples <- function(eselist) {
     )
   })
   list(
-    title = paste0("Samples <span>· ", ncol(ese), " libraries across ", length(tab), " ", prettifyVariablename(gv), " levels</span>"),
+    title = paste0("Samples <span>· ", ncol(ese), " libraries across ", length(tab), " ", prettify_variable_name(gv), " levels</span>"),
     goto_label = "Open sample metadata →", goto_value = homeNavTargets()[["samples"]],
     body = div(class = "shinyngs-bars", rows)
   )
@@ -305,18 +305,18 @@ detailSamples <- function(eselist) {
 #' @rdname detailSamples
 detailFeatures <- function(eselist, esen) {
   e <- eselist[[esen]]
-  items <- list(kv("Quantified in", paste(length(assayNames(e)), "assays:", paste(prettifyVariablename(assayNames(e)), collapse = ", "))))
+  items <- list(kv("Quantified in", paste(length(assayNames(e)), "assays:", paste(prettify_variable_name(assayNames(e)), collapse = ", "))))
   lf <- e@labelfield
   if (length(lf) > 0 && lf %in% colnames(mcols(e))) {
     col <- mcols(e)[[lf]]
     annotated <- sum(!is.na(col) & nzchar(as.character(col)))
-    items <- c(items, list(kv(paste0("With ", prettifyVariablename(lf)), paste0(fmtInt(annotated), " of ", fmtInt(nrow(e)), " annotated"))))
+    items <- c(items, list(kv(paste0("With ", prettify_variable_name(lf)), paste0(fmtInt(annotated), " of ", fmtInt(nrow(e)), " annotated"))))
   }
   if (length(eselist) > 1) {
-    items <- c(items, list(kv("Level", paste0(prettifyVariablename(esen), "-level quantification"))))
+    items <- c(items, list(kv("Level", paste0(prettify_variable_name(esen), "-level quantification"))))
   }
   list(
-    title = paste0(prettifyVariablename(esen), " features <span>· ", fmtInt(nrow(e)), " quantified</span>"),
+    title = paste0(prettify_variable_name(esen), " features <span>· ", fmtInt(nrow(e)), " quantified</span>"),
     goto_label = "Open assay data tables →", goto_value = homeNavTargets()[["assay"]],
     body = tags$dl(class = "shinyngs-kv", items)
   )
@@ -328,7 +328,7 @@ detailAssays <- function(eselist) {
   list(
     title = paste0("Assay data types <span>· ", length(an), " matrices</span>"),
     goto_label = "Open assay data tables →", goto_value = homeNavTargets()[["assay"]],
-    body = div(class = "shinyngs-pills", lapply(an, function(a) span(class = "shinyngs-pill", prettifyVariablename(a))))
+    body = div(class = "shinyngs-pills", lapply(an, function(a) span(class = "shinyngs-pill", prettify_variable_name(a))))
   )
 }
 
@@ -339,9 +339,9 @@ detailGroups <- function(eselist) {
   items <- lapply(eselist@group_vars, function(gv) {
     nlev <- length(unique(colData(ese)[[gv]]))
     term <- if (!is.null(default_gv) && identical(gv, default_gv)) {
-      tagList(prettifyVariablename(gv), span(class = "shinyngs-pill", "default"))
+      tagList(prettify_variable_name(gv), span(class = "shinyngs-pill", "default"))
     } else {
-      prettifyVariablename(gv)
+      prettify_variable_name(gv)
     }
     kv(term, paste(nlev, "levels"))
   })
@@ -359,7 +359,7 @@ detailContrasts <- function(eselist) {
   ncap <- 12
   rows <- lapply(utils::head(contrasts, ncap), function(ct) {
     tags$tr(
-      tags$td(prettifyVariablename(ct[1])),
+      tags$td(prettify_variable_name(ct[1])),
       tags$td(ct[2]),
       tags$td(ct[3]),
       if (has_stats) tags$td(span(class = "shinyngs-avail", "✓ fold-change · p · q")) else NULL
@@ -380,7 +380,7 @@ detailGenesets <- function(eselist) {
   items <- list()
   for (esen in names(eselist)) {
     for (a in names(eselist[[esen]]@gene_set_analyses)) {
-      term <- if (multi) paste0(prettifyVariablename(esen), " · ", prettifyVariablename(a)) else prettifyVariablename(a)
+      term <- if (multi) paste0(prettify_variable_name(esen), " · ", prettify_variable_name(a)) else prettify_variable_name(a)
       items <- c(items, list(kv(term, "gene set analysis available")))
     }
   }

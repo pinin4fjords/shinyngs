@@ -3,7 +3,7 @@
 \name{topgeneFacetLabels}
 \alias{topgeneFacetLabels}
 \title{Build the named vector of facet titles used by
-\code{\link{ggplot_topgene_boxplots}} and \code{\link{plotly_topgene_boxplots}}}
+\code{\link{static_topgene_boxplots}} and \code{\link{interactive_topgene_boxplots}}}
 \usage{
 topgeneFacetLabels(labels, genes)
 }

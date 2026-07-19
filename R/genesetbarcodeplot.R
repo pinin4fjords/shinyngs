@@ -29,7 +29,7 @@ genesetbarcodeplot_modal <- list(id = "genesetbarcodeplot", title = "Gene set ba
 #'
 #' if (interactive()) {
 #'   genesetbarcodeplotInput("myid", eselist)
-#'   app <- prepareApp("genesetbarcodeplot", eselist)
+#'   app <- prepare_app("genesetbarcodeplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -57,7 +57,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
   if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
     field_sets$select_assay_data <- expression_filters
   } else {
-    naked_fields <- pushToList(naked_fields, expression_filters)
+    naked_fields <- push_to_list(naked_fields, expression_filters)
   }
 
   field_sets <- c(field_sets, list(export = list(p(simpletableInput(ns("genesetbarcodeplot"), "Gene set")))))
@@ -91,7 +91,7 @@ genesetbarcodeplotInput <- function(id, eselist) {
 #'   data(airway, package = "airway")
 #'   ese <- as(airway, "ExploratorySummarizedExperiment")
 #'   eselist <- ExploratorySummarizedExperimentList(ese)
-#'   app <- prepareApp("genesetbarcodeplot", eselist)
+#'   app <- prepare_app("genesetbarcodeplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -135,7 +135,7 @@ genesetbarcodeplotOutput <- function(id) {
 #'
 #'   # Almost certainly used via application creation
 #'
-#'   app <- prepareApp("genesetbarcodeplot", eselist)
+#'   app <- prepare_app("genesetbarcodeplot", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -174,7 +174,7 @@ genesetbarcodeplot <- function(id, eselist) {
     barcodeplotTitle <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
 
-      title_components <- c(prettifyGeneSetName(unlist(genesetselect_reactives$getGenesetNames())), contrast_reactives$getSelectedContrastNames()[[1]])
+      title_components <- c(prettify_gene_set_name(unlist(genesetselect_reactives$getGenesetNames())), contrast_reactives$getSelectedContrastNames()[[1]])
 
       gene_set_types <- genesetselect_reactives$getGenesetTypes()
       assay <- selectmatrix_reactives$getAssay()
@@ -214,13 +214,13 @@ genesetbarcodeplot <- function(id, eselist) {
     # Get gene IDs of the same type as used for gene sets
 
     getGeneIDs <- reactive({
-      convertIds(rownames(getContrastsTable()), selectmatrix_reactives$getExperiment(), eselist@gene_set_id_type)
+      convert_ids(rownames(getContrastsTable()), selectmatrix_reactives$getExperiment(), eselist@gene_set_id_type)
     })
 
     # Labels for plot hover text
 
     getLabels <- reactive({
-      idToLabel(rownames(getContrastsTable()), selectmatrix_reactives$getExperiment())
+      id_to_label(rownames(getContrastsTable()), selectmatrix_reactives$getExperiment())
     })
 
     # Render the barcode plot
@@ -228,7 +228,7 @@ genesetbarcodeplot <- function(id, eselist) {
     output$genesetbarcodeplot <- renderPlotly({
       set_genes <- genesetselect_reactives$getPathwayGenes()
 
-      plotly_barcodeplot(
+      interactive_barcodeplot(
         fold_changes = getFoldChanges(), gene_ids = getGeneIDs(), set_gene_ids = names(set_genes), labels = getLabels(),
         plot_title = barcodeplotTitle()
       ) %>%
@@ -242,7 +242,7 @@ genesetbarcodeplot <- function(id, eselist) {
       ese <- selectmatrix_reactives$getExperiment()
       set_genes <- genesetselect_reactives$getPathwayGenes()
 
-      lct[which(lct[[prettifyVariablename(ese@labelfield)]] %in% set_genes), ]
+      lct[which(lct[[prettify_variable_name(ese@labelfield)]] %in% set_genes), ]
     })
 
     # Add links for display
@@ -374,9 +374,9 @@ quantileOfSorted <- function(sorted_x, probs) {
 #' gene_ids <- paste0("gene", 1:100)
 #' fold_changes <- rnorm(100)
 #' set_gene_ids <- sample(gene_ids, 15)
-#' plotly_barcodeplot(fold_changes, gene_ids, set_gene_ids)
+#' interactive_barcodeplot(fold_changes, gene_ids, set_gene_ids)
 #'
-plotly_barcodeplot <- function(fold_changes, gene_ids, set_gene_ids, labels = gene_ids, plot_title = "", worm_span = 0.45) {
+interactive_barcodeplot <- function(fold_changes, gene_ids, set_gene_ids, labels = gene_ids, plot_title = "", worm_span = 0.45) {
   plot_title <- gsub("\n", "<br>", plot_title, fixed = TRUE)
 
   keep <- !is.na(fold_changes)

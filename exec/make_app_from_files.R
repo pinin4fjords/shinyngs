@@ -260,7 +260,7 @@ build_app_bundle <- function(opt) {
   # Name assay data
 
   assay_files <-
-    stringsToNamedVector(
+    strings_to_named_vector(
       elements_string = opt$assay_files,
       opt$assay_names,
       simplify_files = TRUE,
@@ -309,7 +309,7 @@ build_app_bundle <- function(opt) {
     }
 
     contrasts_df <- read_metadata(opt$contrast_file)
-    genesets_files <- simpleSplit(opt$enrichment_gene_sets)
+    genesets_files <- simple_split(opt$enrichment_gene_sets)
     names(genesets_files) <- tools::file_path_sans_ext(basename(genesets_files))
 
     gene_set_analyses <- list(
@@ -428,7 +428,7 @@ build_app_bundle <- function(opt) {
   }
 
   if (!is.null(opt$group_vars)) {
-    opt$group_vars <- simpleSplit(opt$group_vars, ",")
+    opt$group_vars <- simple_split(opt$group_vars, ",")
     shiny_config[["group_vars"]] <- opt$group_vars
     shiny_config[["default_groupvar"]] <- opt$group_vars[1]
   }
@@ -448,7 +448,7 @@ build_app_bundle <- function(opt) {
     shiny_config[["ensembl_species"]] <- opt$ensembl_species
   }
 
-  myesel <- eselistfromConfig(
+  myesel <- eselist_from_config(
     shiny_config,
     log2_assays = opt$log2_assays,
     log2_threshold = opt$log2_guessing_threshold
@@ -466,7 +466,7 @@ build_app_bundle <- function(opt) {
       "# max_size matches Shiny's own default (200 MB) so behaviour is identical on a server.",
       "shiny::shinyOptions(cache = cachem::cache_mem(max_size = 200 * 1024^2))",
       'esel <- readRDS("data.rds")',
-      'app <- prepareApp("rnaseq", esel)',
+      'app <- prepare_app("rnaseq", esel)',
       "shiny::shinyApp(app$ui, app$server)"
     ),
     file.path(opt$output_directory, "app.R")
@@ -521,18 +521,18 @@ validate_mandatory_args <- function(opt) {
     "differential_results"
   )
 
-  invisible(shinyngs::checkListIsSubset(mandatory, names(opt), "mandatory arguments", "provided options"))
+  invisible(shinyngs::check_list_is_subset(mandatory, names(opt), "mandatory arguments", "provided options"))
 }
 
 validate_deploy_args <- function(opt) {
-  shinyngs::checkListIsSubset(
+  shinyngs::check_list_is_subset(
     c("shinyapps_account", "shinyapps_name"),
     names(opt),
     "mandatory arguments for shinyapps deployment",
     "provided options"
   )
 
-  invisible(shinyngs::checkListIsSubset(
+  invisible(shinyngs::check_list_is_subset(
     c("SHINYAPPS_SECRET", "SHINYAPPS_TOKEN"),
     names(Sys.getenv()),
     "environment variables for shinyapps deployment",

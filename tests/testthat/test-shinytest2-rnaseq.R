@@ -64,14 +64,14 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
   app$wait_for_idle(timeout = 20000)
 
   outputs <- names(app$get_values()$output)
-  expect_true("rnaseq-heatmap-clustering-interactiveHeatmap" %in% outputs)
+  expect_true("rnaseq-heatmap-clustering-interactive_heatmap" %in% outputs)
   expect_true("rnaseq-heatmap-clustering-heatmap-selectmatrix-geneSelect_ui" %in% outputs)
 
   # 12 samples in shinytest2_eselist(); the clustering heatmap's main trace is
   # a 12x12 sample-by-sample matrix, so assert that shape rather than just
   # checking the output registered.
   widget <- jsonlite::fromJSON(
-    app$get_value(output = "rnaseq-heatmap-clustering-interactiveHeatmap"),
+    app$get_value(output = "rnaseq-heatmap-clustering-interactive_heatmap"),
     simplifyVector = FALSE
   )
   heatmap_traces <- Filter(function(tr) identical(tr$type, "heatmap"), widget$x$data)

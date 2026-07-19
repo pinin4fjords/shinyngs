@@ -34,7 +34,7 @@ experimenttableInput("experiment", eselist)
 # Almost certainly used via application creation
 
 if (interactive()) {
-  app <- prepareApp("experimenttable", eselist)
+  app <- prepare_app("experimenttable", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

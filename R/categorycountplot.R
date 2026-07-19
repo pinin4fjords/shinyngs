@@ -42,8 +42,8 @@ categorycountplotOutput <- function(id) {
 #' The server function of the categorycountplot module
 #'
 #' Lets the user tally rows of a data frame by a categorical column,
-#' optionally split by a second, rendered via \code{\link{plotly_barchart}}
-#' (the same tally that \code{\link{plotly_count_barplot}} exposes as a
+#' optionally split by a second, rendered via \code{\link{interactive_barchart}}
+#' (the same tally that \code{\link{interactive_count_barplot}} exposes as a
 #' standalone function). Identifier-like columns (e.g. a gene or sample
 #' ID/name, where almost every row has its own distinct value) are excluded,
 #' since there would be little to count beyond '1' per row.
@@ -89,7 +89,7 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
 
       validate(need(length(fields) > 0, "No categorical annotation fields available for counting"))
 
-      field_choices <- structure(fields, names = prettifyVariablename(fields))
+      field_choices <- structure(fields, names = prettify_variable_name(fields))
 
       list(
         selectInput(ns("category"), "Count by", field_choices),
@@ -127,17 +127,17 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
       if (is.null(fill)) {
         countdata <- countdata[, c("category", "count")]
       } else {
-        colnames(countdata)[colnames(countdata) == "fill"] <- prettifyVariablename(fill)
+        colnames(countdata)[colnames(countdata) == "fill"] <- prettify_variable_name(fill)
       }
-      colnames(countdata)[colnames(countdata) == "category"] <- prettifyVariablename(input$category)
+      colnames(countdata)[colnames(countdata) == "category"] <- prettify_variable_name(input$category)
       colnames(countdata)[colnames(countdata) == "count"] <- "Count"
       countdata
     })
 
     output$plot <- renderPlotly({
-      title <- paste("Counts by", prettifyVariablename(input$category))
+      title <- paste("Counts by", prettify_variable_name(input$category))
 
-      plotly_barchart(getCountMatrix(), barmode = getBarmode(), ylab = "Count", title = title) %>%
+      interactive_barchart(getCountMatrix(), barmode = getBarmode(), ylab = "Count", title = title) %>%
         shinyngsPlotlyConfig(filename, format = session$userData$plotFormat())
     })
 

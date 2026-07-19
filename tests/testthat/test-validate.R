@@ -1,12 +1,12 @@
-# validateOrCatch()
+# validate_or_catch()
 
-test_that("validateOrCatch returns the value of a successful expression", {
-  expect_equal(validateOrCatch(1 + 1), 2)
+test_that("validate_or_catch returns the value of a successful expression", {
+  expect_equal(validate_or_catch(1 + 1), 2)
 })
 
-test_that("validateOrCatch converts an error into a shiny.silent.error carrying the original message", {
+test_that("validate_or_catch converts an error into a shiny.silent.error carrying the original message", {
   err <- tryCatch(
-    validateOrCatch(stop("boom")),
+    validate_or_catch(stop("boom")),
     error = function(e) e
   )
 
