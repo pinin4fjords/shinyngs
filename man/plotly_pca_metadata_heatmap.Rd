@@ -9,6 +9,7 @@ plotly_pca_metadata_heatmap(
   pcameta,
   fraction_explained,
   cluster_rows = TRUE,
+  n_components = 10,
   plot_height = NULL,
   ...
 )
@@ -27,6 +28,9 @@ to variance of each component (e.g. from
 
 \item{cluster_rows}{Cluster variables (rows) by their p value profile
 across components?}
+
+\item{n_components}{Number of leading components to test, passed through
+to \code{\link{anova_pca_metadata}}.}
 
 \item{plot_height}{The total rendered height of the plot in pixels, passed
 through to \code{\link{interactiveHeatmap}}. Defaults to a height scaled

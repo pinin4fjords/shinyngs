@@ -55,18 +55,29 @@ heatmapInput <- function(id, eselist, type = "expression") {
       cluster_cols <- TRUE
     }
     heatmap_filters <- list(hiddenInput(ns("cluster_rows"), cluster_rows), hiddenInput(ns("cluster_cols"), cluster_cols), hiddenInput(ns("scale"), "none"))
+
+    if (type == "pca") {
+      heatmap_filters <- pushToList(heatmap_filters, sliderInput(
+        ns("n_components"), "Number of principal components to test:",
+        min = 2, max = 30, value = PCA_HEATMAP_DEFAULT_N_COMPONENTS
+      ))
+    }
+  }
+
+  # The p value matrix behind the pca heatmap is downloadable as a CSV
+
+  fieldset_list <- list(expression = expression_filters)
+  if (type == "pca") {
+    fieldset_list$export <- list(simpletableInput(ns("pvalues"), tabletitle = PCA_HEATMAP_PVALUES_TABLE_TITLE))
   }
 
   # Output sets of fields in their own containers
 
   if (type == "pca" && length(eselist@group_vars) == 0) {
-    filters <- list(groupbyInput(ns("heatmap"), color = FALSE), heatmap_filters, fieldSets(ns("fieldset"), list(
-      expression = expression_filters
-    )))
+    filters <- list(groupbyInput(ns("heatmap"), color = FALSE), heatmap_filters, fieldSets(ns("fieldset"), fieldset_list))
   } else {
-    filters <- fieldSets(ns("fieldset"), list(
-      heatmap = list(groupbyInput(ns("heatmap"), color = FALSE), heatmap_filters), expression = expression_filters
-    ))
+    fieldset_list <- c(list(heatmap = list(groupbyInput(ns("heatmap"), color = FALSE), heatmap_filters)), fieldset_list)
+    filters <- fieldSets(ns("fieldset"), fieldset_list)
   }
 
   filters
@@ -77,6 +88,19 @@ heatmapInput <- function(id, eselist, type = "expression") {
 # container height where needed) rather than a fraction of the plot itself,
 # so the bars stay the same size regardless of how many heatmap rows are shown.
 HEATMAP_ANNOTATION_ROW_HEIGHT_PX <- 20
+
+# Default for the "Number of principal components to test" slider on the pca
+# heatmap, shared between the UI default and the server-side fallback used
+# before the debounced reactive has a value from the client.
+PCA_HEATMAP_DEFAULT_N_COMPONENTS <- 10
+
+# Rendered height, in pixels, of the scree plot row stacked above the pca
+# heatmap in plotly_pca_variance_heatmap().
+PCA_HEATMAP_SCREE_HEIGHT_PX <- 200
+
+# Shared between heatmapInput()'s download button and heatmapOutput()'s
+# table heading, so the two can't drift apart.
+PCA_HEATMAP_PVALUES_TABLE_TITLE <- "Association p-values"
 
 heatmap_modal_specs <- list(
   pca = list(id = "pcavsexperiment", title = "Principal components vs experimental variables"),
@@ -119,7 +143,9 @@ heatmapOutput <- function(id, type = "") {
   ns <- NS(id)
   spec <- heatmap_modal_specs[[type]]
   help <- if (is.null(spec)) NULL else modalInput(ns(spec$id), "help", "help")
-  moduleMain(NULL, uiOutput(ns("heatmap_ui")), help = help)
+  pvalues_table <- if (type == "pca") simpletableOutput(ns("pvalues"), tabletitle = PCA_HEATMAP_PVALUES_TABLE_TITLE, spinner = TRUE) else NULL
+
+  moduleMain(NULL, uiOutput(ns("heatmap_ui")), pvalues_table, help = help)
 }
 
 #' The server function of the heatmap module
@@ -175,6 +201,19 @@ heatmap <- function(id, eselist, type = "expression") {
       selectmatrix_reactives <- selectmatrix("heatmap", eselist, var_max = 500)
     } else {
       selectmatrix_reactives <- selectmatrix("heatmap", eselist, var_n = 1000, select_meta = FALSE, allow_summarise = FALSE)
+    }
+
+    # Debounce the pca heatmap's PC-count slider so dragging it doesn't
+    # rerun the ANOVA on every tick. Fall back to the slider's default while
+    # input$n_components hasn't reached the server yet - a debounced
+    # reactive's first value is primed synchronously, before the client has
+    # necessarily sent its initial slider value. Only the pca type has this
+    # slider, so it's the only type that needs the reactive.
+
+    if (type == "pca") {
+      getNComponents <- reactive({
+        if (is.null(input$n_components)) PCA_HEATMAP_DEFAULT_N_COMPONENTS else input$n_components
+      }) %>% debounce(300)
     }
 
     # Render the heatmap container
@@ -301,25 +340,53 @@ heatmap <- function(id, eselist, type = "expression") {
       list(pca_coords = pca$x, pcameta = pcameta, fraction_explained = calculatePCAFractionExplained(pca))
     }) %>% bindCache(getExperimentData(), selectmatrix_reactives$selectMatrix())
 
-    # The raw ANOVA p values, used only to size the plot container ahead of
-    # rendering it via plotly_pca_metadata_heatmap(). Cached on getPCAComponents()
-    # alone since the anova (unlike prcomp()) is otherwise cheap to rerun, but
-    # not so cheap that it should redo the whole ANOVA on every reactive tick.
+    # The raw ANOVA p values, used to size the plot container ahead of
+    # rendering it via plotly_pca_variance_heatmap() and to back the
+    # downloadable p value table. Cached on getPCAComponents() and
+    # getNComponents(), since the anova (unlike prcomp()) is otherwise cheap
+    # to rerun, but not so cheap that it should redo the whole ANOVA on every
+    # reactive tick.
 
     getPCAPvalues <- reactive({
       components <- getPCAComponents()
-      anova_pca_metadata(pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained)
-    }) %>% bindCache(getPCAComponents())
+      anova_pca_metadata(
+        pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained,
+        n_components = getNComponents()
+      )
+    }) %>% bindCache(getPCAComponents(), getNComponents())
+
+    # A display/download version of the p value matrix, backing the
+    # "Association p-values" table and its CSV download. getPCAPvalues() is
+    # forced to a local variable before being touched by the S4 generic
+    # as.data.frame() - passing it straight through as an argument can force
+    # a validate() condition to be evaluated during S4 method dispatch, where
+    # it surfaces as a raw error instead of the usual quiet "waiting" state.
+
+    getPCAPvaluesTable <- reactive({
+      pvals <- getPCAPvalues()
+      as.data.frame(signif(pvals, 3), check.names = FALSE)
+    })
 
     # Calculate heights for the the various types of heatmap
 
-    plotHeight <- reactive({
+    # The heatmap portion's own height, independent of any scree plot
+    # stacked above it for the pca type
+
+    heatmapOnlyHeight <- reactive({
       display_matrix <- getDisplayMatrix()
 
       # Allowance for the angled column labels
       xaxis_labels_height <- 150
 
       (nrow(display_matrix) * rowHeight()) + dendroHeight() + annotationHeight() + xaxis_labels_height
+    })
+
+    # Total height of the plotlyOutput container: the heatmap plus, for the
+    # pca type, the scree plot stacked above it
+
+    plotHeight <- reactive({
+      scree_height <- if (type == "pca") PCA_HEATMAP_SCREE_HEIGHT_PX else 0
+      heatmapOnlyHeight() + scree_height
     })
 
     # Add a chunk for the dendrogram at the top
@@ -375,8 +442,9 @@ heatmap <- function(id, eselist, type = "expression") {
     })
 
     # Build the heatmap. For the pca type this delegates entirely to
-    # plotly_pca_metadata_heatmap(), which owns the p value transform and
-    # display settings specific to that plot; the other types keep composing
+    # plotly_pca_variance_heatmap(), which owns the p value transform,
+    # scree-plot syncing and display settings specific to that plot; the
+    # other types keep composing
     # interactiveHeatmap() directly. Cached on exactly the inputs read below,
     # since this covers heatmaply()'s own layout work as well as the
     # row/column clustering it performs internally. plot_height is deliberately
@@ -389,9 +457,10 @@ heatmap <- function(id, eselist, type = "expression") {
     getHeatmapPlot <- reactive({
       if (type == "pca") {
         components <- getPCAComponents()
-        validateOrCatch(plotly_pca_metadata_heatmap(
+        validateOrCatch(plotly_pca_variance_heatmap(
           pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained,
-          cluster_rows = as.logical(input$cluster_rows), plot_height = plotHeight()
+          cluster_rows = as.logical(input$cluster_rows), n_components = getNComponents(),
+          heatmap_height = heatmapOnlyHeight(), scree_height = PCA_HEATMAP_SCREE_HEIGHT_PX
         ))
       } else {
         validateOrCatch(interactiveHeatmap(
@@ -403,7 +472,7 @@ heatmap <- function(id, eselist, type = "expression") {
     })
 
     if (type == "pca") {
-      getHeatmapPlot <- getHeatmapPlot %>% bindCache(getPCAComponents(), input$cluster_rows)
+      getHeatmapPlot <- getHeatmapPlot %>% bindCache(getPCAComponents(), input$cluster_rows, getNComponents())
     } else {
       getHeatmapPlot <- getHeatmapPlot %>% bindCache(
         getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels()
@@ -415,6 +484,15 @@ heatmap <- function(id, eselist, type = "expression") {
         getHeatmapPlot() %>% shinyngsPlotlyConfig("heatmap", format = session$userData$plotFormat())
       })
     })
+
+    # server = FALSE: the number of columns here changes whenever the
+    # "Number of principal components to test" slider moves, which can race
+    # a debounced control change against DT's server-side paging (see
+    # simpletable()'s `server` argument).
+
+    if (type == "pca") {
+      simpletable("pvalues", displayMatrix = getPCAPvaluesTable, filename = "pca_variable_association_pvalues", rownames = TRUE, server = FALSE)
+    }
   })
 }
 
@@ -654,6 +732,8 @@ splitAnnotationLegend <- function(p, col_side_colors, palette, ncol_heatmap) {
 #'   and variables by column.
 #' @param fraction_explained Numeric vector containing the percent contribution
 #'   to variance of each component
+#' @param n_components Number of leading components to test. Clamped to the
+#'   number actually available in \code{pca_coords} if that's fewer.
 #'
 #' @return output A numeric matrix of p values
 #' @export
@@ -669,17 +749,14 @@ splitAnnotationLegend <- function(p, col_side_colors, palette, ncol_heatmap) {
 #' )
 #' anova_pca_metadata(pca$coords, pcameta, pca$percentVar)
 #'
-anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
-  # Use 10 components or however many fewer is produced by the PCA
-
-  last_pc <- 10
-  if (ncol(pca_coords) < last_pc) {
-    last_pc <- ncol(pca_coords)
-  }
+anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained, n_components = 10) {
+  last_pc <- min(n_components, ncol(pca_coords))
 
   pcameta <- pcameta[, chooseGroupingVariables(pcameta), drop = FALSE]
 
-  # Make a blank matrix to hold the p values
+  # Make a blank matrix to hold the p values. Column labels use the same
+  # pcLabels() helper as plotly_screeplot(), so they line up exactly for
+  # column-syncing in plotly_pca_variance_heatmap().
 
   pvals <-
     matrix(
@@ -688,13 +765,7 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
       ncol = last_pc,
       dimnames = list(
         colnames(pcameta),
-        paste(
-          paste("PC", seq_len(last_pc), sep = ""),
-          " (",
-          fraction_explained[seq_len(last_pc)],
-          "%)",
-          sep = ""
-        )
+        pcLabels(last_pc)
       )
     )
 
@@ -730,6 +801,8 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
 #'   \code{\link{calculatePCAFractionExplained}}).
 #' @param cluster_rows Cluster variables (rows) by their p value profile
 #'   across components?
+#' @param n_components Number of leading components to test, passed through
+#'   to \code{\link{anova_pca_metadata}}.
 #' @param plot_height The total rendered height of the plot in pixels, passed
 #'   through to \code{\link{interactiveHeatmap}}. Defaults to a height scaled
 #'   to the number of variables.
@@ -749,8 +822,8 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
 #'
 #' plotly_pca_metadata_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
 #'
-plotly_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, plot_height = NULL, ...) {
-  pvals <- anova_pca_metadata(pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained)
+plotly_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, n_components = 10, plot_height = NULL, ...) {
+  pvals <- anova_pca_metadata(pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained, n_components = n_components)
 
   if (cluster_rows) {
     pvals <- pvals[rowsWithMultipleValues(pvals), , drop = FALSE]
@@ -773,4 +846,85 @@ plotly_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_explained,
     cexCol = 1, cexRow = 1, display_numbers = FALSE, hide_colorbar = TRUE,
     plot_height = plot_height, ...
   )
+}
+
+#' Combine the PCA-vs-metadata heatmap with a synced scree plot
+#'
+#' Stacks \code{\link{plotly_screeplot}} directly above
+#' \code{\link{plotly_pca_metadata_heatmap}} in a single figure, sharing one
+#' x-axis. Both plots use identical, identically-ordered PC labels as their
+#' x-categories, so this lines each scree point up above its corresponding
+#' heatmap column, letting a "this PC is significantly associated" cell be
+#' read alongside how much variance that PC actually explains.
+#'
+#' @param pca_coords Data frame of PCA coordinates, with samples by row and
+#'   components by column (e.g. the \code{x} element of \code{\link{runPCA}}'s
+#'   \code{prcomp} result).
+#' @param pcameta Data frame of sample metadata with sample identifiers by row
+#'   and variables by column.
+#' @param fraction_explained Numeric vector containing the percent contribution
+#'   to variance of each component (e.g. from
+#'   \code{\link{calculatePCAFractionExplained}}).
+#' @param cluster_rows Cluster variables (rows) by their p value profile
+#'   across components?
+#' @param n_components Number of leading components to show/test, passed to
+#'   both \code{\link{plotly_screeplot}} and \code{\link{plotly_pca_metadata_heatmap}}.
+#' @param heatmap_height The rendered height, in pixels, of the heatmap portion
+#'   of the combined figure.
+#' @param scree_height The rendered height, in pixels, of the scree portion of
+#'   the combined figure.
+#' @param ... Additional arguments passed to \code{\link{plotly_pca_metadata_heatmap}}
+#'
+#' @return output A plotly htmlwidget combining both plots
+#'
+#' @export
+#'
+#' @examples
+#' pcameta <- data.frame(
+#'   row.names = paste0("sample", 1:6),
+#'   treatment = rep(c("control", "treated"), each = 3),
+#'   batch = rep(c("a", "b"), 3)
+#' )
+#' pca_coords <- matrix(rnorm(6 * 4), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:4)))
+#'
+#' plotly_pca_variance_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
+#'
+plotly_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, n_components = 10,
+                                         heatmap_height = 600, scree_height = 200, ...) {
+  n_components <- min(n_components, ncol(pca_coords))
+
+  scree <- plotly_screeplot(fraction_explained, n_components = n_components, title = "")
+
+  # The heatmap's own column labels (drawn at the bottom of the combined
+  # figure) already identify each PC, so drop the scree plot's x-axis title
+  # and tick labels rather than showing them a second time, floating in the
+  # middle of the combined figure where the two plots meet.
+  scree <- scree %>% plotly::layout(xaxis = list(title = "", showticklabels = FALSE))
+
+  hm <- plotly_pca_metadata_heatmap(
+    pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained,
+    cluster_rows = cluster_rows, n_components = n_components, plot_height = heatmap_height, ...
+  )
+
+  # Both plots carry their own default plotly config; subplot() warns
+  # ("Can only have one: config") if more than one of its inputs has one, so
+  # drop it from one side here - the final config is applied downstream by
+  # shinyngsPlotlyConfig() anyway.
+  hm$x$config <- NULL
+
+  total_height <- scree_height + heatmap_height
+
+  # cluster_rows = TRUE gives the heatmap side an extra internal x-axis for
+  # its row dendrogram, which the scree plot doesn't have - shareX still
+  # lines the shared main axis (the PC columns) up correctly, but plotly
+  # warns about the mismatched axis count on the dendrogram's axis, which
+  # doesn't participate in the sync this function cares about.
+  suppressWarnings(
+    plotly::subplot(
+      scree, hm,
+      nrows = 2, shareX = TRUE, titleY = TRUE,
+      heights = c(scree_height / total_height, heatmap_height / total_height), margin = 0.02
+    )
+  ) %>%
+    plotly::layout(hovermode = "x")
 }
