@@ -179,9 +179,6 @@ reference:
   - dexseqtableInput
   - dexseqtableInputFields
   - dexseqtableOutput
-  - differentialScatterInput
-  - differentialScatterOutput
-  - differentialScatterServer
   - differentialtable
   - differentialtableInput
   - differentialtableOutput
@@ -230,7 +227,6 @@ reference:
   - linkMatrix
   - makeContrastControl
   - makeContrastFilterSet
-  - makePackageCitation
   - maplot
   - maplotInput
   - maplotOutput
