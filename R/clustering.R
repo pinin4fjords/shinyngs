@@ -170,10 +170,6 @@ clustering <- function(id, eselist) {
       list(h3(paste("Feature-wise clustering for feature set:", selectmatrix_reactives$matrixTitle())), h4(errorBarsSubtitle()))
     })
 
-    # A common set of colors however the clusters are plotted
-
-    # getClusterColors <- reactive({ number_of_clusters <- getClusterNumber() makeColorScale(as.numeric(number_of_clusters), 'Dark2') })
-
     ############################################################################# Clustering
 
     # Make a scaled version of the input matrix suitable for clustering and visualisation
@@ -423,7 +419,7 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
   mad_valid_groups <- group_sizes[group_sizes > 2]
 
   if (length(mad_valid_groups) == 0) {
-    print("WARNING: low replication, skipping outlier detection ...")
+    warning("low replication, skipping outlier detection ...")
     NULL
   } else {
     mad_valid_samples <- which(sample_sheet[[groupby]] %in% names(mad_valid_groups))

@@ -34,3 +34,12 @@
 * Every interactive plot's download button honours an app-wide PNG/SVG format
   toggle, so any plot can be exported as vector SVG for publication.
 * Dropped the `reformulas` and `data.table` dependencies.
+* Progress and warning logging during object construction and validation now
+  goes through `message()`/`warning()` rather than `print()`, so it can be
+  suppressed and captured through R's condition system.
+
+## Maintenance
+
+* Removed the unused exported function `geom_mean()`; geometric means are
+  computed directly by `colGeomMeans()`.
+* Declared `grDevices` under `Imports` (it was already used).

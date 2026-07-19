@@ -10,7 +10,7 @@ is_valid_positive_integer_vector(string)
 \item{string}{Input string}
 }
 \value{
-output Boolean indicating whether the check passed
+Boolean indicating whether the check passed
 }
 \description{
 Check if a comma-separated string can be parsed to an integer vector

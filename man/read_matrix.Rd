@@ -17,14 +17,14 @@ read_matrix(
 
 \item{sample_metadata}{Data frame of sample metadata}
 
-\item{feature_metadata}{Data fraome of feature metadata}
+\item{feature_metadata}{Data frame of feature metadata}
 
-\item{sep}{Sepaarator in matrix file}
+\item{sep}{Separator in matrix file}
 
 \item{row.names}{Matrix column number or name containing feature identifiers}
 }
 \value{
-output Numeric matrix
+Numeric matrix
 }
 \description{
 Read an expression matrix file and match to specified samples and features

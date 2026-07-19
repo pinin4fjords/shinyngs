@@ -178,19 +178,6 @@ splitStringToFixedwidthLines <- function(string, linewidth = 20) {
   paste(unlist(strings), collapse = "\n")
 }
 
-#' Return a usable citation string for a package
-#'
-#' Adds just the tiny bit of wrapping code to make the output of
-#' \code{citation()} printable.
-#'
-#' @param package Character string of package name
-#'
-#' @return citation A string that can be put in markdown doucments etc.
-
-makePackageCitation <- function(package) {
-  paste(capture.output(print(citation(package), style = "HTML")), collapse = " ")
-}
-
 #' Replace NAs with a string for convenience
 #'
 #' @param vec Character vector or factor containing NAs
@@ -224,7 +211,7 @@ na.replace <- function(vec, replacement = "NA") {
 #'
 #' @param string Input string
 #'
-#' @return output Boolean indicating whether the check passed
+#' @return Boolean indicating whether the check passed
 #' @export
 #'
 #' @examples

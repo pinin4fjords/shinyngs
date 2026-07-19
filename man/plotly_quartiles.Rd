@@ -27,6 +27,9 @@ If TRUE, log2 transformation is applied unconditionally.
 If FALSE, no transformation is applied.
 If NULL, a conditional transformation based on threshold is applied.}
 }
+\value{
+A plotly htmlwidget
+}
 \description{
 Box-plots become unmanagable with large numbers of samples. This function
 plots lines at the median, quartiles, and whiskers, plotting points for

@@ -201,7 +201,7 @@ eselistfromConfig <-
 
     # Make the basic objects
 
-    print("Constructing ExploratorySummarizedExperiments")
+    message("Constructing ExploratorySummarizedExperiments")
 
     expsumexps <- lapply(structure(names(experiments), names = names(experiments)), function(expname) {
       exp <- experiments[[expname]]
@@ -221,7 +221,7 @@ eselistfromConfig <-
       # Read the expression data
 
       assays <- rev(lapply(exp$expression_matrices, function(mat) {
-        print(paste("Reading", mat$file))
+        message(paste("Reading", mat$file))
         read_matrix(
           mat$file,
           sample_metadata = colData,
@@ -275,7 +275,7 @@ eselistfromConfig <-
             )
           } else {
             lapply(assaytests, function(at) {
-              print(paste("Reading test stats file", at))
+              message(paste("Reading test stats file", at))
               read.csv(at, row.names = 1, header = FALSE)
             })
           }
@@ -337,7 +337,7 @@ eselistfromConfig <-
       }
     }
 
-    print("Creating ExploratorySummarizedExperimentList")
+    message("Creating ExploratorySummarizedExperimentList")
 
     eselist_args <- list(
       expsumexps,
@@ -441,11 +441,11 @@ read_gmt <- function(file) {
 #'
 #' @param matrix_file Matrix file
 #' @param sample_metadata Data frame of sample metadata
-#' @param feature_metadata Data fraome of feature metadata
-#' @param sep Sepaarator in matrix file
+#' @param feature_metadata Data frame of feature metadata
+#' @param sep Separator in matrix file
 #' @param row.names Matrix column number or name containing feature identifiers
 #'
-#' @return output Numeric matrix
+#' @return Numeric matrix
 #' @export
 #'
 #' @examples
