@@ -202,12 +202,11 @@ The function
 [`eselistFromYAML()`](https://pinin4fjords.github.io/shinyngs/reference/eselistFromYAML.md)
 is provided to help build your own objects given a config file.
 
-# New: command-line interfaces
+# Command-line interfaces
 
 ## App creation
 
-A new feature (may be buggy) is the creation of Shiny apps from file
-complements:
+Shiny apps can be created directly from file complements:
 
 ``` R
 make_app_from_files.R \
@@ -244,26 +243,6 @@ If `--feature_metadata` includes `chromosome_name`, `start_position` and
 
 You can start the resulting app locally, by running the `app.R`
 resulting from the above command.
-
-Or run it via Docker: the
-[image](https://quay.io/repository/biocontainers/r-shinyngs) mentioned
-above already has `shinyngs` and Shiny installed, so it can run the
-generated `app.R`/`data.rds` directly - there’s no `latest` tag, so use
-the most recent one from the [image’s tag
-list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags) and
-mount the directory containing them:
-
-``` bash
-docker run --rm -p 3838:3838 \
-    -v "$(pwd)/app":/data -w /data \
-    quay.io/biocontainers/r-shinyngs:<latest-tag> \
-    Rscript -e "shiny::runApp('/data', host = '0.0.0.0', port = 3838)"
-```
-
-Then browse to <http://localhost:3838>. `host = '0.0.0.0'` is required
-for the app to be reachable from outside the container, and `-w /data`
-ensures the app’s working directory (and anything it writes) lands in
-the mounted directory rather than the container’s own filesystem.
 
 See `make_app_from_files.R --help` for more info.
 
@@ -345,20 +324,30 @@ Technical information can be accessed via the package documentation:
 ?shinyngs
 ```
 
-More user-oriented documentation and examples of how to build your own
-apps in the
-[vignette](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html).
+User-oriented guides live on the [package
+website](https://pinin4fjords.github.io/shinyngs/), including [getting
+started](https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html),
+[the data
+model](https://pinin4fjords.github.io/shinyngs/articles/data-model.html),
+[building an app from
+files](https://pinin4fjords.github.io/shinyngs/articles/build-from-files.html),
+the [command-line
+reference](https://pinin4fjords.github.io/shinyngs/articles/cli.html), a
+[module
+catalogue](https://pinin4fjords.github.io/shinyngs/articles/modules.html),
+[reusing components inside and outside
+Shiny](https://pinin4fjords.github.io/shinyngs/articles/reuse.html),
+[theming and shareable
+views](https://pinin4fjords.github.io/shinyngs/articles/theming.html),
+and a [developer
+guide](https://pinin4fjords.github.io/shinyngs/articles/developer.html).
 
-This is also accessible via the `vignette` command:
+The getting-started guide is also accessible via the `vignette` command:
 
 ``` r
 
 vignette('shinyngs')
 ```
-
-# TODO
-
-- More useful non-RNAseq functionality to be added
 
 # Credits
 

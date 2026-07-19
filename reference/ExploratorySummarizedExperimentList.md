@@ -101,3 +101,12 @@ displayed in an exploratory interface generated in `shinyngs`. This
 includes the study title, author etc as well as definitions of the
 contrasts used in differential analysis and the gene sets relevant to
 all experiments
+
+## Examples
+
+``` r
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese, title = "Airway study")
+#> [1] "Creating ExploratorySummarizedExperimentList object"
+```

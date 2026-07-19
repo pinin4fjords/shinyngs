@@ -16,7 +16,22 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/shinyngs.html">Get started</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Building apps</h6></li>
+    <li><a class="dropdown-item" href="../articles/data-model.html">The data model: building ExploratorySummarizedExperiment objects</a></li>
+    <li><a class="dropdown-item" href="../articles/build-from-files.html">Building an app from files and YAML</a></li>
+    <li><a class="dropdown-item" href="../articles/cli.html">Command-line interface reference</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Using &amp; extending</h6></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module and panel catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/reuse.html">Reusing components inside and outside Shiny</a></li>
+    <li><a class="dropdown-item" href="../articles/theming.html">Theming, palettes and shareable views</a></li>
+    <li><a class="dropdown-item" href="../articles/developer.html">Developer guide: how modules work and how to add one</a></li>
+  </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/pinin4fjords/shinyngs/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -384,6 +399,13 @@
 
         <dt>
 
+          <code><a href="ggplot_topgene_boxplots.html">ggplot_topgene_boxplots()</a></code>
+
+        </dt>
+        <dd>Make a faceted boxplot of the top differential genes in a contrast</dd>
+
+        <dt>
+
           <code><a href="ggplotify.html">ggplotify()</a></code>
 
         </dt>
@@ -405,10 +427,24 @@
 
         <dt>
 
+          <code><a href="plotly_barchart.html">plotly_barchart()</a></code>
+
+        </dt>
+        <dd>Make a grouped, stacked or overlaid bar chart with <code>plot_ly()</code></dd>
+
+        <dt>
+
           <code><a href="plotly_boxplot.html">plotly_boxplot()</a></code>
 
         </dt>
         <dd>Make an interactive boxplot with coloring by experimental variable</dd>
+
+        <dt>
+
+          <code><a href="plotly_cluster_profiles.html">plotly_cluster_profiles()</a></code>
+
+        </dt>
+        <dd>Plot expression profiles for a set of feature clusters with <code>plot_ly()</code></dd>
 
         <dt>
 
@@ -419,10 +455,31 @@
 
         <dt>
 
+          <code><a href="plotly_count_barplot.html">plotly_count_barplot()</a></code>
+
+        </dt>
+        <dd>Plot counts of feature annotation rows by category, optionally split by a second categorical column, with <code>plot_ly()</code></dd>
+
+        <dt>
+
           <code><a href="plotly_densityplot.html">plotly_densityplot()</a></code>
 
         </dt>
         <dd>Make a dynamic density plot with plotly</dd>
+
+        <dt>
+
+          <code><a href="plotly_illumina_control_probes.html">plotly_illumina_control_probes()</a></code>
+
+        </dt>
+        <dd>Make an Illumina microarray control-probe QC plot with <code>plot_ly()</code></dd>
+
+        <dt>
+
+          <code><a href="plotly_pca_metadata_heatmap.html">plotly_pca_metadata_heatmap()</a></code>
+
+        </dt>
+        <dd>Make a PCA-vs-metadata association heatmap with <code>heatmaply()</code></dd>
 
         <dt>
 
@@ -444,6 +501,20 @@
 
         </dt>
         <dd>Make a PCA scree plot with <code>plot_ly()</code></dd>
+
+        <dt>
+
+          <code><a href="plotly_topgene_boxplots.html">plotly_topgene_boxplots()</a></code>
+
+        </dt>
+        <dd>Make an interactive faceted boxplot of the top differential genes in a contrast</dd>
+
+        <dt>
+
+          <code><a href="plotly_upset.html">plotly_upset()</a></code>
+
+        </dt>
+        <dd>Make an UpSet-style set intersection plot with <code>plot_ly()</code></dd>
 
         <dt>
 
@@ -616,6 +687,20 @@
 
         <dt>
 
+          <code><a href="addColorbyMenu.html">addColorbyMenu()</a></code>
+
+        </dt>
+        <dd>Colour points by a chosen variable, with a plotly dropdown to switch it</dd>
+
+        <dt>
+
+          <code><a href="addColoredPoints.html">addColoredPoints()</a></code>
+
+        </dt>
+        <dd>Colour points by a single variable, highlighting labelled rows</dd>
+
+        <dt>
+
           <code><a href="addPoints.html">addPoints()</a></code>
 
         </dt>
@@ -732,6 +817,27 @@
 
         </dt>
         <dd>Make a numeric field with selectable associated cardinality (&gt;, &lt; ..).</dd>
+
+        <dt>
+
+          <code><a href="categorycountplot.html">categorycountplot()</a></code>
+
+        </dt>
+        <dd>The server function of the categorycountplot module</dd>
+
+        <dt>
+
+          <code><a href="categorycountplotInput.html">categorycountplotInput()</a></code>
+
+        </dt>
+        <dd>The input function of the categorycountplot module</dd>
+
+        <dt>
+
+          <code><a href="categorycountplotOutput.html">categorycountplotOutput()</a></code>
+
+        </dt>
+        <dd>The output function of the categorycountplot module</dd>
 
         <dt>
 
@@ -998,13 +1104,6 @@
 
         </dt>
         <dd>Finite x/y bounds of a differential-scatter table</dd>
-
-        <dt>
-
-          <code><a href="fixedEffectsFormula.html">fixedEffectsFormula()</a></code>
-
-        </dt>
-        <dd>Remove random effects from a model formula</dd>
 
         <dt>
 
@@ -1638,6 +1737,69 @@
 
         <dt>
 
+          <code><a href="topgeneAnnotationData.html">topgeneAnnotationData()</a></code>
+
+        </dt>
+        <dd>Build the per-facet annotation data frame used by <code>ggplot_topgene_boxplots</code></dd>
+
+        <dt>
+
+          <code><a href="topgeneAnnotationVector.html">topgeneAnnotationVector()</a></code>
+
+        </dt>
+        <dd>Build a per-gene annotation vector, in <code>genes</code> order, for <code>plotly_topgene_boxplots</code></dd>
+
+        <dt>
+
+          <code><a href="topgeneboxplot.html">topgeneboxplot()</a></code>
+
+        </dt>
+        <dd>The server function of the topgeneboxplot module</dd>
+
+        <dt>
+
+          <code><a href="topgeneboxplotInput.html">topgeneboxplotInput()</a></code>
+
+        </dt>
+        <dd>The input function of the topgeneboxplot module</dd>
+
+        <dt>
+
+          <code><a href="topgeneBoxplotData.html">topgeneBoxplotData()</a></code>
+
+        </dt>
+        <dd>Reshape an assay matrix into long form for <code>ggplot_topgene_boxplots</code></dd>
+
+        <dt>
+
+          <code><a href="topgeneBoxplotLayout.html">topgeneBoxplotLayout()</a></code>
+
+        </dt>
+        <dd>Compute the total plot height and inter-row margin fraction needed to lay out <code>n_genes</code> faceted boxplots over <code>ncol</code> columns without rows overlapping</dd>
+
+        <dt>
+
+          <code><a href="topgeneboxplotOutput.html">topgeneboxplotOutput()</a></code>
+
+        </dt>
+        <dd>The output function of the topgeneboxplot module</dd>
+
+        <dt>
+
+          <code><a href="topgeneRankOptions.html">topgeneRankOptions()</a></code>
+
+        </dt>
+        <dd>Ranking options from <code>topgene_rank_options</code> whose contrast-table column is actually present</dd>
+
+        <dt>
+
+          <code><a href="topgeneTransformAssay.html">topgeneTransformAssay()</a></code>
+
+        </dt>
+        <dd>Log2-transform an assay matrix and subset/order it to the requested genes</dd>
+
+        <dt>
+
           <code><a href="upset.html">upset()</a></code>
 
         </dt>
@@ -1656,6 +1818,41 @@
 
         </dt>
         <dd>The output function of the clustering module</dd>
+
+        <dt>
+
+          <code><a href="upset_calculate_intersections.html">upset_calculate_intersections()</a></code>
+
+        </dt>
+        <dd>Compute set intersections and sizes for an UpSet-style plot</dd>
+
+        <dt>
+
+          <code><a href="upset_filter_intersections_by_order.html">upset_filter_intersections_by_order()</a></code>
+
+        </dt>
+        <dd>Drop intersections involving fewer than a minimum number of sets</dd>
+
+        <dt>
+
+          <code><a href="upset_grid_plot.html">upset_grid_plot()</a></code>
+
+        </dt>
+        <dd>Make the grid of points indicating set membership in intersections</dd>
+
+        <dt>
+
+          <code><a href="upset_intersect_size_chart.html">upset_intersect_size_chart()</a></code>
+
+        </dt>
+        <dd>Make the bar chart illustrating intersect size</dd>
+
+        <dt>
+
+          <code><a href="upset_set_size_chart.html">upset_set_size_chart()</a></code>
+
+        </dt>
+        <dd>Make the bar chart illustrating set sizes</dd>
 
         <dt>
 

@@ -16,7 +16,22 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/shinyngs.html">Get started</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Building apps</h6></li>
+    <li><a class="dropdown-item" href="../articles/data-model.html">The data model: building ExploratorySummarizedExperiment objects</a></li>
+    <li><a class="dropdown-item" href="../articles/build-from-files.html">Building an app from files and YAML</a></li>
+    <li><a class="dropdown-item" href="../articles/cli.html">Command-line interface reference</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Using &amp; extending</h6></li>
+    <li><a class="dropdown-item" href="../articles/modules.html">Module and panel catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/reuse.html">Reusing components inside and outside Shiny</a></li>
+    <li><a class="dropdown-item" href="../articles/theming.html">Theming, palettes and shareable views</a></li>
+    <li><a class="dropdown-item" href="../articles/developer.html">Developer guide: how modules work and how to add one</a></li>
+  </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/pinin4fjords/shinyngs/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -45,7 +60,9 @@
 <span>  lines <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hline_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  vline_thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  plot_type <span class="op">=</span> <span class="st">"scatter"</span></span>
+<span>  plot_type <span class="op">=</span> <span class="st">"scatter"</span>,</span>
+<span>  xrange <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  yrange <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,6 +100,16 @@ a named list of x values at which to place vlines</p></dd>
 <dt id="arg-plot-type">plot_type<a class="anchor" aria-label="anchor" href="#arg-plot-type"></a></dt>
 <dd><p>Plot type: 'scatter' or 'scatter3d'. The axis range fix
 that makes threshold lines reach the plot edges only applies to 2D plots.</p></dd>
+
+
+<dt id="arg-xrange">xrange<a class="anchor" aria-label="anchor" href="#arg-xrange"></a></dt>
+<dd><p>Optional fixed c(min, max) x axis range. When NULL (the
+default) the range is derived from the data with 5% padding.</p></dd>
+
+
+<dt id="arg-yrange">yrange<a class="anchor" aria-label="anchor" href="#arg-yrange"></a></dt>
+<dd><p>Optional fixed c(min, max) y axis range. When NULL (the
+default) the range is derived from the data with 5% padding.</p></dd>
 
 </dl></div>
     <div class="section level2">

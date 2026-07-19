@@ -39,7 +39,24 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/shinyngs.html">Get started</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Building apps</h6></li>
+    <li><a class="dropdown-item" href="articles/data-model.html">The data model: building ExploratorySummarizedExperiment objects</a></li>
+    <li><a class="dropdown-item" href="articles/build-from-files.html">Building an app from files and YAML</a></li>
+    <li><a class="dropdown-item" href="articles/cli.html">Command-line interface reference</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Using &amp; extending</h6></li>
+    <li><a class="dropdown-item" href="articles/modules.html">Module and panel catalog</a></li>
+    <li><a class="dropdown-item" href="articles/reuse.html">Reusing components inside and outside Shiny</a></li>
+    <li><a class="dropdown-item" href="articles/theming.html">Theming, palettes and shareable views</a></li>
+    <li><a class="dropdown-item" href="articles/developer.html">Developer guide: how modules work and how to add one</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -101,10 +118,9 @@
 <div class="section level1">
 <h1 id="screenshot">Screenshot<a class="anchor" aria-label="anchor" href="#screenshot"></a>
 </h1>
-<div class="float">
-<img src="reference/figures/gene_page.png" alt="Example: the gene page"><div class="figcaption">Example: the gene page</div>
-</div>
-<div class="section level2">
+<figure><img src="reference/figures/gene_page.png" alt="Example: the gene page"><figcaption aria-hidden="true">
+Example: the gene page
+</figcaption></figure><div class="section level2">
 <h2 id="objectives">Objectives<a class="anchor" aria-label="anchor" href="#objectives"></a>
 </h2>
 <ul>
@@ -198,12 +214,12 @@
 <p>The function <code><a href="reference/eselistFromYAML.html">eselistFromYAML()</a></code> is provided to help build your own objects given a config file.</p>
 </div>
 <div class="section level1">
-<h1 id="new-command-line-interfaces">New: command-line interfaces<a class="anchor" aria-label="anchor" href="#new-command-line-interfaces"></a>
+<h1 id="command-line-interfaces">Command-line interfaces<a class="anchor" aria-label="anchor" href="#command-line-interfaces"></a>
 </h1>
 <div class="section level2">
 <h2 id="app-creation">App creation<a class="anchor" aria-label="anchor" href="#app-creation"></a>
 </h2>
-<p>A new feature (may be buggy) is the creation of Shiny apps from file complements:</p>
+<p>Shiny apps can be created directly from file complements:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>make_app_from_files.R \</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>    <span class="sc">--</span>assay_files raw.tsv,normalised_counts.tsv \</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="sc">--</span>sample_metadata samplesheet.csv \</span>
@@ -224,20 +240,14 @@
 <p>.. and produce an app.R. Gene set enrichment results (GSEA, ROAST, or other tools via a custom column mapping) can also be wired in via <code>--enrichment_gene_sets</code> and <code>--enrichment_filename_template</code> - see <a href="https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html#building-an-app-from-files-with-enrichment-results">“Building an app from files with enrichment results”</a> in the vignette for a worked example.</p>
 <p>If <code>--feature_metadata</code> includes <code>chromosome_name</code>, <code>start_position</code> and <code>end_position</code> columns, passing <code>--ensembl_species</code> (e.g. <code>hsapiens</code>, <code>mmusculus</code>) enables the gene model view described above.</p>
 <p>You can start the resulting app locally, by running the <code>app.R</code> resulting from the above command.</p>
-<p>Or run it via Docker: the <a href="https://quay.io/repository/biocontainers/r-shinyngs" class="external-link">image</a> mentioned above already has <code>shinyngs</code> and Shiny installed, so it can run the generated <code>app.R</code>/<code>data.rds</code> directly - there’s no <code>latest</code> tag, so use the most recent one from the <a href="https://quay.io/repository/biocontainers/r-shinyngs?tab=tags" class="external-link">image’s tag list</a> and mount the directory containing them:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 <span class="dt">\</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>    <span class="at">-v</span> <span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/app"</span>:/data <span class="at">-w</span> /data <span class="dt">\</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    quay.io/biocontainers/r-shinyngs:<span class="op">&lt;</span>latest-tag<span class="op">&gt;</span> <span class="dt">\</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    Rscript <span class="at">-e</span> <span class="st">"shiny::runApp('/data', host = '0.0.0.0', port = 3838)"</span></span></code></pre></div>
-<p>Then browse to <a href="http://localhost:3838" class="external-link uri">http://localhost:3838</a>. <code>host = '0.0.0.0'</code> is required for the app to be reachable from outside the container, and <code>-w /data</code> ensures the app’s working directory (and anything it writes) lands in the mounted directory rather than the container’s own filesystem.</p>
 <p>See <code>make_app_from_files.R --help</code> for more info.</p>
 <div class="section level3">
 <h3 id="shinyappsio-deployment">shinyapps.io deployment<a class="anchor" aria-label="anchor" href="#shinyappsio-deployment"></a>
 </h3>
 <p>The following specified to <code>make_app_from_files.R</code> in addition to the above will trigger a deployment to shinyapps.io where the app can be viewed:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>    <span class="sc">--</span>deploy_app \</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    <span class="sc">--</span>shinyapps_account ACCOUNT \</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="sc">--</span>shinyapps_name APP_NAME</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>    <span class="sc">--</span>deploy_app \</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>    <span class="sc">--</span>shinyapps_account ACCOUNT \</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="sc">--</span>shinyapps_name APP_NAME</span></code></pre></div>
 <p>You must derive your token and secret from your shinyapps.io account and set them in the environment variables <code>SHINYAPPS_TOKEN</code> and <code>SHINYAPPS_SECRET</code>, respectively.</p>
 <p>This is currently dependent on shinyngs having been installed via devtools, which doesn’t happen in the Conda install, but I’m trying to address that.</p>
 </div>
@@ -250,13 +260,13 @@
 <h3 id="exploratory-analysis">Exploratory analysis<a class="anchor" aria-label="anchor" href="#exploratory-analysis"></a>
 </h3>
 <p>A generic complement of explortory plots can be generated like:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>exploratory_plots.R \</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>    <span class="sc">--</span>assay_files salmon.merged.gene_counts.tsv,normalised_counts.tsv,variance_stabilised_counts.tsv \</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="sc">--</span>assay_names raw,normalised,variance_stabilised \</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="sc">--</span>sample_metadata samplesheet.csv \</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="sc">--</span>contrast_variable treatment \</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>    <span class="sc">--</span>outdir plots \</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    <span class="sc">--</span>feature_metadata gene_meta.tsv</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>exploratory_plots.R \</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>    <span class="sc">--</span>assay_files salmon.merged.gene_counts.tsv,normalised_counts.tsv,variance_stabilised_counts.tsv \</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="sc">--</span>assay_names raw,normalised,variance_stabilised \</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="sc">--</span>sample_metadata samplesheet.csv \</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="sc">--</span>contrast_variable treatment \</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    <span class="sc">--</span>outdir plots \</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    <span class="sc">--</span>feature_metadata gene_meta.tsv</span></code></pre></div>
 <p>See <code>exploratory_plots.R  --help</code> for more info.</p>
 </div>
 <div class="section level3">
@@ -268,11 +278,11 @@
 <h3 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
 </h3>
 <p>shinyngs has some good validation when building objects, to make sure that matrices are consistent with sample and feature annotations, and that the specified contrasts make sense. Accessing that logic by itself can be useful when writing FOM (feature/ observation matrix) workflows, so that is available separately like:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>validate_fom_components.R \</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>    <span class="sc">--</span>sample_metadata<span class="ot">=</span>testdata<span class="sc">/</span>samplesheet.csv \</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    <span class="sc">--</span>assay_files<span class="ot">=</span>testdata<span class="sc">/</span>SRP254919.salmon.merged.gene_counts.top1000cov.tsv \</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>    <span class="sc">--</span>contrasts_file testdata<span class="sc">/</span>contrasts.csv \</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    <span class="sc">--</span>output_directory output</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>validate_fom_components.R \</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>    <span class="sc">--</span>sample_metadata<span class="ot">=</span>testdata<span class="sc">/</span>samplesheet.csv \</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="sc">--</span>assay_files<span class="ot">=</span>testdata<span class="sc">/</span>SRP254919.salmon.merged.gene_counts.top1000cov.tsv \</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="sc">--</span>contrasts_file testdata<span class="sc">/</span>contrasts.csv \</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="sc">--</span>output_directory output</span></code></pre></div>
 <p>If <code>--output_directory</code> is specified, results are re-written (in a consistent format, TSV by default) the specified location.</p>
 <p>This script will error if there are inconsistencies between sample sheets, feature sets, matrices, and contrast specifications.</p>
 </div>
@@ -282,19 +292,12 @@
 <h1 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h1>
 <p>Technical information can be accessed via the package documentation:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">?</span><span class="va">shinyngs</span></span></code></pre></div>
-<p>More user-oriented documentation and examples of how to build your own apps in the <a href="https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html">vignette</a>.</p>
-<p>This is also accessible via the <code>vignette</code> command:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>User-oriented guides live on the <a href="https://pinin4fjords.github.io/shinyngs/">package website</a>, including <a href="https://pinin4fjords.github.io/shinyngs/articles/shinyngs.html">getting started</a>, <a href="https://pinin4fjords.github.io/shinyngs/articles/data-model.html">the data model</a>, <a href="https://pinin4fjords.github.io/shinyngs/articles/build-from-files.html">building an app from files</a>, the <a href="https://pinin4fjords.github.io/shinyngs/articles/cli.html">command-line reference</a>, a <a href="https://pinin4fjords.github.io/shinyngs/articles/modules.html">module catalogue</a>, <a href="https://pinin4fjords.github.io/shinyngs/articles/reuse.html">reusing components inside and outside Shiny</a>, <a href="https://pinin4fjords.github.io/shinyngs/articles/theming.html">theming and shareable views</a>, and a <a href="https://pinin4fjords.github.io/shinyngs/articles/developer.html">developer guide</a>.</p>
+<p>The getting-started guide is also accessible via the <code>vignette</code> command:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">'shinyngs'</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level1">
-<h1 id="todo">TODO<a class="anchor" aria-label="anchor" href="#todo"></a>
-</h1>
-<ul>
-<li>More useful non-RNAseq functionality to be added</li>
-</ul>
 </div>
 <div class="section level1">
 <h1 id="credits">Credits<a class="anchor" aria-label="anchor" href="#credits"></a>

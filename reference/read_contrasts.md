@@ -67,3 +67,25 @@ read_contrasts(
 ## Value
 
 output Validated contrasts data frame
+
+## Examples
+
+``` r
+samples <- data.frame(
+  condition = rep(c("control", "treated"), each = 3),
+  row.names = paste0("s", 1:6)
+)
+contrasts_file <- tempfile(fileext = ".csv")
+write.csv(
+  data.frame(
+    id = "treated_vs_control",
+    variable = "condition",
+    reference = "control",
+    target = "treated"
+  ),
+  contrasts_file, row.names = FALSE
+)
+read_contrasts(contrasts_file, samples)
+#>                   id  variable reference  target blocking
+#> 1 treated_vs_control condition   control treated       NA
+```

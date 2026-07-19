@@ -1,0 +1,360 @@
+# Command-line interface reference
+
+`shinyngs` ships a set of command-line scripts in the package’s `exec/`
+directory. They let you build a complete Shiny app, or render standalone
+plots, directly from flat files (matrices, metadata, contrasts,
+differential results, enrichment tables) without writing any R. This
+makes them convenient to call from a pipeline: the
+nf-core/differentialabundance integration
+([\#127](https://github.com/pinin4fjords/shinyngs/pull/127)) drives
+`make_app_from_files.R` to produce the interactive app it ships
+alongside its static reports.
+
+Each script is invoked with `Rscript`, either from a checkout:
+
+``` bash
+Rscript exec/make_app_from_files.R --help
+```
+
+or, from an installed copy of the package, via
+[`system.file()`](https://rdrr.io/r/base/system.file.html):
+
+``` bash
+Rscript "$(Rscript -e 'cat(system.file("exec", "make_app_from_files.R", package = "shinyngs"))')" --help
+```
+
+Every script accepts `--help` to print its full option list. For a
+guided, prose walk-through of assembling an app from files, see
+[Building an app from
+files](https://pinin4fjords.github.io/shinyngs/articles/build-from-files.md);
+this page is the flag-level reference.
+
+------------------------------------------------------------------------
+
+## `make_app_from_files.R`
+
+Assembles a full `ExploratorySummarizedExperimentList` from flat files
+and writes a ready-to-run Shiny app bundle (a `data.rds` plus an
+`app.R`) to an output directory, optionally deploying it to
+shinyapps.io. This is the entry point the nf-core/differentialabundance
+pipeline uses. With only matrices and metadata it produces an
+exploratory-only app; adding a contrast file plus differential results
+wires up the differential views, and adding enrichment options wires up
+gene-set enrichment.
+
+Mandatory arguments: `--title`, `--author`, `--sample_metadata`,
+`--sample_id_col`, `--feature_metadata`, `--feature_id_col`,
+`--diff_feature_id_col`, `--assay_files`, `--assay_entity_name`,
+`--output_directory`, `--contrast_stats_assay`,
+`--differential_results`. (The mandatory list includes the
+differential/contrast arguments, so provide a contrast file and
+differential results even for a largely exploratory app.)
+
+### Title and description
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-t`, `--title` | character; `"Default title"` | Experiment title to show. |
+| `-a`, `--author` | character; `"My authors"` | Author string to display. |
+| `-r`, `--description` | character; `NULL` | A description to display in the app. |
+| `-m`, `--report_markdown_file` | character; `NULL` | Path to a markdown file with description/reporting. Alternative to `--description` for more extensive content. |
+
+### Sample metadata
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-s`, `--sample_metadata` | character; `NULL` | CSV-format sample metadata file. |
+| `-i`, `--sample_id_col` | character; `"sample"` | Column in sample metadata used as sample identifier. Used to name matrix columns; duplicate rows are removed on this column. |
+| `-g`, `--group_vars` | character; `NULL` | Comma-separated list of sample-metadata variables to use as grouping variables. Guessed by default. |
+
+### Feature metadata
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-f`, `--feature_metadata` | character; `NULL` | TSV-format feature (often gene) metadata file. |
+| `-j`, `--feature_id_col` | character; `"gene_id"` | Column in feature metadata used as feature identifier. Used to name matrix rows. |
+| `-N`, `--feature_name_col` | character; `"gene_name"` | Column in feature metadata used as feature name/label. |
+| `--ensembl_species` | character; `NULL` | Ensembl species, e.g. `hsapiens` or `mmusculus`. If set and `--feature_metadata` provides `chromosome_name`/`start_position`/`end_position`, enables the gene model view. |
+
+### Expression matrices
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-e`, `--assay_files` | character; `NULL` | Comma-separated list of CSV or TSV expression matrix files. |
+| `-w`, `--assay_names` | character; `NULL` | Comma-separated list of names, same length as `--assay_files`. |
+| `-x`, `--assay_entity_name` | character; `"gene"` | Name of the type of thing represented in assays. |
+| `--log2_assays` | character; `NULL` | Comma-separated `assay_names` (or 1-based integer indices) to log2. Log status is guessed if unset; empty string forces no log2. |
+| `--log2_guessing_threshold` | integer; `30` | Magnitude used to guess log status. |
+
+### Contrasts and differential statistics
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-n`, `--diff_feature_id_col` | character; `"gene_id"` | Differential file column containing feature identifiers. |
+| `-y`, `--contrast_stats_assay` | numeric; `NULL` | Integer indicating which `--assay_files` element the contrast statistics relate to (usually a normalised matrix). Defaults to the last assay. |
+| `-c`, `--contrast_file` | character; `NULL` | CSV-format contrast file with variable, reference and target in the first 3 columns. |
+| `-d`, `--differential_results` | character; `NULL` | Comma-separated list of CSV/TSV files (fold change and p value at minimum), one per contrast-file row. |
+| `-k`, `--fold_change_column` | character; `"log2FoldChange"` | Column in differential results holding fold changes. |
+| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_column`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals. |
+| `-u`, `--unlog_foldchanges` | flag; `NULL` | Deprecated - use `--fold_change_scale=log2`. Set if fold changes should be unlogged. |
+| `-p`, `--pval_column` | character; `"padj"` | Column in differential results holding p values. |
+| `-q`, `--qval_column` | character; `"padj"` | Column in differential results holding q values / adjusted p values. |
+
+### Gene-set enrichment
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `--enrichment_gene_sets` | character; `NULL` | Comma-separated list of the GMT files used in the enrichment analyses. |
+| `--enrichment_filename_template` | character; `NULL` | Template for enrichment result filenames, e.g. `{contrast_name}_enrichment_for_{geneset_type}.tsv`, or with separate up/down files `{contrast_name}.{geneset_type}.gsea_report_for_{target\|reference}.tsv`. `{contrast_name}`, `{geneset_type}` and optionally `{target\|reference}` are substituted per contrast/geneset. No enrichment is included if unset. |
+| `--enrichment_skip_missing` | flag; `FALSE` | Ignore any missing enrichment result rather than erroring. |
+| `--enrichment_gene_type_id` | character; `"gene_name"` | Gene identifier used in the enrichment gene sets (e.g. gene name or Entrez id). |
+| `--enrichment_pval_column` | character; `NULL` | p-value column in the enrichment results. Set with the two below to support tools beyond the auto-detected gsea/roast formats. |
+| `--enrichment_fdr_column` | character; `NULL` | FDR/adjusted p-value column in the enrichment results. |
+| `--enrichment_direction_column` | character; `NULL` | Direction column in the enrichment results. |
+
+The three `--enrichment_*_column` flags must be supplied together or not
+at all.
+
+### Output and deployment
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-o`, `--output_directory` | character; `NULL` | Directory to write the app bundle (`data.rds` + `app.R`). |
+| `-l`, `--deploy_app` | flag; `FALSE` | Deploy the generated app to shinyapps.io after building. |
+| `-b`, `--shinyapps_account` | character; `NULL` | Account name for shinyapps.io deployment. |
+| `-v`, `--shinyapps_name` | character; `NULL` | App name for shinyapps.io deployment. |
+
+When `--deploy_app` is set, `--shinyapps_account` and `--shinyapps_name`
+are required, along with the `SHINYAPPS_TOKEN` and `SHINYAPPS_SECRET`
+environment variables.
+
+### Worked example: minimal, exploratory-focused app
+
+``` bash
+Rscript exec/make_app_from_files.R \
+  --title "My RNA-seq study" \
+  --author "Analysis team" \
+  --sample_metadata samplesheet.csv \
+  --sample_id_col sample \
+  --feature_metadata gene_metadata.tsv \
+  --feature_id_col gene_id \
+  --feature_name_col gene_name \
+  --assay_files raw_counts.tsv,normalised_counts.tsv,vst_counts.tsv \
+  --assay_names "Raw counts,Normalised,Variance-stabilised" \
+  --contrast_stats_assay 2 \
+  --diff_feature_id_col gene_id \
+  --contrast_file contrasts.csv \
+  --differential_results treatment_vs_control.deseq2.results.tsv \
+  --output_directory my_app
+```
+
+### Worked example: differential + enrichment results
+
+``` bash
+Rscript exec/make_app_from_files.R \
+  --title "My RNA-seq study" \
+  --author "Analysis team" \
+  --sample_metadata samplesheet.csv \
+  --sample_id_col sample \
+  --feature_metadata gene_metadata.tsv \
+  --feature_id_col gene_id \
+  --feature_name_col gene_name \
+  --assay_files raw_counts.tsv,normalised_counts.tsv,vst_counts.tsv \
+  --assay_names "Raw counts,Normalised,Variance-stabilised" \
+  --contrast_stats_assay 2 \
+  --diff_feature_id_col gene_id \
+  --contrast_file contrasts.csv \
+  --differential_results treatment_vs_control.deseq2.results.tsv,mutant_vs_wildtype.deseq2.results.tsv \
+  --fold_change_column log2FoldChange \
+  --pval_column pvalue \
+  --qval_column padj \
+  --enrichment_gene_sets h.all.v2023.symbols.gmt,c2.cp.reactome.v2023.symbols.gmt \
+  --enrichment_filename_template "{contrast_name}.{geneset_type}.gsea_report.tsv" \
+  --enrichment_gene_type_id gene_name \
+  --ensembl_species hsapiens \
+  --output_directory my_app
+```
+
+### Running and deploying the generated app
+
+The output directory is a self-contained Shiny app. Run it locally with:
+
+``` bash
+Rscript -e 'shiny::runApp("my_app")'
+```
+
+To deploy to shinyapps.io as part of the build, add the deployment flags
+and set the credentials in the environment:
+
+``` bash
+export SHINYAPPS_TOKEN=... SHINYAPPS_SECRET=...
+Rscript exec/make_app_from_files.R \
+  ... \
+  --output_directory my_app \
+  --deploy_app \
+  --shinyapps_account myaccount \
+  --shinyapps_name my-rnaseq-study
+```
+
+------------------------------------------------------------------------
+
+## `exploratory_plots.R`
+
+Renders standalone exploratory plots (boxplots, density plots, 2D/3D
+PCA, a sample clustering dendrogram, and MAD-score outlier plots) from
+expression matrices and sample metadata. PNGs are always written to
+`<outdir>/png`; with `--write_html`, interactive `plotly` HTML versions
+are also written to `<outdir>/html`.
+
+Mandatory arguments: `--assay_files`, `--sample_metadata`,
+`--feature_metadata`, `--contrast_variable`, `--outdir`.
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-e`, `--assay_files` | character; `NULL` | Comma-separated list of TSV expression matrix files. |
+| `-w`, `--assay_names` | character; `NULL` | Comma-separated list of names, same length as `--assay_files`. |
+| `-i`, `--final_assay` | character; `NULL` | Name or index of the assay used for PCA/clustering (assumed minimally normalised). Defaults to the last `--assay_files` element. |
+| `-s`, `--sample_metadata` | character; `NULL` | CSV file containing sample metadata. |
+| `-f`, `--feature_metadata` | character; `NULL` | CSV-format feature (often gene) metadata file. |
+| `-o`, `--outdir` | character; `NULL` | Output directory. |
+| `-v`, `--contrast_variable` | character; — | Column in the sample sheet used to form the contrast / colour groupings. |
+| `-g`, `--feature_id_col` | character; `"gene_id"` | Count-file column containing gene identifiers. |
+| `-m`, `--feature_name_col` | character; `"gene_name"` | Count-file column containing gene names. |
+| `-a`, `--sample_id_col` | character; `"sample"` | Sample-file column containing sample identifiers. |
+| `-n`, `--n_genes` | integer; `500` | Number of variable genes used for PCA and sample clustering. |
+| `-r`, `--outlier_mad_threshold` | double; `-5` | Threshold on MAD score used to derive outlier status. |
+| `-x`, `--write_html` | flag; `FALSE` | Also produce interactive HTML outputs alongside the PNGs. |
+| `-p`, `--palette_name` | character; `"colorblind"` | `colorblind` for the colour-blind-safe palette, or a valid RColorBrewer palette name. |
+| `-l`, `--log2_assays` | character; `NULL` | Comma-separated `assay_names` (or 1-based indices) to log2. Guessed if unset; empty string forces no log2. |
+| `-k`, `--log2_guessing_threshold` | integer; `30` | Magnitude used to guess log status. |
+
+### Worked example
+
+``` bash
+Rscript exec/exploratory_plots.R \
+  --assay_files raw_counts.tsv,vst_counts.tsv \
+  --assay_names "Raw counts,Variance-stabilised" \
+  --final_assay "Variance-stabilised" \
+  --sample_metadata samplesheet.csv \
+  --sample_id_col sample \
+  --feature_metadata gene_metadata.tsv \
+  --feature_id_col gene_id \
+  --feature_name_col gene_name \
+  --contrast_variable treatment \
+  --n_genes 500 \
+  --write_html \
+  --outdir exploratory
+```
+
+------------------------------------------------------------------------
+
+## `differential_plots.R`
+
+Renders standalone differential plots (a volcano plot) from a single
+differential results table and feature metadata. A PNG is written to
+`<outdir>/png/volcano.png`; with `--write_html`, an interactive `plotly`
+version is written to `<outdir>/html/volcano.html`.
+
+Mandatory arguments: `--differential_file`, `--feature_metadata`,
+`--outdir`, `--reference_level`, `--treatment_level`.
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-d`, `--differential_file` | character; `NULL` | TSV file containing a table of differential analysis outputs. |
+| `-e`, `--feature_metadata` | character; `NULL` | TSV file containing feature identifiers and symbols. |
+| `-g`, `--feature_id_col` | character; `"gene_id"` | Count-file column containing feature identifiers. |
+| `-m`, `--feature_name_col` | character; `"gene_name"` | Count-file column containing feature names. |
+| `-o`, `--outdir` | character; `NULL` | Output directory. |
+| `-f`, `--fold_change_col` | character; `"log2FoldChange"` | Differential file column containing (log2) fold change values. |
+| `-q`, `--p_value_column` | character; `"padj"` | Differential file column containing p values to plot. |
+| `-n`, `--diff_feature_id_col` | character; `"gene_id"` | Differential file column containing feature identifiers. |
+| `-c`, `--fold_change_threshold` | double; `1` | Lower fold change threshold for differential expression. |
+| `-u`, `--p_value_threshold` | double; `0.05` | p value threshold for differential expression. |
+| `-r`, `--reference_level` | character; — | Annotation label: negative fold changes are annotated as higher in this group. |
+| `-t`, `--treatment_level` | character; — | Annotation label: positive fold changes are annotated as higher in this group. |
+| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_col`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals. |
+| `-s`, `--unlog_foldchanges` | flag; `NULL` | Deprecated - use `--fold_change_scale=log2`. Set if fold changes should be unlogged. |
+| `-x`, `--write_html` | flag; `FALSE` | Also produce an interactive HTML output alongside the PNG. |
+| `-p`, `--palette_name` | character; `"colorblind"` | `colorblind` for the colour-blind-safe palette, or a valid RColorBrewer palette name. |
+
+### Worked example
+
+``` bash
+Rscript exec/differential_plots.R \
+  --differential_file treatment_vs_control.deseq2.results.tsv \
+  --feature_metadata gene_metadata.tsv \
+  --feature_id_col gene_id \
+  --feature_name_col gene_name \
+  --diff_feature_id_col gene_id \
+  --fold_change_col log2FoldChange \
+  --p_value_column padj \
+  --fold_change_threshold 1 \
+  --p_value_threshold 0.05 \
+  --reference_level control \
+  --treatment_level treatment \
+  --write_html \
+  --outdir differential
+```
+
+------------------------------------------------------------------------
+
+## `validate_fom_components.R`
+
+Validates feature/observation/matrix (FOM) component files for mutual
+consistency by running them through the same parsing functions
+`shinyngs` uses internally (as in
+[`eselistfromConfig()`](https://pinin4fjords.github.io/shinyngs/reference/eselistfromConfig.md)).
+It checks that sample metadata, feature metadata, expression matrices,
+contrasts and differential results line up. If `--output_directory` is
+supplied, the validated components are re-written there with a
+consistent separator, which is a convenient way to normalise inputs
+before building an app.
+
+Mandatory arguments: `--sample_metadata`, `--assay_files`.
+
+| Flag | Type / default | Description |
+|----|----|----|
+| `-s`, `--sample_metadata` | character; `NULL` | CSV-format sample metadata file. |
+| `-i`, `--sample_id_col` | character; `"sample"` | Column in sample metadata used as sample identifier. Duplicate rows are removed on this column. |
+| `-f`, `--feature_metadata` | character; `NULL` | TSV-format feature (often gene) metadata file. |
+| `-j`, `--feature_id_col` | character; `"gene_id"` | Column in feature metadata used as feature identifier. |
+| `-e`, `--assay_files` | character; `NULL` | Comma-separated list of TSV expression matrix files. |
+| `-c`, `--contrasts_file` | character; `NULL` | CSV-format contrast file with variable, reference and target in the first 3 columns. |
+| `-d`, `--differential_results` | character; `NULL` | Tab-separated files (fold change and p value at minimum), one per contrast-file row. |
+| `-k`, `--fold_change_column` | character; `"log2FoldChange"` | Column in differential results holding fold changes. |
+| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_column`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals. |
+| `-u`, `--unlog_foldchanges` | flag; `NULL` | Deprecated - use `--fold_change_scale=log2`. Set if fold changes should be unlogged. |
+| `-p`, `--pval_column` | character; `"padj"` | Column in differential results holding p values. |
+| `-q`, `--qval_column` | character; `"padj"` | Column in differential results holding q values / adjusted p values. |
+| `-o`, `--output_directory` | character; `NULL` | If set, re-write the validated components here with a consistent separator. |
+| `-t`, `--separator` | character; `"\t"` | Separator used for the re-written files. |
+
+### Worked example
+
+``` bash
+Rscript exec/validate_fom_components.R \
+  --sample_metadata samplesheet.csv \
+  --sample_id_col sample \
+  --feature_metadata gene_metadata.tsv \
+  --feature_id_col gene_id \
+  --assay_files raw_counts.tsv,normalised_counts.tsv \
+  --contrasts_file contrasts.csv \
+  --differential_results treatment_vs_control.deseq2.results.tsv \
+  --fold_change_column log2FoldChange \
+  --pval_column pvalue \
+  --qval_column padj \
+  --output_directory validated
+```
+
+------------------------------------------------------------------------
+
+## See also
+
+- [Building an app from
+  files](https://pinin4fjords.github.io/shinyngs/articles/build-from-files.md) -
+  a prose walk-through of the file-based workflow that
+  `make_app_from_files.R` automates.
+- The nf-core/differentialabundance integration
+  ([\#127](https://github.com/pinin4fjords/shinyngs/pull/127)) calls
+  `make_app_from_files.R` to build the interactive app it distributes
+  with its reports.

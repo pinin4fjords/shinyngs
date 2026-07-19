@@ -152,6 +152,9 @@ interactive output.
 - [`ggplot_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_densityplot.md)
   : Make a static density plot with ggplot2
 
+- [`ggplot_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md)
+  : Make a faceted boxplot of the top differential genes in a contrast
+
 - [`ggplotify()`](https://pinin4fjords.github.io/shinyngs/reference/ggplotify.md)
   :
 
@@ -163,15 +166,42 @@ interactive output.
 - [`plotly_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barcodeplot.md)
   : Make an interactive gene set barcode plot with plotly
 
+- [`plotly_barchart()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barchart.md)
+  :
+
+  Make a grouped, stacked or overlaid bar chart with `plot_ly()`
+
 - [`plotly_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_boxplot.md)
   : Make an interactive boxplot with coloring by experimental variable
+
+- [`plotly_cluster_profiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_cluster_profiles.md)
+  :
+
+  Plot expression profiles for a set of feature clusters with
+  `plot_ly()`
 
 - [`plotly_clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_clusteringDendrogram.md)
   : Make an interactive clustering dendrogram colored by experimental
   variable
 
+- [`plotly_count_barplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_count_barplot.md)
+  :
+
+  Plot counts of feature annotation rows by category, optionally split
+  by a second categorical column, with `plot_ly()`
+
 - [`plotly_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.md)
   : Make a dynamic density plot with plotly
+
+- [`plotly_illumina_control_probes()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_illumina_control_probes.md)
+  :
+
+  Make an Illumina microarray control-probe QC plot with `plot_ly()`
+
+- [`plotly_pca_metadata_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_pca_metadata_heatmap.md)
+  :
+
+  Make a PCA-vs-metadata association heatmap with `heatmaply()`
 
 - [`plotly_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.md)
   : Make a line-based alternative to boxplots
@@ -185,6 +215,15 @@ interactive output.
   :
 
   Make a PCA scree plot with `plot_ly()`
+
+- [`plotly_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_topgene_boxplots.md)
+  : Make an interactive faceted boxplot of the top differential genes in
+  a contrast
+
+- [`plotly_upset()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_upset.md)
+  :
+
+  Make an UpSet-style set intersection plot with `plot_ly()`
 
 - [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md)
   :
@@ -266,6 +305,13 @@ vignette for the supported way to build and combine modules.
 - [`a11yControl()`](https://pinin4fjords.github.io/shinyngs/reference/a11yControl.md)
   : Give a terse control an accessible name and a hover/focus tooltip
 
+- [`addColorbyMenu()`](https://pinin4fjords.github.io/shinyngs/reference/addColorbyMenu.md)
+  : Colour points by a chosen variable, with a plotly dropdown to switch
+  it
+
+- [`addColoredPoints()`](https://pinin4fjords.github.io/shinyngs/reference/addColoredPoints.md)
+  : Colour points by a single variable, highlighting labelled rows
+
 - [`addPoints()`](https://pinin4fjords.github.io/shinyngs/reference/addPoints.md)
   : Add points to a plotly object
 
@@ -323,6 +369,15 @@ vignette for the supported way to build and combine modules.
 - [`cardinalNumericField()`](https://pinin4fjords.github.io/shinyngs/reference/cardinalNumericField.md)
   : Make a numeric field with selectable associated cardinality (\>, \<
   ..).
+
+- [`categorycountplot()`](https://pinin4fjords.github.io/shinyngs/reference/categorycountplot.md)
+  : The server function of the categorycountplot module
+
+- [`categorycountplotInput()`](https://pinin4fjords.github.io/shinyngs/reference/categorycountplotInput.md)
+  : The input function of the categorycountplot module
+
+- [`categorycountplotOutput()`](https://pinin4fjords.github.io/shinyngs/reference/categorycountplotOutput.md)
+  : The output function of the categorycountplot module
 
 - [`chipseq()`](https://pinin4fjords.github.io/shinyngs/reference/chipseq.md)
   : The server function of the chipseq module. Currently a near-clone of
@@ -451,9 +506,6 @@ vignette for the supported way to build and combine modules.
 
 - [`finiteAxisRange()`](https://pinin4fjords.github.io/shinyngs/reference/finiteAxisRange.md)
   : Finite x/y bounds of a differential-scatter table
-
-- [`fixedEffectsFormula()`](https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsFormula.md)
-  : Remove random effects from a model formula
 
 - [`fixedEffectsModelMatrix()`](https://pinin4fjords.github.io/shinyngs/reference/fixedEffectsModelMatrix.md)
   : Build a model matrix from the fixed-effects part of a formula
@@ -764,6 +816,49 @@ vignette for the supported way to build and combine modules.
 - [`summarytilesOutput()`](https://pinin4fjords.github.io/shinyngs/reference/summarytilesOutput.md)
   : The output function of the summarytiles module
 
+- [`topgeneAnnotationData()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneAnnotationData.md)
+  :
+
+  Build the per-facet annotation data frame used by
+  `ggplot_topgene_boxplots`
+
+- [`topgeneAnnotationVector()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneAnnotationVector.md)
+  :
+
+  Build a per-gene annotation vector, in `genes` order, for
+  `plotly_topgene_boxplots`
+
+- [`topgeneboxplot()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneboxplot.md)
+  : The server function of the topgeneboxplot module
+
+- [`topgeneboxplotInput()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneboxplotInput.md)
+  : The input function of the topgeneboxplot module
+
+- [`topgeneBoxplotData()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneBoxplotData.md)
+  :
+
+  Reshape an assay matrix into long form for `ggplot_topgene_boxplots`
+
+- [`topgeneBoxplotLayout()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneBoxplotLayout.md)
+  :
+
+  Compute the total plot height and inter-row margin fraction needed to
+  lay out `n_genes` faceted boxplots over `ncol` columns without rows
+  overlapping
+
+- [`topgeneboxplotOutput()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneboxplotOutput.md)
+  : The output function of the topgeneboxplot module
+
+- [`topgeneRankOptions()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneRankOptions.md)
+  :
+
+  Ranking options from `topgene_rank_options` whose contrast-table
+  column is actually present
+
+- [`topgeneTransformAssay()`](https://pinin4fjords.github.io/shinyngs/reference/topgeneTransformAssay.md)
+  : Log2-transform an assay matrix and subset/order it to the requested
+  genes
+
 - [`upset()`](https://pinin4fjords.github.io/shinyngs/reference/upset.md)
   : The server function of the upstart module
 
@@ -772,6 +867,21 @@ vignette for the supported way to build and combine modules.
 
 - [`upsetOutput()`](https://pinin4fjords.github.io/shinyngs/reference/upsetOutput.md)
   : The output function of the clustering module
+
+- [`upset_calculate_intersections()`](https://pinin4fjords.github.io/shinyngs/reference/upset_calculate_intersections.md)
+  : Compute set intersections and sizes for an UpSet-style plot
+
+- [`upset_filter_intersections_by_order()`](https://pinin4fjords.github.io/shinyngs/reference/upset_filter_intersections_by_order.md)
+  : Drop intersections involving fewer than a minimum number of sets
+
+- [`upset_grid_plot()`](https://pinin4fjords.github.io/shinyngs/reference/upset_grid_plot.md)
+  : Make the grid of points indicating set membership in intersections
+
+- [`upset_intersect_size_chart()`](https://pinin4fjords.github.io/shinyngs/reference/upset_intersect_size_chart.md)
+  : Make the bar chart illustrating intersect size
+
+- [`upset_set_size_chart()`](https://pinin4fjords.github.io/shinyngs/reference/upset_set_size_chart.md)
+  : Make the bar chart illustrating set sizes
 
 - [`validateFormulaBasedContrast()`](https://pinin4fjords.github.io/shinyngs/reference/validateFormulaBasedContrast.md)
   : Validate a formula-based contrast string against fixed-effect

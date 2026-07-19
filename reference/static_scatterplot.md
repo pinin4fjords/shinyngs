@@ -106,3 +106,14 @@ static_scatterplot(
 ## Value
 
 output Ouput object from ggplot or scatterplot3d.
+
+## Examples
+
+``` r
+set.seed(1)
+x <- rnorm(10)
+y <- rnorm(10)
+colorby <- factor(rep(c("treated", "control"), each = 5))
+static_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
+
+```

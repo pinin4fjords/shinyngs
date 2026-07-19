@@ -1,0 +1,228 @@
+# Building an app from files and YAML
+
+The [data model
+article](https://pinin4fjords.github.io/shinyngs/articles/data-model.md)
+shows how to assemble an `ExploratorySummarizedExperimentList` (ESEList)
+in R. That is the right approach when your results are already in
+memory. But a bioinformatics pipeline typically finishes with a
+*directory of files* - expression matrices, a sample sheet, feature
+annotation, a contrasts table, differential-results tables and maybe
+enrichment output. `shinyngs` can read that file complement directly, so
+you can turn a pipeline’s outputs into a running app without writing any
+bespoke R.
+
+There are two file-driven routes:
+
+- **[`eselistFromYAML()`](https://pinin4fjords.github.io/shinyngs/reference/eselistFromYAML.md)** -
+  an R function that reads a YAML manifest pointing at your files and
+  returns an ESEList you can pass to
+  [`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md).
+- **`exec/make_app_from_files.R`** - a command-line script that takes
+  the same kinds of files as flags and writes a ready-to-run app bundle
+  (`app.R` + `data.rds`), optionally deploying it to shinyapps.io.
+
+All code on this page is shown but not executed at build time (it needs
+your files and, in places, a browser), so treat the snippets as
+templates to adapt.
+
+## The YAML route
+
+`eselistFromYAML("my.yaml")` reads a manifest that describes the study
+and points at the data files. It builds exactly the same object you
+would build by hand, so it slots straight into
+[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md):
+
+``` r
+
+library(shinyngs)
+eselist <- eselistFromYAML("my.yaml")
+app <- prepareApp("rnaseq", eselist)
+shiny::shinyApp(app$ui, app$server)
+```
+
+A representative manifest:
+
+``` yaml
+title: My RNA-seq experiment
+author: Joe Bloggs
+report: report.md
+ensembl_species: hsapiens
+group_vars:
+  - Group
+  - Replicate
+default_groupvar: Group
+experiments:
+  Gene:
+    coldata:
+      file: samplesheet.csv
+      id: sample
+    annotation:
+      file: gene_meta.csv
+      id: gene_id
+      label: gene_name
+    expression_matrices:
+      Raw:
+        file: raw_counts.csv
+        measure: counts
+      Normalised:
+        file: normalised_counts.csv
+        measure: Counts per million
+    read_reports:
+      read_attrition: read_attrition.csv
+contrasts:
+  comparisons:
+    0:
+      - Group
+      - control
+      - treated
+stats:
+  Gene:
+    Normalised:
+      pvals: pvals.csv
+      qvals: qvals.csv
+```
+
+Mapping this back to the [data
+model](https://pinin4fjords.github.io/shinyngs/articles/data-model.md):
+each entry under `experiments` becomes one
+`ExploratorySummarizedExperiment` (so you can describe transcript- and
+gene-level experiments side by side); `coldata`, `annotation` and
+`expression_matrices` populate the ESE’s `colData`, annotation and
+assays; `id`/`label` set the `idfield`/`labelfield`; `contrasts` and
+`stats` populate the study contrasts and the per-ESE `contrast_stats`.
+
+Useful optional top-level keys:
+
+- **`ensembl_species`** (e.g. `hsapiens`, `mmusculus`) - when set, and
+  the annotation supplies
+  `chromosome_name`/`start_position`/`end_position`, enables the igv.js
+  gene-model view in the `gene` module.
+- **`static_pdf`** - switch static plot downloads to PDF.
+- **`url_roots`** - add link-outs for identifier columns.
+- **`gene_set_id_type`** and **`gene_sets`** (a named list of `.gmt`
+  paths, one per collection) - a YAML-driven alternative to supplying
+  gene sets via the R constructor.
+
+This is how the `zhangneurons` example dataset was generated.
+
+## The command-line route
+
+`exec/make_app_from_files.R` builds an app bundle from flat files
+without writing any R. It is the path used by pipelines such as
+[nf-core/differentialabundance](https://nf-co.re/differentialabundance),
+which calls it to produce the Shiny report at the end of a run.
+
+A minimal invocation:
+
+``` sh
+make_app_from_files.R \
+  --assay_files raw.tsv,normalised_counts.tsv \
+  --assay_names Raw,Normalised \
+  --sample_metadata samplesheet.csv \
+  --feature_metadata gene_meta.tsv \
+  --contrast_file contrasts.csv \
+  --differential_results treatment-saline-drug.deseq2.results.tsv \
+  --contrast_stats_assay 2 \
+  --fold_change_scale log2 \
+  --output_directory app
+```
+
+This writes `app.R` and a serialised `data.rds` into `app/`. The flags
+map onto the same data model:
+
+- `--assay_files` / `--assay_names` - the expression matrices and their
+  display names.
+- `--sample_metadata` / `--sample_id_col` - the sample sheet and its
+  identifier column.
+- `--feature_metadata` / `--feature_id_col` / `--feature_name_col` -
+  feature annotation and which columns are the `idfield` and
+  `labelfield`.
+- `--contrast_file` - a CSV whose first three columns are the contrast
+  `variable`, `reference` and `target`, one row per contrast.
+- `--differential_results` - one differential table per contrast row,
+  read for fold changes and p-values (columns named by
+  `--fold_change_column`, `--pval_column`, `--qval_column`).
+- `--contrast_stats_assay` - the 1-based index of the assay to associate
+  with those statistics (usually the normalised matrix).
+- `--fold_change_scale` - `log2`, `linear` or `auto`; `auto` infers the
+  scale from the column name and value distribution and errors if the
+  signals disagree.
+
+For the complete flag reference, including grouping variables,
+gene-model support (`--ensembl_species`) and shinyapps.io deployment
+(`--deploy_app`), see the [CLI
+reference](https://pinin4fjords.github.io/shinyngs/articles/cli.md).
+
+### Running the generated bundle
+
+The output directory is a standard Shiny app. Run it locally:
+
+``` r
+
+library(shinyngs)
+shiny::runApp("app")
+```
+
+Or run it via Docker without installing anything. The [Biocontainers
+image](https://quay.io/repository/biocontainers/r-shinyngs) ships
+`shinyngs` and Shiny ready to serve the generated `app.R`/`data.rds`.
+There is no `latest` tag, so pick the most recent from the [tag
+list](https://quay.io/repository/biocontainers/r-shinyngs?tab=tags) and
+mount your output directory:
+
+``` sh
+docker run --rm -p 3838:3838 \
+  -v "$(pwd)/app":/data -w /data \
+  quay.io/biocontainers/r-shinyngs:<latest-tag> \
+  Rscript -e "shiny::runApp('/data', host = '0.0.0.0', port = 3838)"
+```
+
+Then browse to `http://localhost:3838`.
+
+## Wiring in enrichment results
+
+`make_app_from_files.R` can also attach GSEA (or `roast`) results from
+the command line. `--enrichment_filename_template` describes where
+result files live, with `{contrast_name}` and `{geneset_type}`
+substituted per contrast and gene-set type, plus an optional
+`{target|reference}` token that points at the split up/down GSEA files:
+
+``` sh
+make_app_from_files.R \
+  ... \
+  --contrast_file contrasts.csv \
+  --enrichment_gene_sets my_gene_sets.gmt \
+  --enrichment_filename_template 'gsea_{contrast_name}_{geneset_type}_for_{target|reference}.tsv'
+```
+
+Notes:
+
+- `--enrichment_gene_sets` takes a comma-separated list of the GMT files
+  used in the analysis; `--enrichment_gene_type_id` names the identifier
+  type they use (e.g. `gene_name` or an Entrez ID).
+- `--enrichment_skip_missing` tolerates contrasts or gene-set types with
+  no result file; those simply show “No enrichment results for this
+  contrast” in the app.
+- For a tool that is not auto-detected, name the columns to filter on
+  with `--enrichment_pval_column`, `--enrichment_fdr_column` and
+  `--enrichment_direction_column`. Auto-detection of `roast`/GSEA
+  formats is described in the [data model
+  article](https://pinin4fjords.github.io/shinyngs/articles/data-model.html#tool-formats-and-auto-detection).
+
+## Other command-line tools
+
+The `exec/` directory holds a few more scripts that reuse `shinyngs`’
+plotting and validation code outside the Shiny app. Each takes `--help`:
+
+- `exploratory_plots.R` - static exploratory plots (PCA, boxplots,
+  densities) from assay files and sample metadata.
+- `differential_plots.R` - static differential plots (volcano) from
+  differential-results files.
+- `validate_fom_components.R` - runs `shinyngs`’ consistency checks
+  (matrices vs. sample/feature annotation vs. contrasts) on a file
+  complement *without* building an app, so a feature/observation-matrix
+  pipeline can fail fast on inconsistent inputs.
+
+See the [CLI
+reference](https://pinin4fjords.github.io/shinyngs/articles/cli.md) for
+the full argument set of each.
