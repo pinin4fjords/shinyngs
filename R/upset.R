@@ -405,7 +405,7 @@ upset <- function(id, eselist, setlimit = 16) {
       nsets <- getNsets()
       setnames <- getSetNames()
 
-      lines <- data.table::rbindlist(lapply(seq_len(nintersections), function(combono) {
+      lines <- dplyr::bind_rows(lapply(seq_len(nintersections), function(combono) {
         data.frame(combo = combono, x = rep(combono, max(2, length(combos[[combono]]))), y = (nsets - combos[[combono]]) + 1, name = setnames[combos[[combono]]])
       }))
 
@@ -416,7 +416,7 @@ upset <- function(id, eselist, setlimit = 16) {
         ), y = unlist(lapply(seq_along(selected_sets), function(x) rep(x - 0.5, nintersections))), hoverinfo = "none") %>%
         add_trace(
           type = "scatter",
-          data = group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y - 0.5, line = list(color = "black", width = 3), marker = list(
+          data = dplyr::group_by(lines, combo), mode = "lines+markers", x = lines$x, y = lines$y - 0.5, line = list(color = "black", width = 3), marker = list(
             color = "black",
             size = 10
           ), hoverinfo = "text", text = ~name
