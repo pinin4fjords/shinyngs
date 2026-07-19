@@ -135,6 +135,11 @@ rnaseqInput <- function(id, eselist) {
         moduleLayout(volcanoplotInput(ns("volcano"), eselist), volcanoplotOutput(ns("volcano"))),
         icon = icon("chart-line")
       ))
+
+      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Top gene boxplots",
+        moduleLayout(topgeneboxplotInput(ns("topgeneboxplot"), eselist), topgeneboxplotOutput(ns("topgeneboxplot"))),
+        icon = icon("chart-column", verify_fa = FALSE)
+      ))
     }
 
     # If any of the experiments have gene set analyses, add this table to the menu
@@ -249,6 +254,7 @@ rnaseq <- function(id, eselist) {
     if (has_slot_data(eselist, "contrasts")) {
       differentialtable("differential", eselist)
       volcanoplot("volcano", eselist)
+      topgeneboxplot("topgeneboxplot", eselist)
       foldchangeplot("foldchange", eselist)
       maplot("ma", eselist)
       genesetanalysistable("genesetanalysis", eselist)

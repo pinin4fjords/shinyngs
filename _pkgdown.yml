@@ -80,6 +80,7 @@ reference:
   contents:
   - ggplot_boxplot
   - ggplot_densityplot
+  - ggplot_topgene_boxplots
   - ggplotify
   - interactiveHeatmap
   - plotly_barcodeplot
@@ -88,6 +89,7 @@ reference:
   - plotly_densityplot
   - plotly_quartiles
   - plotly_scatterplot
+  - plotly_topgene_boxplots
   - static_scatterplot
   - makeColorScale
 
@@ -270,6 +272,15 @@ reference:
   - summarytiles
   - summarytilesInput
   - summarytilesOutput
+  - topgeneAnnotationData
+  - topgeneAnnotationVector
+  - topgeneboxplot
+  - topgeneboxplotInput
+  - topgeneBoxplotData
+  - topgeneBoxplotLayout
+  - topgeneboxplotOutput
+  - topgeneRankOptions
+  - topgeneTransformAssay
   - upset
   - upsetInput
   - upsetOutput

@@ -82,5 +82,5 @@ help_modal_ids <- c(
   "dexseqplot", "dexseqtable", "differentialtable", "experimenttable",
   "expressionheatmap", "foldchangeplot", "gene", "genesetanalysistable",
   "genesetbarcodeplot", "illuminaarrayqc", "maplot", "pca", "pcavsexperiment",
-  "readreports", "rowmetatable", "shinyngs_credits", "upset", "volcanoplot"
+  "readreports", "rowmetatable", "shinyngs_credits", "topgeneboxplot", "upset", "volcanoplot"
 )

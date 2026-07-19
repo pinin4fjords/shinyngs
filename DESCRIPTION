@@ -18,6 +18,7 @@ Imports:
     data.table,
     dplyr,
     DT (>= 0.2),
+    ggbeeswarm,
     ggdendro,
     ggplot2,
     heatmaply,
