@@ -250,7 +250,7 @@ heatmap <- function(id, eselist, type = "expression") {
       if (type == "samples") {
         pm <- cor(pm, use = "complete.obs", method = "spearman")
       } else if (type == "pca") {
-        pm <- getPCAMatrix()
+        pm <- getPCAPvalues()
       }
 
       # We can't do clustering with anything with the same value in all columns. So take these out.
@@ -274,24 +274,20 @@ heatmap <- function(id, eselist, type = "expression") {
 
       if (type == "expression") {
         pm <- log2(pm + 1)
-      } else if (type == "pca") {
-        pm[pm < 0.001] <- 0.001
-        pm <- log10(pm[!matrixStats::rowAlls(is.na(pm)), , drop = FALSE])
       }
       pm
     })
 
-    # Run a PCA with the currently selected matrix, and associate components
-    # with experimental variables via anova. Cached on the inputs read below,
-    # since neither prcomp() nor the per-variable anova calls need to re-run
-    # when e.g. only the clustering/scale controls change.
+    # Run a PCA with the currently selected matrix, ready for association with
+    # experimental variables via anova. Cached on the inputs read below, since
+    # prcomp() doesn't need to re-run when e.g. only the clustering/scale
+    # controls change.
 
-    getPCAMatrix <- reactive({
+    getPCAComponents <- reactive({
       pcameta <- getExperimentData()
       pcavals <- selectmatrix_reactives$selectMatrix()[, rownames(pcameta), drop = FALSE]
 
       pca <- runPCA(pcavals)
-      fraction_explained <- calculatePCAFractionExplained(pca)
 
       # Check for non-useful variables (those with 1 value, or N values where N is the
       # number of samples)
@@ -302,8 +298,18 @@ heatmap <- function(id, eselist, type = "expression") {
         need(length(informative_variables) > 0, "Warning: supplied filters have reduced sample metadata selections so as to render all variables uninformative (number of unique values = 1 or N)")
       )
 
-      anova_pca_metadata(pca_coords = pca$x, pcameta = pcameta, fraction_explained = fraction_explained)
+      list(pca_coords = pca$x, pcameta = pcameta, fraction_explained = calculatePCAFractionExplained(pca))
     }) %>% bindCache(getExperimentData(), selectmatrix_reactives$selectMatrix())
+
+    # The raw ANOVA p values, used only to size the plot container ahead of
+    # rendering it via plotly_pca_metadata_heatmap(). Cached on getPCAComponents()
+    # alone since the anova (unlike prcomp()) is otherwise cheap to rerun, but
+    # not so cheap that it should redo the whole ANOVA on every reactive tick.
+
+    getPCAPvalues <- reactive({
+      components <- getPCAComponents()
+      anova_pca_metadata(pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained)
+    }) %>% bindCache(getPCAComponents())
 
     # Calculate heights for the the various types of heatmap
 
@@ -368,37 +374,41 @@ heatmap <- function(id, eselist, type = "expression") {
       }
     })
 
-    # Make a color palette
-
-    makeColors <- reactive({
-      colors <- viridisLite::viridis(100)
-
-      if (type == "pca") {
-        colors <- rev(colors)
-      }
-
-      colors
-    })
-
-    hideColorbar <- reactive({
-      type == "pca"
-    })
-
-    # Build the interactive heatmap. Cached on exactly the inputs read below,
-    # since this covers heatmaply()'s own layout work as well as the row/column
-    # clustering it performs internally. plot_height is deliberately not listed
-    # as its own cache key: it's fully derived from getDisplayMatrix(),
-    # input$cluster_cols and getPlotAnnotation(), which already are.
+    # Build the heatmap. For the pca type this delegates entirely to
+    # plotly_pca_metadata_heatmap(), which owns the p value transform and
+    # display settings specific to that plot; the other types keep composing
+    # interactiveHeatmap() directly. Cached on exactly the inputs read below,
+    # since this covers heatmaply()'s own layout work as well as the
+    # row/column clustering it performs internally. plot_height is deliberately
+    # not listed as its own cache key: it's fully derived from the other keys
+    # already listed (getDisplayMatrix()/getPCAPvalues(), cluster/annotation
+    # inputs), and evaluating it just to check the cache would force
+    # getDisplayMatrix() (and, for pca, the ANOVA behind it) to rerun regardless
+    # of whether anything actually changed.
 
     getHeatmapPlot <- reactive({
-      validateOrCatch(interactiveHeatmap(
-        plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
-        cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
-        display_numbers = FALSE, hide_colorbar = hideColorbar(), plot_height = plotHeight()
-      ))
-    }) %>% bindCache(
-      getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels(), makeColors(), hideColorbar()
-    )
+      if (type == "pca") {
+        components <- getPCAComponents()
+        validateOrCatch(plotly_pca_metadata_heatmap(
+          pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained,
+          cluster_rows = as.logical(input$cluster_rows), plot_height = plotHeight()
+        ))
+      } else {
+        validateOrCatch(interactiveHeatmap(
+          plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
+          cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = viridisLite::viridis(100), cexCol = 1,
+          cexRow = 1, display_numbers = FALSE, plot_height = plotHeight()
+        ))
+      }
+    })
+
+    if (type == "pca") {
+      getHeatmapPlot <- getHeatmapPlot %>% bindCache(getPCAComponents(), input$cluster_rows)
+    } else {
+      getHeatmapPlot <- getHeatmapPlot %>% bindCache(
+        getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels()
+      )
+    }
 
     output$interactiveHeatmap <- plotly::renderPlotly({
       withProgress(message = "Building interactive heatmap", value = 0, {
@@ -680,4 +690,67 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
   }
 
   pvals
+}
+
+#' Make a PCA-vs-metadata association heatmap with \code{heatmaply()}
+#'
+#' Runs \code{\link{anova_pca_metadata}} on the supplied PCA coordinates and
+#' sample metadata, then renders the resulting p value matrix with
+#' \code{\link{interactiveHeatmap}}: -log10(p) sets the cell color, the raw p
+#' values are shown on hover, and variables (rows) with a single, uninformative
+#' value across all shown cells are dropped when \code{cluster_rows} is TRUE.
+#'
+#' @param pca_coords Data frame of PCA coordinates, with samples by row and
+#'   components by column (e.g. the \code{x} element of \code{\link{runPCA}}'s
+#'   \code{prcomp} result).
+#' @param pcameta Data frame of sample metadata with sample identifiers by row
+#'   and variables by column.
+#' @param fraction_explained Numeric vector containing the percent contribution
+#'   to variance of each component (e.g. from
+#'   \code{\link{calculatePCAFractionExplained}}).
+#' @param cluster_rows Cluster variables (rows) by their p value profile
+#'   across components?
+#' @param plot_height The total rendered height of the plot in pixels, passed
+#'   through to \code{\link{interactiveHeatmap}}. Defaults to a height scaled
+#'   to the number of variables.
+#' @param ... Additional arguments passed to \code{\link{interactiveHeatmap}}
+#'
+#' @return output A plotly htmlwidget as produced by \code{\link{interactiveHeatmap}}
+#'
+#' @export
+#'
+#' @examples
+#' pcameta <- data.frame(
+#'   row.names = paste0("sample", 1:6),
+#'   treatment = rep(c("control", "treated"), each = 3),
+#'   batch = rep(c("a", "b"), 3)
+#' )
+#' pca_coords <- matrix(rnorm(6 * 4), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:4)))
+#'
+#' plotly_pca_metadata_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
+#'
+plotly_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, plot_height = NULL, ...) {
+  pvals <- anova_pca_metadata(pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained)
+
+  if (cluster_rows) {
+    pvals <- pvals[rowsWithMultipleValues(pvals), , drop = FALSE]
+  }
+
+  plotmatrix <- pvals
+  plotmatrix[plotmatrix < 0.001] <- 0.001
+  plotmatrix <- log10(plotmatrix[!matrixStats::rowAlls(is.na(plotmatrix)), , drop = FALSE])
+
+  displaymatrix <- pvals[rownames(plotmatrix), , drop = FALSE]
+
+  if (is.null(plot_height)) {
+    plot_height <- (nrow(plotmatrix) * 20) + 150
+  }
+
+  interactiveHeatmap(
+    plotmatrix = plotmatrix, displaymatrix = displaymatrix, sample_annotation = NULL,
+    cluster_rows = cluster_rows, cluster_cols = FALSE, scale = "none",
+    row_labels = rownames(plotmatrix), colors = rev(viridisLite::viridis(100)),
+    cexCol = 1, cexRow = 1, display_numbers = FALSE, hide_colorbar = TRUE,
+    plot_height = plot_height, ...
+  )
 }

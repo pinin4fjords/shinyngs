@@ -122,41 +122,73 @@ test_that("calculateIntersections assigns overlapping members only to their high
   }))
 })
 
-test_that("upsetSetSizeBarChart and upsetIntersectSizeBarChart draw bars matching the computed sizes", {
+test_that("getUpsetPlot draws a set-size bar chart, an intersection-size bar chart and a membership grid", {
   run_upset_server(make_upset_eselist(), expr = quote({
-    set_chart <- plotly::plotly_build(upsetSetSizeBarChart())$x$data[[1]]
-    expect_equal(set_chart$type, "bar")
-    expect_equal(as.numeric(set_chart$x), c(7, 5, 5, 7))
+    built <- plotly::plotly_build(getUpsetPlot())
 
-    intersect_chart <- plotly::plotly_build(upsetIntersectSizeBarChart())$x$data[[1]]
-    expect_equal(intersect_chart$type, "bar")
-    expect_equal(as.numeric(intersect_chart$y), c(7, 7, 5, 5, 4, 3, 3, 2))
+    types <- vapply(built$x$data, function(t) t$type, character(1))
+    expect_equal(sum(types == "bar"), 2)
+    expect_equal(sum(types == "scatter"), 6)
   }))
 })
 
-test_that("upsetIntersectSizeBarChart truncates to the requested number of intersections", {
+test_that("getUpsetPlot truncates to the requested number of intersections", {
   run_upset_server(make_upset_eselist(), extra_inputs = list(nintersects = 3), expr = quote({
-    intersect_chart <- plotly::plotly_build(upsetIntersectSizeBarChart())$x$data[[1]]
+    built <- plotly::plotly_build(getUpsetPlot())
+    intersect_chart <- Find(function(t) identical(t$type, "bar") && is.null(t$orientation), built$x$data)
     expect_equal(as.numeric(intersect_chart$y), c(7, 7, 5))
   }))
 })
 
-test_that("upsetIntersectSizeBarChart adds a text trace when bar_numbers is enabled", {
+test_that("getUpsetPlot adds a text trace when bar_numbers is enabled", {
   run_upset_server(make_upset_eselist(), extra_inputs = list(bar_numbers = TRUE), expr = quote({
-    built <- plotly::plotly_build(upsetIntersectSizeBarChart())
-
-    expect_length(built$x$data, 2)
-    expect_equal(built$x$data[[2]]$mode, "text")
-    expect_equal(as.numeric(built$x$data[[2]]$text), c(7, 7, 5, 5, 4, 3, 3, 2))
+    built <- plotly::plotly_build(getUpsetPlot())
+    expect_true(any(vapply(built$x$data, function(t) identical(t$mode, "text"), logical(1))))
   }))
 })
 
-test_that("upsetGrid draws the background grid, set-membership lines and intersection markers as three scatter traces", {
-  run_upset_server(make_upset_eselist(), expr = quote({
-    built <- plotly::plotly_build(upsetGrid())
+# plotly_upset() - the same fixture as make_upset_eselist() above, but as
+# plain named sets rather than driven through the Shiny module
 
-    expect_length(built$x$data, 3)
-    expect_true(all(vapply(built$x$data, function(t) t$type, character(1)) == "scatter"))
-    expect_equal(built$x$layout$yaxis$range, c(0, 4))
-  }))
+make_upset_sets <- function() {
+  list(
+    grpA_down = paste0("gene", 6:12),
+    grpA_up = paste0("gene", 1:5),
+    grpB_down = paste0("gene", c(4, 5, 10, 11, 12)),
+    grpB_up = paste0("gene", c(1, 2, 3, 6, 7, 8, 9))
+  )
+}
+
+test_that("plotly_upset draws a set-size bar chart and an intersection-size bar chart with the computed sizes", {
+  built <- plotly::plotly_build(plotly_upset(make_upset_sets(), set_sort = FALSE, show_empty_intersections = FALSE, intersection_assignment_type = "all"))
+
+  bar_traces <- Filter(function(t) identical(t$type, "bar"), built$x$data)
+  expect_length(bar_traces, 2)
+
+  set_size_chart <- Find(function(t) identical(t$orientation, "h"), bar_traces)
+  intersect_size_chart <- Find(function(t) is.null(t$orientation), bar_traces)
+
+  expect_equal(as.numeric(set_size_chart$x), c(7, 5, 5, 7))
+  expect_equal(as.numeric(intersect_size_chart$y), c(7, 7, 5, 5, 4, 3, 3, 2))
+})
+
+test_that("plotly_upset sorts sets by size before plotting when set_sort is TRUE", {
+  built <- plotly::plotly_build(plotly_upset(make_upset_sets(), set_sort = TRUE, show_empty_intersections = FALSE))
+
+  set_size_chart <- Find(function(t) identical(t$type, "bar") && identical(t$orientation, "h"), built$x$data)
+  expect_equal(as.numeric(set_size_chart$x), c(5, 5, 7, 7))
+})
+
+test_that("plotly_upset restricts to intersections involving at least minorder sets", {
+  built <- plotly::plotly_build(plotly_upset(make_upset_sets(), minorder = 2, show_empty_intersections = FALSE, intersection_assignment_type = "all"))
+
+  intersect_size_chart <- Find(function(t) identical(t$type, "bar") && is.null(t$orientation), built$x$data)
+  expect_equal(as.numeric(intersect_size_chart$y), c(4, 3, 3, 2))
+})
+
+test_that("plotly_upset assigns overlapping members only to their highest-order intersection under 'upset' assignment", {
+  built <- plotly::plotly_build(plotly_upset(make_upset_sets(), show_empty_intersections = FALSE, intersection_assignment_type = "upset"))
+
+  intersect_size_chart <- Find(function(t) identical(t$type, "bar") && is.null(t$orientation), built$x$data)
+  expect_equal(as.numeric(intersect_size_chart$y), c(4, 3, 3, 2))
 })

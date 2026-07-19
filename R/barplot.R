@@ -47,47 +47,46 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
     output$barPlot <- renderPlotly({
       validate(need(input$barMode, "Waiting for bar mode"))
 
-      plotly_barplot(getPlotmatrix(), barmode = input$barMode, ylab = getYLabel()) %>%
+      plotly_barchart(getPlotmatrix(), barmode = input$barMode, ylab = getYLabel()) %>%
         shinyngsPlotlyConfig("barplot", format = session$userData$plotFormat())
     })
   })
 }
 
-#' Make a grouped, stacked or overlaid bar plot with \code{plot_ly()}
+#' Make a grouped, stacked or overlaid bar chart with \code{plot_ly()}
 #'
-#' Draws one bar trace per row of \code{plotmatrix}, coloured and legended by
-#' row, with columns along the x axis. Used by the \code{barplot} module, and
-#' by \code{\link{plotly_count_barplot}} to render feature-annotation category
+#' Draws one bar trace per row of \code{matrix}, coloured and legended by row,
+#' with columns along the x axis. Used by the \code{barplot} module, and by
+#' \code{\link{plotly_count_barplot}} to render feature-annotation category
 #' counts.
 #'
-#' @param plotmatrix A matrix with series (colour/legend) as rows and x axis
-#'   categories as columns.
-#' @param barmode Bar mode: \code{"stack"} (default), \code{"group"} (dodged)
-#'   or \code{"overlay"}.
+#' @param matrix A matrix to plot, e.g. counts by category (row) and sample
+#'   (column)
+#' @param barmode 'stack' (default), 'group' or 'overlay'. For 'overlay', rows
+#'   are reordered by decreasing mean so each is more likely to be visible
 #' @param ylab Y axis label
 #' @param palette_name Valid R color palette name
 #' @param title Plot title
 #'
-#' @return output Plotly plot object
+#' @return output A plotly htmlwidget
 #'
 #' @export
 #'
 #' @examples
-#' plotly_barplot(matrix(c(3, 1, 2, 4), nrow = 2, dimnames = list(c("a", "b"), c("x", "y"))))
+#' m <- matrix(1:6, nrow = 2, dimnames = list(c("up", "down"), c("s1", "s2", "s3")))
+#' plotly_barchart(m, barmode = "stack", ylab = "Count")
 #'
-plotly_barplot <- function(plotmatrix, barmode = c("stack", "group", "overlay"), ylab = "Value", palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
+plotly_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), ylab = "", palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
   barmode <- match.arg(barmode)
 
-  # If we're doing an overlay plot, re-order the rows so we've a better chance of seeing each group
-
   if (barmode == "overlay") {
-    plotmatrix <- plotmatrix[order(rowMeans(plotmatrix), decreasing = TRUE), , drop = FALSE]
+    matrix <- matrix[order(rowMeans(matrix), decreasing = TRUE), , drop = FALSE]
   }
 
-  plotdata <- melt_matrix(plotmatrix)
+  plotdata <- melt_matrix(matrix)
 
   # plot_ly() otherwise silently alphabetises the x axis (via an auto-derived
-  # categoryarray), discarding plotmatrix's column order - pin the axis to it
+  # categoryarray), discarding matrix's column order - pin the axis to it
   # explicitly. Convert Var2 to character afterwards to prevent it being
   # interpreted as a numeric/continuous axis when column names look numeric.
 
@@ -99,13 +98,13 @@ plotly_barplot <- function(plotmatrix, barmode = c("stack", "group", "overlay"),
   plotdata %>%
     plot_ly(x = ~Var2, y = ~value, color = ~Var1, colors = palette, type = "bar") %>%
     layout(
-      title = title, margin = list(b = 100), barmode = barmode, showlegend = nrow(plotmatrix) > 1,
+      title = title, margin = list(b = 100), barmode = barmode, showlegend = nrow(matrix) > 1,
       xaxis = list(title = " ", categoryorder = "array", categoryarray = column_order), yaxis = list(title = ylab)
     )
 }
 
 #' Tally a categorical annotation column, optionally split by a second, into a
-#' \code{\link{plotly_barplot}}-ready matrix
+#' \code{\link{plotly_barchart}}-ready matrix
 #'
 #' Rows of the returned matrix are the (optional) \code{fill} levels, columns
 #' are the \code{category} levels present in \code{annotation}, ordered by
@@ -134,7 +133,7 @@ countMatrixByCategory <- function(annotation, category, fill = NULL) {
 #' \code{mcols()}/\code{rowData()} of a \code{SummarizedExperiment}, or the
 #' data frame returned by the \code{selectmatrix} module's
 #' \code{getAnnotation()}) and renders the counts as a bar chart via
-#' \code{\link{plotly_barplot}}. Generalises the shape of the
+#' \code{\link{plotly_barchart}}. Generalises the shape of the
 #' differential-expression-by-biotype plot rendered by the
 #' nf-core/differentialabundance report to any categorical annotation column.
 #'
@@ -182,5 +181,5 @@ plotly_count_barplot <- function(annotation, category, fill = NULL, barmode = c(
     title <- paste("Counts by", prettifyVariablename(category))
   }
 
-  plotly_barplot(plotmatrix, barmode = barmode, ylab = "Count", palette_name = palette_name, title = title)
+  plotly_barchart(plotmatrix, barmode = barmode, ylab = "Count", palette_name = palette_name, title = title)
 }

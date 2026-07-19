@@ -1,36 +1,54 @@
-# plotly_barplot()
+# plotly_barchart()
 
-test_that("plotly_barplot draws one trace per row, with columns along x", {
+test_that("plotly_barchart draws one bar trace per row, with columns along x", {
   m <- matrix(c(3, 1, 2, 4), nrow = 2, dimnames = list(c("a", "b"), c("x", "y")))
-  built <- plotly::plotly_build(plotly_barplot(m))
+  built <- plotly::plotly_build(plotly_barchart(m))
 
   expect_length(built$x$data, 2)
+  expect_true(all(vapply(built$x$data, function(t) t$type, character(1)) == "bar"))
   expect_equal(as.character(built$x$data[[1]]$x), c("x", "y"))
   expect_equal(as.numeric(built$x$data[[1]]$y), c(3, 2))
   expect_equal(as.numeric(built$x$data[[2]]$y), c(1, 4))
 })
 
-test_that("plotly_barplot re-orders rows by descending mean in overlay mode", {
+test_that("plotly_barchart draws one bar trace per matrix row, stacked by default", {
+  m <- matrix(1:6, nrow = 2, byrow = TRUE, dimnames = list(c("up", "down"), c("s1", "s2", "s3")))
+
+  built <- plotly::plotly_build(plotly_barchart(m, barmode = "stack", ylab = "Count"))
+
+  expect_equal(built$x$layout$barmode, "stack")
+  expect_equal(built$x$layout$yaxis$title, "Count")
+})
+
+test_that("plotly_barchart re-orders rows by descending mean in overlay mode", {
   m <- matrix(c(1, 2, 9, 20), nrow = 2, byrow = TRUE, dimnames = list(c("low", "high"), c("x", "y")))
-  built <- plotly::plotly_build(plotly_barplot(m, barmode = "overlay"))
+  built <- plotly::plotly_build(plotly_barchart(m, barmode = "overlay"))
 
   expect_equal(built$x$data[[1]]$name, "high")
   expect_equal(as.numeric(built$x$data[[1]]$y), c(9, 20))
 })
 
-test_that("plotly_barplot hides the legend for a single-row matrix", {
+test_that("plotly_barchart hides the legend for a single-row matrix", {
   m <- matrix(c(3, 2), nrow = 1, dimnames = list("Count", c("x", "y")))
-  p <- plotly_barplot(m)
+  p <- plotly_barchart(m)
 
   expect_false(p$x$layoutAttrs[[1]]$showlegend)
 })
 
-test_that("plotly_barplot pins the x axis to plotmatrix's column order, not alphabetical", {
+test_that("plotly_barchart pins the x axis to matrix's column order, not alphabetical", {
   m <- matrix(c(3, 2, 1), nrow = 1, dimnames = list("Count", c("zebra", "mango", "apple")))
-  built <- plotly::plotly_build(plotly_barplot(m))
+  built <- plotly::plotly_build(plotly_barchart(m))
 
   expect_equal(built$x$layout$xaxis$categoryorder, "array")
   expect_equal(built$x$layout$xaxis$categoryarray, c("zebra", "mango", "apple"))
+})
+
+test_that("plotly_barchart keeps column names as characters, not coerced to numbers", {
+  m <- matrix(1:4, nrow = 2, dimnames = list(c("a", "b"), c("2020", "2021")))
+
+  built <- plotly::plotly_build(plotly_barchart(m))
+
+  expect_type(built$x$data[[1]]$x, "character")
 })
 
 # countMatrixByCategory()
