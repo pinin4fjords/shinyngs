@@ -431,7 +431,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get current value of field which determines if the table should be filtered at all.
 
   getFilterRows <- reactive({
-    req(!is.null(input$filterRows))
+    validate(need(!is.null(input$filterRows), FALSE))
     as.logical(input$filterRows)
   })
 
@@ -502,7 +502,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
         filter_field_id <- paste0(field, btn)
         observeEvent(input[[filter_field_id]],
           {
-            req(input[[filter_field_id]])
+            validate(need(input[[filter_field_id]], FALSE))
             if (is.null(filterset_values[[filterId]])) {
               filterset_values[[filterId]] <<- list()
             }
@@ -585,24 +585,24 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get the indices of the currently selected contrasts for each filter set by querying filterset_values.
 
   getSelectedContrastNumbers <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     lapply(filterset_values, function(x) x$contrasts)
   })
 
   # Fetch the values from all the fold change filters
 
   getFoldChange <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     unlist(lapply(filterset_values, function(x) x$fold_change))
   })
 
   # Fetch the values from all the fold change cardinality filters
 
   getFoldChangeCard <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     card <- unlist(lapply(filterset_values, function(x) x$fold_change_card))
     if (fcsAvailable()) {
-      req(length(card) > 0)
+      validate(need(length(card) > 0, FALSE))
     }
     card
   })
@@ -610,17 +610,17 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get current value of the q value filter
 
   getQval <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     unlist(lapply(filterset_values, function(x) x$q_value))
   })
 
   # Get current value of the q value cardinality filter
 
   getQvalCard <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     card <- unlist(lapply(filterset_values, function(x) x$q_value_card))
     if (qvalsAvailable()) {
-      req(length(card) > 0)
+      validate(need(length(card) > 0, FALSE))
     }
     card
   })
@@ -628,17 +628,17 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get current value of the p value filter
 
   getPval <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     unlist(lapply(filterset_values, function(x) x$p_value))
   })
 
   # Get current value of the p value cardinality filter
 
   getPvalCard <- reactive({
-    req(length(filterset_values) > 0)
+    validate(need(length(filterset_values) > 0, FALSE))
     card <- unlist(lapply(filterset_values, function(x) x$p_value_card))
     if (pvalsAvailable()) {
-      req(length(card) > 0)
+      validate(need(length(card) > 0, FALSE))
     }
     card
   })
@@ -646,7 +646,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get method for combining filters
 
   getFilterSetCombinationOperator <- reactive({
-    req(input$combine_operator)
+    validate(need(input$combine_operator, FALSE))
     input$combine_operator
   })
 
@@ -867,7 +867,7 @@ contrastFiltering <- function(selectmatrix_reactives, getSelectedContrastNumbers
     selected_contrasts <- getSelectedContrastNumbers()
     contrast_tables <- contrastsTablesToMatchMatrix()
 
-    req(selected_contrasts, contrast_tables)
+    validate(need(selected_contrasts, FALSE), need(contrast_tables, FALSE))
 
     # Selected contrasts is a list, one for each filter set. Each one can have multiple contrasts
 
@@ -889,7 +889,7 @@ contrastFiltering <- function(selectmatrix_reactives, getSelectedContrastNumbers
 
   filteredContrastsTables <- reactive({
     selected_contrasts_tables <- selectedContrastsTables()
-    req(length(selected_contrasts_tables) > 0)
+    validate(need(length(selected_contrasts_tables) > 0, FALSE))
 
     if (getFilterRows()) {
       ese <- selectmatrix_reactives$getExperiment()

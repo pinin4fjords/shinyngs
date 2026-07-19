@@ -27,10 +27,10 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
 #'
 #' @return A list of elements that can be included in a panel
 
-barplotOutput <- function(id, height = "400") {
+barplotOutput <- function(id, height = 400) {
   ns <- NS(id)
 
-  list(plotlyOutput(ns("barPlot"), height = paste0(height, "px")))
+  list(plotlyOutput(ns("barPlot"), height = height))
 }
 
 #' Server function of the \code{barplot} module

@@ -68,7 +68,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("model")),
     uiOutput(ns("info")),
     uiOutput(ns("title")),
-    shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = 500), color = shinyngsSpinnerColor()),
+    shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = "500px"), color = shinyngsSpinnerColor()),
     h4("Contrasts table"),
     simpletableOutput(ns("geneContrastsTable")),
     help = modalInput(ns(gene_modal$id), "help", "help")

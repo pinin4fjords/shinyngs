@@ -32,7 +32,7 @@ foldchangeplot_scatter <- list(scatter_id = "foldchange", filename = "foldchange
 #' }
 #'
 foldchangeplotInput <- function(id, eselist) {
-  differentialScatterInput(id, eselist, scatter_id = foldchangeplot_scatter$scatter_id)
+  differentialscatterInput(id, eselist, scatter_id = foldchangeplot_scatter$scatter_id)
 }
 
 #' The output function of the \code{foldchangeplot} module
@@ -62,7 +62,7 @@ foldchangeplotInput <- function(id, eselist) {
 #' }
 #'
 foldchangeplotOutput <- function(id) {
-  differentialScatterOutput(id, scatter_id = foldchangeplot_scatter$scatter_id, title = "Fold change plot", modal = foldchangeplot_modal)
+  differentialscatterOutput(id, scatter_id = foldchangeplot_scatter$scatter_id, title = "Fold change plot", modal = foldchangeplot_modal)
 }
 
 #' Select which fold change plot threshold lines to draw
@@ -123,7 +123,7 @@ foldchangeplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(foldchangeplot_modal$id, foldchangeplot_modal$title)
 
-    differentialScatterServer(input, output, session, eselist,
+    differentialscatterLogic(input, output, session, eselist,
       scatter_id = foldchangeplot_scatter$scatter_id, filename = foldchangeplot_scatter$filename,
       buildTable = buildFoldchangeTable, buildLines = buildFoldchangeLines
     )

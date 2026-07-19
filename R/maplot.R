@@ -33,7 +33,7 @@ maplot_scatter <- list(scatter_id = "ma", filename = "ma")
 #' }
 #'
 maplotInput <- function(id, eselist) {
-  differentialScatterInput(id, eselist, scatter_id = maplot_scatter$scatter_id)
+  differentialscatterInput(id, eselist, scatter_id = maplot_scatter$scatter_id)
 }
 
 #' The output function of the \code{maplot} module
@@ -66,7 +66,7 @@ maplotInput <- function(id, eselist) {
 #' }
 #'
 maplotOutput <- function(id) {
-  differentialScatterOutput(id, scatter_id = maplot_scatter$scatter_id, title = "MA plot", modal = maplot_modal)
+  differentialscatterOutput(id, scatter_id = maplot_scatter$scatter_id, title = "MA plot", modal = maplot_modal)
 }
 
 #' Select which MA plot threshold lines to draw
@@ -130,7 +130,7 @@ maplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(maplot_modal$id, maplot_modal$title)
 
-    differentialScatterServer(input, output, session, eselist,
+    differentialscatterLogic(input, output, session, eselist,
       scatter_id = maplot_scatter$scatter_id, filename = maplot_scatter$filename,
       buildTable = buildMaTable, buildLines = buildMaLines
     )
