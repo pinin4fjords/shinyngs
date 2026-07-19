@@ -5,7 +5,7 @@
 \title{Generate a matrix of anova values for associating principal components with
 categorical covariates.}
 \usage{
-anova_pca_metadata(pca_coords, pcameta, fraction_explained)
+anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 10)
 }
 \arguments{
 \item{pca_coords}{Data frame of PCA coordinates, with samples by row and
@@ -16,6 +16,9 @@ and variables by column.}
 
 \item{fraction_explained}{Numeric vector containing the percent contribution
 to variance of each component}
+
+\item{n_components}{Number of leading components to test. Clamped to the
+number actually available in \code{pca_coords} if that's fewer.}
 }
 \value{
 output A numeric matrix of p values

@@ -395,6 +395,22 @@ calculatePCAFractionExplained <- function(pca) {
   round((pca$sdev)^2 / sum(pca$sdev^2), 3) * 100
 }
 
+#' Plain "PC1", "PC2", ... labels for the leading n components
+#'
+#' Shared by \code{\link{plotly_screeplot}} and
+#' \code{\link[=anova_pca_metadata]{anova_pca_metadata}} so the two produce
+#' identical, identically-ordered labels - required for
+#' \code{\link{plotly_pca_variance_heatmap}} to line the two plots up on a
+#' shared x-axis.
+#'
+#' @param n Number of components to label
+#'
+#' @return output A character vector of length \code{n}
+#'
+pcLabels <- function(n) {
+  paste0("PC", seq_len(n))
+}
+
 #' Make a PCA scree plot with \code{plot_ly()}
 #'
 #' Plots the percent variance explained by each principal component as a
@@ -424,7 +440,7 @@ plotly_screeplot <- function(fraction_explained, n_components = NULL, cumulative
   n_components <- min(n_components, length(fraction_explained))
 
   fraction_explained <- fraction_explained[seq_len(n_components)]
-  components <- factor(paste0("PC", seq_len(n_components)), levels = paste0("PC", seq_len(n_components)))
+  components <- factor(pcLabels(n_components), levels = pcLabels(n_components))
 
   traces <- list(list(y = fraction_explained, name = "% variance explained"))
   if (cumulative) {

@@ -7,7 +7,7 @@ test_that("interactiveHeatmap handles single-row matrices (e.g. one informative 
   pm <- matrix(
     c(0.01, 0.02, 0.03, 0.04),
     nrow = 1,
-    dimnames = list("Experiment", c("PC1 (39%)", "PC2 (32.2%)", "PC3 (28.8%)", "PC4 (0%)"))
+    dimnames = list("Experiment", c("PC1", "PC2", "PC3", "PC4"))
   )
 
   # heatmaply warns about the duplicated row names introduced by the
@@ -68,4 +68,79 @@ test_that("plotly_pca_metadata_heatmap drops rows with a single value across all
 
   expect_false("constant" %in% rownames(clustered$x$data[[1]]$z))
   expect_true("constant" %in% rownames(unclustered$x$data[[1]]$z))
+})
+
+# anova_pca_metadata()
+
+test_that("anova_pca_metadata uses plain PC column names, not percent-suffixed ones", {
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 3), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:3)))
+
+  pvals <- anova_pca_metadata(pca_coords, pcameta, fraction_explained = c(50, 30, 20))
+
+  expect_equal(colnames(pvals), c("PC1", "PC2", "PC3"))
+})
+
+test_that("anova_pca_metadata's n_components limits and clamps the number of components tested", {
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 5), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:5)))
+  fraction_explained <- c(40, 25, 15, 12, 8)
+
+  limited <- anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 3)
+  expect_equal(colnames(limited), c("PC1", "PC2", "PC3"))
+
+  clamped <- anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 20)
+  expect_equal(ncol(clamped), 5)
+})
+
+# plotly_pca_variance_heatmap()
+
+test_that("plotly_pca_variance_heatmap syncs the scree plot's x-categories with the heatmap's columns", {
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3),
+    batch = rep(c("a", "b"), 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 4), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:4)))
+  fraction_explained <- c(45, 25, 20, 10)
+
+  # cluster_rows = FALSE keeps the heatmap side of the figure to a single
+  # heatmap trace (no row dendrogram), so the scree trace is unambiguously
+  # the only "scatter"-type trace in the combined figure.
+  built <- plotly::plotly_build(plotly_pca_variance_heatmap(pca_coords, pcameta, fraction_explained, cluster_rows = FALSE, n_components = 4))
+
+  trace_types <- vapply(built$x$data, function(trace) trace$type, character(1))
+  scree_trace <- built$x$data[[which(trace_types == "scatter")[1]]]
+  heatmap_trace <- built$x$data[[which(trace_types == "heatmap")[1]]]
+
+  expect_equal(as.character(scree_trace$x), colnames(heatmap_trace$z))
+})
+
+test_that("plotly_pca_variance_heatmap respects n_components in both the scree and heatmap portions", {
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3),
+    batch = rep(c("a", "b"), 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 5), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:5)))
+  fraction_explained <- c(40, 25, 15, 12, 8)
+
+  built <- plotly::plotly_build(plotly_pca_variance_heatmap(pca_coords, pcameta, fraction_explained, cluster_rows = FALSE, n_components = 2))
+
+  trace_types <- vapply(built$x$data, function(trace) trace$type, character(1))
+  scree_trace <- built$x$data[[which(trace_types == "scatter")[1]]]
+  heatmap_trace <- built$x$data[[which(trace_types == "heatmap")[1]]]
+
+  expect_equal(as.character(scree_trace$x), c("PC1", "PC2"))
+  expect_equal(colnames(heatmap_trace$z), c("PC1", "PC2"))
 })

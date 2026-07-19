@@ -4,9 +4,13 @@ Principal component analysis is a dimension reduction technique designed to extr
 
 In this panel, an 'analysis of variance' test is conducted for each component against each of the factors present in the experimental data. Where a principal component is closely related to a particular variable (e.g. treatment condition) it will show as a significant p value in this matrix. Ideally, the key experimental variables should show as associated with the first components, showing the highest proportion of the variance. Sometimes technical factors (e.g. sequencing lane) are associated most strongly with these components, indicating a need to account for such factors in any downstream analysis. 
 
+A scree plot is shown above the heatmap, with each principal component's column lined up with the corresponding column below, so you can see at a glance whether a component with a significant p value actually explains a meaningful share of the variance.
+
 #### Controls
 
 The provided controls allow selection of the experimental variables to test, and which input matrix to use. Often a clearer separation of samples will be achieved by using the variable rows of a matrix, so the top 1000 most variant rows are used by default. You should adjust this parameter as required.
+
+The "Number of principal components to test" slider controls how many leading components appear in both the scree plot and the heatmap. The underlying p value matrix can be downloaded as a CSV from the "Association p-values" table below the heatmap.
 
 #### Plotting libraries used 
 
