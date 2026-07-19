@@ -127,17 +127,12 @@ clustering <- function(id, eselist) {
       as.numeric(input$cluster_number)
     })
 
-    # How limits of error bars etc should be defined
+    # How limits of error bars etc should be defined ('sd', 'se' or 'ci' -
+    # plotly_cluster_profiles() derives the mean/median-specific column name)
 
     getLimits <- reactive({
       validate(need(!is.null(input$limits), "Waiting for limits"))
-      limits <- input$limits
-
-      average_type <- getAverageType()
-      if (average_type == "median") {
-        limits <- paste0("median.", limits)
-      }
-      limits
+      input$limits
     })
 
     # Use mean or median?
@@ -208,110 +203,42 @@ clustering <- function(id, eselist) {
       split(scaled_inmatrix, clusters$clustering[match(rownames(scaled_inmatrix), names(clusters$clustering))])
     })
 
-    # A reactive to define what summary stats are used
-
-    addMedians <- reactive({
-      average_type <- getAverageType()
-      average_type == "median"
-    })
-
-    # Generate summary statistics from the matrix for each cluster. This is what's actually plotted if cluster display is set to something other than 'sample
-    # lines'.  Uses summarySE() to derive mean, median, standard error, standard deviation and 95% confidence intervals.
+    # Generate summary statistics from the matrix for each cluster, ahead of
+    # plotting. Cached separately from getClusterPlot() below since it only
+    # depends on the cluster assignments and average type, not the display
+    # controls (cluster display mode, limits, colors) - those shouldn't force
+    # a rerun of summarySE()'s bootstrap-backed median standard error.
 
     getSummarisedMatricesByCluster <- reactive({
       matrices_by_cluster <- getMatricesByCluster()
-      add_medians <- addMedians()
+      average_type <- getAverageType()
 
       withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
         lapply(matrices_by_cluster, function(mbc) {
-          summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = add_medians)
+          summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
         })
       })
-    }) %>% bindCache(getMatricesByCluster(), addMedians())
-
-    # The business end of the cluster plotting. Use the above parameters and processing to produce one plot object for each cluster of matrix rows.
-
-    makeClusterPlots <- reactive({
-      matrices_by_cluster <- getMatricesByCluster()
-      summarised_matrices_by_cluster <- getSummarisedMatricesByCluster()
-      cluster_colors <- getPalette()
-      limits <- getLimits()
-      average_type <- getAverageType()
-      cluster_display <- getClusterDisplay()
-
-      if (cluster_display == "sample_lines") {
-        plots <- lapply(names(matrices_by_cluster), function(c) {
-          cluster_color <- cluster_colors[as.numeric(c)]
-
-          x <- matrices_by_cluster[[c]]
-          if (nrow(x) > 100) {
-            x <- x[sample(seq_len(nrow(x)), 100), ]
-          }
-          x <- melt_matrix(as.matrix(x))
-          x %>%
-            group_by(Var1) %>%
-            plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), line = list(color = cluster_color))
-        })
-      } else if (cluster_display == "error_bars") {
-        plots <- lapply(names(summarised_matrices_by_cluster), function(c) {
-          cluster_color <- cluster_colors[as.numeric(c)]
-          x <- summarised_matrices_by_cluster[[c]]
-          plot_ly(x, x = ~Var2, y = ~ x[, average_type], name = paste("Cluster", c)) %>% add_lines(error_y = ~ list(
-            name = paste("Cluster", c), color = cluster_color,
-            type = "array", array = x[, limits]
-          ), line = list(color = cluster_color))
-        })
-      } else {
-        plots <- lapply(names(matrices_by_cluster), function(c) {
-          cluster_color <- cluster_colors[as.numeric(c)]
-          x <- summarised_matrices_by_cluster[[c]]
-
-          x$lower <- x[, average_type] - x[, limits]
-          x$upper <- x[, average_type] + x[, limits]
-
-          plot_ly(x, name = paste("Cluster", c)) %>%
-            add_trace(
-              x = ~Var2, y = x[, average_type], type = "scatter", mode = "lines", line = list(color = cluster_color),
-              showlegend = TRUE
-            ) %>%
-            add_trace(
-              x = ~Var2, y = ~upper, type = "scatter", mode = "lines", line = list(color = "transparent"), showlegend = FALSE,
-              name = paste(average_type, toupper(limits), sep = " + ")
-            ) %>%
-            add_trace(
-              x = ~Var2, y = ~lower, type = "scatter", mode = "lines", fill = "tonexty",
-              fillcolor = "rgba(0,100,80,0.2)", line = list(color = "transparent"), showlegend = FALSE, name = paste(average_type, toupper(limits), sep = " - ")
-            )
-        })
-      }
-
-      experiment <- selectmatrix_reactives$selectColData()
-
-      lapply(plots, function(p) {
-        p %>% layout(
-          xaxis = list(categoryarray = rownames(experiment), categoryorder = "array", title = ""), yaxis = list(title = "scaled<br />expression"),
-          margin = list(b = 150)
-        )
-      })
-    }) %>%
-      bindCache(
-        getMatricesByCluster(), getSummarisedMatricesByCluster(), getPalette(),
-        getLimits(), getAverageType(), getClusterDisplay(), selectmatrix_reactives$selectColData()
-      )
+    }) %>% bindCache(getMatricesByCluster(), getAverageType())
 
     # Take individual cluster plots and display them together using subplot.
 
-    output$geneClusteringPlot <- renderPlotly({
-      withProgress(message = "Plotting cluster profiles", value = 0, {
-        scaled_inmatrix <- scaleMatrix()
-        clusters <- makeClusters()
+    getClusterPlot <- reactive({
+      matrices_by_cluster <- getMatricesByCluster()
+      experiment <- selectmatrix_reactives$selectColData()
 
-        withProgress(message = "Making a plot for each cluster", value = 0, {
-          plots <- makeClusterPlots()
-        })
-        do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots) %>%
-          shinyngsPlotlyConfig("clustering", format = session$userData$plotFormat())
+      withProgress(message = "Plotting cluster profiles", value = 0, {
+        plotly_cluster_profiles(
+          matrices_by_cluster,
+          cluster_display = getClusterDisplay(), average_type = getAverageType(), limits = getLimits(),
+          colors = getPalette(), sample_order = rownames(experiment), summarised_matrices_by_cluster = getSummarisedMatricesByCluster()
+        )
       })
+    }) %>% bindCache(
+      getMatricesByCluster(), getClusterDisplay(), getAverageType(), getLimits(), getPalette(), selectmatrix_reactives$selectColData()
+    )
+
+    output$geneClusteringPlot <- renderPlotly({
+      getClusterPlot() %>% shinyngsPlotlyConfig("clustering", format = session$userData$plotFormat())
     })
 
     ############################################################################# Functions for making the table of values with cluster numbers
@@ -514,4 +441,130 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
     mads$outlier <- mads$mad < outlier_threshold
     mads
   }
+}
+
+#' Plot expression profiles for a set of feature clusters with \code{plot_ly()}
+#'
+#' Draws one sub-plot per cluster of a scaled expression matrix (e.g. as
+#' produced by \code{\link{runClustering}}), combined with
+#' \code{plotly::subplot()}. Three display modes are available: individual
+#' sample lines, a mean/median line with error bars, or a mean/median line
+#' with a shaded error band. Summary statistics (mean, median and their
+#' spreads) are derived internally with \code{\link{summarySE}}.
+#'
+#' @param matrices_by_cluster A named list of matrices/data frames, one per
+#'   cluster, features by row and samples by column (e.g. the input matrix
+#'   split by \code{clustering$clustering} from \code{\link{runClustering}}).
+#'   Names should be the cluster numbers as produced by \code{split()}, since
+#'   \code{colors} is indexed by cluster number.
+#' @param cluster_display 'filled_line' (a mean/median line with a shaded
+#'   error band), 'sample_lines' (individual sample profiles) or
+#'   'error_bars' (a mean/median line with error bars)
+#' @param average_type 'mean' or 'median'
+#' @param limits Which spread to show around the average: 'sd' (standard
+#'   deviation), 'se' (standard error) or 'ci' (95% confidence interval).
+#'   Ignored when \code{cluster_display = "sample_lines"}
+#' @param colors A vector of colors, indexed by cluster number (i.e.
+#'   \code{colors[[2]]} colors the cluster named "2" in
+#'   \code{matrices_by_cluster}). Defaults to \code{\link{makeColorScale}}
+#' @param sample_order Character vector giving the sample (x axis) display
+#'   order. Defaults to \code{colnames()} of the first cluster's matrix
+#' @param max_sample_lines Maximum number of sample lines drawn per cluster
+#'   under \code{cluster_display = "sample_lines"}; larger clusters are
+#'   randomly subsampled to this many rows
+#' @param summarised_matrices_by_cluster Precomputed summary statistics, one
+#'   element per cluster, as returned by \code{\link{summarySE}} on each
+#'   element of \code{matrices_by_cluster}. Computed internally if not
+#'   supplied; callers that already have this (e.g. to cache it separately
+#'   from the display controls below) can pass it through directly
+#'
+#' @return output A plotly htmlwidget
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(1)
+#' matrices_by_cluster <- list(
+#'   `1` = matrix(rnorm(30), nrow = 5, dimnames = list(paste0("gene", 1:5), paste0("sample", 1:6))),
+#'   `2` = matrix(rnorm(30), nrow = 5, dimnames = list(paste0("gene", 6:10), paste0("sample", 1:6)))
+#' )
+#'
+#' plotly_cluster_profiles(matrices_by_cluster, cluster_display = "filled_line")
+#'
+plotly_cluster_profiles <- function(matrices_by_cluster, cluster_display = c("filled_line", "sample_lines", "error_bars"),
+                                     average_type = c("mean", "median"), limits = c("sd", "se", "ci"), colors = NULL,
+                                     sample_order = NULL, max_sample_lines = 100, summarised_matrices_by_cluster = NULL) {
+  cluster_display <- match.arg(cluster_display)
+  average_type <- match.arg(average_type)
+  limits <- match.arg(limits)
+
+  if (average_type == "median") {
+    limits <- paste0("median.", limits)
+  }
+  if (is.null(colors)) {
+    colors <- makeColorScale(length(matrices_by_cluster))
+  }
+  if (is.null(sample_order)) {
+    sample_order <- colnames(matrices_by_cluster[[1]])
+  }
+  if (is.null(summarised_matrices_by_cluster)) {
+    summarised_matrices_by_cluster <- lapply(matrices_by_cluster, function(mbc) {
+      summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
+    })
+  }
+
+  if (cluster_display == "sample_lines") {
+    plots <- lapply(names(matrices_by_cluster), function(c) {
+      cluster_color <- colors[as.numeric(c)]
+
+      x <- matrices_by_cluster[[c]]
+      if (nrow(x) > max_sample_lines) {
+        x <- x[sample(seq_len(nrow(x)), max_sample_lines), ]
+      }
+      x <- melt_matrix(as.matrix(x))
+      x %>%
+        dplyr::group_by(Var1) %>%
+        plot_ly(x = ~Var2, y = ~value, type = "scatter", mode = "lines", text = ~Var1, name = paste("Cluster", c), line = list(color = cluster_color))
+    })
+  } else if (cluster_display == "error_bars") {
+    plots <- lapply(names(summarised_matrices_by_cluster), function(c) {
+      cluster_color <- colors[as.numeric(c)]
+      x <- summarised_matrices_by_cluster[[c]]
+      plot_ly(x, x = ~Var2, y = ~ x[, average_type], name = paste("Cluster", c)) %>% add_lines(error_y = ~ list(
+        name = paste("Cluster", c), color = cluster_color,
+        type = "array", array = x[, limits]
+      ), line = list(color = cluster_color))
+    })
+  } else {
+    plots <- lapply(names(matrices_by_cluster), function(c) {
+      cluster_color <- colors[as.numeric(c)]
+      x <- summarised_matrices_by_cluster[[c]]
+
+      x$lower <- x[, average_type] - x[, limits]
+      x$upper <- x[, average_type] + x[, limits]
+
+      plot_ly(x, name = paste("Cluster", c)) %>%
+        add_trace(
+          x = ~Var2, y = x[, average_type], type = "scatter", mode = "lines", line = list(color = cluster_color),
+          showlegend = TRUE
+        ) %>%
+        add_trace(
+          x = ~Var2, y = ~upper, type = "scatter", mode = "lines", line = list(color = "transparent"), showlegend = FALSE,
+          name = paste(average_type, toupper(limits), sep = " + ")
+        ) %>%
+        add_trace(
+          x = ~Var2, y = ~lower, type = "scatter", mode = "lines", fill = "tonexty",
+          fillcolor = "rgba(0,100,80,0.2)", line = list(color = "transparent"), showlegend = FALSE, name = paste(average_type, toupper(limits), sep = " - ")
+        )
+    })
+  }
+
+  plots <- lapply(plots, function(p) {
+    p %>% layout(
+      xaxis = list(categoryarray = sample_order, categoryorder = "array", title = ""), yaxis = list(title = "scaled<br />expression"),
+      margin = list(b = 150)
+    )
+  })
+
+  do.call(function(...) subplot(..., titleX = TRUE, titleY = TRUE, shareY = TRUE, shareX = TRUE, nrows = ceiling(length(plots) / 3)), plots)
 }

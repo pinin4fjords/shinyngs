@@ -44,35 +44,50 @@ barplotOutput <- function(id, height = "400") {
 
 barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
   moduleServer(id, function(input, output, session) {
-    # If we're doing an overlay plot, let's re-order the rows such that we've a better chance of seeing each group
-
-    formatPlotMatrix <- reactive({
-      pm <- getPlotmatrix()
-
-      validate(need(input$barMode, "Waiting for bar mode"))
-
-      if (input$barMode == "overlay") {
-        pm <- pm[order(rowMeans(pm), decreasing = TRUE), ]
-      }
-      pm
-    })
-
     # Render the plot
 
     output$barPlot <- renderPlotly({
-      fpm <- formatPlotMatrix()
-      plotdata <- melt_matrix(fpm)
+      validate(need(input$barMode, "Waiting for bar mode"))
 
-      # Prevent interpretation of row names as numbers
-
-      plotdata$Var2 <- as.character(plotdata$Var2)
-      plotdata %>%
-        plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>%
-        layout(
-          margin = list(b = 100), barmode = input$barMode, xaxis = list(title = " "),
-          yaxis = list(title = getYLabel())
-        ) %>%
+      plotly_barchart(getPlotmatrix(), barmode = input$barMode, ylab = getYLabel()) %>%
         shinyngsPlotlyConfig("barplot", format = session$userData$plotFormat())
     })
   })
+}
+
+#' Make a grouped, stacked or overlaid bar chart with \code{plot_ly()}
+#'
+#' @param matrix A matrix to plot, e.g. counts by category (row) and sample
+#'   (column)
+#' @param barmode 'stack', 'group' or 'overlay'. For 'overlay', rows are
+#'   reordered by decreasing mean so each is more likely to be visible
+#' @param ylab Y axis label
+#'
+#' @return output A plotly htmlwidget
+#'
+#' @export
+#'
+#' @examples
+#' m <- matrix(1:6, nrow = 2, dimnames = list(c("up", "down"), c("s1", "s2", "s3")))
+#' plotly_barchart(m, barmode = "stack", ylab = "Count")
+#'
+plotly_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), ylab = "") {
+  barmode <- match.arg(barmode)
+
+  if (barmode == "overlay") {
+    matrix <- matrix[order(rowMeans(matrix), decreasing = TRUE), , drop = FALSE]
+  }
+
+  plotdata <- melt_matrix(matrix)
+
+  # Prevent interpretation of row names as numbers
+
+  plotdata$Var2 <- as.character(plotdata$Var2)
+
+  plotdata %>%
+    plot_ly(x = ~Var2, y = ~value, color = ~Var1, type = "bar") %>%
+    layout(
+      margin = list(b = 100), barmode = barmode, xaxis = list(title = " "),
+      yaxis = list(title = ylab)
+    )
 }

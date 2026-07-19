@@ -282,7 +282,9 @@ upset <- function(id, eselist, setlimit = 16) {
       valid_sets[seq_len(nsets)]
     })
 
-    # Calculate intersections between sets
+    # Calculate intersections between sets. Only used to bound the minorder
+    # slider (getMaxIntersectionOrder()) - the plot itself is built straight
+    # from plotly_upset() below, which recomputes intersections internally.
 
     calculateIntersections <- reactive({
       withProgress(message = "Calculating set intersections", value = 0, {
@@ -290,15 +292,12 @@ upset <- function(id, eselist, setlimit = 16) {
       })
     }) %>% bindCache(getSets(), getShowEmptyIntersections(), getIntersectionAssignmentType())
 
-    # Post-process intersections to remove lower-order interactions from display if requested
+    ########################################################################### Render the plot
 
-    getIntersections <- reactive({
-      upset_filter_intersections_by_order(calculateIntersections(), getMinOrder())
-    })
+    # Cached on exactly the inputs plotly_upset() reads, so toggling e.g. the
+    # plot download format doesn't recompute the intersection enumeration.
 
-    ########################################################################### Render the plot with it separate components
-
-    output$plotly_upset <- renderPlotly({
+    getUpsetPlot <- reactive({
       display_sets <- getSets()
       names(display_sets) <- getSetNames()
 
@@ -306,7 +305,13 @@ upset <- function(id, eselist, setlimit = 16) {
         display_sets,
         nintersects = getNintersections(), minorder = getMinOrder(), set_sort = FALSE, bar_numbers = getBarNumbers(),
         show_empty_intersections = getShowEmptyIntersections(), intersection_assignment_type = getIntersectionAssignmentType()
-      ) %>% shinyngsPlotlyConfig("upset", format = session$userData$plotFormat())
+      )
+    }) %>% bindCache(
+      getSets(), getShowEmptyIntersections(), getIntersectionAssignmentType(), getNintersections(), getMinOrder(), getBarNumbers()
+    )
+
+    output$plotly_upset <- renderPlotly({
+      getUpsetPlot() %>% shinyngsPlotlyConfig("upset", format = session$userData$plotFormat())
     })
 
     # Calculate the maximum number of sets in an intersection
@@ -321,30 +326,6 @@ upset <- function(id, eselist, setlimit = 16) {
     getSetNames <- reactive({
       selected_sets <- getSets()
       gsub("_", " ", names(selected_sets))
-    })
-
-    # Make the grid of points indicating set membership in intersections
-
-    upsetGrid <- reactive({
-      display_sets <- getSets()
-      names(display_sets) <- getSetNames()
-
-      upset_grid_plot(display_sets, getIntersections(), getNintersections())
-    })
-
-    # Make the bar chart illustrating set sizes
-
-    upsetSetSizeBarChart <- reactive({
-      display_sets <- getSets()
-      names(display_sets) <- getSetNames()
-
-      upset_set_size_chart(display_sets)
-    })
-
-    # Make the bar chart illustrating intersect size
-
-    upsetIntersectSizeBarChart <- reactive({
-      upset_intersect_size_chart(getIntersections(), getNintersections(), getBarNumbers())
     })
 
     # Provide the differential set summary for download

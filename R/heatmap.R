@@ -302,12 +302,14 @@ heatmap <- function(id, eselist, type = "expression") {
     }) %>% bindCache(getExperimentData(), selectmatrix_reactives$selectMatrix())
 
     # The raw ANOVA p values, used only to size the plot container ahead of
-    # rendering it via plotly_pca_metadata_heatmap()
+    # rendering it via plotly_pca_metadata_heatmap(). Cached on getPCAComponents()
+    # alone since the anova (unlike prcomp()) is otherwise cheap to rerun, but
+    # not so cheap that it should redo the whole ANOVA on every reactive tick.
 
     getPCAPvalues <- reactive({
       components <- getPCAComponents()
       anova_pca_metadata(pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained)
-    })
+    }) %>% bindCache(getPCAComponents())
 
     # Calculate heights for the the various types of heatmap
 
@@ -372,18 +374,17 @@ heatmap <- function(id, eselist, type = "expression") {
       }
     })
 
-    # Make a color palette
-
-    makeColors <- reactive({
-      viridisLite::viridis(100)
-    })
-
     # Build the heatmap. For the pca type this delegates entirely to
     # plotly_pca_metadata_heatmap(), which owns the p value transform and
     # display settings specific to that plot; the other types keep composing
     # interactiveHeatmap() directly. Cached on exactly the inputs read below,
     # since this covers heatmaply()'s own layout work as well as the
-    # row/column clustering it performs internally.
+    # row/column clustering it performs internally. plot_height is deliberately
+    # not listed as its own cache key: it's fully derived from the other keys
+    # already listed (getDisplayMatrix()/getPCAPvalues(), cluster/annotation
+    # inputs), and evaluating it just to check the cache would force
+    # getDisplayMatrix() (and, for pca, the ANOVA behind it) to rerun regardless
+    # of whether anything actually changed.
 
     getHeatmapPlot <- reactive({
       if (type == "pca") {
@@ -395,17 +396,17 @@ heatmap <- function(id, eselist, type = "expression") {
       } else {
         validateOrCatch(interactiveHeatmap(
           plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
-          cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = makeColors(), cexCol = 1, cexRow = 1,
-          display_numbers = FALSE, plot_height = plotHeight()
+          cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = viridisLite::viridis(100), cexCol = 1,
+          cexRow = 1, display_numbers = FALSE, plot_height = plotHeight()
         ))
       }
     })
 
     if (type == "pca") {
-      getHeatmapPlot <- getHeatmapPlot %>% bindCache(getPCAComponents(), input$cluster_rows, plotHeight())
+      getHeatmapPlot <- getHeatmapPlot %>% bindCache(getPCAComponents(), input$cluster_rows)
     } else {
       getHeatmapPlot <- getHeatmapPlot %>% bindCache(
-        getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels(), makeColors()
+        getPlotMatrix(), getDisplayMatrix(), getPlotAnnotation(), input$cluster_cols, input$cluster_rows, input$scale, rowLabels()
       )
     }
 

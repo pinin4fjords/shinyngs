@@ -83,9 +83,12 @@ reference:
   - ggplotify
   - interactiveHeatmap
   - plotly_barcodeplot
+  - plotly_barchart
   - plotly_boxplot
+  - plotly_cluster_profiles
   - plotly_clusteringDendrogram
   - plotly_densityplot
+  - plotly_illumina_control_probes
   - plotly_pca_metadata_heatmap
   - plotly_quartiles
   - plotly_scatterplot
@@ -276,6 +279,11 @@ reference:
   - upset
   - upsetInput
   - upsetOutput
+  - upset_calculate_intersections
+  - upset_filter_intersections_by_order
+  - upset_grid_plot
+  - upset_intersect_size_chart
+  - upset_set_size_chart
   - validateFormulaBasedContrast
   - volcanoplot
   - volcanoplotInput
