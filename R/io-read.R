@@ -355,7 +355,15 @@ drop_empty_gene_set_analyses <- function(gene_set_analyses) {
 #' gene set, named after the set name in the file's first column.
 #'
 #' @export
-
+#'
+#' @examples
+#' gmt_file <- tempfile(fileext = ".gmt")
+#' writeLines(c(
+#'   "SET1\tdescription\tGeneA\tGeneB\tGeneC",
+#'   "SET2\tdescription\tGeneD\tGeneE"
+#' ), gmt_file)
+#' read_gmt(gmt_file)
+#'
 read_gmt <- function(file) {
   lines <- readLines(file)
   lines <- lines[nzchar(lines)]
@@ -384,7 +392,21 @@ read_gmt <- function(file) {
 #'
 #' @return output Numeric matrix
 #' @export
-
+#'
+#' @examples
+#' mat <- matrix(1:12, nrow = 3,
+#'   dimnames = list(paste0("gene", 1:3), paste0("s", 1:4)))
+#' matrix_file <- tempfile(fileext = ".tsv")
+#' write.table(
+#'   data.frame(gene_id = rownames(mat), mat, check.names = FALSE),
+#'   matrix_file, sep = "\t", row.names = FALSE, quote = FALSE
+#' )
+#' sample_metadata <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 2),
+#'   row.names = paste0("s", 1:4)
+#' )
+#' read_matrix(matrix_file, sample_metadata)
+#'
 read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, sep = NULL, row.names = 1) {
   if (!file.exists(matrix_file)) {
     stop(paste("Matrix file", matrix_file, "does not exist."))
@@ -441,7 +463,18 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
 #' @export
 #'
 #' @return output Data frame
-
+#'
+#' @examples
+#' metadata_file <- tempfile(fileext = ".csv")
+#' write.csv(
+#'   data.frame(
+#'     sample = paste0("s", 1:4),
+#'     condition = rep(c("treated", "control"), each = 2)
+#'   ),
+#'   metadata_file, row.names = FALSE
+#' )
+#' read_metadata(metadata_file, id_col = "sample")
+#'
 read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors = FALSE) {
   if (is.null(sep)) {
     sep <- getSeparator(filename)

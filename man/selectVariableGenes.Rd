@@ -20,3 +20,9 @@ output A vector of integers
 \description{
 Generate an integer ordering to select the n most variable genes out of a matrix
 }
+\examples{
+mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
+  dimnames = list(paste0("gene", 1:15), paste0("s", 1:4)))
+selectVariableGenes(ntop = 5, matrix = mat)
+
+}

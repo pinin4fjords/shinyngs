@@ -42,3 +42,13 @@ output A \code{plotly} output
 \description{
 A simple function using \code{plotly} to make a sample density plot.
 }
+\examples{
+mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,
+  dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+experiment <- data.frame(
+  condition = rep(c("treated", "control"), each = 2),
+  row.names = colnames(mat)
+)
+plotly_densityplot(mat, experiment, colorby = "condition")
+
+}

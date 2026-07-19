@@ -193,7 +193,25 @@ read_stats_table <- function(filename, feature_id_column = NULL, pval_column = N
 #'   data frame, with the resolved scale attached as the \code{fold_change_scale}
 #'   attribute.
 #' @export
-
+#'
+#' @examples
+#' stats_file <- tempfile(fileext = ".tsv")
+#' write.table(
+#'   data.frame(
+#'     gene_id = paste0("gene", 1:5),
+#'     pvalue = c(0.001, 0.2, 0.03, 0.5, 0.008),
+#'     padj = c(0.01, 0.4, 0.1, 0.7, 0.04),
+#'     log2FoldChange = c(2.5, -0.1, 1.2, 0.3, -3.1)
+#'   ),
+#'   stats_file, sep = "\t", row.names = FALSE, quote = FALSE
+#' )
+#' read_differential(stats_file,
+#'   feature_id_column = "gene_id",
+#'   pval_column = "pvalue",
+#'   qval_column = "padj",
+#'   fc_column = "log2FoldChange"
+#' )
+#'
 read_differential <- function(filename,
                               feature_id_column = NULL,
                               pval_column = NULL,

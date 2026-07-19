@@ -28,3 +28,13 @@ https://wiki.arrayserver.com/wiki/index.php?title=CorrelationQC.pdf.
 Not currently deployed anywhere in shinyngs, but a potential way of flagging
 outliers for investigation
 }
+\examples{
+mat <- matrix(rnorm(60), nrow = 6, ncol = 10,
+  dimnames = list(paste0("gene", 1:6), paste0("s", 1:10)))
+sample_sheet <- data.frame(
+  condition = rep(c("treated", "control"), each = 5),
+  row.names = colnames(mat)
+)
+madScore(mat, sample_sheet, groupby = "condition")
+
+}

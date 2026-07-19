@@ -269,7 +269,12 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 #' @export
 #'
 #' @return output A vector of integers
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
+#'   dimnames = list(paste0("gene", 1:15), paste0("s", 1:4)))
+#' selectVariableGenes(ntop = 5, matrix = mat)
+#'
 selectVariableGenes <- function(ntop, matrix = NULL, row_variances = NULL) {
   if (is.null(row_variances)) {
     if (is.null(matrix)) {

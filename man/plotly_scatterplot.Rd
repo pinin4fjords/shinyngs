@@ -96,3 +96,11 @@ output Plotly plot object
 \description{
 Make scatterplots with \code{plot_ly()}
 }
+\examples{
+set.seed(1)
+x <- rnorm(10)
+y <- rnorm(10)
+colorby <- factor(rep(c("treated", "control"), each = 5))
+plotly_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
+
+}

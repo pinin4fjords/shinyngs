@@ -79,3 +79,24 @@ to all experiments such as gene sets and contrasts.
 It's clear that the structure of this class and that of SummarizedExperimentList
 will need to be refined in future.
 }
+\examples{
+expression <- matrix(1:12, nrow = 3,
+  dimnames = list(c("ENSG1", "ENSG2", "ENSG3"), paste0("s", 1:4)))
+coldata <- data.frame(
+  condition = rep(c("treated", "control"), each = 2),
+  row.names = paste0("s", 1:4)
+)
+annotation <- data.frame(
+  gene_id = c("ENSG1", "ENSG2", "ENSG3"),
+  gene_name = c("GeneA", "GeneB", "GeneC"),
+  row.names = c("ENSG1", "ENSG2", "ENSG3")
+)
+ExploratorySummarizedExperiment(
+  assays = list(expression = expression),
+  colData = coldata,
+  annotation = annotation,
+  idfield = "gene_id",
+  labelfield = "gene_name"
+)
+
+}

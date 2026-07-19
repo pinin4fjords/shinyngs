@@ -111,7 +111,12 @@ setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "A
 #'
 #' @return output An ExploratorySummarizedExperimentList
 #' @export
-
+#'
+#' @examples
+#' data(airway, package = "airway")
+#' ese <- as(airway, "ExploratorySummarizedExperiment")
+#' eselist <- ExploratorySummarizedExperimentList(ese, title = "Airway study")
+#'
 ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", description = "", static_pdf = character(), group_vars = character(), default_groupvar = character(),
                                                 contrasts = list(), url_roots = list(), gene_sets = list(), gene_set_id_type = character(), ensembl_species = character()) {
   if (!is.list(eses)) {

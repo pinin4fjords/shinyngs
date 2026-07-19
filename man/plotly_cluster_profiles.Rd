@@ -29,7 +29,7 @@ error band), 'sample_lines' (individual sample profiles) or
 \item{average_type}{'mean' or 'median'}
 
 \item{limits}{Which spread to show around the average: 'sd' (standard
-deviation), 'se' (standard error) or 'ci' (95% confidence interval).
+deviation), 'se' (standard error) or 'ci' (95\% confidence interval).
 Ignored when \code{cluster_display = "sample_lines"}}
 
 \item{colors}{A vector of colors, indexed by cluster number (i.e.
