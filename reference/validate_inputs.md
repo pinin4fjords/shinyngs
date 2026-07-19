@@ -105,10 +105,10 @@ validate_inputs(
   assay_files = matrix_file,
   sample_id_col = "sample"
 )
-#> Reading sample sheet at /tmp/RtmpePA2vR/file2a0c598b9f03.csv with ID col sample
-#> Reading assay matrix /tmp/RtmpePA2vR/file2a0c25c82a6a.csv and validating against samples and features (if supplied)
-#> ...  /tmp/RtmpePA2vR/file2a0c25c82a6a.csv matrix good
-#> $`/tmp/RtmpePA2vR/file2a0c598b9f03.csv`
+#> Reading sample sheet at /tmp/RtmpQ3GRmc/file29d35c089a6.csv with ID col sample
+#> Reading assay matrix /tmp/RtmpQ3GRmc/file29d37bc3bdf3.csv and validating against samples and features (if supplied)
+#> ...  /tmp/RtmpQ3GRmc/file29d37bc3bdf3.csv matrix good
+#> $`/tmp/RtmpQ3GRmc/file29d35c089a6.csv`
 #>    sample condition
 #> s1     s1   treated
 #> s2     s2   treated
@@ -116,7 +116,7 @@ validate_inputs(
 #> s4     s4   control
 #> 
 #> $assays
-#> $assays$`/tmp/RtmpePA2vR/file2a0c25c82a6a.csv`
+#> $assays$`/tmp/RtmpQ3GRmc/file29d37bc3bdf3.csv`
 #>       s1 s2 s3 s4
 #> gene1  1  4  7 10
 #> gene2  2  5  8 11
