@@ -384,8 +384,7 @@ geneBarplot <- function(expression, experiment, colorby, expressionmeasure = "Ex
 #' igv.js ships a handful of stock genomes with their own default annotation
 #' track (RefSeq), which only shows canonical/collapsed transcripts. Where a
 #' hosted, tabix-indexed Ensembl GFF3 is publicly available for that build, we
-#' additionally load it as a second track to show the full transcript
-#' catalog, matching what the old Gviz-based plot displayed.
+#' additionally load it as a second track to show the full transcript catalog.
 #'
 #' @param ensembl_species Ensembl species definition like 'hsapiens'
 #'

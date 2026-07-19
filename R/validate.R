@@ -88,7 +88,7 @@ validate_inputs <- function(samples_metadata,
 
   # Read the sample (observation) - wise metadata
 
-  print(paste(
+  message(paste(
     "Reading sample sheet at",
     samples_metadata,
     "with ID col",
@@ -105,7 +105,7 @@ validate_inputs <- function(samples_metadata,
 
   features <- NULL
   if (!is.null(features_metadata)) {
-    print(paste(
+    message(paste(
       "Reading feature metadata at",
       features_metadata,
       "with ID col",
@@ -131,22 +131,22 @@ validate_inputs <- function(samples_metadata,
   # Read the matrices while checking samples and features match columns and rows
 
   validated_parts[["assays"]] <- lapply(assay_files, function(x) {
-    print(paste("Reading assay matrix", x, "and validating against samples and features (if supplied)"))
+    message(paste("Reading assay matrix", x, "and validating against samples and features (if supplied)"))
 
     mat <- read_matrix(
       matrix_file = x,
       sample_metadata = samples,
       feature_metadata = features
     )
-    print(paste("... ", x, "matrix good"))
+    message(paste("... ", x, "matrix good"))
     mat
   })
 
   # Read contrasts and check against sample info
   if (!is.null(contrasts_file)) {
-    print("Reading contrast definitions and validating against sample sheet")
+    message("Reading contrast definitions and validating against sample sheet")
     validated_parts[[contrasts_file]] <- read_contrasts(contrasts_file, samples)
-    print("... contrasts good")
+    message("... contrasts good")
   }
 
   if (!is.null(differential_results)) {
