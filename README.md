@@ -66,12 +66,20 @@ applications:
 - A “Share view” button that captures the current selections in the page
   URL, so a configured view can be bookmarked or shared with a link.
 
-# Screenshot
+# Screenshots
 
-<figure>
-<img src="man/figures/gene_page.png" alt="Example: the gene page" />
-<figcaption aria-hidden="true">Example: the gene page</figcaption>
-</figure>
+<p align="center">
+
+<img src="man/figures/home.png" width="49%" alt="The home page, summarising a loaded study" />
+<img src="man/figures/pca.png" width="49%" alt="A 3D PCA components plot" />
+<br/>
+<img src="man/figures/volcano.png" width="49%" alt="A volcano plot for a chosen contrast" />
+<img src="man/figures/gene_page.png" width="49%" alt="The gene page, with expression, annotation and contrasts" />
+</p>
+
+See the [module and panel
+catalogue](https://pinin4fjords.github.io/shinyngs/articles/modules.html)
+for a screenshot of every panel the app can show.
 
 ## Objectives
 
