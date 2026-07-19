@@ -39,16 +39,26 @@ topgeneRankOptions <- function(available_columns) {
 # text. These are fixed absolute pixel targets rather than a constant margin
 # *fraction* of the total figure, because a fixed fraction shrinks in
 # absolute terms as the figure gets shorter (fewer rows) - which is what let
-# a low gene count's rows visually overlap. The values below (and the legend
-# y offset in plotly_topgene_boxplots()) were tuned empirically against
-# rendered output rather than derived analytically, since plotly's own
-# spacing between an axis title and a legend anchored below it isn't exposed
-# as a documented, computable quantity; they may need revisiting if the
-# facet title's font size or line count changes materially.
+# a low gene count's rows visually overlap. The values below were tuned
+# empirically against rendered output rather than derived analytically,
+# since plotly's own spacing between an axis title and a legend anchored
+# below it isn't exposed as a documented, computable quantity; they may need
+# revisiting if the facet title's font size or line count changes
+# materially.
 topgeneboxplot_row_px <- 220
 topgeneboxplot_gap_px <- 230
 topgeneboxplot_outer_top_px <- 30
 topgeneboxplot_outer_bottom_px <- 170
+
+# How far above the very bottom of the figure (in pixels) the legend sits.
+# The legend is positioned with yref = "container" so this is a fixed
+# distance from the figure's bottom edge regardless of row count; anchoring
+# it in "paper" coordinates instead (the plotly default) places it relative
+# to the plotting area's height, which grows with each extra row, so the
+# same fractional offset pushes the legend further below the fixed
+# topgeneboxplot_outer_bottom_px margin - and off the bottom of the figure -
+# as more rows are added.
+topgeneboxplot_legend_bottom_px <- 15
 
 #' Compute the total plot height and inter-row margin fraction needed to lay
 #' out \code{n_genes} faceted boxplots over \code{ncol} columns without rows
@@ -472,7 +482,11 @@ plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
   # overall figure is made
   p %>%
     layout(
-      legend = list(title = list(text = "Group"), orientation = "h", xanchor = "center", x = 0.5, y = -0.6),
+      legend = list(
+        title = list(text = "Group"), orientation = "h",
+        xref = "container", xanchor = "center", x = 0.5,
+        yref = "container", yanchor = "bottom", y = topgeneboxplot_legend_bottom_px / layout_spec$height
+      ),
       margin = list(t = topgeneboxplot_outer_top_px, b = topgeneboxplot_outer_bottom_px), hovermode = "closest"
     )
 }

@@ -100,6 +100,27 @@ test_that("plotly_topgene_boxplots shows the y axis title on every row, not just
   expect_false(has_title("yaxis6"))
 })
 
+test_that("plotly_topgene_boxplots keeps the legend inside the figure regardless of row count", {
+  groupby <- rep(c("A", "B"), each = 3)
+
+  # legend.y is anchored to the figure container (not the plotting area), so
+  # its pixel offset from the bottom should stay constant as more rows are
+  # added, rather than scaling with (and eventually exceeding) the fixed
+  # bottom margin reserved for it
+  for (n_genes in c(1, 4, 9)) {
+    mat <- matrix(rpois(n_genes * 6, lambda = 200) + 1, nrow = n_genes, dimnames = list(paste0("gene", 1:n_genes), paste0("s", 1:6)))
+
+    built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat)))
+    legend <- built$x$layout$legend
+    height <- built$x$layout$height
+    margin_b <- built$x$layout$margin$b
+
+    expect_equal(legend$yref, "container")
+    legend_px_from_bottom <- legend$y * height
+    expect_true(legend_px_from_bottom > 0 && legend_px_from_bottom < margin_b)
+  }
+})
+
 test_that("plotly_topgene_boxplots titles facets with the supplied label instead of the raw gene id", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
