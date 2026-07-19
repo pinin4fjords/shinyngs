@@ -490,9 +490,11 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
 
   total_traces <- trace_counter
 
+  # The plotly modebar (camera/zoom/pan icons) is docked top-right, so the
+  # dropdown is placed top-left to avoid sitting on top of it.
   updatemenus <- list(list(
     type = "dropdown", active = 0,
-    x = 1, xanchor = "right", y = 1.1, yanchor = "top",
+    x = 0, xanchor = "left", y = 1.15, yanchor = "top",
     buttons = lapply(option_names, function(option_name) {
       visible <- rep(FALSE, total_traces)
       visible[trace_indices[[option_name]]] <- TRUE
@@ -512,7 +514,7 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
   # The initial title/legend are left to the caller (adjustLayout), which
   # runs after this and must agree with the first dropdown option so the
   # page load state matches what re-selecting that option would produce.
-  plotly::layout(fig, updatemenus = updatemenus)
+  plotly::layout(fig, updatemenus = updatemenus, margin = list(t = 80))
 }
 
 #' Make scatterplots with \code{plot_ly()}
