@@ -307,22 +307,40 @@ reference:
 
 navbar:
   structure:
-    left:  [intro, articles, reference, news]
+    left:  [intro, building-apps, using-extending, reference, news]
     right: [search, github]
+  components:
+    building-apps:
+      text: Building apps
+      menu:
+      - text: The data model
+        href: articles/data-model.html
+      - text: Building an app from files and YAML
+        href: articles/build-from-files.html
+      - text: Command-line interface reference
+        href: articles/cli.html
+    using-extending:
+      text: Using & extending
+      menu:
+      - text: Module and panel catalog
+        href: articles/modules.html
+      - text: Reusing components inside and outside Shiny
+        href: articles/reuse.html
+      - text: Theming, palettes and shareable views
+        href: articles/theming.html
+      - text: Developer guide
+        href: articles/developer.html
 
 articles:
 - title: Get started
-  navbar: ~
   contents:
   - shinyngs
 - title: Building apps
-  navbar: Building apps
   contents:
   - articles/data-model
   - articles/build-from-files
   - articles/cli
 - title: Using and extending
-  navbar: Using & extending
   contents:
   - articles/modules
   - articles/reuse
