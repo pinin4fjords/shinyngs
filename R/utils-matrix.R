@@ -74,7 +74,8 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
   allplotdata <- do.call(rbind, lapply(names(plotmatrices), function(pm) {
     if (value_type == "density") {
       plotdata <- do.call(rbind, lapply(colnames(plotmatrices[[pm]]), function(s) {
-        dens <- density(cond_log2_transform_matrix(plotmatrices[[pm]][, s], rmzeros = TRUE, should_transform = should_transform), n = 100)
+        transformed <- cond_log2_transform_matrix(plotmatrices[[pm]][, s], rmzeros = TRUE, should_transform = should_transform)
+        dens <- density(transformed[is.finite(transformed)], n = 100)
         data.frame(name = s, value = dens$x, density = dens$y)
       }))
     } else {

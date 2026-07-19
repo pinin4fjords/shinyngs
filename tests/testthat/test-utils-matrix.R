@@ -102,6 +102,22 @@ test_that("ggplotify computes densities when value_type is 'density'", {
   expect_true(all(c("name", "value", "density") %in% colnames(out)))
 })
 
+test_that("ggplotify computes a density trace when a sample has zero values", {
+  # rmzeros turns zeros into NA ahead of the log2 transform, so a sample
+  # with any zero entries reproduces the crash from issue #249 unless
+  # those NAs are dropped before stats::density() is called.
+  mat <- matrix(
+    c(0, 10, 100, 1000, 5, 50, 500, 5000),
+    nrow = 4, dimnames = list(paste0("gene", 1:4), c("s1", "s2"))
+  )
+  experiment <- data.frame(row.names = c("s1", "s2"))
+
+  plotdata <- ggplotify(mat, experiment, value_type = "density")
+
+  expect_setequal(unique(plotdata$name), c("s1", "s2"))
+  expect_true(all(is.finite(plotdata$density)))
+})
+
 test_that("ggplotify concatenates a named list of matrices, tagging each with its type", {
   mat1 <- matrix(c(1, 2), nrow = 1, dimnames = list("g1", c("s1", "s2")))
   mat2 <- matrix(c(3, 4), nrow = 1, dimnames = list("g1", c("s1", "s2")))
