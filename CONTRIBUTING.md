@@ -54,7 +54,7 @@ that for free by embedding those submodules.
 A plotting module is a thin adapter: the actual drawing lives in an exported,
 Shiny-free standalone function (for example the `boxplot` module calls
 `static_boxplot()` / `interactive_boxplot()`). Put new drawing logic in an exported
-`ggplot_*` / `plotly_*` function that takes plain data and give it a
+`interactive_*` / `static_*` function that takes plain data and give it a
 `palette_name = COLORBLIND_PALETTE_NAME` default, then have the module call it.
 
 For a full walkthrough (including a step-by-step "add a new module" recipe) see

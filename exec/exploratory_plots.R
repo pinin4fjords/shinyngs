@@ -235,14 +235,14 @@ print("Writing boxplots...")
 
 if (opt$write_html) {
   print("... interactive")
-  boxplot_interactive <- interactive_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
-  htmlwidgets::saveWidget(plotly::as_widget(boxplot_interactive), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
+  interactive_boxplot_plot <- interactive_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot_plot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
 }
 
 print("... static")
-boxplot_static <- static_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+static_boxplot_plot <- static_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
 png(filename = file.path(png_outdir, "boxplot.png"), width = 800, height = 600)
-boxplot_static
+static_boxplot_plot
 dev.off()
 
 ################################################
@@ -255,14 +255,14 @@ print("Writing density plots...")
 
 if (opt$write_html) {
   print("...interactive")
-  densityplot_interactive <- interactive_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
-  htmlwidgets::saveWidget(plotly::as_widget(densityplot_interactive), file.path(html_outdir, "density.html"), selfcontained = TRUE)
+  interactive_densityplot_plot <- interactive_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot_plot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
 }
 
 print("... static")
-densityplot_static <- static_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+static_densityplot_plot <- static_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
 png(filename = file.path(png_outdir, "density.png"), width = 800, height = 600)
-densityplot_static
+static_densityplot_plot
 dev.off()
 
 ################################################

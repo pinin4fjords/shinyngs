@@ -160,7 +160,7 @@ been to *extract* render logic out of module servers into exported standalone
 functions. The payoff: the plotting functions are documented, testable and
 usable from a plain R script (no running app), and the module stays a thin
 adapter. When you add or change a plot, put the drawing logic in an exported
-`ggplot_*` / `plotly_*` function and have the module call it.
+`interactive_*` / `static_*` function and have the module call it.
 
 > Gotcha: when extracting render logic into a standalone function, preserve the
 > `bindCache()` scope. Several modules wrap their plot-building reactive in
@@ -202,7 +202,7 @@ myplot <- function(id, eselist) {
     groupby_reactives <- groupby("myplot", eselist = eselist, selectColData = selectmatrix_reactives$selectColData)
 
     output$myPlot <- renderPlotly({
-      plotly_myplot(
+      interactive_myplot(
         selectmatrix_reactives$selectMatrix(),
         selectmatrix_reactives$selectColData(),
         groupby_reactives$getGroupby(),
@@ -214,7 +214,7 @@ myplot <- function(id, eselist) {
 ```
 
 **2. Write the standalone plot function.** Put the drawing logic in an exported
-`plotly_myplot()` (and/or `ggplot_myplot()`) that takes plain arguments. Give it
+`interactive_myplot()` (and/or `static_myplot()`) that takes plain arguments. Give it
 a `palette_name = COLORBLIND_PALETTE_NAME` default so it produces consistent,
 colour-blind-safe output when called outside an app.
 

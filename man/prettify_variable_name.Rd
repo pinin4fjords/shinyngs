@@ -19,6 +19,6 @@ Just split out words using '_' and capitalise first letter
 }
 \examples{
 vn <- "ugly_name_of_thing"
-prettyifyVariablename(vn)
+prettify_variable_name(vn)
 
 }

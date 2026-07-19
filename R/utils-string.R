@@ -108,7 +108,7 @@ strings_to_named_vector <- function(elements_string, names_string = NULL, sep = 
 #'
 #' @examples
 #' vn <- "ugly_name_of_thing"
-#' prettyifyVariablename(vn)
+#' prettify_variable_name(vn)
 #'
 prettify_variable_name <- function(vn, tolower = FALSE) {
   if (tolower) {
