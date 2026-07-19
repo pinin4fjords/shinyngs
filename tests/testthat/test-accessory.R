@@ -30,6 +30,18 @@ test_that("nlines works", {
   expect_equal(as.character(hiddenInput("myid", "foo")), test_html)
 })
 
+# pushToList()
+
+test_that("pushToList appends an element to the end of a list", {
+  result <- pushToList(list("a", "b"), "c")
+  expect_equal(result, list("a", "b", "c"))
+})
+
+test_that("pushToList appends to an empty list", {
+  result <- pushToList(list(), "only")
+  expect_equal(result, list("only"))
+})
+
 # read_contrasts()
 
 test_that("read_contrasts parses YAML correctly", {
