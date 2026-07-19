@@ -29,13 +29,99 @@ checkListIsSubset <- function(test_list,
   TRUE
 }
 
+#' Is a term a random-effects bar expression (\code{|} or \code{||})?
+#'
+#' @param term A parsed formula term
+#'
+#' @return output TRUE if the term is a bar expression
+#' @noRd
+isBar <- function(term) {
+  is.call(term) && (term[[1]] == as.name("|") || term[[1]] == as.name("||"))
+}
+
+#' Does a term contain a bar expression anywhere in its parse tree?
+#'
+#' @param term A parsed formula term
+#'
+#' @return output TRUE if a bar expression is present
+#' @noRd
+anyBars <- function(term) {
+  any(c("|", "||") %in% all.names(term))
+}
+
+#' Is any direct argument of a term a bar expression?
+#'
+#' @param term A parsed formula term
+#'
+#' @return output TRUE if a direct argument is a bar expression
+#' @noRd
+isAnyArgBar <- function(term) {
+  if (term[[1]] != as.name("~") && term[[1]] != as.name("(")) {
+    for (i in seq_along(term)) {
+      if (isBar(term[[i]])) {
+        return(TRUE)
+      }
+    }
+  }
+  FALSE
+}
+
+#' Recursively strip bar expressions out of a term
+#'
+#' @param term A parsed formula term
+#'
+#' @return output The term with bar expressions removed, or NULL if nothing remains
+#' @noRd
+stripBars <- function(term) {
+  if (!anyBars(term)) {
+    return(term)
+  }
+  if (isBar(term) || isAnyArgBar(term)) {
+    return(NULL)
+  }
+  if (length(term) == 2) {
+    nb <- stripBars(term[[2]])
+    if (is.null(nb)) {
+      return(NULL)
+    }
+    term[[2]] <- nb
+    return(term)
+  }
+  nb2 <- stripBars(term[[2]])
+  nb3 <- stripBars(term[[3]])
+  if (is.null(nb2)) {
+    return(nb3)
+  }
+  if (is.null(nb3)) {
+    return(nb2)
+  }
+  term[[2]] <- nb2
+  term[[3]] <- nb3
+  term
+}
+
 #' Remove random effects from a model formula
+#'
+#' A port of \code{reformulas::nobars()}, used to drop lme4-style random-effect
+#' terms (e.g. \code{(1 | group)}) so the fixed-effects part of a formula can
+#' be used on its own, without depending on reformulas/lme4.
 #'
 #' @param formula_string Formula string that may contain random effects
 #'
 #' @return output Fixed-effects-only formula
+#' @noRd
 fixedEffectsFormula <- function(formula_string) {
-  reformulas::nobars(as.formula(formula_string))
+  term <- as.formula(formula_string)
+  e <- environment(term)
+  nb <- stripBars(term)
+  if (length(term) == 3 && is.symbol(nb)) {
+    nb <- reformulate("1", response = deparse(nb))
+  }
+  if (is.null(nb)) {
+    nb <- ~1
+  }
+  environment(nb) <- e
+  nb
 }
 
 #' Build a model matrix from the fixed-effects part of a formula
