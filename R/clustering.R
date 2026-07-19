@@ -203,6 +203,23 @@ clustering <- function(id, eselist) {
       split(scaled_inmatrix, clusters$clustering[match(rownames(scaled_inmatrix), names(clusters$clustering))])
     })
 
+    # Generate summary statistics from the matrix for each cluster, ahead of
+    # plotting. Cached separately from getClusterPlot() below since it only
+    # depends on the cluster assignments and average type, not the display
+    # controls (cluster display mode, limits, colors) - those shouldn't force
+    # a rerun of summarySE()'s bootstrap-backed median standard error.
+
+    getSummarisedMatricesByCluster <- reactive({
+      matrices_by_cluster <- getMatricesByCluster()
+      average_type <- getAverageType()
+
+      withProgress(message = "Calculating summary statistics for the clusters", value = 0, {
+        lapply(matrices_by_cluster, function(mbc) {
+          summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
+        })
+      })
+    }) %>% bindCache(getMatricesByCluster(), getAverageType())
+
     # Take individual cluster plots and display them together using subplot.
 
     getClusterPlot <- reactive({
@@ -213,7 +230,7 @@ clustering <- function(id, eselist) {
         plotly_cluster_profiles(
           matrices_by_cluster,
           cluster_display = getClusterDisplay(), average_type = getAverageType(), limits = getLimits(),
-          colors = getPalette(), sample_order = rownames(experiment)
+          colors = getPalette(), sample_order = rownames(experiment), summarised_matrices_by_cluster = getSummarisedMatricesByCluster()
         )
       })
     }) %>% bindCache(
@@ -455,6 +472,11 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 #' @param max_sample_lines Maximum number of sample lines drawn per cluster
 #'   under \code{cluster_display = "sample_lines"}; larger clusters are
 #'   randomly subsampled to this many rows
+#' @param summarised_matrices_by_cluster Precomputed summary statistics, one
+#'   element per cluster, as returned by \code{\link{summarySE}} on each
+#'   element of \code{matrices_by_cluster}. Computed internally if not
+#'   supplied; callers that already have this (e.g. to cache it separately
+#'   from the display controls below) can pass it through directly
 #'
 #' @return output A plotly htmlwidget
 #'
@@ -471,7 +493,7 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 #'
 plotly_cluster_profiles <- function(matrices_by_cluster, cluster_display = c("filled_line", "sample_lines", "error_bars"),
                                      average_type = c("mean", "median"), limits = c("sd", "se", "ci"), colors = NULL,
-                                     sample_order = NULL, max_sample_lines = 100) {
+                                     sample_order = NULL, max_sample_lines = 100, summarised_matrices_by_cluster = NULL) {
   cluster_display <- match.arg(cluster_display)
   average_type <- match.arg(average_type)
   limits <- match.arg(limits)
@@ -485,10 +507,11 @@ plotly_cluster_profiles <- function(matrices_by_cluster, cluster_display = c("fi
   if (is.null(sample_order)) {
     sample_order <- colnames(matrices_by_cluster[[1]])
   }
-
-  summarised_matrices_by_cluster <- lapply(matrices_by_cluster, function(mbc) {
-    summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
-  })
+  if (is.null(summarised_matrices_by_cluster)) {
+    summarised_matrices_by_cluster <- lapply(matrices_by_cluster, function(mbc) {
+      summarySE(melt_matrix(as.matrix(mbc)), measurevar = "value", groupvars = "Var2", add_medians = average_type == "median")
+    })
+  }
 
   if (cluster_display == "sample_lines") {
     plots <- lapply(names(matrices_by_cluster), function(c) {

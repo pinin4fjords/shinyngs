@@ -11,7 +11,8 @@ plotly_cluster_profiles(
   limits = c("sd", "se", "ci"),
   colors = NULL,
   sample_order = NULL,
-  max_sample_lines = 100
+  max_sample_lines = 100,
+  summarised_matrices_by_cluster = NULL
 )
 }
 \arguments{
@@ -41,6 +42,12 @@ order. Defaults to \code{colnames()} of the first cluster's matrix}
 \item{max_sample_lines}{Maximum number of sample lines drawn per cluster
 under \code{cluster_display = "sample_lines"}; larger clusters are
 randomly subsampled to this many rows}
+
+\item{summarised_matrices_by_cluster}{Precomputed summary statistics, one
+element per cluster, as returned by \code{\link{summarySE}} on each
+element of \code{matrices_by_cluster}. Computed internally if not
+supplied; callers that already have this (e.g. to cache it separately
+from the display controls below) can pass it through directly}
 }
 \value{
 output A plotly htmlwidget

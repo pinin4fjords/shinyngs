@@ -65,9 +65,10 @@ test_that("plotly_cluster_profiles draws one line-with-error-bars trace per clus
 test_that("plotly_cluster_profiles derives the median-specific column without requiring a pre-prefixed limits argument", {
   mbc <- make_cluster_fixture()
 
-  # limits = "sd" (not "median.sd") should still resolve correctly when average_type = "median" -
-  # a caller shouldn't need to know summarySE()'s internal column-naming convention. median.sd
-  # comes from a bootstrap (bootstrapMedian()), so both calls need the same seed to compare.
+  # limits = "sd" resolves against the median-specific column even without the caller
+  # pre-prefixing it - a caller shouldn't need to know summarySE()'s internal column-naming
+  # convention. median.sd comes from a bootstrap (bootstrapMedian()), so both calls need the
+  # same seed to compare.
   set.seed(42)
   built <- plotly::plotly_build(plotly_cluster_profiles(mbc, cluster_display = "error_bars", average_type = "median", limits = "sd"))
 
@@ -103,4 +104,24 @@ test_that("plotly_cluster_profiles subsamples large clusters to max_sample_lines
   trace <- built$x$data[[1]]
   expect_equal(sum(!is.na(trace$x)), 40)
   expect_length(unique(trace$text[!is.na(trace$text)]), 10)
+})
+
+test_that("plotly_cluster_profiles uses a precomputed summarised_matrices_by_cluster instead of recomputing summarySE()", {
+  mbc <- make_cluster_fixture()
+
+  # deliberately-wrong summary stats: if the precomputed values aren't honoured, the plot
+  # would show the real mean/sd instead of these
+  fake_summary <- lapply(mbc, function(m) {
+    s <- summarySE(melt_matrix(m), measurevar = "value", groupvars = "Var2")
+    s$mean <- 999
+    s
+  })
+
+  built <- plotly::plotly_build(plotly_cluster_profiles(
+    mbc,
+    cluster_display = "error_bars", summarised_matrices_by_cluster = fake_summary
+  ))
+
+  cluster3 <- built$x$data[[which(vapply(built$x$data, function(t) identical(as.character(t$name), "Cluster 3"), logical(1)))]]
+  expect_true(all(as.numeric(cluster3$y) == 999))
 })
