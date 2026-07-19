@@ -2,8 +2,9 @@
 
 ## Documentation
 
-* The pkgdown site gains screenshots and diagrams: a home-page gallery, one
-  screenshot per major analysis panel in the module/panel catalogue, and
+* The pkgdown site gains screenshots and diagrams: a home-page gallery, a
+  screenshot for almost every analysis panel in the module/panel catalogue
+  (including the platform-specific DEXSeq and Illumina array QC panels), and
   architecture diagrams showing how input data becomes an app (the data
   model article) and how modules compose into one (the developer guide).
 * The single monolithic vignette has been split into a set of task-focused
