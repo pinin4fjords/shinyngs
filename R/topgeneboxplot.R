@@ -288,8 +288,6 @@ topgeneboxplot <- function(id, eselist) {
         # need pre-rounded input anyway
         expression <- selectmatrix_reactives$getAssayMatrix()[rows, names(sample_groups), drop = FALSE]
 
-        # `rows` (real gene ids) drives the facet/matrix lookup; the pretty
-        # display string goes through the separate `labels` argument
         plotly_topgene_boxplots(expression, sample_groups, rows,
           annotations = getAnnotations(), labels = stats::setNames(getTopGeneLabels(), rows),
           beeswarm = input$beeswarm, ncol = getNcol(),
@@ -556,7 +554,7 @@ topgeneAnnotationVector <- function(annotations, genes) {
 #'
 #' @keywords internal
 topgeneFacetLabels <- function(labels, genes) {
-  resolved <- if (is.null(labels)) rep(NA_character_, length(genes)) else unname(labels[genes])
+  resolved <- topgeneAnnotationVector(labels, genes)
   resolved[is.na(resolved)] <- genes[is.na(resolved)]
   stats::setNames(resolved, genes)
 }
