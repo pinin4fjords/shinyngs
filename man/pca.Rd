@@ -33,7 +33,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   pca("pca", eselist)
-  app <- prepareApp("pca", eselist)
+  app <- prepare_app("pca", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

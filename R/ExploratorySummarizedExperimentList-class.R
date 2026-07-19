@@ -132,7 +132,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
   # Set grouping variales as any non-integer field applied to more than one sample
 
   if (length(group_vars) == 0) {
-    group_vars <- chooseGroupingVariables(data.frame(colData(eses[[1]]), check.names = FALSE))
+    group_vars <- choose_grouping_variables(data.frame(colData(eses[[1]]), check.names = FALSE))
     default_groupvar <- if (length(group_vars) > 0) group_vars[1] else character(0)
   }
 

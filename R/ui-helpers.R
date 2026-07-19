@@ -14,9 +14,9 @@ SHINYNGS_ACCENT <- "#2780e3"
 #' @export
 #'
 #' @examples
-#' hiddenInput("myid", "iamavalue")
+#' hidden_input("myid", "iamavalue")
 #'
-hiddenInput <- function(id, values) {
+hidden_input <- function(id, values) {
   HTML(paste0(unlist(lapply(values, function(value) paste0("<input type='text' id='", id, "' value='", value, "' style='display: none;'>")))))
 
   # HTML(paste0('<input type='text' id='', id, '' value='', value, '' style='display: none;'>'))
@@ -32,9 +32,9 @@ hiddenInput <- function(id, values) {
 #' @export
 #'
 #' @examples
-#' mylist <- pushToList(mylist, "new element")
+#' mylist <- push_to_list(mylist, "new element")
 #'
-pushToList <- function(input_list, element) {
+push_to_list <- function(input_list, element) {
   input_list[[length(input_list) + 1]] <- element
   input_list
 }
@@ -156,9 +156,9 @@ bookmarkedInputValue <- function(state, session, id) {
 #' @keywords internal
 #'
 configureBookmarking <- function(input, session, nav_input = NULL) {
-  # Also set here (not just in prepareApp) so bookmarking is active in whichever
+  # Also set here (not just in prepare_app) so bookmarking is active in whichever
   # process actually runs the app, including harnesses that transport the app
-  # object to a fresh process where prepareApp's option would be lost.
+  # object to a fresh process where prepare_app's option would be lost.
   enableBookmarking("url")
 
   modalServer("shinyngs_credits", "Credits")
@@ -344,7 +344,7 @@ fieldSets <- function(id, fieldset_list, open = NULL) {
 
   panels <- lapply(names(fieldset_list), function(listname) {
     bslib::accordion_panel(
-      title = prettifyVariablename(listname),
+      title = prettify_variable_name(listname),
       value = listname,
       fieldset_list[[listname]]
     )

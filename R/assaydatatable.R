@@ -26,7 +26,7 @@ assaydatatable_modal <- list(id = "assaydatatable", title = "Assay data table")
 #' # Almost certainly used via application creation
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("assaydatatable", eselist)
+#'   app <- prepare_app("assaydatatable", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -61,7 +61,7 @@ assaydatatableInput <- function(id, eselist) {
 #' eselist <- ExploratorySummarizedExperimentList(ese)
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("assaydatatable", eselist)
+#'   app <- prepare_app("assaydatatable", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -97,7 +97,7 @@ assaydatatableOutput <- function(id) {
 #'
 #' if (interactive()) {
 #'   assaydatatable("assaydatatable", eselist)
-#'   app <- prepareApp("assaydatatable", eselist)
+#'   app <- prepare_app("assaydatatable", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'

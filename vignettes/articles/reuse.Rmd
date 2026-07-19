@@ -27,20 +27,20 @@ running Shiny session.
 
 | Function | Returns | Shows |
 |---|---|---|
-| `plotly_scatterplot()`, `static_scatterplot()` | plotly / ggplot | Generic 2D/3D scatter (the engine behind PCA, MA, volcano, fold-change) |
-| `plotly_screeplot()` | plotly | Variance explained per principal component |
-| `plotly_pca_metadata_heatmap()` | plotly | ANOVA associations between PCs and sample metadata |
-| `interactiveHeatmap()` | plotly | Clustered, annotated expression heatmap |
-| `plotly_clusteringDendrogram()`, `clusteringDendrogram()` | plotly / ggplot | Sample clustering dendrogram |
-| `ggplot_boxplot()`, `plotly_boxplot()`, `plotly_quartiles()` | ggplot / plotly | Per-sample abundance distributions |
-| `ggplot_densityplot()`, `plotly_densityplot()` | ggplot / plotly | Abundance density curves |
-| `plotly_topgene_boxplots()`, `ggplot_topgene_boxplots()` | plotly / ggplot | Faceted boxplots of top differential features |
-| `plotly_cluster_profiles()` | plotly | Feature-wise cluster expression profiles |
-| `plotly_upset()` | plotly | Intersections of feature sets across contrasts |
-| `plotly_barcodeplot()` | plotly | Gene-set enrichment barcode over a ranking |
-| `plotly_barchart()`, `plotly_count_barplot()` | plotly | Bar charts and categorical counts |
-| `plotly_illumina_control_probes()` | plotly | Illumina array control-probe QC |
-| `makeColorScale()` | character vector | A colour-blind-safe categorical palette to colour any of the above |
+| `interactive_scatterplot()`, `static_scatterplot()` | plotly / ggplot | Generic 2D/3D scatter (the engine behind PCA, MA, volcano, fold-change) |
+| `interactive_screeplot()` | plotly | Variance explained per principal component |
+| `interactive_pca_metadata_heatmap()` | plotly | ANOVA associations between PCs and sample metadata |
+| `interactive_heatmap()` | plotly | Clustered, annotated expression heatmap |
+| `interactive_clustering_dendrogram()`, `clustering_dendrogram()` | plotly / ggplot | Sample clustering dendrogram |
+| `static_boxplot()`, `interactive_boxplot()`, `interactive_quartiles()` | ggplot / plotly | Per-sample abundance distributions |
+| `static_densityplot()`, `interactive_densityplot()` | ggplot / plotly | Abundance density curves |
+| `interactive_topgene_boxplots()`, `static_topgene_boxplots()` | plotly / ggplot | Faceted boxplots of top differential features |
+| `interactive_cluster_profiles()` | plotly | Feature-wise cluster expression profiles |
+| `interactive_upset()` | plotly | Intersections of feature sets across contrasts |
+| `interactive_barcodeplot()` | plotly | Gene-set enrichment barcode over a ranking |
+| `interactive_barchart()`, `interactive_count_barplot()` | plotly | Bar charts and categorical counts |
+| `interactive_illumina_control_probes()` | plotly | Illumina array control-probe QC |
+| `make_color_scale()` | character vector | A colour-blind-safe categorical palette to colour any of the above |
 
 See the [module and panel catalogue](modules.html) for which app panel each of
 these backs.
@@ -48,20 +48,20 @@ these backs.
 ## Calling a plot from a report
 
 A minimal example: colour a PCA scatter by a metadata variable, using
-`compilePCAData()` for the coordinates and `makeColorScale()` for a consistent
+`compile_pca_data()` for the coordinates and `make_color_scale()` for a consistent
 palette.
 
 ```{r}
 library(shinyngs)
 
-pca <- compilePCAData(my_matrix)
+pca <- compile_pca_data(my_matrix)
 groups <- my_metadata$treatment
 
-plotly_scatterplot(
+interactive_scatterplot(
   x = pca$coords[, "PC1"],
   y = pca$coords[, "PC2"],
   colorby = groups,
-  palette = makeColorScale(nlevels(factor(groups))),
+  palette = make_color_scale(nlevels(factor(groups))),
   xlab = "PC1",
   ylab = "PC2"
 )
@@ -71,8 +71,8 @@ The heatmap functions follow the same shape: pass a matrix (and, optionally, a
 `sample_annotation` data frame) and get a widget back.
 
 ```{r}
-interactiveHeatmap(
-  plotmatrix = my_matrix[selectVariableGenes(my_matrix, ntop = 500), ],
+interactive_heatmap(
+  plotmatrix = my_matrix[select_variable_genes(my_matrix, ntop = 500), ],
   sample_annotation = my_metadata["treatment"]
 )
 ```
@@ -84,10 +84,10 @@ already computed. A handful of exported helpers do lightweight preparation that
 the plots need, and it is fine to use them, but they are not a statistics
 package:
 
-* `compilePCAData()` — principal components for the scatter/scree plots
-* `selectVariableGenes()` — pick the most variable features for a heatmap
+* `compile_pca_data()` — principal components for the scatter/scree plots
+* `select_variable_genes()` — pick the most variable features for a heatmap
 * `anova_pca_metadata()` — associate PCs with metadata for the association heatmap
-* `madScore()` — per-sample outlier scores
+* `mad_score()` — per-sample outlier scores
 * `cond_log2_transform_assays()` — conditional log2 transform
 
 Differential statistics, enrichment testing and similar analysis belong
@@ -102,7 +102,7 @@ honours an app-wide PNG/SVG toggle, so any plot can be exported as vector
 configuration to get a named SVG download button:
 
 ```{r}
-p <- plotly_scatterplot(x, y, colorby = groups)
+p <- interactive_scatterplot(x, y, colorby = groups)
 plotly::config(
   p,
   toImageButtonOptions = list(format = "svg", filename = "pca")
@@ -136,7 +136,7 @@ this and through adding a new module.
 
 ### A note on in-widget controls
 
-`plotly_scatterplot()`'s opt-in `colorby_menu` argument adds a dropdown *inside*
+`interactive_scatterplot()`'s opt-in `colorby_menu` argument adds a dropdown *inside*
 the widget for switching the colouring variable. That control is meant for
 standalone/report contexts where there is no surrounding Shiny UI. Inside a
 `shinyngs` app the colouring variable is chosen with a Shiny `selectInput`, so

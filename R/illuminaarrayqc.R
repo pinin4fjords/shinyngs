@@ -87,7 +87,7 @@ illuminaarrayqc <- function(id, eselist) {
       control_annotation <- selectmatrix_reactives$getAnnotation()
       controls <- selectmatrix_reactives$selectMatrix()
 
-      plotly_illumina_control_probes(control_annotation, controls, sample_order = rownames(experiment)) %>%
+      interactive_illumina_control_probes(control_annotation, controls, sample_order = rownames(experiment)) %>%
         shinyngsPlotlyConfig("array_qc", format = session$userData$plotFormat())
     })
 
@@ -132,9 +132,9 @@ illuminaarrayqc <- function(id, eselist) {
 #'   nrow = 9, dimnames = list(control_annotation$Array_Address_Id, paste0("sample", 1:3))
 #' )
 #'
-#' plotly_illumina_control_probes(control_annotation, controls)
+#' interactive_illumina_control_probes(control_annotation, controls)
 #'
-plotly_illumina_control_probes <- function(control_annotation, controls, sample_order = NULL) {
+interactive_illumina_control_probes <- function(control_annotation, controls, sample_order = NULL) {
   if (is.null(sample_order)) {
     sample_order <- colnames(controls)
   }

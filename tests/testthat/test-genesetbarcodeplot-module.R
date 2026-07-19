@@ -1,5 +1,5 @@
 # Module-level testServer coverage for genesetbarcodeplot(). The plain
-# exported helper functions in R/genesetbarcodeplot.R (plotly_barcodeplot(),
+# exported helper functions in R/genesetbarcodeplot.R (interactive_barcodeplot(),
 # tricubeMovingAverage(), quantileOfSorted()) are covered separately in
 # test-genesetbarcodeplot.R on a sibling PR branch; this file only exercises
 # the Shiny module's own reactive logic, and is named distinctly
@@ -143,7 +143,7 @@ test_that("gsbpContrastsTable subsets the contrasts table down to the selected g
     table <- gsbpContrastsTable()
 
     expect_equal(nrow(table), 3)
-    expect_setequal(table[[prettifyVariablename("gene_name")]], c("Gene1", "Gene2", "Gene3"))
+    expect_setequal(table[[prettify_variable_name("gene_name")]], c("Gene1", "Gene2", "Gene3"))
   }))
 })
 

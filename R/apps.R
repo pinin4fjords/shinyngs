@@ -53,7 +53,7 @@
 #' # Make and run the app
 #'
 #' if (interactive()) {
-#'   app <- prepareApp("rnaseq", eselist)
+#'   app <- prepare_app("rnaseq", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -87,7 +87,7 @@
 #'     default_groupvar = "dex",
 #'     ensembl_species = "hsapiens" # enables the igv.js gene model view
 #'   )
-#'   app <- prepareApp("rnaseq", eselist)
+#'   app <- prepare_app("rnaseq", eselist)
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
@@ -97,7 +97,7 @@
 #' # ExploratorySummarizedExperimentList (contrasts, differential statistics,
 #' # gene set analyses etc.). With those in place the resulting app gains
 #' # additional panels for differential analyses.
-prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
+prepare_app <- function(type, eselist, ui_only = FALSE, ...) {
   # URL bookmarking lets a configured view be captured in a shareable link and
   # restored. Set here (rather than via shinyApp(enableBookmarking=)) because
   # callers invoke shiny::shinyApp()/runApp() themselves, so this is the only
@@ -142,7 +142,7 @@ prepareApp <- function(type, eselist, ui_only = FALSE, ...) {
 
 # Dependencies for every htmlwidget type used anywhere in shinyngs, so they
 # load as blocking <script>/<link> tags in the initial HTML rather than lazily
-# via WebSocket-delivered dep messages. See prepareApp() for rationale. The set
+# via WebSocket-delivered dep messages. See prepare_app() for rationale. The set
 # is constant, so it is computed once and cached (buildUI() runs per page-load).
 htmlwidget_preload_deps <- local({
   cached <- NULL
@@ -160,7 +160,7 @@ htmlwidget_preload_deps <- local({
 #' Produce a simple app with controls and layout for a single module, in a
 #' shiny \code{sideBarLayout()}.
 #'
-#' Internal function called by prepareApp() to make simple single-function
+#' Internal function called by prepare_app() to make simple single-function
 #' apps.
 #'
 #' @param eselist List of ExploratorySummarizedExperiment objects with assay and experimental
@@ -178,13 +178,13 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
   inputFunc <- get(paste0(module, "Input"))
   outputFunc <- get(paste0(module, "Output"))
 
-  moduletitle <- prettifyVariablename(module)
+  moduletitle <- prettify_variable_name(module)
 
   if (!is.null(module)) {
     ui <- shinyngsPageNavbar(list(
       id = "pages", title = moduletitle,
       window_title = moduletitle,
-      bslib::nav_panel(prettifyVariablename(module), moduleLayout(inputFunc(module, eselist, ...), outputFunc(module, ...)))
+      bslib::nav_panel(prettify_variable_name(module), moduleLayout(inputFunc(module, eselist, ...), outputFunc(module, ...)))
     ))
 
     if (ui_only) {

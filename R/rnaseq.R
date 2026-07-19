@@ -78,14 +78,14 @@ rnaseqInput <- function(id, eselist) {
   if (any(unlist(lapply(eselist, function(ese) {
     has_slot_data(ese, "read_reports")
   })))) {
-    exploratory_menu <- pushToList(exploratory_menu, bslib::nav_panel("Read reports",
+    exploratory_menu <- push_to_list(exploratory_menu, bslib::nav_panel("Read reports",
       moduleLayout(readreportsInput(ns("readrep"), eselist), readreportsOutput(ns("readrep"))),
       icon = icon("chart-bar", verify_fa = FALSE)
     ))
   }
   exploratory_menu$icon <- icon("binoculars")
 
-  navbar_menus <- pushToList(navbar_menus, do.call(bslib::nav_menu, exploratory_menu))
+  navbar_menus <- push_to_list(navbar_menus, do.call(bslib::nav_menu, exploratory_menu))
 
   # Add the assay data menu
 
@@ -104,7 +104,7 @@ rnaseqInput <- function(id, eselist) {
 
   assaydata_menu$icon <- icon("table")
 
-  navbar_menus <- pushToList(navbar_menus, do.call(bslib::nav_menu, assaydata_menu))
+  navbar_menus <- push_to_list(navbar_menus, do.call(bslib::nav_menu, assaydata_menu))
 
   # If there are contrasts present, add the differential tab
 
@@ -131,12 +131,12 @@ rnaseqInput <- function(id, eselist) {
     if (any(unlist(lapply(eselist, function(ese) {
       has_slot_data(ese, "contrast_stats")
     })))) {
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Volcano plots",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Volcano plots",
         moduleLayout(volcanoplotInput(ns("volcano"), eselist), volcanoplotOutput(ns("volcano"))),
         icon = icon("chart-line")
       ))
 
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Top gene boxplots",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Top gene boxplots",
         moduleLayout(topgeneboxplotInput(ns("topgeneboxplot"), eselist), topgeneboxplotOutput(ns("topgeneboxplot"))),
         icon = icon("chart-column", verify_fa = FALSE)
       ))
@@ -147,13 +147,13 @@ rnaseqInput <- function(id, eselist) {
     if (any(unlist(lapply(eselist, function(ese) {
       has_slot_data(ese, "gene_set_analyses")
     })))) {
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Gene set analyses",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Gene set analyses",
         value = "geneset_analyses",
         moduleLayout(genesetanalysistableInput(ns("genesetanalysis"), eselist), genesetanalysistableOutput(ns("genesetanalysis"))),
         icon = icon("tasks", verify_fa = FALSE)
       ))
 
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Gene set barcode plots",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Gene set barcode plots",
         value = "genesetbarcode",
         moduleLayout(genesetbarcodeplotInput(ns("rnaseq"), eselist), genesetbarcodeplotOutput(ns("rnaseq"))),
         icon = icon("barcode")
@@ -165,10 +165,10 @@ rnaseqInput <- function(id, eselist) {
     if (any(unlist(lapply(eselist, function(ese) {
       has_slot_data(ese, "dexseq_results")
     })))) {
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Differential exon usage table",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Differential exon usage table",
         moduleLayout(dexseqtableInput(ns("deutable"), eselist), dexseqtableOutput(ns("deutable")))
       ))
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Differential exon usage plot",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Differential exon usage plot",
         value = "deugene",
         moduleLayout(dexseqplotInput(ns("deuplot"), eselist), dexseqplotOutput(ns("deuplot"), eselist))
       ))
@@ -177,7 +177,7 @@ rnaseqInput <- function(id, eselist) {
     # If there's more than one contrast we can compare differential sets
 
     if (length(eselist@contrasts) > 1) {
-      differential_menu <- pushToList(differential_menu, bslib::nav_panel("Differential set intersection",
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Differential set intersection",
         moduleLayout(upsetInput(ns("upset"), eselist), upsetOutput(ns("upset"), eselist)),
         icon = icon("chart-bar", verify_fa = FALSE)
       ))
@@ -185,12 +185,12 @@ rnaseqInput <- function(id, eselist) {
 
     differential_menu$icon <- icon("chart-line")
 
-    navbar_menus <- pushToList(navbar_menus, do.call(bslib::nav_menu, differential_menu))
+    navbar_menus <- push_to_list(navbar_menus, do.call(bslib::nav_menu, differential_menu))
   }
 
   # Add the gene info plots
 
-  navbar_menus <- pushToList(navbar_menus, bslib::nav_panel("Gene info",
+  navbar_menus <- push_to_list(navbar_menus, bslib::nav_panel("Gene info",
     value = "geneinfo",
     moduleLayout(geneInput(ns("gene"), eselist), geneOutput(ns("gene"), eselist)),
     icon = icon("chart-bar", verify_fa = FALSE)

@@ -31,7 +31,7 @@ ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
-  app <- prepareApp("maplot", eselist)
+  app <- prepare_app("maplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

@@ -23,7 +23,7 @@ geneselectInput <- function(id, select_genes = TRUE) {
   if (select_genes) {
     uiOutput(ns("geneSelect_ui"))
   } else {
-    hiddenInput(ns("geneSelect"), "all")
+    hidden_input(ns("geneSelect"), "all")
   }
 }
 
@@ -124,7 +124,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
         gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'variance' "
-        ), sliderInput(ns("obs"), withHelpIcon("Show top N most variant rows:", "Rows are ranked by variance across samples; increasing this includes more, less variable rows."), min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0(
+        ), sliderInput(ns("obs"), with_help_icon("Show top N most variant rows:", "Rows are ranked by variance across samples; increasing this includes more, less variable rows."), min = 10, max = var_max, value = var_n)), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'metadata_pick' "
         ), labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0(
@@ -206,7 +206,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
           return(nonempty)
         } else if (gene_select == "variance") {
           vars <- rowVariances()
-          return(names(vars)[selectVariableGenes(getObs(), row_variances = vars)])
+          return(names(vars)[select_variable_genes(getObs(), row_variances = vars)])
         } else if (gene_select == "metadata_pick") {
           selected_rows <- lsf_picked_methods$getSelectedIds()
           return(intersect(selected_rows, nonempty))
@@ -245,7 +245,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       } else if (gene_select == "variance") {
         title <- paste(paste("Top", getObs(), "rows"), "by variance")
       } else if (gene_select == "gene set") {
-        title <- paste0("Genes in sets:\n", paste(prettifyGeneSetName(genesetselect_reactives$getGenesetNames()), collapse = "\n"))
+        title <- paste0("Genes in sets:\n", paste(prettify_gene_set_name(genesetselect_reactives$getGenesetNames()), collapse = "\n"))
         # } else if (gene_select == 'list') { title <- 'Rows for specifified gene list'
       } else if (gene_select == "metadata_pick") {
         title <- "Rows by picked metadata field value"
@@ -273,9 +273,9 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 #' @examples
 #' mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
 #'   dimnames = list(paste0("gene", 1:15), paste0("s", 1:4)))
-#' selectVariableGenes(ntop = 5, matrix = mat)
+#' select_variable_genes(ntop = 5, matrix = mat)
 #'
-selectVariableGenes <- function(ntop, matrix = NULL, row_variances = NULL) {
+select_variable_genes <- function(ntop, matrix = NULL, row_variances = NULL) {
   if (is.null(row_variances)) {
     if (is.null(matrix)) {
       stop("selctVariableGenes(): a value must be provided for either matrix or row_variances")

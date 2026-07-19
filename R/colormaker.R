@@ -19,14 +19,14 @@ COLORBLIND_PALETTE <- c(
 )
 
 # Picker value selecting the fixed colour-blind-safe palette rather than an
-# RColorBrewer one. The selectInput choice and the makeColorScale branch check
+# RColorBrewer one. The selectInput choice and the make_color_scale branch check
 # must agree on this string, so it is defined once.
 COLORBLIND_PALETTE_NAME <- "colorblind"
 
 #' The input function of the colorby module
 #'
 #' Provides a drop-down for picking the plot colour palette. The default is
-#' shinyngs' fixed colour-blind-safe palette (see \code{\link{makeColorScale}});
+#' shinyngs' fixed colour-blind-safe palette (see \code{\link{make_color_scale}});
 #' the remaining choices are RColorBrewer qualitative palettes for users who
 #' prefer them.
 #'
@@ -58,7 +58,7 @@ colormakerInput <- function(id) {
 #'
 #' Supplies a reactive returning the palette selected in the drop-down, sized
 #' to the number of categories the caller reports (see
-#' \code{\link{makeColorScale}}).
+#' \code{\link{make_color_scale}}).
 #'
 #' This function is called directly, using the same id as its UI counterpart,
 #' and wraps its logic in \code{moduleServer()} (see example).
@@ -82,7 +82,7 @@ colormaker <- function(id, getNumberCategories) {
     })
 
     reactive({
-      makeColorScale(getNumberCategories(), palette = getPaletteName())
+      make_color_scale(getNumberCategories(), palette = getPaletteName())
     })
   })
 }
@@ -108,13 +108,13 @@ colormaker <- function(id, getNumberCategories) {
 #' @export
 #'
 #' @examples
-#' makeColorScale(10)
+#' make_color_scale(10)
 #'
-makeColorScale <- function(ncolors, palette = COLORBLIND_PALETTE_NAME) {
+make_color_scale <- function(ncolors, palette = COLORBLIND_PALETTE_NAME) {
   if (is.null(palette) || palette == COLORBLIND_PALETTE_NAME) {
     if (ncolors > length(COLORBLIND_PALETTE)) {
       message(
-        "makeColorScale: ", ncolors, " categories requested, more than the ",
+        "make_color_scale: ", ncolors, " categories requested, more than the ",
         length(COLORBLIND_PALETTE), " colours in shinyngs' colour-blind-safe ",
         "palette. Interpolating additional shades, which will be harder to ",
         "tell apart than the base palette."

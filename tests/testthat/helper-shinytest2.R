@@ -65,7 +65,7 @@ shinytest2_eselist <- local({
 
 # shinytest2_app_driver()
 #
-# Launch a shinytest2::AppDriver for a prepareApp() type against the shared
+# Launch a shinytest2::AppDriver for a prepare_app() type against the shared
 # synthetic dataset, skipping the test if no headless Chrome is available.
 
 shinytest2_app_driver <- function(type, name, ...) {
@@ -75,7 +75,7 @@ shinytest2_app_driver <- function(type, name, ...) {
     "No Chrome/Chromium binary found for headless testing"
   )
 
-  app <- prepareApp(type, shinytest2_eselist())
+  app <- prepare_app(type, shinytest2_eselist())
   shinytest2::AppDriver$new(
     shiny::shinyApp(ui = app$ui, server = app$server),
     name = name,
@@ -89,9 +89,9 @@ shinytest2_app_driver <- function(type, name, ...) {
 # Launch an AppDriver against an on-disk app.R rather than a shinyApp object.
 # URL bookmarking must be enabled when the session is constructed (that is when
 # module onBookmark hooks register and Shiny decides whether to keep the share
-# button), which prepareApp() does. Passing a shinyApp object to AppDriver runs
-# it in a fresh process that never called prepareApp, so bookmarking would be
-# off; running from an app.R that calls prepareApp in that process mirrors real
+# button), which prepare_app() does. Passing a shinyApp object to AppDriver runs
+# it in a fresh process that never called prepare_app, so bookmarking would be
+# off; running from an app.R that calls prepare_app in that process mirrors real
 # use. Requires shinyngs to be installed (it is under R CMD check).
 
 shinytest2_bookmark_app_driver <- function(type, name, ...) {
@@ -108,7 +108,7 @@ shinytest2_bookmark_app_driver <- function(type, name, ...) {
     c(
       "library(shinyngs)",
       "eselist <- readRDS('eselist.rds')",
-      sprintf("app <- prepareApp('%s', eselist)", type),
+      sprintf("app <- prepare_app('%s', eselist)", type),
       "shiny::shinyApp(app$ui, app$server)"
     ),
     file.path(dir, "app.R")

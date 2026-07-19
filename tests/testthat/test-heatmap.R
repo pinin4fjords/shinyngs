@@ -1,6 +1,6 @@
-# interactiveHeatmap()
+# interactive_heatmap()
 
-test_that("interactiveHeatmap handles single-row matrices (e.g. one informative sample variable)", {
+test_that("interactive_heatmap handles single-row matrices (e.g. one informative sample variable)", {
   # A single-row matrix is the shape anova_pca_metadata() produces for the
   # "PCA vs Experiment" heatmap when only one sample metadata variable is
   # informative (e.g. a 2-vs-2 design with one grouping column) - see #61.
@@ -11,9 +11,9 @@ test_that("interactiveHeatmap handles single-row matrices (e.g. one informative 
   )
 
   # heatmaply warns about the duplicated row names introduced by the
-  # single-row workaround inside interactiveHeatmap() - expected here.
+  # single-row workaround inside interactive_heatmap() - expected here.
   expect_warning(
-    p <- interactiveHeatmap(
+    p <- interactive_heatmap(
       plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
       cluster_rows = FALSE, cluster_cols = FALSE, scale = "row",
       row_labels = rownames(pm), hide_colorbar = TRUE
@@ -24,9 +24,9 @@ test_that("interactiveHeatmap handles single-row matrices (e.g. one informative 
   expect_s3_class(p, "plotly")
 })
 
-# plotly_pca_metadata_heatmap()
+# interactive_pca_metadata_heatmap()
 
-test_that("plotly_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {
+test_that("interactive_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {
   set.seed(1)
   pcameta <- data.frame(
     row.names = paste0("sample", 1:6),
@@ -38,7 +38,7 @@ test_that("plotly_pca_metadata_heatmap colors by -log10(p) but keeps the raw p v
 
   pvals <- anova_pca_metadata(pca_coords, pcameta, fraction_explained)
 
-  built <- plotly::plotly_build(plotly_pca_metadata_heatmap(pca_coords, pcameta, fraction_explained))
+  built <- plotly::plotly_build(interactive_pca_metadata_heatmap(pca_coords, pcameta, fraction_explained))
   trace <- built$x$data[[1]]
 
   expect_s3_class(built, "plotly")
@@ -47,7 +47,7 @@ test_that("plotly_pca_metadata_heatmap colors by -log10(p) but keeps the raw p v
   expect_true(grepl(paste("Value:", trimws(formatC(pvals["treatment", 1], format = "g", digits = 5))), trace$text["treatment", 1], fixed = TRUE))
 })
 
-test_that("plotly_pca_metadata_heatmap drops rows with a single value across all shown components only when clustering rows", {
+test_that("interactive_pca_metadata_heatmap drops rows with a single value across all shown components only when clustering rows", {
   # A row where the anova produced the same p value (or NA) for every
   # component can't be clustered, and isn't informative to show anyway -
   # rowsWithMultipleValues() should drop it, but only when cluster_rows = TRUE
@@ -59,12 +59,12 @@ test_that("plotly_pca_metadata_heatmap drops rows with a single value across all
   testthat::local_mocked_bindings(anova_pca_metadata = function(...) pvals)
 
   # Filtering to a single row hits the same duplicated-row-name workaround
-  # (and accompanying heatmaply warning) covered above for interactiveHeatmap()
+  # (and accompanying heatmaply warning) covered above for interactive_heatmap()
   expect_warning(
-    clustered <- plotly::plotly_build(plotly_pca_metadata_heatmap(matrix(nrow = 0, ncol = 0), data.frame(), numeric(0), cluster_rows = TRUE)),
+    clustered <- plotly::plotly_build(interactive_pca_metadata_heatmap(matrix(nrow = 0, ncol = 0), data.frame(), numeric(0), cluster_rows = TRUE)),
     "unique"
   )
-  unclustered <- plotly::plotly_build(plotly_pca_metadata_heatmap(matrix(nrow = 0, ncol = 0), data.frame(), numeric(0), cluster_rows = FALSE))
+  unclustered <- plotly::plotly_build(interactive_pca_metadata_heatmap(matrix(nrow = 0, ncol = 0), data.frame(), numeric(0), cluster_rows = FALSE))
 
   expect_false("constant" %in% rownames(clustered$x$data[[1]]$z))
   expect_true("constant" %in% rownames(unclustered$x$data[[1]]$z))
@@ -101,9 +101,9 @@ test_that("anova_pca_metadata's n_components limits and clamps the number of com
   expect_equal(ncol(clamped), 5)
 })
 
-# plotly_pca_variance_heatmap()
+# interactive_pca_variance_heatmap()
 
-test_that("plotly_pca_variance_heatmap syncs the scree plot's x-categories with the heatmap's columns", {
+test_that("interactive_pca_variance_heatmap syncs the scree plot's x-categories with the heatmap's columns", {
   set.seed(1)
   pcameta <- data.frame(
     row.names = paste0("sample", 1:6),
@@ -116,7 +116,7 @@ test_that("plotly_pca_variance_heatmap syncs the scree plot's x-categories with 
   # cluster_rows = FALSE keeps the heatmap side of the figure to a single
   # heatmap trace (no row dendrogram), so the scree trace is unambiguously
   # the only "scatter"-type trace in the combined figure.
-  built <- plotly::plotly_build(plotly_pca_variance_heatmap(pca_coords, pcameta, fraction_explained, cluster_rows = FALSE, n_components = 4))
+  built <- plotly::plotly_build(interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained, cluster_rows = FALSE, n_components = 4))
 
   trace_types <- vapply(built$x$data, function(trace) trace$type, character(1))
   scree_trace <- built$x$data[[which(trace_types == "scatter")[1]]]
@@ -125,7 +125,7 @@ test_that("plotly_pca_variance_heatmap syncs the scree plot's x-categories with 
   expect_equal(as.character(scree_trace$x), colnames(heatmap_trace$z))
 })
 
-test_that("plotly_pca_variance_heatmap respects n_components in both the scree and heatmap portions", {
+test_that("interactive_pca_variance_heatmap respects n_components in both the scree and heatmap portions", {
   set.seed(1)
   pcameta <- data.frame(
     row.names = paste0("sample", 1:6),
@@ -135,7 +135,7 @@ test_that("plotly_pca_variance_heatmap respects n_components in both the scree a
   pca_coords <- matrix(rnorm(6 * 5), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:5)))
   fraction_explained <- c(40, 25, 15, 12, 8)
 
-  built <- plotly::plotly_build(plotly_pca_variance_heatmap(pca_coords, pcameta, fraction_explained, cluster_rows = FALSE, n_components = 2))
+  built <- plotly::plotly_build(interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained, cluster_rows = FALSE, n_components = 2))
 
   trace_types <- vapply(built$x$data, function(trace) trace$type, character(1))
   scree_trace <- built$x$data[[which(trace_types == "scatter")[1]]]

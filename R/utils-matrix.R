@@ -55,10 +55,10 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
   # If color grouping is specified, sort by the coloring variable so the groups will be plotted together
 
   if (!is.null(colorby)) {
-    colnames(experiment)[colnames(experiment) == colorby] <- prettifyVariablename(colorby)
-    colorby <- prettifyVariablename(colorby)
+    colnames(experiment)[colnames(experiment) == colorby] <- prettify_variable_name(colorby)
+    colorby <- prettify_variable_name(colorby)
 
-    experiment[[colorby]] <- na.replace(experiment[[colorby]], "N/A")
+    experiment[[colorby]] <- na_replace(experiment[[colorby]], "N/A")
 
     # Group samples by the coloring variable while maintaining ordering as much as possible
 
@@ -91,7 +91,7 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
         plotdata$name <- paste0(plotdata$name, " (", plotdata$colorby, ")")
       }
     }
-    plotdata$type <- prettifyVariablename(pm)
+    plotdata$type <- prettify_variable_name(pm)
     plotdata
   }))
 
@@ -116,9 +116,9 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
 #' @examples
 #' mat1 <- matrix(1:4, nrow = 2, dimnames = list(NULL, c("a1", "a2")))
 #' mat2 <- matrix(5:8, nrow = 2, dimnames = list(NULL, c("b1", "b2")))
-#' interleaveColumns(mat1, mat2)
+#' interleave_columns(mat1, mat2)
 #'
-interleaveColumns <- function(mat1, mat2) {
+interleave_columns <- function(mat1, mat2) {
   out <- cbind(mat1, mat2)
   out[, unlist(lapply(seq_len(ncol(mat1)), function(n) c(n, n + ncol(mat1))))]
 }

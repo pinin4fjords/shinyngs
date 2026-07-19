@@ -55,14 +55,14 @@
 #'   compiled into an ExploratorySummarizedExperimentList object
 #'
 #' @import yaml
-#' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
+#' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepare_app}}
 #' @export
 #'
 #' @md
 #' @examples
-#' eselist <- eselistFromYAML("my.yaml")
+#' eselist <- eselist_from_yaml("my.yaml")
 #'
-eselistFromYAML <- function(configfile) {
+eselist_from_yaml <- function(configfile) {
   config <- yaml::yaml.load_file(configfile)
 
   eselistFromList(config)
@@ -89,7 +89,7 @@ read_enrichment_file <- function(contrast_spec) {
 
   read_one <- function(path) {
     read.csv(path,
-      sep = getSeparator(path), check.names = FALSE,
+      sep = guess_separator(path), check.names = FALSE,
       row.names = 1
     )
   }
@@ -117,7 +117,7 @@ read_enrichment_file <- function(contrast_spec) {
 
 #' Build an ExploratorySummarisedExperimentList from a description provided in a list
 #'
-#' @param config Hierachical named list with input components. See \code{eselistFromYAML} for detail.
+#' @param config Hierachical named list with input components. See \code{eselist_from_yaml} for detail.
 #' @param log2_threshold A numeric threshold to determine if the matrix should be log-transformed.
 #'                  This is only checked if should_transform is NULL.
 #' @param log2_assays A string parameter that can be NULL, empty, or a non-empty string.
@@ -125,7 +125,7 @@ read_enrichment_file <- function(contrast_spec) {
 #'                     If empty: no log2 transformation will be applied.
 #'                     If non-empty: log2 transformation will be applied unconditionally to specified assays.
 #'
-#' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepareApp}}
+#' @return out An ExploratorySummarizedExperimentList object suitable for passing to \code{\link{prepare_app}}
 #' @export
 #'
 #' @examples
@@ -181,9 +181,9 @@ read_enrichment_file <- function(contrast_spec) {
 #'     )
 #'   )
 #' )
-#' eselistfromConfig(config, log2_assays = "")
+#' eselist_from_config(config, log2_assays = "")
 #'
-eselistfromConfig <-
+eselist_from_config <-
   function(config, log2_assays, log2_threshold = 30) {
     # 'Experiments' are sets of results from a common set of samples
 
@@ -468,7 +468,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
   }
 
   if (is.null(sep)) {
-    sep <- getSeparator(matrix_file)
+    sep <- guess_separator(matrix_file)
   }
   matrix_data <-
     read.delim(
@@ -532,7 +532,7 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
 #'
 read_metadata <- function(filename, id_col = NULL, sep = NULL, stringsAsFactors = FALSE) {
   if (is.null(sep)) {
-    sep <- getSeparator(filename)
+    sep <- guess_separator(filename)
   }
 
   if (!file.exists(filename)) {

@@ -44,9 +44,9 @@ defaultGroupvar <- function(eselist) {
 #'
 #' # So just pick the variables that ARE useful
 #'
-#' chooseGroupingVariables(data.frame(colData(airway)))
+#' choose_grouping_variables(data.frame(colData(airway)))
 #'
-chooseGroupingVariables <- function(df) {
+choose_grouping_variables <- function(df) {
   all_vars <- colnames(df)
   vartypes <- unlist(lapply(df, class))
   numunique <- unlist(lapply(df, function(x) length(unique(x[!is.na(x)]))))
@@ -72,7 +72,7 @@ groupLevels <- function(experiment, colorby = NULL) {
   if (is.null(colorby)) {
     return(character(0))
   }
-  unique(na.replace(as.character(experiment[[colorby]]), "N/A"))
+  unique(na_replace(as.character(experiment[[colorby]]), "N/A"))
 }
 
 #' Resolve a colour palette to a vector named by group level
@@ -90,7 +90,7 @@ groupLevels <- function(experiment, colorby = NULL) {
 #' @noRd
 resolvePalette <- function(palette, levels, palette_name = COLORBLIND_PALETTE_NAME) {
   if (is.null(palette) || any(is.na(palette[seq_along(levels)]))) {
-    palette <- makeColorScale(max(length(levels), 1), palette = palette_name)
+    palette <- make_color_scale(max(length(levels), 1), palette = palette_name)
   }
   stats::setNames(palette[seq_along(levels)], levels)
 }

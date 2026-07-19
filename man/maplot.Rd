@@ -29,7 +29,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   maplot("maplot", eselist)
-  app <- prepareApp("maplot", eselist)
+  app <- prepare_app("maplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

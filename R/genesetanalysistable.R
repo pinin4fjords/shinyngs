@@ -68,7 +68,7 @@ genesetanalysistableInput <- function(id, eselist) {
   if (length(eselist) > 1 || length(assays(eselist[[1]])) > 1) {
     field_sets$select_assay_data <- expression_filters
   } else {
-    naked_fields <- pushToList(naked_fields, expression_filters)
+    naked_fields <- push_to_list(naked_fields, expression_filters)
   }
 
   field_sets <- c(field_sets, list(export = simpletableInput(ns("genesetanalysistable"), "Gene set analysis")))
@@ -249,8 +249,8 @@ genesetanalysistable <- function(id, eselist) {
         # Add in the differential genes
 
         ct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
-        up <- convertIds(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
-        down <- convertIds(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
+        up <- convert_ids(rownames(ct)[ct[["Fold change"]] >= 0], ese, ese@labelfield)
+        down <- convert_ids(rownames(ct)[ct[["Fold change"]] < 0], ese, ese@labelfield)
 
         gene_sets <- genesetselect_reactives$getGeneSets()
 
@@ -271,8 +271,8 @@ genesetanalysistable <- function(id, eselist) {
 
       # Add links, but use a prettified version of the gene set name that re-flows to take up less space
 
-      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettifyGeneSetName(gst$gene_set_id)))
-      colnames(gst) <- prettifyVariablename(colnames(gst))
+      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettify_gene_set_name(gst$gene_set_id)))
+      colnames(gst) <- prettify_variable_name(colnames(gst))
 
       gst
     })

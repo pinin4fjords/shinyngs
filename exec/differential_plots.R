@@ -228,6 +228,6 @@ dev.off()
 
 if (opt$write_html) {
   print("...interactive")
-  interactive_volcanoplot <- do.call(plotly_scatterplot, plot_args)
+  interactive_volcanoplot <- do.call(interactive_scatterplot, plot_args)
   htmlwidgets::saveWidget(as_widget(interactive_volcanoplot), file.path(html_outdir, "volcano.html"), selfcontained = TRUE)
 }

@@ -113,7 +113,7 @@ if (length(missing_args) > 0) {
 suppressPackageStartupMessages(library(shinyngs, quietly = TRUE, warn.conflicts = FALSE))
 
 # validate_inputs() just wraps the parsing functions of shinyng, used by e.g.
-# eselistfromConfig(). These functions are good for ensuring the consistency of
+# eselist_from_config(). These functions are good for ensuring the consistency of
 # FOM (feaure/ observation matrix) data.
 
 validated_parts <- validate_inputs(

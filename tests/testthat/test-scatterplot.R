@@ -17,7 +17,7 @@ test_that("static_scatterplot colors every colorby category, not just labelled p
   expect_length(unique(built$data[[1]]$colour), 2)
 })
 
-# plotly_scatterplot() / drawLines()
+# interactive_scatterplot() / drawLines()
 
 test_that("threshold lines span the full plotted axis range instead of stopping at the data extremes", {
   x <- c(-4, -1, 0, 1, 3)
@@ -29,7 +29,7 @@ test_that("threshold lines span the full plotted axis range instead of stopping 
     y = c(0, 0, min(y), max(y))
   )
 
-  p <- plotly_scatterplot(x = x, y = y, lines = lines)
+  p <- interactive_scatterplot(x = x, y = y, lines = lines)
   built <- plotly::plotly_build(p)
 
   xaxis_range <- built$x$layout$xaxis$range
@@ -43,7 +43,7 @@ test_that("threshold lines span the full plotted axis range instead of stopping 
 })
 
 test_that("3D scatter labels each scene axis with its own title", {
-  p <- plotly_scatterplot(
+  p <- interactive_scatterplot(
     x = c(1, 2, 3), y = c(4, 5, 6), z = c(7, 8, 9),
     plot_type = "scatter3d", xlab = "xtitle", ylab = "ytitle", zlab = "ztitle"
   )
@@ -58,7 +58,7 @@ test_that("xrange/yrange override the auto-computed axis range and the extent of
   x <- c(-4, -1, 0, 1, 3)
   y <- c(-2, 0, 1, 2, 4)
 
-  p <- plotly_scatterplot(
+  p <- interactive_scatterplot(
     x = x, y = y,
     hline_thresholds = list(threshold = 0),
     xrange = c(-10, 10),
@@ -73,7 +73,7 @@ test_that("xrange/yrange override the auto-computed axis range and the extent of
   expect_equal(sort(hline_trace$x), c(-10, 10))
 })
 
-# plotly_scatterplot() colorby_menu
+# interactive_scatterplot() colorby_menu
 
 test_that("colorby_menu adds a dropdown and shows only the first option's points initially", {
   x <- c(1, 2, 3, 4)
@@ -83,7 +83,7 @@ test_that("colorby_menu adds a dropdown and shows only the first option's points
     Batch = c("1", "2", "1", "2")
   )
 
-  p <- plotly_scatterplot(x = x, y = y, colorby_menu = colorby_menu)
+  p <- interactive_scatterplot(x = x, y = y, colorby_menu = colorby_menu)
   built <- plotly::plotly_build(p)
 
   updatemenus <- built$x$layout$updatemenus
@@ -112,7 +112,7 @@ test_that("each colorby_menu option keeps its own palette instead of bleeding in
     Batch = rep(c("X", "Y", "Z"), length.out = 8)
   )
 
-  p <- plotly_scatterplot(x = x, y = y, colorby_menu = colorby_menu)
+  p <- interactive_scatterplot(x = x, y = y, colorby_menu = colorby_menu)
   built <- plotly::plotly_build(p)
 
   color_by_name <- setNames(
@@ -120,8 +120,8 @@ test_that("each colorby_menu option keeps its own palette instead of bleeding in
     vapply(built$x$data, function(tr) tr$name, character(1))
   )
 
-  two_colors <- makeColorScale(2)
-  three_colors <- makeColorScale(3)
+  two_colors <- make_color_scale(2)
+  three_colors <- make_color_scale(3)
 
   expect_equal(unname(color_by_name["A"]), two_colors[1])
   expect_equal(unname(color_by_name["B"]), two_colors[2])
@@ -131,7 +131,7 @@ test_that("each colorby_menu option keeps its own palette instead of bleeding in
 })
 
 test_that("colorby_menu is opt-in: omitting it leaves the plot without any updatemenus", {
-  p <- plotly_scatterplot(x = c(1, 2, 3), y = c(3, 2, 1), colorby = c("A", "B", "A"))
+  p <- interactive_scatterplot(x = c(1, 2, 3), y = c(3, 2, 1), colorby = c("A", "B", "A"))
   built <- plotly::plotly_build(p)
 
   expect_null(built$x$layout$updatemenus)

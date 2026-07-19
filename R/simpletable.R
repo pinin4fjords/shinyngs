@@ -19,11 +19,11 @@ simpletableInput <- function(id, tabletitle = "", description = NULL) {
 
   inputs <- list()
   if (!is.null(description)) {
-    inputs <- pushToList(inputs, p(description))
+    inputs <- push_to_list(inputs, p(description))
   }
 
   download_label <- trimws(paste(tabletitle, "table"))
-  inputs <- pushToList(inputs, a11yControl(
+  inputs <- push_to_list(inputs, a11yControl(
     downloadButton(ns("downloadTable"), download_label),
     label = paste("Download", download_label, "as CSV"),
     tooltip = paste("Download the", tolower(download_label), "as a CSV file")
@@ -55,14 +55,14 @@ simpletableOutput <- function(id, tabletitle = NULL, spinner = FALSE) {
 
   outputs <- list()
   if (!is.null(tabletitle)) {
-    outputs <- pushToList(outputs, h3(tabletitle))
+    outputs <- push_to_list(outputs, h3(tabletitle))
   }
 
   datatable <- DT::dataTableOutput(ns("datatable"))
   if (spinner) {
     datatable <- shinycssloaders::withSpinner(datatable, color = shinyngsSpinnerColor())
   }
-  outputs <- pushToList(outputs, datatable)
+  outputs <- push_to_list(outputs, datatable)
 
   tagList(outputs)
 }

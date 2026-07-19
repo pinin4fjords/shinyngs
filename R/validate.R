@@ -28,7 +28,7 @@ has_slot_data <- function(x, slot_name) {
 #' Evaluate an expression, converting any error into a Shiny validation message
 #'
 #' Wraps \code{tryCatch()} around an expression so that an error raised by a
-#' computation (e.g. \code{runPCA()} or \code{runClustering()} rejecting
+#' computation (e.g. \code{runPCA()} or \code{run_clustering()} rejecting
 #' degenerate input) surfaces as a \code{\link[shiny]{validate}} message in
 #' the UI rather than crashing the app.
 #'
@@ -42,9 +42,9 @@ has_slot_data <- function(x, slot_name) {
 #' @export
 #'
 #' @examples
-#' validateOrCatch(1 + 1)
+#' validate_or_catch(1 + 1)
 #'
-validateOrCatch <- function(expr) {
+validate_or_catch <- function(expr) {
   tryCatch(expr, error = function(e) validate(need(FALSE, conditionMessage(e))))
 }
 
@@ -143,7 +143,7 @@ validate_inputs <- function(samples_metadata,
   # Read the assay matrices
 
   assay_files <-
-    stringsToNamedVector(
+    strings_to_named_vector(
       elements_string = assay_files,
       simplify_files = FALSE,
       prettify_names = FALSE
@@ -172,7 +172,7 @@ validate_inputs <- function(samples_metadata,
 
   if (!is.null(differential_results)) {
     contrast_stats_files <-
-      stringsToNamedVector(differential_results,
+      strings_to_named_vector(differential_results,
         simplify_files = FALSE,
         prettify_names = FALSE
       )
@@ -216,11 +216,11 @@ validate_indices <- function(assay_data, index_string, invert_assays = FALSE, pr
 
   if (is_valid_positive_integer_vector(index_string)) {
     indices_are_names <- FALSE
-    indices <- as.integer(simpleSplit(index_string))
+    indices <- as.integer(simple_split(index_string))
   } else {
-    indices <- simpleSplit(index_string)
+    indices <- simple_split(index_string)
     if (prettify_names) {
-      indices <- unlist(lapply(indices, prettifyVariablename))
+      indices <- unlist(lapply(indices, prettify_variable_name))
     }
   }
 

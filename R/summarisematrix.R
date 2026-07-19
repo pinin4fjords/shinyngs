@@ -23,7 +23,7 @@ summarisematrixInput <- function(id, allow_none = TRUE, select_summary_type = TR
     summaryoptions <- c(None = "none")
   }
 
-  field <- inlineField(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "colGeomMeans", Median = "colMedians"),
+  field <- inline_field(selectInput(ns("summaryType"), NULL, c(summaryoptions, Mean = "colMeans", `Geometric mean` = "col_geom_means", Median = "col_medians"),
     selected = "none"
   ), label = "Average type")
 
@@ -70,9 +70,9 @@ summarisematrix <- function(id) {
 #' @export
 #'
 #' @examples
-#' summarizeMatrix(mymatrix, myfactor)
+#' summarize_matrix(mymatrix, myfactor)
 #'
-summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
+summarize_matrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") {
   # We need a factor
 
   if (!is.factor(treatment_factor)) {
@@ -81,7 +81,7 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
 
   # Deal with missing values
 
-  treatment_factor <- na.replace(treatment_factor)
+  treatment_factor <- na_replace(treatment_factor)
 
   summaryFunc <- get(summaryFunc)
   t_matrix <- t(matrix)
@@ -104,9 +104,9 @@ summarizeMatrix <- function(matrix, treatment_factor, summaryFunc = "colMeans") 
 #'
 #' @examples
 #' m <- matrix(1:6, nrow = 2, dimnames = list(NULL, c("a", "b", "c")))
-#' colGeomMeans(m)
+#' col_geom_means(m)
 #'
-colGeomMeans <- function(x) {
+col_geom_means <- function(x) {
   x <- as.matrix(x)
   positive <- !is.na(x) & x > 0
   logs <- matrix(0, nrow = nrow(x), ncol = ncol(x))
@@ -124,9 +124,9 @@ colGeomMeans <- function(x) {
 #'
 #' @examples
 #' m <- matrix(1:6, nrow = 2, dimnames = list(NULL, c("a", "b", "c")))
-#' colMedians(m)
+#' col_medians(m)
 #'
-colMedians <- function(x) {
+col_medians <- function(x) {
   x <- as.matrix(x)
   stats::setNames(matrixStats::colMedians(x), colnames(x))
 }

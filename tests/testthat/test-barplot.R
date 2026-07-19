@@ -1,8 +1,8 @@
-# plotly_barchart()
+# interactive_barchart()
 
-test_that("plotly_barchart draws one bar trace per row, with columns along x", {
+test_that("interactive_barchart draws one bar trace per row, with columns along x", {
   m <- matrix(c(3, 1, 2, 4), nrow = 2, dimnames = list(c("a", "b"), c("x", "y")))
-  built <- plotly::plotly_build(plotly_barchart(m))
+  built <- plotly::plotly_build(interactive_barchart(m))
 
   expect_length(built$x$data, 2)
   expect_true(all(vapply(built$x$data, function(t) t$type, character(1)) == "bar"))
@@ -11,42 +11,42 @@ test_that("plotly_barchart draws one bar trace per row, with columns along x", {
   expect_equal(as.numeric(built$x$data[[2]]$y), c(1, 4))
 })
 
-test_that("plotly_barchart draws one bar trace per matrix row, stacked by default", {
+test_that("interactive_barchart draws one bar trace per matrix row, stacked by default", {
   m <- matrix(1:6, nrow = 2, byrow = TRUE, dimnames = list(c("up", "down"), c("s1", "s2", "s3")))
 
-  built <- plotly::plotly_build(plotly_barchart(m, barmode = "stack", ylab = "Count"))
+  built <- plotly::plotly_build(interactive_barchart(m, barmode = "stack", ylab = "Count"))
 
   expect_equal(built$x$layout$barmode, "stack")
   expect_equal(built$x$layout$yaxis$title, "Count")
 })
 
-test_that("plotly_barchart re-orders rows by descending mean in overlay mode", {
+test_that("interactive_barchart re-orders rows by descending mean in overlay mode", {
   m <- matrix(c(1, 2, 9, 20), nrow = 2, byrow = TRUE, dimnames = list(c("low", "high"), c("x", "y")))
-  built <- plotly::plotly_build(plotly_barchart(m, barmode = "overlay"))
+  built <- plotly::plotly_build(interactive_barchart(m, barmode = "overlay"))
 
   expect_equal(built$x$data[[1]]$name, "high")
   expect_equal(as.numeric(built$x$data[[1]]$y), c(9, 20))
 })
 
-test_that("plotly_barchart hides the legend for a single-row matrix", {
+test_that("interactive_barchart hides the legend for a single-row matrix", {
   m <- matrix(c(3, 2), nrow = 1, dimnames = list("Count", c("x", "y")))
-  p <- plotly_barchart(m)
+  p <- interactive_barchart(m)
 
   expect_false(p$x$layoutAttrs[[1]]$showlegend)
 })
 
-test_that("plotly_barchart pins the x axis to matrix's column order, not alphabetical", {
+test_that("interactive_barchart pins the x axis to matrix's column order, not alphabetical", {
   m <- matrix(c(3, 2, 1), nrow = 1, dimnames = list("Count", c("zebra", "mango", "apple")))
-  built <- plotly::plotly_build(plotly_barchart(m))
+  built <- plotly::plotly_build(interactive_barchart(m))
 
   expect_equal(built$x$layout$xaxis$categoryorder, "array")
   expect_equal(built$x$layout$xaxis$categoryarray, c("zebra", "mango", "apple"))
 })
 
-test_that("plotly_barchart keeps column names as characters, not coerced to numbers", {
+test_that("interactive_barchart keeps column names as characters, not coerced to numbers", {
   m <- matrix(1:4, nrow = 2, dimnames = list(c("a", "b"), c("2020", "2021")))
 
-  built <- plotly::plotly_build(plotly_barchart(m))
+  built <- plotly::plotly_build(interactive_barchart(m))
 
   expect_type(built$x$data[[1]]$x, "character")
 })
@@ -76,36 +76,36 @@ test_that("countMatrixByCategory tallies a category split by a second column", {
   expect_equal(m["Up", "lncRNA"], 1)
 })
 
-# plotly_count_barplot()
+# interactive_count_barplot()
 
-test_that("plotly_count_barplot counts rows by a single category", {
+test_that("interactive_count_barplot counts rows by a single category", {
   annotation <- data.frame(biotype = c("lncRNA", "protein_coding", "protein_coding", "protein_coding"))
-  built <- plotly::plotly_build(plotly_count_barplot(annotation, "biotype"))
+  built <- plotly::plotly_build(interactive_count_barplot(annotation, "biotype"))
 
   expect_length(built$x$data, 1)
   expect_equal(as.character(built$x$data[[1]]$x), c("protein_coding", "lncRNA"))
   expect_equal(as.numeric(built$x$data[[1]]$y), c(3, 1))
 })
 
-test_that("plotly_count_barplot splits counts by a fill column into separate traces", {
+test_that("interactive_count_barplot splits counts by a fill column into separate traces", {
   annotation <- data.frame(
     biotype = c("protein_coding", "protein_coding", "lncRNA"),
     direction = c("Up", "Down", "Up")
   )
-  built <- plotly::plotly_build(plotly_count_barplot(annotation, "biotype", fill = "direction"))
+  built <- plotly::plotly_build(interactive_count_barplot(annotation, "biotype", fill = "direction"))
 
   expect_length(built$x$data, 2)
 })
 
-test_that("plotly_count_barplot errors for an unknown column", {
+test_that("interactive_count_barplot errors for an unknown column", {
   annotation <- data.frame(biotype = c("lncRNA", "protein_coding"))
 
-  expect_error(plotly_count_barplot(annotation, "nonexistent"), "not a column")
-  expect_error(plotly_count_barplot(annotation, "biotype", fill = "nonexistent"), "not a column")
+  expect_error(interactive_count_barplot(annotation, "nonexistent"), "not a column")
+  expect_error(interactive_count_barplot(annotation, "biotype", fill = "nonexistent"), "not a column")
 })
 
-test_that("plotly_count_barplot errors informatively for an all-missing category", {
+test_that("interactive_count_barplot errors informatively for an all-missing category", {
   annotation <- data.frame(biotype = c("lncRNA", "protein_coding"), phase = NA_character_)
 
-  expect_error(plotly_count_barplot(annotation, "phase"), "no non-missing values")
+  expect_error(interactive_count_barplot(annotation, "phase"), "no non-missing values")
 })

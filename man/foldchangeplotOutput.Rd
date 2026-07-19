@@ -28,7 +28,7 @@ ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
-  app <- prepareApp("foldchangeplot", eselist)
+  app <- prepare_app("foldchangeplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

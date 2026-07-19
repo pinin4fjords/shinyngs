@@ -2,7 +2,7 @@
 #'
 #' Shinyngs stores fold changes internally as signed linear values (the ratio
 #' of the two conditions, with an absolute magnitude of at least 1 and the
-#' sign indicating direction - see \code{\link{foldChange}}), so a value
+#' sign indicating direction - see \code{\link{fold_change}}), so a value
 #' strictly between -1 and 1 is only possible on a log2 scale (e.g. a log2
 #' fold change of 0.5 is a ~1.4-fold change). log2 fold changes are also
 #' typically small and symmetric around zero, while linear fold changes can
@@ -163,7 +163,7 @@ read_stats_table <- function(filename, feature_id_column = NULL, pval_column = N
   stats_cols <- c(feature_id_column, pval_column, qval_column, fc_column)
 
   success <-
-    checkListIsSubset(
+    check_list_is_subset(
       stats_cols,
       colnames(st),
       "stats variables",

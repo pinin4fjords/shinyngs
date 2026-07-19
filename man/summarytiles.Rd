@@ -28,7 +28,7 @@ if (interactive()) {
 
   # Almost certainly used via application creation
 
-  app <- prepareApp("summarytiles", zhangneurons)
+  app <- prepare_app("summarytiles", zhangneurons)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 

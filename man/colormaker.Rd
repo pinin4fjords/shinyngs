@@ -18,7 +18,7 @@ output A reactive returning a character vector of hex colors
 \description{
 Supplies a reactive returning the palette selected in the drop-down, sized
 to the number of categories the caller reports (see
-\code{\link{makeColorScale}}).
+\code{\link{make_color_scale}}).
 }
 \details{
 This function is called directly, using the same id as its UI counterpart,

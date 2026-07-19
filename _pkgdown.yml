@@ -19,9 +19,9 @@ reference:
   contents:
   - ExploratorySummarizedExperiment
   - ExploratorySummarizedExperimentList
-  - prepareApp
-  - eselistFromYAML
-  - eselistfromConfig
+  - prepare_app
+  - eselist_from_yaml
+  - eselist_from_config
 
 - title: Reading and validating input
   desc: >
@@ -33,94 +33,94 @@ reference:
   - read_gmt
   - read_matrix
   - read_metadata
-  - getExtension
-  - getSeparator
-  - checkListIsSubset
+  - file_extension
+  - guess_separator
+  - check_list_is_subset
   - validate_indices
   - validate_inputs
-  - validateOrCatch
+  - validate_or_catch
   - is_valid_positive_integer_vector
-  - singleValidMatrix
+  - single_valid_matrix
   - has_slot_data
   - build_enrichment_path
-  - chooseGroupingVariables
+  - choose_grouping_variables
 
 - title: Matrix and statistics utilities
   desc: >
     Functions for transforming, summarising and clustering expression
     matrices.
   contents:
-  - bootstrapMedian
-  - colGeomMeans
-  - colMedians
+  - bootstrap_median
+  - col_geom_means
+  - col_medians
   - cond_log2_transform_assays
   - cond_log2_transform_matrix
-  - foldChange
+  - fold_change
   - guess_foldchange_scale
-  - madScore
+  - mad_score
   - resolve_deprecated_unlog_foldchanges
   - resolve_foldchange_scale
-  - runClustering
-  - selectVariableGenes
-  - simpleSplit
-  - summarizeMatrix
-  - summarySE
-  - calculateDist
-  - calculateDendrogram
-  - clusteringDendrogram
-  - compilePCAData
+  - run_clustering
+  - select_variable_genes
+  - simple_split
+  - summarize_matrix
+  - summary_se
+  - calculate_dist
+  - calculate_dendrogram
+  - clustering_dendrogram
+  - compile_pca_data
   - anova_pca_metadata
-  - interleaveColumns
+  - interleave_columns
 
 - title: Plotting functions
   desc: >
     Standalone plotting functions reused by the Shiny modules for static and
     interactive output.
   contents:
-  - ggplot_boxplot
-  - ggplot_densityplot
-  - ggplot_topgene_boxplots
+  - static_boxplot
+  - static_densityplot
+  - static_topgene_boxplots
   - ggplotify
-  - interactiveHeatmap
-  - plotly_barcodeplot
-  - plotly_barchart
-  - plotly_boxplot
-  - plotly_cluster_profiles
-  - plotly_clusteringDendrogram
-  - plotly_count_barplot
-  - plotly_densityplot
-  - plotly_illumina_control_probes
-  - plotly_pca_metadata_heatmap
-  - plotly_pca_variance_heatmap
-  - plotly_quartiles
-  - plotly_scatterplot
-  - plotly_screeplot
-  - plotly_topgene_boxplots
-  - plotly_upset
+  - interactive_heatmap
+  - interactive_barcodeplot
+  - interactive_barchart
+  - interactive_boxplot
+  - interactive_cluster_profiles
+  - interactive_clustering_dendrogram
+  - interactive_count_barplot
+  - interactive_densityplot
+  - interactive_illumina_control_probes
+  - interactive_pca_metadata_heatmap
+  - interactive_pca_variance_heatmap
+  - interactive_quartiles
+  - interactive_scatterplot
+  - interactive_screeplot
+  - interactive_topgene_boxplots
+  - interactive_upset
   - static_scatterplot
-  - makeColorScale
+  - make_color_scale
 
 - title: Identifiers, labels and gene sets
   contents:
-  - convertIds
-  - idToLabel
-  - prettifyGeneSetName
-  - prettifyVariablename
-  - stringsToNamedVector
+  - convert_ids
+  - id_to_label
+  - prettify_gene_set_name
+  - prettify_variable_name
+  - strings_to_named_vector
 
 - title: Shiny UI helpers
   contents:
-  - hiddenInput
-  - inlineField
-  - withHelpIcon
+  - hidden_input
+  - inline_field
+  - with_help_icon
 
 - title: General utilities
   contents:
-  - na.replace
-  - nlines
-  - pushToList
-  - splitStringToFixedwidthLines
-  - ucfirst
+  - na_replace
+  - count_lines
+  - push_to_list
+  - split_string_to_fixed_width_lines
+  - capitalize_first
 
 - title: Internal (Shiny module implementation)
   desc: >

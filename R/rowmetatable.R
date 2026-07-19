@@ -92,7 +92,7 @@ rowmetatable <- function(id, eselist) {
 
     getLinkedRowMeta <- reactive({
       meta <- getRowMeta()
-      colnames(meta) <- prettifyVariablename(colnames(meta))
+      colnames(meta) <- prettify_variable_name(colnames(meta))
       linkMatrix(meta, eselist@url_roots)
     })
 

@@ -156,7 +156,7 @@ feature_metadata <-
 # Read any provided expression matrices
 
 assay_files <-
-  stringsToNamedVector(
+  strings_to_named_vector(
     elements_string = opt$assay_files,
     opt$assay_names,
     simplify_files = TRUE,
@@ -201,8 +201,8 @@ if (is.null(opt$final_assay)) {
 assay_data <- cond_log2_transform_assays(assay_data, log2_assays = opt$log2_assays, threshold = opt$log2_guessing_threshold, prettify_names = FALSE)
 
 # Prettify assay names
-names(assay_data) <- prettifyVariablename(names(assay_data))
-final_assay <- prettifyVariablename(final_assay)
+names(assay_data) <- prettify_variable_name(names(assay_data))
+final_assay <- prettify_variable_name(final_assay)
 
 # Create output paths
 
@@ -235,14 +235,14 @@ print("Writing boxplots...")
 
 if (opt$write_html) {
   print("... interactive")
-  interactive_boxplot <- plotly_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
-  htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
+  interactive_boxplot_plot <- interactive_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_boxplot_plot), file.path(html_outdir, "boxplot.html"), selfcontained = TRUE)
 }
 
 print("... static")
-static_boxplot <- ggplot_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+static_boxplot_plot <- static_boxplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
 png(filename = file.path(png_outdir, "boxplot.png"), width = 800, height = 600)
-static_boxplot
+static_boxplot_plot
 dev.off()
 
 ################################################
@@ -255,14 +255,14 @@ print("Writing density plots...")
 
 if (opt$write_html) {
   print("...interactive")
-  interactive_densityplot <- plotly_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
-  htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
+  interactive_densityplot_plot <- interactive_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+  htmlwidgets::saveWidget(plotly::as_widget(interactive_densityplot_plot), file.path(html_outdir, "density.html"), selfcontained = TRUE)
 }
 
 print("... static")
-static_densityplot <- ggplot_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
+static_densityplot_plot <- static_densityplot(assay_data, experiment = sample_metadata, colorby = opt$contrast_variable, expressiontype = "count per gene", palette_name = opt$palette_name, should_transform = FALSE)
 png(filename = file.path(png_outdir, "density.png"), width = 800, height = 600)
-static_densityplot
+static_densityplot_plot
 dev.off()
 
 ################################################
@@ -272,7 +272,7 @@ dev.off()
 ################################################
 
 print("Writing PCA plots...")
-pca_data <- compilePCAData(assay_data[[final_assay]], ntop = opt$n_genes)
+pca_data <- compile_pca_data(assay_data[[final_assay]], ntop = opt$n_genes)
 
 plotdata <- pca_data$coords
 plotdata$colorby <- factor(sample_metadata[[opt$contrast_variable]], levels = unique(sample_metadata[[opt$contrast_variable]]))
@@ -296,7 +296,7 @@ for (d in names(plot_types)) {
     ylab = labels[2],
     colorby = plotdata$colorby,
     plot_type = plot_types[[d]],
-    legend_title = prettifyVariablename(opt$contrast_variable),
+    legend_title = prettify_variable_name(opt$contrast_variable),
     labels = plotdata$name,
     show_labels = TRUE,
     palette_name = opt$palette_name
@@ -316,7 +316,7 @@ for (d in names(plot_types)) {
 
   if (opt$write_html) {
     print(paste0("...interactive (", d, "d)"))
-    interactive_pcaplot <- do.call("plotly_scatterplot", plot_args)
+    interactive_pcaplot <- do.call("interactive_scatterplot", plot_args)
     htmlwidgets::saveWidget(plotly::as_widget(interactive_pcaplot), file.path(html_outdir, paste0("pca", d, "d.html")), selfcontained = TRUE)
   }
 }
@@ -333,8 +333,8 @@ png(
   width = 800,
   height = 600
 )
-clusteringDendrogram(
-  2^assay_data[[final_assay]][selectVariableGenes(matrix = assay_data[[final_assay]], ntop = opt$n_genes), ],
+clustering_dendrogram(
+  2^assay_data[[final_assay]][select_variable_genes(matrix = assay_data[[final_assay]], ntop = opt$n_genes), ],
   sample_metadata[, opt$contrast_variable, drop = FALSE],
   colorby = opt$contrast_variable,
   cor_method = "spearman",
@@ -351,7 +351,7 @@ dev.off()
 ################################################
 
 plotdata <-
-  madScore(
+  mad_score(
     matrix = assay_data[[final_assay]],
     sample_sheet = sample_metadata,
     groupby = opt$contrast_variable,
@@ -375,7 +375,7 @@ if (!is.null(plotdata)) {
   print("MAD correlation plots...")
   if (opt$write_html) {
     print("...interactive")
-    interactive_madplot <- do.call(plotly_scatterplot, mad_plot_args)
+    interactive_madplot <- do.call(interactive_scatterplot, mad_plot_args)
     htmlwidgets::saveWidget(plotly::as_widget(interactive_madplot), file.path(html_outdir, "mad_correlation.html"), selfcontained = TRUE)
   }
 

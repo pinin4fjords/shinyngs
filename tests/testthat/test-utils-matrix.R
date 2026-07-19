@@ -29,24 +29,24 @@ test_that("melt_matrix accepts custom varnames and value.name", {
   expect_equal(colnames(out), c("gene", "sample", "expr"))
 })
 
-# interleaveColumns()
+# interleave_columns()
 
-test_that("interleaveColumns alternates columns from the two input matrices", {
+test_that("interleave_columns alternates columns from the two input matrices", {
   mat1 <- matrix(1:4, nrow = 2, dimnames = list(NULL, c("a1", "a2")))
   mat2 <- matrix(5:8, nrow = 2, dimnames = list(NULL, c("b1", "b2")))
 
-  result <- interleaveColumns(mat1, mat2)
+  result <- interleave_columns(mat1, mat2)
 
   expect_equal(colnames(result), c("a1", "b1", "a2", "b2"))
   expect_equal(result[, "a1"], mat1[, "a1"])
   expect_equal(result[, "b2"], mat2[, "b2"])
 })
 
-test_that("interleaveColumns preserves row count and dimension", {
+test_that("interleave_columns preserves row count and dimension", {
   mat1 <- matrix(1:6, nrow = 3, dimnames = list(NULL, c("a1", "a2")))
   mat2 <- matrix(7:12, nrow = 3, dimnames = list(NULL, c("b1", "b2")))
 
-  result <- interleaveColumns(mat1, mat2)
+  result <- interleave_columns(mat1, mat2)
 
   expect_equal(dim(result), c(3, 4))
 })

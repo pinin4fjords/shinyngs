@@ -76,7 +76,7 @@ readreports <- function(id, eselist) {
 
     output$reportType_ui <- renderUI({
       ese <- selectmatrix_reactives$getExperiment()
-      selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettifyVariablename(names(ese@read_reports))))
+      selectInput(ns("reportType"), "Report type", structure(names(ese@read_reports), names = prettify_variable_name(names(ese@read_reports))))
     })
 
     # Render bar plot controls with default behaviour dependent on report type
@@ -100,14 +100,14 @@ readreports <- function(id, eselist) {
 
     output$plotTitle <- renderUI({
       report_type <- getReportType()
-      h3(paste(prettifyVariablename(report_type), "plot"))
+      h3(paste(prettify_variable_name(report_type), "plot"))
     })
 
     # Dynamic title for the table
 
     output$tableTitle <- renderUI({
       report_type <- getReportType()
-      h4(paste(prettifyVariablename(report_type), "data"))
+      h4(paste(prettify_variable_name(report_type), "data"))
     })
 
     # Return the selected plot type when available
@@ -146,7 +146,7 @@ readreports <- function(id, eselist) {
       plotmatrix <- ese@read_reports[[report_type]]
       plotmatrix <- plotmatrix[, apply(plotmatrix, 2, function(x) sum(x > 10) > 0)]
       plotmatrix <- plotmatrix[, order(colMeans(plotmatrix), decreasing = TRUE)]
-      colnames(plotmatrix) <- prettifyVariablename(colnames(plotmatrix))
+      colnames(plotmatrix) <- prettify_variable_name(colnames(plotmatrix))
       plotmatrix
     })
 

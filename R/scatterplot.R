@@ -216,7 +216,7 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
           palette <- NULL
         }
 
-        plotly_scatterplot(
+        interactive_scatterplot(
           x = xdata(), y = ydata(), z = zdata(), colorby = cb, plot_type = plotType(), title = getTitle(),
           xlab = colnames(getDatamatrix())[getXAxis()], ylab = colnames(getDatamatrix())[getYAxis()],
           zlab = colnames(getDatamatrix())[getZAxis()], palette = palette, labels = getLabels(),
@@ -529,7 +529,7 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
 
 #' Colour points by a single variable, highlighting labelled rows
 #'
-#' Builds the labelled/unselected trace pair used by \code{plotly_scatterplot}
+#' Builds the labelled/unselected trace pair used by \code{interactive_scatterplot}
 #' when no \code{colorby_menu} is supplied: unlabelled rows are drawn as a
 #' grey background layer, and rows with a non-NA label are coloured by
 #' \code{colorby} and optionally given permanent text labels.
@@ -567,7 +567,7 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
     if (any(labelled) && !is.null(colorby)) {
       palette <- resolvePalette(NULL, unique(as.character(colorby[labelled])), palette_name)
     } else {
-      palette <- makeColorScale(1)
+      palette <- make_color_scale(1)
     }
   }
 
@@ -663,9 +663,9 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
 #' x <- rnorm(10)
 #' y <- rnorm(10)
 #' colorby <- factor(rep(c("treated", "control"), each = 5))
-#' plotly_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
+#' interactive_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
 #'
-plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
+interactive_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
                                show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL,
                                xrange = NULL, yrange = NULL, showlegend = TRUE, palette_name = COLORBLIND_PALETTE_NAME,
@@ -776,7 +776,7 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     if (!is.null(colorby)) {
       palette <- resolvePalette(NULL, unique(as.character(colorby)), palette_name)
     } else {
-      palette <- makeColorScale(1)
+      palette <- make_color_scale(1)
     }
   }
 

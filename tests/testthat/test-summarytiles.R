@@ -8,7 +8,7 @@ make_minimal_eselist <- function() {
   rownames(counts) <- paste0("gene", seq_len(n_genes))
   colnames(counts) <- paste0("s", seq_len(n_samples))
 
-  # A column with no repeated values gives chooseGroupingVariables() nothing
+  # A column with no repeated values gives choose_grouping_variables() nothing
   # to pick, so the constructor's auto-detected group_vars stays empty.
   coldata <- S4Vectors::DataFrame(row.names = colnames(counts), uid = paste0("u", seq_len(n_samples)))
   annotation <- data.frame(gene_id = rownames(counts), gene_name = paste0("Gene", seq_len(n_genes)), row.names = rownames(counts))
