@@ -144,6 +144,9 @@ reference:
   - boxplotOutput
   - calculatePCAFractionExplained
   - cardinalNumericField
+  - categorycountplot
+  - categorycountplotInput
+  - categorycountplotOutput
   - chipseq
   - chipseqInput
   - clustering

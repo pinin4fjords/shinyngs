@@ -36,16 +36,15 @@ experimenttableInput <- function(id, eselist) {
 
   description <- "This is the metadata associated with the experimental samples of this study."
 
+  fieldset_list <- list(
+    export = simpletableInput(ns("experimenttable"), "Experiment", description),
+    category_counts = categorycountplotInput(ns("categorycount"))
+  )
+
   if (length(eselist) == 1) {
-    tagList(hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), list(export = simpletableInput(
-      ns("experimenttable"), "Experiment",
-      description
-    ))))
+    tagList(hiddenInput(ns("experiment"), names(eselist)[1]), fieldSets(ns("fieldset"), fieldset_list))
   } else {
-    fieldSets(ns("fieldset"), list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist)), export = simpletableInput(
-      ns("experimenttable"),
-      "experiment", description
-    )))
+    fieldSets(ns("fieldset"), c(list(experiment = selectInput(ns("experiment"), "Experiment", names(eselist))), fieldset_list))
   }
 }
 
@@ -83,7 +82,10 @@ experimenttableOutput <- function(id) {
   ns <- NS(id)
   moduleMain(
     "Experimental data",
-    simpletableOutput(ns("experimenttable")),
+    tabsetPanel(
+      tabPanel("Table", simpletableOutput(ns("experimenttable"))),
+      tabPanel("Category counts", categorycountplotOutput(ns("categorycount")))
+    ),
     help = modalInput(ns(experimenttable_modal$id), "help", "help")
   )
 }
@@ -118,12 +120,18 @@ experimenttable <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(experimenttable_modal$id, experimenttable_modal$title)
 
+    getRawExperiment <- reactive({
+      data.frame(colData(eselist[[input$experiment]]), check.names = FALSE)
+    })
+
     getExperiment <- reactive({
-      experiment <- data.frame(colData(eselist[[input$experiment]]), check.names = FALSE)
+      experiment <- getRawExperiment()
       colnames(experiment) <- prettifyVariablename(colnames(experiment))
       experiment
     })
 
     simpletable("experimenttable", displayMatrix = getExperiment, filename = "experiment", rownames = TRUE)
+
+    categorycountplot("categorycount", getAnnotation = getRawExperiment, filename = "experiment_categorycounts")
   })
 }
