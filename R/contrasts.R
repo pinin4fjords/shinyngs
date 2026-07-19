@@ -980,8 +980,8 @@ contrastLabelling <- function(eselist, selectmatrix_reactives, selectFinalFeatur
     }
 
     withProgress(message = "Making labelled table", value = 0, {
-      final_contrasts_table <- unique(rbindlist(lapply(filtered_contrast_tables, function(fcts) {
-        rbindlist(lapply(fcts, function(fct) {
+      final_contrasts_table <- unique(do.call(rbind, lapply(filtered_contrast_tables, function(fcts) {
+        do.call(rbind, lapply(fcts, function(fct) {
           labelMatrix(fct[sff, , drop = FALSE], ese = ese, metafields = metafields)
         }))
       })))
@@ -1044,7 +1044,7 @@ contrastQuerySummary <- function(output, selectmatrix_reactives, filteredContras
     if (length(summaries) == 1) {
       summaries[[1]][, -1]
     } else {
-      rbindlist(summaries)
+      do.call(rbind, summaries)
     }
   })
 
