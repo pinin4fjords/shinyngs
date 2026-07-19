@@ -17,3 +17,7 @@ output Character vector of strings
 \description{
 Convenience interface to strsplit()
 }
+\examples{
+simpleSplit("a,b,c")
+
+}

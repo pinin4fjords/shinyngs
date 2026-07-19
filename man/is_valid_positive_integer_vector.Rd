@@ -15,3 +15,8 @@ Boolean indicating whether the check passed
 \description{
 Check if a comma-separated string can be parsed to an integer vector
 }
+\examples{
+is_valid_positive_integer_vector("1,2,3")
+is_valid_positive_integer_vector("1,two,3")
+
+}

@@ -15,3 +15,8 @@ Vector with column medians
 \description{
 Medians by matrix column
 }
+\examples{
+m <- matrix(1:6, nrow = 2, dimnames = list(NULL, c("a", "b", "c")))
+colMedians(m)
+
+}

@@ -17,3 +17,9 @@ output Interleaved matrix
 \description{
 Interleave the columns of two matrices of equal dimensions
 }
+\examples{
+mat1 <- matrix(1:4, nrow = 2, dimnames = list(NULL, c("a1", "a2")))
+mat2 <- matrix(5:8, nrow = 2, dimnames = list(NULL, c("b1", "b2")))
+interleaveColumns(mat1, mat2)
+
+}

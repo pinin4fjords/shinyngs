@@ -40,7 +40,10 @@ has_slot_data <- function(x, slot_name) {
 #' @keywords shiny
 #'
 #' @export
-
+#'
+#' @examples
+#' validateOrCatch(1 + 1)
+#'
 validateOrCatch <- function(expr) {
   tryCatch(expr, error = function(e) validate(need(FALSE, conditionMessage(e))))
 }
@@ -68,7 +71,25 @@ validateOrCatch <- function(expr) {
 #'
 #' @return output A named list with feature/ observation components
 #' @export
-
+#'
+#' @examples
+#' sample_metadata_file <- tempfile(fileext = ".csv")
+#' write.csv(
+#'   data.frame(sample = paste0("s", 1:4), condition = rep(c("treated", "control"), each = 2)),
+#'   sample_metadata_file, row.names = FALSE
+#' )
+#' mat <- matrix(1:12, nrow = 3, dimnames = list(paste0("gene", 1:3), paste0("s", 1:4)))
+#' matrix_file <- tempfile(fileext = ".csv")
+#' write.csv(
+#'   data.frame(gene_id = rownames(mat), mat, check.names = FALSE),
+#'   matrix_file, row.names = FALSE
+#' )
+#' validate_inputs(
+#'   samples_metadata = sample_metadata_file,
+#'   assay_files = matrix_file,
+#'   sample_id_col = "sample"
+#' )
+#'
 validate_inputs <- function(samples_metadata,
                             assay_files,
                             contrasts_file = NULL,

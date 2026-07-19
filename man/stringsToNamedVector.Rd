@@ -31,3 +31,7 @@ output Named character vector
 \description{
 Take two delimiter-separated strings and generate a named vector
 }
+\examples{
+stringsToNamedVector("s1.tsv,s2.tsv", "sample_one,sample_two")
+
+}

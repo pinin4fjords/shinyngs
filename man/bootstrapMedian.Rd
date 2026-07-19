@@ -17,3 +17,7 @@ out The bootstrap estimate of the median
 \description{
 Bootstrap the standard error of the median
 }
+\examples{
+bootstrapMedian(rnorm(50), num = 100)
+
+}

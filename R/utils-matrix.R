@@ -112,7 +112,12 @@ ggplotify <- function(plotmatrices, experiment, colorby = NULL, value_type = "ex
 #'
 #' @return output Interleaved matrix
 #' @export
-
+#'
+#' @examples
+#' mat1 <- matrix(1:4, nrow = 2, dimnames = list(NULL, c("a1", "a2")))
+#' mat2 <- matrix(5:8, nrow = 2, dimnames = list(NULL, c("b1", "b2")))
+#' interleaveColumns(mat1, mat2)
+#'
 interleaveColumns <- function(mat1, mat2) {
   out <- cbind(mat1, mat2)
   out[, unlist(lapply(seq_len(ncol(mat1)), function(n) c(n, n + ncol(mat1))))]

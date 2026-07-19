@@ -183,6 +183,24 @@ boxplot <- function(id, eselist) {
   })
 }
 
+#' Shared \code{theme_bw()} base for the static boxplot-family plots
+#'
+#' Common theme elements for \code{\link{ggplot_boxplot}} and
+#' \code{\link{ggplot_topgene_boxplots}}; callers layer their own
+#' \code{theme()} on top for plot-specific tweaks.
+#'
+#' @param base_size Passed to ggplot's \code{theme_bw()}
+#'
+#' @return A ggplot theme
+#'
+#' @noRd
+boxplotTheme <- function(base_size) {
+  theme_bw(base_size = base_size) + theme(
+    axis.title.x = element_blank(),
+    legend.position = "bottom"
+  )
+}
+
 #' Make a boxplot with coloring by experimental variable
 #'
 #' A simple function using \code{ggplot2} to make a sample boxplot
@@ -219,15 +237,13 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_transform = should_transform)
 
   if (!is.null(colorby)) {
-    ncats <- length(unique(experiment[[colorby]]))
-    if (is.null(palette)) {
-      palette <- makeColorScale(ncats, palette = palette_name)
-    }
+    group_levels <- groupLevels(experiment, colorby)
+    palette <- resolvePalette(palette, group_levels, palette_name)
 
     p <- ggplot(plotdata, aes(name, value, fill = colorby)) +
       geom_boxplot(coef = whisker_distance) +
       scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
-      guides(fill = guide_legend(nrow = ceiling(ncats / 2)))
+      guides(fill = guide_legend(nrow = ceiling(length(group_levels) / 2)))
   } else {
     p <- ggplot(plotdata, aes(name, value)) +
       geom_boxplot()
@@ -238,14 +254,11 @@ ggplot_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
     p <- p + facet_wrap(~type, ncol = n_col)
   }
 
-  p <- p + theme_bw(base_size = base_size) + theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)), axis.title.x = element_blank(), legend.position = "bottom",
+  p <- p + boxplotTheme(base_size) + theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, size = rel(1.5)),
     axis.text.y = element_text(size = rel(1.5)), legend.text = element_text(size = rel(1.2)), title = element_text(size = rel(1.3)),
     strip.text.x = element_text(size = 10)
-  ) + ylab(splitStringToFixedwidthLines(paste0(
-    "log2(",
-    prettifyVariablename(expressiontype), ")"
-  ), 15))
+  ) + ylab(expressionAxisLabel(expressiontype))
 }
 
 #' Summarise a vector into the statistics a box plot needs
@@ -368,7 +381,7 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   event_source <- if (length(plotmatrices) == 1) source else NULL
 
   facet_names <- prettifyVariablename(names(plotmatrices))
-  yaxis_title <- splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), 15)
+  yaxis_title <- expressionAxisLabel(expressiontype)
 
   facet_plots <- lapply(seq_along(plotmatrices), function(i) {
     m <- cond_log2_transform_matrix(as.matrix(plotmatrices[[i]]), should_transform = should_transform, rmzeros = TRUE)
@@ -482,23 +495,26 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' @export
 #'
 #' @return output A \code{ggplot} output
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,
+#'   dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+#' experiment <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 2),
+#'   row.names = colnames(mat)
+#' )
+#' ggplot_densityplot(mat, experiment, colorby = "condition")
+#'
 ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
-  if (is.null(palette)) {
-    ncats <- length(unique(plotdata$colorby))
-    palette <- makeColorScale(ncats, palette = palette_name)
-  }
+  palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)
 
   p <- ggplot(data = plotdata) +
     geom_area(aes(x = value, y = density, fill = colorby, color = colorby, group = name), alpha = 0.4) +
     scale_fill_manual(name = prettifyVariablename(colorby), values = palette) +
     scale_color_manual(name = prettifyVariablename(colorby), values = palette) +
     ylab("Density") +
-    xlab(splitStringToFixedwidthLines(paste0(
-      "log2(",
-      prettifyVariablename(expressiontype), ")"
-    ), 15)) +
+    xlab(expressionAxisLabel(expressiontype)) +
     guides(fill = guide_legend(title = prettifyVariablename(colorby))) +
     theme(legend.position = "bottom")
 
@@ -544,10 +560,7 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'
 plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
-  if (is.null(palette)) {
-    ncats <- length(unique(plotdata$colorby))
-    palette <- makeColorScale(ncats, palette = palette_name)
-  }
+  palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)
 
   plotdata %>%
     group_by(type) %>%
@@ -567,10 +580,7 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
       ) %>%
         layout(
           hoverlabel = list(namelength = -1),
-          xaxis = list(title = splitStringToFixedwidthLines(paste0(
-            "log2(",
-            prettifyVariablename(expressiontype), ")"
-          ), 15)),
+          xaxis = list(title = expressionAxisLabel(expressiontype)),
           yaxis = list(title = paste(.x$type[1])),
           legend = list(
             title = list(text = "Sample"),
