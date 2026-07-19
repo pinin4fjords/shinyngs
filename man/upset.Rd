@@ -2,7 +2,7 @@
 % Please edit documentation in R/upset.R
 \name{upset}
 \alias{upset}
-\title{The server function of the upstart module}
+\title{The server function of the upset module}
 \usage{
 upset(id, eselist, setlimit = 16)
 }
@@ -27,7 +27,7 @@ This function is called directly, using the same id as its UI counterpart,
 and wraps its logic in \code{moduleServer()} (see example).
 }
 \examples{
-upstart("myid", eselist)
+upset("myid", eselist)
 
 }
 \references{

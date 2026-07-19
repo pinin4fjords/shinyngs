@@ -179,19 +179,6 @@ expressionAxisLabel <- function(expressiontype, width = 15) {
   splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), width)
 }
 
-#' Return a usable citation string for a package
-#'
-#' Adds just the tiny bit of wrapping code to make the output of
-#' \code{citation()} printable.
-#'
-#' @param package Character string of package name
-#'
-#' @return citation A string that can be put in markdown doucments etc.
-
-makePackageCitation <- function(package) {
-  paste(capture.output(print(citation(package), style = "HTML")), collapse = " ")
-}
-
 #' Replace NAs with a string for convenience
 #'
 #' @param vec Character vector or factor containing NAs
@@ -222,10 +209,9 @@ na.replace <- function(vec, replacement = "NA") {
 #'
 #' @param string Input string
 #'
-#' @return output Boolean indicating whether the check passed
+#' @return Boolean indicating whether the check passed
 #' @export
 
-# Function to check if a comma-separated string can be parsed to a positive integer vector
 is_valid_positive_integer_vector <- function(string) {
   # as.integer() will truncate floats without throwing an error and also
   # accept negatives, so check if string contains NOT 0-9 or comma

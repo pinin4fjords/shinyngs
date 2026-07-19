@@ -2,7 +2,7 @@
 % Please edit documentation in R/upset.R
 \name{upsetOutput}
 \alias{upsetOutput}
-\title{The output function of the clustering module}
+\title{The output function of the upset module}
 \usage{
 upsetOutput(id, eselist)
 }

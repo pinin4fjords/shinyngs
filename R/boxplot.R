@@ -608,6 +608,8 @@ plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #'                   If FALSE, no transformation is applied.
 #'                   If NULL, a conditional transformation based on threshold is applied.
 #'
+#' @return A plotly htmlwidget
+#'
 #' @export
 #' @examples
 #' data(airway, package = "airway")
