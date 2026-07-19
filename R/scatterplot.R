@@ -419,6 +419,10 @@ adjustLayout <- function(p, title = "", legend_title = "", xlab = "x", ylab = "y
   p
 }
 
+colorbyMenuTitle <- function(title, option_name) {
+  if (nzchar(title)) paste0(title, " (coloured by ", option_name, ")") else paste("Coloured by", option_name)
+}
+
 #' Colour points by a chosen variable, with a plotly dropdown to switch it
 #'
 #' Builds one set of per-level marker traces per entry of \code{colorby_menu},
@@ -455,18 +459,25 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
     if (!is.factor(option_colorby)) {
       option_colorby <- factor(option_colorby, levels = unique(option_colorby))
     }
-    option_palette <- makeColorScale(length(levels(option_colorby)), palette = palette_name)
+    option_levels <- levels(option_colorby)
+    option_palette <- makeColorScale(length(option_levels), palette = palette_name)
+    level_indices <- split(seq_along(option_colorby), option_colorby)
     start_idx <- trace_counter + 1L
 
-    for (j in seq_along(levels(option_colorby))) {
-      idx <- which(option_colorby == levels(option_colorby)[j])
+    for (j in seq_along(option_levels)) {
+      idx <- level_indices[[option_levels[j]]]
       trace_counter <- trace_counter + 1L
 
+      # Marker colours are set explicitly per trace (rather than passing a
+      # discrete 'color'/'colors' vector to add_markers) because plotly
+      # shares one colour domain across every trace added to the same
+      # widget: stacking multiple colorby_menu options that way silently
+      # blends each option's palette into the others' as more traces accrue.
       trace_args <- list(
         fig,
         x = x[idx],
         y = y[idx],
-        name = levels(option_colorby)[j],
+        name = option_levels[j],
         legendgroup = option_name,
         showlegend = (option_name == option_names[1]),
         visible = (option_name == option_names[1]),
@@ -498,14 +509,13 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
     buttons = lapply(option_names, function(option_name) {
       visible <- rep(FALSE, total_traces)
       visible[trace_indices[[option_name]]] <- TRUE
-      option_title <- if (nzchar(title)) paste0(title, " (coloured by ", option_name, ")") else paste("Coloured by", option_name)
 
       list(
         label = option_name,
         method = "update",
         args = list(
           list(visible = visible, showlegend = visible),
-          list(title = option_title, legend = list(title = list(text = option_name)))
+          list(title = colorbyMenuTitle(title, option_name), legend = list(title = list(text = option_name)))
         )
       )
     })
@@ -515,6 +525,93 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
   # runs after this and must agree with the first dropdown option so the
   # page load state matches what re-selecting that option would produce.
   plotly::layout(fig, updatemenus = updatemenus, margin = list(t = 80))
+}
+
+#' Colour points by a single variable, highlighting labelled rows
+#'
+#' Builds the labelled/unselected trace pair used by \code{plotly_scatterplot}
+#' when no \code{colorby_menu} is supplied: unlabelled rows are drawn as a
+#' grey background layer, and rows with a non-NA label are coloured by
+#' \code{colorby} and optionally given permanent text labels.
+#'
+#' @param x X coordinates
+#' @param y Y coordinates
+#' @param z Optional Z coordinates
+#' @param colorby String vector or factor specifying value groups
+#' @param plot_type Plot type: 'scatter' or 'scatter3d'
+#' @param palette Color palette correct for the number of groups in 'colorby'
+#' @param palette_name Valid R color palette name, used when 'palette' is NULL
+#' @param point_size Main point size
+#' @param labels Point labels
+#' @param show_labels Permanently show labels for labelled points (default is just on hoverover)
+#' @param showlegend Boolean: show a legend?
+#'
+#' @return output Plotly plot object
+
+addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", palette = NULL,
+                             palette_name = COLORBLIND_PALETTE_NAME, point_size = 5, labels = NULL,
+                             show_labels = FALSE, showlegend = TRUE) {
+  # We'll only label and color points with non-NA labels
+
+  if (is.null(labels)) {
+    labelled <- rep(FALSE, length(x))
+  } else {
+    labelled <- !is.na(labels)
+  }
+
+  if ((!is.null(colorby)) && !is.factor(colorby)) {
+    colorby <- factor(colorby)
+  }
+
+  if (is.null(palette)) {
+    if (any(labelled) && !is.null(colorby)) {
+      palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
+    } else {
+      palette <- makeColorScale(1)
+    }
+  }
+
+  plotargs <- list(
+    type = plot_type,
+    mode = "markers",
+    colors = palette
+  )
+
+  # Nudge to be used with text labels
+  nudge_y <- (max(y) - min(y)) / 50
+
+  do.call(plot_ly, plotargs) %>%
+    addPoints(
+      x = x[!labelled],
+      y = y[!labelled],
+      z = z[!labelled],
+      name = "unselected rows",
+      label = FALSE,
+      plot_type = plot_type,
+      point_size = point_size,
+      colorby = NULL,
+      showlegend = showlegend
+    ) %>%
+    addPoints(
+      x = x[labelled],
+      y = y[labelled],
+      z = z[labelled],
+      label = TRUE,
+      plot_type = plot_type,
+      point_size = point_size,
+      labels = labels[labelled],
+      colorby = colorby[labelled],
+      showlegend = showlegend
+    ) %>%
+    addTextLabels(
+      x = x[labelled],
+      y = y[labelled] + nudge_y,
+      z = z[labelled],
+      plot_type = plot_type,
+      labels = labels[labelled],
+      colorby = colorby[labelled],
+      show_labels = show_labels
+    )
 }
 
 #' Make scatterplots with \code{plot_ly()}
@@ -541,7 +638,7 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
 #' @param xrange Optional fixed c(min, max) x axis range, e.g. to keep a
 #'   volcano plot symmetric around zero. Only applied when lines/thresholds
 #'   are drawn; otherwise plotly's own autorange is used. Defaults to NULL
-#'   (derive from the data, as before).
+#'   (derive the range from the data).
 #' @param yrange Optional fixed c(min, max) y axis range. Same caveats as
 #'   \code{xrange}.
 #' @param showlegend Boolean: show a legend?
@@ -582,70 +679,22 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
     # The page loads on the first dropdown option, so the initial
     # title/legend below must match what selecting it would produce.
     first_option <- names(colorby_menu)[1]
-    title <- if (nzchar(title)) paste0(title, " (coloured by ", first_option, ")") else paste("Coloured by", first_option)
+    title <- colorbyMenuTitle(title, first_option)
     legend_title <- first_option
   } else {
-    # We'll only label and color points with non-NA labels
-
-    if (is.null(labels)) {
-      labelled <- rep(FALSE, length(x))
-    } else {
-      labelled <- !is.na(labels)
-    }
-
-    if ((!is.null(colorby)) && !is.factor(colorby)) {
-      colorby <- factor(colorby)
-    }
-
-    if (is.null(palette)) {
-      if (any(labelled) && !is.null(colorby)) {
-        palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
-      } else {
-        palette <- makeColorScale(1)
-      }
-    }
-
-    plotargs <- list(
-      type = plot_type,
-      mode = "markers",
-      colors = palette
+    p <- addColoredPoints(
+      x = x,
+      y = y,
+      z = z,
+      colorby = colorby,
+      plot_type = plot_type,
+      palette = palette,
+      palette_name = palette_name,
+      point_size = point_size,
+      labels = labels,
+      show_labels = show_labels,
+      showlegend = showlegend
     )
-
-    # Nudge to be used with text labels
-    nudge_y <- (max(y) - min(y)) / 50
-
-    p <- do.call(plot_ly, plotargs) %>%
-      addPoints(
-        x = x[!labelled],
-        y = y[!labelled],
-        z = z[!labelled],
-        name = "unselected rows",
-        label = FALSE,
-        plot_type = plot_type,
-        point_size = point_size,
-        colorby = NULL,
-        showlegend = showlegend
-      ) %>%
-      addPoints(
-        x = x[labelled],
-        y = y[labelled],
-        z = z[labelled],
-        label = TRUE,
-        plot_type = plot_type,
-        point_size = point_size,
-        labels = labels[labelled],
-        colorby = colorby[labelled],
-        showlegend = showlegend
-      ) %>%
-      addTextLabels(
-        x = x[labelled],
-        y = y[labelled] + nudge_y,
-        z = z[labelled],
-        plot_type = plot_type,
-        labels = labels[labelled],
-        colorby = colorby[labelled],
-        show_labels = show_labels
-      )
   }
 
   p %>%

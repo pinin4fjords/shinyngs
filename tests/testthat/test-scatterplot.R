@@ -100,6 +100,36 @@ test_that("colorby_menu adds a dropdown and shows only the first option's points
   expect_true(all(!(trace_names[!visible] %in% c("A", "B"))))
 })
 
+test_that("each colorby_menu option keeps its own palette instead of bleeding into other options' colours", {
+  # plotly shares one discrete colour domain across every trace on a widget,
+  # so options with independently-sized palettes can blend together unless
+  # each trace's marker colour is set explicitly rather than left to plotly's
+  # automatic discrete colour mapping.
+  x <- c(1, 2, 3, 4, 5, 6, 7, 8)
+  y <- c(8, 7, 6, 5, 4, 3, 2, 1)
+  colorby_menu <- list(
+    Group = rep(c("A", "B"), 4),
+    Batch = rep(c("X", "Y", "Z"), length.out = 8)
+  )
+
+  p <- plotly_scatterplot(x = x, y = y, colorby_menu = colorby_menu)
+  built <- plotly::plotly_build(p)
+
+  color_by_name <- setNames(
+    vapply(built$x$data, function(tr) tr$marker$color[1], character(1)),
+    vapply(built$x$data, function(tr) tr$name, character(1))
+  )
+
+  two_colors <- makeColorScale(2)
+  three_colors <- makeColorScale(3)
+
+  expect_equal(unname(color_by_name["A"]), two_colors[1])
+  expect_equal(unname(color_by_name["B"]), two_colors[2])
+  expect_equal(unname(color_by_name["X"]), three_colors[1])
+  expect_equal(unname(color_by_name["Y"]), three_colors[2])
+  expect_equal(unname(color_by_name["Z"]), three_colors[3])
+})
+
 test_that("colorby_menu is opt-in: omitting it leaves the plot without any updatemenus", {
   p <- plotly_scatterplot(x = c(1, 2, 3), y = c(3, 2, 1), colorby = c("A", "B", "A"))
   built <- plotly::plotly_build(p)

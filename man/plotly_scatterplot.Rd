@@ -69,7 +69,7 @@ start and end of each named line}
 \item{xrange}{Optional fixed c(min, max) x axis range, e.g. to keep a
 volcano plot symmetric around zero. Only applied when lines/thresholds
 are drawn; otherwise plotly's own autorange is used. Defaults to NULL
-(derive from the data, as before).}
+(derive the range from the data).}
 
 \item{yrange}{Optional fixed c(min, max) y axis range. Same caveats as
 \code{xrange}.}
