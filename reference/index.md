@@ -181,6 +181,11 @@ interactive output.
 
   Make scatterplots with `plot_ly()`
 
+- [`plotly_screeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_screeplot.md)
+  :
+
+  Make a PCA scree plot with `plot_ly()`
+
 - [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md)
   :
 
