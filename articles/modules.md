@@ -49,10 +49,14 @@ of which components to display, and a sample variable to colour by.
 
 Components plot for a 3D PCA, coloured by sample group
 
+  
+
 ![Loading plot showing which features contribute most to each
 component](img/pca-loadings.png)
 
 Loading plot showing which features contribute most to each component
+
+  
 
 ![Scree plot: percentage and cumulative percentage of variance explained
 by component](img/pca-scree.png)
@@ -465,6 +469,8 @@ offered for counting.
 
 Sample metadata table
 
+  
+
 ![Category counts for the sample metadata, split by
 group](img/sample-metadata-categorycounts.png)
 
@@ -483,6 +489,8 @@ optionally split by a second field, excluding identifier-like fields.
 ![Row/feature metadata table](img/feature-metadata.png)
 
 Row/feature metadata table
+
+  
 
 ![Category counts for the feature metadata, by annotation
 source](img/feature-metadata-categorycounts.png)
