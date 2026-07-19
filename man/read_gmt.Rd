@@ -19,3 +19,12 @@ description, then tab-separated gene identifiers - the format used by
 MSigDB and similar resources) into a named list of character vectors, one
 per gene set. Blank lines are ignored.
 }
+\examples{
+gmt_file <- tempfile(fileext = ".gmt")
+writeLines(c(
+  "SET1\tdescription\tGeneA\tGeneB\tGeneC",
+  "SET2\tdescription\tGeneD\tGeneE"
+), gmt_file)
+read_gmt(gmt_file)
+
+}

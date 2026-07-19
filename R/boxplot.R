@@ -532,7 +532,16 @@ ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
 #' @export
 #'
 #' @return output A \code{plotly} output
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,
+#'   dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+#' experiment <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 2),
+#'   row.names = colnames(mat)
+#' )
+#' plotly_densityplot(mat, experiment, colorby = "condition")
+#'
 plotly_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   if (is.null(palette)) {

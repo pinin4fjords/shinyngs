@@ -133,6 +133,8 @@ reference:
   - ExploratorySummarizedExperiment-class
   - ExploratorySummarizedExperimentList-class
   - a11yControl
+  - addColorbyMenu
+  - addColoredPoints
   - addPoints
   - addTextLabels
   - adjustLayout
@@ -191,7 +193,6 @@ reference:
   - experimenttableOutput
   - fieldSets
   - finiteAxisRange
-  - fixedEffectsFormula
   - fixedEffectsModelMatrix
   - foldchangeplot
   - foldchangeplotInput
@@ -303,3 +304,27 @@ reference:
   - volcanoplot
   - volcanoplotInput
   - volcanoplotOutput
+
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [search, github]
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - shinyngs
+- title: Building apps
+  navbar: Building apps
+  contents:
+  - articles/data-model
+  - articles/build-from-files
+  - articles/cli
+- title: Using and extending
+  navbar: Using & extending
+  contents:
+  - articles/modules
+  - articles/reuse
+  - articles/theming
+  - articles/developer

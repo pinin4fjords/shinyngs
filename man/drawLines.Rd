@@ -36,10 +36,10 @@ a named list of x values at which to place vlines}
 that makes threshold lines reach the plot edges only applies to 2D plots.}
 
 \item{xrange}{Optional fixed c(min, max) x axis range. When NULL (the
-default) the range is derived from the data with 5% padding, as before.}
+default) the range is derived from the data with 5\% padding.}
 
 \item{yrange}{Optional fixed c(min, max) y axis range. When NULL (the
-default) the range is derived from the data with 5% padding, as before.}
+default) the range is derived from the data with 5\% padding.}
 }
 \value{
 output Plotly object

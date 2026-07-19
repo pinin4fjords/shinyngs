@@ -368,7 +368,14 @@ quantileOfSorted <- function(sorted_x, probs) {
 #' @return output A plotly plot object
 #'
 #' @export
-
+#'
+#' @examples
+#' set.seed(1)
+#' gene_ids <- paste0("gene", 1:100)
+#' fold_changes <- rnorm(100)
+#' set_gene_ids <- sample(gene_ids, 15)
+#' plotly_barcodeplot(fold_changes, gene_ids, set_gene_ids)
+#'
 plotly_barcodeplot <- function(fold_changes, gene_ids, set_gene_ids, labels = gene_ids, plot_title = "", worm_span = 0.45) {
   plot_title <- gsub("\n", "<br>", plot_title, fixed = TRUE)
 

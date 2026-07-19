@@ -70,3 +70,11 @@ These are not used in the shinyngs UI, but are provided here to be fairly
 consistent with the plotly-driven display, and provide a static alternative
 for external users.
 }
+\examples{
+set.seed(1)
+x <- rnorm(10)
+y <- rnorm(10)
+colorby <- factor(rep(c("treated", "control"), each = 5))
+static_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
+
+}

@@ -200,7 +200,24 @@ validateFormulaBasedContrast <- function(contrast_id,
 #'
 #' @return output Validated contrasts data frame
 #' @export
-
+#'
+#' @examples
+#' samples <- data.frame(
+#'   condition = rep(c("control", "treated"), each = 3),
+#'   row.names = paste0("s", 1:6)
+#' )
+#' contrasts_file <- tempfile(fileext = ".csv")
+#' write.csv(
+#'   data.frame(
+#'     id = "treated_vs_control",
+#'     variable = "condition",
+#'     reference = "control",
+#'     target = "treated"
+#'   ),
+#'   contrasts_file, row.names = FALSE
+#' )
+#' read_contrasts(contrasts_file, samples)
+#'
 read_contrasts <-
   function(filename,
            samples,

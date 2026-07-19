@@ -20,3 +20,10 @@ a list with keys 'coords' and 'percentVar' providing PCA coordinates
 Run PCA on a given matrix, expected to be variance stabilised (at least
 log-transformed)
 }
+\examples{
+mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
+  dimnames = list(paste0("gene", 1:15), paste0("s", 1:4)))
+pca <- compilePCAData(mat)
+head(pca$coords)
+
+}

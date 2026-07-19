@@ -402,7 +402,16 @@ bootstrapMedian <- function(data, num) {
 #'
 #' @return mad_score A data frame with columns for group name, MAD score and outlier status. A
 #'   threshold of < -5 usually indicates outliers
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(60), nrow = 6, ncol = 10,
+#'   dimnames = list(paste0("gene", 1:6), paste0("s", 1:10)))
+#' sample_sheet <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 5),
+#'   row.names = colnames(mat)
+#' )
+#' madScore(mat, sample_sheet, groupby = "condition")
+#'
 madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_threshold = -5) {
   # Double-check the matrix/ sample sheet synch
   matrix <- matrix[, rownames(sample_sheet), drop = FALSE]
@@ -462,7 +471,7 @@ madScore <- function(matrix, sample_sheet = NULL, groupby = NULL, outlier_thresh
 #'   'error_bars' (a mean/median line with error bars)
 #' @param average_type 'mean' or 'median'
 #' @param limits Which spread to show around the average: 'sd' (standard
-#'   deviation), 'se' (standard error) or 'ci' (95% confidence interval).
+#'   deviation), 'se' (standard error) or 'ci' (95\% confidence interval).
 #'   Ignored when \code{cluster_display = "sample_lines"}
 #' @param colors A vector of colors, indexed by cluster number (i.e.
 #'   \code{colors[[2]]} colors the cluster named "2" in

@@ -323,9 +323,9 @@ addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_la
 #' @param plot_type Plot type: 'scatter' or 'scatter3d'. The axis range fix
 #'   that makes threshold lines reach the plot edges only applies to 2D plots.
 #' @param xrange Optional fixed c(min, max) x axis range. When NULL (the
-#'   default) the range is derived from the data with 5% padding, as before.
+#'   default) the range is derived from the data with 5\% padding.
 #' @param yrange Optional fixed c(min, max) y axis range. When NULL (the
-#'   default) the range is derived from the data with 5% padding, as before.
+#'   default) the range is derived from the data with 5\% padding.
 #'
 #' @return output Plotly object
 
@@ -657,7 +657,14 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
 #'
 #' @return output Plotly plot object
 #' @export
-
+#'
+#' @examples
+#' set.seed(1)
+#' x <- rnorm(10)
+#' y <- rnorm(10)
+#' colorby <- factor(rep(c("treated", "control"), each = 5))
+#' plotly_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
+#'
 plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = "",
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 5, labels = NULL,
                                show_labels = FALSE, lines = NULL, hline_thresholds = NULL, vline_thresholds = NULL,
@@ -747,7 +754,14 @@ plotly_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 #' @export
 #'
 #' @return output Ouput object from ggplot or scatterplot3d.
-
+#'
+#' @examples
+#' set.seed(1)
+#' x <- rnorm(10)
+#' y <- rnorm(10)
+#' colorby <- factor(rep(c("treated", "control"), each = 5))
+#' static_scatterplot(x, y, colorby = colorby, xlab = "PC1", ylab = "PC2")
+#'
 static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatter", title = "", legend_title = NULL,
                                xlab = "x", ylab = "y", zlab = "z", palette = NULL, point_size = 1, labels = colorby,
                                show_labels = FALSE, hline_thresholds = NULL, vline_thresholds = NULL, showlegend = TRUE,

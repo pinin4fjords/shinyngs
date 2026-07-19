@@ -52,3 +52,21 @@ Checks:
 7. Verify that the specified reference and target values exist in the corresponding sample metadata column.
 8. Issue a warning if the reference and target levels are identical.
 }
+\examples{
+samples <- data.frame(
+  condition = rep(c("control", "treated"), each = 3),
+  row.names = paste0("s", 1:6)
+)
+contrasts_file <- tempfile(fileext = ".csv")
+write.csv(
+  data.frame(
+    id = "treated_vs_control",
+    variable = "condition",
+    reference = "control",
+    target = "treated"
+  ),
+  contrasts_file, row.names = FALSE
+)
+read_contrasts(contrasts_file, samples)
+
+}

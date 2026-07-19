@@ -21,3 +21,15 @@ output Data frame
 \description{
 Read a metadata file
 }
+\examples{
+metadata_file <- tempfile(fileext = ".csv")
+write.csv(
+  data.frame(
+    sample = paste0("s", 1:4),
+    condition = rep(c("treated", "control"), each = 2)
+  ),
+  metadata_file, row.names = FALSE
+)
+read_metadata(metadata_file, id_col = "sample")
+
+}

@@ -451,7 +451,16 @@ heatmap <- function(id, eselist, type = "expression") {
 #'
 #' @importFrom viridisLite viridis
 #' @export
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(24), nrow = 6, ncol = 4,
+#'   dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+#' sample_annotation <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 2),
+#'   row.names = colnames(mat)
+#' )
+#' interactiveHeatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
+#'
 interactiveHeatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = 600, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
@@ -648,7 +657,18 @@ splitAnnotationLegend <- function(p, col_side_colors, palette, ncol_heatmap) {
 #'
 #' @return output A numeric matrix of p values
 #' @export
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(90), nrow = 15, ncol = 6,
+#'   dimnames = list(paste0("gene", 1:15), paste0("s", 1:6)))
+#' pca <- compilePCAData(mat)
+#' pcameta <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 3),
+#'   batch = rep(c("A", "B", "C"), 2),
+#'   row.names = colnames(mat)
+#' )
+#' anova_pca_metadata(pca$coords, pcameta, pca$percentVar)
+#'
 anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained) {
   # Use 10 components or however many fewer is produced by the PCA
 

@@ -65,3 +65,13 @@ This is a generic function which may be useful outside of this package. It
 produces a heatmap based on an expression matrix and accompanying
 experiment data in the form of a frame, using \code{heatmaply::heatmaply()}.
 }
+\examples{
+mat <- matrix(rnorm(24), nrow = 6, ncol = 4,
+  dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+sample_annotation <- data.frame(
+  condition = rep(c("treated", "control"), each = 2),
+  row.names = colnames(mat)
+)
+interactiveHeatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
+
+}

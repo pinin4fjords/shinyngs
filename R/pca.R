@@ -357,7 +357,13 @@ runPCA <- function(matrix, do_log = TRUE) {
 #'
 #' @return a list with keys 'coords' and 'percentVar' providing PCA coordinates
 #'   and fractional variance contributions, respectively.
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
+#'   dimnames = list(paste0("gene", 1:15), paste0("s", 1:4)))
+#' pca <- compilePCAData(mat)
+#' head(pca$coords)
+#'
 compilePCAData <- function(matrix, ntop = NULL) {
   if (is.null(ntop)) {
     select <- seq_len(nrow(matrix))

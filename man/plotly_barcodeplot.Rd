@@ -42,3 +42,11 @@ interactive \code{plotly} plot: rug ticks mark where gene set members fall
 in the statistic ranking, and a curve on a secondary axis shows local
 enrichment relative to the overall rate.
 }
+\examples{
+set.seed(1)
+gene_ids <- paste0("gene", 1:100)
+fold_changes <- rnorm(100)
+set_gene_ids <- sample(gene_ids, 15)
+plotly_barcodeplot(fold_changes, gene_ids, set_gene_ids)
+
+}
