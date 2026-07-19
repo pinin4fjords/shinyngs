@@ -372,12 +372,9 @@ ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
     p <- p + geom_text(data = ann_df, aes(x = -Inf, y = Inf, label = label), hjust = -0.1, vjust = 1.5, size = 3, inherit.aes = FALSE)
   }
 
-  p + theme_bw(base_size = base_size) + theme(
-    axis.title.x = element_blank(), legend.position = "bottom", strip.text = element_text(size = 10)
-  ) + ylab(splitStringToFixedwidthLines(paste0(
-    "log2(",
-    prettifyVariablename(expressiontype), ")"
-  ), 15))
+  p + boxplotTheme(base_size) + theme(
+    strip.text = element_text(size = 10)
+  ) + ylab(expressionAxisLabel(expressiontype))
 }
 
 #' Make an interactive faceted boxplot of the top differential genes in a
@@ -418,7 +415,7 @@ plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, l
 
   annotations <- topgeneAnnotationVector(annotations, genes)
   facet_titles <- topgeneFacetLabels(labels, genes)
-  yaxis_title <- splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), 15)
+  yaxis_title <- expressionAxisLabel(expressiontype)
 
   facet_plots <- lapply(seq_along(genes), function(i) {
     gene <- genes[i]

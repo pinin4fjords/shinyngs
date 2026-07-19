@@ -460,7 +460,7 @@ addColorbyMenu <- function(x, y, z = NULL, colorby_menu, labels = NULL, plot_typ
       option_colorby <- factor(option_colorby, levels = unique(option_colorby))
     }
     option_levels <- levels(option_colorby)
-    option_palette <- makeColorScale(length(option_levels), palette = palette_name)
+    option_palette <- resolvePalette(NULL, option_levels, palette_name)
     level_indices <- split(seq_along(option_colorby), option_colorby)
     start_idx <- trace_counter + 1L
 
@@ -565,7 +565,7 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
 
   if (is.null(palette)) {
     if (any(labelled) && !is.null(colorby)) {
-      palette <- makeColorScale(length(unique(colorby[labelled])), palette = palette_name)
+      palette <- resolvePalette(NULL, unique(as.character(colorby[labelled])), palette_name)
     } else {
       palette <- makeColorScale(1)
     }
@@ -774,7 +774,7 @@ static_scatterplot <- function(x, y, z = NULL, colorby = NULL, plot_type = "scat
 
   if (is.null(palette)) {
     if (!is.null(colorby)) {
-      palette <- makeColorScale(length(unique(colorby)), palette = palette_name)
+      palette <- resolvePalette(NULL, unique(as.character(colorby)), palette_name)
     } else {
       palette <- makeColorScale(1)
     }
