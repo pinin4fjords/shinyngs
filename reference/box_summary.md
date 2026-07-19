@@ -3,7 +3,7 @@
 Computes the quartiles, Tukey-style whisker extents (the most extreme
 observations still within `whisker_distance` IQRs of the box), and the
 outliers lying beyond them. This is the server-side reduction that lets
-[`plotly_boxplot`](https://pinin4fjords.github.io/shinyngs/reference/plotly_boxplot.md)
+[`interactive_boxplot`](https://pinin4fjords.github.io/shinyngs/reference/interactive_boxplot.md)
 draw genuine box glyphs while sending only a handful of numbers per box
 to the browser rather than every observation.
 

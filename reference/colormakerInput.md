@@ -2,7 +2,7 @@
 
 Provides a drop-down for picking the plot colour palette. The default is
 shinyngs' fixed colour-blind-safe palette (see
-[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md));
+[`make_color_scale`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md));
 the remaining choices are RColorBrewer qualitative palettes for users
 who prefer them.
 

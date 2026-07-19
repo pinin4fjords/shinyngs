@@ -40,7 +40,7 @@ output A numeric matrix of p values
 ``` r
 mat <- matrix(rnorm(90), nrow = 15, ncol = 6,
   dimnames = list(paste0("gene", 1:15), paste0("s", 1:6)))
-pca <- compilePCAData(mat)
+pca <- compile_pca_data(mat)
 pcameta <- data.frame(
   condition = rep(c("treated", "control"), each = 3),
   batch = rep(c("A", "B", "C"), 2),
@@ -48,6 +48,6 @@ pcameta <- data.frame(
 )
 anova_pca_metadata(pca$coords, pcameta, pca$percentVar)
 #>                  PC1       PC2       PC3       PC4       PC5        PC6
-#> condition 0.01028394 0.8802899 0.5144010 0.7611769 0.8139402 0.76550995
-#> batch     0.81659176 0.4715556 0.2040988 0.7279466 0.2201930 0.02935605
+#> condition 0.01028394 0.8802899 0.5144010 0.7611769 0.8139402 0.07605518
+#> batch     0.81659176 0.4715556 0.2040988 0.7279466 0.2201930 0.56645489
 ```

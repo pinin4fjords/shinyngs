@@ -13,10 +13,10 @@ bespoke R.
 
 There are two file-driven routes:
 
-- **[`eselistFromYAML()`](https://pinin4fjords.github.io/shinyngs/reference/eselistFromYAML.md)** -
+- **[`eselist_from_yaml()`](https://pinin4fjords.github.io/shinyngs/reference/eselist_from_yaml.md)** -
   an R function that reads a YAML manifest pointing at your files and
   returns an ESEList you can pass to
-  [`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md).
+  [`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md).
 - **`exec/make_app_from_files.R`** - a command-line script that takes
   the same kinds of files as flags and writes a ready-to-run app bundle
   (`app.R` + `data.rds`), optionally deploying it to shinyapps.io.
@@ -27,16 +27,16 @@ templates to adapt.
 
 ## The YAML route
 
-`eselistFromYAML("my.yaml")` reads a manifest that describes the study
+`eselist_from_yaml("my.yaml")` reads a manifest that describes the study
 and points at the data files. It builds exactly the same object you
 would build by hand, so it slots straight into
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md):
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md):
 
 ``` r
 
 library(shinyngs)
-eselist <- eselistFromYAML("my.yaml")
-app <- prepareApp("rnaseq", eselist)
+eselist <- eselist_from_yaml("my.yaml")
+app <- prepare_app("rnaseq", eselist)
 shiny::shinyApp(app$ui, app$server)
 ```
 

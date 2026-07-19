@@ -34,7 +34,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 #> Creating ExploratorySummarizedExperimentList object
 
 if (interactive()) {
-  app <- prepareApp("pca", eselist)
+  app <- prepare_app("pca", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

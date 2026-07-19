@@ -31,7 +31,7 @@ The quickest path is to wrap an existing `SummarizedExperiment` as an
 `ExploratorySummarizedExperiment`, collect it into an
 `ExploratorySummarizedExperimentList` (which represents a whole study),
 and hand it to
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md).
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md).
 
 ``` r
 
@@ -45,14 +45,14 @@ eselist <- ExploratorySummarizedExperimentList(
   group_vars = c("cell", "dex")
 )
 
-app <- prepareApp("rnaseq", eselist)
+app <- prepare_app("rnaseq", eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md)
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md)
 produces the `ui` and `server` to pass to Shiny. Single-panel apps are
-built the same way, e.g. `prepareApp("heatmap", eselist)` or
-`prepareApp("pca", eselist)`.
+built the same way, e.g. `prepare_app("heatmap", eselist)` or
+`prepare_app("pca", eselist)`.
 
 The `zhangneurons` dataset gives a fuller, pre-configured example that
 also carries differential results and gene sets:
@@ -62,7 +62,7 @@ also carries differential results and gene sets:
 devtools::install_github("pinin4fjords/zhangneurons")
 data("zhangneurons")
 
-app <- prepareApp("rnaseq", zhangneurons)
+app <- prepare_app("rnaseq", zhangneurons)
 shiny::shinyApp(app$ui, app$server)
 ```
 

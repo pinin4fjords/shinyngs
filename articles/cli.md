@@ -303,7 +303,7 @@ Rscript exec/differential_plots.R \
 Validates feature/observation/matrix (FOM) component files for mutual
 consistency by running them through the same parsing functions
 `shinyngs` uses internally (as in
-[`eselistfromConfig()`](https://pinin4fjords.github.io/shinyngs/reference/eselistfromConfig.md)).
+[`eselist_from_config()`](https://pinin4fjords.github.io/shinyngs/reference/eselist_from_config.md)).
 It checks that sample metadata, feature metadata, expression matrices,
 contrasts and differential results line up. If `--output_directory` is
 supplied, the validated components are re-written there with a

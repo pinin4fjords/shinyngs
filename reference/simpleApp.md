@@ -1,6 +1,6 @@
 # Produce a simple app with controls and layout for a single module, in a shiny `sideBarLayout()`.
 
-Internal function called by prepareApp() to make simple single-function
+Internal function called by prepare_app() to make simple single-function
 apps.
 
 ## Usage

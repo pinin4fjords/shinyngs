@@ -115,7 +115,7 @@ plotting components can also be used on their own, outside any app.</p>
 <code>SummarizedExperiment</code> as an
 <code>ExploratorySummarizedExperiment</code>, collect it into an
 <code>ExploratorySummarizedExperimentList</code> (which represents a
-whole study), and hand it to <code><a href="../reference/prepareApp.html">prepareApp()</a></code>.</p>
+whole study), and hand it to <code><a href="../reference/prepare_app.html">prepare_app()</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pinin4fjords.github.io/shinyngs/">shinyngs</a></span><span class="op">)</span></span>
 <span></span>
@@ -127,19 +127,19 @@ whole study), and hand it to <code><a href="../reference/prepareApp.html">prepar
 <span>  group_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span>, <span class="st">"dex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">"rnaseq"</span>, <span class="va">eselist</span><span class="op">)</span></span>
+<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_app.html">prepare_app</a></span><span class="op">(</span><span class="st">"rnaseq"</span>, <span class="va">eselist</span><span class="op">)</span></span>
 <span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span>ui <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">ui</span>, server <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">server</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/prepareApp.html">prepareApp()</a></code> produces the <code>ui</code> and
+<p><code><a href="../reference/prepare_app.html">prepare_app()</a></code> produces the <code>ui</code> and
 <code>server</code> to pass to Shiny. Single-panel apps are built the
-same way, e.g. <code>prepareApp("heatmap", eselist)</code> or
-<code>prepareApp("pca", eselist)</code>.</p>
+same way, e.g. <code>prepare_app("heatmap", eselist)</code> or
+<code>prepare_app("pca", eselist)</code>.</p>
 <p>The <code>zhangneurons</code> dataset gives a fuller, pre-configured
 example that also carries differential results and gene sets:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"pinin4fjords/zhangneurons"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"zhangneurons"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">"rnaseq"</span>, <span class="va">zhangneurons</span><span class="op">)</span></span>
+<span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_app.html">prepare_app</a></span><span class="op">(</span><span class="st">"rnaseq"</span>, <span class="va">zhangneurons</span><span class="op">)</span></span>
 <span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">$</span><span class="va">ui</span>, <span class="va">app</span><span class="op">$</span><span class="va">server</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">

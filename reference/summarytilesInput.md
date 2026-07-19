@@ -5,7 +5,7 @@ overview of the study: sample count, feature counts, assay data types,
 contrasts and sample groupings. Clicking a tile opens a detail drawer
 with a breakdown of that quantity. It is intended for the landing page
 of an application, but can also be run standalone via
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md).
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md).
 
 ## Usage
 
@@ -45,7 +45,7 @@ if (interactive()) {
 
   # Almost certainly used via application creation
 
-  app <- prepareApp("summarytiles", zhangneurons)
+  app <- prepare_app("summarytiles", zhangneurons)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

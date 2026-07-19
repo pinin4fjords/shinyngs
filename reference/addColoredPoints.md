@@ -1,9 +1,9 @@
 # Colour points by a single variable, highlighting labelled rows
 
-Builds the labelled/unselected trace pair used by `plotly_scatterplot`
-when no `colorby_menu` is supplied: unlabelled rows are drawn as a grey
-background layer, and rows with a non-NA label are coloured by `colorby`
-and optionally given permanent text labels.
+Builds the labelled/unselected trace pair used by
+`interactive_scatterplot` when no `colorby_menu` is supplied: unlabelled
+rows are drawn as a grey background layer, and rows with a non-NA label
+are coloured by `colorby` and optionally given permanent text labels.
 
 ## Usage
 

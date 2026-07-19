@@ -2,6 +2,138 @@
 
 ## shinyngs (development version)
 
+### Breaking changes
+
+- Every exported function is now `snake_case`, and plotting functions
+  are named for what they produce rather than the library that renders
+  them. This removes two problems with the previous names: `plotly_*`
+  collided in spirit with `plotly`’s own exports (`plotly_build()`,
+  `plotly_json()`, etc.), and `colMedians()`/`colGeomMeans()` masked
+  [`matrixStats::colMedians()`](https://rdrr.io/pkg/matrixStats/man/rowMedians.html)
+  with different output (added row names). See `CONTRIBUTING.md` for the
+  naming convention going forward. No deprecated aliases are kept for
+  the old names — the next release of this package should be a major
+  version bump. Renamed functions:
+  - Plotting: `plotly_scatterplot()` →
+    [`interactive_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_scatterplot.md),
+    `plotly_barchart()` →
+    [`interactive_barchart()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_barchart.md),
+    `plotly_boxplot()` →
+    [`interactive_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_boxplot.md),
+    `plotly_barcodeplot()` →
+    [`interactive_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_barcodeplot.md),
+    `plotly_cluster_profiles()` →
+    [`interactive_cluster_profiles()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_cluster_profiles.md),
+    `plotly_clusteringDendrogram()` →
+    [`interactive_clustering_dendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_clustering_dendrogram.md),
+    `plotly_count_barplot()` →
+    [`interactive_count_barplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_count_barplot.md),
+    `plotly_densityplot()` →
+    [`interactive_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_densityplot.md),
+    `plotly_illumina_control_probes()` →
+    [`interactive_illumina_control_probes()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_illumina_control_probes.md),
+    `plotly_pca_metadata_heatmap()` →
+    [`interactive_pca_metadata_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_pca_metadata_heatmap.md),
+    `plotly_pca_variance_heatmap()` →
+    [`interactive_pca_variance_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_pca_variance_heatmap.md),
+    `plotly_quartiles()` →
+    [`interactive_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_quartiles.md),
+    `plotly_screeplot()` →
+    [`interactive_screeplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_screeplot.md),
+    `plotly_topgene_boxplots()` →
+    [`interactive_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md),
+    `plotly_upset()` →
+    [`interactive_upset()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_upset.md),
+    `interactiveHeatmap()` →
+    [`interactive_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_heatmap.md),
+    `ggplot_boxplot()` →
+    [`static_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_boxplot.md),
+    `ggplot_densityplot()` →
+    [`static_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_densityplot.md),
+    `ggplot_topgene_boxplots()` →
+    [`static_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md),
+    `clusteringDendrogram()` →
+    [`clustering_dendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/clustering_dendrogram.md),
+    `calculateDendrogram()` →
+    [`calculate_dendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/calculate_dendrogram.md).
+    [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md)
+    is unchanged.
+  - Matrix/stats utilities: `colMedians()` →
+    [`col_medians()`](https://pinin4fjords.github.io/shinyngs/reference/col_medians.md),
+    `colGeomMeans()` →
+    [`col_geom_means()`](https://pinin4fjords.github.io/shinyngs/reference/col_geom_means.md),
+    `madScore()` →
+    [`mad_score()`](https://pinin4fjords.github.io/shinyngs/reference/mad_score.md),
+    `bootstrapMedian()` →
+    [`bootstrap_median()`](https://pinin4fjords.github.io/shinyngs/reference/bootstrap_median.md),
+    `summarizeMatrix()` →
+    [`summarize_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/summarize_matrix.md),
+    `summarySE()` →
+    [`summary_se()`](https://pinin4fjords.github.io/shinyngs/reference/summary_se.md),
+    `singleValidMatrix()` →
+    [`single_valid_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/single_valid_matrix.md),
+    `interleaveColumns()` →
+    [`interleave_columns()`](https://pinin4fjords.github.io/shinyngs/reference/interleave_columns.md),
+    `simpleSplit()` →
+    [`simple_split()`](https://pinin4fjords.github.io/shinyngs/reference/simple_split.md),
+    `calculateDist()` →
+    [`calculate_dist()`](https://pinin4fjords.github.io/shinyngs/reference/calculate_dist.md),
+    `foldChange()` →
+    [`fold_change()`](https://pinin4fjords.github.io/shinyngs/reference/fold_change.md),
+    `runClustering()` →
+    [`run_clustering()`](https://pinin4fjords.github.io/shinyngs/reference/run_clustering.md),
+    `selectVariableGenes()` →
+    [`select_variable_genes()`](https://pinin4fjords.github.io/shinyngs/reference/select_variable_genes.md),
+    `compilePCAData()` →
+    [`compile_pca_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_pca_data.md).
+  - String/general utilities: `ucfirst()` →
+    [`capitalize_first()`](https://pinin4fjords.github.io/shinyngs/reference/capitalize_first.md),
+    `na.replace()` →
+    [`na_replace()`](https://pinin4fjords.github.io/shinyngs/reference/na_replace.md),
+    `nlines()` →
+    [`count_lines()`](https://pinin4fjords.github.io/shinyngs/reference/count_lines.md),
+    `getExtension()` →
+    [`file_extension()`](https://pinin4fjords.github.io/shinyngs/reference/file_extension.md),
+    `getSeparator()` →
+    [`guess_separator()`](https://pinin4fjords.github.io/shinyngs/reference/guess_separator.md),
+    `splitStringToFixedwidthLines()` →
+    [`split_string_to_fixed_width_lines()`](https://pinin4fjords.github.io/shinyngs/reference/split_string_to_fixed_width_lines.md),
+    `stringsToNamedVector()` →
+    [`strings_to_named_vector()`](https://pinin4fjords.github.io/shinyngs/reference/strings_to_named_vector.md),
+    `checkListIsSubset()` →
+    [`check_list_is_subset()`](https://pinin4fjords.github.io/shinyngs/reference/check_list_is_subset.md),
+    `pushToList()` →
+    [`push_to_list()`](https://pinin4fjords.github.io/shinyngs/reference/push_to_list.md),
+    `prettifyGeneSetName()` →
+    [`prettify_gene_set_name()`](https://pinin4fjords.github.io/shinyngs/reference/prettify_gene_set_name.md),
+    `prettifyVariablename()` →
+    [`prettify_variable_name()`](https://pinin4fjords.github.io/shinyngs/reference/prettify_variable_name.md),
+    `idToLabel()` →
+    [`id_to_label()`](https://pinin4fjords.github.io/shinyngs/reference/id_to_label.md),
+    `convertIds()` →
+    [`convert_ids()`](https://pinin4fjords.github.io/shinyngs/reference/convert_ids.md),
+    `chooseGroupingVariables()` →
+    [`choose_grouping_variables()`](https://pinin4fjords.github.io/shinyngs/reference/choose_grouping_variables.md),
+    `makeColorScale()` →
+    [`make_color_scale()`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md),
+    `validateOrCatch()` →
+    [`validate_or_catch()`](https://pinin4fjords.github.io/shinyngs/reference/validate_or_catch.md).
+  - Shiny UI helpers and builders: `hiddenInput()` →
+    [`hidden_input()`](https://pinin4fjords.github.io/shinyngs/reference/hidden_input.md),
+    `inlineField()` →
+    [`inline_field()`](https://pinin4fjords.github.io/shinyngs/reference/inline_field.md),
+    `withHelpIcon()` →
+    [`with_help_icon()`](https://pinin4fjords.github.io/shinyngs/reference/with_help_icon.md),
+    `prepareApp()` →
+    [`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md),
+    `eselistFromYAML()` →
+    [`eselist_from_yaml()`](https://pinin4fjords.github.io/shinyngs/reference/eselist_from_yaml.md),
+    `eselistfromConfig()` →
+    [`eselist_from_config()`](https://pinin4fjords.github.io/shinyngs/reference/eselist_from_config.md).
+  - S4 class constructors (`ExploratorySummarizedExperiment`,
+    `ExploratorySummarizedExperimentList`) are unchanged — PascalCase
+    stays the convention for these, matching Bioconductor practice.
+
 ### Documentation
 
 - The pkgdown site gains screenshots and diagrams: a home-page gallery,
@@ -17,11 +149,11 @@
   shareable views, and a developer guide. The pkgdown site gains an
   articles menu and a changelog.
 - Added runnable examples to the standalone plotting API
-  ([`plotly_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.md),
+  ([`interactive_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_scatterplot.md),
   [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md),
-  [`interactiveHeatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactiveHeatmap.md),
-  [`plotly_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.md),
-  [`plotly_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barcodeplot.md)),
+  [`interactive_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_heatmap.md),
+  [`interactive_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_densityplot.md),
+  [`interactive_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_barcodeplot.md)),
   the object constructors
   ([`ExploratorySummarizedExperiment()`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperiment.md),
   [`ExploratorySummarizedExperimentList()`](https://pinin4fjords.github.io/shinyngs/reference/ExploratorySummarizedExperimentList.md)),
@@ -31,23 +163,23 @@
 
 ### New features
 
-- [`plotly_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.md)
+- [`interactive_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_scatterplot.md)
   gains an opt-in `colorby_menu` dropdown for switching the colouring
   variable within a single self-contained widget, plus `xrange`/`yrange`
   arguments for pinning axis ranges (e.g. a symmetric volcano axis).
 - New standalone, report-callable plotting functions extracted from
   their Shiny modules:
-  [`plotly_pca_metadata_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_pca_metadata_heatmap.md),
-  [`plotly_upset()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_upset.md),
-  [`plotly_cluster_profiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_cluster_profiles.md),
-  [`plotly_barchart()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barchart.md),
-  [`plotly_illumina_control_probes()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_illumina_control_probes.md),
-  [`plotly_count_barplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_count_barplot.md),
-  [`plotly_screeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_screeplot.md)
+  [`interactive_pca_metadata_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_pca_metadata_heatmap.md),
+  [`interactive_upset()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_upset.md),
+  [`interactive_cluster_profiles()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_cluster_profiles.md),
+  [`interactive_barchart()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_barchart.md),
+  [`interactive_illumina_control_probes()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_illumina_control_probes.md),
+  [`interactive_count_barplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_count_barplot.md),
+  [`interactive_screeplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_screeplot.md)
   and
-  [`plotly_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_topgene_boxplots.md)
+  [`interactive_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md)
   /
-  [`ggplot_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md).
+  [`static_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md).
 - A scree plot is available on the PCA panel.
 - A generic category-counts plot for feature and sample metadata.
 
@@ -67,7 +199,7 @@
 
 - Removed the unused exported function `geom_mean()`; geometric means
   are computed directly by
-  [`colGeomMeans()`](https://pinin4fjords.github.io/shinyngs/reference/colGeomMeans.md).
+  [`col_geom_means()`](https://pinin4fjords.github.io/shinyngs/reference/col_geom_means.md).
 - Declared `grDevices` under `Imports` (it was already used).
 - Normalised a handful of module house-style outliers: the shared
   differential-scatter helper trio is now

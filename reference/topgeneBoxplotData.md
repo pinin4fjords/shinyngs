@@ -1,7 +1,7 @@
-# Reshape an assay matrix into long form for [`ggplot_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md)
+# Reshape an assay matrix into long form for [`static_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md)
 
 Reshape an assay matrix into long form for
-[`ggplot_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md)
+[`static_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md)
 
 ## Usage
 

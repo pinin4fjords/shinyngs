@@ -7,7 +7,7 @@ is to package the results of your pipeline into the two data structures
 the app understands. This article walks through those structures from
 the ground up, building a small but complete object you could hand
 straight to
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md).
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md).
 
 If you would rather describe your data in files and let `shinyngs`
 assemble the object for you, see [Building an app from files and
@@ -17,11 +17,11 @@ There are two routes in, both converging on the same pair of container
 classes:
 
 ![Both the CLI and direct R construction converge on an
-ExploratorySummarizedExperiment(List), which prepareApp() turns into a
+ExploratorySummarizedExperiment(List), which prepare_app() turns into a
 Shiny app](img/dataflow.svg)
 
 Both the CLI and direct R construction converge on an
-ExploratorySummarizedExperiment(List), which prepareApp() turns into a
+ExploratorySummarizedExperiment(List), which prepare_app() turns into a
 Shiny app
 
 ## The two containers
@@ -216,7 +216,7 @@ interactively:
 
 ``` r
 
-app <- prepareApp("rnaseq", myesel)
+app <- prepare_app("rnaseq", myesel)
 shiny::shinyApp(app$ui, app$server)
 ```
 

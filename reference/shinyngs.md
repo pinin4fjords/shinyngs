@@ -102,7 +102,7 @@ intended for use outside `shinyngs`. This may change.
 
 Usage of modules defined in `shinyngs` is envisaged to be predominantly
 via
-[`prepareApp`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md).
+[`prepare_app`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md).
 For most modules, this passes its arguments to
 [`simpleApp`](https://pinin4fjords.github.io/shinyngs/reference/simpleApp.md),
 which very simply takes its `ExploratorySummarizedExperimentList` and a
@@ -114,13 +114,13 @@ using the `airway` example data:
       data(airway, package = 'airway')
       ese <- as(airway, 'ExploratorySummarizedExperiment')
       eselist <- ExploratorySummarizedExperimentList(ese)
-      app <- prepareApp('heatmap',eselist)
+      app <- prepare_app('heatmap',eselist)
 
 Other apps, for example
 [`rnaseq`](https://pinin4fjords.github.io/shinyngs/reference/rnaseq.md)
 require more complex layouts and don't use `simpleApp`.
 
-`prepareApp` returns list with UI and server applications components.
+`prepare_app` returns list with UI and server applications components.
 Shiny's [`shinyApp`](https://rdrr.io/pkg/shiny/man/shinyApp.html) must
 then be called to actually run the app:
 `shiny::shinyApp(ui = app$ui, server = app$server)`.
@@ -133,7 +133,7 @@ a script called 'app.R' with content like this:
 
 
       library(shinyngs)
-      mydata <- readRDS('data.rds') app <- prepareApp('rnaseq', mydata)
+      mydata <- readRDS('data.rds') app <- prepare_app('rnaseq', mydata)
       shiny::shinyApp(app$ui, app$server)
 
 ## Module list
@@ -155,7 +155,7 @@ is the full set at the time of writing:
 ### Stand-alone
 
 These modules can also be called directly with
-[`prepareApp`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md):
+[`prepare_app`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md):
 
 - assaydatatable:
 

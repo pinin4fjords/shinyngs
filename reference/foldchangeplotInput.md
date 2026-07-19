@@ -43,7 +43,7 @@ foldchangeplotInput("myid", eselist)
 # Almost certainly used via application creation
 
 if (interactive()) {
-  app <- prepareApp("foldchangeplot", eselist)
+  app <- prepare_app("foldchangeplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

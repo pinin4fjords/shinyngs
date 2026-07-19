@@ -157,13 +157,13 @@ that function.
 
 For the `boxplot` module (`R/boxplot.R`):
 
-- [`ggplot_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_boxplot.md)
+- [`static_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_boxplot.md)
   draws a static ggplot2 boxplot.
-- [`plotly_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_boxplot.md)
+- [`interactive_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_boxplot.md)
   draws the interactive plotly version.
-- [`plotly_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.md)
+- [`interactive_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_quartiles.md)
   /
-  [`plotly_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.md)
+  [`interactive_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_densityplot.md)
   are the alternative renderings.
 
 The server just wires reactives into them:
@@ -171,7 +171,7 @@ The server just wires reactives into them:
 ``` r
 
 output$sampleBoxplot <- renderPlotly({
-  plotly_boxplot(
+  interactive_boxplot(
     selectmatrix_reactives$selectMatrix(),
     selectmatrix_reactives$selectColData(),
     groupby_reactives$getGroupby(),
@@ -189,8 +189,8 @@ codebase has been to *extract* render logic out of module servers into
 exported standalone functions. The payoff: the plotting functions are
 documented, testable and usable from a plain R script (no running app),
 and the module stays a thin adapter. When you add or change a plot, put
-the drawing logic in an exported `ggplot_*` / `plotly_*` function and
-have the module call it.
+the drawing logic in an exported `interactive_*` / `static_*` function
+and have the module call it.
 
 > Gotcha: when extracting render logic into a standalone function,
 > preserve the `bindCache()` scope. Several modules wrap their
@@ -234,7 +234,7 @@ myplot <- function(id, eselist) {
     groupby_reactives <- groupby("myplot", eselist = eselist, selectColData = selectmatrix_reactives$selectColData)
 
     output$myPlot <- renderPlotly({
-      plotly_myplot(
+      interactive_myplot(
         selectmatrix_reactives$selectMatrix(),
         selectmatrix_reactives$selectColData(),
         groupby_reactives$getGroupby(),
@@ -246,10 +246,10 @@ myplot <- function(id, eselist) {
 ```
 
 **2. Write the standalone plot function.** Put the drawing logic in an
-exported `plotly_myplot()` (and/or `ggplot_myplot()`) that takes plain
-arguments. Give it a `palette_name = COLORBLIND_PALETTE_NAME` default so
-it produces consistent, colour-blind-safe output when called outside an
-app.
+exported `interactive_myplot()` (and/or `static_myplot()`) that takes
+plain arguments. Give it a `palette_name = COLORBLIND_PALETTE_NAME`
+default so it produces consistent, colour-blind-safe output when called
+outside an app.
 
 **3. Add roxygen and export the right things.** Document all four
 functions with roxygen blocks. Export the standalone plotting
@@ -260,7 +260,7 @@ convention of `@keywords shiny` and is generally kept internal
 to regenerate `NAMESPACE` and `man/`.
 
 **4. Wire it into an app.** Because
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md)
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md)
 and
 [`simpleApp()`](https://pinin4fjords.github.io/shinyngs/reference/simpleApp.md)
 locate a module by name (`get(paste0(module, "Input"))`, `get(module)`,
@@ -268,7 +268,7 @@ etc.), a correctly-named trio is runnable standalone straight away:
 
 ``` r
 
-app <- prepareApp("myplot", eselist)
+app <- prepare_app("myplot", eselist)
 shiny::shinyApp(ui = app$ui, server = app$server)
 ```
 

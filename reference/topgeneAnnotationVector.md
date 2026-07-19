@@ -1,7 +1,7 @@
-# Build a per-gene annotation vector, in `genes` order, for [`plotly_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/plotly_topgene_boxplots.md)
+# Build a per-gene annotation vector, in `genes` order, for [`interactive_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md)
 
 Build a per-gene annotation vector, in `genes` order, for
-[`plotly_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/plotly_topgene_boxplots.md)
+[`interactive_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md)
 
 ## Usage
 

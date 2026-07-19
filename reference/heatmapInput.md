@@ -53,7 +53,7 @@ heatmapInput("heatmap", eselist)
 # Almost certainly used via application creation
 
 if (interactive()) {
-  app <- prepareApp("heatmap", eselist)
+  app <- prepare_app("heatmap", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

@@ -17,20 +17,20 @@ needs a running Shiny session.
 
 | Function | Returns | Shows |
 |----|----|----|
-| [`plotly_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.md), [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md) | plotly / ggplot | Generic 2D/3D scatter (the engine behind PCA, MA, volcano, fold-change) |
-| [`plotly_screeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_screeplot.md) | plotly | Variance explained per principal component |
-| [`plotly_pca_metadata_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_pca_metadata_heatmap.md) | plotly | ANOVA associations between PCs and sample metadata |
-| [`interactiveHeatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactiveHeatmap.md) | plotly | Clustered, annotated expression heatmap |
-| [`plotly_clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_clusteringDendrogram.md), [`clusteringDendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/clusteringDendrogram.md) | plotly / ggplot | Sample clustering dendrogram |
-| [`ggplot_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_boxplot.md), [`plotly_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_boxplot.md), [`plotly_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.md) | ggplot / plotly | Per-sample abundance distributions |
-| [`ggplot_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_densityplot.md), [`plotly_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.md) | ggplot / plotly | Abundance density curves |
-| [`plotly_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_topgene_boxplots.md), [`ggplot_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md) | plotly / ggplot | Faceted boxplots of top differential features |
-| [`plotly_cluster_profiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_cluster_profiles.md) | plotly | Feature-wise cluster expression profiles |
-| [`plotly_upset()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_upset.md) | plotly | Intersections of feature sets across contrasts |
-| [`plotly_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barcodeplot.md) | plotly | Gene-set enrichment barcode over a ranking |
-| [`plotly_barchart()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_barchart.md), [`plotly_count_barplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_count_barplot.md) | plotly | Bar charts and categorical counts |
-| [`plotly_illumina_control_probes()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_illumina_control_probes.md) | plotly | Illumina array control-probe QC |
-| [`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md) | character vector | A colour-blind-safe categorical palette to colour any of the above |
+| [`interactive_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_scatterplot.md), [`static_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_scatterplot.md) | plotly / ggplot | Generic 2D/3D scatter (the engine behind PCA, MA, volcano, fold-change) |
+| [`interactive_screeplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_screeplot.md) | plotly | Variance explained per principal component |
+| [`interactive_pca_metadata_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_pca_metadata_heatmap.md) | plotly | ANOVA associations between PCs and sample metadata |
+| [`interactive_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_heatmap.md) | plotly | Clustered, annotated expression heatmap |
+| [`interactive_clustering_dendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_clustering_dendrogram.md), [`clustering_dendrogram()`](https://pinin4fjords.github.io/shinyngs/reference/clustering_dendrogram.md) | plotly / ggplot | Sample clustering dendrogram |
+| [`static_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_boxplot.md), [`interactive_boxplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_boxplot.md), [`interactive_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_quartiles.md) | ggplot / plotly | Per-sample abundance distributions |
+| [`static_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/static_densityplot.md), [`interactive_densityplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_densityplot.md) | ggplot / plotly | Abundance density curves |
+| [`interactive_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md), [`static_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md) | plotly / ggplot | Faceted boxplots of top differential features |
+| [`interactive_cluster_profiles()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_cluster_profiles.md) | plotly | Feature-wise cluster expression profiles |
+| [`interactive_upset()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_upset.md) | plotly | Intersections of feature sets across contrasts |
+| [`interactive_barcodeplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_barcodeplot.md) | plotly | Gene-set enrichment barcode over a ranking |
+| [`interactive_barchart()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_barchart.md), [`interactive_count_barplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_count_barplot.md) | plotly | Bar charts and categorical counts |
+| [`interactive_illumina_control_probes()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_illumina_control_probes.md) | plotly | Illumina array control-probe QC |
+| [`make_color_scale()`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md) | character vector | A colour-blind-safe categorical palette to colour any of the above |
 
 See the [module and panel
 catalogue](https://pinin4fjords.github.io/shinyngs/articles/modules.md)
@@ -39,23 +39,23 @@ for which app panel each of these backs.
 ## Calling a plot from a report
 
 A minimal example: colour a PCA scatter by a metadata variable, using
-[`compilePCAData()`](https://pinin4fjords.github.io/shinyngs/reference/compilePCAData.md)
+[`compile_pca_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_pca_data.md)
 for the coordinates and
-[`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)
+[`make_color_scale()`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md)
 for a consistent palette.
 
 ``` r
 
 library(shinyngs)
 
-pca <- compilePCAData(my_matrix)
+pca <- compile_pca_data(my_matrix)
 groups <- my_metadata$treatment
 
-plotly_scatterplot(
+interactive_scatterplot(
   x = pca$coords[, "PC1"],
   y = pca$coords[, "PC2"],
   colorby = groups,
-  palette = makeColorScale(nlevels(factor(groups))),
+  palette = make_color_scale(nlevels(factor(groups))),
   xlab = "PC1",
   ylab = "PC2"
 )
@@ -66,8 +66,8 @@ optionally, a `sample_annotation` data frame) and get a widget back.
 
 ``` r
 
-interactiveHeatmap(
-  plotmatrix = my_matrix[selectVariableGenes(my_matrix, ntop = 500), ],
+interactive_heatmap(
+  plotmatrix = my_matrix[select_variable_genes(my_matrix, ntop = 500), ],
   sample_annotation = my_metadata["treatment"]
 )
 ```
@@ -79,13 +79,13 @@ have already computed. A handful of exported helpers do lightweight
 preparation that the plots need, and it is fine to use them, but they
 are not a statistics package:
 
-- [`compilePCAData()`](https://pinin4fjords.github.io/shinyngs/reference/compilePCAData.md)
+- [`compile_pca_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_pca_data.md)
   — principal components for the scatter/scree plots
-- [`selectVariableGenes()`](https://pinin4fjords.github.io/shinyngs/reference/selectVariableGenes.md)
+- [`select_variable_genes()`](https://pinin4fjords.github.io/shinyngs/reference/select_variable_genes.md)
   — pick the most variable features for a heatmap
 - [`anova_pca_metadata()`](https://pinin4fjords.github.io/shinyngs/reference/anova_pca_metadata.md)
   — associate PCs with metadata for the association heatmap
-- [`madScore()`](https://pinin4fjords.github.io/shinyngs/reference/madScore.md)
+- [`mad_score()`](https://pinin4fjords.github.io/shinyngs/reference/mad_score.md)
   — per-sample outlier scores
 - [`cond_log2_transform_assays()`](https://pinin4fjords.github.io/shinyngs/reference/cond_log2_transform_assays.md)
   — conditional log2 transform
@@ -103,7 +103,7 @@ apply the same configuration to get a named SVG download button:
 
 ``` r
 
-p <- plotly_scatterplot(x, y, colorby = groups)
+p <- interactive_scatterplot(x, y, colorby = groups)
 plotly::config(
   p,
   toImageButtonOptions = list(format = "svg", filename = "pca")
@@ -142,7 +142,7 @@ walks through this and through adding a new module.
 
 ### A note on in-widget controls
 
-[`plotly_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.md)’s
+[`interactive_scatterplot()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_scatterplot.md)’s
 opt-in `colorby_menu` argument adds a dropdown *inside* the widget for
 switching the colouring variable. That control is meant for
 standalone/report contexts where there is no surrounding Shiny UI.

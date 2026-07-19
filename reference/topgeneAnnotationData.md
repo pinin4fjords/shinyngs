@@ -1,7 +1,7 @@
-# Build the per-facet annotation data frame used by [`ggplot_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md)
+# Build the per-facet annotation data frame used by [`static_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md)
 
 Build the per-facet annotation data frame used by
-[`ggplot_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md)
+[`static_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md)
 
 ## Usage
 

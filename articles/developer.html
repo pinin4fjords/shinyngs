@@ -230,18 +230,19 @@ reactives and call that function.</p>
 <p>For the <code>boxplot</code> module (<code>R/boxplot.R</code>):</p>
 <ul>
 <li>
-<code><a href="../reference/ggplot_boxplot.html">ggplot_boxplot()</a></code> draws a static ggplot2 boxplot.</li>
+<code><a href="../reference/static_boxplot.html">static_boxplot()</a></code> draws a static ggplot2 boxplot.</li>
 <li>
-<code><a href="../reference/plotly_boxplot.html">plotly_boxplot()</a></code> draws the interactive plotly
+<code><a href="../reference/interactive_boxplot.html">interactive_boxplot()</a></code> draws the interactive plotly
 version.</li>
 <li>
-<code><a href="../reference/plotly_quartiles.html">plotly_quartiles()</a></code> / <code><a href="../reference/plotly_densityplot.html">plotly_densityplot()</a></code>
-are the alternative renderings.</li>
+<code><a href="../reference/interactive_quartiles.html">interactive_quartiles()</a></code> /
+<code><a href="../reference/interactive_densityplot.html">interactive_densityplot()</a></code> are the alternative
+renderings.</li>
 </ul>
 <p>The server just wires reactives into them:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span><span class="op">$</span><span class="va">sampleBoxplot</span> <span class="op">&lt;-</span> <span class="fu">renderPlotly</span><span class="op">(</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/plotly_boxplot.html">plotly_boxplot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/interactive_boxplot.html">interactive_boxplot</a></span><span class="op">(</span></span>
 <span>    <span class="va">selectmatrix_reactives</span><span class="op">$</span><span class="fu">selectMatrix</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    <span class="va">selectmatrix_reactives</span><span class="op">$</span><span class="fu">selectColData</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    <span class="va">groupby_reactives</span><span class="op">$</span><span class="fu">getGroupby</span><span class="op">(</span><span class="op">)</span>,</span>
@@ -257,8 +258,8 @@ codebase has been to <em>extract</em> render logic out of module servers
 into exported standalone functions. The payoff: the plotting functions
 are documented, testable and usable from a plain R script (no running
 app), and the module stays a thin adapter. When you add or change a
-plot, put the drawing logic in an exported <code>ggplot_*</code> /
-<code>plotly_*</code> function and have the module call it.</p>
+plot, put the drawing logic in an exported <code>interactive_*</code> /
+<code>static_*</code> function and have the module call it.</p>
 <blockquote>
 <p>Gotcha: when extracting render logic into a standalone function,
 preserve the <code>bindCache()</code> scope. Several modules wrap their
@@ -301,7 +302,7 @@ cache stale output or defeat the cache entirely.</p>
 <span>    <span class="va">groupby_reactives</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/groupby.html">groupby</a></span><span class="op">(</span><span class="st">"myplot"</span>, eselist <span class="op">=</span> <span class="va">eselist</span>, selectColData <span class="op">=</span> <span class="va">selectmatrix_reactives</span><span class="op">$</span><span class="va">selectColData</span><span class="op">)</span></span>
 <span></span>
 <span>    <span class="va">output</span><span class="op">$</span><span class="va">myPlot</span> <span class="op">&lt;-</span> <span class="fu">renderPlotly</span><span class="op">(</span><span class="op">{</span></span>
-<span>      <span class="fu">plotly_myplot</span><span class="op">(</span></span>
+<span>      <span class="fu">interactive_myplot</span><span class="op">(</span></span>
 <span>        <span class="va">selectmatrix_reactives</span><span class="op">$</span><span class="fu">selectMatrix</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        <span class="va">selectmatrix_reactives</span><span class="op">$</span><span class="fu">selectColData</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        <span class="va">groupby_reactives</span><span class="op">$</span><span class="fu">getGroupby</span><span class="op">(</span><span class="op">)</span>,</span>
@@ -311,8 +312,8 @@ cache stale output or defeat the cache entirely.</p>
 <span>  <span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><strong>2. Write the standalone plot function.</strong> Put the
-drawing logic in an exported <code>plotly_myplot()</code> (and/or
-<code>ggplot_myplot()</code>) that takes plain arguments. Give it a
+drawing logic in an exported <code>interactive_myplot()</code> (and/or
+<code>static_myplot()</code>) that takes plain arguments. Give it a
 <code>palette_name = COLORBLIND_PALETTE_NAME</code> default so it
 produces consistent, colour-blind-safe output when called outside an
 app.</p>
@@ -324,12 +325,12 @@ internal (unexported), matching the other modules. Run
 <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> to regenerate <code>NAMESPACE</code>
 and <code>man/</code>.</p>
 <p><strong>4. Wire it into an app.</strong> Because
-<code><a href="../reference/prepareApp.html">prepareApp()</a></code> and <code><a href="../reference/simpleApp.html">simpleApp()</a></code> locate a module
+<code><a href="../reference/prepare_app.html">prepare_app()</a></code> and <code><a href="../reference/simpleApp.html">simpleApp()</a></code> locate a module
 by name (<code>get(paste0(module, "Input"))</code>,
 <code>get(module)</code>, etc.), a correctly-named trio is runnable
 standalone straight away:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">"myplot"</span>, <span class="va">eselist</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_app.html">prepare_app</a></span><span class="op">(</span><span class="st">"myplot"</span>, <span class="va">eselist</span><span class="op">)</span></span>
 <span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span>ui <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">ui</span>, server <span class="op">=</span> <span class="va">app</span><span class="op">$</span><span class="va">server</span><span class="op">)</span></span></code></pre></div>
 <p>To include it in a larger app such as <code>rnaseq</code>, add
 <code>myplotInput()</code> / <code>myplotOutput()</code> to that app’s

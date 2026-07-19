@@ -25,7 +25,7 @@ COLORBLIND_PALETTE
 ```
 
 Colours are handed out by the exported
-[`makeColorScale()`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)
+[`make_color_scale()`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md)
 helper. Because it draws from the fixed palette in order, the same
 position always gets the same colour, so a group keeps its colour across
 every plot in the app:
@@ -35,13 +35,13 @@ every plot in the app:
 library(shinyngs)
 
 # The colour-blind-safe palette is the default (palette = "colorblind")
-makeColorScale(4)
+make_color_scale(4)
 #> "#E69F00" "#56B4E9" "#009E73" "#F0E442"
 
 # Ask for more colours than the base palette provides and shades are
 # interpolated between them, with a message noting that colour-blind
 # separation can no longer be guaranteed for every pair.
-makeColorScale(12)
+make_color_scale(12)
 ```
 
 Passing any other value treats it as an RColorBrewer qualitative palette
@@ -50,7 +50,7 @@ when more colours are requested than the palette holds:
 
 ``` r
 
-makeColorScale(6, palette = "Dark2")
+make_color_scale(6, palette = "Dark2")
 ```
 
 ### The in-app palette picker
@@ -81,10 +81,10 @@ module already embeds the picker via
 and returns `getPalette` (a reactive) alongside `getGroupby`. A plotting
 module then passes that palette straight into its standalone plot
 function (for example
-`plotly_boxplot(..., palette = groupby_reactives$getPalette())`). Those
-plot functions also accept a `palette_name` argument (defaulting to the
-colour-blind-safe palette) so they produce consistent colours when
-called directly, outside an app.
+`interactive_boxplot(..., palette = groupby_reactives$getPalette())`).
+Those plot functions also accept a `palette_name` argument (defaulting
+to the colour-blind-safe palette) so they produce consistent colours
+when called directly, outside an app.
 
 ## Theming: Bootstrap 5 and light/dark mode
 
@@ -146,7 +146,7 @@ encoded into the address bar. Copying that URL and re-opening it
 restores the same view.
 
 Bookmarking is enabled in two places:
-[`prepareApp()`](https://pinin4fjords.github.io/shinyngs/reference/prepareApp.md)
+[`prepare_app()`](https://pinin4fjords.github.io/shinyngs/reference/prepare_app.md)
 sets it so the option is present wherever the app object ends up, and
 [`configureBookmarking()`](https://pinin4fjords.github.io/shinyngs/reference/configureBookmarking.md)
 sets it again in the running session (harnesses can transport the app

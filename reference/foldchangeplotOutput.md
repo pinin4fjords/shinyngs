@@ -36,7 +36,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 #> Creating ExploratorySummarizedExperimentList object
 
 if (interactive()) {
-  app <- prepareApp("foldchangeplot", eselist)
+  app <- prepare_app("foldchangeplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

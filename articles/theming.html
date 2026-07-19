@@ -101,27 +101,27 @@ dark app backgrounds.</p>
 <code class="sourceCode R"><span><span class="va">COLORBLIND_PALETTE</span></span>
 <span><span class="co">#&gt; "#E69F00" "#56B4E9" "#009E73" "#F0E442"</span></span>
 <span><span class="co">#&gt; "#0072B2" "#D55E00" "#CC79A7" "#595959"</span></span></code></pre></div>
-<p>Colours are handed out by the exported <code><a href="../reference/makeColorScale.html">makeColorScale()</a></code>
-helper. Because it draws from the fixed palette in order, the same
-position always gets the same colour, so a group keeps its colour across
-every plot in the app:</p>
+<p>Colours are handed out by the exported
+<code><a href="../reference/make_color_scale.html">make_color_scale()</a></code> helper. Because it draws from the fixed
+palette in order, the same position always gets the same colour, so a
+group keeps its colour across every plot in the app:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pinin4fjords.github.io/shinyngs/">shinyngs</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># The colour-blind-safe palette is the default (palette = "colorblind")</span></span>
-<span><span class="fu"><a href="../reference/makeColorScale.html">makeColorScale</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/make_color_scale.html">make_color_scale</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; "#E69F00" "#56B4E9" "#009E73" "#F0E442"</span></span>
 <span></span>
 <span><span class="co"># Ask for more colours than the base palette provides and shades are</span></span>
 <span><span class="co"># interpolated between them, with a message noting that colour-blind</span></span>
 <span><span class="co"># separation can no longer be guaranteed for every pair.</span></span>
-<span><span class="fu"><a href="../reference/makeColorScale.html">makeColorScale</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/make_color_scale.html">make_color_scale</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <p>Passing any other value treats it as an RColorBrewer qualitative
 palette name (for example <code>"Dark2"</code> or <code>"Set1"</code>),
 expanded with interpolation when more colours are requested than the
 palette holds:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/makeColorScale.html">makeColorScale</a></span><span class="op">(</span><span class="fl">6</span>, palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/make_color_scale.html">make_color_scale</a></span><span class="op">(</span><span class="fl">6</span>, palette <span class="op">=</span> <span class="st">"Dark2"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="the-in-app-palette-picker">The in-app palette picker<a class="anchor" aria-label="anchor" href="#the-in-app-palette-picker"></a>
 </h3>
@@ -145,7 +145,7 @@ The colour-blind-safe palette is always the pre-selected default.</p>
 reactive) alongside <code>getGroupby</code>. A plotting module then
 passes that palette straight into its standalone plot function (for
 example
-<code>plotly_boxplot(..., palette = groupby_reactives$getPalette())</code>).
+<code>interactive_boxplot(..., palette = groupby_reactives$getPalette())</code>).
 Those plot functions also accept a <code>palette_name</code> argument
 (defaulting to the colour-blind-safe palette) so they produce consistent
 colours when called directly, outside an app.</p>
@@ -203,7 +203,7 @@ the CSS and plots follow from the Bootstrap variables it produces.</p>
 is, which tab is open, which experiment and assay are selected, the
 row/column filters, plot options and so on, is encoded into the address
 bar. Copying that URL and re-opening it restores the same view.</p>
-<p>Bookmarking is enabled in two places: <code><a href="../reference/prepareApp.html">prepareApp()</a></code> sets
+<p>Bookmarking is enabled in two places: <code><a href="../reference/prepare_app.html">prepare_app()</a></code> sets
 it so the option is present wherever the app object ends up, and
 <code><a href="../reference/configureBookmarking.html">configureBookmarking()</a></code> sets it again in the running session
 (harnesses can transport the app object to a fresh process where the

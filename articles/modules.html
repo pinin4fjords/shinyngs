@@ -124,9 +124,9 @@ component (plus the cumulative total), helping you judge how many
 components are worth examining.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows selected by default),
 a choice of which components to display, and a sample variable to colour
-by. <em>Backed by:</em> <code>compilePCAData</code>, with points drawn
-via <code>plotly_scatterplot</code> and the scree curve via
-<code>plotly_screeplot</code>.</p>
+by. <em>Backed by:</em> <code>compile_pca_data</code>, with points drawn
+via <code>interactive_scatterplot</code> and the scree curve via
+<code>interactive_screeplot</code>.</p>
 <div class="float">
 <img src="img/pca.png" alt="Components plot for a 3D PCA, coloured by sample group"><div class="figcaption">Components plot for a 3D PCA, coloured by sample
 group</div>
@@ -154,7 +154,7 @@ factor (e.g. sequencing lane) with an early component flags a variable
 to account for downstream.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows by default) and the
 set of experimental variables to test. <em>Backed by:</em>
-<code>plotly_pca_metadata_heatmap</code>.</p>
+<code>interactive_pca_metadata_heatmap</code>.</p>
 <div class="float">
 <img src="img/pca-vs-experiment.png" alt="PCA-vs-experiment heatmap: association p-values between each component and each experimental variable"><div class="figcaption">PCA-vs-experiment heatmap: association p-values
 between each component and each experimental variable</div>
@@ -170,7 +170,7 @@ annotations can be added as coloured bars above the heatmap via the
 “Annotate with variables” control.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows by default) and
 optional annotation variables. <em>Backed by:</em>
-<code>interactiveHeatmap</code>.</p>
+<code>interactive_heatmap</code>.</p>
 <div class="float">
 <img src="img/heatmap.png" alt="Sample-by-sample correlation heatmap with dendrogram and group/tissue annotation bars"><div class="figcaption">Sample-by-sample correlation heatmap with
 dendrogram and group/tissue annotation bars</div>
@@ -188,7 +188,7 @@ samples by an experimental variable to aid interpretation.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows by default; row
 selection may also be “all” or a supplied gene set) and
 distance/clustering choices. <em>Backed by:</em>
-<code>plotly_clusteringDendrogram</code>.</p>
+<code>interactive_clustering_dendrogram</code>.</p>
 <div class="float">
 <img src="img/dendrogram.png" alt="Sample clustering dendrogram coloured by sample group"><div class="figcaption">Sample clustering dendrogram coloured by sample
 group</div>
@@ -207,8 +207,8 @@ points beyond them are treated as outliers, and mousing over an outlier
 in the line plots reveals its identity.</p>
 <p><em>Inputs:</em> an assay matrix; comparing raw versus normalised
 matrices can be informative. <em>Backed by:</em>
-<code>plotly_boxplot</code>, <code>plotly_densityplot</code>, and
-<code>plotly_quartiles</code>.</p>
+<code>interactive_boxplot</code>, <code>interactive_densityplot</code>,
+and <code>interactive_quartiles</code>.</p>
 <div class="float">
 <img src="img/distribution.png" alt="Value distributions per sample, as box plots coloured by group"><div class="figcaption">Value distributions per sample, as box plots
 coloured by group</div>
@@ -225,7 +225,7 @@ can be compared across rows. The data can optionally be summarised into
 means per sample group.</p>
 <p><em>Inputs:</em> an assay matrix, with rows selectable by variance,
 by an explicit list, or (where gene sets are uploaded) by a predefined
-gene set. <em>Backed by:</em> <code>interactiveHeatmap</code>.</p>
+gene set. <em>Backed by:</em> <code>interactive_heatmap</code>.</p>
 <div class="float">
 <img src="img/expression-heatmap.png" alt="Expression heatmap of the top variable rows, clustered and scaled by row"><div class="figcaption">Expression heatmap of the top variable rows,
 clustered and scaled by row</div>
@@ -244,7 +244,7 @@ filled variability band. A per-cluster membership matrix can be exported
 for further investigation.</p>
 <p><em>Inputs:</em> an assay matrix (variable rows by default) and the
 number of clusters. <em>Backed by:</em>
-<code>plotly_cluster_profiles</code>.</p>
+<code>interactive_cluster_profiles</code>.</p>
 <div class="float">
 <img src="img/clustering-profiles.png" alt="Feature-wise clustering profiles, one panel per cluster with a filled variability band"><div class="figcaption">Feature-wise clustering profiles, one panel per
 cluster with a filled variability band</div>
@@ -288,7 +288,7 @@ with mouse-over detail; those below are inert grey (labelling every
 point would slow the browser).</p>
 <p><em>Inputs:</em> a contrast, fold-change and q-value thresholds, and
 optionally a set of genes to highlight by colour. <em>Backed by:</em>
-<code>plotly_scatterplot</code>.</p>
+<code>interactive_scatterplot</code>.</p>
 <div class="float">
 <img src="img/volcano.png" alt="Volcano plot for one contrast, with points passing the fold-change/q-value thresholds highlighted in blue"><div class="figcaption">Volcano plot for one contrast, with points
 passing the fold-change/q-value thresholds highlighted in blue</div>
@@ -305,7 +305,7 @@ fold changes become significant. Same threshold and highlight controls
 as the volcano plot.</p>
 <p><em>Inputs:</em> a contrast, fold-change and q-value thresholds,
 optional highlight set. <em>Backed by:</em>
-<code>plotly_scatterplot</code>.</p>
+<code>interactive_scatterplot</code>.</p>
 <div class="float">
 <img src="img/ma-plot.png" alt="MA plot for one contrast: log2 fold change against log10 mean expression"><div class="figcaption">MA plot for one contrast: log2 fold change
 against log10 mean expression</div>
@@ -319,7 +319,8 @@ groups of samples for every row of a matrix, drawn with Plotly. Points
 are grey, or blue where they pass the fold-change and (where available)
 q-value thresholds.</p>
 <p><em>Inputs:</em> an assay matrix, a contrast, thresholds, optional
-highlight set. <em>Backed by:</em> <code>plotly_scatterplot</code>.</p>
+highlight set. <em>Backed by:</em>
+<code>interactive_scatterplot</code>.</p>
 <div class="float">
 <img src="img/fold-change-plot.png" alt="Fold change plot comparing mean expression between two groups"><div class="figcaption">Fold change plot comparing mean expression
 between two groups</div>
@@ -337,7 +338,7 @@ ascending/descending, and the number drawn is capped by a control. A
 colour-blind-safe palette is the default.</p>
 <p><em>Inputs:</em> a contrast, significance thresholds, a ranking
 metric, a gene count, and a colour palette. <em>Backed by:</em>
-<code>plotly_topgene_boxplots</code>.</p>
+<code>interactive_topgene_boxplots</code>.</p>
 <div class="float">
 <img src="img/boxplot.png" alt="Top gene boxplots for a contrast, ranked by q value, with per-sample beeswarm points"><div class="figcaption">Top gene boxplots for a contrast, ranked by q
 value, with per-sample beeswarm points</div>
@@ -356,7 +357,7 @@ then overlap and no longer sum to the total). The plot is
 downloadable.</p>
 <p><em>Inputs:</em> contrasts with thresholds, and an assay matrix for
 generating the comparisons. <em>Backed by:</em>
-<code>plotly_upset</code>.</p>
+<code>interactive_upset</code>.</p>
 <div class="float">
 <img src="img/upset.png" alt="UpSet plot showing the exclusive intersections between several contrasts’ differential gene sets"><div class="figcaption">UpSet plot showing the exclusive intersections
 between several contrasts’ differential gene sets</div>
@@ -384,8 +385,8 @@ of the gene’s exon/transcript structure.</p>
 an Ensembl species (plus
 <code>chromosome_name</code>/<code>start_position</code>/<code>end_position</code>
 feature metadata) for the gene model. <em>Backed by:</em>
-<code>plotly_scatterplot</code> for the expression bar plot; the gene
-model view uses the <code>igvShiny</code> (igv.js) browser.</p>
+<code>interactive_scatterplot</code> for the expression bar plot; the
+gene model view uses the <code>igvShiny</code> (igv.js) browser.</p>
 <div class="float">
 <img src="img/gene-page.png" alt="Gene page: expression bar plot, gene info and contrasts table"><div class="figcaption">Gene page: expression bar plot, gene info and
 contrasts table</div>
@@ -404,7 +405,7 @@ change, and an accompanying table gives contrast detail for the set.</p>
 <p><em>Inputs:</em> a single selected gene set, a contrast, and an assay
 matrix (note the displayed FDR may correspond to only one of the
 available matrices). <em>Backed by:</em>
-<code>plotly_barcodeplot</code>.</p>
+<code>interactive_barcodeplot</code>.</p>
 <div class="float">
 <img src="img/geneset-barcode.png" alt="Gene-set barcode plot showing where a gene set’s members fall in the ranked fold-change list"><div class="figcaption">Gene-set barcode plot showing where a gene set’s
 members fall in the ranked fold-change list</div>
@@ -444,7 +445,8 @@ the plot) include <code>cy3_high &gt; cy3_med &gt; cy3_low</code>, low
 stringency near zero, high stringency at or below cy3 high, housekeeping
 and biotin high, and negative controls near zero.</p>
 <p><em>Inputs:</em> Illumina control-probe measurements per sample.
-<em>Backed by:</em> <code>plotly_illumina_control_probes</code>.</p>
+<em>Backed by:</em>
+<code>interactive_illumina_control_probes</code>.</p>
 <div class="float">
 <img src="img/illumina-qc.png" alt="Illumina control-probe QC plot across samples, one line per probe group"><div class="figcaption">Illumina control-probe QC plot across samples,
 one line per probe group</div>
@@ -495,8 +497,8 @@ genomic feature type such as exon or intron), and a <strong>read
 gene-type plot</strong> (by gene biotype, e.g. protein coding or
 rRNA).</p>
 <p><em>Inputs:</em> precomputed read-summary tables provided with the
-dataset. <em>Backed by:</em> <code>plotly_barchart</code> /
-<code>plotly_count_barplot</code>.</p>
+dataset. <em>Backed by:</em> <code>interactive_barchart</code> /
+<code>interactive_count_barplot</code>.</p>
 <div class="float">
 <img src="img/read-reports.png" alt="Read attrition plot showing reads lost across analysis stages, per sample"><div class="figcaption">Read attrition plot showing reads lost across
 analysis stages, per sample</div>

@@ -47,7 +47,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   heatmap("heatmap", eselist, type = "pca")
-  app <- prepareApp("heatmap", eselist)
+  app <- prepare_app("heatmap", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

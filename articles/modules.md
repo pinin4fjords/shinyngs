@@ -42,8 +42,9 @@ judge how many components are worth examining.
 
 *Inputs:* an assay matrix (variable rows selected by default), a choice
 of which components to display, and a sample variable to colour by.
-*Backed by:* `compilePCAData`, with points drawn via
-`plotly_scatterplot` and the scree curve via `plotly_screeplot`.
+*Backed by:* `compile_pca_data`, with points drawn via
+`interactive_scatterplot` and the scree curve via
+`interactive_screeplot`.
 
 ![Components plot for a 3D PCA, coloured by sample group](img/pca.png)
 
@@ -76,7 +77,7 @@ to account for downstream.
 
 *Inputs:* an assay matrix (variable rows by default) and the set of
 experimental variables to test. *Backed by:*
-`plotly_pca_metadata_heatmap`.
+`interactive_pca_metadata_heatmap`.
 
 ![PCA-vs-experiment heatmap: association p-values between each component
 and each experimental variable](img/pca-vs-experiment.png)
@@ -93,7 +94,7 @@ annotations can be added as coloured bars above the heatmap via the
 “Annotate with variables” control.
 
 *Inputs:* an assay matrix (variable rows by default) and optional
-annotation variables. *Backed by:* `interactiveHeatmap`.
+annotation variables. *Backed by:* `interactive_heatmap`.
 
 ![Sample-by-sample correlation heatmap with dendrogram and group/tissue
 annotation bars](img/heatmap.png)
@@ -112,7 +113,7 @@ experimental variable to aid interpretation.
 
 *Inputs:* an assay matrix (variable rows by default; row selection may
 also be “all” or a supplied gene set) and distance/clustering choices.
-*Backed by:* `plotly_clusteringDendrogram`.
+*Backed by:* `interactive_clustering_dendrogram`.
 
 ![Sample clustering dendrogram coloured by sample
 group](img/dendrogram.png)
@@ -131,8 +132,8 @@ beyond them are treated as outliers, and mousing over an outlier in the
 line plots reveals its identity.
 
 *Inputs:* an assay matrix; comparing raw versus normalised matrices can
-be informative. *Backed by:* `plotly_boxplot`, `plotly_densityplot`, and
-`plotly_quartiles`.
+be informative. *Backed by:* `interactive_boxplot`,
+`interactive_densityplot`, and `interactive_quartiles`.
 
 ![Value distributions per sample, as box plots coloured by
 group](img/distribution.png)
@@ -149,7 +150,7 @@ rows. The data can optionally be summarised into means per sample group.
 
 *Inputs:* an assay matrix, with rows selectable by variance, by an
 explicit list, or (where gene sets are uploaded) by a predefined gene
-set. *Backed by:* `interactiveHeatmap`.
+set. *Backed by:* `interactive_heatmap`.
 
 ![Expression heatmap of the top variable rows, clustered and scaled by
 row](img/expression-heatmap.png)
@@ -168,7 +169,7 @@ variability band. A per-cluster membership matrix can be exported for
 further investigation.
 
 *Inputs:* an assay matrix (variable rows by default) and the number of
-clusters. *Backed by:* `plotly_cluster_profiles`.
+clusters. *Backed by:* `interactive_cluster_profiles`.
 
 ![Feature-wise clustering profiles, one panel per cluster with a filled
 variability band](img/clustering-profiles.png)
@@ -214,7 +215,7 @@ point would slow the browser).
 
 *Inputs:* a contrast, fold-change and q-value thresholds, and optionally
 a set of genes to highlight by colour. *Backed by:*
-`plotly_scatterplot`.
+`interactive_scatterplot`.
 
 ![Volcano plot for one contrast, with points passing the
 fold-change/q-value thresholds highlighted in blue](img/volcano.png)
@@ -232,7 +233,7 @@ fold changes become significant. Same threshold and highlight controls
 as the volcano plot.
 
 *Inputs:* a contrast, fold-change and q-value thresholds, optional
-highlight set. *Backed by:* `plotly_scatterplot`.
+highlight set. *Backed by:* `interactive_scatterplot`.
 
 ![MA plot for one contrast: log2 fold change against log10 mean
 expression](img/ma-plot.png)
@@ -247,7 +248,7 @@ are grey, or blue where they pass the fold-change and (where available)
 q-value thresholds.
 
 *Inputs:* an assay matrix, a contrast, thresholds, optional highlight
-set. *Backed by:* `plotly_scatterplot`.
+set. *Backed by:* `interactive_scatterplot`.
 
 ![Fold change plot comparing mean expression between two
 groups](img/fold-change-plot.png)
@@ -265,7 +266,8 @@ ascending/descending, and the number drawn is capped by a control. A
 colour-blind-safe palette is the default.
 
 *Inputs:* a contrast, significance thresholds, a ranking metric, a gene
-count, and a colour palette. *Backed by:* `plotly_topgene_boxplots`.
+count, and a colour palette. *Backed by:*
+`interactive_topgene_boxplots`.
 
 ![Top gene boxplots for a contrast, ranked by q value, with per-sample
 beeswarm points](img/boxplot.png)
@@ -284,7 +286,7 @@ intersections shown. The intersection type defaults to exclusive
 then overlap and no longer sum to the total). The plot is downloadable.
 
 *Inputs:* contrasts with thresholds, and an assay matrix for generating
-the comparisons. *Backed by:* `plotly_upset`.
+the comparisons. *Backed by:* `interactive_upset`.
 
 ![UpSet plot showing the exclusive intersections between several
 contrasts’ differential gene sets](img/upset.png)
@@ -310,9 +312,9 @@ genome-browser diagram of the gene’s exon/transcript structure.
 *Inputs:* one or more selected genes; an assay matrix and a “colour by”
 variable for the bar plot; contrasts for the results table; an Ensembl
 species (plus `chromosome_name`/`start_position`/`end_position` feature
-metadata) for the gene model. *Backed by:* `plotly_scatterplot` for the
-expression bar plot; the gene model view uses the `igvShiny` (igv.js)
-browser.
+metadata) for the gene model. *Backed by:* `interactive_scatterplot` for
+the expression bar plot; the gene model view uses the `igvShiny`
+(igv.js) browser.
 
 ![Gene page: expression bar plot, gene info and contrasts
 table](img/gene-page.png)
@@ -331,7 +333,7 @@ change, and an accompanying table gives contrast detail for the set.
 
 *Inputs:* a single selected gene set, a contrast, and an assay matrix
 (note the displayed FDR may correspond to only one of the available
-matrices). *Backed by:* `plotly_barcodeplot`.
+matrices). *Backed by:* `interactive_barcodeplot`.
 
 ![Gene-set barcode plot showing where a gene set’s members fall in the
 ranked fold-change list](img/geneset-barcode.png)
@@ -373,7 +375,7 @@ high stringency at or below cy3 high, housekeeping and biotin high, and
 negative controls near zero.
 
 *Inputs:* Illumina control-probe measurements per sample. *Backed by:*
-`plotly_illumina_control_probes`.
+`interactive_illumina_control_probes`.
 
 ![Illumina control-probe QC plot across samples, one line per probe
 group](img/illumina-qc.png)
@@ -424,7 +426,7 @@ intron), and a **read gene-type plot** (by gene biotype, e.g. protein
 coding or rRNA).
 
 *Inputs:* precomputed read-summary tables provided with the dataset.
-*Backed by:* `plotly_barchart` / `plotly_count_barplot`.
+*Backed by:* `interactive_barchart` / `interactive_count_barplot`.
 
 ![Read attrition plot showing reads lost across analysis stages, per
 sample](img/read-reports.png)

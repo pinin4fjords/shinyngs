@@ -1,4 +1,4 @@
-# Build the named vector of facet titles used by [`ggplot_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/ggplot_topgene_boxplots.md) and [`plotly_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/plotly_topgene_boxplots.md)
+# Build the named vector of facet titles used by [`static_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/static_topgene_boxplots.md) and [`interactive_topgene_boxplots`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md)
 
 Genes with no entry in `labels` (or when `labels` is `NULL`) fall back
 to their raw identifier, so callers always get one title per gene

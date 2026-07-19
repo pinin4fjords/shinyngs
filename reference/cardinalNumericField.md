@@ -62,7 +62,7 @@ cardinalNumericField(
 
   Optional tooltip text explaining the field, shown via a help icon next
   to the label (see
-  [`withHelpIcon`](https://pinin4fjords.github.io/shinyngs/reference/withHelpIcon.md))
+  [`with_help_icon`](https://pinin4fjords.github.io/shinyngs/reference/with_help_icon.md))
 
 ## Value
 

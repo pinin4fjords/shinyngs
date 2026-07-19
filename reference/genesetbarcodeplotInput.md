@@ -44,7 +44,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   genesetbarcodeplotInput("myid", eselist)
-  app <- prepareApp("genesetbarcodeplot", eselist)
+  app <- prepare_app("genesetbarcodeplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

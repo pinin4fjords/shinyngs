@@ -87,15 +87,15 @@ does not compute normalisation, differential expression or enrichment
 for you. Your job is to package the results of your pipeline into the
 two data structures the app understands. This article walks through
 those structures from the ground up, building a small but complete
-object you could hand straight to <code><a href="../reference/prepareApp.html">prepareApp()</a></code>.</p>
+object you could hand straight to <code><a href="../reference/prepare_app.html">prepare_app()</a></code>.</p>
 <p>If you would rather describe your data in files and let
 <code>shinyngs</code> assemble the object for you, see <a href="build-from-files.html">Building an app from files and
 YAML</a>.</p>
 <p>There are two routes in, both converging on the same pair of
 container classes:</p>
 <div class="float">
-<img src="img/dataflow.svg" alt="Both the CLI and direct R construction converge on an ExploratorySummarizedExperiment(List), which prepareApp() turns into a Shiny app"><div class="figcaption">Both the CLI and direct R construction converge
-on an ExploratorySummarizedExperiment(List), which prepareApp() turns
+<img src="img/dataflow.svg" alt="Both the CLI and direct R construction converge on an ExploratorySummarizedExperiment(List), which prepare_app() turns into a Shiny app"><div class="figcaption">Both the CLI and direct R construction converge
+on an ExploratorySummarizedExperiment(List), which prepare_app() turns
 into a Shiny app</div>
 </div>
 <div class="section level2">
@@ -285,7 +285,7 @@ launches Shiny is marked <code>eval=FALSE</code> here because a browser
 session cannot run during page build, but the code is exactly what you
 would run interactively:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareApp.html">prepareApp</a></span><span class="op">(</span><span class="st">"rnaseq"</span>, <span class="va">myesel</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">app</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_app.html">prepare_app</a></span><span class="op">(</span><span class="st">"rnaseq"</span>, <span class="va">myesel</span><span class="op">)</span></span>
 <span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/shinyApp.html" class="external-link">shinyApp</a></span><span class="op">(</span><span class="va">app</span><span class="op">$</span><span class="va">ui</span>, <span class="va">app</span><span class="op">$</span><span class="va">server</span><span class="op">)</span></span></code></pre></div>
 <p><code>group_vars</code> names the <code>colData</code> columns a user
 may colour and group samples by (in the PCA plot, boxplots and so on).

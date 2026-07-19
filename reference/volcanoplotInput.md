@@ -44,7 +44,7 @@ eselist <- ExploratorySummarizedExperimentList(ese)
 
 if (interactive()) {
   volcanoplotInput("myid", eselist)
-  app <- prepareApp("volcanoplot", eselist)
+  app <- prepare_app("volcanoplot", eselist)
   shiny::shinyApp(ui = app$ui, server = app$server)
 }
 ```

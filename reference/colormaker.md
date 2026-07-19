@@ -2,7 +2,7 @@
 
 Supplies a reactive returning the palette selected in the drop-down,
 sized to the number of categories the caller reports (see
-[`makeColorScale`](https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.md)).
+[`make_color_scale`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md)).
 
 ## Usage
 
