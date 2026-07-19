@@ -22,8 +22,11 @@ plotly_scatterplot(
   lines = NULL,
   hline_thresholds = NULL,
   vline_thresholds = NULL,
+  xrange = NULL,
+  yrange = NULL,
   showlegend = TRUE,
-  palette_name = COLORBLIND_PALETTE_NAME
+  palette_name = COLORBLIND_PALETTE_NAME,
+  colorby_menu = NULL
 )
 }
 \arguments{
@@ -53,7 +56,8 @@ plotly_scatterplot(
 
 \item{labels}{Point labels}
 
-\item{show_labels}{Permanently show labels for labelled points (default is just on hoverover)}
+\item{show_labels}{Permanently show labels for labelled points (default is just on hoverover).
+Ignored when \code{colorby_menu} is supplied.}
 
 \item{lines}{3 column data-frame (name, x, y) with two rows, one for the
 start and end of each named line}
@@ -62,9 +66,29 @@ start and end of each named line}
 
 \item{vline_thresholds}{Named list of vertical lines x coordinates}
 
+\item{xrange}{Optional fixed c(min, max) x axis range, e.g. to keep a
+volcano plot symmetric around zero. Only applied when lines/thresholds
+are drawn; otherwise plotly's own autorange is used. Defaults to NULL
+(derive the range from the data).}
+
+\item{yrange}{Optional fixed c(min, max) y axis range. Same caveats as
+\code{xrange}.}
+
 \item{showlegend}{Boolean: show a legend?}
 
 \item{palette_name}{Valid R color palette name}
+
+\item{colorby_menu}{Opt-in, named list of alternative colour vectors (one
+per entry, same length as x/y(/z)). When supplied, the plot is coloured
+using \code{\link{addColorbyMenu}} instead of \code{colorby}, and a
+plotly dropdown is added letting the reader switch which variable
+colours the points; \code{colorby} is not shown itself unless also
+included as an entry in \code{colorby_menu}. This is intended for
+standalone/static-HTML report use only: the Shiny scatterplot modules
+already offer their own colour-by \code{selectInput}, and must NOT set
+this argument, since an always-on in-widget dropdown alongside that
+control would give readers two competing ways to change the colouring.
+Default is NULL (off).}
 }
 \value{
 output Plotly plot object
