@@ -24,6 +24,10 @@ The components plot shows the first components plotted against one another, and 
 
 The loading plot shows which rows of the input matrix contributed most to each component, by default showing the union of the 10 strongest contributors to each component. For example, where a treatment has a strong impact on the expression of a set of genes, we expect that those genes will contribute strongly to the first few components. The nature of PCA is that components should be orthogonal to one another, so the strongest loadings at each component should be different to one another.
 
+##### Scree plot
+
+The scree plot shows the percentage of variance explained by each component, along with the cumulative variance explained as components are added. This helps you judge how many components are worth examining: a sharp drop-off (an 'elbow') suggests that the components beyond it capture comparatively little signal.
+
 #### References
 
 ##### Useful beginner overviews of PCA
