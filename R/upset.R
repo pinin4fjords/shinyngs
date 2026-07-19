@@ -47,7 +47,7 @@ upsetInput <- function(id, eselist) {
   ))
 }
 
-#' The output function of the clustering module
+#' The output function of the upset module
 #'
 #' This module illustrates the intersection of differential sets using a
 #' reimplementation of the \code{\link[UpSetR]{upset}} tool of Lex,
@@ -91,7 +91,7 @@ upsetOutput <- function(id, eselist) {
   )
 }
 
-#' The server function of the upstart module
+#' The server function of the upset module
 #'
 #' This module illustrates the intersection of differential sets using a
 #' reimplementation of the \code{\link[UpSetR]{upset}} tool of Lex,
@@ -116,7 +116,7 @@ upsetOutput <- function(id, eselist) {
 #' Gehlenborg N (2016). <em>UpSetR: A More Scalable Alternative to Venn and Euler Diagrams for Visualizing Intersecting Sets</em>. R package version 1.3.0, \url{https://CRAN.R-project.org/package=UpSetR}
 #'
 #' @examples
-#' upstart("myid", eselist)
+#' upset("myid", eselist)
 #'
 upset <- function(id, eselist, setlimit = 16) {
   moduleServer(id, function(input, output, session) {

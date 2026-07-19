@@ -110,19 +110,6 @@ colGeomMeans <- function(x) {
   stats::setNames(exp(colSums(logs) / nrow(x)), colnames(x))
 }
 
-#' Geometric mean
-#'
-#' @param x A vector
-#' @param na.rm Passed to \code{sum()}
-#'
-#' @return A numeric value
-#'
-#' @export
-
-geom_mean <- function(x, na.rm = TRUE) {
-  exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
-}
-
 #' Medians by matrix column
 #'
 #' @param x A matrix
