@@ -11,6 +11,93 @@ test_that("the rnaseq app boots and shows its home tab", {
   expect_match(app$get_text("h3.shinyngs-eyebrow"), "Jump to analysis")
 })
 
+# the other "big" app types (chipseq, illuminaarray) share prepareApp()'s
+# multi-panel branch with rnaseq, so a boot + one composed-module check each
+# is enough to confirm the branch wires up correctly for their platform label
+# and homeTab()/PCA composition, without re-testing every rnaseq-covered panel
+
+test_that("the chipseq app boots and shows its ChIP-seq home tab", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("chipseq", "chipseq-boot")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+
+  expect_match(app$get_text("h3.shinyngs-eyebrow"), "Jump to analysis")
+  expect_match(app$get_text("body"), "downstream ChIP-seq")
+})
+
+test_that("the chipseq app's PCA tab renders a scatterplot", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("chipseq", "chipseq-pca")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$set_inputs(`chipseq-chipseq` = "pca")
+  app$wait_for_idle(timeout = 20000)
+
+  outputs <- names(app$get_values()$output)
+  expect_true("chipseq-pca-pca-scatter" %in% outputs)
+})
+
+test_that("the illuminaarray app boots and shows its expression array home tab", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("illuminaarray", "illuminaarray-boot")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+
+  expect_match(app$get_text("h3.shinyngs-eyebrow"), "Jump to analysis")
+  expect_match(app$get_text("body"), "downstream expression array")
+})
+
+test_that("the illuminaarray app's PCA tab renders a scatterplot", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("illuminaarray", "illuminaarray-pca")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$set_inputs(`illuminaarray-illuminaarray` = "pca")
+  app$wait_for_idle(timeout = 20000)
+
+  outputs <- names(app$get_values()$output)
+  expect_true("illuminaarray-pca-pca-scatter" %in% outputs)
+})
+
+# the standalone "heatmap" app type takes prepareApp()'s simpleApp() branch
+# instead (a single nav_panel wrapping one module's Input/Output directly,
+# under the "pages" nav id rather than "<type>-<type>"), so it needs its own
+# smoke test rather than reusing the rnaseq-embedded heatmap tab test below
+
+test_that("the standalone heatmap app renders an interactive heatmap", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("heatmap", "heatmap-standalone")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+
+  outputs <- names(app$get_values()$output)
+  expect_true("heatmap-interactiveHeatmap" %in% outputs)
+  expect_true("heatmap-heatmap-selectmatrix-geneSelect_ui" %in% outputs)
+
+  # 12 samples in shinytest2_eselist(); the expression heatmap's main trace is
+  # a gene-by-sample matrix, so its column count should match sample number.
+  widget <- jsonlite::fromJSON(
+    app$get_value(output = "heatmap-interactiveHeatmap"),
+    simplifyVector = FALSE
+  )
+  heatmap_traces <- Filter(function(tr) identical(tr$type, "heatmap"), widget$x$data)
+  expect_gt(length(heatmap_traces), 0)
+
+  main_trace <- heatmap_traces[[which.max(vapply(heatmap_traces, function(tr) length(tr$z), integer(1)))]]
+  expect_equal(length(main_trace$x), 12)
+})
+
 # pca module (exercises selectmatrix internally)
 
 test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
