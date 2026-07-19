@@ -125,3 +125,50 @@ test_that("plotly_cluster_profiles uses a precomputed summarised_matrices_by_clu
   cluster3 <- built$x$data[[which(vapply(built$x$data, function(t) identical(as.character(t$name), "Cluster 3"), logical(1)))]]
   expect_true(all(as.numeric(cluster3$y) == 999))
 })
+
+# madScore()
+
+test_that("madScore flags a sample decorrelated from its group as an outlier", {
+  set.seed(1)
+  n_genes <- 50
+  base <- rnorm(n_genes)
+
+  # 4 samples correlated with each other, a 5th unrelated
+  correlated <- replicate(4, base + rnorm(n_genes, sd = 0.1))
+  outlier <- rnorm(n_genes)
+  mat <- cbind(correlated, outlier)
+  colnames(mat) <- paste0("s", 1:5)
+  rownames(mat) <- paste0("gene", seq_len(n_genes))
+
+  sample_sheet <- data.frame(group = rep("grp", 5), row.names = colnames(mat))
+
+  result <- madScore(mat, sample_sheet, groupby = "group")
+
+  expect_true(result["s5", "outlier"])
+  expect_false(any(result[paste0("s", 1:4), "outlier"]))
+})
+
+test_that("madScore warns and returns NULL when no group has enough replicates", {
+  mat <- matrix(rnorm(20), nrow = 5, dimnames = list(paste0("gene", 1:5), paste0("s", 1:4)))
+  sample_sheet <- data.frame(group = c("a", "a", "b", "b"), row.names = colnames(mat))
+
+  expect_warning(result <- madScore(mat, sample_sheet, groupby = "group"), "low replication")
+  expect_null(result)
+})
+
+test_that("madScore drops samples belonging to under-replicated groups before scoring", {
+  set.seed(2)
+  n_genes <- 30
+  base <- rnorm(n_genes)
+  valid_group <- replicate(3, base + rnorm(n_genes, sd = 0.1))
+  colnames(valid_group) <- paste0("v", 1:3)
+  invalid_group <- matrix(rnorm(n_genes * 2), nrow = n_genes, dimnames = list(NULL, c("i1", "i2")))
+
+  mat <- cbind(valid_group, invalid_group)
+  rownames(mat) <- paste0("gene", seq_len(n_genes))
+  sample_sheet <- data.frame(group = c(rep("valid", 3), rep("invalid", 2)), row.names = colnames(mat))
+
+  result <- madScore(mat, sample_sheet, groupby = "group")
+
+  expect_setequal(rownames(result), c("v1", "v2", "v3"))
+})

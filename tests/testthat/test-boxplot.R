@@ -134,3 +134,49 @@ test_that("plotly_boxplot bounds the number of outliers drawn", {
   total_outliers <- sum(vapply(outlier_traces, function(t) length(t$y), integer(1)))
   expect_lte(total_outliers, 20)
 })
+
+# ggplot_densityplot()
+
+test_that("ggplot_densityplot draws one density area per colorby level", {
+  set.seed(1)
+  mat <- matrix(rpois(80, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), paste0("s", 1:4)))
+  experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 2))
+
+  p <- ggplot_densityplot(mat, experiment, colorby = "condition")
+
+  expect_s3_class(p, "ggplot")
+  built <- ggplot2::ggplot_build(p)
+  expect_equal(length(unique(built$data[[1]]$fill)), 2)
+})
+
+test_that("ggplot_densityplot facets when given multiple matrices", {
+  mat1 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
+  mat2 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
+  experiment <- data.frame(row.names = c("s1", "s2"))
+
+  p <- ggplot_densityplot(list(Raw = mat1, Filtered = mat2), experiment)
+
+  expect_true("FacetWrap" %in% class(p$facet))
+})
+
+# plotly_densityplot()
+
+test_that("plotly_densityplot draws one density trace per colorby level", {
+  set.seed(1)
+  mat <- matrix(rpois(80, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), paste0("s", 1:4)))
+  experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 2))
+
+  built <- plotly::plotly_build(plotly_densityplot(mat, experiment, colorby = "condition"))
+
+  expect_length(built$x$data, 2)
+})
+
+test_that("plotly_densityplot subplots one panel per named matrix", {
+  mat1 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
+  mat2 <- matrix(rpois(40, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), c("s1", "s2")))
+  experiment <- data.frame(row.names = c("s1", "s2"), condition = c("control", "treated"))
+
+  built <- plotly::plotly_build(plotly_densityplot(list(Raw = mat1, Filtered = mat2), experiment, colorby = "condition"))
+
+  expect_length(built$x$data, 4)
+})
