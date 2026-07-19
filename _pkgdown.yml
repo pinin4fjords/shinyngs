@@ -80,6 +80,7 @@ reference:
   contents:
   - ggplot_boxplot
   - ggplot_densityplot
+  - ggplot_topgene_boxplots
   - ggplotify
   - interactiveHeatmap
   - plotly_barcodeplot
@@ -87,12 +88,14 @@ reference:
   - plotly_boxplot
   - plotly_cluster_profiles
   - plotly_clusteringDendrogram
+  - plotly_count_barplot
   - plotly_densityplot
   - plotly_illumina_control_probes
   - plotly_pca_metadata_heatmap
   - plotly_quartiles
   - plotly_scatterplot
   - plotly_screeplot
+  - plotly_topgene_boxplots
   - plotly_upset
   - static_scatterplot
   - makeColorScale
@@ -147,6 +150,9 @@ reference:
   - boxplotOutput
   - calculatePCAFractionExplained
   - cardinalNumericField
+  - categorycountplot
+  - categorycountplotInput
+  - categorycountplotOutput
   - chipseq
   - chipseqInput
   - clustering
@@ -276,6 +282,15 @@ reference:
   - summarytiles
   - summarytilesInput
   - summarytilesOutput
+  - topgeneAnnotationData
+  - topgeneAnnotationVector
+  - topgeneboxplot
+  - topgeneboxplotInput
+  - topgeneBoxplotData
+  - topgeneBoxplotLayout
+  - topgeneboxplotOutput
+  - topgeneRankOptions
+  - topgeneTransformAssay
   - upset
   - upsetInput
   - upsetOutput

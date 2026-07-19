@@ -810,12 +810,18 @@ contrastSelection <- function(getSelectedContrastNumbers, getAllContrasts, getCo
     })
   })
 
-  # Get samples for currently selected contrast
+  # Get samples for currently selected contrast(s), one entry per filter set
+  # (matching the nesting of getSelectedContrasts() above): each entry is
+  # itself a list of list(group_1_samples, group_2_samples), one per
+  # contrast selected within that filter set
 
   getSelectedContrastSamples <- reactive({
     contrast_samples <- getContrastSamples()
-    selected_contrasts <- getSelectedContrastNumbers()
-    contrast_samples[[selected_contrasts]]
+    scn <- getSelectedContrastNumbers()
+
+    lapply(scn, function(s) {
+      contrast_samples[s]
+    })
   })
 
   # If we're only looking at a single contrast filter with a single contrast (e.g. for a fold change plot etc), then we can simplify.
