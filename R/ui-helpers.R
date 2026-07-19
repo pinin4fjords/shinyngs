@@ -72,7 +72,11 @@ shinyngsPageNavbar <- function(navbar_menus) {
   no_flash <- tags$head(tags$script(HTML(
     "(function(){try{var d=document.documentElement;if(!d.lang){d.lang='en';}if(!d.getAttribute('data-bs-theme')){var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;d.setAttribute('data-bs-theme',m?'dark':'light');}}catch(e){}})();"
   )))
-  navbar_menus$header <- tagList(no_flash, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
+  favicon <- tags$head(
+    tags$link(rel = "icon", type = "image/svg+xml", href = "shinyngs-www/favicon.svg"),
+    tags$link(rel = "alternate icon", href = "shinyngs-www/favicon.ico")
+  )
+  navbar_menus$header <- tagList(no_flash, favicon, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
   navbar_menus <- c(navbar_menus, list(
     bslib::nav_spacer(),
     bslib::nav_item(actionButton(
