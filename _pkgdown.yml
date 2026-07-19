@@ -88,6 +88,7 @@ reference:
   - plotly_densityplot
   - plotly_quartiles
   - plotly_scatterplot
+  - plotly_screeplot
   - static_scatterplot
   - makeColorScale
 
