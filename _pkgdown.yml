@@ -56,7 +56,6 @@ reference:
   - cond_log2_transform_assays
   - cond_log2_transform_matrix
   - foldChange
-  - geom_mean
   - guess_foldchange_scale
   - madScore
   - resolve_deprecated_unlog_foldchanges
