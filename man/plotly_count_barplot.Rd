@@ -39,7 +39,7 @@ Tallies a categorical column from a feature annotation table (e.g.
 \code{mcols()}/\code{rowData()} of a \code{SummarizedExperiment}, or the
 data frame returned by the \code{selectmatrix} module's
 \code{getAnnotation()}) and renders the counts as a bar chart via
-\code{\link{plotly_barplot}}. Generalises the shape of the
+\code{\link{plotly_barchart}}. Generalises the shape of the
 differential-expression-by-biotype plot rendered by the
 nf-core/differentialabundance report to any categorical annotation column.
 }

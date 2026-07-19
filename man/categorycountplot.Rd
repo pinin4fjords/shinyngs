@@ -16,7 +16,7 @@ sample) whose categorical (non-numeric) columns are offered for counting}
 }
 \description{
 Lets the user tally rows of a data frame by a categorical column,
-optionally split by a second, rendered via \code{\link{plotly_barplot}}
+optionally split by a second, rendered via \code{\link{plotly_barchart}}
 (the same tally that \code{\link{plotly_count_barplot}} exposes as a
 standalone function). Identifier-like columns (e.g. a gene or sample
 ID/name, where almost every row has its own distinct value) are excluded,
