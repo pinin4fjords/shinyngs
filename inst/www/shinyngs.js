@@ -85,6 +85,19 @@
     themeAllPlots(false);
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
 
+  // <bslib-input-dark-mode> can start desynced from the visible theme on a
+  // light-resolved load, needing an extra click before it responds. Force its
+  // mode from the same OS-preference check the no-flash script uses, rather
+  // than trusting data-bs-theme, which the component can itself miswrite.
+  $(function () {
+    customElements.whenDefined("bslib-input-dark-mode").then(function () {
+      var el = document.querySelector("bslib-input-dark-mode");
+      if (!el) return;
+      var theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      if (el.mode !== theme) el.mode = theme;
+    });
+  });
+
   // Re-theme each plot as Shiny (re)renders it. The output element id is
   // e.name; the plotly widget is that element or a descendant of it.
   $(document).on("shiny:value", function (e) {
