@@ -6,7 +6,7 @@
 #' share the same input scaffolding (expression matrix selection, contrast
 #' selection, scatter plot controls, gene highlighting, table export). Only
 #' the numeric transform and threshold-line logic genuinely differ between
-#' them - see \code{\link{differentialScatterServer}}.
+#' them - see \code{\link{differentialscatterLogic}}.
 #'
 #' @param id Submodule namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
@@ -23,7 +23,7 @@
 #' @return A list of input tags
 #'
 #' @keywords shiny
-differentialScatterInput <- function(id, eselist, scatter_id, require_contrast_stats = FALSE,
+differentialscatterInput <- function(id, eselist, scatter_id, require_contrast_stats = FALSE,
                                       multi_view_fn = function(esel) !singleValidMatrix(esel)) {
   ns <- NS(id)
 
@@ -62,7 +62,7 @@ differentialScatterInput <- function(id, eselist, scatter_id, require_contrast_s
 #'
 #' @param id Module namespace
 #' @param scatter_id Sub-namespace matching the one passed to
-#'   \code{\link{differentialScatterInput}}
+#'   \code{\link{differentialscatterInput}}
 #' @param title Plot title shown above the output
 #' @param modal A list with \code{id} and \code{title} elements identifying
 #'   the help modal for this module (e.g. \code{volcanoplot_modal})
@@ -71,7 +71,7 @@ differentialScatterInput <- function(id, eselist, scatter_id, require_contrast_s
 #'   as.character()
 #'
 #' @keywords shiny
-differentialScatterOutput <- function(id, scatter_id, title, modal) {
+differentialscatterOutput <- function(id, scatter_id, title, modal) {
   ns <- NS(id)
 
   moduleMain(
@@ -101,7 +101,7 @@ differentialScatterOutput <- function(id, scatter_id, title, modal) {
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
 #' @param scatter_id Sub-namespace matching the one passed to
-#'   \code{\link{differentialScatterInput}}
+#'   \code{\link{differentialscatterInput}}
 #' @param buildTable Function of \code{contrast_reactives} returning the
 #'   module-specific data frame, before colorby/label annotation. Its first
 #'   two columns are used as the plotted x and y values.
@@ -112,7 +112,7 @@ differentialScatterOutput <- function(id, scatter_id, title, modal) {
 #'   populated \code{contrast_stats} slot
 #'
 #' @keywords shiny
-differentialScatterServer <- function(input, output, session, eselist, scatter_id, buildTable, buildLines, filename, require_contrast_stats = FALSE) {
+differentialscatterLogic <- function(input, output, session, eselist, scatter_id, buildTable, buildLines, filename, require_contrast_stats = FALSE) {
   ns <- session$ns
 
   # Call the selectmatrix module and hold on to the reactives it sends back

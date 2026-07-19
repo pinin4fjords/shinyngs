@@ -39,7 +39,7 @@ volcanoplot_scatter <- list(
 #' }
 #'
 volcanoplotInput <- function(id, eselist) {
-  differentialScatterInput(id, eselist,
+  differentialscatterInput(id, eselist,
     scatter_id = volcanoplot_scatter$scatter_id,
     require_contrast_stats = volcanoplot_scatter$require_contrast_stats,
     multi_view_fn = volcanoplot_scatter$multi_view_fn
@@ -79,7 +79,7 @@ volcanoplotInput <- function(id, eselist) {
 #' }
 #'
 volcanoplotOutput <- function(id) {
-  differentialScatterOutput(id, scatter_id = volcanoplot_scatter$scatter_id, title = "Volcano plot", modal = volcanoplot_modal)
+  differentialscatterOutput(id, scatter_id = volcanoplot_scatter$scatter_id, title = "Volcano plot", modal = volcanoplot_modal)
 }
 
 #' Select which volcano plot threshold lines to draw
@@ -141,7 +141,7 @@ volcanoplot <- function(id, eselist) {
   moduleServer(id, function(input, output, session) {
     modalServer(volcanoplot_modal$id, volcanoplot_modal$title)
 
-    differentialScatterServer(input, output, session, eselist,
+    differentialscatterLogic(input, output, session, eselist,
       scatter_id = volcanoplot_scatter$scatter_id,
       require_contrast_stats = volcanoplot_scatter$require_contrast_stats,
       filename = volcanoplot_scatter$filename,

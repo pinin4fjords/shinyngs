@@ -53,7 +53,7 @@ illuminaarrayqcOutput <- function(id) {
 
   moduleMain(
     "Illumina microarray QC plot",
-    shinycssloaders::withSpinner(plotlyOutput(ns("qcplot"), height = 600), color = shinyngsSpinnerColor()),
+    shinycssloaders::withSpinner(plotlyOutput(ns("qcplot"), height = "600px"), color = shinyngsSpinnerColor()),
     h4("Table of data"),
     simpletableOutput(ns("qctable")),
     help = modalInput(ns(illuminaarrayqc_modal$id), "help", "help")

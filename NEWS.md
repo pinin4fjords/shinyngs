@@ -43,3 +43,10 @@
 * Removed the unused exported function `geom_mean()`; geometric means are
   computed directly by `colGeomMeans()`.
 * Declared `grDevices` under `Imports` (it was already used).
+* Normalised a handful of module house-style outliers: the shared
+  differential-scatter helper trio is now `differentialscatterInput()` /
+  `differentialscatterOutput()` / `differentialscatterLogic()` (lowercase,
+  and no misleading `Server` suffix on the non-module logic helper);
+  `contrasts.R` now uses `validate(need())` throughout instead of a mix with
+  `req()`; and `plotlyOutput()` heights consistently use a quoted `"NNNpx"`
+  string for fixed heights or a bare numeric for computed ones.

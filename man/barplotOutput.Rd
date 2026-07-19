@@ -4,7 +4,7 @@
 \alias{barplotOutput}
 \title{Output function of the \code{barplot} module}
 \usage{
-barplotOutput(id, height = "400")
+barplotOutput(id, height = 400)
 }
 \arguments{
 \item{id}{Submodule namespace}
