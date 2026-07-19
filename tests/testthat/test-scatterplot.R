@@ -53,3 +53,56 @@ test_that("3D scatter labels each scene axis with its own title", {
   expect_equal(scene$yaxis$title, "ytitle")
   expect_equal(scene$zaxis$title, "ztitle")
 })
+
+test_that("xrange/yrange override the auto-computed axis range and the extent of threshold lines", {
+  x <- c(-4, -1, 0, 1, 3)
+  y <- c(-2, 0, 1, 2, 4)
+
+  p <- plotly_scatterplot(
+    x = x, y = y,
+    hline_thresholds = list(threshold = 0),
+    xrange = c(-10, 10),
+    yrange = c(-5, 5)
+  )
+  built <- plotly::plotly_build(p)
+
+  expect_equal(built$x$layout$xaxis$range, c(-10, 10))
+  expect_equal(built$x$layout$yaxis$range, c(-5, 5))
+
+  hline_trace <- Filter(function(tr) identical(tr$name, "threshold"), built$x$data)[[1]]
+  expect_equal(sort(hline_trace$x), c(-10, 10))
+})
+
+# plotly_scatterplot() colorby_menu
+
+test_that("colorby_menu adds a dropdown and shows only the first option's points initially", {
+  x <- c(1, 2, 3, 4)
+  y <- c(4, 3, 2, 1)
+  colorby_menu <- list(
+    Group = c("A", "A", "B", "B"),
+    Batch = c("1", "2", "1", "2")
+  )
+
+  p <- plotly_scatterplot(x = x, y = y, colorby_menu = colorby_menu)
+  built <- plotly::plotly_build(p)
+
+  updatemenus <- built$x$layout$updatemenus
+  expect_length(updatemenus, 1)
+
+  button_labels <- vapply(updatemenus[[1]]$buttons, function(b) b$label, character(1))
+  expect_equal(button_labels, c("Group", "Batch"))
+
+  trace_names <- vapply(built$x$data, function(tr) tr$name, character(1))
+  visible <- vapply(built$x$data, function(tr) isTRUE(tr$visible), logical(1))
+
+  expect_equal(sum(visible), 2)
+  expect_true(all(trace_names[visible] %in% c("A", "B")))
+  expect_true(all(!(trace_names[!visible] %in% c("A", "B"))))
+})
+
+test_that("colorby_menu is opt-in: omitting it leaves the plot without any updatemenus", {
+  p <- plotly_scatterplot(x = c(1, 2, 3), y = c(3, 2, 1), colorby = c("A", "B", "A"))
+  built <- plotly::plotly_build(p)
+
+  expect_null(built$x$layout$updatemenus)
+})
