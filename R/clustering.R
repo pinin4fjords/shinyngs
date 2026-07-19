@@ -372,7 +372,10 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE, 
 #'
 #' @return out The bootstrap estimate of the median
 #' @export
-
+#'
+#' @examples
+#' bootstrapMedian(rnorm(50), num = 100)
+#'
 bootstrapMedian <- function(data, num) {
   resamples <- lapply(seq_len(num), function(i) sample(data, replace = TRUE))
   r.median <- sapply(resamples, median)

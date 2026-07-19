@@ -15,3 +15,7 @@ output Prettified version
 \description{
 Prettify gene set names like those from MSigDB
 }
+\examples{
+prettifyGeneSetName("KEGG_GLYCOLYSIS_GLUCONEOGENESIS")
+
+}

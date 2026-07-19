@@ -495,7 +495,16 @@ plotly_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
 #' @export
 #'
 #' @return output A \code{ggplot} output
-
+#'
+#' @examples
+#' mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,
+#'   dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+#' experiment <- data.frame(
+#'   condition = rep(c("treated", "control"), each = 2),
+#'   row.names = colnames(mat)
+#' )
+#' ggplot_densityplot(mat, experiment, colorby = "condition")
+#'
 ggplot_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", base_size = 16, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)

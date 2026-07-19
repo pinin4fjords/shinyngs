@@ -15,3 +15,7 @@ output Separator character like tab or ','
 \description{
 Infer a separator from the extension of an input file
 }
+\examples{
+getSeparator("my_metadata.tsv")
+
+}

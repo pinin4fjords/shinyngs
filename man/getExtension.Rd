@@ -15,3 +15,7 @@ extension Extension like 'csv' or 'tsv'
 \description{
 Extract the extension of a file
 }
+\examples{
+getExtension("my_metadata.tsv")
+
+}

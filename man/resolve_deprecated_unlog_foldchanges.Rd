@@ -23,3 +23,8 @@ Shared by \code{read_differential}, \code{compile_contrast_data},
 \code{differential_plots.R} and \code{validate_fom_components.R} scripts
 under \code{exec/}, so the shim only needs to be written once.
 }
+\examples{
+resolve_deprecated_unlog_foldchanges("auto", NULL)
+resolve_deprecated_unlog_foldchanges("auto", TRUE)
+
+}

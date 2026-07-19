@@ -16,3 +16,10 @@ output Logical value
 \description{
 Convenience function for deciding how to construct filters
 }
+\examples{
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese, title = "Airway study")
+singleValidMatrix(eselist)
+
+}

@@ -26,3 +26,7 @@ output Returns TRUE if check passes
 \description{
 Check one list is a subset of another and throw an error if not
 }
+\examples{
+checkListIsSubset(c("treatment"), c("treatment", "batch"), "contrast variables", "sample metadata")
+
+}
