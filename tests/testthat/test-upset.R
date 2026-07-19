@@ -46,10 +46,9 @@ make_upset_eselist <- function() {
 }
 
 # Drives the upset module up to the point where its reactives are ready to
-# read, mirroring the differentialtable testServer test in
-# test-shinytest2.R: selectmatrix/contrasts inputs are only rendered
-# client-side (via uiOutput()/insertUI()), so testServer needs every one of
-# them set explicitly rather than relying on the widget defaults.
+# read. selectmatrix/contrasts inputs are only rendered client-side (via
+# uiOutput()/insertUI()), so testServer needs every one of them set
+# explicitly rather than relying on the widget defaults.
 
 run_upset_server <- function(eselist, extra_inputs = list(), expr) {
   args <- modifyList(

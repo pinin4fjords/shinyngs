@@ -1,8 +1,7 @@
-# Extends the single testServer example of differentialtable() in
-# test-shinytest2.R (a basic "computes a table without error" smoke test)
-# with dedicated coverage of contrast selection and fold-change/p/q-value
-# filtering, using the shared shinytest2_eselist() fixture (60 genes x 12
-# samples, one contrast, with fold_changes/pvals/qvals populated).
+# Dedicated coverage of differentialtable()'s contrast selection and
+# fold-change/p/q-value filtering, using the shared shinytest2_eselist()
+# fixture (60 genes x 12 samples, one contrast, with
+# fold_changes/pvals/qvals populated).
 
 run_differentialtable_server <- function(eselist, extra_inputs = list(), expr) {
   inputs <- modifyList(
