@@ -512,8 +512,6 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
             } else {
               filterset_values[[filterId]][[field]] <<- input[[filter_field_id]]
             }
-
-            # filterset_values[[filterId]][[paste0(field, 'card')]] <<- input[[paste0(filter_field_id, 'card')]]
           },
           ignoreNULL = FALSE
         )

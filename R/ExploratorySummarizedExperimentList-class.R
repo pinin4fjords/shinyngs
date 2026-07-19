@@ -157,7 +157,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
         is_numeric <- all(!is.na(suppressWarnings(as.numeric(annotation[[gene_set_id_type]]))))
       }
 
-      print("Processing gene sets")
+      message("Processing gene sets")
 
       gene_sets_by_name[[labelfield]] <- lapply(gene_sets, function(gene_set_collection) {
         gsc <- lapply(gene_set_collection, function(gene_set_ids) {
@@ -171,7 +171,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
         names(gsc) <- names(gene_set_collection)
         gsc
       })
-      print("Done processing")
+      message("Done processing")
     }
 
     gene_sets <- gene_sets_by_name
@@ -179,7 +179,7 @@ ExploratorySummarizedExperimentList <- function(eses, title = "", author = "", d
     gene_sets <- list()
   }
 
-  print("Creating ExploratorySummarizedExperimentList object")
+  message("Creating ExploratorySummarizedExperimentList object")
 
   new("ExploratorySummarizedExperimentList", eses,
     title = title, author = author, description = description, static_pdf = static_pdf, group_vars = group_vars, default_groupvar = default_groupvar,
