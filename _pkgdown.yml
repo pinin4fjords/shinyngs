@@ -86,9 +86,11 @@ reference:
   - plotly_boxplot
   - plotly_clusteringDendrogram
   - plotly_densityplot
+  - plotly_pca_metadata_heatmap
   - plotly_quartiles
   - plotly_scatterplot
   - plotly_screeplot
+  - plotly_upset
   - static_scatterplot
   - makeColorScale
 
