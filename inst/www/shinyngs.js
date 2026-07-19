@@ -85,6 +85,26 @@
     themeAllPlots(false);
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
 
+  // Work around a bslib bug (srcts inputDarkMode.ts, shipped in bslib 0.9.0):
+  // <bslib-input-dark-mode>'s connectedCallback resolves an initial "light"
+  // theme with `this.mode == "light"` - a stray comparison, not an assignment
+  // - so its internal mode stays undefined whenever the page resolves to
+  // light on load. It then reflects that undefined mode back onto
+  // data-bs-theme (as the literal string "undefined"), clobbering the value
+  // the no-flash script set - so the attribute can't be trusted as a source
+  // of truth here either. The toggle needs one click just to catch up to the
+  // theme that's actually showing before a second click can flip it. Force
+  // the component's mode from the same OS-preference check the no-flash
+  // script uses, independent of any bslib-internal state.
+  $(function () {
+    customElements.whenDefined("bslib-input-dark-mode").then(function () {
+      var el = document.querySelector("bslib-input-dark-mode");
+      if (!el) return;
+      var theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      if (el.mode !== theme) el.mode = theme;
+    });
+  });
+
   // Re-theme each plot as Shiny (re)renders it. The output element id is
   // e.name; the plotly widget is that element or a descendant of it.
   $(document).on("shiny:value", function (e) {
