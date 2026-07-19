@@ -13,6 +13,7 @@
 ^\.DS_Store$
 ^Rplots\.pdf$
 ^pkgdown$
+^vignettes/articles$
 ^\.lintr$
 ^CONTRIBUTING\.md$
 ^\.claude$

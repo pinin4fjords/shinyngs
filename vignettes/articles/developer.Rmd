@@ -1,10 +1,6 @@
 ---
 title: "Developer guide: how modules work and how to add one"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Developer guide: how modules work and how to add one}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: rmarkdown::html_document
 ---
 
 ```{r setup, include = FALSE}
