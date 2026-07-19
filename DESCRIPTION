@@ -15,7 +15,6 @@ LazyData: true
 Imports:
     bslib (>= 0.9.0),
     cluster,
-    data.table,
     dplyr,
     DT (>= 0.2),
     ggbeeswarm,
@@ -29,7 +28,6 @@ Imports:
     methods,
     plotly (>= 4.8.0),
     RColorBrewer,
-    reformulas,
     scatterplot3d,
     shiny (>= 1.7.0),
     shinycssloaders,

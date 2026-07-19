@@ -112,8 +112,6 @@ contrastsOutput <- function(id) {
 #'
 #' @keywords shiny
 #'
-#' @import data.table
-#'
 #' @examples
 #' contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
 #'

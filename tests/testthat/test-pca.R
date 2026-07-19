@@ -91,3 +91,27 @@ test_that("calculatePCAFractionExplained returns percentages that sum to 100", {
   expect_equal(sum(fraction), 100)
   expect_equal(length(fraction), length(pca$sdev))
 })
+
+# plotly_screeplot()
+
+test_that("plotly_screeplot draws one point per component with a single trace", {
+  built <- plotly::plotly_build(plotly_screeplot(c(45, 25, 15, 10, 5)))
+
+  expect_length(built$x$data, 1)
+  expect_equal(as.character(built$x$data[[1]]$x), paste0("PC", 1:5))
+  expect_equal(as.numeric(built$x$data[[1]]$y), c(45, 25, 15, 10, 5))
+})
+
+test_that("plotly_screeplot respects n_components", {
+  built <- plotly::plotly_build(plotly_screeplot(c(45, 25, 15, 10, 5), n_components = 3))
+
+  expect_equal(as.character(built$x$data[[1]]$x), paste0("PC", 1:3))
+  expect_equal(as.numeric(built$x$data[[1]]$y), c(45, 25, 15))
+})
+
+test_that("plotly_screeplot adds a cumulative trace when requested", {
+  built <- plotly::plotly_build(plotly_screeplot(c(45, 25, 15, 10, 5), cumulative = TRUE))
+
+  expect_length(built$x$data, 2)
+  expect_equal(as.numeric(built$x$data[[2]]$y), cumsum(c(45, 25, 15, 10, 5)))
+})

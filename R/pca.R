@@ -45,7 +45,10 @@ pcaInput <- function(id, eselist) {
 
   fieldSets(ns("fieldset"), list(
     principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))),
-    expression = expression_filters, export = list(simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"))
+    expression = expression_filters, export = list(
+      simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"),
+      simpletableInput(ns("screeplot"), tabletitle = "Scree")
+    )
   ))
 }
 
@@ -82,7 +85,11 @@ pcaOutput <- function(id) {
     "Principal components analysis",
     tabsetPanel(
       tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"), spinner = TRUE)),
-      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings", spinner = TRUE)))
+      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings", spinner = TRUE))),
+      tabPanel("Scree plot", list(
+        shinycssloaders::withSpinner(plotlyOutput(ns("screeplot"), height = "600px"), color = shinyngsSpinnerColor()),
+        simpletableOutput(ns("screeplot"), tabletitle = "Scree", spinner = TRUE)
+      ))
     ),
     help = modalInput(ns(pca_modal$id), "help", "help")
   )
@@ -154,6 +161,10 @@ pca <- function(id, eselist) {
 
     getLoadingTitle <- reactive({
       paste("Loading plot for PCA on matrix:", tolower(selectmatrix_reactives$matrixTitle()))
+    })
+
+    getScreeTitle <- reactive({
+      paste("Scree plot for PCA on matrix:", tolower(selectmatrix_reactives$matrixTitle()))
     })
 
     # Make a matrix of values to the PCA
@@ -281,6 +292,26 @@ pca <- function(id, eselist) {
     simpletable("components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE, server = FALSE)
 
     simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE, server = FALSE)
+
+    output$screeplot <- renderPlotly({
+      plotly_screeplot(calculatePCAFractionExplained(), cumulative = TRUE, title = getScreeTitle()) %>%
+        shinyngsPlotlyConfig("screeplot", format = session$userData$plotFormat())
+    })
+
+    # Table backing the scree plot, with cumulative variance alongside the
+    # per-component fraction shown in the plot
+
+    screeplotTable <- reactive({
+      fraction_explained <- calculatePCAFractionExplained()
+      data.frame(
+        row.names = paste0("PC", seq_along(fraction_explained)),
+        `% variance explained` = round(fraction_explained, 3),
+        `Cumulative % variance explained` = round(cumsum(fraction_explained), 3),
+        check.names = FALSE
+      )
+    })
+
+    simpletable("screeplot", downloadMatrix = screeplotTable, displayMatrix = screeplotTable, filename = "screeplot", rownames = TRUE)
   })
 }
 
@@ -356,4 +387,56 @@ compilePCAData <- function(matrix, ntop = NULL) {
 #'
 calculatePCAFractionExplained <- function(pca) {
   round((pca$sdev)^2 / sum(pca$sdev^2), 3) * 100
+}
+
+#' Make a PCA scree plot with \code{plot_ly()}
+#'
+#' Plots the percent variance explained by each principal component as a
+#' lines+markers trace, with an optional cumulative variance overlay.
+#'
+#' @param fraction_explained Numeric vector of percent variance explained by
+#'   each principal component, in order (e.g. from
+#'   \code{\link{calculatePCAFractionExplained}}, or the \code{percentVar}
+#'   element returned by \code{\link{compilePCAData}}).
+#' @param n_components Number of leading components to plot. Defaults to all
+#'   of \code{fraction_explained}.
+#' @param cumulative Boolean: add a cumulative variance explained trace?
+#' @param palette_name Valid R color palette name
+#' @param title Plot title
+#'
+#' @return output Plotly plot object
+#'
+#' @export
+#'
+#' @examples
+#' plotly_screeplot(c(45, 25, 15, 10, 5))
+#'
+plotly_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot") {
+  if (is.null(n_components)) {
+    n_components <- length(fraction_explained)
+  }
+  n_components <- min(n_components, length(fraction_explained))
+
+  fraction_explained <- fraction_explained[seq_len(n_components)]
+  components <- factor(paste0("PC", seq_len(n_components)), levels = paste0("PC", seq_len(n_components)))
+
+  traces <- list(list(y = fraction_explained, name = "% variance explained"))
+  if (cumulative) {
+    traces <- c(traces, list(list(y = cumsum(fraction_explained), name = "cumulative % variance explained")))
+  }
+  palette <- makeColorScale(length(traces), palette = palette_name)
+
+  p <- plot_ly()
+  for (i in seq_along(traces)) {
+    p <- p %>% add_trace(
+      x = components, y = traces[[i]]$y, type = "scatter", mode = "lines+markers",
+      name = traces[[i]]$name, line = list(color = palette[i]), marker = list(color = palette[i])
+    )
+  }
+
+  p %>% layout(
+    title = title,
+    xaxis = list(title = "Principal component"),
+    yaxis = list(title = "% variance explained", rangemode = "tozero")
+  )
 }
