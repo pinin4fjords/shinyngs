@@ -483,9 +483,6 @@ matrices.
 - [`foldChange()`](https://pinin4fjords.github.io/shinyngs/reference/foldChange.md)
   : Calculate fold change between two vectors
 
-- [`geom_mean()`](https://pinin4fjords.github.io/shinyngs/reference/geom_mean.md)
-  : Geometric mean
-
 - [`guess_foldchange_scale()`](https://pinin4fjords.github.io/shinyngs/reference/guess_foldchange_scale.md)
   : Guess whether fold change values are on a log2 or linear scale
 
@@ -600,6 +597,9 @@ interactive output.
   :
 
   Make a PCA-vs-metadata association heatmap with `heatmaply()`
+
+- [`plotly_pca_variance_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_pca_variance_heatmap.md)
+  : Combine the PCA-vs-metadata heatmap with a synced scree plot
 
 - [`plotly_quartiles()`](https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.md)
   : Make a line-based alternative to boxplots
@@ -862,15 +862,15 @@ vignette for the supported way to build and combine modules.
 - [`dexseqtableOutput()`](https://pinin4fjords.github.io/shinyngs/reference/dexseqtableOutput.md)
   : The output function of the dexseqtable module
 
-- [`differentialScatterInput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterInput.md)
+- [`differentialscatterInput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterInput.md)
   : Shared UI input scaffolding for the differential-scatter plot
   modules
 
-- [`differentialScatterOutput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterOutput.md)
-  : Shared output scaffolding for the differential-scatter plot modules
-
-- [`differentialScatterServer()`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterServer.md)
+- [`differentialscatterLogic()`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterLogic.md)
   : Shared server logic for the differential-scatter plot modules
+
+- [`differentialscatterOutput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterOutput.md)
+  : Shared output scaffolding for the differential-scatter plot modules
 
 - [`differentialtable()`](https://pinin4fjords.github.io/shinyngs/reference/differentialtable.md)
   : The server function of the differentialtable module
@@ -1037,9 +1037,6 @@ vignette for the supported way to build and combine modules.
   : Make a complete set of filters for a contrast: the contrast itself,
   fold change, and where applicable p- and q- values.
 
-- [`makePackageCitation()`](https://pinin4fjords.github.io/shinyngs/reference/makePackageCitation.md)
-  : Return a usable citation string for a package
-
 - [`maplot()`](https://pinin4fjords.github.io/shinyngs/reference/maplot.md)
   :
 
@@ -1082,6 +1079,9 @@ vignette for the supported way to build and combine modules.
 
 - [`pcaOutput()`](https://pinin4fjords.github.io/shinyngs/reference/pcaOutput.md)
   : The output function of the pca module
+
+- [`pcLabels()`](https://pinin4fjords.github.io/shinyngs/reference/pcLabels.md)
+  : Plain "PC1", "PC2", ... labels for the leading n components
 
 - [`plotdownload()`](https://pinin4fjords.github.io/shinyngs/reference/plotdownload.md)
   : The server function of the gene set module
@@ -1258,13 +1258,13 @@ vignette for the supported way to build and combine modules.
   genes
 
 - [`upset()`](https://pinin4fjords.github.io/shinyngs/reference/upset.md)
-  : The server function of the upstart module
+  : The server function of the upset module
 
 - [`upsetInput()`](https://pinin4fjords.github.io/shinyngs/reference/upsetInput.md)
   : The input function of the upset module
 
 - [`upsetOutput()`](https://pinin4fjords.github.io/shinyngs/reference/upsetOutput.md)
-  : The output function of the clustering module
+  : The output function of the upset module
 
 - [`upset_calculate_intersections()`](https://pinin4fjords.github.io/shinyngs/reference/upset_calculate_intersections.md)
   : Compute set intersections and sizes for an UpSet-style plot

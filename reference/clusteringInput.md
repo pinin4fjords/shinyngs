@@ -41,7 +41,7 @@ library(shinyngs)
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 clusteringInput("myid", eselist)
 #> Error in clusteringInput("myid", eselist): could not find function "clusteringInput"
 ```

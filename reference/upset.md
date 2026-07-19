@@ -1,4 +1,4 @@
-# The server function of the upstart module
+# The server function of the upset module
 
 This module illustrates the intersection of differential sets using a
 reimplementation of the `upset` tool of Lex, Gehlenborg et al. The
@@ -46,6 +46,6 @@ version 1.3.0, <https://CRAN.R-project.org/package=UpSetR>
 ## Examples
 
 ``` r
-upstart("myid", eselist)
-#> Error in upstart("myid", eselist): could not find function "upstart"
+upset("myid", eselist)
+#> Error in upset("myid", eselist): could not find function "upset"
 ```

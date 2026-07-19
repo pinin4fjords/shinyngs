@@ -85,3 +85,42 @@ validate_inputs(
 ## Value
 
 output A named list with feature/ observation components
+
+## Examples
+
+``` r
+sample_metadata_file <- tempfile(fileext = ".csv")
+write.csv(
+  data.frame(sample = paste0("s", 1:4), condition = rep(c("treated", "control"), each = 2)),
+  sample_metadata_file, row.names = FALSE
+)
+mat <- matrix(1:12, nrow = 3, dimnames = list(paste0("gene", 1:3), paste0("s", 1:4)))
+matrix_file <- tempfile(fileext = ".csv")
+write.csv(
+  data.frame(gene_id = rownames(mat), mat, check.names = FALSE),
+  matrix_file, row.names = FALSE
+)
+validate_inputs(
+  samples_metadata = sample_metadata_file,
+  assay_files = matrix_file,
+  sample_id_col = "sample"
+)
+#> Reading sample sheet at /tmp/RtmpTu3k9P/file29d66f3030e6.csv with ID col sample
+#> Reading assay matrix /tmp/RtmpTu3k9P/file29d649c5dc47.csv and validating against samples and features (if supplied)
+#> ...  /tmp/RtmpTu3k9P/file29d649c5dc47.csv matrix good
+#> $`/tmp/RtmpTu3k9P/file29d66f3030e6.csv`
+#>    sample condition
+#> s1     s1   treated
+#> s2     s2   treated
+#> s3     s3   control
+#> s4     s4   control
+#> 
+#> $assays
+#> $assays$`/tmp/RtmpTu3k9P/file29d649c5dc47.csv`
+#>       s1 s2 s3 s4
+#> gene1  1  4  7 10
+#> gene2  2  5  8 11
+#> gene3  3  6  9 12
+#> 
+#> 
+```

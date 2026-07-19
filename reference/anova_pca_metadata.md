@@ -6,7 +6,7 @@ with categorical covariates.
 ## Usage
 
 ``` r
-anova_pca_metadata(pca_coords, pcameta, fraction_explained)
+anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 10)
 ```
 
 ## Arguments
@@ -26,6 +26,11 @@ anova_pca_metadata(pca_coords, pcameta, fraction_explained)
   Numeric vector containing the percent contribution to variance of each
   component
 
+- n_components:
+
+  Number of leading components to test. Clamped to the number actually
+  available in `pca_coords` if that's fewer.
+
 ## Value
 
 output A numeric matrix of p values
@@ -42,7 +47,7 @@ pcameta <- data.frame(
   row.names = colnames(mat)
 )
 anova_pca_metadata(pca$coords, pcameta, pca$percentVar)
-#>           PC1 (29.2%) PC2 (25.4%) PC3 (21%) PC4 (13.8%) PC5 (10.6%)   PC6 (0%)
-#> condition  0.01028394   0.8802899 0.5144010   0.7611769   0.8139402 0.07605518
-#> batch      0.81659176   0.4715556 0.2040988   0.7279466   0.2201930 0.56645489
+#>                  PC1       PC2       PC3       PC4       PC5        PC6
+#> condition 0.01028394 0.8802899 0.5144010 0.7611769 0.8139402 0.07605518
+#> batch     0.81659176 0.4715556 0.2040988 0.7279466 0.2201930 0.56645489
 ```

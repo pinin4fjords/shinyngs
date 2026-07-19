@@ -38,7 +38,7 @@ library(shinyngs)
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 dendroInput("myid", eselist)
 #> Error in dendroInput("myid", eselist): could not find function "dendroInput"
 ```

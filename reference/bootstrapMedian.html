@@ -17,18 +17,17 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/shinyngs.html">Get started</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Building apps</h6></li>
-    <li><a class="dropdown-item" href="../articles/data-model.html">The data model: building ExploratorySummarizedExperiment objects</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-building-apps" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Building apps</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-building-apps"><li><a class="dropdown-item" href="../articles/data-model.html">The data model</a></li>
     <li><a class="dropdown-item" href="../articles/build-from-files.html">Building an app from files and YAML</a></li>
     <li><a class="dropdown-item" href="../articles/cli.html">Command-line interface reference</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Using &amp; extending</h6></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module and panel catalog</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-using-extending" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Using &amp; extending</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-using-extending"><li><a class="dropdown-item" href="../articles/modules.html">Module and panel catalog</a></li>
     <li><a class="dropdown-item" href="../articles/reuse.html">Reusing components inside and outside Shiny</a></li>
     <li><a class="dropdown-item" href="../articles/theming.html">Theming, palettes and shareable views</a></li>
-    <li><a class="dropdown-item" href="../articles/developer.html">Developer guide: how modules work and how to add one</a></li>
+    <li><a class="dropdown-item" href="../articles/developer.html">Developer guide</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -73,6 +72,1139 @@
     <p>out The bootstrap estimate of the median</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">bootstrapMedian</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>, num <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $std.err</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1826979</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.85520250  0.06730444  0.42656655  0.84618466  0.06730444  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.22712713  0.97845492  1.07283825 -0.79554143  0.42656655  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.67288261  0.89496163 -0.44179945  0.19214942  1.07283825 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.94634789 -0.79554143  1.04871262 -0.53666333 -0.85520250 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.68428153  0.44945378  0.08171963 -0.44179945 -0.52826408  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.94634789  2.12685046 -0.85520250  0.60361101 -0.69053790  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.39181405  0.24940178  0.56859986 -0.94491206  0.42656655  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.05673687  2.03936926  2.12685046  1.04871262 -0.55854199  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.14619967 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[2]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.84618466  0.84618466  0.08171963 -0.20888265 -0.53666333  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42485844 -0.44179945  0.42656655  0.97845492  0.48614892 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.30511701  0.25853729 -0.94491206  0.97845492 -0.03810289  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.20888265 -1.39941046 -0.20888265 -0.28689522  0.22712713  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.79554143 -1.68428153  0.97845492  0.56859986 -0.20888265  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.35436116 -0.35436116  1.67288261  0.48614892 -0.78543266  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.38721358  0.44945378 -0.69053790 -0.38721358  0.42656655 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.38721358  0.94634789 -0.53666333 -1.39941046 -0.55854199  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.75627543  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[3]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.6842815 -0.7854327 -0.2626506  0.5685999  0.2494018 -0.8552025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.6842815 -0.5585420  1.3918140 -1.1461997 -0.5366633 -0.2868952</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.2585373  0.4494538  0.2585373 -0.3872136  2.1268505 -0.3543612</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.6728826 -0.2088827  0.8461847 -1.1461997  0.4543416 -0.4417995</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.1075840 -0.7854327 -0.2966400 -0.2966400  0.4248584  0.4265665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.8461847 -0.3543612 -1.3051170 -1.0567369 -1.6842815 -0.2868952</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  2.1268505  1.0631020  1.3168264  0.8461847 -0.7854327  1.6728826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.9449121  0.4265665  1.0631020 -1.1461997  1.3918140 -0.5585420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.4241876 -1.6842815</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[4]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.39181405  0.06730444  0.10758399 -0.69053790  2.03936926 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.78543266 -1.05673687  0.45434159  0.60361101  0.94634789 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.42418757  0.97845492  0.84618466  0.10758399 -0.53666333 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.79554143  0.84618466  0.84618466 -1.75627543  0.42656655 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.67288261  0.84618466 -0.35436116 -0.26265057  0.10758399  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.10758399 -0.26265057  0.02229473 -0.29664002 -0.28689522 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.38721358 -0.28689522 -1.05673687  0.56859986  1.31682636 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.30511701  0.45434159  0.06730444 -0.29664002 -0.94491206  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.79554143 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[5]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.08171963 -0.29664002  0.48614892  0.44945378  0.60361101 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.28689522 -0.35436116 -0.28689522  0.48614892  1.67288261  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.30511701 -1.75627543 -1.68428153  0.48614892  0.48614892 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42418757 -0.20888265  1.31682636  2.12685046 -0.03810289 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.44945378  0.45434159 -1.39941046  2.12685046  0.10758399  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.44945378  1.39181405  0.44945378  0.19214942  0.60361101  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.97845492  0.22712713  1.31682636  0.84618466  0.42418757 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.39941046 -0.29664002  1.67288261  0.94634789  1.04871262  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.28689522  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[6]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.39941046  0.24940178  2.12685046 -0.55854199  0.45434159  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.39941046  1.67288261 -0.55854199  0.08171963  0.10758399 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.42418757  1.31682636  0.89496163  1.07283825  2.12685046  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.24940178 -0.94491206  0.94634789  0.84618466 -0.69053790  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.02229473 -1.14619967  0.42485844  0.44945378 -0.94491206  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.42656655  1.04871262  0.06730444 -0.55854199 -1.14619967 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.79554143  0.48614892  0.06730444 -0.78543266 -1.30511701 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.29664002  2.12685046  0.06730444  0.02229473 -0.28689522  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.42656655  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[7]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.19214942  0.97845492  0.94634789 -1.68428153  0.56859986 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.03810289  0.48614892  1.07283825  0.94634789 -0.94491206  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.07283825  0.24940178 -0.78543266 -0.44179945 -0.78543266  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.05673687  0.02229473  0.94634789 -1.75627543 -0.26265057  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.08171963  1.31682636 -0.35436116 -0.35436116 -1.30511701  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.97845492 -0.35436116  0.45434159 -1.14619967 -0.85520250 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.35436116  0.06730444  0.42485844 -0.20888265  1.06310200 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.48614892  0.10758399 -0.03810289  1.39181405  0.25853729  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.39941046  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[8]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.22712713  0.19214942  0.25853729  0.42656655 -0.55854199  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.14619967 -0.29664002  0.24940178  0.44945378  0.10758399 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.79554143 -0.29664002  0.97845492 -0.44179945  0.94634789  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.24940178 -1.05673687  0.25853729  0.08171963  1.39181405 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.79554143  1.07283825  1.07283825 -1.14619967  0.94634789  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.53666333  0.42485844  0.97845492  0.48614892  1.39181405  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.85520250  0.22712713  0.56859986  0.10758399  0.89496163  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.39941046 -1.05673687  0.45434159  1.06310200  1.39181405 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.44945378 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[9]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.10758399 -0.55854199  0.25853729  0.22712713 -1.68428153  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.52826408  0.25853729 -0.35436116 -1.75627543 -0.79554143  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.10758399  0.42656655 -1.39941046  0.42418757 -1.30511701 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.02229473  1.07283825 -0.38721358  0.45434159 -0.28689522 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.89496163  0.45434159 -0.38721358 -0.29664002  0.08171963  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.56859986  1.31682636  0.89496163 -0.38721358  0.42418757  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.10758399 -0.28689522  0.84618466  0.60361101  0.19214942  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.94491206  0.45434159 -0.69053790 -0.78543266  1.39181405  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.79554143 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[10]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.06730444 -0.78543266 -0.44179945 -1.68428153 -0.26265057 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.03810289  1.31682636  0.22712713 -0.35436116 -0.69053790 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.53666333  0.10758399  0.42485844  2.12685046  1.31682636 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.85520250  0.45434159 -1.75627543 -1.75627543 -1.05673687  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.12685046 -1.14619967 -0.38721358  0.44945378 -0.85520250  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.97845492  0.06730444  1.06310200 -0.03810289  0.24940178 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.42656655 -0.20888265 -0.29664002 -0.28689522 -0.53666333 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.22712713 -0.44179945 -1.39941046  0.56859986  2.12685046  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.48614892  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[11]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.39941046 -1.39941046  1.39181405  2.03936926 -0.35436116  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.68428153  0.22712713  2.03936926 -0.94491206  2.12685046  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.29664002  0.08171963  0.84618466 -0.38721358 -0.44179945 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42418757 -0.52826408  1.39181405 -0.03810289 -1.75627543  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.45434159  1.06310200 -0.79554143  0.60361101  1.67288261  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.38721358 -0.35436116  0.84618466  1.06310200  0.84618466 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  2.12685046 -0.26265057  1.07283825 -1.68428153  0.10758399  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.55854199  0.42418757 -0.26265057  0.56859986  0.24940178 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  1.31682636  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[12]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.45434159 -0.26265057  0.84618466 -0.26265057  1.31682636 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.12685046 -0.03810289 -0.44179945 -1.30511701 -0.78543266  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.35436116 -0.38721358  0.48614892  0.25853729 -0.28689522  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.38721358  1.39181405  0.48614892  0.42656655 -1.14619967  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789 -0.55854199  2.12685046  0.06730444 -0.03810289  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.24940178  0.19214942 -0.69053790 -0.35436116  0.02229473 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.25853729  0.25853729  2.12685046  0.94634789  1.39181405 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.06310200 -0.03810289  1.39181405  1.67288261  0.42485844  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.45434159 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[13]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.53666333 -1.39941046 -0.38721358 -0.55854199  1.04871262  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.03936926 -1.68428153 -1.75627543 -1.30511701  0.45434159  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.84618466  0.10758399 -1.05673687  1.04871262 -1.75627543  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.56859986  2.12685046 -0.28689522 -0.29664002 -0.20888265  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.02229473  0.42418757 -0.29664002  0.56859986 -0.79554143 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.12685046  1.31682636  0.48614892  1.31682636 -1.39941046  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.94634789 -0.38721358 -0.69053790 -0.44179945  0.42418757  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.39181405  0.24940178  1.31682636 -0.79554143  0.22712713 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.69053790 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[14]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.02229473  1.06310200 -1.05673687  0.60361101  0.42418757 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.02229473 -0.44179945  0.25853729  0.89496163 -1.75627543  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.25853729  1.04871262  0.19214942 -0.78543266 -0.85520250  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.30511701 -0.94491206 -0.78543266 -1.39941046  1.67288261  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.79554143  0.22712713  2.03936926  0.60361101 -0.03810289 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.85520250 -1.30511701 -0.35436116 -0.52826408  0.19214942 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.78543266  0.19214942  0.02229473  0.56859986  0.24940178 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.53666333 -0.26265057  0.08171963 -0.44179945 -0.78543266 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.89496163  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[15]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.75627543  1.06310200  0.89496163  0.10758399  0.56859986  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.67288261  0.94634789  1.04871262  0.84618466  0.42485844  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.56859986 -1.05673687 -0.28689522  0.24940178  0.84618466  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.79554143  0.25853729  0.42485844 -0.26265057 -1.30511701 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.39181405 -0.26265057  1.67288261 -0.38721358  0.06730444 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.28689522  1.67288261 -0.44179945  0.42485844 -0.28689522  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.25853729  0.19214942  0.25853729 -0.20888265 -0.26265057  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.97845492 -1.14619967  0.02229473 -0.38721358 -0.38721358  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.24940178 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[16]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.94634789  0.45434159 -1.75627543  0.44945378  0.08171963  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.44179945  1.06310200 -1.68428153  0.97845492 -0.69053790  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.79554143  0.24940178 -0.35436116  0.44945378  1.39181405  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.94634789  0.08171963  2.03936926  2.12685046  1.31682636  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.04871262 -0.35436116 -0.52826408 -0.28689522  1.07283825  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.26265057 -0.44179945  0.25853729  0.45434159 -0.29664002  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.06310200  0.44945378 -0.78543266  0.24940178 -0.20888265  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.78543266  0.10758399 -0.79554143  0.08171963  2.03936926 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.38721358  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[17]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.97845492  1.31682636  0.45434159  0.08171963  1.31682636  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.03810289 -0.69053790  0.94634789  0.10758399 -0.20888265  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.20888265  0.44945378  0.84618466 -0.26265057 -0.52826408  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.84618466  2.12685046  1.07283825  0.22712713  0.24940178  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.69053790  0.42485844 -0.85520250  0.45434159  0.45434159  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.03936926 -0.03810289 -1.75627543  0.10758399 -0.03810289 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.07283825 -1.14619967  1.67288261  1.67288261  1.31682636  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.02229473  0.44945378 -0.28689522  0.19214942 -0.26265057  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  2.12685046  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[18]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.75627543  2.12685046 -0.35436116 -1.39941046 -1.05673687 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.19214942 -0.35436116  1.07283825  0.22712713  0.02229473 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.48614892 -1.14619967  0.42656655 -0.38721358  0.42656655  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.44179945 -1.30511701 -1.30511701  0.56859986 -0.35436116 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.85520250  1.67288261 -0.85520250 -0.44179945  0.06730444  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.22712713  0.84618466  0.89496163  1.07283825  2.12685046  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.44179945  0.42656655  0.25853729  0.42485844  0.25853729  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  2.12685046  0.84618466  1.06310200 -0.55854199  0.42485844  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.03810289  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[19]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.67288261 -0.29664002 -0.26265057  0.89496163  0.84618466  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.85520250 -0.38721358  1.07283825  0.42418757  0.44945378  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.30511701 -0.53666333 -0.85520250 -0.78543266  1.07283825  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.39181405  0.60361101 -0.79554143 -0.03810289  0.42485844  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.25853729 -0.29664002 -0.26265057  1.06310200  1.67288261 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.94634789  1.31682636 -0.69053790  0.44945378 -1.14619967  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.28689522  1.06310200 -0.85520250 -0.79554143 -0.69053790  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.60361101  0.42656655  1.07283825  2.03936926  1.07283825  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.69053790 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[20]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.39181405 -0.28689522 -1.75627543 -1.75627543  2.12685046 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.28689522  0.84618466  0.97845492  0.42485844 -0.44179945  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.60361101 -0.29664002  0.84618466  0.45434159  0.02229473  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.20888265 -1.68428153  0.45434159 -1.39941046  2.03936926 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.38721358 -0.69053790 -0.78543266  0.10758399  0.94634789 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -1.75627543 -1.75627543  1.07283825 -0.55854199  2.03936926  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.35436116 -0.55854199 -0.29664002 -0.55854199  0.19214942  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.29664002  0.42656655 -1.68428153  0.45434159  1.31682636 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.35436116 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[21]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.42418757 -0.52826408 -0.29664002  0.45434159  1.31682636  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.94634789 -0.52826408 -0.20888265 -1.14619967 -0.55854199 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.10758399  0.48614892 -1.68428153  1.07283825  0.08171963 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.39941046  0.42485844  0.48614892 -0.69053790  1.67288261 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.89496163 -1.30511701  0.08171963  0.44945378 -0.53666333  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.06730444 -0.29664002 -1.75627543 -0.20888265 -0.85520250  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.35436116  0.89496163 -0.69053790  1.67288261  2.12685046 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.35436116  0.06730444 -0.79554143 -0.28689522  2.03936926 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.25853729  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[22]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.10758399 -0.94491206 -1.68428153  0.10758399  0.19214942  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.84618466  1.31682636  0.19214942  0.89496163  1.04871262  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.35436116  0.89496163 -0.29664002  0.60361101  0.89496163  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.69053790 -0.29664002  0.25853729 -1.39941046 -1.14619967 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789 -1.14619967 -1.39941046  0.42485844  0.89496163 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.78543266  1.31682636 -0.85520250  0.24940178  0.19214942 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.31682636  2.12685046 -0.38721358  0.42485844  0.10758399  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.25853729 -0.69053790  0.06730444 -0.20888265 -0.44179945 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  1.31682636 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[23]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.42418757 -0.35436116 -0.03810289  0.60361101 -0.26265057  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.48614892  0.02229473 -1.05673687  0.42656655 -0.29664002  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.44179945  0.97845492 -0.44179945 -0.35436116  0.24940178  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.30511701 -0.53666333 -0.29664002  0.42418757  0.10758399  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.04871262  0.94634789 -0.28689522  1.31682636 -1.39941046 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.06730444 -0.53666333  0.02229473  0.08171963  0.42485844  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.44179945  0.42418757 -1.68428153  0.56859986  1.39181405  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.45434159  0.42656655 -0.69053790  1.31682636 -1.68428153 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.89496163 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[24]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.68428153  0.42656655  0.56859986  1.04871262  0.19214942  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42418757 -1.30511701  0.97845492 -0.03810289 -1.39941046 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.39941046  1.67288261 -0.38721358  1.04871262  0.97845492 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.89496163  0.48614892  0.25853729 -0.29664002 -0.79554143  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.35436116  0.42485844  0.42656655  0.24940178  0.22712713 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.67288261  0.56859986  1.67288261 -0.26265057 -1.68428153  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  2.12685046  0.60361101  0.19214942  0.56859986  0.08171963  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.19214942  0.42418757  0.94634789 -0.85520250  2.12685046 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.48614892 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[25]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.03810289  1.06310200  0.42418757  0.45434159 -0.69053790 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.10758399 -1.75627543  0.06730444 -0.78543266  0.45434159  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.69053790 -0.29664002  1.39181405  0.25853729 -0.79554143  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.31682636  0.22712713  0.56859986 -0.29664002  1.39181405 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.12685046  2.12685046 -0.28689522 -0.35436116  1.06310200  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -1.14619967 -0.79554143  0.42418757  2.12685046 -1.14619967 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.03810289  2.03936926  2.03936926  0.42485844  1.06310200 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.60361101  0.48614892  0.10758399  1.06310200  0.42418757  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.45434159  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[26]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.10758399  0.94634789 -0.55854199  1.67288261 -0.94491206  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.14619967  0.97845492  1.31682636  0.42656655 -0.55854199 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.48614892  0.10758399 -1.14619967 -0.29664002  0.97845492 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.78543266  0.22712713  1.31682636 -0.78543266  1.31682636  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789 -1.14619967  0.42418757  0.42656655 -0.38721358  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.84618466  0.42418757 -0.35436116 -0.20888265  0.42418757 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.10758399 -0.78543266 -1.68428153 -0.69053790  2.03936926  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.02229473  0.45434159 -0.28689522  0.45434159  0.25853729  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.52826408  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[27]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.55854199 -0.94491206  0.10758399 -0.85520250 -0.78543266 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.19214942  0.84618466  0.42418757 -0.35436116  0.06730444  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  2.03936926 -1.39941046 -0.28689522  0.84618466  0.60361101 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.07283825  0.42418757 -0.26265057 -0.79554143 -0.78543266  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.10758399 -0.38721358  0.25853729  0.10758399 -0.20888265 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.39181405 -0.29664002 -0.03810289  0.06730444  0.42418757 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.94491206  0.42418757  0.42418757  0.89496163  1.39181405  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.44179945  0.84618466 -1.14619967  0.10758399  0.48614892 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  1.67288261 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[28]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.30511701  1.06310200  0.42418757 -0.79554143  1.39181405  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.52826408  0.25853729 -1.75627543 -0.26265057 -1.39941046  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.48614892  0.08171963  0.44945378 -0.03810289 -0.55854199 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.26265057  2.03936926 -0.79554143 -0.03810289 -0.52826408  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.55854199  0.02229473  0.25853729  0.42418757  0.24940178  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.44945378 -1.39941046  0.19214942  0.84618466 -0.35436116  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.84618466 -1.14619967  0.97845492 -0.79554143 -1.14619967 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.69053790 -0.69053790 -0.29664002  0.89496163  0.97845492  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.42418757 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[29]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.04871262  0.60361101  0.22712713 -1.30511701  0.42418757  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.04871262 -0.94491206 -0.38721358  0.42418757  0.48614892  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.42656655 -0.03810289  0.97845492 -0.52826408 -0.55854199 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.10758399 -0.20888265 -1.68428153  0.56859986  0.89496163  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42418757 -0.52826408  1.06310200 -0.20888265 -0.20888265  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.02229473 -0.78543266 -0.03810289 -0.26265057 -0.53666333  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.39941046 -0.94491206  0.02229473  1.39181405  0.25853729  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.89496163  0.48614892 -0.29664002 -0.35436116 -1.14619967 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.79554143 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[30]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.08171963  0.89496163  0.94634789 -0.03810289  1.07283825 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.75627543  0.97845492  1.31682636  1.31682636 -0.28689522  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.39181405  0.25853729 -0.28689522 -0.28689522 -0.55854199 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.89496163  0.42656655 -0.94491206 -1.14619967 -0.94491206 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42656655 -0.94491206 -0.44179945  1.04871262  2.03936926  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.25853729 -1.30511701  0.89496163 -0.79554143  2.03936926  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.38721358 -0.94491206  1.31682636 -1.75627543 -0.35436116 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.39181405  1.67288261  0.56859986  0.56859986  1.04871262  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.44945378  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[31]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.9449121  0.6036110  0.9784549  0.8949616  0.9784549 -0.2088827</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.0728383  2.0393693  0.2271271  0.4543416  0.1921494 -1.3994105</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  2.0393693  0.9784549 -0.3872136  0.2494018 -0.2868952  2.1268505</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.5585420  0.2585373 -0.9449121  0.2494018  0.4248584  0.5685999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.1461997  0.6036110 -0.5282641  0.5685999  0.8461847  0.9784549</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.6728826  0.4241876  0.2585373  1.6728826  2.0393693 -0.8552025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.9463479 -0.2966400 -0.3872136 -0.6905379 -1.0567369 -0.7854327</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.3543612 -1.0567369  0.9784549  0.4241876  0.8461847 -0.2868952</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.8949616  1.0728383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[32]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.55854199  0.06730444  0.24940178 -0.79554143  0.97845492 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.25853729  0.42485844 -1.68428153  0.84618466 -0.35436116  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.24940178 -0.78543266  0.25853729  0.97845492  0.42485844  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.35436116  0.42656655 -0.44179945  0.84618466  0.97845492 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.52826408  0.08171963  0.56859986  1.04871262  0.25853729  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.89496163 -0.94491206 -1.75627543 -0.44179945 -0.03810289 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.69053790  1.07283825 -0.03810289 -0.53666333 -0.20888265 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.20888265  0.24940178 -1.39941046 -1.75627543 -1.39941046 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  2.03936926  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[33]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.2088827  0.4494538  0.1921494  1.6728826  0.9463479 -0.5366633</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.2626506  0.8461847 -0.2088827  2.0393693 -0.8552025  0.4248584</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.5685999 -0.4417995  0.1075840 -0.5366633 -0.8552025 -1.7562754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.3918140  0.4543416  0.2271271 -0.7955414  0.4248584 -0.9449121</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.3994105  1.3918140  0.4861489  0.2494018  0.4241876 -1.3994105</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.4543416  1.3168264 -0.5282641  1.3168264  2.1268505  0.1921494</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.5366633 -0.4417995  0.1075840 -0.5366633 -0.6905379 -0.7955414</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.4248584  0.4248584  1.0487126 -1.7562754  0.2271271 -1.7562754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  2.0393693 -0.3872136</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[34]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.53666333  2.12685046  0.02229473  0.06730444 -0.85520250  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.06310200  0.97845492  2.03936926  0.08171963  0.42485844 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.07283825 -0.53666333  0.02229473  1.04871262  1.31682636  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.45434159 -0.78543266  0.06730444 -0.69053790  0.42418757 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789  0.56859986  2.12685046  0.94634789 -0.20888265  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.38721358  0.44945378 -0.20888265  1.31682636  2.03936926 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.03810289  0.48614892  0.25853729  0.19214942 -1.68428153  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.10758399 -0.52826408  0.08171963  0.94634789 -1.75627543 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.55854199 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[35]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.29664002 -1.14619967  0.42656655 -1.75627543  0.60361101  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.67288261  1.39181405  1.31682636  1.04871262 -0.35436116 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.28689522  1.07283825  1.04871262  0.24940178  0.42656655 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.38721358 -0.35436116  1.39181405 -0.28689522 -1.68428153 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.67288261  1.04871262  0.45434159 -1.05673687  1.31682636 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.26265057 -0.53666333 -1.14619967 -0.03810289  0.22712713  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.30511701  1.06310200 -1.05673687  0.89496163  1.31682636 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.69053790  1.07283825  0.42656655  0.22712713 -1.05673687  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.85520250  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[36]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.12685046  0.10758399 -0.85520250  2.03936926  0.94634789 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.56859986 -1.14619967 -0.52826408 -0.94491206 -1.14619967 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.22712713  1.07283825  2.03936926  0.42656655 -0.69053790  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.22712713  0.42418757 -0.69053790 -1.75627543 -0.29664002  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.19214942  0.94634789  0.84618466  0.42485844 -1.68428153  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.39181405  0.22712713 -1.14619967  0.89496163  0.06730444  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.67288261 -1.30511701  0.94634789  0.45434159 -1.05673687  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.79554143  0.22712713  1.39181405  0.60361101 -0.29664002 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.85520250  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[37]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.55854199  0.08171963 -0.03810289  0.22712713 -0.28689522  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.05673687  0.10758399 -1.39941046  2.12685046  1.39181405  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.25853729  1.06310200  0.42418757 -0.85520250  0.89496163 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.25853729 -0.35436116  0.02229473  0.22712713  0.06730444  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789  0.44945378 -0.38721358 -0.52826408 -0.38721358  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.45434159  0.06730444  0.24940178  0.10758399  0.25853729 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.05673687  0.25853729  0.45434159  0.24940178  1.31682636 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.03810289 -0.53666333  0.08171963  1.67288261  1.06310200 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.02229473 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[38]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.69053790 -0.38721358 -0.55854199  1.04871262  0.10758399  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.14619967  0.02229473  0.02229473  0.48614892 -1.14619967 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.44179945 -0.35436116 -1.30511701  1.07283825  0.06730444  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.02229473 -0.26265057  0.84618466 -0.69053790  0.84618466  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.22712713 -0.69053790  0.94634789  2.03936926  0.94634789 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.26265057  0.08171963  0.60361101  1.07283825  2.03936926  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.02229473 -0.78543266 -0.94491206 -0.28689522 -0.85520250 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.29664002 -1.39941046 -0.55854199  0.60361101 -0.78543266 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.55854199 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[39]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.06730444 -0.94491206 -0.94491206 -0.03810289 -0.20888265  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.67288261 -0.20888265  0.44945378  1.04871262 -0.69053790 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.30511701 -0.29664002  1.04871262  1.31682636  0.42418757  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.60361101 -1.68428153 -0.55854199 -0.03810289  0.42656655  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.39941046 -0.26265057  0.89496163  0.42656655  0.25853729  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.04871262 -0.29664002  0.48614892 -0.53666333  0.25853729 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  2.12685046  0.60361101  0.24940178  0.42418757  0.94634789  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.29664002 -1.75627543  2.03936926 -0.94491206  0.44945378  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.28689522  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[40]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.89496163 -0.85520250  1.04871262 -1.30511701  0.84618466 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.69053790  1.06310200  0.08171963 -0.26265057  1.07283825  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.55854199 -0.29664002  1.07283825  2.12685046  2.12685046 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.38721358  2.12685046 -0.78543266  2.12685046  0.94634789  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.31682636  0.22712713 -0.69053790  0.10758399  0.60361101 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.44945378 -0.69053790 -1.68428153  0.02229473 -1.68428153 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.22712713  0.84618466 -0.29664002  2.03936926  0.25853729 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.79554143  0.06730444  0.08171963  0.06730444  1.07283825  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.39941046 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[41]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.03936926  0.84618466  2.12685046  0.42485844  0.84618466  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42485844  1.06310200 -0.52826408  2.03936926  0.89496163  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.52826408  0.10758399  0.24940178 -0.94491206 -1.05673687  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.67288261 -0.38721358  0.08171963 -1.39941046 -0.20888265 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.26265057  0.60361101 -0.94491206  0.06730444  0.42485844  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.38721358  0.94634789  0.97845492 -1.05673687  1.31682636 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.39941046 -1.05673687  0.25853729  0.24940178 -1.75627543  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.03810289 -0.38721358  0.89496163 -0.53666333  0.56859986  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.42485844 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[42]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.79554143 -1.75627543 -0.78543266  0.06730444  0.44945378  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.75627543 -0.52826408  0.19214942 -0.38721358 -1.05673687  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  2.12685046  0.42656655  0.25853729  0.42656655  2.12685046  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.39941046  0.60361101  1.67288261  0.25853729 -0.20888265 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42418757 -0.55854199  0.84618466  2.03936926 -0.55854199  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.42418757  0.45434159 -0.03810289  0.45434159 -0.69053790 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.44945378  0.84618466  1.39181405  1.07283825  0.94634789 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.69053790 -0.85520250 -0.78543266 -0.44179945 -0.20888265 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.84618466 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[43]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.24940178  0.42418757 -0.52826408  0.44945378 -0.79554143  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.84618466 -0.35436116 -0.79554143  0.42656655  2.12685046  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.31682636 -0.55854199 -0.28689522  0.97845492 -0.20888265 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.68428153  0.60361101 -0.38721358  0.25853729 -0.26265057  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.52826408 -0.38721358 -0.03810289  0.42418757  1.04871262  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.02229473  0.42418757 -0.94491206  0.42656655  0.97845492 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.26265057  0.22712713 -0.38721358  0.42485844 -1.30511701  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.55854199  0.19214942  1.07283825  0.97845492 -1.68428153  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.06730444  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[44]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.44945378 -0.53666333  0.42485844  0.45434159 -1.30511701  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42485844  1.39181405  0.25853729  1.39181405  0.24940178  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.35436116 -1.14619967 -0.20888265 -1.75627543 -0.38721358 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.35436116 -1.05673687 -0.44179945 -0.29664002 -0.79554143 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.69053790 -1.05673687  1.31682636  0.45434159  0.94634789  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.52826408 -1.14619967  0.42485844 -0.78543266  0.42418757 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.42485844 -0.85520250  2.03936926 -0.28689522 -1.39941046  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.44945378  0.25853729  1.31682636  0.42656655  0.25853729 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.10758399  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[45]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.52826408 -0.44179945  0.94634789 -1.68428153 -0.20888265 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.07283825  0.22712713 -0.44179945  1.06310200 -0.38721358 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.60361101 -0.29664002  0.10758399  2.12685046 -1.39941046  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.85520250  1.67288261 -1.39941046  1.07283825  0.24940178 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.38721358  0.48614892 -0.26265057 -1.39941046  0.42418757  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -1.30511701 -1.30511701  1.04871262 -0.28689522  0.24940178  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.68428153  2.12685046  0.45434159  0.22712713 -0.55854199  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.24940178  0.94634789 -0.52826408  1.67288261  0.42485844  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.44179945  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[46]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.39181405  2.12685046  0.42485844  0.42485844  0.25853729 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.39941046  0.44945378  0.60361101  0.25853729  0.24940178 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.38721358  2.12685046  0.94634789  0.08171963  1.31682636  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.78543266  0.24940178 -0.69053790 -0.35436116  0.02229473  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.02229473 -0.20888265  0.02229473  0.94634789 -0.35436116  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.22712713 -1.30511701  1.67288261 -1.30511701 -1.30511701 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.28689522  1.04871262  1.07283825 -1.14619967 -0.52826408 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.60361101 -0.35436116 -0.35436116 -0.28689522 -0.35436116  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.05673687 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[47]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.84618466 -0.53666333  0.42485844 -0.79554143 -1.05673687 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.03936926  0.42656655  0.45434159 -0.69053790 -0.28689522 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.42656655  0.02229473  0.84618466  1.39181405 -0.20888265 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.08171963  0.10758399 -0.28689522  1.39181405 -1.05673687 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.26265057  0.44945378  0.02229473  1.04871262 -1.39941046  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -1.75627543 -0.35436116  0.42485844  0.48614892 -0.52826408 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.53666333 -0.38721358 -1.14619967 -0.69053790  1.06310200  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  2.03936926  1.06310200 -0.85520250  0.08171963  0.45434159 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.79554143 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[48]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.78543266 -0.69053790  0.60361101  2.03936926 -1.14619967 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.06310200  0.89496163 -0.03810289 -0.79554143 -0.38721358  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.55854199 -1.30511701 -0.85520250  0.48614892  0.60361101  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.69053790  0.44945378 -0.28689522 -0.29664002  0.08171963  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.38721358  0.84618466  0.19214942 -0.52826408  1.39181405 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.67288261  0.84618466  0.56859986  0.42656655  1.39181405 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.10758399  0.25853729  0.24940178 -0.38721358  0.84618466  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.67288261  0.06730444 -0.35436116  0.60361101 -1.39941046 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  1.07283825 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[49]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.19214942  1.07283825  0.22712713  0.89496163 -0.03810289  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.53666333 -0.26265057  0.08171963  0.56859986  0.19214942  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.24940178 -0.94491206  0.94634789  0.22712713  0.60361101 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42418757 -0.03810289  0.56859986 -0.44179945 -1.39941046 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789 -0.38721358  0.22712713  0.22712713 -1.05673687  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.19214942 -1.14619967  1.04871262  0.42418757  0.06730444  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.97845492 -0.28689522  0.42418757  0.60361101  0.06730444 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.29664002  0.42656655 -0.55854199  0.42418757  1.04871262  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.89496163 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[50]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.03936926 -0.69053790  0.56859986 -0.85520250  0.89496163 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.26265057  2.03936926 -1.68428153 -1.30511701  0.44945378 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.68428153  0.56859986 -0.55854199 -0.03810289 -0.94491206  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.06310200 -0.38721358  0.45434159 -1.75627543 -1.68428153  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42485844 -0.26265057 -0.20888265 -1.30511701 -0.53666333  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.56859986  0.24940178  0.94634789 -1.05673687  0.10758399 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.35436116  1.39181405 -0.20888265  0.60361101  0.08171963 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.26265057 -0.35436116  0.24940178  0.24940178  2.12685046 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.94491206 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[51]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.53666333  0.60361101 -1.30511701 -0.53666333 -0.29664002 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.84618466  1.39181405  0.60361101  0.42418757 -0.38721358  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.42418757  0.25853729  0.48614892  0.19214942 -0.69053790  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.26265057  0.60361101  0.60361101 -0.38721358  2.03936926 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.94491206  0.84618466 -0.52826408 -0.26265057 -0.03810289  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.67288261 -0.52826408  0.08171963 -1.75627543 -1.75627543 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.35436116 -0.94491206  0.84618466 -0.85520250  2.12685046  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.42656655 -1.30511701 -1.75627543  1.67288261  1.67288261 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.03810289  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[52]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.25853729  0.44945378  0.45434159 -1.75627543  1.04871262  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.39181405  0.19214942 -0.94491206 -0.53666333 -0.52826408  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.20888265 -1.39941046  0.44945378 -0.44179945 -0.38721358  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.03810289  0.22712713 -0.53666333  0.60361101 -1.68428153 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.94491206 -0.52826408  0.45434159 -0.52826408 -0.85520250  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.35436116  0.56859986 -0.55854199 -0.20888265 -1.39941046  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.89496163  0.94634789  0.24940178  1.67288261  0.45434159  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.06310200  0.45434159 -0.94491206 -0.69053790 -0.53666333 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.60361101 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[53]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.14619967  0.06730444 -0.28689522 -1.39941046  1.04871262 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.02229473  0.25853729 -1.14619967  0.45434159 -0.55854199  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.10758399  0.10758399  0.45434159 -0.44179945 -1.05673687  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.19214942 -0.69053790 -1.30511701  0.60361101 -0.79554143  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.60361101  0.19214942  0.24940178 -0.53666333  0.24940178 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.31682636  0.42485844  0.08171963  0.89496163  0.84618466  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.67288261  1.06310200  0.06730444  2.12685046  0.56859986  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.26265057  0.42485844  0.45434159  0.06730444  0.89496163 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.84618466  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[54]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.38721358  0.42418757  0.02229473 -0.53666333  0.42656655  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.30511701 -1.39941046 -1.75627543  0.02229473 -1.14619967  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.14619967  1.06310200 -0.26265057 -0.94491206  2.03936926  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.97845492  0.60361101 -1.39941046  0.44945378  1.04871262  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.12685046  0.19214942  0.42418757 -0.69053790  0.08171963  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.85520250  0.42656655 -1.30511701  0.56859986  0.48614892 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.53666333  0.08171963  0.10758399 -0.03810289  2.12685046 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.52826408 -0.94491206 -1.75627543  0.89496163 -1.75627543 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.97845492  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[55]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.06310200 -0.53666333  0.48614892  0.60361101  0.42656655 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.24940178 -0.79554143 -0.26265057  0.42418757  1.31682636 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.94634789  0.56859986  0.22712713  0.97845492  0.24940178 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.24940178 -1.14619967 -0.20888265  0.56859986 -1.75627543  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.55854199 -1.14619967  0.56859986 -0.03810289 -1.75627543  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.19214942  1.31682636  0.42656655  0.10758399  1.06310200 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.48614892 -0.53666333 -0.29664002 -1.68428153  0.97845492  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.20888265  0.45434159  0.84618466  0.45434159  1.39181405 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.30511701  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[56]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.07283825  1.31682636 -0.55854199 -0.55854199  0.06730444 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.55854199  0.48614892  1.07283825 -0.26265057 -0.03810289  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.55854199  0.45434159  0.94634789  1.06310200  0.22712713  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42656655 -0.26265057  0.24940178  2.03936926 -1.14619967 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.26265057  1.04871262  0.08171963  1.31682636 -0.38721358 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.12685046  1.31682636 -0.38721358  2.03936926  1.07283825 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.29664002  0.42656655 -0.79554143 -0.69053790 -0.35436116  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.60361101  0.89496163 -0.44179945  0.56859986  1.31682636 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.42485844  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[57]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.31682636 -0.94491206 -0.85520250  1.04871262  0.02229473  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.69053790 -1.05673687  0.08171963 -0.03810289 -1.05673687  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.28689522 -0.52826408  2.12685046 -0.69053790  0.89496163  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.25853729  0.44945378 -0.20888265  0.08171963  0.45434159  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.02229473  1.67288261 -1.75627543  0.25853729  1.07283825 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.84618466  1.67288261  0.45434159  0.10758399 -0.52826408  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.42418757  0.89496163 -1.75627543  0.97845492 -0.69053790 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.84618466  2.12685046 -0.44179945  1.67288261  0.42418757  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.29664002 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[58]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.39941046  0.45434159  0.97845492 -0.35436116 -0.52826408  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.52826408  1.06310200  0.60361101  1.67288261  0.42656655 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.08171963  0.44945378 -0.69053790  2.03936926 -0.29664002  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.19214942  0.22712713  0.42485844 -1.75627543 -0.20888265 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.39941046  0.45434159  0.19214942 -0.52826408 -0.94491206  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.28689522  0.19214942  0.24940178  1.04871262  1.39181405 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.48614892 -1.75627543 -0.20888265  0.56859986  0.89496163  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.28689522  1.39181405 -0.78543266  0.24940178  0.56859986 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.78543266 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[59]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.42656655 -0.29664002  0.06730444  0.42485844 -1.68428153  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.48614892 -0.85520250 -0.79554143  0.44945378  1.67288261  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.97845492  1.31682636  0.84618466 -0.44179945 -0.20888265  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.02229473  0.42656655 -1.05673687  0.44945378  0.48614892 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.20888265  2.03936926  2.12685046  0.45434159 -1.30511701 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.78543266 -1.14619967  0.45434159 -1.05673687 -0.94491206  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.06310200  0.94634789  1.06310200  2.03936926 -0.78543266  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.79554143  0.89496163 -1.68428153 -0.03810289 -1.75627543 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.68428153 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[60]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.94634789  0.56859986  0.97845492  0.56859986  2.12685046  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.38721358 -1.75627543  0.45434159  0.42656655 -0.03810289 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.38721358  0.42485844  0.08171963 -0.20888265  1.06310200  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.03810289 -1.68428153 -0.38721358  1.07283825 -0.53666333  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.60361101  0.19214942 -0.52826408 -0.79554143 -0.26265057  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.03936926  0.60361101 -0.26265057  0.42418757 -0.85520250 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.55854199 -0.03810289  1.67288261 -1.05673687 -0.26265057  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.84618466  1.39181405 -0.55854199  0.42418757  1.67288261  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.85520250  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[61]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.42485844  0.42418757 -0.28689522 -0.55854199 -0.69053790  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.06310200 -1.14619967 -0.29664002 -0.20888265  0.24940178  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.29664002  2.12685046 -0.55854199  2.12685046 -0.55854199 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.44945378 -0.38721358  0.56859986 -1.68428153 -0.55854199 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.24940178  0.42656655 -1.39941046  0.22712713  0.19214942  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.26265057  0.84618466  0.84618466 -0.03810289 -0.53666333  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.08171963  0.24940178 -0.69053790  0.19214942  0.84618466  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.78543266  2.03936926  2.12685046  0.89496163 -1.30511701 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  2.12685046 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[62]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.28689522  0.56859986 -0.55854199 -0.79554143 -0.26265057  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.45434159 -0.55854199  0.02229473 -0.38721358 -0.94491206 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.14619967  0.97845492  0.42656655 -1.75627543 -0.35436116  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.45434159 -0.53666333  0.19214942  2.03936926 -0.20888265  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.69053790  0.94634789 -0.29664002  0.10758399  1.39181405  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.42656655  0.02229473  0.22712713  0.25853729 -0.69053790  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.78543266  1.67288261  0.24940178  0.45434159  0.44945378  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.84618466  0.06730444  2.03936926  0.06730444 -0.94491206 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.56859986  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[63]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.06310200  0.22712713 -0.26265057 -1.68428153 -0.20888265 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.24940178  2.03936926  0.08171963  0.42485844  0.84618466 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.02229473 -1.05673687  1.39181405 -1.39941046  0.42418757  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.52826408  1.67288261  0.94634789 -1.75627543 -0.52826408 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42418757 -0.69053790  0.42656655  0.44945378 -0.52826408  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.03810289  1.31682636  0.08171963  0.02229473 -0.79554143  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.10758399 -0.55854199 -1.68428153  0.08171963 -1.39941046 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.52826408  1.04871262  0.08171963 -1.68428153  0.22712713  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.94491206 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[64]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.94634789  2.12685046 -0.20888265 -0.52826408  0.45434159 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.03936926  0.97845492 -0.69053790  0.44945378  0.60361101  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.14619967  1.07283825 -0.28689522 -0.78543266 -0.69053790 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.79554143  0.42418757 -1.05673687  1.31682636 -1.05673687  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.55854199  0.89496163 -1.14619967 -1.05673687  0.94634789  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.10758399  1.31682636  0.24940178  2.12685046 -0.28689522  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.89496163 -0.20888265  0.84618466  0.24940178 -0.78543266  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.06310200 -0.03810289 -1.14619967  0.10758399  1.06310200 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.84618466  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[65]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.25853729  0.02229473  0.42656655  0.84618466 -0.79554143  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.06310200 -0.28689522 -0.55854199  1.39181405  0.44945378  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.97845492  0.42656655  0.45434159  0.10758399  0.19214942  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.24940178  0.42656655 -1.68428153  1.39181405 -0.79554143  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.28689522  0.84618466  0.22712713  0.44945378  0.56859986 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.25853729  0.45434159  2.03936926  0.22712713 -0.85520250 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.45434159  0.56859986  0.22712713 -0.29664002 -0.52826408 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.30511701 -0.85520250  0.10758399 -0.94491206  0.48614892  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.30511701 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[66]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.02229473  0.42418757  0.06730444 -1.68428153  0.08171963  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.38721358  1.06310200 -0.35436116  1.39181405  0.56859986  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.28689522  1.31682636  2.12685046 -1.05673687 -0.38721358 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.14619967 -0.20888265  1.67288261  0.42656655 -0.79554143 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.94491206 -0.20888265  0.10758399 -0.03810289  0.06730444 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.78543266  0.60361101 -0.69053790 -0.85520250 -0.20888265 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.03810289  0.24940178  0.89496163 -0.53666333 -0.35436116 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.69053790  0.08171963  0.06730444 -0.44179945 -0.20888265 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  2.03936926 -1.05673687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[67]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.19214942  0.48614892 -0.85520250 -1.68428153  2.03936926  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.22712713  0.84618466  0.94634789  0.84618466  0.10758399  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.48614892 -0.55854199  0.89496163  0.25853729 -0.79554143  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.29664002  0.45434159  0.89496163 -0.44179945 -0.79554143 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.19214942 -0.55854199 -1.05673687  0.84618466  0.89496163  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.29664002  0.22712713  1.04871262 -0.53666333  0.02229473  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.02229473  0.19214942 -0.20888265  0.60361101  0.84618466 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.02229473 -0.55854199  1.07283825  0.08171963 -0.79554143 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.75627543 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[68]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.85520250 -1.68428153 -0.35436116 -1.05673687  2.03936926 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.05673687  1.67288261 -0.55854199 -0.94491206 -0.03810289  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.26265057 -1.05673687  0.42485844  0.42485844  2.12685046  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.14619967  0.22712713 -0.79554143 -1.39941046 -1.30511701 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.03936926 -0.52826408  0.10758399  0.25853729  1.31682636 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.55854199  0.56859986 -1.30511701  0.10758399  0.44945378 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.29664002  2.03936926  0.94634789 -0.85520250 -0.44179945  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.52826408 -0.78543266 -1.75627543 -0.53666333 -0.28689522 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.42418757 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[69]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.60361101 -0.69053790  0.56859986  0.84618466 -0.52826408 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.22712713  0.48614892 -0.28689522  0.45434159 -0.26265057 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.67288261 -0.29664002  2.03936926  0.89496163 -0.53666333 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.55854199  0.08171963 -0.38721358  0.45434159 -0.35436116 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42418757 -0.78543266  0.25853729 -1.39941046 -0.28689522  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.03936926 -0.29664002 -0.55854199 -0.79554143  0.60361101 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.84618466  0.42418757  0.42656655 -0.53666333 -0.20888265 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  2.03936926  0.08171963 -1.39941046 -0.85520250 -1.30511701  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.06730444 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[70]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.67288261 -0.53666333  1.67288261 -0.26265057  0.02229473 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.06730444 -0.03810289  0.42656655  1.04871262  0.84618466  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.28689522  0.02229473  0.42418757 -0.85520250  0.25853729 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.48614892  0.24940178  1.31682636  0.42656655  0.42485844 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.26265057 -0.20888265 -0.78543266 -0.55854199 -0.29664002  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.52826408 -0.20888265 -1.39941046  0.10758399 -1.68428153  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.29664002  0.25853729  2.12685046  0.89496163  0.42656655  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.02229473  0.45434159  0.44945378 -0.55854199 -0.44179945  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.05673687 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[71]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.06730444 -0.79554143  0.94634789  0.42418757  0.25853729  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.39941046 -0.52826408  0.56859986  1.39181405  0.44945378 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  2.03936926 -0.35436116  0.42418757 -0.79554143  1.06310200  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.67288261  0.02229473 -1.39941046  0.02229473  0.42418757  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.05673687  0.19214942 -0.78543266  0.08171963 -1.14619967  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -1.14619967 -0.52826408 -1.75627543 -0.79554143  0.42656655  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.48614892 -0.20888265  2.03936926  0.22712713  1.67288261 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.22712713  0.42485844  0.48614892 -0.53666333 -0.03810289  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.97845492 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[72]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.29664002 -0.44179945  1.04871262  1.06310200  1.07283825  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.06730444  0.56859986 -0.78543266  0.08171963 -1.05673687  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.07283825  0.60361101  0.45434159  2.12685046 -0.03810289 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.14619967  1.07283825 -0.44179945 -1.14619967  0.42485844 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.39941046 -0.38721358 -0.28689522  0.60361101  0.10758399  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.35436116  0.84618466  1.06310200 -0.69053790  0.94634789 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.29664002 -0.38721358  0.89496163  0.60361101 -1.68428153  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.22712713 -0.44179945  0.84618466  0.60361101  0.84618466  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.94491206 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[73]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.07283825  0.42656655  0.44945378  2.12685046 -0.29664002 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.35436116 -1.14619967 -0.52826408 -0.20888265  0.84618466  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.53666333 -0.26265057  0.42418757  0.42485844  0.19214942  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.22712713 -1.30511701 -0.52826408  0.44945378  0.89496163  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.20888265 -0.38721358 -1.05673687 -0.26265057 -0.26265057 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.39181405  0.89496163  0.08171963 -0.38721358 -0.55854199 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.75627543  0.45434159  0.94634789 -0.69053790  0.44945378  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.42485844  1.67288261  0.42656655 -0.79554143 -0.29664002 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.94634789  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[74]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.12685046 -0.94491206  0.94634789  0.22712713 -1.05673687  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.12685046 -1.05673687  0.56859986  0.84618466  0.19214942 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.48614892 -0.20888265  1.67288261 -0.78543266  0.24940178  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42418757  0.44945378 -0.55854199  0.94634789 -1.30511701 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.60361101 -0.28689522  0.45434159  0.45434159  0.42656655  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.25853729  2.12685046  0.42485844  2.12685046  0.48614892  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.78543266  0.97845492  0.22712713  0.48614892  0.06730444  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.78543266 -0.26265057  0.97845492  0.84618466  0.42656655 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.05673687  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[75]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.03936926 -0.29664002  1.06310200  0.48614892 -0.29664002  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.29664002  0.06730444 -0.52826408 -1.68428153 -0.55854199  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.35436116  0.42418757  0.97845492  1.06310200  0.08171963 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.35436116 -1.68428153  1.07283825  1.39181405  0.94634789  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.28689522 -0.52826408 -1.05673687 -0.78543266  0.02229473  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.07283825  2.03936926  0.84618466  0.48614892  0.08171963 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.06730444  1.31682636  2.03936926 -0.35436116  0.48614892  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.67288261  1.31682636  0.56859986 -0.94491206  0.25853729  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.45434159  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[76]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.79554143  0.42418757  0.42656655  0.02229473 -0.29664002  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42656655 -0.28689522  0.19214942 -0.03810289 -0.78543266  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.56859986 -0.26265057  0.42656655 -0.52826408  1.31682636  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.67288261 -0.78543266  0.56859986 -1.05673687  0.25853729 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.02229473 -0.85520250 -1.30511701  0.84618466 -0.94491206  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.29664002 -0.53666333 -0.35436116 -1.39941046  0.24940178 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.24940178 -0.20888265  2.03936926 -0.35436116 -0.38721358 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.42418757  0.56859986  0.84618466  0.48614892 -0.78543266  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.48614892 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[77]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.60361101 -0.78543266 -1.39941046 -0.44179945  0.94634789  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.25853729  0.10758399  1.39181405 -0.52826408  1.31682636 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.94491206 -0.78543266  0.56859986 -1.39941046 -1.75627543 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.89496163  0.42656655 -0.79554143 -1.75627543  0.42418757  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.38721358  0.25853729  0.48614892 -0.29664002 -1.14619967 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.20888265 -0.53666333 -0.38721358 -1.05673687  2.03936926  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.07283825  0.42418757  0.84618466 -0.44179945  1.67288261  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.89496163  1.04871262  0.06730444  0.24940178 -0.78543266  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.14619967  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[78]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.44945378  0.94634789  2.12685046 -1.75627543  0.42418757  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.05673687 -1.05673687  0.45434159 -0.35436116 -1.75627543 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.79554143  0.44945378 -1.68428153  1.31682636 -0.55854199 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.75627543  1.04871262 -0.35436116  1.39181405  0.24940178  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.60361101 -0.78543266  1.31682636 -1.30511701  0.22712713  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.12685046 -0.85520250 -0.38721358 -0.28689522 -1.68428153  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.44179945  1.31682636  0.19214942 -0.78543266 -0.35436116 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.06730444 -0.38721358 -0.52826408 -1.39941046  0.56859986 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.56859986  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[79]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.28689522  0.08171963 -0.78543266  0.89496163 -0.44179945  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42418757 -0.20888265  1.39181405  1.39181405 -1.14619967  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.29664002  0.19214942 -0.44179945  0.02229473  1.67288261  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.79554143 -0.44179945 -0.53666333  0.02229473 -0.38721358 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -1.75627543  0.42485844 -1.39941046 -1.39941046  0.25853729  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.12685046  1.31682636  1.04871262 -1.30511701  0.44945378  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.29664002  1.31682636  0.25853729  1.04871262  0.06730444  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.25853729  0.42418757  0.42656655  1.07283825  0.97845492  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.08171963  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[80]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.06730444  0.42418757 -0.69053790  0.42418757  2.12685046 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.28689522 -0.03810289 -0.94491206  0.84618466 -0.94491206  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.04871262 -0.78543266 -0.53666333 -0.38721358 -1.05673687 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.94634789 -0.94491206 -0.26265057  0.22712713  0.22712713  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.24940178 -0.53666333  0.08171963 -0.94491206 -0.79554143  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.89496163 -0.69053790 -1.75627543 -0.29664002 -1.05673687  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.03810289  0.97845492  0.08171963  2.03936926  0.44945378  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.22712713  0.19214942  0.48614892  0.89496163 -1.39941046  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.42418757 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[81]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.06730444 -0.78543266  0.25853729  0.94634789 -0.78543266 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.03936926  0.60361101 -0.53666333 -0.85520250 -0.03810289 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.06730444 -0.55854199 -0.53666333  0.45434159 -1.68428153 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.19214942 -1.30511701 -0.44179945 -0.78543266 -1.75627543  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.56859986  0.06730444  0.02229473  2.12685046  0.45434159  0.25853729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.44179945 -1.30511701 -0.20888265 -0.03810289  1.07283825  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.25853729 -0.35436116 -1.14619967  0.06730444  0.44945378  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.89496163 -0.79554143  0.08171963  0.24940178  0.97845492 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.22712713 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[82]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.48614892  0.84618466 -0.28689522 -0.79554143  0.60361101  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.20888265 -0.55854199  0.48614892  0.45434159  0.02229473 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.06310200 -0.79554143 -0.28689522 -1.39941046  1.04871262 -0.69053790</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.20888265 -0.94491206  0.45434159 -0.03810289 -0.94491206  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.06310200 -0.38721358 -1.68428153  1.06310200 -0.26265057  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.35436116  1.07283825  0.19214942 -0.53666333 -0.35436116  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  0.45434159  0.45434159 -0.28689522 -1.75627543 -1.75627543  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.39941046  1.07283825  0.42485844 -0.69053790  0.42418757  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.29664002  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[83]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.75627543 -1.75627543  0.45434159 -0.44179945  0.48614892 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.38721358 -1.39941046  0.94634789 -0.94491206 -0.79554143 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.28689522  0.19214942  0.94634789  0.97845492  0.60361101  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.08171963  0.97845492  0.10758399  0.89496163  0.44945378 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.42656655 -0.28689522 -0.55854199  1.06310200 -0.44179945 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.55854199 -1.68428153  2.12685046 -0.38721358  0.24940178  1.39181405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.28689522 -0.38721358 -1.68428153  0.84618466  0.08171963 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.29664002  1.67288261 -1.30511701  1.04871262 -1.05673687 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.68428153  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[84]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.39181405 -1.68428153 -0.78543266 -0.85520250 -0.69053790  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.89496163 -1.14619967  0.45434159  0.48614892  1.06310200 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.06730444 -0.79554143  1.31682636  0.42485844  1.06310200  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.39181405  0.42656655 -0.28689522 -0.35436116  1.06310200 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.03936926  0.10758399 -0.26265057  1.06310200  0.89496163 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.29664002 -0.52826408  2.03936926 -1.39941046 -1.68428153 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.53666333 -1.30511701 -1.75627543  0.42418757  0.97845492 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.44179945  0.44945378 -0.28689522  0.42656655 -0.20888265 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.45434159  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[85]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.67288261 -0.94491206 -0.29664002  0.08171963  1.31682636  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.03936926  0.25853729  1.04871262 -0.35436116  0.42485844 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.25853729 -1.39941046 -0.26265057  0.42485844 -1.05673687  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42485844 -1.05673687  0.42485844 -1.05673687  0.45434159  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.03936926  0.89496163 -0.20888265 -0.52826408  0.24940178 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.25853729 -0.29664002 -0.29664002  0.60361101  0.06730444 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.39941046  1.31682636  0.48614892  0.24940178 -0.69053790  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.45434159  0.84618466 -0.79554143 -0.94491206 -0.44179945  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.20888265 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[86]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.08171963 -0.35436116  1.31682636 -0.52826408 -1.39941046  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.94491206 -0.85520250  0.02229473 -1.14619967  0.45434159  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.38721358 -1.39941046  1.39181405 -0.28689522  1.04871262 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.02229473  0.10758399  1.39181405  1.07283825  0.56859986 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.25853729  0.25853729  0.45434159  0.22712713 -0.69053790  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.48614892 -1.68428153 -0.44179945 -0.29664002 -0.29664002 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.04871262  0.42656655  0.22712713 -0.55854199 -0.26265057  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.31682636 -1.30511701  1.07283825  0.19214942  0.10758399 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.38721358  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[87]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.39181405  0.24940178  1.07283825  1.67288261 -1.05673687  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.20888265  1.04871262  1.31682636 -0.78543266  1.39181405  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.42418757 -0.69053790  0.42418757  0.08171963  0.22712713 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.39941046  0.60361101 -0.26265057 -0.38721358 -0.03810289 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.53666333 -0.53666333  0.44945378  0.42485844  0.56859986  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.38721358 -1.05673687  0.06730444 -1.05673687 -0.94491206  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.78543266 -0.38721358  2.12685046  1.06310200 -1.68428153 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  1.04871262 -0.28689522  0.60361101 -0.38721358  1.31682636 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.68428153  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[88]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.35436116  0.45434159 -0.55854199 -0.78543266  0.42656655 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.29664002  1.04871262 -1.05673687  0.22712713  1.39181405  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.10758399  0.94634789  0.42418757  0.60361101 -1.14619967 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.42656655 -0.38721358  0.56859986 -0.69053790  1.67288261 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  2.12685046  0.60361101  0.56859986  1.31682636 -1.30511701  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.56859986  0.22712713 -0.78543266  1.06310200  0.42485844 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.53666333 -0.20888265  0.08171963 -1.05673687  0.02229473  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.75627543  0.56859986  0.42485844 -0.52826408  0.48614892  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.53666333  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[89]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.25853729  0.42485844  0.06730444  0.94634789  0.48614892  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.89496163  1.31682636  1.67288261 -0.52826408  0.22712713  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.26265057  0.24940178 -0.79554143 -0.78543266 -1.68428153  0.84618466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.35436116  1.39181405  0.60361101  0.42418757  0.97845492 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.94634789  0.60361101 -0.85520250 -0.53666333 -0.26265057  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.52826408 -0.53666333 -0.44179945  0.08171963 -1.68428153 -0.79554143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.31682636  0.24940178  0.56859986  2.12685046 -0.20888265 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.28689522  0.08171963 -0.52826408 -0.78543266  0.42485844  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.68428153  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[90]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.10758399  0.02229473 -0.38721358 -1.68428153 -0.26265057  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.94634789  0.06730444  0.84618466 -0.94491206  0.22712713 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.07283825  1.67288261  0.48614892  0.06730444 -0.03810289  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.06730444  0.10758399  0.42485844  0.45434159 -0.29664002  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.67288261  0.08171963 -0.28689522 -0.35436116  1.07283825  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.44945378  0.22712713 -1.05673687  2.03936926 -0.79554143  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.78543266  0.22712713  0.89496163 -0.55854199 -0.38721358  0.89496163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.38721358  0.10758399 -1.39941046 -0.55854199 -0.94491206  2.12685046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.52826408 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[91]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.94491206 -0.94491206  0.08171963 -0.28689522  0.06730444 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.39941046  0.19214942  0.94634789 -1.68428153  1.04871262 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.84618466  0.22712713  0.44945378  1.31682636 -0.35436116  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.97845492  0.19214942  0.19214942  0.44945378  0.94634789 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.89496163  1.06310200 -1.39941046 -0.44179945  0.24940178  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.60361101 -0.55854199  1.67288261 -0.26265057 -0.35436116  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.14619967  0.45434159  1.67288261 -0.20888265 -0.52826408  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.20888265  0.56859986  0.42656655  1.31682636  0.42418757 -0.28689522</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.94491206  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[92]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.28689522  0.60361101 -0.69053790 -1.30511701  0.89496163  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.10758399  0.89496163  0.89496163  1.31682636  0.60361101 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -1.05673687 -0.20888265  1.07283825 -0.29664002  0.42485844  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.07283825  0.42418757  0.89496163 -1.68428153 -0.35436116 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  1.67288261 -1.30511701  0.19214942  0.84618466  0.56859986  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.06730444  2.03936926  1.39181405  0.84618466  0.22712713  0.10758399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.03810289  2.12685046  2.03936926  1.04871262  1.04871262  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.44179945  0.10758399 -0.28689522  0.84618466  0.22712713 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.08171963 -0.38721358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[93]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.84618466  1.04871262  0.56859986  1.39181405  0.10758399  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.60361101  1.67288261  1.39181405  0.89496163  1.31682636  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  1.31682636  0.22712713  0.19214942  0.56859986  0.08171963 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  0.44945378  0.44945378  0.19214942  0.56859986  0.56859986 -0.94491206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.56859986 -1.68428153  1.07283825  0.10758399 -0.52826408  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.45434159  0.19214942 -0.29664002  0.02229473  1.67288261  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  2.12685046 -0.85520250  0.94634789  0.42418757  0.97845492 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  2.03936926  0.08171963  2.03936926  0.44945378  1.06310200  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.26265057  0.42656655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[94]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.48614892 -0.03810289  0.42656655 -0.35436116  0.42656655  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.42418757  1.04871262 -0.94491206  1.67288261  0.42485844  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.38721358  2.03936926  0.06730444 -1.30511701  1.67288261  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.55854199  0.60361101  0.22712713 -0.35436116  0.48614892 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.26265057  0.24940178  0.45434159  1.67288261  1.39181405  1.04871262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.42418757 -0.79554143  0.48614892  1.07283825  0.89496163  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.26265057  1.07283825 -0.38721358 -0.55854199  0.56859986  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.94634789  1.39181405 -0.03810289 -0.38721358  0.84618466 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.06730444  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[95]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.03810289 -0.52826408  0.44945378  1.31682636  2.03936926 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -1.30511701  0.06730444  0.42418757 -1.05673687  0.19214942 -0.85520250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.45434159 -0.52826408  0.42656655  0.94634789  1.39181405  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  1.67288261  0.22712713 -0.26265057  1.39181405  2.12685046 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.35436116 -1.14619967  0.97845492  1.39181405  0.89496163 -0.03810289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.24940178 -1.68428153  0.48614892  0.48614892 -1.05673687  0.22712713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -1.39941046  0.42418757  0.08171963 -1.39941046  1.04871262 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.89496163 -1.14619967  0.44945378  0.42485844  1.67288261  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.39941046  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[96]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.55854199  0.84618466 -0.69053790 -0.79554143  0.22712713  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.85520250  0.48614892 -0.20888265  0.56859986  1.04871262 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] -0.55854199  0.22712713 -0.20888265 -1.68428153  1.06310200  1.31682636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  2.12685046 -0.44179945 -1.30511701  0.97845492 -0.69053790 -0.26265057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.03810289  1.04871262  0.94634789  0.48614892  2.03936926  0.94634789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  0.42656655 -0.55854199 -0.78543266 -1.39941046  2.03936926  2.03936926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37]  1.39181405  0.19214942 -0.28689522 -0.55854199 -0.78543266  1.06310200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.30511701  0.45434159  1.06310200  1.39181405  1.39181405  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49]  0.94634789  1.67288261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[97]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.39941046  0.24940178  0.89496163 -1.14619967 -0.20888265 -0.35436116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.28689522 -0.94491206 -0.38721358  0.94634789  0.06730444 -0.53666333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.10758399  1.04871262  0.44945378 -0.52826408 -0.78543266 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.35436116  0.45434159  0.56859986 -0.26265057 -1.75627543 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.53666333 -0.69053790  1.04871262 -1.05673687 -1.39941046  0.02229473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.67288261  0.45434159  0.08171963  0.42485844  0.97845492  0.42485844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.35436116  0.02229473  1.39181405  0.89496163 -1.05673687  0.60361101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  0.10758399  0.56859986  1.07283825  0.08171963  0.48614892 -0.55854199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.78543266 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[98]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.94491206 -0.35436116  2.03936926  0.60361101  0.42656655  0.19214942</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.06310200  0.19214942  2.03936926 -1.68428153 -0.69053790 -1.14619967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.24940178 -0.78543266 -0.44179945 -0.94491206 -0.26265057  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -0.20888265 -0.29664002 -0.38721358 -0.53666333  0.89496163 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25]  0.10758399  0.25853729  2.03936926  0.56859986 -0.69053790 -1.68428153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] -0.35436116  0.22712713 -0.52826408 -0.35436116  0.42418757 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.69053790  0.08171963 -1.75627543  1.31682636  1.06310200  0.97845492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.30511701  0.25853729  0.06730444 -1.05673687  1.04871262 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -1.75627543 -0.52826408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[99]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.94634789  0.22712713  0.25853729  0.08171963  0.60361101 -0.29664002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.02229473 -0.55854199 -0.28689522  0.45434159 -0.79554143  0.48614892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.94634789  1.67288261  0.06730444  1.04871262 -0.20888265 -0.78543266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] -1.05673687  0.97845492 -1.30511701  0.48614892  1.67288261  0.08171963</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.53666333  0.08171963 -0.85520250  0.24940178  0.44945378  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  1.67288261 -0.85520250 -0.78543266 -0.53666333  1.04871262 -0.44179945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.94491206  0.60361101 -0.26265057  0.24940178  0.56859986  0.56859986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -1.30511701  0.44945378  0.19214942  0.42656655  0.22712713 -1.39941046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.38721358  0.06730444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $resamples[[100]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.75627543 -0.69053790 -0.03810289 -0.78543266 -0.44179945  0.24940178</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  0.56859986  1.67288261  1.31682636  0.10758399  0.42656655  0.45434159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13]  0.44945378  2.03936926 -0.38721358 -0.53666333  1.06310200  0.42418757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19]  2.12685046 -0.44179945  2.12685046 -0.53666333 -1.14619967 -1.75627543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] -0.79554143 -0.20888265  1.67288261 -0.69053790 -1.75627543 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31]  2.12685046 -1.14619967 -0.78543266  1.31682636  0.02229473 -0.20888265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] -0.44179945  1.31682636  0.97845492  0.06730444  0.19214942 -1.30511701</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] -0.03810289  0.45434159 -0.52826408  2.12685046  0.42418757  1.07283825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] -0.26265057  0.44945378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $medians</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1]  0.253969536 -0.123492773 -0.274772896 -0.093293959  0.449453778</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6]  0.094651811  0.074512034  0.249401784  0.107583992 -0.123492773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [11]  0.238264458  0.258537288  0.087444216 -0.007904081  0.149866707</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [16]  0.249401784  0.424858441  0.227127133  0.341362431 -0.208882651</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [21]  0.014600772  0.149866707  0.074512034  0.258537288  0.341362431</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [26]  0.149866707  0.087444216  0.052007181  0.022294733  0.258537288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [31]  0.424187575  0.014600772  0.192149422  0.081719629  0.227127133</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [36]  0.227127133  0.107583992 -0.262650573  0.249401784  0.081719629</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [41]  0.220775603  0.129726931  0.238264458  0.094651811  0.149866707</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [46]  0.022294733 -0.235766612  0.107583992  0.227127133 -0.208882651</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [51]  0.021808367  0.014600772  0.209638277  0.081719629  0.238264458</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [56]  0.337130113  0.258537288  0.149866707  0.246081441  0.308168498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [61]  0.094651811  0.209638277  0.052007181  0.249401784  0.253969536</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [66] -0.208882651  0.107583992 -0.296640025 -0.274772896  0.044799586</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [71]  0.209638277  0.094651811  0.081719629  0.424858441  0.341362431</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [76]  0.022294733  0.094651811 -0.320628191  0.149866707  0.067304440</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [81]  0.022294733 -0.007904081 -0.247888935  0.014600772  0.249401784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [86]  0.094651811  0.044799586  0.325657354  0.238264458  0.067304440</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [91]  0.192149422  0.325657354  0.568599861  0.425712494  0.238264458</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [96]  0.227127133  0.022294733 -0.279645299  0.136934526  0.044799586</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

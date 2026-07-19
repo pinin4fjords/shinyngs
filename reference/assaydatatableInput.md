@@ -35,7 +35,7 @@ Leverages the `simpletable` module
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 assaydatatableInput("experiment", eselist)
 #> Error in assaydatatableInput("experiment", eselist): could not find function "assaydatatableInput"

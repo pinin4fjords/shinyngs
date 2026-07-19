@@ -17,3 +17,10 @@ getExtension(file)
 ## Value
 
 extension Extension like 'csv' or 'tsv'
+
+## Examples
+
+``` r
+getExtension("my_metadata.tsv")
+#> [1] "tsv"
+```

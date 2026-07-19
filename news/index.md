@@ -51,3 +51,27 @@
   format toggle, so any plot can be exported as vector SVG for
   publication.
 - Dropped the `reformulas` and `data.table` dependencies.
+- Progress and warning logging during object construction and validation
+  now goes through
+  [`message()`](https://rdrr.io/r/base/message.html)/[`warning()`](https://rdrr.io/r/base/warning.html)
+  rather than [`print()`](https://rdrr.io/r/base/print.html), so it can
+  be suppressed and captured through R’s condition system.
+
+### Maintenance
+
+- Removed the unused exported function `geom_mean()`; geometric means
+  are computed directly by
+  [`colGeomMeans()`](https://pinin4fjords.github.io/shinyngs/reference/colGeomMeans.md).
+- Declared `grDevices` under `Imports` (it was already used).
+- Normalised a handful of module house-style outliers: the shared
+  differential-scatter helper trio is now
+  [`differentialscatterInput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterInput.md)
+  /
+  [`differentialscatterOutput()`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterOutput.md)
+  /
+  [`differentialscatterLogic()`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterLogic.md)
+  (lowercase, and no misleading `Server` suffix on the non-module logic
+  helper); `contrasts.R` now uses `validate(need())` throughout instead
+  of a mix with `req()`; and `plotlyOutput()` heights consistently use a
+  quoted `"NNNpx"` string for fixed heights or a bare numeric for
+  computed ones.

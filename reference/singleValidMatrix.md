@@ -18,3 +18,14 @@ singleValidMatrix(eselist)
 ## Value
 
 output Logical value
+
+## Examples
+
+``` r
+data(airway, package = "airway")
+ese <- as(airway, "ExploratorySummarizedExperiment")
+eselist <- ExploratorySummarizedExperimentList(ese, title = "Airway study")
+#> Creating ExploratorySummarizedExperimentList object
+singleValidMatrix(eselist)
+#> [1] TRUE
+```

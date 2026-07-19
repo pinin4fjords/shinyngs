@@ -32,7 +32,7 @@ output Boolean- is the slot populated?
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 has_slot_data(eselist, "contrasts")
 #> [1] FALSE
 ```

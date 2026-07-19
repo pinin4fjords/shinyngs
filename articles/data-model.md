@@ -193,7 +193,7 @@ myesel <- ExploratorySummarizedExperimentList(
   group_vars = c("Group", "Replicate"),
   default_groupvar = "Group"
 )
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 myesel@group_vars
 #> [1] "Group"     "Replicate"
 ```

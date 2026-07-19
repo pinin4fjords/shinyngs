@@ -43,6 +43,10 @@ plotly_quartiles(
   transformation is applied. If NULL, a conditional transformation based
   on threshold is applied.
 
+## Value
+
+A plotly htmlwidget
+
 ## Examples
 
 ``` r

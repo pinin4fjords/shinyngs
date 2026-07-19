@@ -36,7 +36,7 @@ maplotOutput("experiment")
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 if (interactive()) {
   app <- prepareApp("maplot", eselist)

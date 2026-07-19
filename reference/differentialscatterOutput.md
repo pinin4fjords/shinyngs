@@ -5,7 +5,7 @@ Shared output scaffolding for the differential-scatter plot modules
 ## Usage
 
 ``` r
-differentialScatterOutput(id, scatter_id, title, modal)
+differentialscatterOutput(id, scatter_id, title, modal)
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ differentialScatterOutput(id, scatter_id, title, modal)
 - scatter_id:
 
   Sub-namespace matching the one passed to
-  [`differentialScatterInput`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterInput.md)
+  [`differentialscatterInput`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterInput.md)
 
 - title:
 

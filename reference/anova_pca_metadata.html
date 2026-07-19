@@ -19,18 +19,17 @@ categorical covariates."><meta property="og:image" content="https://pinin4fjords
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/shinyngs.html">Get started</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Building apps</h6></li>
-    <li><a class="dropdown-item" href="../articles/data-model.html">The data model: building ExploratorySummarizedExperiment objects</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-building-apps" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Building apps</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-building-apps"><li><a class="dropdown-item" href="../articles/data-model.html">The data model</a></li>
     <li><a class="dropdown-item" href="../articles/build-from-files.html">Building an app from files and YAML</a></li>
     <li><a class="dropdown-item" href="../articles/cli.html">Command-line interface reference</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Using &amp; extending</h6></li>
-    <li><a class="dropdown-item" href="../articles/modules.html">Module and panel catalog</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-using-extending" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Using &amp; extending</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-using-extending"><li><a class="dropdown-item" href="../articles/modules.html">Module and panel catalog</a></li>
     <li><a class="dropdown-item" href="../articles/reuse.html">Reusing components inside and outside Shiny</a></li>
     <li><a class="dropdown-item" href="../articles/theming.html">Theming, palettes and shareable views</a></li>
-    <li><a class="dropdown-item" href="../articles/developer.html">Developer guide: how modules work and how to add one</a></li>
+    <li><a class="dropdown-item" href="../articles/developer.html">Developer guide</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -56,7 +55,7 @@ categorical covariates.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">anova_pca_metadata</span><span class="op">(</span><span class="va">pca_coords</span>, <span class="va">pcameta</span>, <span class="va">fraction_explained</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">anova_pca_metadata</span><span class="op">(</span><span class="va">pca_coords</span>, <span class="va">pcameta</span>, <span class="va">fraction_explained</span>, n_components <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -77,6 +76,11 @@ and variables by column.</p></dd>
 <dd><p>Numeric vector containing the percent contribution
 to variance of each component</p></dd>
 
+
+<dt id="arg-n-components">n_components<a class="anchor" aria-label="anchor" href="#arg-n-components"></a></dt>
+<dd><p>Number of leading components to test. Clamped to the
+number actually available in <code>pca_coords</code> if that's fewer.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -94,9 +98,9 @@ to variance of each component</p></dd>
 <span class="r-in"><span>  row.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">anova_pca_metadata</span><span class="op">(</span><span class="va">pca</span><span class="op">$</span><span class="va">coords</span>, <span class="va">pcameta</span>, <span class="va">pca</span><span class="op">$</span><span class="va">percentVar</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           PC1 (29.2%) PC2 (25.4%) PC3 (21%) PC4 (13.8%) PC5 (10.6%)   PC6 (0%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> condition  0.01028394   0.8802899 0.5144010   0.7611769   0.8139402 0.07605518</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> batch      0.81659176   0.4715556 0.2040988   0.7279466   0.2201930 0.56645489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  PC1       PC2       PC3       PC4       PC5        PC6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> condition 0.01028394 0.8802899 0.5144010 0.7611769 0.8139402 0.07605518</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> batch     0.81659176 0.4715556 0.2040988 0.7279466 0.2201930 0.56645489</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -49,14 +49,14 @@ sample_sheet <- data.frame(
 )
 madScore(mat, sample_sheet, groupby = "condition")
 #>       group        mad outlier
-#> s6  control  0.0000000   FALSE
-#> s7  control -0.6744908   FALSE
-#> s8  control  0.8952252   FALSE
-#> s9  control  1.2379753   FALSE
-#> s10 control -0.6128920   FALSE
-#> s1  treated  2.0665228   FALSE
-#> s2  treated  5.7174802   FALSE
-#> s3  treated  0.0000000   FALSE
-#> s4  treated -0.4807919   FALSE
+#> s6  control -1.6974064   FALSE
+#> s7  control -3.9540756   FALSE
+#> s8  control  0.3957383   FALSE
+#> s9  control  0.0000000   FALSE
+#> s10 control  0.6744908   FALSE
+#> s1  treated -1.4633639   FALSE
+#> s2  treated  0.0000000   FALSE
+#> s3  treated  0.7183435   FALSE
+#> s4  treated  0.2452186   FALSE
 #> s5  treated -0.6744908   FALSE
 ```

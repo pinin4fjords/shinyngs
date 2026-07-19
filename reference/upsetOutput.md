@@ -1,4 +1,4 @@
-# The output function of the clustering module
+# The output function of the upset module
 
 This module illustrates the intersection of differential sets using a
 reimplementation of the `upset` tool of Lex, Gehlenborg et al. The

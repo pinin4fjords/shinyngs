@@ -46,7 +46,7 @@ applied to the specified SummarizedExperiment object to the
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 # This module needs an eselist whose experiments carry gene_set_analyses
 # results (see the vignette). Given those, the module server is called like:

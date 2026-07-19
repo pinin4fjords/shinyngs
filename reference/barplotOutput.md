@@ -5,7 +5,7 @@ Generic module to isplay grouped, stacked or overlaid bars for a matrix
 ## Usage
 
 ``` r
-barplotOutput(id, height = "400")
+barplotOutput(id, height = 400)
 ```
 
 ## Arguments

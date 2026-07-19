@@ -37,7 +37,7 @@ as.character()
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 # The volcano module needs an eselist carrying differential statistics
 # (contrast_stats); see the vignette. It is used via application creation:

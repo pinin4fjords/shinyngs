@@ -37,7 +37,7 @@ as.character()
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 # The gene set modules need an eselist with populated gene_set_analyses (see
 # the vignette). Given such data, they are used via application creation:

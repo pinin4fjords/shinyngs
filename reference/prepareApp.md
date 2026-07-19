@@ -68,7 +68,7 @@ eselist <- ExploratorySummarizedExperimentList(
   author = expinfo$Author,
   description = expinfo$Description
 )
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 # Make and run the app
 

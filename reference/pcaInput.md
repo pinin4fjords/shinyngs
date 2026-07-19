@@ -31,7 +31,7 @@ as.character()
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 pcaInput("pca", eselist)
 #> Error in pcaInput("pca", eselist): could not find function "pcaInput"

@@ -35,7 +35,7 @@ Matrix and UI selection elements provided by the selectmatrix module
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 # Almost certainly used via application creation
 

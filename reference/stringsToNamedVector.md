@@ -41,3 +41,11 @@ stringsToNamedVector(
 ## Value
 
 output Named character vector
+
+## Examples
+
+``` r
+stringsToNamedVector("s1.tsv,s2.tsv", "sample_one,sample_two")
+#> Sample one Sample two 
+#>   "s1.tsv"   "s2.tsv" 
+```

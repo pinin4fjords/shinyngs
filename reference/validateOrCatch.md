@@ -25,3 +25,10 @@ validateOrCatch(expr)
 
 output Result of `expr`, or triggers a Shiny validation error with the
 original condition's message
+
+## Examples
+
+``` r
+validateOrCatch(1 + 1)
+#> [1] 2
+```

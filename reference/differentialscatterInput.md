@@ -10,12 +10,12 @@ the same input scaffolding (expression matrix selection, contrast
 selection, scatter plot controls, gene highlighting, table export). Only
 the numeric transform and threshold-line logic genuinely differ between
 them - see
-[`differentialScatterServer`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterServer.md).
+[`differentialscatterLogic`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterLogic.md).
 
 ## Usage
 
 ``` r
-differentialScatterInput(
+differentialscatterInput(
   id,
   eselist,
   scatter_id,

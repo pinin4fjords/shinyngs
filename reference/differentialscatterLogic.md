@@ -15,7 +15,7 @@ and plot title are identical across all three and applied here.
 ## Usage
 
 ``` r
-differentialScatterServer(
+differentialscatterLogic(
   input,
   output,
   session,
@@ -42,7 +42,7 @@ differentialScatterServer(
 - scatter_id:
 
   Sub-namespace matching the one passed to
-  [`differentialScatterInput`](https://pinin4fjords.github.io/shinyngs/reference/differentialScatterInput.md)
+  [`differentialscatterInput`](https://pinin4fjords.github.io/shinyngs/reference/differentialscatterInput.md)
 
 - buildTable:
 

@@ -27,11 +27,11 @@ read_matrix(
 
 - feature_metadata:
 
-  Data fraome of feature metadata
+  Data frame of feature metadata
 
 - sep:
 
-  Sepaarator in matrix file
+  Separator in matrix file
 
 - row.names:
 
@@ -39,7 +39,7 @@ read_matrix(
 
 ## Value
 
-output Numeric matrix
+Numeric matrix
 
 ## Examples
 

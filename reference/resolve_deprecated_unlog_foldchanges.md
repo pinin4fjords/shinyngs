@@ -25,3 +25,13 @@ resolve_deprecated_unlog_foldchanges(fold_change_scale, unlog_foldchanges)
 ## Value
 
 The `fold_change_scale` to use.
+
+## Examples
+
+``` r
+resolve_deprecated_unlog_foldchanges("auto", NULL)
+#> [1] "auto"
+resolve_deprecated_unlog_foldchanges("auto", TRUE)
+#> Warning: `unlog_foldchanges`/`--unlog_foldchanges` is deprecated and will be removed in a future release; use `fold_change_scale`/`--fold_change_scale` = "log2" (to unlog) or "linear" (to leave values as-is) instead.
+#> [1] "log2"
+```

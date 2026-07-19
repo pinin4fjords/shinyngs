@@ -34,3 +34,10 @@ checkListIsSubset(
 ## Value
 
 output Returns TRUE if check passes
+
+## Examples
+
+``` r
+checkListIsSubset(c("treatment"), c("treatment", "batch"), "contrast variables", "sample metadata")
+#> [1] TRUE
+```

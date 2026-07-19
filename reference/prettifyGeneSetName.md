@@ -17,3 +17,10 @@ prettifyGeneSetName(gsn)
 ## Value
 
 output Prettified version
+
+## Examples
+
+``` r
+prettifyGeneSetName("KEGG_GLYCOLYSIS_GLUCONEOGENESIS")
+#> [1] "KEGG glycolysis gluconeogenesis"
+```

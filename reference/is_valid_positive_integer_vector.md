@@ -16,4 +16,13 @@ is_valid_positive_integer_vector(string)
 
 ## Value
 
-output Boolean indicating whether the check passed
+Boolean indicating whether the check passed
+
+## Examples
+
+``` r
+is_valid_positive_integer_vector("1,2,3")
+#> [1] TRUE
+is_valid_positive_integer_vector("1,two,3")
+#> [1] FALSE
+```

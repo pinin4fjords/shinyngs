@@ -17,3 +17,10 @@ getSeparator(file)
 ## Value
 
 output Separator character like tab or ','
+
+## Examples
+
+``` r
+getSeparator("my_metadata.tsv")
+#> [1] "\t"
+```

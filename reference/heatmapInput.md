@@ -45,7 +45,7 @@ This provides the form elements to control the heatmap display
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 heatmapInput("heatmap", eselist)
 #> Error in heatmapInput("heatmap", eselist): could not find function "heatmapInput"

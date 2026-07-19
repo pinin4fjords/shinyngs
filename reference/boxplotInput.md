@@ -33,7 +33,7 @@ as.character()
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 boxplotInput("boxplot", eselist)
 #> Error in boxplotInput("boxplot", eselist): could not find function "boxplotInput"

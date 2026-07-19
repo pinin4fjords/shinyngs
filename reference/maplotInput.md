@@ -36,7 +36,7 @@ Leverages the `contrasts` and `scatterplot` modules
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 maplotInput("myid", eselist)
 #> Error in maplotInput("myid", eselist): could not find function "maplotInput"

@@ -45,7 +45,7 @@ Leverages the `simpletable` module
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 # This module needs an eselist whose experiments carry gene_set_analyses
 # results (see the vignette). Given those, module input is produced like:

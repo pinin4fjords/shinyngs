@@ -21,3 +21,10 @@ na.replace(vec, replacement = "NA")
 ## Value
 
 Vector or factor with NAs replaced
+
+## Examples
+
+``` r
+na.replace(c("a", NA, "b"))
+#> [1] "a"  "NA" "b" 
+```

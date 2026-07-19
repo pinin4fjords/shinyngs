@@ -81,9 +81,9 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/dexseqtableInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/dexseqtableInputFields.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/dexseqtableOutput.html</loc></url>
-<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialScatterInput.html</loc></url>
-<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialScatterOutput.html</loc></url>
-<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialScatterServer.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialscatterInput.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialscatterLogic.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialscatterOutput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialtable.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialtableInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/differentialtableOutput.html</loc></url>
@@ -117,7 +117,6 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/genesetbarcodeplotOutput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/genesetselect.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/genesetselectInput.html</loc></url>
-<url><loc>https://pinin4fjords.github.io/shinyngs/reference/geom_mean.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/getExtension.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/getSeparator.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/ggplot_boxplot.html</loc></url>
@@ -153,7 +152,6 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/makeColorScale.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/makeContrastControl.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/makeContrastFilterSet.html</loc></url>
-<url><loc>https://pinin4fjords.github.io/shinyngs/reference/makePackageCitation.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/maplot.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/maplotInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/maplotOutput.html</loc></url>
@@ -164,6 +162,7 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/na.replace.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/navLink.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/nlines.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/pcLabels.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/pca.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/pcaInput.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/pcaOutput.html</loc></url>
@@ -178,6 +177,7 @@
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_densityplot.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_illumina_control_probes.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_pca_metadata_heatmap.html</loc></url>
+<url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_pca_variance_heatmap.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_quartiles.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_scatterplot.html</loc></url>
 <url><loc>https://pinin4fjords.github.io/shinyngs/reference/plotly_screeplot.html</loc></url>

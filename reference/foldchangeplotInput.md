@@ -35,7 +35,7 @@ Leverages the `scatterplot` module
 data(airway, package = "airway")
 ese <- as(airway, "ExploratorySummarizedExperiment")
 eselist <- ExploratorySummarizedExperimentList(ese)
-#> [1] "Creating ExploratorySummarizedExperimentList object"
+#> Creating ExploratorySummarizedExperimentList object
 
 foldchangeplotInput("myid", eselist)
 #> Error in foldchangeplotInput("myid", eselist): could not find function "foldchangeplotInput"

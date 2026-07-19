@@ -21,3 +21,10 @@ simpleSplit(string, sep = ",")
 ## Value
 
 output Character vector of strings
+
+## Examples
+
+``` r
+simpleSplit("a,b,c")
+#> [1] "a" "b" "c"
+```
