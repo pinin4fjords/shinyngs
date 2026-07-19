@@ -25,7 +25,11 @@ rowmetatableInput <- function(id, eselist) {
 
   description <- "This is the metadata associated with the rows (e.g. genes) of this study."
 
-  list(selectmatrixInput(ns("rowmetatable"), eselist = eselist), simpletableInput(ns("rowmetatable"), tabletitle = "Annotation"))
+  list(
+    selectmatrixInput(ns("rowmetatable"), eselist = eselist),
+    simpletableInput(ns("rowmetatable"), tabletitle = "Annotation"),
+    categorycountplotInput(ns("categorycount"))
+  )
 }
 
 #' The output function of the rowmetatable module
@@ -51,7 +55,10 @@ rowmetatableOutput <- function(id) {
   ns <- NS(id)
   moduleMain(
     "Row metadata",
-    simpletableOutput(ns("rowmetatable")),
+    tabsetPanel(
+      tabPanel("Table", simpletableOutput(ns("rowmetatable"))),
+      tabPanel("Category counts", categorycountplotOutput(ns("categorycount")))
+    ),
     help = modalInput(ns(rowmetatable_modal$id), "help", "help")
   )
 }
@@ -90,5 +97,7 @@ rowmetatable <- function(id, eselist) {
     })
 
     simpletable("rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
+
+    categorycountplot("categorycount", getAnnotation = getRowMeta, filename = "rowmeta_categorycounts")
   })
 }

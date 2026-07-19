@@ -88,6 +88,7 @@ reference:
   - plotly_boxplot
   - plotly_cluster_profiles
   - plotly_clusteringDendrogram
+  - plotly_count_barplot
   - plotly_densityplot
   - plotly_illumina_control_probes
   - plotly_pca_metadata_heatmap
@@ -149,6 +150,9 @@ reference:
   - boxplotOutput
   - calculatePCAFractionExplained
   - cardinalNumericField
+  - categorycountplot
+  - categorycountplotInput
+  - categorycountplotOutput
   - chipseq
   - chipseqInput
   - clustering
