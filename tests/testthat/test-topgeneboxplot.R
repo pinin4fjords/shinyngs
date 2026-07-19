@@ -100,6 +100,33 @@ test_that("plotly_topgene_boxplots shows the y axis title on every row, not just
   expect_false(has_title("yaxis6"))
 })
 
+test_that("plotly_topgene_boxplots titles facets with the supplied label instead of the raw gene id", {
+  mat <- make_topgene_matrix()
+  groupby <- rep(c("A", "B"), each = 3)
+  labels <- stats::setNames(c("Symbol1", "Symbol2"), c("gene1", "gene2"))
+
+  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), labels = labels))
+  xaxis_titles <- unlist(lapply(built$x$layout[grepl("^xaxis", names(built$x$layout))], function(x) x$title))
+
+  expect_true(any(grepl("Symbol1", xaxis_titles, fixed = TRUE)))
+  expect_true(any(grepl("Symbol2", xaxis_titles, fixed = TRUE)))
+  # gene3/gene4 have no entry in `labels` and fall back to their raw id
+  expect_true(any(grepl("gene3", xaxis_titles, fixed = TRUE)))
+  expect_true(any(grepl("gene4", xaxis_titles, fixed = TRUE)))
+})
+
+test_that("plotly_topgene_boxplots combines a supplied label and annotation in one facet title", {
+  mat <- make_topgene_matrix()
+  groupby <- rep(c("A", "B"), each = 3)
+  labels <- stats::setNames("Symbol1", "gene1")
+  annotations <- stats::setNames("q value = 0.001", "gene1")
+
+  built <- plotly::plotly_build(plotly_topgene_boxplots(mat, groupby, rownames(mat), labels = labels, annotations = annotations))
+  xaxis_titles <- unlist(lapply(built$x$layout[grepl("^xaxis", names(built$x$layout))], function(x) x$title))
+
+  expect_true(any(grepl("Symbol1<br>q value = 0.001", xaxis_titles, fixed = TRUE)))
+})
+
 test_that("plotly_topgene_boxplots applies the colour-blind palette by default", {
   mat <- make_topgene_matrix()
   groupby <- rep(c("A", "B"), each = 3)
@@ -138,6 +165,28 @@ test_that("ggplot_topgene_boxplots draws a per-facet annotation layer when suppl
 
   geom_classes_none <- vapply(without_annotations$layers, function(l) class(l$geom)[1], character(1))
   expect_false("GeomText" %in% geom_classes_none)
+})
+
+test_that("ggplot_topgene_boxplots facets by gene id but labels strips with the supplied display name", {
+  mat <- make_topgene_matrix()
+  groupby <- rep(c("A", "B"), each = 3)
+  labels <- stats::setNames(c("Symbol1", "Symbol2"), c("gene1", "gene2"))
+
+  p <- ggplot_topgene_boxplots(mat, groupby, rownames(mat), labels = labels)
+  facet_labeller <- p$facet$params$labeller
+
+  strips <- facet_labeller(data.frame(gene = factor(rownames(mat), levels = rownames(mat))))
+  expect_equal(as.character(strips$gene), c("Symbol1", "Symbol2", "gene3", "gene4"))
+})
+
+# topgeneFacetLabels()
+
+test_that("topgeneFacetLabels falls back to the gene id for genes missing from labels, or when labels is NULL", {
+  labels <- c(gene1 = "Symbol1", gene3 = "Symbol3")
+  genes <- c("gene1", "gene2", "gene3")
+
+  expect_equal(topgeneFacetLabels(labels, genes), stats::setNames(c("Symbol1", "gene2", "Symbol3"), genes))
+  expect_equal(topgeneFacetLabels(NULL, genes), stats::setNames(genes, genes))
 })
 
 # topgeneAnnotationData() / topgeneAnnotationVector()

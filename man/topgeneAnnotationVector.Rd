@@ -12,7 +12,9 @@ topgeneAnnotationVector(annotations, genes)
 \code{genes}, rendered as a per-facet annotation (e.g. a q value string)}
 
 \item{genes}{Character vector of row names of \code{assay} to facet on, in
-the order facets should appear}
+the order facets should appear. Also used to look up values in
+\code{assay}, so must match its row names even when \code{labels} is
+supplied.}
 }
 \value{
 A character vector parallel to \code{genes} (\code{NA} where no

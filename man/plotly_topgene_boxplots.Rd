@@ -10,6 +10,7 @@ plotly_topgene_boxplots(
   groupby,
   genes,
   annotations = NULL,
+  labels = NULL,
   beeswarm = TRUE,
   ncol = NULL,
   palette = NULL,
@@ -24,10 +25,19 @@ plotly_topgene_boxplots(
 \item{groupby}{Vector of group labels, one per column of \code{assay}}
 
 \item{genes}{Character vector of row names of \code{assay} to facet on, in
-the order facets should appear}
+the order facets should appear. Also used to look up values in
+\code{assay}, so must match its row names even when \code{labels} is
+supplied.}
 
 \item{annotations}{Optional named character vector keyed by the values in
 \code{genes}, rendered as a per-facet annotation (e.g. a q value string)}
+
+\item{labels}{Optional named character vector keyed by the values in
+\code{genes}, used as the facet title in place of the raw gene identifier
+(e.g. a gene symbol where \code{genes} holds Ensembl IDs). Genes missing
+from \code{labels} fall back to their raw identifier. \code{genes} itself
+still drives the lookup into \code{assay} and the matching of
+\code{annotations}.}
 
 \item{beeswarm}{Overlay individual points using
 \code{\link[ggbeeswarm]{geom_quasirandom}}?}

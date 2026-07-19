@@ -236,10 +236,9 @@ topgeneboxplot <- function(id, eselist) {
       )
     })
 
-    # Labels for the currently ranked/capped genes, shared by getAnnotations()
-    # and the plot itself so idToLabel() (which converts the full gene
-    # annotation table to look up a handful of ids) only runs once per change
-    # to the ranked gene set, not once per reader
+    # Reactive so idToLabel() (which converts the full gene annotation table
+    # to look up a handful of ids) only runs once per change to the ranked
+    # gene set, not once per reader
 
     getTopGeneLabels <- reactive({
       idToLabel(getTopGeneIds(), selectmatrix_reactives$getExperiment(), sep = "<br />")
@@ -250,7 +249,6 @@ topgeneboxplot <- function(id, eselist) {
       rows <- getTopGeneIds()
       opt <- getRankOption()
 
-      labels <- getTopGeneLabels()
       values <- paste0(opt$metric_label, " = ", signif(opt$transform(ct[rows, opt$column]), 3))
 
       # Always surface q value too, when it isn't already the ranking column, since it's the standard significance reference
@@ -258,7 +256,7 @@ topgeneboxplot <- function(id, eselist) {
         values <- paste0(values, ", q value = ", signif(ct[rows, "q value"], 3))
       }
 
-      stats::setNames(values, labels)
+      stats::setNames(values, rows)
     })
 
     # Facet columns and plot height are derived via the same
@@ -289,10 +287,10 @@ topgeneboxplot <- function(id, eselist) {
         # first) - the log2 transform in plotly_topgene_boxplots() doesn't
         # need pre-rounded input anyway
         expression <- selectmatrix_reactives$getAssayMatrix()[rows, names(sample_groups), drop = FALSE]
-        rownames(expression) <- getTopGeneLabels()
 
-        plotly_topgene_boxplots(expression, sample_groups, rownames(expression),
-          annotations = getAnnotations(), beeswarm = input$beeswarm, ncol = getNcol(),
+        plotly_topgene_boxplots(expression, sample_groups, rows,
+          annotations = getAnnotations(), labels = stats::setNames(getTopGeneLabels(), rows),
+          beeswarm = input$beeswarm, ncol = getNcol(),
           palette = getPalette(), expressiontype = selectmatrix_reactives$getAssayMeasure()
         ) %>%
           shinyngsPlotlyConfig("topgene_boxplots", format = session$userData$plotFormat())
@@ -311,9 +309,17 @@ topgeneboxplot <- function(id, eselist) {
 #' @param assay Numeric matrix, genes (rows) by samples (columns)
 #' @param groupby Vector of group labels, one per column of \code{assay}
 #' @param genes Character vector of row names of \code{assay} to facet on, in
-#'   the order facets should appear
+#'   the order facets should appear. Also used to look up values in
+#'   \code{assay}, so must match its row names even when \code{labels} is
+#'   supplied.
 #' @param annotations Optional named character vector keyed by the values in
 #'   \code{genes}, rendered as a per-facet annotation (e.g. a q value string)
+#' @param labels Optional named character vector keyed by the values in
+#'   \code{genes}, used as the facet title in place of the raw gene identifier
+#'   (e.g. a gene symbol where \code{genes} holds Ensembl IDs). Genes missing
+#'   from \code{labels} fall back to their raw identifier. \code{genes} itself
+#'   still drives the lookup into \code{assay} and the matching of
+#'   \code{annotations}.
 #' @param beeswarm Overlay individual points using
 #'   \code{\link[ggbeeswarm]{geom_quasirandom}}?
 #' @param ncol Number of facet columns. Defaults to
@@ -340,7 +346,7 @@ topgeneboxplot <- function(id, eselist) {
 #' groupby <- as.character(colData(airway)$dex)
 #' ggplot_topgene_boxplots(mat, groupby, rownames(mat))
 #'
-ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
+ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, labels = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
                                      expressiontype = "expression", base_size = 11, should_transform = NULL) {
   plotdata <- topgeneBoxplotData(assay, groupby, genes, should_transform = should_transform)
 
@@ -359,7 +365,7 @@ ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, b
       scale_color_manual(values = palette, guide = "none")
   }
 
-  p <- p + facet_wrap(~gene, ncol = ncol, scales = "free_y")
+  p <- p + facet_wrap(~gene, ncol = ncol, scales = "free_y", labeller = as_labeller(topgeneFacetLabels(labels, genes)))
 
   ann_df <- topgeneAnnotationData(annotations, genes)
   if (!is.null(ann_df)) {
@@ -396,7 +402,7 @@ ggplot_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, b
 #' groupby <- as.character(colData(airway)$dex)
 #' plotly_topgene_boxplots(mat, groupby, rownames(mat))
 #'
-plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
+plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, labels = NULL, beeswarm = TRUE, ncol = NULL, palette = NULL, palette_name = COLORBLIND_PALETTE_NAME,
                                      expressiontype = "expression", should_transform = NULL) {
   assay <- topgeneTransformAssay(assay, genes, should_transform = should_transform)
 
@@ -411,6 +417,7 @@ plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, b
   nrows <- layout_spec$nrows
 
   annotations <- topgeneAnnotationVector(annotations, genes)
+  facet_titles <- topgeneFacetLabels(labels, genes)
   yaxis_title <- splitStringToFixedwidthLines(paste0("log2(", prettifyVariablename(expressiontype), ")"), 15)
 
   facet_plots <- lapply(seq_along(genes), function(i) {
@@ -433,7 +440,7 @@ plotly_topgene_boxplots <- function(assay, groupby, genes, annotations = NULL, b
       )
     }
 
-    title <- gene
+    title <- facet_titles[[gene]]
     if (!is.na(annotations[i])) {
       title <- paste0(title, "<br>", annotations[i])
     }
@@ -532,4 +539,22 @@ topgeneAnnotationVector <- function(annotations, genes) {
   }
 
   unname(annotations[genes])
+}
+
+#' Build the named vector of facet titles used by
+#' \code{\link{ggplot_topgene_boxplots}} and \code{\link{plotly_topgene_boxplots}}
+#'
+#' Genes with no entry in \code{labels} (or when \code{labels} is \code{NULL})
+#' fall back to their raw identifier, so callers always get one title per
+#' gene regardless of annotation coverage.
+#'
+#' @inheritParams ggplot_topgene_boxplots
+#'
+#' @return A character vector parallel to \code{genes}, named by \code{genes}
+#'
+#' @keywords internal
+topgeneFacetLabels <- function(labels, genes) {
+  resolved <- topgeneAnnotationVector(labels, genes)
+  resolved[is.na(resolved)] <- genes[is.na(resolved)]
+  stats::setNames(resolved, genes)
 }
