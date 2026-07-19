@@ -50,6 +50,8 @@ components to display, and a sample variable to colour by.
 *Backed by:* `compilePCAData`, with points drawn via `plotly_scatterplot` and
 the scree curve via `plotly_screeplot`.
 
+![Components plot for a 3D PCA, coloured by sample group](img/pca.png)
+
 ### PCA vs experiment
 
 A companion to the PCA panel that helps interpret what the components mean. An
@@ -73,6 +75,8 @@ coloured bars above the heatmap via the "Annotate with variables" control.
 *Inputs:* an assay matrix (variable rows by default) and optional annotation
 variables.
 *Backed by:* `interactiveHeatmap`.
+
+![Sample-by-sample correlation heatmap with dendrogram and group/tissue annotation bars](img/heatmap.png)
 
 ### Dendrogram
 
@@ -143,6 +147,8 @@ significantly up in contrast A but unchanged in contrast B".
 
 *Inputs:* contrasts with test statistics; an assay matrix for fold changes.
 
+![Differential table for one contrast, with fold change and p/q columns](img/diff-table.png)
+
 ### Volcano plot
 
 Plots log2 fold change (x, sign preserved) against -log10 p-value (y), drawn
@@ -154,6 +160,8 @@ below are inert grey (labelling every point would slow the browser).
 *Inputs:* a contrast, fold-change and q-value thresholds, and optionally a set
 of genes to highlight by colour.
 *Backed by:* `plotly_scatterplot`.
+
+![Volcano plot for one contrast, with points passing the fold-change/q-value thresholds highlighted in blue](img/volcano.png)
 
 ### MA plot
 
@@ -187,6 +195,8 @@ is capped by a control. A colour-blind-safe palette is the default.
 *Inputs:* a contrast, significance thresholds, a ranking metric, a gene count,
 and a colour palette.
 *Backed by:* `plotly_topgene_boxplots`.
+
+![Top gene boxplots for a contrast, ranked by q value, with per-sample beeswarm points](img/boxplot.png)
 
 ### UpSet
 
@@ -315,6 +325,8 @@ transcripts and one for genes), and each experiment holds multiple **assays**
 The data can optionally be summarised into means per sample group.
 
 *Inputs:* a choice of experiment and assay, plus row and column selection.
+
+![Assay data table showing a filtered normalised expression matrix](img/assay-table.png)
 
 ### Sample metadata table
 
