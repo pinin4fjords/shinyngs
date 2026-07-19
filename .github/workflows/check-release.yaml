@@ -12,9 +12,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.R_CI }}
       R_KEEP_PKG_SOURCE: yes
-      # testthat defaults to 2 parallel test-file workers regardless of
-      # available cores; ubuntu-latest GitHub-hosted runners have 4 cores.
-      TESTTHAT_CPUS: "4"
       TEST_DATA_BASE: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/mus_musculus/rnaseq_expression"
       FEATURE_META_FILE: "SRP254919.gene_meta.tsv"
       SAMPLE_META_FILE: "SRP254919.samplesheet.csv"
