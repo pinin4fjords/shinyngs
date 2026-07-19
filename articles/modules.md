@@ -45,6 +45,10 @@ of which components to display, and a sample variable to colour by.
 *Backed by:* `compilePCAData`, with points drawn via
 `plotly_scatterplot` and the scree curve via `plotly_screeplot`.
 
+![Components plot for a 3D PCA, coloured by sample group](img/pca.png)
+
+Components plot for a 3D PCA, coloured by sample group
+
 ### PCA vs experiment
 
 A companion to the PCA panel that helps interpret what the components
@@ -69,6 +73,12 @@ annotations can be added as coloured bars above the heatmap via the
 
 *Inputs:* an assay matrix (variable rows by default) and optional
 annotation variables. *Backed by:* `interactiveHeatmap`.
+
+![Sample-by-sample correlation heatmap with dendrogram and group/tissue
+annotation bars](img/heatmap.png)
+
+Sample-by-sample correlation heatmap with dendrogram and group/tissue
+annotation bars
 
 ### Dendrogram
 
@@ -146,6 +156,11 @@ contrast A but unchanged in contrast B”.
 *Inputs:* contrasts with test statistics; an assay matrix for fold
 changes.
 
+![Differential table for one contrast, with fold change and p/q
+columns](img/diff-table.png)
+
+Differential table for one contrast, with fold change and p/q columns
+
 ### Volcano plot
 
 Plots log2 fold change (x, sign preserved) against -log10 p-value (y),
@@ -158,6 +173,12 @@ point would slow the browser).
 *Inputs:* a contrast, fold-change and q-value thresholds, and optionally
 a set of genes to highlight by colour. *Backed by:*
 `plotly_scatterplot`.
+
+![Volcano plot for one contrast, with points passing the
+fold-change/q-value thresholds highlighted in blue](img/volcano.png)
+
+Volcano plot for one contrast, with points passing the
+fold-change/q-value thresholds highlighted in blue
 
 ### MA plot
 
@@ -193,6 +214,12 @@ colour-blind-safe palette is the default.
 
 *Inputs:* a contrast, significance thresholds, a ranking metric, a gene
 count, and a colour palette. *Backed by:* `plotly_topgene_boxplots`.
+
+![Top gene boxplots for a contrast, ranked by q value, with per-sample
+beeswarm points](img/boxplot.png)
+
+Top gene boxplots for a contrast, ranked by q value, with per-sample
+beeswarm points
 
 ### UpSet
 
@@ -327,6 +354,11 @@ summarised into means per sample group.
 
 *Inputs:* a choice of experiment and assay, plus row and column
 selection.
+
+![Assay data table showing a filtered normalised expression
+matrix](img/assay-table.png)
+
+Assay data table showing a filtered normalised expression matrix
 
 ### Sample metadata table
 

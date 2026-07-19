@@ -18,6 +18,15 @@ logic that can be reused anywhere without its inputs and outputs
 colliding with another instance. Top-level apps such as `rnaseq` are
 assembled from many of these modules.
 
+![Each module is an Input/Output/server trio sharing one namespaced id;
+an app like rnaseq() instantiates many trios, one per nav_menu tab, and
+wires their combined UI and server logic into a single
+shinyApp()](img/module-composition.svg)
+
+Each module is an Input/Output/server trio sharing one namespaced id; an
+app like rnaseq() instantiates many trios, one per nav_menu tab, and
+wires their combined UI and server logic into a single shinyApp()
+
 ## The Input / Output / server trio
 
 The core convention: each module `xxx` is defined by three functions,

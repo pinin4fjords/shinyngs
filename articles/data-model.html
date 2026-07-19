@@ -91,6 +91,13 @@ object you could hand straight to <code><a href="../reference/prepareApp.html">p
 <p>If you would rather describe your data in files and let
 <code>shinyngs</code> assemble the object for you, see <a href="build-from-files.html">Building an app from files and
 YAML</a>.</p>
+<p>There are two routes in, both converging on the same pair of
+container classes:</p>
+<div class="float">
+<img src="img/dataflow.svg" alt="Both the CLI and direct R construction converge on an ExploratorySummarizedExperiment(List), which prepareApp() turns into a Shiny app"><div class="figcaption">Both the CLI and direct R construction converge
+on an ExploratorySummarizedExperiment(List), which prepareApp() turns
+into a Shiny app</div>
+</div>
 <div class="section level2">
 <h2 id="the-two-containers">The two containers<a class="anchor" aria-label="anchor" href="#the-two-containers"></a>
 </h2>

@@ -100,6 +100,12 @@ namespaced unit of UI plus server logic that can be reused anywhere
 without its inputs and outputs colliding with another instance.
 Top-level apps such as <code>rnaseq</code> are assembled from many of
 these modules.</p>
+<div class="float">
+<img src="img/module-composition.svg" alt="Each module is an Input/Output/server trio sharing one namespaced id; an app like rnaseq() instantiates many trios, one per nav_menu tab, and wires their combined UI and server logic into a single shinyApp()"><div class="figcaption">Each module is an Input/Output/server trio
+sharing one namespaced id; an app like rnaseq() instantiates many trios,
+one per nav_menu tab, and wires their combined UI and server logic into
+a single shinyApp()</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="the-input-output-server-trio">The Input / Output / server trio<a class="anchor" aria-label="anchor" href="#the-input-output-server-trio"></a>

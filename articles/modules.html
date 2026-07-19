@@ -127,6 +127,10 @@ a choice of which components to display, and a sample variable to colour
 by. <em>Backed by:</em> <code>compilePCAData</code>, with points drawn
 via <code>plotly_scatterplot</code> and the scree curve via
 <code>plotly_screeplot</code>.</p>
+<div class="float">
+<img src="img/pca.png" alt="Components plot for a 3D PCA, coloured by sample group"><div class="figcaption">Components plot for a 3D PCA, coloured by sample
+group</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="pca-vs-experiment">PCA vs experiment<a class="anchor" aria-label="anchor" href="#pca-vs-experiment"></a>
@@ -153,6 +157,10 @@ annotations can be added as coloured bars above the heatmap via the
 <p><em>Inputs:</em> an assay matrix (variable rows by default) and
 optional annotation variables. <em>Backed by:</em>
 <code>interactiveHeatmap</code>.</p>
+<div class="float">
+<img src="img/heatmap.png" alt="Sample-by-sample correlation heatmap with dendrogram and group/tissue annotation bars"><div class="figcaption">Sample-by-sample correlation heatmap with
+dendrogram and group/tissue annotation bars</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="dendrogram">Dendrogram<a class="anchor" aria-label="anchor" href="#dendrogram"></a>
@@ -234,6 +242,10 @@ combining different filter sets across contrasts by intersection
 contrast A but unchanged in contrast B”.</p>
 <p><em>Inputs:</em> contrasts with test statistics; an assay matrix for
 fold changes.</p>
+<div class="float">
+<img src="img/diff-table.png" alt="Differential table for one contrast, with fold change and p/q columns"><div class="figcaption">Differential table for one contrast, with fold
+change and p/q columns</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="volcano-plot">Volcano plot<a class="anchor" aria-label="anchor" href="#volcano-plot"></a>
@@ -247,6 +259,10 @@ point would slow the browser).</p>
 <p><em>Inputs:</em> a contrast, fold-change and q-value thresholds, and
 optionally a set of genes to highlight by colour. <em>Backed by:</em>
 <code>plotly_scatterplot</code>.</p>
+<div class="float">
+<img src="img/volcano.png" alt="Volcano plot for one contrast, with points passing the fold-change/q-value thresholds highlighted in blue"><div class="figcaption">Volcano plot for one contrast, with points
+passing the fold-change/q-value thresholds highlighted in blue</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="ma-plot">MA plot<a class="anchor" aria-label="anchor" href="#ma-plot"></a>
@@ -284,6 +300,10 @@ colour-blind-safe palette is the default.</p>
 <p><em>Inputs:</em> a contrast, significance thresholds, a ranking
 metric, a gene count, and a colour palette. <em>Backed by:</em>
 <code>plotly_topgene_boxplots</code>.</p>
+<div class="float">
+<img src="img/boxplot.png" alt="Top gene boxplots for a contrast, ranked by q value, with per-sample beeswarm points"><div class="figcaption">Top gene boxplots for a contrast, ranked by q
+value, with per-sample beeswarm points</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="upset">UpSet<a class="anchor" aria-label="anchor" href="#upset"></a>
@@ -433,6 +453,10 @@ levels). The data can optionally be summarised into means per sample
 group.</p>
 <p><em>Inputs:</em> a choice of experiment and assay, plus row and
 column selection.</p>
+<div class="float">
+<img src="img/assay-table.png" alt="Assay data table showing a filtered normalised expression matrix"><div class="figcaption">Assay data table showing a filtered normalised
+expression matrix</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="sample-metadata-table">Sample metadata table<a class="anchor" aria-label="anchor" href="#sample-metadata-table"></a>

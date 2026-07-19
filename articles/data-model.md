@@ -13,6 +13,17 @@ If you would rather describe your data in files and let `shinyngs`
 assemble the object for you, see [Building an app from files and
 YAML](https://pinin4fjords.github.io/shinyngs/articles/build-from-files.md).
 
+There are two routes in, both converging on the same pair of container
+classes:
+
+![Both the CLI and direct R construction converge on an
+ExploratorySummarizedExperiment(List), which prepareApp() turns into a
+Shiny app](img/dataflow.svg)
+
+Both the CLI and direct R construction converge on an
+ExploratorySummarizedExperiment(List), which prepareApp() turns into a
+Shiny app
+
 ## The two containers
 
 `shinyngs` defines two S4 classes:
