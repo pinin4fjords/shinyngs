@@ -73,6 +73,23 @@ test_that("xrange/yrange override the auto-computed axis range and the extent of
   expect_equal(sort(hline_trace$x), c(-10, 10))
 })
 
+test_that("hline_thresholds don't error against a discrete x-axis (e.g. the MAD/outlier plot's sample groups)", {
+  # The threshold line's endpoints are derived from the (discrete) x range,
+  # which isn't a meaningful concept here, so unlike the numeric-axis case
+  # above this doesn't assert the line itself renders - only that a discrete
+  # x-axis no longer crashes drawLines()'s numeric range/padding logic.
+  x <- c("groupA", "groupA", "groupB", "groupB")
+  y <- c(-6, -1, 2, 7)
+
+  p <- interactive_scatterplot(
+    x = x, y = y,
+    colorby = c(TRUE, FALSE, FALSE, TRUE),
+    hline_thresholds = c("Outlier threshold" = -5)
+  )
+
+  expect_no_error(plotly::plotly_build(p))
+})
+
 # interactive_scatterplot() colorby_menu
 
 test_that("colorby_menu adds a dropdown and shows only the first option's points initially", {

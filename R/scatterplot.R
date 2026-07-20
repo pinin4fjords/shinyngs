@@ -359,20 +359,25 @@ drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_th
     # A caller-supplied xrange/yrange is used as-is instead, e.g. so a
     # volcano plot's threshold lines can span a symmetric fold-change range
     # rather than the plotted points' raw (and possibly asymmetric) extent.
+    #
+    # x/y are only padded when numeric: a discrete axis (e.g. the MAD/outlier
+    # plot's sample groups) has no meaningful range to pad, so the line
+    # endpoints computed above (from is.finite(), which is FALSE throughout
+    # for non-numeric data) are left as-is rather than forced onto a range.
     if (plot_type != "scatter3d") {
-      if (is.null(xrange)) {
+      if (is.null(xrange) && is.numeric(x)) {
         xrange <- range(x[is.finite(x)])
         xrange <- xrange + c(-1, 1) * diff(xrange) * 0.05
       }
-      if (is.null(yrange)) {
+      if (is.null(yrange) && is.numeric(y)) {
         yrange <- range(y[is.finite(y)])
         yrange <- yrange + c(-1, 1) * diff(yrange) * 0.05
       }
 
       lines <- do.call(rbind, lapply(split(lines, lines$name), function(segment) {
-        if (length(unique(segment$y)) == 1) {
+        if (!is.null(xrange) && length(unique(segment$y)) == 1) {
           segment$x <- xrange
-        } else if (length(unique(segment$x)) == 1) {
+        } else if (!is.null(yrange) && length(unique(segment$x)) == 1) {
           segment$y <- yrange
         }
         segment
