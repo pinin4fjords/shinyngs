@@ -362,7 +362,7 @@ if (!is.null(plotdata)) {
   mad_plot_args <- list(
     x = plotdata$group,
     y = plotdata$mad,
-    color = plotdata$outlier,
+    colorby = plotdata$outlier,
     hline_thresholds = c("Outlier threshold" = opt$outlier_mad_threshold),
     legend_title = "Outlier status",
     labels = rownames(plotdata),

@@ -102,6 +102,30 @@ test_that("exploratory_plots.R runs against fixtures and writes plot PNGs", {
   }
 })
 
+test_that("exploratory_plots.R --write_html runs against fixtures and writes interactive plots, including the MAD/outlier plot whose x-axis is the (discrete) sample group", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+
+  result <- run_exec_script("exploratory_plots.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--contrast_variable", "treatment",
+    "--outdir", outdir,
+    "--write_html"
+  ))
+
+  expect_exec_success(result)
+
+  expected_htmls <- c("boxplot.html", "density.html", "pca2d.html", "pca3d.html", "mad_correlation.html")
+  for (html_file in expected_htmls) {
+    html_path <- file.path(outdir, "html", html_file)
+    expect_true(file.exists(html_path), info = html_path)
+    expect_gt(file.size(html_path), 0)
+  }
+})
+
 test_that("exploratory_plots.R fails clearly when a mandatory argument is missing", {
   skip_on_cran()
 
