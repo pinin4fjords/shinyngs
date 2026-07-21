@@ -12,12 +12,13 @@ interactive_heatmap(
   cluster_cols = FALSE,
   scale = "row",
   row_labels,
+  show_row_labels = TRUE,
   colors = viridisLite::viridis(100),
   cexCol = 0.7,
   cexRow = 0.7,
   display_numbers = FALSE,
   hide_colorbar = FALSE,
-  plot_height = 600,
+  plot_height = NULL,
   ...
 )
 }
@@ -34,9 +35,15 @@ column side colors and an accompanying legend}
 
 \item{cluster_cols}{Cluster columns?}
 
-\item{scale}{'row', 'column' or none}
+\item{scale}{'row', 'column' or 'none'. Row scaling can look washed out on
+a heatmap with many rows, since most z-scores cluster near zero - 'none'
+colors directly by the values in \code{plotmatrix}, which often reads
+better for such matrices.}
 
 \item{row_labels}{Vector labels to use for rows}
+
+\item{show_row_labels}{Boolean, should row labels be drawn on the plot?
+\code{row_labels} is still used to identify rows in hover text either way.}
 
 \item{colors}{A vector of colors for the heatmap}
 
@@ -53,7 +60,8 @@ values in \code{plotmatrix} be displayed on the heatmap cells?}
 convert the fixed-pixel annotation row height into the fraction
 \code{heatmaply()} expects. Should match the \code{height} the plot is
 actually rendered at (e.g. the \code{height} argument of the
-\code{plotlyOutput()} it's displayed in).}
+\code{plotlyOutput()} it's displayed in). Defaults to a height scaled to
+the number of rows in \code{plotmatrix}.}
 
 \item{...}{Additional arguments passed to \code{heatmaply()}}
 }

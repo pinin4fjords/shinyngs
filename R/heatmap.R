@@ -509,9 +509,14 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   column side colors and an accompanying legend
 #' @param cluster_cols Cluster columns?
 #' @param cluster_rows Cluster rows?
-#' @param scale 'row', 'column' or none
-#' @param colors A vector of colors for the heatmap
+#' @param scale 'row', 'column' or 'none'. Row scaling can look washed out on
+#'   a heatmap with many rows, since most z-scores cluster near zero - 'none'
+#'   colors directly by the values in \code{plotmatrix}, which often reads
+#'   better for such matrices.
 #' @param row_labels Vector labels to use for rows
+#' @param show_row_labels Boolean, should row labels be drawn on the plot?
+#'   \code{row_labels} is still used to identify rows in hover text either way.
+#' @param colors A vector of colors for the heatmap
 #' @param cexCol Character expansion factor passed to \code{heatmaply()}
 #' @param cexRow Character expansion factor passed to \code{heatmaply()}
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
@@ -521,7 +526,8 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   convert the fixed-pixel annotation row height into the fraction
 #'   \code{heatmaply()} expects. Should match the \code{height} the plot is
 #'   actually rendered at (e.g. the \code{height} argument of the
-#'   \code{plotlyOutput()} it's displayed in).
+#'   \code{plotlyOutput()} it's displayed in). Defaults to a height scaled to
+#'   the number of rows in \code{plotmatrix}.
 #' @param ... Additional arguments passed to \code{heatmaply()}
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
@@ -539,7 +545,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' )
 #' interactive_heatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
 #'
-interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = 600, ...) {
+interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, show_row_labels = TRUE, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = NULL, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels
@@ -551,6 +557,16 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   col_side_colors <- NULL
   if ((!is.null(sample_annotation)) && ncol(sample_annotation) > 0) {
     col_side_colors <- sample_annotation[colnames(plotmatrix), , drop = FALSE]
+  }
+
+  # Scale the default height to row count, mirroring the allowance the heatmap
+  # Shiny module computes for its own plot container.
+  if (is.null(plot_height)) {
+    xaxis_labels_height <- 150
+    dendro_height <- if (cluster_cols) 150 else 0
+    annotation_height_px <- if (!is.null(col_side_colors)) HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(col_side_colors) else 0
+
+    plot_height <- max(300, (nrow(plotmatrix) * 12) + dendro_height + annotation_height_px + xaxis_labels_height)
   }
 
   if (nrow(plotmatrix) < 2) {
@@ -626,10 +642,17 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   p <- heatmaply::heatmaply(plotmatrix,
     dendrogram = dendrogram, custom_hovertext = hovertext, Rowv = Rowv, Colv = Colv, scale = scale,
     colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = rownames(plotmatrix),
+    showticklabels = c(TRUE, show_row_labels),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
     subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = 1, hide_colorbar = hide_colorbar,
     cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers, ...
   )
+
+  # Set the widget's own height (not plotly's layout height, which would
+  # override the container-driven resizing the heatmap Shiny module relies
+  # on) so the plot still renders at a sensible size when printed directly
+  # outside a sized Shiny container, e.g. in an rmarkdown/Quarto report.
+  p$height <- plot_height
 
   # heatmaply's branches_lwd argument only takes effect for plot_method = "ggplot";
   # for "plotly" the dendrogram is drawn via plotly::add_segments() with no line

@@ -24,6 +24,45 @@ test_that("interactive_heatmap handles single-row matrices (e.g. one informative
   expect_s3_class(p, "plotly")
 })
 
+test_that("interactive_heatmap's show_row_labels toggles row tick labels but leaves hover text alone", {
+  pm <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
+
+  shown <- plotly::plotly_build(interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(pm)
+  ))
+  hidden <- plotly::plotly_build(interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(pm), show_row_labels = FALSE
+  ))
+
+  yaxis_showticklabels <- function(built) {
+    yaxes <- built$x$layout[grepl("^yaxis", names(built$x$layout))]
+    unlist(lapply(yaxes, `[[`, "showticklabels"))
+  }
+
+  expect_true(all(yaxis_showticklabels(shown)))
+  expect_false(any(yaxis_showticklabels(hidden)))
+  expect_true(any(grepl("gene1<br>", unlist(lapply(hidden$x$data, `[[`, "text")))))
+})
+
+test_that("interactive_heatmap defaults plot_height to a value scaled to row count", {
+  few_rows <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
+  many_rows <- matrix(rnorm(2000), nrow = 1000, dimnames = list(paste0("gene", 1:1000), paste0("s", 1:2)))
+
+  p_few <- interactive_heatmap(
+    plotmatrix = few_rows, displaymatrix = few_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(few_rows)
+  )
+  p_many <- interactive_heatmap(
+    plotmatrix = many_rows, displaymatrix = many_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(many_rows)
+  )
+
+  expect_gt(p_many$height, p_few$height)
+  expect_null(p_many$x$layout$height)
+})
+
 # interactive_pca_metadata_heatmap()
 
 test_that("interactive_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {
