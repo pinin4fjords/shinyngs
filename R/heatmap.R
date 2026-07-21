@@ -98,6 +98,19 @@ PCA_HEATMAP_DEFAULT_N_COMPONENTS <- 10
 # heatmap in interactive_pca_variance_heatmap().
 PCA_HEATMAP_SCREE_HEIGHT_PX <- 200
 
+# Default per-row pixel allowance used to derive interactive_heatmap()'s
+# default plot_height. With row labels shown, each row needs enough room for
+# legible text; with labels hidden the heatmap only needs to show the colour
+# pattern, so a much smaller allowance keeps large matrices (e.g. hundreds of
+# genes) from rendering as an unwieldy tall image.
+HEATMAP_ROW_HEIGHT_PX <- 12
+HEATMAP_ROW_HEIGHT_NO_LABELS_PX <- 2
+
+# Ceiling on interactive_heatmap()'s default plot_height when row labels are
+# hidden, so a very large matrix still renders in a modest, scrollable space
+# rather than scaling without bound.
+HEATMAP_MAX_HEIGHT_NO_LABELS_PX <- 1200
+
 # Shared between heatmapInput()'s download button and heatmapOutput()'s
 # table heading, so the two can't drift apart.
 PCA_HEATMAP_PVALUES_TABLE_TITLE <- "Association p-values"
@@ -528,7 +541,10 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   \code{heatmaply()} expects. When displayed inside a
 #'   \code{plotlyOutput()}, the latter's own \code{height} argument should
 #'   match this value so the container and the widget agree. Defaults to a
-#'   height scaled to the number of rows in \code{plotmatrix}.
+#'   height scaled to the number of rows in \code{plotmatrix}: generously when
+#'   \code{show_row_labels} is \code{TRUE} so each row's label stays legible,
+#'   or a small, capped allowance when it's \code{FALSE}, since a heatmap
+#'   with hidden labels only needs to show the colour pattern.
 #' @param ... Additional arguments passed to \code{heatmaply()}
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
@@ -561,13 +577,24 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   }
 
   # Scale the default height to row count, mirroring the allowance the heatmap
-  # Shiny module computes for its own plot container.
+  # Shiny module computes for its own plot container. The per-row allowance
+  # drops sharply when row labels are hidden, since that case (e.g. a report
+  # heatmap with hundreds of genes) only needs to show the colour pattern, not
+  # render legible per-row text - and is capped so it stays a modest size
+  # regardless of how many rows are hidden behind it.
   if (is.null(plot_height)) {
+    row_height_px <- if (show_row_labels) HEATMAP_ROW_HEIGHT_PX else HEATMAP_ROW_HEIGHT_NO_LABELS_PX
     xaxis_labels_height <- 150
     dendro_height <- if (cluster_cols) 150 else 0
     annotation_height_px <- if (!is.null(col_side_colors)) HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(col_side_colors) else 0
 
-    plot_height <- max(300, (nrow(plotmatrix) * 12) + dendro_height + annotation_height_px + xaxis_labels_height)
+    plot_height <- (nrow(plotmatrix) * row_height_px) + dendro_height + annotation_height_px + xaxis_labels_height
+
+    if (!show_row_labels) {
+      plot_height <- min(plot_height, HEATMAP_MAX_HEIGHT_NO_LABELS_PX)
+    }
+
+    plot_height <- max(300, plot_height)
   }
 
   if (nrow(plotmatrix) < 2) {

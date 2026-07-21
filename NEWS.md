@@ -108,8 +108,10 @@
 
 * `interactive_heatmap()` gains a `show_row_labels` argument for suppressing
   row labels, and now defaults `plot_height` to a height scaled to the number
-  of rows, fixing large heatmaps rendering squashed into a small fixed height
-  when called outside the Shiny app.
+  of rows: generously when labels are shown (fixing large heatmaps rendering
+  squashed into a small fixed height when called outside the Shiny app), or a
+  small, capped allowance when they're hidden, since a heatmap with hundreds
+  of genes and no labels only needs to show the colour pattern.
 * Every interactive plot's download button honours an app-wide PNG/SVG format
   toggle, so any plot can be exported as vector SVG for publication.
 * Dropped the `reformulas` and `data.table` dependencies.

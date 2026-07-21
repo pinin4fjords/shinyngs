@@ -46,7 +46,7 @@ test_that("interactive_heatmap's show_row_labels toggles row tick labels but lea
   expect_true(any(grepl("gene1<br>", unlist(lapply(hidden$x$data, `[[`, "text")))))
 })
 
-test_that("interactive_heatmap defaults plot_height to a value scaled to row count", {
+test_that("interactive_heatmap defaults plot_height to a value scaled to row count when labels are shown", {
   few_rows <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
   many_rows <- matrix(rnorm(2000), nrow = 1000, dimnames = list(paste0("gene", 1:1000), paste0("s", 1:2)))
 
@@ -60,6 +60,27 @@ test_that("interactive_heatmap defaults plot_height to a value scaled to row cou
   )
 
   expect_gt(p_many$height, p_few$height)
+})
+
+test_that("interactive_heatmap caps the default plot_height when row labels are hidden, regardless of row count", {
+  # A large gene set with labels hidden (e.g. a differentialabundance report
+  # heatmap) should stay compact - it only needs to show the colour pattern,
+  # not render legible per-row text - so the default shouldn't keep growing
+  # with row count the way it does when labels are shown (see #271).
+  many_rows <- matrix(rnorm(2000), nrow = 1000, dimnames = list(paste0("gene", 1:1000), paste0("s", 1:2)))
+  huge_rows <- matrix(rnorm(10000), nrow = 5000, dimnames = list(paste0("gene", 1:5000), paste0("s", 1:2)))
+
+  p_many <- interactive_heatmap(
+    plotmatrix = many_rows, displaymatrix = many_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(many_rows), show_row_labels = FALSE
+  )
+  p_huge <- interactive_heatmap(
+    plotmatrix = huge_rows, displaymatrix = huge_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(huge_rows), show_row_labels = FALSE
+  )
+
+  expect_equal(p_many$height, p_huge$height)
+  expect_lt(p_huge$height, 1500)
 })
 
 # interactive_pca_metadata_heatmap()

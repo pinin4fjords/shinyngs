@@ -62,7 +62,10 @@ to convert the fixed-pixel annotation row height into the fraction
 \code{heatmaply()} expects. When displayed inside a
 \code{plotlyOutput()}, the latter's own \code{height} argument should
 match this value so the container and the widget agree. Defaults to a
-height scaled to the number of rows in \code{plotmatrix}.}
+height scaled to the number of rows in \code{plotmatrix}: generously when
+\code{show_row_labels} is \code{TRUE} so each row's label stays legible,
+or a small, capped allowance when it's \code{FALSE}, since a heatmap
+with hidden labels only needs to show the colour pattern.}
 
 \item{...}{Additional arguments passed to \code{heatmaply()}}
 }
