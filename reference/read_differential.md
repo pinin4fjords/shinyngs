@@ -42,11 +42,7 @@ read_differential(
 
   Scale of the values in `fc_column`: one of `"auto"` (default, infer
   and validate from the column name and data distribution), `"log2"` or
-  `"linear"`. Whenever the resolved scale is `"log2"` (whether resolved
-  automatically or declared explicitly), `fc_column` in the returned
-  data frame is converted to linear scale - it will not match the raw
-  file values. Pass `"linear"` for passthrough of the file's values
-  as-is. See
+  `"linear"`. See
   [`resolve_foldchange_scale`](https://pinin4fjords.github.io/shinyngs/reference/resolve_foldchange_scale.md).
 
 - unlog_foldchanges:
@@ -58,8 +54,7 @@ read_differential(
 
 output Validated selected columns of differential stats files as a data
 frame, with the resolved scale attached as the `fold_change_scale`
-attribute. `fc_column` is always on a linear scale in the returned data
-frame - see `fold_change_scale` above.
+attribute.
 
 ## Examples
 

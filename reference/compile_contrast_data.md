@@ -43,11 +43,7 @@ compile_contrast_data(
   Scale of the values in `fc_column`: one of `"auto"` (default),
   `"log2"` or `"linear"`. Resolved once across the fold changes combined
   from all `differential_stats_files`, rather than per-file, so
-  contrasts from the same experiment are treated consistently. Whenever
-  the resolved scale is `"log2"`, the `fold_changes` element of the
-  returned list is converted to linear scale - it will not match the raw
-  file values. Pass `"linear"` for passthrough of the files' values
-  as-is. See
+  contrasts from the same experiment are treated consistently. See
   [`resolve_foldchange_scale`](https://pinin4fjords.github.io/shinyngs/reference/resolve_foldchange_scale.md).
 
 - unlog_foldchanges:
@@ -57,6 +53,5 @@ compile_contrast_data(
 
 ## Value
 
-output A named list of data frames by statistic (`fold_changes` is
-always on a linear scale, see `fold_change_scale` above; also `pvals`,
-`qvals`), number of columns equal to input file number
+output A named list of data frames by statistic, number of columns equal
+to input file number

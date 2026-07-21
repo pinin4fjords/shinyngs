@@ -90,11 +90,7 @@
 <dt id="arg-fold-change-scale">fold_change_scale<a class="anchor" aria-label="anchor" href="#arg-fold-change-scale"></a></dt>
 <dd><p>Scale of the values in <code>fc_column</code>: one of
 <code>"auto"</code> (default, infer and validate from the column name and data
-distribution), <code>"log2"</code> or <code>"linear"</code>. Whenever the resolved
-scale is <code>"log2"</code> (whether resolved automatically or declared
-explicitly), <code>fc_column</code> in the returned data frame is converted to
-linear scale - it will not match the raw file values. Pass
-<code>"linear"</code> for passthrough of the file's values as-is. See
+distribution), <code>"log2"</code> or <code>"linear"</code>. See
 <code><a href="resolve_foldchange_scale.html">resolve_foldchange_scale</a></code>.</p></dd>
 
 
@@ -107,8 +103,7 @@ Reverse a log on fold changes? Set to TRUE if values are logged.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>output Validated selected columns of differential stats files as a
   data frame, with the resolved scale attached as the <code>fold_change_scale</code>
-  attribute. <code>fc_column</code> is always on a linear scale in the returned
-  data frame - see <code>fold_change_scale</code> above.</p>
+  attribute.</p>
     </div>
 
     <div class="section level2">
