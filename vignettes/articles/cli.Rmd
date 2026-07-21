@@ -97,7 +97,7 @@ contrast file and differential results even for a largely exploratory app.)
 | `-c`, `--contrast_file` | character; `NULL` | CSV-format contrast file with variable, reference and target in the first 3 columns. |
 | `-d`, `--differential_results` | character; `NULL` | Comma-separated list of CSV/TSV files (fold change and p value at minimum), one per contrast-file row. |
 | `-k`, `--fold_change_column` | character; `"log2FoldChange"` | Column in differential results holding fold changes. |
-| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_column`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals. |
+| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_column`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals; `log2`-resolved values are converted to linear (see the [build-from-files guide](build-from-files.html)). |
 | `-u`, `--unlog_foldchanges` | flag; `NULL` | Deprecated - use `--fold_change_scale=log2`. Set if fold changes should be unlogged. |
 | `-p`, `--pval_column` | character; `"padj"` | Column in differential results holding p values. |
 | `-q`, `--qval_column` | character; `"padj"` | Column in differential results holding q values / adjusted p values. |
@@ -273,7 +273,7 @@ Mandatory arguments: `--differential_file`, `--feature_metadata`, `--outdir`,
 | `-u`, `--p_value_threshold` | double; `0.05` | p value threshold for differential expression. |
 | `-r`, `--reference_level` | character; — | Annotation label: negative fold changes are annotated as higher in this group. |
 | `-t`, `--treatment_level` | character; — | Annotation label: positive fold changes are annotated as higher in this group. |
-| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_col`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals. |
+| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_col`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals; `log2`-resolved values are converted to linear (see the [build-from-files guide](build-from-files.html)). |
 | `-s`, `--unlog_foldchanges` | flag; `NULL` | Deprecated - use `--fold_change_scale=log2`. Set if fold changes should be unlogged. |
 | `-x`, `--write_html` | flag; `FALSE` | Also produce an interactive HTML output alongside the PNG. |
 | `-p`, `--palette_name` | character; `"colorblind"` | `colorblind` for the colour-blind-safe palette, or a valid RColorBrewer palette name. |
@@ -321,7 +321,7 @@ Mandatory arguments: `--sample_metadata`, `--assay_files`.
 | `-c`, `--contrasts_file` | character; `NULL` | CSV-format contrast file with variable, reference and target in the first 3 columns. |
 | `-d`, `--differential_results` | character; `NULL` | Tab-separated files (fold change and p value at minimum), one per contrast-file row. |
 | `-k`, `--fold_change_column` | character; `"log2FoldChange"` | Column in differential results holding fold changes. |
-| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_column`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals. |
+| `--fold_change_scale` | character; `"auto"` | Scale of `--fold_change_column`: `log2`, `linear` or `auto`. `auto` infers from the column name and value distribution, erroring on conflicting signals; `log2`-resolved values are converted to linear (see the [build-from-files guide](build-from-files.html)). |
 | `-u`, `--unlog_foldchanges` | flag; `NULL` | Deprecated - use `--fold_change_scale=log2`. Set if fold changes should be unlogged. |
 | `-p`, `--pval_column` | character; `"padj"` | Column in differential results holding p values. |
 | `-q`, `--qval_column` | character; `"padj"` | Column in differential results holding q values / adjusted p values. |
