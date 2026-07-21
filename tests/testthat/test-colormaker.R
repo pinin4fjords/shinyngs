@@ -40,3 +40,10 @@ test_that("make_color_scale interpolates and warns when ncolors exceeds the base
   expect_length(cols, 20)
   expect_equal(length(unique(cols)), 20)
 })
+
+test_that("make_color_scale uses an RColorBrewer palette's own low-n colours below 3, not an interpolated subset", {
+  cols <- make_color_scale(2, palette = "Set1")
+
+  expect_equal(sort(cols), sort(RColorBrewer::brewer.pal(3, "Set1")[1:2]))
+  expect_false("#FF7F00" %in% cols) # the muddled orange colorRampPalette() used to produce here
+})

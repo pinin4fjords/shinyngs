@@ -130,8 +130,11 @@ make_color_scale <- function(ncolors, palette = COLORBLIND_PALETTE_NAME) {
   if (ncolors > paletteinfo[palette, "maxcolors"]) {
     cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(ncolors)
   } else if (ncolors < 3) {
-    cols <- colorRampPalette(RColorBrewer::brewer.pal(paletteinfo[palette, "maxcolors"], palette))(3)
-    cols <- cols[seq_len(ncolors)]
+    # RColorBrewer refuses n < 3, so pull the 3-colour qualitative set and
+    # subset it rather than colorRampPalette()-ing the full maxcolors palette
+    # down to 3, which picks adjacent hues (e.g. Set1 red/orange) with far
+    # less contrast than the palette's own low-n colours (e.g. red/blue).
+    cols <- RColorBrewer::brewer.pal(3, palette)[seq_len(ncolors)]
   } else {
     cols <- RColorBrewer::brewer.pal(ncolors, palette)
   }
