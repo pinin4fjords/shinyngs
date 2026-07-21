@@ -78,6 +78,11 @@
 <li>Progress and warning logging during object construction and validation now goes through <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code>/<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> rather than <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, so it can be suppressed and captured through R’s condition system.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/make_color_scale.html">make_color_scale()</a></code> picked a named RColorBrewer palette’s own 2-colour scheme by interpolating its full colour set down to 3 shades and subsetting, which could land on adjacent, low-contrast hues (e.g. <code>"Set1"</code> giving red and orange rather than red and blue) for 2-3 category plots such as <code><a href="../reference/interactive_topgene_boxplots.html">interactive_topgene_boxplots()</a></code>’s group legend.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="maintenance-development-version">Maintenance<a class="anchor" aria-label="anchor" href="#maintenance-development-version"></a></h3>
 <ul><li>Removed the unused exported function <code>geom_mean()</code>; geometric means are computed directly by <code><a href="../reference/col_geom_means.html">col_geom_means()</a></code>.</li>
 <li>Declared <code>grDevices</code> under <code>Imports</code> (it was already used).</li>

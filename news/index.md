@@ -195,6 +195,17 @@
   rather than [`print()`](https://rdrr.io/r/base/print.html), so it can
   be suppressed and captured through R’s condition system.
 
+### Bug fixes
+
+- [`make_color_scale()`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md)
+  picked a named RColorBrewer palette’s own 2-colour scheme by
+  interpolating its full colour set down to 3 shades and subsetting,
+  which could land on adjacent, low-contrast hues (e.g. `"Set1"` giving
+  red and orange rather than red and blue) for 2-3 category plots such
+  as
+  [`interactive_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md)’s
+  group legend.
+
 ### Maintenance
 
 - Removed the unused exported function `geom_mean()`; geometric means
