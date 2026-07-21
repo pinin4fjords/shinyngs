@@ -81,6 +81,13 @@
   (`ExploratorySummarizedExperiment()`,
   `ExploratorySummarizedExperimentList()`), the file readers (`read_matrix()`
   and friends) and several compute helpers.
+* Clarified that `read_differential()`/`compile_contrast_data()` and the
+  `--fold_change_scale` CLI flag always return/store fold changes on a linear
+  scale: whenever the scale resolves to `log2` (the common case for a
+  `log2FoldChange`-named column), the values are converted from the file's
+  log2 scale to linear, so callers relying on passthrough of the raw file
+  values should pass `fold_change_scale = "linear"` explicitly
+  ([#272](https://github.com/pinin4fjords/shinyngs/issues/272)).
 
 ## New features
 
