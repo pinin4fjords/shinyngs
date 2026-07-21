@@ -49,11 +49,12 @@ values in \code{plotmatrix} be displayed on the heatmap cells?}
 
 \item{hide_colorbar}{Boolean, should the color scale legend be hidden?}
 
-\item{plot_height}{The total rendered height of the plot in pixels, used to
-convert the fixed-pixel annotation row height into the fraction
-\code{heatmaply()} expects. Should match the \code{height} the plot is
-actually rendered at (e.g. the \code{height} argument of the
-\code{plotlyOutput()} it's displayed in).}
+\item{plot_height}{The total rendered height of the plot in pixels. Passed
+through to \code{heatmaply()} as its \code{height} argument, and also used
+to convert the fixed-pixel annotation row height into the fraction
+\code{heatmaply()} expects. When displayed inside a
+\code{plotlyOutput()}, the latter's own \code{height} argument should
+match this value so the container and the widget agree.}
 
 \item{...}{Additional arguments passed to \code{heatmaply()}}
 }
