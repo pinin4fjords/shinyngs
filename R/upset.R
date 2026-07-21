@@ -330,7 +330,12 @@ upset <- function(id, eselist, setlimit = 16) {
 
     # Provide the differential set summary for download
 
-    simpletable("upset", downloadMatrix = contrast_reactives$makeDifferentialSetSummary, displayMatrix = contrast_reactives$makeDifferentialSetSummary, filter = "none", filename = "differential_summary", rownames = FALSE)
+    # server = FALSE: the number of columns here changes depending on how many
+    # filter sets are selected (the "Query" column is dropped when there's
+    # only one), which can race a debounced control change against DT's
+    # server-side paging (see simpletable()'s `server` argument).
+
+    simpletable("upset", downloadMatrix = contrast_reactives$makeDifferentialSetSummary, displayMatrix = contrast_reactives$makeDifferentialSetSummary, filter = "none", filename = "differential_summary", rownames = FALSE, server = FALSE)
   })
 }
 
