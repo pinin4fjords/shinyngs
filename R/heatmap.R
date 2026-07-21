@@ -522,12 +522,13 @@ heatmap <- function(id, eselist, type = "expression") {
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
 #'   values in \code{plotmatrix} be displayed on the heatmap cells?
 #' @param hide_colorbar Boolean, should the color scale legend be hidden?
-#' @param plot_height The total rendered height of the plot in pixels, used to
-#'   convert the fixed-pixel annotation row height into the fraction
-#'   \code{heatmaply()} expects. Should match the \code{height} the plot is
-#'   actually rendered at (e.g. the \code{height} argument of the
-#'   \code{plotlyOutput()} it's displayed in). Defaults to a height scaled to
-#'   the number of rows in \code{plotmatrix}.
+#' @param plot_height The total rendered height of the plot in pixels. Passed
+#'   through to \code{heatmaply()} as its \code{height} argument, and also used
+#'   to convert the fixed-pixel annotation row height into the fraction
+#'   \code{heatmaply()} expects. When displayed inside a
+#'   \code{plotlyOutput()}, the latter's own \code{height} argument should
+#'   match this value so the container and the widget agree. Defaults to a
+#'   height scaled to the number of rows in \code{plotmatrix}.
 #' @param ... Additional arguments passed to \code{heatmaply()}
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
@@ -645,14 +646,9 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
     showticklabels = c(TRUE, show_row_labels),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
     subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = 1, hide_colorbar = hide_colorbar,
-    cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers, ...
+    cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers,
+    height = plot_height, ...
   )
-
-  # Set the widget's own height (not plotly's layout height, which would
-  # override the container-driven resizing the heatmap Shiny module relies
-  # on) so the plot still renders at a sensible size when printed directly
-  # outside a sized Shiny container, e.g. in an rmarkdown/Quarto report.
-  p$height <- plot_height
 
   # heatmaply's branches_lwd argument only takes effect for plot_method = "ggplot";
   # for "plotly" the dendrogram is drawn via plotly::add_segments() with no line

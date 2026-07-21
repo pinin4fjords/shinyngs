@@ -60,7 +60,6 @@ test_that("interactive_heatmap defaults plot_height to a value scaled to row cou
   )
 
   expect_gt(p_many$height, p_few$height)
-  expect_null(p_many$x$layout$height)
 })
 
 # interactive_pca_metadata_heatmap()

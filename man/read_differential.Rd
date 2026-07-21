@@ -27,7 +27,11 @@ read_differential(
 
 \item{fold_change_scale}{Scale of the values in \code{fc_column}: one of
 \code{"auto"} (default, infer and validate from the column name and data
-distribution), \code{"log2"} or \code{"linear"}. See
+distribution), \code{"log2"} or \code{"linear"}. Whenever the resolved
+scale is \code{"log2"} (whether resolved automatically or declared
+explicitly), \code{fc_column} in the returned data frame is converted to
+linear scale - it will not match the raw file values. Pass
+\code{"linear"} for passthrough of the file's values as-is. See
 \code{\link{resolve_foldchange_scale}}.}
 
 \item{unlog_foldchanges}{Deprecated, use \code{fold_change_scale} instead.
@@ -36,7 +40,8 @@ Reverse a log on fold changes? Set to TRUE if values are logged.}
 \value{
 output Validated selected columns of differential stats files as a
   data frame, with the resolved scale attached as the \code{fold_change_scale}
-  attribute.
+  attribute. \code{fc_column} is always on a linear scale in the returned
+  data frame - see \code{fold_change_scale} above.
 }
 \description{
 Read tables of differential statistics

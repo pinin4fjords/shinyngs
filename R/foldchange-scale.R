@@ -189,14 +189,19 @@ read_stats_table <- function(filename, feature_id_column = NULL, pval_column = N
 #' @param fc_column Column of stats with fold changes
 #' @param fold_change_scale Scale of the values in \code{fc_column}: one of
 #'   \code{"auto"} (default, infer and validate from the column name and data
-#'   distribution), \code{"log2"} or \code{"linear"}. See
+#'   distribution), \code{"log2"} or \code{"linear"}. Whenever the resolved
+#'   scale is \code{"log2"} (whether resolved automatically or declared
+#'   explicitly), \code{fc_column} in the returned data frame is converted to
+#'   linear scale - it will not match the raw file values. Pass
+#'   \code{"linear"} for passthrough of the file's values as-is. See
 #'   \code{\link{resolve_foldchange_scale}}.
 #' @param unlog_foldchanges Deprecated, use \code{fold_change_scale} instead.
 #'   Reverse a log on fold changes? Set to TRUE if values are logged.
 #'
 #' @return output Validated selected columns of differential stats files as a
 #'   data frame, with the resolved scale attached as the \code{fold_change_scale}
-#'   attribute.
+#'   attribute. \code{fc_column} is always on a linear scale in the returned
+#'   data frame - see \code{fold_change_scale} above.
 #' @export
 #'
 #' @examples
@@ -259,11 +264,18 @@ read_differential <- function(filename,
 #'   \code{"auto"} (default), \code{"log2"} or \code{"linear"}. Resolved once
 #'   across the fold changes combined from all \code{differential_stats_files},
 #'   rather than per-file, so contrasts from the same experiment are treated
-#'   consistently. See \code{\link{resolve_foldchange_scale}}.
+#'   consistently. Whenever the resolved scale is \code{"log2"}, the
+#'   \code{fold_changes} element of the returned list is converted to linear
+#'   scale - it will not match the raw file values. Pass \code{"linear"} for
+#'   passthrough of the files' values as-is. See
+#'   \code{\link{resolve_foldchange_scale}}.
 #' @param unlog_foldchanges Deprecated, use \code{fold_change_scale} instead.
 #'   Should fold change values be unlogged?
 #'
-#' @return output A named list of data frames by statistic, number of columns equal to input file number
+#' @return output A named list of data frames by statistic (\code{fold_changes}
+#'   is always on a linear scale, see \code{fold_change_scale} above;
+#'   also \code{pvals}, \code{qvals}), number of columns equal to input file
+#'   number
 
 compile_contrast_data <-
   function(differential_stats_files,
