@@ -121,6 +121,18 @@ test_that("calculateIntersections assigns overlapping members only to their high
   }))
 })
 
+test_that("upset_calculate_intersections counts the highest-order intersection correctly under 'upset' assignment", {
+  # contrast1-only = {g1} = 1, contrast2-only = {g4} = 1, contrast1 & contrast2 = {g2, g3} = 2
+  sets <- list(contrast1 = c("g1", "g2", "g3"), contrast2 = c("g2", "g3", "g4"))
+
+  ints <- upset_calculate_intersections(sets, intersection_assignment_type = "upset")
+  names(ints$intersections) <- vapply(ints$combinations, function(combo) paste(names(sets)[combo], collapse = "&"), character(1))
+
+  expect_equal(unname(ints$intersections[["contrast1"]]), 1)
+  expect_equal(unname(ints$intersections[["contrast2"]]), 1)
+  expect_equal(unname(ints$intersections[["contrast1&contrast2"]]), 2)
+})
+
 test_that("getUpsetPlot draws a set-size bar chart, an intersection-size bar chart and a membership grid", {
   run_upset_server(make_upset_eselist(), expr = quote({
     built <- plotly::plotly_build(getUpsetPlot())
