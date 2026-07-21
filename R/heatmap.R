@@ -98,12 +98,14 @@ PCA_HEATMAP_DEFAULT_N_COMPONENTS <- 10
 # heatmap in interactive_pca_variance_heatmap().
 PCA_HEATMAP_SCREE_HEIGHT_PX <- 200
 
-# Default per-row pixel allowance used to derive interactive_heatmap()'s
-# default plot_height. With row labels shown, each row needs enough room for
+# Per-row pixel allowances used to derive heatmap plot heights (both the
+# Shiny module's own reactive sizing and interactive_heatmap()'s default
+# plot_height). With row labels shown, each row needs enough room for
 # legible text; with labels hidden the heatmap only needs to show the colour
 # pattern, so a much smaller allowance keeps large matrices (e.g. hundreds of
 # genes) from rendering as an unwieldy tall image.
 HEATMAP_ROW_HEIGHT_PX <- 12
+HEATMAP_ROW_HEIGHT_WIDE_PX <- 20
 HEATMAP_ROW_HEIGHT_NO_LABELS_PX <- 2
 
 # Ceiling on interactive_heatmap()'s default plot_height when row labels are
@@ -114,6 +116,19 @@ HEATMAP_MAX_HEIGHT_NO_LABELS_PX <- 1200
 # Shared between heatmapInput()'s download button and heatmapOutput()'s
 # table heading, so the two can't drift apart.
 PCA_HEATMAP_PVALUES_TABLE_TITLE <- "Association p-values"
+
+# Total heatmap plot height: rows at a fixed per-row pixel allowance, plus a
+# dendrogram row, per-annotation-variable color bars, and the angled column
+# axis labels. Shared by the heatmap Shiny module's own reactive plot sizing
+# and the interactive_heatmap()/interactive_pca_metadata_heatmap() defaults,
+# so the three can't drift out of sync with each other.
+heatmap_layout_height <- function(n_rows, row_height_px, cluster_cols, n_annotation_cols = 0) {
+  xaxis_labels_height <- 150
+  dendro_height <- if (cluster_cols) 150 else 0
+  annotation_height_px <- if (n_annotation_cols > 0) HEATMAP_ANNOTATION_ROW_HEIGHT_PX * n_annotation_cols else 0
+
+  (n_rows * row_height_px) + dendro_height + annotation_height_px + xaxis_labels_height
+}
 
 heatmap_modal_specs <- list(
   pca = list(id = "pcavsexperiment", title = "Principal components vs experimental variables"),
@@ -386,12 +401,12 @@ heatmap <- function(id, eselist, type = "expression") {
     # stacked above it for the pca type
 
     heatmapOnlyHeight <- reactive({
-      display_matrix <- getDisplayMatrix()
+      plot_annotation <- getPlotAnnotation()
 
-      # Allowance for the angled column labels
-      xaxis_labels_height <- 150
-
-      (nrow(display_matrix) * rowHeight()) + dendroHeight() + annotationHeight() + xaxis_labels_height
+      heatmap_layout_height(
+        n_rows = nrow(getDisplayMatrix()), row_height_px = rowHeight(), cluster_cols = as.logical(input$cluster_cols),
+        n_annotation_cols = if (is.null(plot_annotation)) 0 else ncol(plot_annotation)
+      )
     })
 
     # Total height of the plotlyOutput container: the heatmap plus, for the
@@ -402,38 +417,13 @@ heatmap <- function(id, eselist, type = "expression") {
       heatmapOnlyHeight() + scree_height
     })
 
-    # Add a chunk for the dendrogram at the top
-
-    dendroHeight <- reactive({
-      if (as.logical(input$cluster_cols)) {
-        150
-      } else {
-        0
-      }
-    })
-
-    # Reserve a fixed number of pixels per annotation variable, so adding more
-    # annotation rows doesn't compress the heatmap grid itself
-
-    annotationHeight <- reactive({
-      plot_annotation <- getPlotAnnotation()
-
-      if (is.null(plot_annotation) || ncol(plot_annotation) == 0) {
-        0
-      } else {
-        HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(plot_annotation)
-      }
-    })
-
     # Small row height for expression heat map (probably lots of rows)
 
     rowHeight <- reactive({
       if (type == "expression") {
-        12
-      } else if (type == "pca") {
-        20
+        HEATMAP_ROW_HEIGHT_PX
       } else {
-        20
+        HEATMAP_ROW_HEIGHT_WIDE_PX
       }
     })
 
@@ -528,7 +518,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   better for such matrices.
 #' @param row_labels Vector labels to use for rows
 #' @param show_row_labels Boolean, should row labels be drawn on the plot?
-#'   \code{row_labels} is still used to identify rows in hover text either way.
+#'   \code{row_labels} is always used to identify rows in hover text.
 #' @param colors A vector of colors for the heatmap
 #' @param cexCol Character expansion factor passed to \code{heatmaply()}
 #' @param cexRow Character expansion factor passed to \code{heatmaply()}
@@ -576,19 +566,17 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
     col_side_colors <- sample_annotation[colnames(plotmatrix), , drop = FALSE]
   }
 
-  # Scale the default height to row count, mirroring the allowance the heatmap
-  # Shiny module computes for its own plot container. The per-row allowance
-  # drops sharply when row labels are hidden, since that case (e.g. a report
-  # heatmap with hundreds of genes) only needs to show the colour pattern, not
-  # render legible per-row text - and is capped so it stays a modest size
-  # regardless of how many rows are hidden behind it.
+  # Scale the default height to row count, using the same per-row/dendrogram/
+  # annotation allowances the heatmap Shiny module computes for its own plot
+  # container. The per-row allowance drops sharply when row labels are
+  # hidden, since that case (e.g. a report heatmap with hundreds of genes)
+  # only needs to show the colour pattern, not render legible per-row text -
+  # and is capped so it stays a modest size regardless of row count.
   if (is.null(plot_height)) {
     row_height_px <- if (show_row_labels) HEATMAP_ROW_HEIGHT_PX else HEATMAP_ROW_HEIGHT_NO_LABELS_PX
-    xaxis_labels_height <- 150
-    dendro_height <- if (cluster_cols) 150 else 0
-    annotation_height_px <- if (!is.null(col_side_colors)) HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(col_side_colors) else 0
+    n_annotation_cols <- if (is.null(col_side_colors)) 0 else ncol(col_side_colors)
 
-    plot_height <- (nrow(plotmatrix) * row_height_px) + dendro_height + annotation_height_px + xaxis_labels_height
+    plot_height <- heatmap_layout_height(nrow(plotmatrix), row_height_px, cluster_cols, n_annotation_cols)
 
     if (!show_row_labels) {
       plot_height <- min(plot_height, HEATMAP_MAX_HEIGHT_NO_LABELS_PX)
@@ -882,7 +870,7 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
   displaymatrix <- pvals[rownames(plotmatrix), , drop = FALSE]
 
   if (is.null(plot_height)) {
-    plot_height <- (nrow(plotmatrix) * 20) + 150
+    plot_height <- heatmap_layout_height(nrow(plotmatrix), row_height_px = HEATMAP_ROW_HEIGHT_WIDE_PX, cluster_cols = FALSE)
   }
 
   interactive_heatmap(

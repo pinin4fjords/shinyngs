@@ -66,7 +66,7 @@ test_that("interactive_heatmap caps the default plot_height when row labels are 
   # A large gene set with labels hidden (e.g. a differentialabundance report
   # heatmap) should stay compact - it only needs to show the colour pattern,
   # not render legible per-row text - so the default shouldn't keep growing
-  # with row count the way it does when labels are shown (see #271).
+  # with row count the way it does when labels are shown.
   many_rows <- matrix(rnorm(2000), nrow = 1000, dimnames = list(paste0("gene", 1:1000), paste0("s", 1:2)))
   huge_rows <- matrix(rnorm(10000), nrow = 5000, dimnames = list(paste0("gene", 1:5000), paste0("s", 1:2)))
 

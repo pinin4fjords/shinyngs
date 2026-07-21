@@ -43,7 +43,7 @@ better for such matrices.}
 \item{row_labels}{Vector labels to use for rows}
 
 \item{show_row_labels}{Boolean, should row labels be drawn on the plot?
-\code{row_labels} is still used to identify rows in hover text either way.}
+\code{row_labels} is always used to identify rows in hover text.}
 
 \item{colors}{A vector of colors for the heatmap}
 
