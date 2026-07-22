@@ -77,6 +77,8 @@
 <ul><li>Every interactive plot’s download button honours an app-wide PNG/SVG format toggle, so any plot can be exported as vector SVG for publication.</li>
 <li>Dropped the <code>reformulas</code> and <code>data.table</code> dependencies.</li>
 <li>Progress and warning logging during object construction and validation now goes through <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code>/<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> rather than <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, so it can be suppressed and captured through R’s condition system.</li>
+<li>
+<code><a href="../reference/interactive_heatmap.html">interactive_heatmap()</a></code>’s column annotation color bars are drawn taller (32px per variable, up from 20px) so they’re easier to read, and its <code>cexCol</code>/<code>cexRow</code> defaults are larger (0.9, up from 0.7) so column and row labels are more legible.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>

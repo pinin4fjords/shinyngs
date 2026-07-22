@@ -203,6 +203,11 @@
   [`message()`](https://rdrr.io/r/base/message.html)/[`warning()`](https://rdrr.io/r/base/warning.html)
   rather than [`print()`](https://rdrr.io/r/base/print.html), so it can
   be suppressed and captured through R’s condition system.
+- [`interactive_heatmap()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_heatmap.md)’s
+  column annotation color bars are drawn taller (32px per variable, up
+  from 20px) so they’re easier to read, and its `cexCol`/`cexRow`
+  defaults are larger (0.9, up from 0.7) so column and row labels are
+  more legible.
 
 ### Bug fixes
 
