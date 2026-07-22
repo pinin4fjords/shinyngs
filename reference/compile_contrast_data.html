@@ -92,7 +92,11 @@
 <code>"auto"</code> (default), <code>"log2"</code> or <code>"linear"</code>. Resolved once
 across the fold changes combined from all <code>differential_stats_files</code>,
 rather than per-file, so contrasts from the same experiment are treated
-consistently. See <code><a href="resolve_foldchange_scale.html">resolve_foldchange_scale</a></code>.</p></dd>
+consistently. Whenever the resolved scale is <code>"log2"</code>, the
+<code>fold_changes</code> element of the returned list is converted to linear
+scale - it will not match the raw file values. Pass <code>"linear"</code> for
+passthrough of the files' values as-is. See
+<code><a href="resolve_foldchange_scale.html">resolve_foldchange_scale</a></code>.</p></dd>
 
 
 <dt id="arg-unlog-foldchanges">unlog_foldchanges<a class="anchor" aria-label="anchor" href="#arg-unlog-foldchanges"></a></dt>
@@ -102,7 +106,10 @@ Should fold change values be unlogged?</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>output A named list of data frames by statistic, number of columns equal to input file number</p>
+    <p>output A named list of data frames by statistic (<code>fold_changes</code>
+  is always on a linear scale, see <code>fold_change_scale</code> above;
+  also <code>pvals</code>, <code>qvals</code>), number of columns equal to input file
+  number</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

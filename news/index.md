@@ -160,6 +160,15 @@
   the file readers
   ([`read_matrix()`](https://pinin4fjords.github.io/shinyngs/reference/read_matrix.md)
   and friends) and several compute helpers.
+- Clarified that
+  [`read_differential()`](https://pinin4fjords.github.io/shinyngs/reference/read_differential.md)/[`compile_contrast_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_contrast_data.md)
+  and the `--fold_change_scale` CLI flag always return/store fold
+  changes on a linear scale: whenever the scale resolves to `log2` (the
+  common case for a `log2FoldChange`-named column), the values are
+  converted from the file’s log2 scale to linear, so callers relying on
+  passthrough of the raw file values should pass
+  `fold_change_scale = "linear"` explicitly
+  ([\#272](https://github.com/pinin4fjords/shinyngs/issues/272)).
 
 ### New features
 
@@ -205,6 +214,14 @@
   as
   [`interactive_topgene_boxplots()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_topgene_boxplots.md)’s
   group legend.
+- [`upset_calculate_intersections()`](https://pinin4fjords.github.io/shinyngs/reference/upset_calculate_intersections.md)
+  always reported the highest-order (all-sets) intersection as 0 under
+  the default `intersection_assignment_type = "upset"`, because the top
+  intersection’s own index range for “higher-order” members counted
+  backwards and ended up excluding it from itself. This made
+  [`interactive_upset()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_upset.md)’s
+  upset-style plots under-report the deepest intersection whenever sets
+  genuinely overlapped at every level.
 
 ### Maintenance
 

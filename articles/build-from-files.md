@@ -146,7 +146,13 @@ map onto the same data model:
   with those statistics (usually the normalised matrix).
 - `--fold_change_scale` - `log2`, `linear` or `auto`; `auto` infers the
   scale from the column name and value distribution and errors if the
-  signals disagree.
+  signals disagree. Whenever the resolved scale is `log2`, the fold
+  changes stored in the app are converted to linear - shinyngs always
+  works with fold changes on a linear scale internally, so a
+  `log2FoldChange`-named column (or one whose values are distributed
+  like log2 fold changes) will not appear in the app as it does in the
+  input file. Pass `--fold_change_scale linear` if you want the input
+  file’s values used as-is.
 
 For the complete flag reference, including grouping variables,
 gene-model support (`--ensembl_species`) and shinyapps.io deployment
