@@ -109,6 +109,12 @@ test_that("interactive_screeplot respects n_components", {
   expect_equal(as.numeric(built$x$data[[1]]$y), c(45, 25, 15))
 })
 
+test_that("interactive_screeplot uses component_labels verbatim when supplied", {
+  built <- plotly::plotly_build(interactive_screeplot(c(45, 25, 15), component_labels = c("PC1 (45%)", "PC2 (25%)", "PC3 (15%)")))
+
+  expect_equal(as.character(built$x$data[[1]]$x), c("PC1 (45%)", "PC2 (25%)", "PC3 (15%)"))
+})
+
 test_that("interactive_screeplot adds a cumulative trace when requested", {
   built <- plotly::plotly_build(interactive_screeplot(c(45, 25, 15, 10, 5), cumulative = TRUE))
 

@@ -395,7 +395,7 @@ calculatePCAFractionExplained <- function(pca) {
   round((pca$sdev)^2 / sum(pca$sdev^2), 3) * 100
 }
 
-#' Plain "PC1", "PC2", ... labels for the leading n components
+#' "PC1", "PC2", ... labels for the leading n components
 #'
 #' Shared by \code{\link{interactive_screeplot}} and
 #' \code{\link[=anova_pca_metadata]{anova_pca_metadata}} so the two produce
@@ -404,11 +404,18 @@ calculatePCAFractionExplained <- function(pca) {
 #' shared x-axis.
 #'
 #' @param n Number of components to label
+#' @param fraction_explained Optional numeric vector of percent variance
+#'   explained by each component. When supplied, each label is suffixed with
+#'   e.g. \code{" (45\%)"}.
 #'
 #' @return output A character vector of length \code{n}
 #'
-pcLabels <- function(n) {
-  paste0("PC", seq_len(n))
+pcLabels <- function(n, fraction_explained = NULL) {
+  labels <- paste0("PC", seq_len(n))
+  if (!is.null(fraction_explained)) {
+    labels <- paste0(labels, " (", fraction_explained[seq_len(n)], "%)")
+  }
+  labels
 }
 
 #' Make a PCA scree plot with \code{plot_ly()}
@@ -425,6 +432,11 @@ pcLabels <- function(n) {
 #' @param cumulative Boolean: add a cumulative variance explained trace?
 #' @param palette_name Valid R color palette name
 #' @param title Plot title
+#' @param component_labels Optional character vector of length \code{n_components}
+#'   to use as the x-axis categories instead of the plain \code{"PC1"}, \code{"PC2"}, ...
+#'   labels. Used by \code{\link{interactive_pca_variance_heatmap}} to match this
+#'   plot's x-categories to the percent-suffixed column labels of the heatmap it's
+#'   stacked with.
 #'
 #' @return output Plotly plot object
 #'
@@ -433,14 +445,17 @@ pcLabels <- function(n) {
 #' @examples
 #' interactive_screeplot(c(45, 25, 15, 10, 5))
 #'
-interactive_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot") {
+interactive_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot", component_labels = NULL) {
   if (is.null(n_components)) {
     n_components <- length(fraction_explained)
   }
   n_components <- min(n_components, length(fraction_explained))
 
   fraction_explained <- fraction_explained[seq_len(n_components)]
-  components <- factor(pcLabels(n_components), levels = pcLabels(n_components))
+  if (is.null(component_labels)) {
+    component_labels <- pcLabels(n_components)
+  }
+  components <- factor(component_labels, levels = component_labels)
 
   traces <- list(list(y = fraction_explained, name = "% variance explained"))
   if (cumulative) {

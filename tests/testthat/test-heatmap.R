@@ -72,7 +72,7 @@ test_that("interactive_pca_metadata_heatmap drops rows with a single value acros
 
 # anova_pca_metadata()
 
-test_that("anova_pca_metadata uses plain PC column names, not percent-suffixed ones", {
+test_that("anova_pca_metadata suffixes column names with each component's percent variance explained", {
   set.seed(1)
   pcameta <- data.frame(
     row.names = paste0("sample", 1:6),
@@ -82,7 +82,7 @@ test_that("anova_pca_metadata uses plain PC column names, not percent-suffixed o
 
   pvals <- anova_pca_metadata(pca_coords, pcameta, fraction_explained = c(50, 30, 20))
 
-  expect_equal(colnames(pvals), c("PC1", "PC2", "PC3"))
+  expect_equal(colnames(pvals), c("PC1 (50%)", "PC2 (30%)", "PC3 (20%)"))
 })
 
 test_that("anova_pca_metadata's n_components limits and clamps the number of components tested", {
@@ -95,7 +95,7 @@ test_that("anova_pca_metadata's n_components limits and clamps the number of com
   fraction_explained <- c(40, 25, 15, 12, 8)
 
   limited <- anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 3)
-  expect_equal(colnames(limited), c("PC1", "PC2", "PC3"))
+  expect_equal(colnames(limited), c("PC1 (40%)", "PC2 (25%)", "PC3 (15%)"))
 
   clamped <- anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 20)
   expect_equal(ncol(clamped), 5)
@@ -141,6 +141,6 @@ test_that("interactive_pca_variance_heatmap respects n_components in both the sc
   scree_trace <- built$x$data[[which(trace_types == "scatter")[1]]]
   heatmap_trace <- built$x$data[[which(trace_types == "heatmap")[1]]]
 
-  expect_equal(as.character(scree_trace$x), c("PC1", "PC2"))
-  expect_equal(colnames(heatmap_trace$z), c("PC1", "PC2"))
+  expect_equal(as.character(scree_trace$x), c("PC1 (40%)", "PC2 (25%)"))
+  expect_equal(colnames(heatmap_trace$z), c("PC1 (40%)", "PC2 (25%)"))
 })
