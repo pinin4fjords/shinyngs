@@ -122,6 +122,14 @@
   (32px per variable, up from 20px) so they're easier to read, and its
   `cexCol`/`cexRow` defaults are larger (0.9, up from 0.7) so column and row
   labels are more legible.
+* The pixel sizes that drive heatmap layout (row heights, the annotation bar
+  and column dendrogram heights, the gap between stacked elements, and the
+  height cap used when row labels are hidden) are now bundled into
+  `heatmap_layout_options()` and accepted as a `heatmap_layout` argument by
+  `interactive_heatmap()`, the heatmap Shiny module, and `prepare_app()`,
+  rather than being fixed constants. `exec/make_app_from_files.R` exposes
+  each one as a `--heatmap_*` CLI flag and bakes the resulting
+  `heatmap_layout_options()` call into the `app.R` it generates.
 
 ## Bug fixes
 

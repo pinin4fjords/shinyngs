@@ -209,13 +209,16 @@ rnaseqInput <- function(id, eselist) {
 #' @param id Module namespace
 #' @param eselist ExploratorySummarizedExperimentList object containing
 #'   ExploratorySummarizedExperiment objects
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}, passed through to every heatmap
+#'   panel in the app
 #'
 #' @keywords shiny
 #'
 #' @examples
 #' rnaseq("rnaseq", eselist)
 #'
-rnaseq <- function(id, eselist) {
+rnaseq <- function(id, eselist, heatmap_layout = heatmap_layout_options()) {
   moduleServer(id, function(input, output, session) {
     # Add internal links to the tables with gene labels
 
@@ -234,10 +237,10 @@ rnaseq <- function(id, eselist) {
     summarytiles("summarytiles", eselist)
     experimenttable("experimenttable", eselist)
     rowmetatable("rowmetatable", eselist)
-    heatmap("heatmap-clustering", eselist, type = "samples")
+    heatmap("heatmap-clustering", eselist, type = "samples", heatmap_layout = heatmap_layout)
     clustering("feature-clustering", eselist)
-    heatmap("heatmap-expression", eselist, type = "expression")
-    heatmap("heatmap-pca", eselist, type = "pca")
+    heatmap("heatmap-expression", eselist, type = "expression", heatmap_layout = heatmap_layout)
+    heatmap("heatmap-pca", eselist, type = "pca", heatmap_layout = heatmap_layout)
     pca("pca", eselist)
     boxplot("boxplot", eselist)
     dendro("dendro", eselist)

@@ -218,6 +218,51 @@ option_list <- c(
       help = "Name of the direction column in the enrichment results. See --enrichment_pval_column."
     )
   ),
+  # Heatmap layout ---------------------------------------------------------------
+  list(
+    make_option(
+      "--heatmap_row_height_px",
+      type = "integer",
+      default = 12,
+      help = "Pixel height per row in heatmaps with row labels shown (e.g. the expression heatmap). Default: 12."
+    ),
+    make_option(
+      "--heatmap_row_height_wide_px",
+      type = "integer",
+      default = 20,
+      help = "Pixel height per row in heatmaps with fewer, wider rows (the samples and PCA-vs-experiment heatmaps). Default: 20."
+    ),
+    make_option(
+      "--heatmap_row_height_no_labels_px",
+      type = "integer",
+      default = 2,
+      help = "Pixel height per row when row labels are hidden. Default: 2."
+    ),
+    make_option(
+      "--heatmap_max_height_no_labels_px",
+      type = "integer",
+      default = 1200,
+      help = "Ceiling on the default heatmap plot height when row labels are hidden. Default: 1200."
+    ),
+    make_option(
+      "--heatmap_annotation_row_height_px",
+      type = "integer",
+      default = 32,
+      help = "Pixel height per column annotation color bar row. Default: 32."
+    ),
+    make_option(
+      "--heatmap_dendrogram_height_px",
+      type = "integer",
+      default = 150,
+      help = "Pixel height of the column dendrogram row shown above a heatmap when columns are clustered. Default: 150."
+    ),
+    make_option(
+      "--heatmap_subplot_gap_px",
+      type = "integer",
+      default = 4,
+      help = "Visual gap, in pixels, between stacked heatmap elements (annotation bars, column dendrogram, heatmap body). Default: 4."
+    )
+  ),
   # Output ---------------------------------------------------------------------
   list(
     make_option(
@@ -454,6 +499,13 @@ build_app_bundle <- function(opt) {
     log2_threshold = opt$log2_guessing_threshold
   )
 
+  heatmap_layout_call <- sprintf(
+    "heatmap_layout <- heatmap_layout_options(row_height_px = %d, row_height_wide_px = %d, row_height_no_labels_px = %d, max_height_no_labels_px = %d, annotation_row_height_px = %d, dendrogram_height_px = %d, subplot_gap_px = %d)",
+    opt$heatmap_row_height_px, opt$heatmap_row_height_wide_px, opt$heatmap_row_height_no_labels_px,
+    opt$heatmap_max_height_no_labels_px, opt$heatmap_annotation_row_height_px, opt$heatmap_dendrogram_height_px,
+    opt$heatmap_subplot_gap_px
+  )
+
   dir.create(opt$output_directory, showWarnings = FALSE, recursive = TRUE)
   saveRDS(myesel, file = file.path(opt$output_directory, "data.rds"))
   writeLines(
@@ -466,7 +518,8 @@ build_app_bundle <- function(opt) {
       "# max_size matches Shiny's own default (200 MB) so behaviour is identical on a server.",
       "shiny::shinyOptions(cache = cachem::cache_mem(max_size = 200 * 1024^2))",
       'esel <- readRDS("data.rds")',
-      'app <- prepare_app("rnaseq", esel)',
+      heatmap_layout_call,
+      'app <- prepare_app("rnaseq", esel, heatmap_layout = heatmap_layout)',
       "shiny::shinyApp(app$ui, app$server)"
     ),
     file.path(opt$output_directory, "app.R")

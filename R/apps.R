@@ -13,6 +13,10 @@
 #' @param eselist An ExploratorySummarizedExperimentList object containing assay
 #'   data (expression, counts...), sample data and annotation data for the rows.
 #' @param ui_only Don't add server components (for UI testing)
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}, passed through to every heatmap
+#'   panel in the app (only used for the 'rnaseq'/'chipseq'/'illuminaarray'
+#'   app types)
 #' @param ... Additional arguments passed to \code{simpleApp()}
 #'
 #' @return output A list of length 2 containing: the UI and server components
@@ -97,7 +101,7 @@
 #' # ExploratorySummarizedExperimentList (contrasts, differential statistics,
 #' # gene set analyses etc.). With those in place the resulting app gains
 #' # additional panels for differential analyses.
-prepare_app <- function(type, eselist, ui_only = FALSE, ...) {
+prepare_app <- function(type, eselist, ui_only = FALSE, heatmap_layout = heatmap_layout_options(), ...) {
   # URL bookmarking lets a configured view be captured in a shareable link and
   # restored. Set here (rather than via shinyApp(enableBookmarking=)) because
   # callers invoke shiny::shinyApp()/runApp() themselves, so this is the only
@@ -131,7 +135,7 @@ prepare_app <- function(type, eselist, ui_only = FALSE, ...) {
   server <- if (big) {
     function(input, output, session) {
       configureBookmarking(input, session, nav_input = paste0(type, "-", type))
-      get(type)(type, eselist)
+      get(type)(type, eselist, heatmap_layout = heatmap_layout)
     }
   } else {
     simpleApp(eselist, type, ui_only = ui_only, ...)$server

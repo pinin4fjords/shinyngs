@@ -5,13 +5,17 @@
 \title{The server function of the chipseq module. Currently a near-clone of the
 RNA-seq module, with ChIP-seq optimisations planned.}
 \usage{
-chipseq(id, eselist)
+chipseq(id, eselist, heatmap_layout = heatmap_layout_options())
 }
 \arguments{
 \item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, passed through to every heatmap
+panel in the app}
 }
 \description{
 This function is called directly, using the same id as its UI counterpart,

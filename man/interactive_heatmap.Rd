@@ -22,6 +22,7 @@ interactive_heatmap(
   cor_method = "spearman",
   cluster_method = "ward.D2",
   plot_height = NULL,
+  heatmap_layout = heatmap_layout_options(),
   ...
 )
 }
@@ -86,6 +87,10 @@ height scaled to the number of rows in \code{plotmatrix}: generously when
 \code{show_row_labels} is \code{TRUE} so each row's label stays legible,
 or a small, capped allowance when it's \code{FALSE}, since a heatmap
 with hidden labels only needs to show the colour pattern.}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, controlling row heights, the
+annotation bar and column dendrogram heights, and the gap between them.}
 
 \item{...}{Additional arguments passed to \code{heatmaply()}. For example,
 \code{heatmaply()} reorders dendrogram leaves for visual clarity
