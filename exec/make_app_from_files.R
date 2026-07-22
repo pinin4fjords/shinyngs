@@ -247,8 +247,8 @@ option_list <- c(
     make_option(
       "--heatmap_annotation_row_height_px",
       type = "integer",
-      default = 32,
-      help = "Pixel height per column annotation color bar row. Default: 32."
+      default = 26,
+      help = "Pixel height per column annotation color bar row. Default: 26."
     ),
     make_option(
       "--heatmap_dendrogram_height_px",

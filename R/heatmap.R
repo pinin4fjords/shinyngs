@@ -135,7 +135,7 @@ PCA_HEATMAP_PVALUES_TABLE_TITLE <- "Association p-values"
 #' heatmap_layout_options(annotation_row_height_px = 20, dendrogram_height_px = 100)
 #'
 heatmap_layout_options <- function(row_height_px = 12, row_height_wide_px = 20, row_height_no_labels_px = 2,
-                                    max_height_no_labels_px = 1200, annotation_row_height_px = 32,
+                                    max_height_no_labels_px = 1200, annotation_row_height_px = 26,
                                     dendrogram_height_px = 150, subplot_gap_px = 4) {
   list(
     row_height_px = row_height_px,

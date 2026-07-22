@@ -9,7 +9,7 @@ heatmap_layout_options(
   row_height_wide_px = 20,
   row_height_no_labels_px = 2,
   max_height_no_labels_px = 1200,
-  annotation_row_height_px = 32,
+  annotation_row_height_px = 26,
   dendrogram_height_px = 150,
   subplot_gap_px = 4
 )

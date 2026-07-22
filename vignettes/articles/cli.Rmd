@@ -124,7 +124,7 @@ The three `--enrichment_*_column` flags must be supplied together or not at all.
 | `--heatmap_row_height_wide_px` | integer; `20` | Pixel height per row in heatmaps with fewer, wider rows (the samples and PCA-vs-experiment heatmaps). |
 | `--heatmap_row_height_no_labels_px` | integer; `2` | Pixel height per row when row labels are hidden. |
 | `--heatmap_max_height_no_labels_px` | integer; `1200` | Ceiling on the default heatmap plot height when row labels are hidden. |
-| `--heatmap_annotation_row_height_px` | integer; `32` | Pixel height per column annotation color bar row. |
+| `--heatmap_annotation_row_height_px` | integer; `26` | Pixel height per column annotation color bar row. |
 | `--heatmap_dendrogram_height_px` | integer; `150` | Pixel height of the column dendrogram row shown above a heatmap when columns are clustered. |
 | `--heatmap_subplot_gap_px` | integer; `4` | Visual gap, in pixels, between stacked heatmap elements (annotation bars, column dendrogram, heatmap body). |
 
