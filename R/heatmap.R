@@ -996,6 +996,9 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
 #'   of the combined figure.
 #' @param scree_height The rendered height, in pixels, of the scree portion of
 #'   the combined figure.
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}, passed through to
+#'   \code{\link{interactive_pca_metadata_heatmap}}.
 #' @param ... Additional arguments passed to \code{\link{interactive_pca_metadata_heatmap}}
 #'
 #' @return output A plotly htmlwidget combining both plots
@@ -1013,7 +1016,7 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
 #' interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
 #'
 interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, n_components = 10,
-                                         heatmap_height = 600, scree_height = 200, ...) {
+                                         heatmap_height = 600, scree_height = 200, heatmap_layout = heatmap_layout_options(), ...) {
   n_components <- min(n_components, ncol(pca_coords))
 
   # component_labels matches anova_pca_metadata()'s percent-suffixed column
@@ -1033,7 +1036,7 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
 
   hm <- interactive_pca_metadata_heatmap(
     pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained,
-    cluster_rows = cluster_rows, n_components = n_components, plot_height = heatmap_height, ...
+    cluster_rows = cluster_rows, n_components = n_components, plot_height = heatmap_height, heatmap_layout = heatmap_layout, ...
   )
 
   # Both plots carry their own default plotly config; subplot() warns
