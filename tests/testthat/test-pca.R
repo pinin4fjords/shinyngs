@@ -23,13 +23,13 @@ test_that("runPCA does not scale variables by default", {
   expect_equal(pca$rotation, expected_unscaled$rotation)
   expect_equal(pca$x, expected_unscaled$x)
 
-  # Confirm the scale argument is genuinely reaching prcomp: a scaled run on
-  # the same input produces different results.
+  # Confirm the scale_features argument is genuinely reaching prcomp: a
+  # scaled run on the same input produces different results.
   scaled <- prcomp(t(as.matrix(logged)), scale. = TRUE)
   expect_false(isTRUE(all.equal(pca$sdev, scaled$sdev)))
 })
 
-test_that("runPCA scales variables when scale = TRUE", {
+test_that("runPCA scales variables when scale_features = TRUE", {
   mat <- matrix(
     c(
       1, 2, 3, 4,
@@ -42,7 +42,7 @@ test_that("runPCA scales variables when scale = TRUE", {
   rownames(mat) <- paste0("gene", 1:4)
   colnames(mat) <- paste0("sample", 1:4)
 
-  pca <- runPCA(mat, scale = TRUE)
+  pca <- runPCA(mat, scale_features = TRUE)
 
   logged <- log2(mat + 1)
   logged <- logged[apply(logged, 1, function(x) length(unique(x))) > 1, ]
@@ -105,17 +105,17 @@ test_that("compile_pca_data restricts the PCA to the ntop most variable genes", 
   expect_equal(result$coords, expected$coords)
 })
 
-test_that("compile_pca_data forwards scale to runPCA", {
+test_that("compile_pca_data forwards scale_features to runPCA", {
   set.seed(1)
   mat <- matrix(rexp(200, rate = .1), nrow = 20)
   rownames(mat) <- paste0("gene", 1:20)
   colnames(mat) <- paste0("sample", 1:10)
 
   unscaled <- compile_pca_data(mat)
-  scaled <- compile_pca_data(mat, scale = TRUE)
+  scaled <- compile_pca_data(mat, scale_features = TRUE)
 
   expect_false(isTRUE(all.equal(unscaled$coords, scaled$coords)))
-  expect_equal(scaled$coords, data.frame(runPCA(mat, do_log = FALSE, scale = TRUE)$x))
+  expect_equal(scaled$coords, data.frame(runPCA(mat, do_log = FALSE, scale_features = TRUE)$x))
 })
 
 # calculatePCAFractionExplained()

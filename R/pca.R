@@ -321,14 +321,16 @@ pca <- function(id, eselist) {
 #'
 #' @param matrix Matrix (not logged)
 #' @param do_log Boolean- apply log transform to input matrix?
-#' @param scale Boolean, passed to \code{prcomp()}'s \code{scale.} argument to
-#'   scale each feature to unit variance before running the PCA. Defaults to
-#'   \code{FALSE}, matching \code{DESeq2::plotPCA()}'s convention for
-#'   variance-stabilised input: VST/rlog transforms already equalise
+#' @param scale_features Boolean, passed to \code{prcomp()}'s \code{scale.}
+#'   argument to scale each feature to unit variance before running the PCA.
+#'   Defaults to \code{FALSE}, matching \code{DESeq2::plotPCA()}'s convention
+#'   for variance-stabilised input: VST/rlog transforms already equalise
 #'   per-feature variance, so further scaling mostly up-weights noisy,
 #'   near-constant features rather than revealing structure. Set to
 #'   \code{TRUE} for matrices without a variance-stabilising transform, where
 #'   features can otherwise dominate the PCA purely by having larger scale.
+#'   (Unrelated to \code{\link{interactive_heatmap}}'s \code{scale}
+#'   argument, which selects row/column/none display scaling.)
 #'
 #' @return pca Output of the prcomp function
 #'
@@ -337,7 +339,7 @@ pca <- function(id, eselist) {
 #' @examples
 #' runPCA(mymatrix)
 #'
-runPCA <- function(matrix, do_log = TRUE, scale = FALSE) {
+runPCA <- function(matrix, do_log = TRUE, scale_features = FALSE) {
   if (ncol(matrix) < 2) {
     stop("PCA requires at least 2 samples; only ", ncol(matrix), " were supplied.")
   }
@@ -352,7 +354,7 @@ runPCA <- function(matrix, do_log = TRUE, scale = FALSE) {
     stop("PCA requires at least one feature with variable values across samples; none remain after filtering.")
   }
 
-  prcomp(t(as.matrix(matrix)), scale. = scale)
+  prcomp(t(as.matrix(matrix)), scale. = scale_features)
 }
 
 #' Run PCA on a given matrix, expected to be variance stabilised (at least
@@ -360,9 +362,9 @@ runPCA <- function(matrix, do_log = TRUE, scale = FALSE) {
 #'
 #' @param matrix Simple matrix with genes by row and samples by column
 #' @param ntop Number of most variable genes to use
-#' @param scale Boolean, passed through to \code{\link{runPCA}}'s \code{scale}
-#'   argument. Defaults to \code{FALSE}, appropriate for the
-#'   variance-stabilised matrices this function is normally called with.
+#' @param scale_features Boolean, passed through to \code{\link{runPCA}}'s
+#'   \code{scale_features} argument. Defaults to \code{FALSE}, appropriate for
+#'   the variance-stabilised matrices this function is normally called with.
 #'
 #' @export
 #'
@@ -375,7 +377,7 @@ runPCA <- function(matrix, do_log = TRUE, scale = FALSE) {
 #' pca <- compile_pca_data(mat)
 #' head(pca$coords)
 #'
-compile_pca_data <- function(matrix, ntop = NULL, scale = FALSE) {
+compile_pca_data <- function(matrix, ntop = NULL, scale_features = FALSE) {
   if (is.null(ntop)) {
     select <- seq_len(nrow(matrix))
   } else {
@@ -383,7 +385,7 @@ compile_pca_data <- function(matrix, ntop = NULL, scale = FALSE) {
   }
 
   # perform a PCA on the data in assay(x) for the selected genes
-  pca <- runPCA(matrix[select, , drop = FALSE], do_log = FALSE, scale = scale)
+  pca <- runPCA(matrix[select, , drop = FALSE], do_log = FALSE, scale_features = scale_features)
 
   # the contribution to the total variance for each component
   percentVar <- calculatePCAFractionExplained(pca)
