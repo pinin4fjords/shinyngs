@@ -517,6 +517,10 @@ heatmap <- function(id, eselist, type = "expression") {
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
 #'   values in \code{plotmatrix} be displayed on the heatmap cells?
 #' @param hide_colorbar Boolean, should the color scale legend be hidden?
+#' @param grid_gap Pixel gap drawn between cells, passed through to
+#'   \code{heatmaply()}. The default of 1 reads fine for small heatmaps, but on
+#'   a heatmap with hundreds of rows the gaps can visually dominate and obscure
+#'   cross-column colour patterns; pass 0 for contiguous cells in that case.
 #' @param plot_height The total rendered height of the plot in pixels. Passed
 #'   through to \code{heatmaply()} as its \code{height} argument, and also used
 #'   to convert the fixed-pixel annotation row height into the fraction
@@ -540,7 +544,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' )
 #' interactive_heatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
 #'
-interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, plot_height = 600, ...) {
+interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, plot_height = 600, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels
@@ -628,7 +632,7 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
     dendrogram = dendrogram, custom_hovertext = hovertext, Rowv = Rowv, Colv = Colv, scale = scale,
     colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = rownames(plotmatrix),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
-    subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = 1, hide_colorbar = hide_colorbar,
+    subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = grid_gap, hide_colorbar = hide_colorbar,
     cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers,
     height = plot_height, ...
   )
