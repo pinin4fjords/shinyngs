@@ -11,6 +11,7 @@ interactive_pca_metadata_heatmap(
   cluster_rows = TRUE,
   n_components = 10,
   plot_height = NULL,
+  heatmap_layout = heatmap_layout_options(),
   ...
 )
 }
@@ -35,6 +36,11 @@ to \code{\link{anova_pca_metadata}}.}
 \item{plot_height}{The total rendered height of the plot in pixels, passed
 through to \code{\link{interactive_heatmap}}. Defaults to a height scaled
 to the number of variables.}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, passed through to
+\code{\link{interactive_heatmap}} and used to derive the default
+\code{plot_height}.}
 
 \item{...}{Additional arguments passed to \code{\link{interactive_heatmap}}}
 }

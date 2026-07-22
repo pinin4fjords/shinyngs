@@ -106,6 +106,12 @@
 
 ## Improvements
 
+* `interactive_heatmap()` gains a `show_row_labels` argument for suppressing
+  row labels, and now defaults `plot_height` to a height scaled to the number
+  of rows: generously when labels are shown (fixing large heatmaps rendering
+  squashed into a small fixed height when called outside the Shiny app), or a
+  small, capped allowance when they're hidden, since a heatmap with hundreds
+  of genes and no labels only needs to show the colour pattern.
 * Every interactive plot's download button honours an app-wide PNG/SVG format
   toggle, so any plot can be exported as vector SVG for publication.
 * Dropped the `reformulas` and `data.table` dependencies.
@@ -113,12 +119,31 @@
   goes through `message()`/`warning()` rather than `print()`, so it can be
   suppressed and captured through R's condition system.
 * `interactive_heatmap()`'s column annotation color bars are drawn taller
-  (32px per variable, up from 20px) so they're easier to read, and its
+  (26px per variable, up from 20px) so they're easier to read, and its
   `cexCol`/`cexRow` defaults are larger (0.9, up from 0.7) so column and row
   labels are more legible.
+* The pixel sizes that drive heatmap layout (row heights, the annotation bar
+  and column dendrogram heights, the gap between stacked elements, and the
+  height cap used when row labels are hidden) are now bundled into
+  `heatmap_layout_options()` and accepted as a `heatmap_layout` argument by
+  `interactive_heatmap()`, the heatmap Shiny module, and `prepare_app()`,
+  rather than being fixed constants. `exec/make_app_from_files.R` exposes
+  each one as a `--heatmap_*` CLI flag and bakes the resulting
+  `heatmap_layout_options()` call into the `app.R` it generates.
 
 ## Bug fixes
 
+* `interactive_heatmap()` left a disproportionately large gap between the
+  column annotation bars (and/or column dendrogram) and the heatmap body -
+  heatmaply's `subplot_margin` renders as double the fraction passed to it,
+  which wasn't accounted for. The gap is now a small, fixed number of pixels
+  regardless of heatmap size.
+* `interactive_heatmap()` and `interactive_pca_variance_heatmap()` could
+  render their plot overflowing onto whatever content follows it when
+  embedded in a Quarto (not plain rmarkdown) document. Quarto's default
+  figure-sizing can override an htmlwidget's container height independently
+  of its embedded plotly config unless the widget opts out, which these now
+  do, since their heights are always explicitly computed.
 * `runPCA()` and `compile_pca_data()` no longer force `prcomp()`'s
   `scale. = TRUE`. They now default to `scale = FALSE`, matching
   `DESeq2::plotPCA()`'s convention for variance-stabilised (VST/rlog) input:

@@ -5,7 +5,13 @@
 \title{Make UI and server functions for Shiny apps based on data supplied as
 modfied SummarizedExperiments}
 \usage{
-prepare_app(type, eselist, ui_only = FALSE, ...)
+prepare_app(
+  type,
+  eselist,
+  ui_only = FALSE,
+  heatmap_layout = heatmap_layout_options(),
+  ...
+)
 }
 \arguments{
 \item{type}{A string specifying the type of shiny app required. Currently,
@@ -18,6 +24,11 @@ using \code{Input} and \code{Output} functions of the same module.}
 data (expression, counts...), sample data and annotation data for the rows.}
 
 \item{ui_only}{Don't add server components (for UI testing)}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, passed through to every heatmap
+panel in the app (only used for the 'rnaseq'/'chipseq'/'illuminaarray'
+app types)}
 
 \item{...}{Additional arguments passed to \code{simpleApp()}}
 }

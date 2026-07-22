@@ -12,6 +12,7 @@ interactive_heatmap(
   cluster_cols = FALSE,
   scale = "row",
   row_labels,
+  show_row_labels = TRUE,
   colors = viridisLite::viridis(100),
   cexCol = 0.9,
   cexRow = 0.9,
@@ -20,7 +21,8 @@ interactive_heatmap(
   grid_gap = 1,
   cor_method = "spearman",
   cluster_method = "ward.D2",
-  plot_height = 600,
+  plot_height = NULL,
+  heatmap_layout = heatmap_layout_options(),
   ...
 )
 }
@@ -37,9 +39,15 @@ column side colors and an accompanying legend}
 
 \item{cluster_cols}{Cluster columns?}
 
-\item{scale}{'row', 'column' or none}
+\item{scale}{'row', 'column' or 'none'. Row scaling can look washed out on
+a heatmap with many rows, since most z-scores cluster near zero - 'none'
+colors directly by the values in \code{plotmatrix}, which often reads
+better for such matrices.}
 
 \item{row_labels}{Vector labels to use for rows}
+
+\item{show_row_labels}{Boolean, should row labels be drawn on the plot?
+\code{row_labels} is always used to identify rows in hover text.}
 
 \item{colors}{A vector of colors for the heatmap}
 
@@ -74,7 +82,15 @@ through to \code{heatmaply()} as its \code{height} argument, and also used
 to convert the fixed-pixel annotation row height into the fraction
 \code{heatmaply()} expects. When displayed inside a
 \code{plotlyOutput()}, the latter's own \code{height} argument should
-match this value so the container and the widget agree.}
+match this value so the container and the widget agree. Defaults to a
+height scaled to the number of rows in \code{plotmatrix}: generously when
+\code{show_row_labels} is \code{TRUE} so each row's label stays legible,
+or a small, capped allowance when it's \code{FALSE}, since a heatmap
+with hidden labels only needs to show the colour pattern.}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, controlling row heights, the
+annotation bar and column dendrogram heights, and the gap between them.}
 
 \item{...}{Additional arguments passed to \code{heatmaply()}. For example,
 \code{heatmaply()} reorders dendrogram leaves for visual clarity

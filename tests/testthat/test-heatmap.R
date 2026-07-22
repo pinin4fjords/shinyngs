@@ -24,6 +24,65 @@ test_that("interactive_heatmap handles single-row matrices (e.g. one informative
   expect_s3_class(p, "plotly")
 })
 
+test_that("interactive_heatmap's show_row_labels toggles row tick labels but leaves hover text alone", {
+  pm <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
+
+  shown <- plotly::plotly_build(interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(pm)
+  ))
+  hidden <- plotly::plotly_build(interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(pm), show_row_labels = FALSE
+  ))
+
+  yaxis_showticklabels <- function(built) {
+    yaxes <- built$x$layout[grepl("^yaxis", names(built$x$layout))]
+    unlist(lapply(yaxes, `[[`, "showticklabels"))
+  }
+
+  expect_true(all(yaxis_showticklabels(shown)))
+  expect_false(any(yaxis_showticklabels(hidden)))
+  expect_true(any(grepl("gene1<br>", unlist(lapply(hidden$x$data, `[[`, "text")))))
+})
+
+test_that("interactive_heatmap defaults plot_height to a value scaled to row count when labels are shown", {
+  few_rows <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
+  many_rows <- matrix(rnorm(2000), nrow = 1000, dimnames = list(paste0("gene", 1:1000), paste0("s", 1:2)))
+
+  p_few <- interactive_heatmap(
+    plotmatrix = few_rows, displaymatrix = few_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(few_rows)
+  )
+  p_many <- interactive_heatmap(
+    plotmatrix = many_rows, displaymatrix = many_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(many_rows)
+  )
+
+  expect_gt(p_many$height, p_few$height)
+})
+
+test_that("interactive_heatmap caps the default plot_height when row labels are hidden, regardless of row count", {
+  # A large gene set with labels hidden (e.g. a differentialabundance report
+  # heatmap) should stay compact - it only needs to show the colour pattern,
+  # not render legible per-row text - so the default shouldn't keep growing
+  # with row count the way it does when labels are shown.
+  many_rows <- matrix(rnorm(2000), nrow = 1000, dimnames = list(paste0("gene", 1:1000), paste0("s", 1:2)))
+  huge_rows <- matrix(rnorm(10000), nrow = 5000, dimnames = list(paste0("gene", 1:5000), paste0("s", 1:2)))
+
+  p_many <- interactive_heatmap(
+    plotmatrix = many_rows, displaymatrix = many_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(many_rows), show_row_labels = FALSE
+  )
+  p_huge <- interactive_heatmap(
+    plotmatrix = huge_rows, displaymatrix = huge_rows, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(huge_rows), show_row_labels = FALSE
+  )
+
+  expect_equal(p_many$height, p_huge$height)
+  expect_lt(p_huge$height, 1500)
+})
+
 test_that("interactive_heatmap defaults to a 1px grid_gap but lets callers override it for large heatmaps", {
   pm <- matrix(rnorm(24), nrow = 6, dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
 
@@ -82,6 +141,22 @@ test_that("interactive_heatmap's cor_method/cluster_method drive the column dend
   # a genuinely different leaf order - otherwise the arguments risk being
   # silently ignored.
   expect_false(identical(column_order(p_default), column_order(p_pearson_complete)))
+})
+
+test_that("interactive_heatmap opts its widget out of knitr/Quarto figure resizing", {
+  # sizingPolicy$knitr$figure = TRUE (the plotly default) lets the rendering
+  # document's own fig-height/out-height chunk defaults override the widget's
+  # container height independently of the plot_height explicitly computed
+  # here, so the two can disagree and the plot overflows its container under
+  # Quarto specifically (confirmed via an actual `quarto render` - #291).
+  pm <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
+
+  p <- interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(pm)
+  )
+
+  expect_false(p$sizingPolicy$knitr$figure)
 })
 
 # interactive_pca_metadata_heatmap()
@@ -203,4 +278,21 @@ test_that("interactive_pca_variance_heatmap respects n_components in both the sc
 
   expect_equal(as.character(scree_trace$x), c("PC1 (40%)", "PC2 (25%)"))
   expect_equal(colnames(heatmap_trace$z), c("PC1 (40%)", "PC2 (25%)"))
+})
+
+test_that("interactive_pca_variance_heatmap's combined widget also opts out of knitr/Quarto figure resizing", {
+  # plotly::subplot() builds a genuinely new widget, so this needs the same
+  # opt-out as interactive_heatmap() itself (see the test alongside it, and
+  # #291) rather than inheriting it from the heatmap panel underneath.
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3),
+    batch = rep(c("a", "b"), 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 4), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:4)))
+
+  p <- interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
+
+  expect_false(p$sizingPolicy$knitr$figure)
 })

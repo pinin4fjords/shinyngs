@@ -12,6 +12,7 @@ interactive_pca_variance_heatmap(
   n_components = 10,
   heatmap_height = 600,
   scree_height = 200,
+  heatmap_layout = heatmap_layout_options(),
   ...
 )
 }
@@ -38,6 +39,10 @@ of the combined figure.}
 
 \item{scree_height}{The rendered height, in pixels, of the scree portion of
 the combined figure.}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, passed through to
+\code{\link{interactive_pca_metadata_heatmap}}.}
 
 \item{...}{Additional arguments passed to \code{\link{interactive_pca_metadata_heatmap}}}
 }

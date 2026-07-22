@@ -4,13 +4,17 @@
 \alias{rnaseq}
 \title{The server function of the rnaseq module}
 \usage{
-rnaseq(id, eselist)
+rnaseq(id, eselist, heatmap_layout = heatmap_layout_options())
 }
 \arguments{
 \item{id}{Module namespace}
 
 \item{eselist}{ExploratorySummarizedExperimentList object containing
 ExploratorySummarizedExperiment objects}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}, passed through to every heatmap
+panel in the app}
 }
 \description{
 This function is called directly, using the same id as its UI counterpart,

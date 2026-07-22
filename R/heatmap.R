@@ -83,12 +83,6 @@ heatmapInput <- function(id, eselist, type = "expression") {
   filters
 }
 
-# Fixed pixel height for each annotation color-bar row drawn above a heatmap.
-# Kept as an absolute pixel value (converted to a fraction of the actual
-# container height where needed) rather than a fraction of the plot itself,
-# so the bars stay the same size regardless of how many heatmap rows are shown.
-HEATMAP_ANNOTATION_ROW_HEIGHT_PX <- 32
-
 # Default for the "Number of principal components to test" slider on the pca
 # heatmap, shared between the UI default and the server-side fallback used
 # before the debounced reactive has a value from the client.
@@ -101,6 +95,81 @@ PCA_HEATMAP_SCREE_HEIGHT_PX <- 200
 # Shared between heatmapInput()'s download button and heatmapOutput()'s
 # table heading, so the two can't drift apart.
 PCA_HEATMAP_PVALUES_TABLE_TITLE <- "Association p-values"
+
+#' Heatmap pixel-size options
+#'
+#' Bundles the fixed pixel sizes used to lay out \code{\link{interactive_heatmap}}
+#' and the heatmap Shiny module: per-row heights, the annotation color bar
+#' height, the column dendrogram height, and the gap between stacked
+#' elements. Each is kept as an absolute pixel value (converted to a fraction
+#' of the plot's actual rendered height where needed) rather than a fraction
+#' of the plot itself, so they stay the same size regardless of how many
+#' heatmap rows or annotation variables are shown - the total plot height
+#' grows or shrinks instead to make room for them. Passed as the
+#' \code{heatmap_layout} argument to \code{\link{interactive_heatmap}}, the
+#' heatmap Shiny module, and \code{\link{prepare_app}}.
+#'
+#' @param row_height_px Pixel height per row when row labels are shown (e.g.
+#'   the expression heatmap).
+#' @param row_height_wide_px Pixel height per row for heatmaps with fewer,
+#'   wider rows (the samples and PCA-vs-experiment heatmaps).
+#' @param row_height_no_labels_px Pixel height per row when row labels are
+#'   hidden (\code{interactive_heatmap(show_row_labels = FALSE)}), since a
+#'   heatmap with hidden labels only needs to show the colour pattern.
+#' @param max_height_no_labels_px Ceiling on \code{interactive_heatmap()}'s
+#'   default \code{plot_height} when row labels are hidden, so a very large
+#'   matrix still renders in a modest, scrollable space rather than scaling
+#'   without bound.
+#' @param annotation_row_height_px Pixel height per column annotation color
+#'   bar row.
+#' @param dendrogram_height_px Pixel height of the column dendrogram row
+#'   shown above a heatmap when columns are clustered.
+#' @param subplot_gap_px Visual gap, in pixels, between stacked elements (the
+#'   annotation bars, column dendrogram, and heatmap body).
+#'
+#' @return output A list of named heatmap layout pixel sizes
+#' @export
+#'
+#' @examples
+#' heatmap_layout_options()
+#' heatmap_layout_options(annotation_row_height_px = 20, dendrogram_height_px = 100)
+#'
+heatmap_layout_options <- function(row_height_px = 12, row_height_wide_px = 20, row_height_no_labels_px = 2,
+                                    max_height_no_labels_px = 1200, annotation_row_height_px = 26,
+                                    dendrogram_height_px = 150, subplot_gap_px = 4) {
+  list(
+    row_height_px = row_height_px,
+    row_height_wide_px = row_height_wide_px,
+    row_height_no_labels_px = row_height_no_labels_px,
+    max_height_no_labels_px = max_height_no_labels_px,
+    annotation_row_height_px = annotation_row_height_px,
+    dendrogram_height_px = dendrogram_height_px,
+    subplot_gap_px = subplot_gap_px
+  )
+}
+
+# Total heatmap plot height: rows at a fixed per-row pixel allowance, plus a
+# dendrogram row, per-annotation-variable color bars, the gaps between those
+# stacked elements, and the angled column axis labels. Shared by the heatmap
+# Shiny module's own reactive plot sizing and the
+# interactive_heatmap()/interactive_pca_metadata_heatmap() defaults, so the
+# three can't drift out of sync with each other. Each fixed-pixel element
+# added here has a matching fraction-of-plot_height counterpart computed
+# inside interactive_heatmap() itself, so growing/shrinking this total is
+# what lets those elements stay a constant pixel size regardless of how many
+# heatmap rows are shown.
+heatmap_layout_height <- function(n_rows, row_height_px, cluster_cols, n_annotation_cols = 0,
+                                   heatmap_layout = heatmap_layout_options()) {
+  xaxis_labels_height <- 150
+  has_dendro <- cluster_cols
+  has_annotation <- n_annotation_cols > 0
+
+  dendro_height_px <- if (has_dendro) heatmap_layout$dendrogram_height_px else 0
+  annotation_height_px <- if (has_annotation) heatmap_layout$annotation_row_height_px * n_annotation_cols else 0
+  gap_height_px <- sum(has_dendro, has_annotation) * heatmap_layout$subplot_gap_px
+
+  (n_rows * row_height_px) + dendro_height_px + annotation_height_px + gap_height_px + xaxis_labels_height
+}
 
 heatmap_modal_specs <- list(
   pca = list(id = "pcavsexperiment", title = "Principal components vs experimental variables"),
@@ -165,6 +234,8 @@ heatmapOutput <- function(id, type = "") {
 #'   ExploratorySummarizedExperiment objects
 #' @param type The type of heatmap that will be made. 'expression', 'samples' or
 #'   'pca' (default: 'expression')
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}
 #'
 #' @importFrom viridisLite viridis
 #' @keywords shiny
@@ -182,7 +253,7 @@ heatmapOutput <- function(id, type = "") {
 #'   shiny::shinyApp(ui = app$ui, server = app$server)
 #' }
 #'
-heatmap <- function(id, eselist, type = "expression") {
+heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_layout_options()) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -373,12 +444,12 @@ heatmap <- function(id, eselist, type = "expression") {
     # stacked above it for the pca type
 
     heatmapOnlyHeight <- reactive({
-      display_matrix <- getDisplayMatrix()
+      plot_annotation <- getPlotAnnotation()
 
-      # Allowance for the angled column labels
-      xaxis_labels_height <- 150
-
-      (nrow(display_matrix) * rowHeight()) + dendroHeight() + annotationHeight() + xaxis_labels_height
+      heatmap_layout_height(
+        n_rows = nrow(getDisplayMatrix()), row_height_px = rowHeight(), cluster_cols = as.logical(input$cluster_cols),
+        n_annotation_cols = if (is.null(plot_annotation)) 0 else ncol(plot_annotation), heatmap_layout = heatmap_layout
+      )
     })
 
     # Total height of the plotlyOutput container: the heatmap plus, for the
@@ -389,38 +460,13 @@ heatmap <- function(id, eselist, type = "expression") {
       heatmapOnlyHeight() + scree_height
     })
 
-    # Add a chunk for the dendrogram at the top
-
-    dendroHeight <- reactive({
-      if (as.logical(input$cluster_cols)) {
-        150
-      } else {
-        0
-      }
-    })
-
-    # Reserve a fixed number of pixels per annotation variable, so adding more
-    # annotation rows doesn't compress the heatmap grid itself
-
-    annotationHeight <- reactive({
-      plot_annotation <- getPlotAnnotation()
-
-      if (is.null(plot_annotation) || ncol(plot_annotation) == 0) {
-        0
-      } else {
-        HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(plot_annotation)
-      }
-    })
-
     # Small row height for expression heat map (probably lots of rows)
 
     rowHeight <- reactive({
       if (type == "expression") {
-        12
-      } else if (type == "pca") {
-        20
+        heatmap_layout$row_height_px
       } else {
-        20
+        heatmap_layout$row_height_wide_px
       }
     })
 
@@ -460,13 +506,13 @@ heatmap <- function(id, eselist, type = "expression") {
         validate_or_catch(interactive_pca_variance_heatmap(
           pca_coords = components$pca_coords, pcameta = components$pcameta, fraction_explained = components$fraction_explained,
           cluster_rows = as.logical(input$cluster_rows), n_components = getNComponents(),
-          heatmap_height = heatmapOnlyHeight(), scree_height = PCA_HEATMAP_SCREE_HEIGHT_PX
+          heatmap_height = heatmapOnlyHeight(), scree_height = PCA_HEATMAP_SCREE_HEIGHT_PX, heatmap_layout = heatmap_layout
         ))
       } else {
         validate_or_catch(interactive_heatmap(
           plotmatrix = getPlotMatrix(), displaymatrix = getDisplayMatrix(), getPlotAnnotation(), cluster_cols = as.logical(input$cluster_cols),
           cluster_rows = as.logical(input$cluster_rows), scale = input$scale, row_labels = rowLabels(), colors = viridisLite::viridis(100), cexCol = 1,
-          cexRow = 1, display_numbers = FALSE, plot_height = plotHeight()
+          cexRow = 1, display_numbers = FALSE, plot_height = plotHeight(), heatmap_layout = heatmap_layout
         ))
       }
     })
@@ -509,9 +555,14 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   column side colors and an accompanying legend
 #' @param cluster_cols Cluster columns?
 #' @param cluster_rows Cluster rows?
-#' @param scale 'row', 'column' or none
-#' @param colors A vector of colors for the heatmap
+#' @param scale 'row', 'column' or 'none'. Row scaling can look washed out on
+#'   a heatmap with many rows, since most z-scores cluster near zero - 'none'
+#'   colors directly by the values in \code{plotmatrix}, which often reads
+#'   better for such matrices.
 #' @param row_labels Vector labels to use for rows
+#' @param show_row_labels Boolean, should row labels be drawn on the plot?
+#'   \code{row_labels} is always used to identify rows in hover text.
+#' @param colors A vector of colors for the heatmap
 #' @param cexCol Character expansion factor passed to \code{heatmaply()}
 #' @param cexRow Character expansion factor passed to \code{heatmaply()}
 #' @param display_numbers Boolean, should the (possibly scaled/ transformed)
@@ -536,7 +587,14 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   to convert the fixed-pixel annotation row height into the fraction
 #'   \code{heatmaply()} expects. When displayed inside a
 #'   \code{plotlyOutput()}, the latter's own \code{height} argument should
-#'   match this value so the container and the widget agree.
+#'   match this value so the container and the widget agree. Defaults to a
+#'   height scaled to the number of rows in \code{plotmatrix}: generously when
+#'   \code{show_row_labels} is \code{TRUE} so each row's label stays legible,
+#'   or a small, capped allowance when it's \code{FALSE}, since a heatmap
+#'   with hidden labels only needs to show the colour pattern.
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}, controlling row heights, the
+#'   annotation bar and column dendrogram heights, and the gap between them.
 #' @param ... Additional arguments passed to \code{heatmaply()}. For example,
 #'   \code{heatmaply()} reorders dendrogram leaves for visual clarity
 #'   (\code{seriate = "OLO"}) by default; pass \code{seriate = "none"} here to
@@ -558,7 +616,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' )
 #' interactive_heatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
 #'
-interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.9, cexRow = 0.9, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, cor_method = "spearman", cluster_method = "ward.D2", plot_height = 600, ...) {
+interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, show_row_labels = TRUE, colors = viridisLite::viridis(100), cexCol = 0.9, cexRow = 0.9, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, cor_method = "spearman", cluster_method = "ward.D2", plot_height = NULL, heatmap_layout = heatmap_layout_options(), ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels
@@ -570,6 +628,25 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   col_side_colors <- NULL
   if ((!is.null(sample_annotation)) && ncol(sample_annotation) > 0) {
     col_side_colors <- sample_annotation[colnames(plotmatrix), , drop = FALSE]
+  }
+
+  # Scale the default height to row count, using the same per-row/dendrogram/
+  # annotation allowances the heatmap Shiny module computes for its own plot
+  # container. The per-row allowance drops sharply when row labels are
+  # hidden, since that case (e.g. a report heatmap with hundreds of genes)
+  # only needs to show the colour pattern, not render legible per-row text -
+  # and is capped so it stays a modest size regardless of row count.
+  if (is.null(plot_height)) {
+    row_height_px <- if (show_row_labels) heatmap_layout$row_height_px else heatmap_layout$row_height_no_labels_px
+    n_annotation_cols <- if (is.null(col_side_colors)) 0 else ncol(col_side_colors)
+
+    plot_height <- heatmap_layout_height(nrow(plotmatrix), row_height_px, cluster_cols, n_annotation_cols, heatmap_layout = heatmap_layout)
+
+    if (!show_row_labels) {
+      plot_height <- min(plot_height, heatmap_layout$max_height_no_labels_px)
+    }
+
+    plot_height <- max(300, plot_height)
   }
 
   if (nrow(plotmatrix) < 2) {
@@ -615,23 +692,43 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   # heatmaply reserves a fixed 0.2/0.1 fraction of the plot height for the column
   # dendrogram/annotation bars regardless of how many annotation variables there
   # are, which reads as oversized for a small number of them. Give the
-  # annotation bars a constant pixel height instead (converted to the fraction
-  # heatmaply expects using the plot's actual rendered height), so they don't
-  # grow or shrink with the number of heatmap rows, and give the rest of the
-  # space to the heatmap itself
+  # dendrogram and annotation bars constant pixel heights instead (converted to
+  # the fraction heatmaply expects using the plot's actual rendered height), so
+  # they don't grow or shrink with the number of heatmap rows, and give the
+  # rest of the space to the heatmap itself.
+  #
+  # heatmaply's subplot_margin shrinks each stacked subplot's own height by
+  # exactly `subplot_margin` for every neighbour it borders (a middle subplot
+  # loses it twice, top/bottom ones once), rendering as a 2x subplot_margin
+  # gap at each boundary. Each subplot's target fraction is inflated by
+  # subplot_margin per boundary it touches to counteract that shrinkage, so
+  # what's actually visible still matches its intended pixel height -
+  # plot_height already has the matching gap allowance built in (see
+  # heatmap_layout_height()) to make room for this inflation.
   has_col_dend <- dendrogram %in% c("both", "column")
   has_col_annotation <- !is.null(col_side_colors)
 
-  dend_height <- 0.2
+  gap_fraction <- (heatmap_layout$subplot_gap_px / 2) / plot_height
 
-  annotation_height <- if (has_col_annotation) (HEATMAP_ANNOTATION_ROW_HEIGHT_PX * ncol(col_side_colors)) / plot_height else 0
+  dend_height <- if (has_col_dend) (heatmap_layout$dendrogram_height_px / plot_height) + gap_fraction else 0
+
+  annotation_height <- if (has_col_annotation) {
+    annotation_boundaries <- if (has_col_dend) 2 else 1
+    ((heatmap_layout$annotation_row_height_px * ncol(col_side_colors)) / plot_height) + (annotation_boundaries * gap_fraction)
+  } else {
+    0
+  }
 
   subplot_heights <- NULL
   if (has_col_dend && has_col_annotation) {
     subplot_heights <- c(dend_height, annotation_height, 1 - dend_height - annotation_height)
   } else if (has_col_annotation) {
     subplot_heights <- c(annotation_height, 1 - annotation_height)
+  } else if (has_col_dend) {
+    subplot_heights <- c(dend_height, 1 - dend_height)
   }
+
+  subplot_margin <- if (has_col_dend || has_col_annotation) gap_fraction else 0
 
   # heatmaply pools the values of every annotation variable into a single
   # discrete color scale, so by default they all share one generically-titled
@@ -645,8 +742,9 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   p <- heatmaply::heatmaply(plotmatrix,
     dendrogram = dendrogram, custom_hovertext = hovertext, Rowv = Rowv, Colv = Colv, scale = scale,
     colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = rownames(plotmatrix),
+    showticklabels = c(TRUE, show_row_labels),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
-    subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = grid_gap, hide_colorbar = hide_colorbar,
+    subplot_heights = subplot_heights, subplot_margin = subplot_margin, grid_gap = grid_gap, hide_colorbar = hide_colorbar,
     cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers,
     height = plot_height, ...
   )
@@ -663,6 +761,16 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
   if (has_col_annotation) {
     p <- splitAnnotationLegend(p, col_side_colors, col_side_palette, ncol(plotmatrix))
   }
+
+  # htmlwidgets treats a widget with sizingPolicy$knitr$figure = TRUE (the
+  # plotly default) as a resizable figure under knitr/Quarto, letting the
+  # rendering document's own fig-height/out-height chunk defaults override the
+  # container height - independently of the height explicitly set above -
+  # while leaving the embedded plotly config at that explicit height. The two
+  # then disagree and the plot overflows its container (#291). height is
+  # always explicitly computed here, so tell knitr/Quarto not to treat this as
+  # a resizable figure at all.
+  p$sizingPolicy$knitr$figure <- FALSE
 
   p
 }
@@ -826,6 +934,10 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained, n_compon
 #' @param plot_height The total rendered height of the plot in pixels, passed
 #'   through to \code{\link{interactive_heatmap}}. Defaults to a height scaled
 #'   to the number of variables.
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}, passed through to
+#'   \code{\link{interactive_heatmap}} and used to derive the default
+#'   \code{plot_height}.
 #' @param ... Additional arguments passed to \code{\link{interactive_heatmap}}
 #'
 #' @return output A plotly htmlwidget as produced by \code{\link{interactive_heatmap}}
@@ -842,7 +954,8 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained, n_compon
 #'
 #' interactive_pca_metadata_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
 #'
-interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, n_components = 10, plot_height = NULL, ...) {
+interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, n_components = 10,
+                                         plot_height = NULL, heatmap_layout = heatmap_layout_options(), ...) {
   pvals <- anova_pca_metadata(pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained, n_components = n_components)
 
   if (cluster_rows) {
@@ -856,7 +969,7 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
   displaymatrix <- pvals[rownames(plotmatrix), , drop = FALSE]
 
   if (is.null(plot_height)) {
-    plot_height <- (nrow(plotmatrix) * 20) + 150
+    plot_height <- heatmap_layout_height(nrow(plotmatrix), row_height_px = heatmap_layout$row_height_wide_px, cluster_cols = FALSE, heatmap_layout = heatmap_layout)
   }
 
   interactive_heatmap(
@@ -864,7 +977,7 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
     cluster_rows = cluster_rows, cluster_cols = FALSE, scale = "none",
     row_labels = rownames(plotmatrix), colors = rev(viridisLite::viridis(100)),
     cexCol = 1, cexRow = 1, display_numbers = FALSE, hide_colorbar = TRUE,
-    plot_height = plot_height, ...
+    plot_height = plot_height, heatmap_layout = heatmap_layout, ...
   )
 }
 
@@ -893,6 +1006,9 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
 #'   of the combined figure.
 #' @param scree_height The rendered height, in pixels, of the scree portion of
 #'   the combined figure.
+#' @param heatmap_layout A list of heatmap pixel-size options as produced by
+#'   \code{\link{heatmap_layout_options}}, passed through to
+#'   \code{\link{interactive_pca_metadata_heatmap}}.
 #' @param ... Additional arguments passed to \code{\link{interactive_pca_metadata_heatmap}}
 #'
 #' @return output A plotly htmlwidget combining both plots
@@ -910,7 +1026,7 @@ interactive_pca_metadata_heatmap <- function(pca_coords, pcameta, fraction_expla
 #' interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
 #'
 interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_explained, cluster_rows = TRUE, n_components = 10,
-                                         heatmap_height = 600, scree_height = 200, ...) {
+                                         heatmap_height = 600, scree_height = 200, heatmap_layout = heatmap_layout_options(), ...) {
   n_components <- min(n_components, ncol(pca_coords))
 
   # component_labels matches anova_pca_metadata()'s percent-suffixed column
@@ -930,7 +1046,7 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
 
   hm <- interactive_pca_metadata_heatmap(
     pca_coords = pca_coords, pcameta = pcameta, fraction_explained = fraction_explained,
-    cluster_rows = cluster_rows, n_components = n_components, plot_height = heatmap_height, ...
+    cluster_rows = cluster_rows, n_components = n_components, plot_height = heatmap_height, heatmap_layout = heatmap_layout, ...
   )
 
   # Both plots carry their own default plotly config; subplot() warns
@@ -946,7 +1062,7 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
   # lines the shared main axis (the PC columns) up correctly, but plotly
   # warns about the mismatched axis count on the dendrogram's axis, which
   # doesn't participate in the sync this function cares about.
-  suppressWarnings(
+  p <- suppressWarnings(
     plotly::subplot(
       scree, hm,
       nrows = 2, shareX = TRUE, titleY = TRUE,
@@ -954,4 +1070,12 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
     )
   ) %>%
     plotly::layout(hovermode = "x")
+
+  # See the matching comment in interactive_heatmap() (#291): heights here are
+  # always explicitly computed, so don't let knitr/Quarto's own figure-sizing
+  # defaults override the container independently of the embedded plotly
+  # config.
+  p$sizingPolicy$knitr$figure <- FALSE
+
+  p
 }

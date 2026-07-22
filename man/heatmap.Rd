@@ -4,7 +4,12 @@
 \alias{heatmap}
 \title{The server function of the heatmap module}
 \usage{
-heatmap(id, eselist, type = "expression")
+heatmap(
+  id,
+  eselist,
+  type = "expression",
+  heatmap_layout = heatmap_layout_options()
+)
 }
 \arguments{
 \item{id}{Module namespace}
@@ -14,6 +19,9 @@ ExploratorySummarizedExperiment objects}
 
 \item{type}{The type of heatmap that will be made. 'expression', 'samples' or
 'pca' (default: 'expression')}
+
+\item{heatmap_layout}{A list of heatmap pixel-size options as produced by
+\code{\link{heatmap_layout_options}}}
 }
 \description{
 Three types of heatmaps are provided, employed in various places in the
