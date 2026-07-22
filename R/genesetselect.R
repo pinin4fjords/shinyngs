@@ -22,7 +22,7 @@ genesetselectInput <- function(id, multiple = TRUE) {
 
   tagList(uiOutput(ns("geneSetTypes_ui")), selectizeInput(ns("geneSets"), "Gene sets", choices = NULL, options = list(
     placeholder = "Type a gene set keyword",
-    maxItems = 5
+    maxItems = if (multiple) 5 else 1
   ), multiple = multiple), radioButtons(ns("overlapType"), with_help_icon("Overlap type", "'Union' includes genes from any of the selected gene sets; 'intersect' includes only genes common to all of them."), c("union", "intersect")))
 }
 
@@ -118,14 +118,22 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       )))
     })
 
-    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list.  This reactive must be called by
-    # the calling module.
+    # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list. This must be called by
+    # the calling module, from within a reactive context (e.g. observe()).
+    #
+    # available_ids, when supplied, restricts the offered choices to gene set
+    # IDs that are actually present there (e.g. the row names of a resolved
+    # gene_set_analyses table) - so a module backed by sparse test results
+    # doesn't offer sets that can only ever resolve to "no results found".
 
-    updateGeneSetsList <- reactive({
+    updateGeneSetsList <- function(available_ids = NULL) {
       selected <- restored_geneset
       restored_geneset <<- NULL
-      updateSelectizeInput(session, "geneSets", choices = getGeneSetNames(), selected = selected, server = TRUE)
-    })
+
+      choices <- restrict_geneset_choices(getGeneSetNames(), getGeneSetCodesByIDs(), available_ids)
+
+      updateSelectizeInput(session, "geneSets", choices = choices, selected = selected, server = TRUE)
+    }
 
     # Get gene sets with the proper label field keying
 
@@ -199,6 +207,28 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       updateSelectizeInput(session, "geneSets", selected = geneset_code, choices = getGeneSetNames(), server = TRUE)
     }))
   })
+}
+
+#' Restrict gene set selectize choices to a set of available IDs
+#'
+#' @param choices A named character vector of selectize choices, as returned
+#' by \code{getGeneSetNames()}: values are gene set codes (e.g. \code{"1-3"}),
+#' names are display labels.
+#' @param codes_by_id A named character vector of the same codes keyed by
+#' gene set ID instead, as returned by \code{getGeneSetCodesByIDs()}.
+#' @param available_ids Either \code{NULL} (no restriction, \code{choices} is
+#' returned unchanged) or a character vector of gene set IDs to keep.
+#'
+#' @return output \code{choices}, filtered down to the codes whose gene set ID
+#' is in \code{available_ids}.
+#' @noRd
+restrict_geneset_choices <- function(choices, codes_by_id, available_ids) {
+  if (is.null(available_ids)) {
+    return(choices)
+  }
+
+  available_codes <- codes_by_id[intersect(available_ids, names(codes_by_id))]
+  choices[choices %in% available_codes]
 }
 
 #' Prettify gene set names like those from MSigDB
