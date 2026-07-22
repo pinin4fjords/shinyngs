@@ -113,6 +113,12 @@ option_list <- list(
     metavar = "integer",
     help = "Magnitude used to guess log status.",
     default = 30
+  ),
+  make_option(
+    c("-c", "--pca_scale"),
+    action = "store_true",
+    default = FALSE,
+    help = "Scale each feature to unit variance before PCA. Off by default, matching DESeq2::plotPCA()'s convention for variance-stabilised input; set this for matrices without a variance-stabilising transform."
   )
 )
 
@@ -272,7 +278,7 @@ dev.off()
 ################################################
 
 print("Writing PCA plots...")
-pca_data <- compile_pca_data(assay_data[[final_assay]], ntop = opt$n_genes)
+pca_data <- compile_pca_data(assay_data[[final_assay]], ntop = opt$n_genes, scale_features = opt$pca_scale)
 
 plotdata <- pca_data$coords
 plotdata$colorby <- factor(sample_metadata[[opt$contrast_variable]], levels = unique(sample_metadata[[opt$contrast_variable]]))

@@ -83,6 +83,35 @@ test_that("interactive_heatmap caps the default plot_height when row labels are 
   expect_lt(p_huge$height, 1500)
 })
 
+test_that("interactive_heatmap defaults to a 1px grid_gap but lets callers override it for large heatmaps", {
+  pm <- matrix(rnorm(24), nrow = 6, dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+
+  # heatmaply only sets xgap/ygap on the trace when grid_gap is non-zero,
+  # so a missing attribute means an effective gap of 0
+  find_grid_gap <- function(p) {
+    for (trace in p$x$data) {
+      if (!is.null(trace$xgap)) {
+        return(trace$xgap)
+      }
+    }
+    0
+  }
+
+  p_default <- interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, scale = "row",
+    row_labels = rownames(pm), hide_colorbar = TRUE
+  )
+  expect_equal(find_grid_gap(p_default), 1)
+
+  p_no_gap <- interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, scale = "row",
+    row_labels = rownames(pm), hide_colorbar = TRUE, grid_gap = 0
+  )
+  expect_equal(find_grid_gap(p_no_gap), 0)
+})
+
 # interactive_pca_metadata_heatmap()
 
 test_that("interactive_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {
@@ -131,7 +160,7 @@ test_that("interactive_pca_metadata_heatmap drops rows with a single value acros
 
 # anova_pca_metadata()
 
-test_that("anova_pca_metadata uses plain PC column names, not percent-suffixed ones", {
+test_that("anova_pca_metadata suffixes column names with each component's percent variance explained", {
   set.seed(1)
   pcameta <- data.frame(
     row.names = paste0("sample", 1:6),
@@ -141,7 +170,7 @@ test_that("anova_pca_metadata uses plain PC column names, not percent-suffixed o
 
   pvals <- anova_pca_metadata(pca_coords, pcameta, fraction_explained = c(50, 30, 20))
 
-  expect_equal(colnames(pvals), c("PC1", "PC2", "PC3"))
+  expect_equal(colnames(pvals), c("PC1 (50%)", "PC2 (30%)", "PC3 (20%)"))
 })
 
 test_that("anova_pca_metadata's n_components limits and clamps the number of components tested", {
@@ -154,7 +183,7 @@ test_that("anova_pca_metadata's n_components limits and clamps the number of com
   fraction_explained <- c(40, 25, 15, 12, 8)
 
   limited <- anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 3)
-  expect_equal(colnames(limited), c("PC1", "PC2", "PC3"))
+  expect_equal(colnames(limited), c("PC1 (40%)", "PC2 (25%)", "PC3 (15%)"))
 
   clamped <- anova_pca_metadata(pca_coords, pcameta, fraction_explained, n_components = 20)
   expect_equal(ncol(clamped), 5)
@@ -200,6 +229,6 @@ test_that("interactive_pca_variance_heatmap respects n_components in both the sc
   scree_trace <- built$x$data[[which(trace_types == "scatter")[1]]]
   heatmap_trace <- built$x$data[[which(trace_types == "heatmap")[1]]]
 
-  expect_equal(as.character(scree_trace$x), c("PC1", "PC2"))
-  expect_equal(colnames(heatmap_trace$z), c("PC1", "PC2"))
+  expect_equal(as.character(scree_trace$x), c("PC1 (40%)", "PC2 (25%)"))
+  expect_equal(colnames(heatmap_trace$z), c("PC1 (40%)", "PC2 (25%)"))
 })

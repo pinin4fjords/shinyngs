@@ -321,6 +321,16 @@ pca <- function(id, eselist) {
 #'
 #' @param matrix Matrix (not logged)
 #' @param do_log Boolean- apply log transform to input matrix?
+#' @param scale_features Boolean, passed to \code{prcomp()}'s \code{scale.}
+#'   argument to scale each feature to unit variance before running the PCA.
+#'   Defaults to \code{FALSE}, matching \code{DESeq2::plotPCA()}'s convention
+#'   for variance-stabilised input: VST/rlog transforms already equalise
+#'   per-feature variance, so further scaling mostly up-weights noisy,
+#'   near-constant features rather than revealing structure. Set to
+#'   \code{TRUE} for matrices without a variance-stabilising transform, where
+#'   features can otherwise dominate the PCA purely by having larger scale.
+#'   (Unrelated to \code{\link{interactive_heatmap}}'s \code{scale}
+#'   argument, which selects row/column/none display scaling.)
 #'
 #' @return pca Output of the prcomp function
 #'
@@ -329,7 +339,7 @@ pca <- function(id, eselist) {
 #' @examples
 #' runPCA(mymatrix)
 #'
-runPCA <- function(matrix, do_log = TRUE) {
+runPCA <- function(matrix, do_log = TRUE, scale_features = FALSE) {
   if (ncol(matrix) < 2) {
     stop("PCA requires at least 2 samples; only ", ncol(matrix), " were supplied.")
   }
@@ -344,7 +354,7 @@ runPCA <- function(matrix, do_log = TRUE) {
     stop("PCA requires at least one feature with variable values across samples; none remain after filtering.")
   }
 
-  prcomp(t(as.matrix(matrix)), scale. = TRUE)
+  prcomp(t(as.matrix(matrix)), scale. = scale_features)
 }
 
 #' Run PCA on a given matrix, expected to be variance stabilised (at least
@@ -352,6 +362,9 @@ runPCA <- function(matrix, do_log = TRUE) {
 #'
 #' @param matrix Simple matrix with genes by row and samples by column
 #' @param ntop Number of most variable genes to use
+#' @param scale_features Boolean, passed through to \code{\link{runPCA}}'s
+#'   \code{scale_features} argument. Defaults to \code{FALSE}, appropriate for
+#'   the variance-stabilised matrices this function is normally called with.
 #'
 #' @export
 #'
@@ -364,7 +377,7 @@ runPCA <- function(matrix, do_log = TRUE) {
 #' pca <- compile_pca_data(mat)
 #' head(pca$coords)
 #'
-compile_pca_data <- function(matrix, ntop = NULL) {
+compile_pca_data <- function(matrix, ntop = NULL, scale_features = FALSE) {
   if (is.null(ntop)) {
     select <- seq_len(nrow(matrix))
   } else {
@@ -372,7 +385,7 @@ compile_pca_data <- function(matrix, ntop = NULL) {
   }
 
   # perform a PCA on the data in assay(x) for the selected genes
-  pca <- runPCA(matrix[select, , drop = FALSE], do_log = FALSE)
+  pca <- runPCA(matrix[select, , drop = FALSE], do_log = FALSE, scale_features = scale_features)
 
   # the contribution to the total variance for each component
   percentVar <- calculatePCAFractionExplained(pca)
@@ -395,7 +408,7 @@ calculatePCAFractionExplained <- function(pca) {
   round((pca$sdev)^2 / sum(pca$sdev^2), 3) * 100
 }
 
-#' Plain "PC1", "PC2", ... labels for the leading n components
+#' "PC1", "PC2", ... labels for the leading n components
 #'
 #' Shared by \code{\link{interactive_screeplot}} and
 #' \code{\link[=anova_pca_metadata]{anova_pca_metadata}} so the two produce
@@ -404,11 +417,18 @@ calculatePCAFractionExplained <- function(pca) {
 #' shared x-axis.
 #'
 #' @param n Number of components to label
+#' @param fraction_explained Optional numeric vector of percent variance
+#'   explained by each component. When supplied, each label is suffixed with
+#'   e.g. \code{" (45\%)"}.
 #'
 #' @return output A character vector of length \code{n}
 #'
-pcLabels <- function(n) {
-  paste0("PC", seq_len(n))
+pcLabels <- function(n, fraction_explained = NULL) {
+  labels <- paste0("PC", seq_len(n))
+  if (!is.null(fraction_explained)) {
+    labels <- paste0(labels, " (", fraction_explained[seq_len(n)], "%)")
+  }
+  labels
 }
 
 #' Make a PCA scree plot with \code{plot_ly()}
@@ -425,6 +445,11 @@ pcLabels <- function(n) {
 #' @param cumulative Boolean: add a cumulative variance explained trace?
 #' @param palette_name Valid R color palette name
 #' @param title Plot title
+#' @param component_labels Optional character vector of length \code{n_components}
+#'   to use as the x-axis categories instead of the plain \code{"PC1"}, \code{"PC2"}, ...
+#'   labels. Used by \code{\link{interactive_pca_variance_heatmap}} to match this
+#'   plot's x-categories to the percent-suffixed column labels of the heatmap it's
+#'   stacked with.
 #'
 #' @return output Plotly plot object
 #'
@@ -433,14 +458,17 @@ pcLabels <- function(n) {
 #' @examples
 #' interactive_screeplot(c(45, 25, 15, 10, 5))
 #'
-interactive_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot") {
+interactive_screeplot <- function(fraction_explained, n_components = NULL, cumulative = FALSE, palette_name = COLORBLIND_PALETTE_NAME, title = "Scree plot", component_labels = NULL) {
   if (is.null(n_components)) {
     n_components <- length(fraction_explained)
   }
   n_components <- min(n_components, length(fraction_explained))
 
   fraction_explained <- fraction_explained[seq_len(n_components)]
-  components <- factor(pcLabels(n_components), levels = pcLabels(n_components))
+  if (is.null(component_labels)) {
+    component_labels <- pcLabels(n_components)
+  }
+  components <- factor(component_labels, levels = component_labels)
 
   traces <- list(list(y = fraction_explained, name = "% variance explained"))
   if (cumulative) {
