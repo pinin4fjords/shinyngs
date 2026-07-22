@@ -112,6 +112,10 @@
 * Progress and warning logging during object construction and validation now
   goes through `message()`/`warning()` rather than `print()`, so it can be
   suppressed and captured through R's condition system.
+* `interactive_heatmap()`'s column annotation color bars are drawn taller
+  (32px per variable, up from 20px) so they're easier to read, and its
+  `cexCol`/`cexRow` defaults are larger (0.9, up from 0.7) so column and row
+  labels are more legible.
 
 ## Bug fixes
 

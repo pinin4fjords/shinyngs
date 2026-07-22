@@ -87,7 +87,7 @@ heatmapInput <- function(id, eselist, type = "expression") {
 # Kept as an absolute pixel value (converted to a fraction of the actual
 # container height where needed) rather than a fraction of the plot itself,
 # so the bars stay the same size regardless of how many heatmap rows are shown.
-HEATMAP_ANNOTATION_ROW_HEIGHT_PX <- 20
+HEATMAP_ANNOTATION_ROW_HEIGHT_PX <- 32
 
 # Default for the "Number of principal components to test" slider on the pca
 # heatmap, shared between the UI default and the server-side fallback used
@@ -544,7 +544,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' )
 #' interactive_heatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
 #'
-interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, plot_height = 600, ...) {
+interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.9, cexRow = 0.9, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, plot_height = 600, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels
