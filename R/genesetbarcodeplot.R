@@ -165,6 +165,11 @@ genesetbarcodeplot <- function(id, eselist) {
 
     genesetselect_reactives <- genesetselect("genesetbarcodeplot", eselist, selectmatrix_reactives$getExperiment, multiple = FALSE)
 
+    # Every gene set stays selectable here, whether or not it has a GSEA/ROAST
+    # result for the current assay/contrast: the plot itself only needs fold
+    # changes and set membership, and barcodeplotTitle() already degrades
+    # gracefully to "(no association)" when there's no matching enrichment row.
+
     observe({
       genesetselect_reactives$updateGeneSetsList()
     })

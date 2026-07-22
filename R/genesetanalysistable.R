@@ -53,7 +53,7 @@ genesetanalysistableInput <- function(id, eselist) {
 
   expression_filters <- selectmatrixInput(ns("expression"), eselist)
 
-  field_sets <- list(gene_set_types = list(uiOutput(ns("geneSets"))), differential_gene_sets = list(
+  field_sets <- list(gene_set_types = list(uiOutput(ns("geneSets")), uiOutput(ns("geneSetsStatus"))), differential_gene_sets = list(
     numericInput(ns("pval"), "Maximum p value", value = 0.05),
     numericInput(ns("fdr"), "Maximum FDR", value = 0.1)
   ), differential_genes = list(
@@ -190,12 +190,9 @@ genesetanalysistable <- function(id, eselist) {
 
     genesetselect_reactives <- genesetselect("genesetanalysistable", eselist, selectmatrix_reactives$getExperiment, filter_by_type = TRUE, require_select = FALSE)
 
-    observe({
-      genesetselect_reactives$updateGeneSetsList()
-    })
-
     # Resolve the enrichment table, column mapping and tool once per selection,
-    # shared between the table itself and the method label above it.
+    # shared between the table itself, the method label above it, and the
+    # gene set choices offered below.
 
     getEnrichmentInfo <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
@@ -204,6 +201,43 @@ genesetanalysistable <- function(id, eselist) {
       contrast_number <- as.numeric(contrast_reactives$getSelectedContrastNumbers()[[1]])
 
       resolve_enrichment(ese, assay, gene_set_types, contrast_number, eselist@contrasts[[contrast_number]])
+    })
+
+    # Which gene set IDs actually have a result row for the current
+    # assay/type/contrast selection AND pass the current p value/FDR filters -
+    # anything else could only ever resolve to "No results matching specified
+    # filters" in the table below. NULL means "no enrichment resolved at all"
+    # (nothing to filter down from); character(0) means "resolved, but the
+    # filters exclude every set" - the two are distinguished so the message
+    # below only appears in the latter case.
+
+    getFilterablePassingIds <- reactive({
+      enrichment <- getEnrichmentInfo()
+      if (is.null(enrichment) || is.null(input$pval) || is.null(input$fdr)) {
+        return(NULL)
+      }
+
+      passing_gene_set_ids(enrichment$gst, enrichment$col_map, input$pval, input$fdr)
+    })
+
+    # Only push a selectize update when the passing set actually changed -
+    # editing the p value/FDR fields invalidates getFilterablePassingIds() on
+    # every keystroke, but most edits don't change which gene sets pass.
+
+    lastPassingIds <- reactiveVal(NULL)
+
+    observe({
+      passing <- getFilterablePassingIds()
+      if (!identical(passing, isolate(lastPassingIds()))) {
+        lastPassingIds(passing)
+        genesetselect_reactives$updateGeneSetsList(passing)
+      }
+    })
+
+    output$geneSetsStatus <- renderUI({
+      passing <- getFilterablePassingIds()
+      validate(need(is.null(passing) || length(passing) > 0, "No gene sets meet the current p value/FDR filters"))
+      NULL
     })
 
     output$enrichmentMethod <- renderUI({
@@ -241,7 +275,7 @@ genesetanalysistable <- function(id, eselist) {
 
       # Apply the user's filters
 
-      gst <- gst[gst[[col_map$pvalue]] < input$pval & gst[[col_map$fdr]] < input$fdr, , drop = FALSE]
+      gst <- gst[gst$gene_set_id %in% passing_gene_set_ids(gst, col_map, input$pval, input$fdr), , drop = FALSE]
 
       validate(need(nrow(gst) > 0, "No results matching specified filters"))
 
@@ -287,4 +321,21 @@ genesetanalysistable <- function(id, eselist) {
 
     simpletable("genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
   })
+}
+
+#' Row names of an enrichment table passing the p value/FDR thresholds
+#'
+#' @param gst An enrichment table (data frame or matrix), row-named by gene
+#' set ID.
+#' @param col_map A column mapping as returned by \code{resolve_enrichment()},
+#' with \code{pvalue} and \code{fdr} entries naming the relevant columns of
+#' \code{gst}.
+#' @param pval Maximum p value to pass.
+#' @param fdr Maximum FDR to pass.
+#'
+#' @return output The row names of \code{gst} whose p value and FDR are both
+#' below the given thresholds.
+#' @noRd
+passing_gene_set_ids <- function(gst, col_map, pval, fdr) {
+  rownames(gst)[gst[[col_map$pvalue]] < pval & gst[[col_map$fdr]] < fdr]
 }

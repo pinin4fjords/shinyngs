@@ -1,3 +1,19 @@
+# passing_gene_set_ids()
+
+test_that("passing_gene_set_ids keeps only rows below both thresholds", {
+  gst <- data.frame(pvalue = c(0.01, 0.2, 0.03), fdr = c(0.02, 0.3, 0.2), row.names = c("SET_A", "SET_B", "SET_C"))
+  col_map <- list(pvalue = "pvalue", fdr = "fdr")
+
+  expect_equal(passing_gene_set_ids(gst, col_map, pval = 0.05, fdr = 0.1), "SET_A")
+})
+
+test_that("passing_gene_set_ids returns none when nothing clears the thresholds", {
+  gst <- data.frame(pvalue = c(0.2, 0.3), fdr = c(0.3, 0.4), row.names = c("SET_A", "SET_B"))
+  col_map <- list(pvalue = "pvalue", fdr = "fdr")
+
+  expect_equal(passing_gene_set_ids(gst, col_map, pval = 0.05, fdr = 0.1), character(0))
+})
+
 make_genesetanalysistable_eselist <- function() {
   n_genes <- 60
   n_samples <- 4
@@ -108,6 +124,26 @@ test_that("getGeneSetAnalysis reports no results when the p/FDR filters exclude 
     expr = quote({
       err <- tryCatch(getGeneSetAnalysis(), error = function(e) e)
       expect_s3_class(err, "validation")
+    })
+  )
+})
+
+test_that("getFilterablePassingIds only includes gene sets passing the current p/FDR filters", {
+  run_genesetanalysistable_server(make_genesetanalysistable_eselist(), expr = quote({
+    expect_equal(getFilterablePassingIds(), "SET_A")
+    expect_null(output$geneSetsStatus)
+  }))
+})
+
+test_that("getFilterablePassingIds is empty when the p/FDR filters exclude everything, and geneSetsStatus reports it", {
+  run_genesetanalysistable_server(make_genesetanalysistable_eselist(),
+    extra_inputs = list(pval = 0.001),
+    expr = quote({
+      expect_equal(getFilterablePassingIds(), character(0))
+
+      err <- tryCatch(output$geneSetsStatus, error = function(e) e)
+      expect_s3_class(err, "validation")
+      expect_match(conditionMessage(err), "No gene sets meet the current p value/FDR filters")
     })
   )
 })
