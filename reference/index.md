@@ -683,7 +683,7 @@ vignette for the supported way to build and combine modules.
   : The output function of the pca module
 
 - [`pcLabels()`](https://pinin4fjords.github.io/shinyngs/reference/pcLabels.md)
-  : Plain "PC1", "PC2", ... labels for the leading n components
+  : "PC1", "PC2", ... labels for the leading n components
 
 - [`plotdownload()`](https://pinin4fjords.github.io/shinyngs/reference/plotdownload.md)
   : The server function of the gene set module
