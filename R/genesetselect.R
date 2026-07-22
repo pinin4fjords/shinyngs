@@ -55,14 +55,16 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
   moduleServer(id, function(input, output, session) {
     # The gene-set picker is a server-side selectize, so a bookmarked selection
     # can't restore itself; stash it here and apply it when the list is next
-    # populated (see updateGeneSetsList).
+    # populated (see updateGeneSetsList). Held in an environment field rather
+    # than a bare closure variable so it can be updated with a plain `<-`.
 
-    restored_geneset <- NULL
+    restored_geneset <- new.env(parent = emptyenv())
+    restored_geneset$value <- NULL
 
     onRestore(function(state) {
       val <- bookmarkedInputValue(state, session, "geneSets")
       if (!is.null(val)) {
-        restored_geneset <<- val
+        restored_geneset$value <- val
       }
     })
 
@@ -127,8 +129,8 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
     # doesn't offer sets that can only ever resolve to "no results found".
 
     updateGeneSetsList <- function(available_ids = NULL) {
-      selected <- restored_geneset
-      restored_geneset <<- NULL
+      selected <- restored_geneset$value
+      restored_geneset$value <- NULL
 
       choices <- restrict_geneset_choices(getGeneSetNames(), getGeneSetCodesByIDs(), available_ids)
 
