@@ -521,13 +521,27 @@ heatmap <- function(id, eselist, type = "expression") {
 #'   \code{heatmaply()}. The default of 1 reads fine for small heatmaps, but on
 #'   a heatmap with hundreds of rows the gaps can visually dominate and obscure
 #'   cross-column colour patterns; pass 0 for contiguous cells in that case.
+#' @param cor_method Correlation method passed to
+#'   \code{\link{calculate_dendrogram}} when clustering rows and/or columns
+#'   (default: 'spearman'). Match this to the method used by another
+#'   clustering of the same data (e.g. a \code{ComplexHeatmap::Heatmap()}
+#'   call's \code{clustering_distance_columns}) to reproduce its dendrogram
+#'   topology here.
+#' @param cluster_method Clustering method passed to
+#'   \code{\link{calculate_dendrogram}} (default: 'ward.D2'). Match this to
+#'   another clustering's \code{clustering_method_columns}/-\code{_rows} for
+#'   the same reason as \code{cor_method}.
 #' @param plot_height The total rendered height of the plot in pixels. Passed
 #'   through to \code{heatmaply()} as its \code{height} argument, and also used
 #'   to convert the fixed-pixel annotation row height into the fraction
 #'   \code{heatmaply()} expects. When displayed inside a
 #'   \code{plotlyOutput()}, the latter's own \code{height} argument should
 #'   match this value so the container and the widget agree.
-#' @param ... Additional arguments passed to \code{heatmaply()}
+#' @param ... Additional arguments passed to \code{heatmaply()}. For example,
+#'   \code{heatmaply()} reorders dendrogram leaves for visual clarity
+#'   (\code{seriate = "OLO"}) by default; pass \code{seriate = "none"} here to
+#'   keep the plain \code{hclust} leaf order instead, matching
+#'   \code{ComplexHeatmap::Heatmap()}'s default display.
 #'
 #' @return output A plotly htmlwidget as produced by heatmaply()
 #'
@@ -544,7 +558,7 @@ heatmap <- function(id, eselist, type = "expression") {
 #' )
 #' interactive_heatmap(mat, mat, sample_annotation, row_labels = rownames(mat))
 #'
-interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, plot_height = 600, ...) {
+interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cluster_rows = TRUE, cluster_cols = FALSE, scale = "row", row_labels, colors = viridisLite::viridis(100), cexCol = 0.7, cexRow = 0.7, display_numbers = FALSE, hide_colorbar = FALSE, grid_gap = 1, cor_method = "spearman", cluster_method = "ward.D2", plot_height = 600, ...) {
   # should be possible to specify this in the labRow parameter- but the clustering messes it up
 
   rownames(plotmatrix) <- row_labels
@@ -570,14 +584,14 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
 
   if (all(cluster_rows, cluster_cols)) {
     dendrogram <- "both"
-    Rowv <- calculate_dendrogram(t(plotmatrix))
-    Colv <- calculate_dendrogram(plotmatrix)
+    Rowv <- calculate_dendrogram(t(plotmatrix), cor_method = cor_method, cluster_method = cluster_method)
+    Colv <- calculate_dendrogram(plotmatrix, cor_method = cor_method, cluster_method = cluster_method)
   } else if (cluster_rows) {
     dendrogram <- "row"
-    Rowv <- calculate_dendrogram(t(plotmatrix))
+    Rowv <- calculate_dendrogram(t(plotmatrix), cor_method = cor_method, cluster_method = cluster_method)
   } else if (cluster_cols) {
     dendrogram <- "column"
-    Colv <- calculate_dendrogram(plotmatrix)
+    Colv <- calculate_dendrogram(plotmatrix, cor_method = cor_method, cluster_method = cluster_method)
   }
 
   # Turn off scaling if there's only 2 possible values in the matrix, otherwise things look a bit odd
