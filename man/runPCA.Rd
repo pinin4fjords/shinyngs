@@ -4,12 +4,23 @@
 \alias{runPCA}
 \title{Run a simple PCA analysis}
 \usage{
-runPCA(matrix, do_log = TRUE)
+runPCA(matrix, do_log = TRUE, scale_features = FALSE)
 }
 \arguments{
 \item{matrix}{Matrix (not logged)}
 
 \item{do_log}{Boolean- apply log transform to input matrix?}
+
+\item{scale_features}{Boolean, passed to \code{prcomp()}'s \code{scale.}
+argument to scale each feature to unit variance before running the PCA.
+Defaults to \code{FALSE}, matching \code{DESeq2::plotPCA()}'s convention
+for variance-stabilised input: VST/rlog transforms already equalise
+per-feature variance, so further scaling mostly up-weights noisy,
+near-constant features rather than revealing structure. Set to
+\code{TRUE} for matrices without a variance-stabilising transform, where
+features can otherwise dominate the PCA purely by having larger scale.
+(Unrelated to \code{\link{interactive_heatmap}}'s \code{scale}
+argument, which selects row/column/none display scaling.)}
 }
 \value{
 pca Output of the prcomp function

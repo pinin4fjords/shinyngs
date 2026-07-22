@@ -1,6 +1,6 @@
 # runPCA()
 
-test_that("runPCA scales variables before running prcomp", {
+test_that("runPCA does not scale variables by default", {
   mat <- matrix(
     c(
       1, 2, 3, 4,
@@ -18,15 +18,39 @@ test_that("runPCA scales variables before running prcomp", {
   logged <- log2(mat + 1)
   logged <- logged[apply(logged, 1, function(x) length(unique(x))) > 1, ]
 
+  expected_unscaled <- prcomp(t(as.matrix(logged)), scale. = FALSE)
+  expect_equal(pca$sdev, expected_unscaled$sdev)
+  expect_equal(pca$rotation, expected_unscaled$rotation)
+  expect_equal(pca$x, expected_unscaled$x)
+
+  # Confirm the scale_features argument is genuinely reaching prcomp: a
+  # scaled run on the same input produces different results.
+  scaled <- prcomp(t(as.matrix(logged)), scale. = TRUE)
+  expect_false(isTRUE(all.equal(pca$sdev, scaled$sdev)))
+})
+
+test_that("runPCA scales variables when scale_features = TRUE", {
+  mat <- matrix(
+    c(
+      1, 2, 3, 4,
+      10, 200, 3000, 40000,
+      5, 6, 5, 7,
+      100, 90, 80, 70
+    ),
+    nrow = 4, byrow = TRUE
+  )
+  rownames(mat) <- paste0("gene", 1:4)
+  colnames(mat) <- paste0("sample", 1:4)
+
+  pca <- runPCA(mat, scale_features = TRUE)
+
+  logged <- log2(mat + 1)
+  logged <- logged[apply(logged, 1, function(x) length(unique(x))) > 1, ]
+
   expected_scaled <- prcomp(t(as.matrix(logged)), scale. = TRUE)
   expect_equal(pca$sdev, expected_scaled$sdev)
   expect_equal(pca$rotation, expected_scaled$rotation)
   expect_equal(pca$x, expected_scaled$x)
-
-  # Confirm the scaling argument is genuinely reaching prcomp: an unscaled
-  # run on the same input produces different results.
-  unscaled <- prcomp(t(as.matrix(logged)), scale. = FALSE)
-  expect_false(isTRUE(all.equal(pca$sdev, unscaled$sdev)))
 })
 
 test_that("runPCA raises an informative error with fewer than 2 samples", {
@@ -58,7 +82,9 @@ test_that("compile_pca_data returns coordinates and percent variance for all gen
   expect_true(is.data.frame(result$coords))
   expect_equal(nrow(result$coords), ncol(mat))
   expect_equal(ncol(result$coords), ncol(mat))
-  expect_equal(sum(result$percentVar), 100)
+  # Each component's percentage is independently rounded to 3 decimals, so the
+  # sum can land a little off 100 rather than exactly on it.
+  expect_equal(sum(result$percentVar), 100, tolerance = 0.5)
 })
 
 test_that("compile_pca_data restricts the PCA to the ntop most variable genes", {
@@ -77,6 +103,19 @@ test_that("compile_pca_data restricts the PCA to the ntop most variable genes", 
   top5 <- select_variable_genes(matrix = mat, ntop = 5)
   expected <- compile_pca_data(mat[top5, , drop = FALSE])
   expect_equal(result$coords, expected$coords)
+})
+
+test_that("compile_pca_data forwards scale_features to runPCA", {
+  set.seed(1)
+  mat <- matrix(rexp(200, rate = .1), nrow = 20)
+  rownames(mat) <- paste0("gene", 1:20)
+  colnames(mat) <- paste0("sample", 1:10)
+
+  unscaled <- compile_pca_data(mat)
+  scaled <- compile_pca_data(mat, scale_features = TRUE)
+
+  expect_false(isTRUE(all.equal(unscaled$coords, scaled$coords)))
+  expect_equal(scaled$coords, data.frame(runPCA(mat, do_log = FALSE, scale_features = TRUE)$x))
 })
 
 # calculatePCAFractionExplained()

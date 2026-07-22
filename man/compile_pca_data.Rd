@@ -5,12 +5,16 @@
 \title{Run PCA on a given matrix, expected to be variance stabilised (at least
 log-transformed)}
 \usage{
-compile_pca_data(matrix, ntop = NULL)
+compile_pca_data(matrix, ntop = NULL, scale_features = FALSE)
 }
 \arguments{
 \item{matrix}{Simple matrix with genes by row and samples by column}
 
 \item{ntop}{Number of most variable genes to use}
+
+\item{scale_features}{Boolean, passed through to \code{\link{runPCA}}'s
+\code{scale_features} argument. Defaults to \code{FALSE}, appropriate for
+the variance-stabilised matrices this function is normally called with.}
 }
 \value{
 a list with keys 'coords' and 'percentVar' providing PCA coordinates
