@@ -482,7 +482,11 @@ upset_set_size_chart <- function(sets) {
   setnames <- names(sets)
 
   plot_ly(x = unlist(lapply(sets, length)), y = setnames, type = "bar", orientation = "h", marker = list(color = "black")) %>%
-    layout(bargap = 0.4, yaxis = list(categoryarray = rev(setnames), categoryorder = "array"))
+    layout(
+      bargap = 0.4,
+      xaxis = list(title = "Set size", autorange = "reversed", tickangle = 0),
+      yaxis = list(categoryarray = rev(setnames), categoryorder = "array")
+    )
 }
 
 #' Make the bar chart illustrating intersect size
@@ -567,15 +571,15 @@ interactive_upset <- function(sets, nintersects = 20, minorder = 1, set_sort = T
 
   set_size_chart <- upset_set_size_chart(sets)
   intersect_size_chart <- upset_intersect_size_chart(ints, nintersects, bar_numbers) %>%
-    layout(yaxis = list(title = "Intersections size"))
+    layout(yaxis = list(title = "Intersection size"))
   grid <- upset_grid_plot(sets, ints, nintersects)
 
   s1 <- subplot(
     plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"), plotly_empty(type = "scatter", mode = "markers"),
     set_size_chart,
-    nrows = 2, widths = c(0.6, 0.4)
+    nrows = 2, widths = c(0.45, 0.55), titleX = TRUE
   )
-  s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE) %>% layout(showlegend = FALSE)
+  s2 <- subplot(intersect_size_chart, grid, nrows = 2, shareX = TRUE, titleY = TRUE) %>% layout(showlegend = FALSE)
 
-  subplot(s1, s2, widths = c(0.3, 0.7))
+  subplot(s1, s2, widths = c(0.35, 0.65), titleX = TRUE, titleY = TRUE)
 }

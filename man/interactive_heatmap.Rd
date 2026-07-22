@@ -19,6 +19,8 @@ interactive_heatmap(
   display_numbers = FALSE,
   hide_colorbar = FALSE,
   grid_gap = 1,
+  cor_method = "spearman",
+  cluster_method = "ward.D2",
   plot_height = NULL,
   ...
 )
@@ -62,6 +64,18 @@ values in \code{plotmatrix} be displayed on the heatmap cells?}
 a heatmap with hundreds of rows the gaps can visually dominate and obscure
 cross-column colour patterns; pass 0 for contiguous cells in that case.}
 
+\item{cor_method}{Correlation method passed to
+\code{\link{calculate_dendrogram}} when clustering rows and/or columns
+(default: 'spearman'). Match this to the method used by another
+clustering of the same data (e.g. a \code{ComplexHeatmap::Heatmap()}
+call's \code{clustering_distance_columns}) to reproduce its dendrogram
+topology here.}
+
+\item{cluster_method}{Clustering method passed to
+\code{\link{calculate_dendrogram}} (default: 'ward.D2'). Match this to
+another clustering's \code{clustering_method_columns}/-\code{_rows} for
+the same reason as \code{cor_method}.}
+
 \item{plot_height}{The total rendered height of the plot in pixels. Passed
 through to \code{heatmaply()} as its \code{height} argument, and also used
 to convert the fixed-pixel annotation row height into the fraction
@@ -73,7 +87,11 @@ height scaled to the number of rows in \code{plotmatrix}: generously when
 or a small, capped allowance when it's \code{FALSE}, since a heatmap
 with hidden labels only needs to show the colour pattern.}
 
-\item{...}{Additional arguments passed to \code{heatmaply()}}
+\item{...}{Additional arguments passed to \code{heatmaply()}. For example,
+\code{heatmaply()} reorders dendrogram leaves for visual clarity
+(\code{seriate = "OLO"}) by default; pass \code{seriate = "none"} here to
+keep the plain \code{hclust} leaf order instead, matching
+\code{ComplexHeatmap::Heatmap()}'s default display.}
 }
 \value{
 output A plotly htmlwidget as produced by heatmaply()
