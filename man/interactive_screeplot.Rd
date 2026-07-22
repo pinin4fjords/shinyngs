@@ -9,7 +9,8 @@ interactive_screeplot(
   n_components = NULL,
   cumulative = FALSE,
   palette_name = COLORBLIND_PALETTE_NAME,
-  title = "Scree plot"
+  title = "Scree plot",
+  component_labels = NULL
 )
 }
 \arguments{
@@ -26,6 +27,12 @@ of \code{fraction_explained}.}
 \item{palette_name}{Valid R color palette name}
 
 \item{title}{Plot title}
+
+\item{component_labels}{Optional character vector of length \code{n_components}
+to use as the x-axis categories instead of the plain \code{"PC1"}, \code{"PC2"}, ...
+labels. Used by \code{\link{interactive_pca_variance_heatmap}} to match this
+plot's x-categories to the percent-suffixed column labels of the heatmap it's
+stacked with.}
 }
 \value{
 output Plotly plot object

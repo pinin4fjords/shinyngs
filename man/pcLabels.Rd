@@ -2,12 +2,16 @@
 % Please edit documentation in R/pca.R
 \name{pcLabels}
 \alias{pcLabels}
-\title{Plain "PC1", "PC2", ... labels for the leading n components}
+\title{"PC1", "PC2", ... labels for the leading n components}
 \usage{
-pcLabels(n)
+pcLabels(n, fraction_explained = NULL)
 }
 \arguments{
 \item{n}{Number of components to label}
+
+\item{fraction_explained}{Optional numeric vector of percent variance
+explained by each component. When supplied, each label is suffixed with
+e.g. \code{" (45\%)"}.}
 }
 \value{
 output A character vector of length \code{n}

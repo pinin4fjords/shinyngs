@@ -767,7 +767,7 @@ anova_pca_metadata <- function(pca_coords, pcameta, fraction_explained, n_compon
       ncol = last_pc,
       dimnames = list(
         colnames(pcameta),
-        pcLabels(last_pc)
+        pcLabels(last_pc, fraction_explained)
       )
     )
 
@@ -895,7 +895,14 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
                                          heatmap_height = 600, scree_height = 200, ...) {
   n_components <- min(n_components, ncol(pca_coords))
 
-  scree <- interactive_screeplot(fraction_explained, n_components = n_components, title = "")
+  # component_labels matches anova_pca_metadata()'s percent-suffixed column
+  # names exactly, so shareX below lines the two plots' categories up rather
+  # than treating "PC1" and "PC1 (45%)" as distinct categories.
+  scree <- interactive_screeplot(
+    fraction_explained,
+    n_components = n_components, title = "",
+    component_labels = pcLabels(n_components, fraction_explained)
+  )
 
   # The heatmap's own column labels (drawn at the bottom of the combined
   # figure) already identify each PC, so drop the scree plot's x-axis title
