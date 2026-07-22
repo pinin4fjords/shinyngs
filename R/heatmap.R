@@ -89,6 +89,13 @@ heatmapInput <- function(id, eselist, type = "expression") {
 # so the bars stay the same size regardless of how many heatmap rows are shown.
 HEATMAP_ANNOTATION_ROW_HEIGHT_PX <- 32
 
+# Visual gap, in pixels, left between stacked subplots (the annotation bars
+# and/or column dendrogram, and the heatmap body) when heatmaply() renders
+# them. heatmaply's subplot_margin ends up doubled in the rendered gap (a
+# subplot_margin of X renders as a 2X gap), so this is halved before being
+# converted to the fraction heatmaply expects.
+HEATMAP_SUBPLOT_GAP_PX <- 4
+
 # Default for the "Number of principal components to test" slider on the pca
 # heatmap, shared between the UI default and the server-side fallback used
 # before the debounced reactive has a value from the client.
@@ -664,6 +671,8 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
     subplot_heights <- c(annotation_height, 1 - annotation_height)
   }
 
+  subplot_margin <- (HEATMAP_SUBPLOT_GAP_PX / 2) / plot_height
+
   # heatmaply pools the values of every annotation variable into a single
   # discrete color scale, so by default they all share one generically-titled
   # legend. Supply that shared palette ourselves so we can also build a
@@ -678,7 +687,7 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
     colors = colors, cexCol = cexCol, cexRow = cexRow, revC = FALSE, labRow = rownames(plotmatrix),
     showticklabels = c(TRUE, show_row_labels),
     col_side_colors = col_side_colors, col_side_palette = col_side_palette, plot_method = "plotly",
-    subplot_heights = subplot_heights, subplot_margin = 0.01, grid_gap = grid_gap, hide_colorbar = hide_colorbar,
+    subplot_heights = subplot_heights, subplot_margin = subplot_margin, grid_gap = grid_gap, hide_colorbar = hide_colorbar,
     cellnote = if (display_numbers) round(plotmatrix, 2) else NULL, draw_cellnote = display_numbers,
     height = plot_height, ...
   )

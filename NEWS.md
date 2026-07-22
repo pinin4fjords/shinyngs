@@ -125,6 +125,11 @@
 
 ## Bug fixes
 
+* `interactive_heatmap()` left a disproportionately large gap between the
+  column annotation bars (and/or column dendrogram) and the heatmap body -
+  heatmaply's `subplot_margin` renders as double the fraction passed to it,
+  which wasn't accounted for. The gap is now a small, fixed number of pixels
+  regardless of heatmap size.
 * `runPCA()` and `compile_pca_data()` no longer force `prcomp()`'s
   `scale. = TRUE`. They now default to `scale = FALSE`, matching
   `DESeq2::plotPCA()`'s convention for variance-stabilised (VST/rlog) input:
