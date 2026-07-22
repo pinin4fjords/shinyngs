@@ -138,6 +138,12 @@
   heatmaply's `subplot_margin` renders as double the fraction passed to it,
   which wasn't accounted for. The gap is now a small, fixed number of pixels
   regardless of heatmap size.
+* `interactive_heatmap()` and `interactive_pca_variance_heatmap()` could
+  render their plot overflowing onto whatever content follows it when
+  embedded in a Quarto (not plain rmarkdown) document. Quarto's default
+  figure-sizing can override an htmlwidget's container height independently
+  of its embedded plotly config unless the widget opts out, which these now
+  do, since their heights are always explicitly computed.
 * `runPCA()` and `compile_pca_data()` no longer force `prcomp()`'s
   `scale. = TRUE`. They now default to `scale = FALSE`, matching
   `DESeq2::plotPCA()`'s convention for variance-stabilised (VST/rlog) input:

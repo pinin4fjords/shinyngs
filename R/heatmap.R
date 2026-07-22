@@ -762,6 +762,16 @@ interactive_heatmap <- function(plotmatrix, displaymatrix, sample_annotation, cl
     p <- splitAnnotationLegend(p, col_side_colors, col_side_palette, ncol(plotmatrix))
   }
 
+  # htmlwidgets treats a widget with sizingPolicy$knitr$figure = TRUE (the
+  # plotly default) as a resizable figure under knitr/Quarto, letting the
+  # rendering document's own fig-height/out-height chunk defaults override the
+  # container height - independently of the height explicitly set above -
+  # while leaving the embedded plotly config at that explicit height. The two
+  # then disagree and the plot overflows its container (#291). height is
+  # always explicitly computed here, so tell knitr/Quarto not to treat this as
+  # a resizable figure at all.
+  p$sizingPolicy$knitr$figure <- FALSE
+
   p
 }
 
@@ -1052,7 +1062,7 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
   # lines the shared main axis (the PC columns) up correctly, but plotly
   # warns about the mismatched axis count on the dendrogram's axis, which
   # doesn't participate in the sync this function cares about.
-  suppressWarnings(
+  p <- suppressWarnings(
     plotly::subplot(
       scree, hm,
       nrows = 2, shareX = TRUE, titleY = TRUE,
@@ -1060,4 +1070,12 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
     )
   ) %>%
     plotly::layout(hovermode = "x")
+
+  # See the matching comment in interactive_heatmap() (#291): heights here are
+  # always explicitly computed, so don't let knitr/Quarto's own figure-sizing
+  # defaults override the container independently of the embedded plotly
+  # config.
+  p$sizingPolicy$knitr$figure <- FALSE
+
+  p
 }

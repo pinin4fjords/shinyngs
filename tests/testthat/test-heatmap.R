@@ -143,6 +143,22 @@ test_that("interactive_heatmap's cor_method/cluster_method drive the column dend
   expect_false(identical(column_order(p_default), column_order(p_pearson_complete)))
 })
 
+test_that("interactive_heatmap opts its widget out of knitr/Quarto figure resizing", {
+  # sizingPolicy$knitr$figure = TRUE (the plotly default) lets the rendering
+  # document's own fig-height/out-height chunk defaults override the widget's
+  # container height independently of the plot_height explicitly computed
+  # here, so the two can disagree and the plot overflows its container under
+  # Quarto specifically (confirmed via an actual `quarto render` - #291).
+  pm <- matrix(rnorm(20), nrow = 10, dimnames = list(paste0("gene", 1:10), paste0("s", 1:2)))
+
+  p <- interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, row_labels = rownames(pm)
+  )
+
+  expect_false(p$sizingPolicy$knitr$figure)
+})
+
 # interactive_pca_metadata_heatmap()
 
 test_that("interactive_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {
@@ -262,4 +278,21 @@ test_that("interactive_pca_variance_heatmap respects n_components in both the sc
 
   expect_equal(as.character(scree_trace$x), c("PC1 (40%)", "PC2 (25%)"))
   expect_equal(colnames(heatmap_trace$z), c("PC1 (40%)", "PC2 (25%)"))
+})
+
+test_that("interactive_pca_variance_heatmap's combined widget also opts out of knitr/Quarto figure resizing", {
+  # plotly::subplot() builds a genuinely new widget, so this needs the same
+  # opt-out as interactive_heatmap() itself (see the test alongside it, and
+  # #291) rather than inheriting it from the heatmap panel underneath.
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3),
+    batch = rep(c("a", "b"), 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 4), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:4)))
+
+  p <- interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10))
+
+  expect_false(p$sizingPolicy$knitr$figure)
 })
