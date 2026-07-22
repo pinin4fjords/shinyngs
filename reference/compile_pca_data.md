@@ -6,7 +6,7 @@ log-transformed)
 ## Usage
 
 ``` r
-compile_pca_data(matrix, ntop = NULL)
+compile_pca_data(matrix, ntop = NULL, scale_features = FALSE)
 ```
 
 ## Arguments
@@ -18,6 +18,13 @@ compile_pca_data(matrix, ntop = NULL)
 - ntop:
 
   Number of most variable genes to use
+
+- scale_features:
+
+  Boolean, passed through to
+  [`runPCA`](https://pinin4fjords.github.io/shinyngs/reference/runPCA.md)'s
+  `scale_features` argument. Defaults to `FALSE`, appropriate for the
+  variance-stabilised matrices this function is normally called with.
 
 ## Value
 
@@ -32,8 +39,8 @@ mat <- matrix(rnorm(60), nrow = 15, ncol = 4,
 pca <- compile_pca_data(mat)
 head(pca$coords)
 #>           PC1       PC2        PC3           PC4
-#> s1 -2.4326269 -2.241459  1.0998364 -2.141740e-16
-#> s2  0.3933174  2.651785  1.6045100 -3.023279e-15
-#> s3  3.5144122 -1.423164 -0.3897731  2.280088e-15
-#> s4 -1.4751027  1.012838 -2.3145732  1.015335e-15
+#> s1  0.4750677  1.052459 -2.7014122 -9.604703e-16
+#> s2 -0.5111300  2.915795  1.6541855  9.468563e-15
+#> s3 -3.3684134 -2.140916  0.2120809  2.395207e-15
+#> s4  3.4044756 -1.827338  0.8351458 -1.049304e-14
 ```

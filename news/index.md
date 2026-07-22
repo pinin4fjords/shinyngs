@@ -206,6 +206,21 @@
 
 ### Bug fixes
 
+- [`runPCA()`](https://pinin4fjords.github.io/shinyngs/reference/runPCA.md)
+  and
+  [`compile_pca_data()`](https://pinin4fjords.github.io/shinyngs/reference/compile_pca_data.md)
+  no longer force [`prcomp()`](https://rdrr.io/r/stats/prcomp.html)’s
+  `scale. = TRUE`. They now default to `scale = FALSE`, matching
+  [`DESeq2::plotPCA()`](https://rdrr.io/pkg/BiocGenerics/man/plotPCA.html)’s
+  convention for variance-stabilised (VST/rlog) input: since that
+  transform already equalises per-feature variance, further
+  unit-variance scaling mostly up-weights noisy, near-constant features
+  rather than revealing structure, which was found to weaken the
+  association between the top PCs and experimental variables of interest
+  in the “Principal components / metadata associations” view. A new
+  `scale_features` argument lets callers opt back into scaling for
+  matrices without a variance-stabilising transform;
+  `exec/exploratory_plots.R` exposes this as `--pca_scale`/`-c`.
 - [`make_color_scale()`](https://pinin4fjords.github.io/shinyngs/reference/make_color_scale.md)
   picked a named RColorBrewer palette’s own 2-colour scheme by
   interpolating its full colour set down to 3 shades and subsetting,

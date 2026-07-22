@@ -52,7 +52,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">runPCA</span><span class="op">(</span><span class="va">matrix</span>, do_log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">runPCA</span><span class="op">(</span><span class="va">matrix</span>, do_log <span class="op">=</span> <span class="cn">TRUE</span>, scale_features <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +65,19 @@
 
 <dt id="arg-do-log">do_log<a class="anchor" aria-label="anchor" href="#arg-do-log"></a></dt>
 <dd><p>Boolean- apply log transform to input matrix?</p></dd>
+
+
+<dt id="arg-scale-features">scale_features<a class="anchor" aria-label="anchor" href="#arg-scale-features"></a></dt>
+<dd><p>Boolean, passed to <code><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp()</a></code>'s <code>scale.</code>
+argument to scale each feature to unit variance before running the PCA.
+Defaults to <code>FALSE</code>, matching <code><a href="https://rdrr.io/pkg/BiocGenerics/man/plotPCA.html" class="external-link">DESeq2::plotPCA()</a></code>'s convention
+for variance-stabilised input: VST/rlog transforms already equalise
+per-feature variance, so further scaling mostly up-weights noisy,
+near-constant features rather than revealing structure. Set to
+<code>TRUE</code> for matrices without a variance-stabilising transform, where
+features can otherwise dominate the PCA purely by having larger scale.
+(Unrelated to <code><a href="interactive_heatmap.html">interactive_heatmap</a></code>'s <code>scale</code>
+argument, which selects row/column/none display scaling.)</p></dd>
 
 </dl></div>
     <div class="section level2">
