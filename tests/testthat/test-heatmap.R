@@ -24,6 +24,35 @@ test_that("interactive_heatmap handles single-row matrices (e.g. one informative
   expect_s3_class(p, "plotly")
 })
 
+test_that("interactive_heatmap defaults to a 1px grid_gap but lets callers override it for large heatmaps", {
+  pm <- matrix(rnorm(24), nrow = 6, dimnames = list(paste0("gene", 1:6), paste0("s", 1:4)))
+
+  # heatmaply only sets xgap/ygap on the trace when grid_gap is non-zero,
+  # so a missing attribute means an effective gap of 0
+  find_grid_gap <- function(p) {
+    for (trace in p$x$data) {
+      if (!is.null(trace$xgap)) {
+        return(trace$xgap)
+      }
+    }
+    0
+  }
+
+  p_default <- interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, scale = "row",
+    row_labels = rownames(pm), hide_colorbar = TRUE
+  )
+  expect_equal(find_grid_gap(p_default), 1)
+
+  p_no_gap <- interactive_heatmap(
+    plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+    cluster_rows = FALSE, cluster_cols = FALSE, scale = "row",
+    row_labels = rownames(pm), hide_colorbar = TRUE, grid_gap = 0
+  )
+  expect_equal(find_grid_gap(p_no_gap), 0)
+})
+
 # interactive_pca_metadata_heatmap()
 
 test_that("interactive_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {

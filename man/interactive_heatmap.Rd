@@ -17,6 +17,7 @@ interactive_heatmap(
   cexRow = 0.7,
   display_numbers = FALSE,
   hide_colorbar = FALSE,
+  grid_gap = 1,
   plot_height = 600,
   ...
 )
@@ -48,6 +49,11 @@ column side colors and an accompanying legend}
 values in \code{plotmatrix} be displayed on the heatmap cells?}
 
 \item{hide_colorbar}{Boolean, should the color scale legend be hidden?}
+
+\item{grid_gap}{Pixel gap drawn between cells, passed through to
+\code{heatmaply()}. The default of 1 reads fine for small heatmaps, but on
+a heatmap with hundreds of rows the gaps can visually dominate and obscure
+cross-column colour patterns; pass 0 for contiguous cells in that case.}
 
 \item{plot_height}{The total rendered height of the plot in pixels. Passed
 through to \code{heatmaply()} as its \code{height} argument, and also used
