@@ -53,6 +53,37 @@ test_that("interactive_heatmap defaults to a 1px grid_gap but lets callers overr
   expect_equal(find_grid_gap(p_no_gap), 0)
 })
 
+test_that("interactive_heatmap's cor_method/cluster_method drive the column dendrogram it builds", {
+  set.seed(42)
+  pm <- matrix(rnorm(60), nrow = 6, dimnames = list(paste0("gene", 1:6), paste0("s", 1:10)))
+  pm[1, ] <- pm[1, ] * -1
+
+  # heatmaply lists the leaves in the reverse of dendrogram order; seriate =
+  # "none" keeps that order as calculate_dendrogram() produced it rather than
+  # heatmaply's own optimal-leaf-ordering reseriation.
+  column_order <- function(p) p$x$layout$xaxis$ticktext
+
+  make_heatmap <- function(cor_method, cluster_method) {
+    interactive_heatmap(
+      plotmatrix = pm, displaymatrix = pm, sample_annotation = NULL,
+      cluster_rows = FALSE, cluster_cols = TRUE, scale = "none",
+      row_labels = rownames(pm), hide_colorbar = TRUE, seriate = "none",
+      cor_method = cor_method, cluster_method = cluster_method
+    )
+  }
+
+  p_default <- make_heatmap("spearman", "ward.D2")
+  expect_equal(column_order(p_default), rev(labels(calculate_dendrogram(pm))))
+
+  p_pearson_complete <- make_heatmap("pearson", "complete")
+  expect_equal(column_order(p_pearson_complete), rev(labels(calculate_dendrogram(pm, cor_method = "pearson", cluster_method = "complete"))))
+
+  # A different cor_method/cluster_method pair should, for this matrix, produce
+  # a genuinely different leaf order - otherwise the arguments risk being
+  # silently ignored.
+  expect_false(identical(column_order(p_default), column_order(p_pearson_complete)))
+})
+
 # interactive_pca_metadata_heatmap()
 
 test_that("interactive_pca_metadata_heatmap colors by -log10(p) but keeps the raw p value as a cell note", {
