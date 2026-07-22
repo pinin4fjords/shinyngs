@@ -237,6 +237,16 @@
   [`interactive_upset()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_upset.md)’s
   upset-style plots under-report the deepest intersection whenever sets
   genuinely overlapped at every level.
+- [`interactive_upset()`](https://pinin4fjords.github.io/shinyngs/reference/interactive_upset.md)’s
+  set-size bar chart had no axis title, was squeezed into a small
+  fraction of the figure’s width, and ran left-to-right with 0 on the
+  left, unlike the conventional UpSet layout where the set-size bars
+  grow leftward from a 0 next to the intersection grid. The chart now
+  has a “Set size” axis title (with an explicit `tickangle` to keep it
+  stable when the plot is rendered in an initially-hidden tab), a larger
+  width allocation, and a reversed x-axis. The intersection-size chart’s
+  axis title was also corrected from “Intersections size” to
+  “Intersection size”.
 
 ### Maintenance
 
