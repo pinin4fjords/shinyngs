@@ -382,7 +382,11 @@ upset_calculate_intersections <- function(sets, show_empty_intersections = TRUE,
 
   intersects <- lapply(seq_along(intersects), function(i) {
     intersectno <- intersects[[i]]
-    members_in_higher_levels <- unlist(intersects[(i + 1):length(intersects)])
+    members_in_higher_levels <- if (i < length(intersects)) {
+      unlist(intersects[(i + 1):length(intersects)])
+    } else {
+      character(0)
+    }
     lapply(intersectno, function(intersect) {
       if (intersection_assignment_type == "upset") {
         length(setdiff(intersect, members_in_higher_levels))

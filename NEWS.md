@@ -120,6 +120,13 @@
   subsetting, which could land on adjacent, low-contrast hues (e.g. `"Set1"`
   giving red and orange rather than red and blue) for 2-3 category plots
   such as `interactive_topgene_boxplots()`'s group legend.
+* `upset_calculate_intersections()` always reported the highest-order
+  (all-sets) intersection as 0 under the default
+  `intersection_assignment_type = "upset"`, because the top intersection's
+  own index range for "higher-order" members counted backwards and ended up
+  excluding it from itself. This made `interactive_upset()`'s upset-style
+  plots under-report the deepest intersection whenever sets genuinely
+  overlapped at every level.
 
 ## Maintenance
 
