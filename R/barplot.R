@@ -67,6 +67,8 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
 #' @param ylab Y axis label
 #' @param palette_name Valid R color palette name
 #' @param title Plot title
+#' @param showlegend Show the trace legend? Default \code{NULL}: shown when
+#'   \code{matrix} has more than one row.
 #'
 #' @return output A plotly htmlwidget
 #'
@@ -76,8 +78,12 @@ barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
 #' m <- matrix(1:6, nrow = 2, dimnames = list(c("up", "down"), c("s1", "s2", "s3")))
 #' interactive_barchart(m, barmode = "stack", ylab = "Count")
 #'
-interactive_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), ylab = "", palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
+interactive_barchart <- function(matrix, barmode = c("stack", "group", "overlay"), ylab = "", palette_name = COLORBLIND_PALETTE_NAME, title = NULL, showlegend = NULL) {
   barmode <- match.arg(barmode)
+
+  if (is.null(showlegend)) {
+    showlegend <- nrow(matrix) > 1
+  }
 
   if (barmode == "overlay") {
     matrix <- matrix[order(rowMeans(matrix), decreasing = TRUE), , drop = FALSE]
@@ -98,7 +104,7 @@ interactive_barchart <- function(matrix, barmode = c("stack", "group", "overlay"
   plotdata %>%
     plot_ly(x = ~Var2, y = ~value, color = ~Var1, colors = palette, type = "bar") %>%
     layout(
-      title = title, margin = list(b = 100), barmode = barmode, showlegend = nrow(matrix) > 1,
+      title = title, margin = list(b = 100), barmode = barmode, showlegend = showlegend,
       xaxis = list(title = " ", categoryorder = "array", categoryarray = column_order), yaxis = list(title = ylab)
     )
 }
@@ -147,6 +153,7 @@ countMatrixByCategory <- function(annotation, category, fill = NULL) {
 #'   (dodged bars, the default) or \code{"stack"}.
 #' @param palette_name Valid R color palette name
 #' @param title Plot title
+#' @param ylab Y axis label
 #'
 #' @return output Plotly plot object
 #'
@@ -161,7 +168,7 @@ countMatrixByCategory <- function(annotation, category, fill = NULL) {
 #'   category = "biotype", fill = "direction"
 #' )
 #'
-interactive_count_barplot <- function(annotation, category, fill = NULL, barmode = c("group", "stack"), palette_name = COLORBLIND_PALETTE_NAME, title = NULL) {
+interactive_count_barplot <- function(annotation, category, fill = NULL, barmode = c("group", "stack"), palette_name = COLORBLIND_PALETTE_NAME, title = NULL, ylab = "Count") {
   barmode <- match.arg(barmode)
 
   if (!category %in% colnames(annotation)) {
@@ -181,5 +188,5 @@ interactive_count_barplot <- function(annotation, category, fill = NULL, barmode
     title <- paste("Counts by", prettify_variable_name(category))
   }
 
-  interactive_barchart(plotmatrix, barmode = barmode, ylab = "Count", palette_name = palette_name, title = title)
+  interactive_barchart(plotmatrix, barmode = barmode, ylab = ylab, palette_name = palette_name, title = title, showlegend = !is.null(fill))
 }

@@ -11,7 +11,8 @@ interactive_count_barplot(
   fill = NULL,
   barmode = c("group", "stack"),
   palette_name = COLORBLIND_PALETTE_NAME,
-  title = NULL
+  title = NULL,
+  ylab = "Count"
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ count per category.}
 \item{palette_name}{Valid R color palette name}
 
 \item{title}{Plot title}
+
+\item{ylab}{Y axis label}
 }
 \value{
 output Plotly plot object

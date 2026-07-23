@@ -9,7 +9,8 @@ interactive_barchart(
   barmode = c("stack", "group", "overlay"),
   ylab = "",
   palette_name = COLORBLIND_PALETTE_NAME,
-  title = NULL
+  title = NULL,
+  showlegend = NULL
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ are reordered by decreasing mean so each is more likely to be visible}
 \item{palette_name}{Valid R color palette name}
 
 \item{title}{Plot title}
+
+\item{showlegend}{Show the trace legend? Default \code{NULL}: shown when
+\code{matrix} has more than one row.}
 }
 \value{
 output A plotly htmlwidget
