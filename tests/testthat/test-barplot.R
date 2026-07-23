@@ -35,6 +35,14 @@ test_that("interactive_barchart hides the legend for a single-row matrix", {
   expect_false(p$x$layoutAttrs[[1]]$showlegend)
 })
 
+test_that("interactive_barchart's showlegend overrides the row-count default", {
+  single_row <- matrix(c(3, 2), nrow = 1, dimnames = list("Up", c("x", "y")))
+  multi_row <- matrix(1:4, nrow = 2, dimnames = list(c("Up", "Down"), c("x", "y")))
+
+  expect_true(interactive_barchart(single_row, showlegend = TRUE)$x$layoutAttrs[[1]]$showlegend)
+  expect_false(interactive_barchart(multi_row, showlegend = FALSE)$x$layoutAttrs[[1]]$showlegend)
+})
+
 test_that("interactive_barchart pins the x axis to matrix's column order, not alphabetical", {
   m <- matrix(c(3, 2, 1), nrow = 1, dimnames = list("Count", c("zebra", "mango", "apple")))
   built <- plotly::plotly_build(interactive_barchart(m))
@@ -95,6 +103,30 @@ test_that("interactive_count_barplot splits counts by a fill column into separat
   built <- plotly::plotly_build(interactive_count_barplot(annotation, "biotype", fill = "direction"))
 
   expect_length(built$x$data, 2)
+})
+
+test_that("interactive_count_barplot shows the legend when fill is used, even with a single fill level", {
+  annotation <- data.frame(
+    biotype = c("protein_coding", "protein_coding", "lncRNA"),
+    direction = c("Up", "Up", "Up")
+  )
+  p <- interactive_count_barplot(annotation, "biotype", fill = "direction")
+
+  expect_true(p$x$layoutAttrs[[1]]$showlegend)
+})
+
+test_that("interactive_count_barplot hides the legend when no fill is used", {
+  annotation <- data.frame(biotype = c("lncRNA", "protein_coding", "protein_coding"))
+  p <- interactive_count_barplot(annotation, "biotype")
+
+  expect_false(p$x$layoutAttrs[[1]]$showlegend)
+})
+
+test_that("interactive_count_barplot passes through a custom ylab", {
+  annotation <- data.frame(biotype = c("lncRNA", "protein_coding"))
+  built <- plotly::plotly_build(interactive_count_barplot(annotation, "biotype", ylab = "Number of differentially expressed genes"))
+
+  expect_equal(built$x$layout$yaxis$title, "Number of differentially expressed genes")
 })
 
 test_that("interactive_count_barplot errors for an unknown column", {
