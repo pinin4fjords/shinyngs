@@ -156,6 +156,28 @@ test_that("interactive_boxplot uses labels for outlier hover text, falling back 
   expect_setequal(outlier_trace$text, c("SYMBOL1", "SYMBOL2", "gene3", "gene4"))
 })
 
+test_that("interactive_boxplot labels every facet's x-axis, not just the bottom one", {
+  set.seed(2)
+  mat <- matrix(rpois(500 * 4, lambda = 50) + 1, nrow = 500)
+  colnames(mat) <- paste0("s", 1:4)
+  rownames(mat) <- paste0("gene", 1:500)
+  experiment <- data.frame(row.names = colnames(mat), group = rep(c("A", "B"), each = 2))
+
+  built <- suppressWarnings(plotly::plotly_build(
+    interactive_boxplot(list(Raw = mat, Filtered = mat[1:250, ]), experiment, colorby = "group")
+  ))
+  layout <- built$x$layout
+  axis_names <- grep("^xaxis", names(layout), value = TRUE)
+
+  expect_length(axis_names, 2)
+  titles <- vapply(axis_names, function(a) layout[[a]]$title, character(1))
+  expect_equal(unname(titles), c("Raw", "Filtered"))
+
+  # Only the bottom facet repeats the sample tick labels
+  showticklabels <- vapply(axis_names, function(a) isTRUE(layout[[a]]$showticklabels), logical(1))
+  expect_equal(unname(showticklabels), c(FALSE, TRUE))
+})
+
 # static_densityplot()
 
 test_that("static_densityplot draws one density area per colorby level", {
