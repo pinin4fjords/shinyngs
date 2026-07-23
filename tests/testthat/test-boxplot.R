@@ -135,6 +135,27 @@ test_that("interactive_boxplot bounds the number of outliers drawn", {
   expect_lte(total_outliers, 20)
 })
 
+test_that("interactive_boxplot uses labels for outlier hover text, falling back to rownames", {
+  genes <- paste0("gene", 1:5)
+  samples <- paste0("s", 1:4)
+  mat <- matrix(5, nrow = 5, ncol = 4, dimnames = list(genes, samples))
+  # One clear outlier per sample, on a different gene each time
+  mat["gene1", "s1"] <- 500
+  mat["gene2", "s2"] <- 500
+  mat["gene3", "s3"] <- 500
+  mat["gene4", "s4"] <- 500
+  experiment <- data.frame(row.names = samples)
+
+  # gene3 has an explicit NA entry, gene4 is absent from the map entirely -
+  # both should fall back to the raw rowname
+  labels <- c(gene1 = "SYMBOL1", gene2 = "SYMBOL2", gene3 = NA_character_)
+
+  built <- plotly::plotly_build(interactive_boxplot(mat, experiment, labels = labels))
+  outlier_trace <- Filter(function(t) identical(t$type, "scatter"), built$x$data)[[1]]
+
+  expect_setequal(outlier_trace$text, c("SYMBOL1", "SYMBOL2", "gene3", "gene4"))
+})
+
 # static_densityplot()
 
 test_that("static_densityplot draws one density area per colorby level", {
