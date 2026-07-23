@@ -16,7 +16,8 @@ interactive_boxplot(
   should_transform = NULL,
   max_outliers = 500,
   hidden_groups = character(0),
-  source = NULL
+  source = NULL,
+  labels = NULL
 )
 }
 \arguments{
@@ -54,6 +55,12 @@ legend (as \code{legendonly}) so they can be toggled back on.}
 
 \item{source}{Optional plotly source id used to route legend-click
 (\code{plotly_restyle}) events back to a Shiny session.}
+
+\item{labels}{Optional named character vector keyed by \code{plotmatrices}
+row names, used as the outlier-point hover text instead of the raw row
+name (e.g. a gene ID to symbol mapping). Rows with no entry in
+\code{labels} (or when \code{labels} is \code{NULL}) fall back to their
+row name.}
 }
 \value{
 output A \code{plotly} output

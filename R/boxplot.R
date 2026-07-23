@@ -173,9 +173,12 @@ boxplot <- function(id, eselist) {
 
     output$sampleBoxplot <- renderPlotly({
       withProgress(message = "Making sample boxplot", value = 0, {
-        interactive_boxplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+        selected_matrix <- selectmatrix_reactives$selectMatrix()
+        ese <- selectmatrix_reactives$getExperiment()
+        interactive_boxplot(selected_matrix, selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
           expressiontype = selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance,
-          palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
+          palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source,
+          labels = stats::setNames(id_to_label(rownames(selected_matrix), ese), rownames(selected_matrix))
         ) %>%
           shinyngsPlotlyConfig("boxplot", format = session$userData$plotFormat())
       })
@@ -337,6 +340,11 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
 #'   legend (as \code{legendonly}) so they can be toggled back on.
 #' @param source Optional plotly source id used to route legend-click
 #'   (\code{plotly_restyle}) events back to a Shiny session.
+#' @param labels Optional named character vector keyed by \code{plotmatrices}
+#'   row names, used as the outlier-point hover text instead of the raw row
+#'   name (e.g. a gene ID to symbol mapping). Rows with no entry in
+#'   \code{labels} (or when \code{labels} is \code{NULL}) fall back to their
+#'   row name.
 #'
 #' @export
 #' @return output A \code{plotly} output
@@ -347,7 +355,7 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
 #' data(airway, package = "airway")
 #' interactive_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
-interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL) {
+interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", palette_name = COLORBLIND_PALETTE_NAME, whisker_distance = 1.5, annotate_samples = FALSE, should_transform = NULL, max_outliers = 500, hidden_groups = character(0), source = NULL, labels = NULL) {
   if (!is.list(plotmatrices)) {
     plotmatrices <- list(" " = plotmatrices)
   }
@@ -387,7 +395,15 @@ interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palett
     m <- cond_log2_transform_matrix(as.matrix(plotmatrices[[i]]), should_transform = should_transform, rmzeros = TRUE)
     m <- m[, samples, drop = FALSE]
 
-    stats <- lapply(samples, function(s) box_summary(m[, s], rownames(m), whisker_distance))
+    row_labels <- if (is.null(labels)) {
+      rownames(m)
+    } else {
+      resolved <- unname(labels[rownames(m)])
+      resolved[is.na(resolved)] <- rownames(m)[is.na(resolved)]
+      resolved
+    }
+
+    stats <- lapply(samples, function(s) box_summary(m[, s], row_labels, whisker_distance))
     names(stats) <- samples
 
     p <- if (is.null(event_source)) plot_ly() else plot_ly(source = event_source)
