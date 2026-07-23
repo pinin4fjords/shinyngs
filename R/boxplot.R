@@ -439,6 +439,9 @@ interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palett
     }
 
     xaxis <- list(title = if (length(plotmatrices) > 1) facet_names[i] else NULL)
+    if (length(plotmatrices) > 1) {
+      xaxis$showticklabels <- i == length(plotmatrices)
+    }
     if (length(visible_samples) > 0) {
       xaxis$categoryorder <- "array"
       xaxis$categoryarray <- unname(axis_labels[visible_samples])
@@ -454,7 +457,7 @@ interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palett
   if (length(facet_plots) == 1) {
     p <- facet_plots[[1]]
   } else {
-    p <- subplot(facet_plots, nrows = length(facet_plots), shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
+    p <- subplot(facet_plots, nrows = length(facet_plots), shareX = FALSE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
   }
 
   p <- p %>%
