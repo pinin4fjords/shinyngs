@@ -1071,6 +1071,10 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
   ) %>%
     plotly::layout(hovermode = "x")
 
+  # subplot() inherits hm's own height rather than total_height, and
+  # plotly::layout(height = ...) is a documented no-op here, so set it directly.
+  p$x$layout$height <- total_height
+
   # See the matching comment in interactive_heatmap() (#291): heights here are
   # always explicitly computed, so don't let knitr/Quarto's own figure-sizing
   # defaults override the container independently of the embedded plotly
