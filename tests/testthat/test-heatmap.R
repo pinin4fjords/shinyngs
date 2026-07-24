@@ -298,10 +298,6 @@ test_that("interactive_pca_variance_heatmap's combined widget also opts out of k
 })
 
 test_that("interactive_pca_variance_heatmap's combined widget height is the sum of the scree and heatmap heights", {
-  # subplot() otherwise carries over whichever input plot happened to set an
-  # explicit layout height (here, the heatmap panel's) rather than deriving
-  # one from its own heights= panel fractions, understating the container the
-  # combined figure needs.
   set.seed(1)
   pcameta <- data.frame(
     row.names = paste0("sample", 1:6),

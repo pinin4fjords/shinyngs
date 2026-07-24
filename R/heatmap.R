@@ -1071,11 +1071,8 @@ interactive_pca_variance_heatmap <- function(pca_coords, pcameta, fraction_expla
   ) %>%
     plotly::layout(hovermode = "x")
 
-  # subplot() carries over whichever input plot happened to set an explicit
-  # layout height (here, hm's heatmap_height) rather than deriving one from
-  # its own heights= panel fractions, so the combined figure's own height has
-  # to be set directly - plotly::layout(height = ...) is a documented no-op
-  # for htmlwidgets built this way.
+  # subplot() inherits hm's own height rather than total_height, and
+  # plotly::layout(height = ...) is a documented no-op here, so set it directly.
   p$x$layout$height <- total_height
 
   # See the matching comment in interactive_heatmap() (#291): heights here are
