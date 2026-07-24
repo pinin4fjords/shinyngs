@@ -296,3 +296,21 @@ test_that("interactive_pca_variance_heatmap's combined widget also opts out of k
 
   expect_false(p$sizingPolicy$knitr$figure)
 })
+
+test_that("interactive_pca_variance_heatmap's combined widget height is the sum of the scree and heatmap heights", {
+  # subplot() otherwise carries over whichever input plot happened to set an
+  # explicit layout height (here, the heatmap panel's) rather than deriving
+  # one from its own heights= panel fractions, understating the container the
+  # combined figure needs.
+  set.seed(1)
+  pcameta <- data.frame(
+    row.names = paste0("sample", 1:6),
+    treatment = rep(c("control", "treated"), each = 3),
+    batch = rep(c("a", "b"), 3)
+  )
+  pca_coords <- matrix(rnorm(6 * 4), nrow = 6, dimnames = list(rownames(pcameta), paste0("PC", 1:4)))
+
+  p <- interactive_pca_variance_heatmap(pca_coords, pcameta, fraction_explained = c(45, 25, 20, 10), heatmap_height = 190, scree_height = 200)
+
+  expect_equal(p$x$layout$height, 390)
+})
