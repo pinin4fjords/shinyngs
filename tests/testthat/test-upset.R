@@ -183,7 +183,9 @@ make_upset_sets <- function() {
 }
 
 test_that("interactive_upset draws a set-size bar chart and an intersection-size bar chart with the computed sizes", {
-  built <- plotly::plotly_build(interactive_upset(make_upset_sets(), set_sort = FALSE, show_empty_intersections = FALSE, intersection_assignment_type = "all"))
+  expect_no_warning(
+    built <- plotly::plotly_build(interactive_upset(make_upset_sets(), set_sort = FALSE, show_empty_intersections = FALSE, intersection_assignment_type = "all"))
+  )
 
   bar_traces <- Filter(function(t) identical(t$type, "bar"), built$x$data)
   expect_length(bar_traces, 2)

@@ -150,7 +150,16 @@ resolve_deprecated_unlog_foldchanges <- function(fold_change_scale, unlog_foldch
 # Unlog a signed fold change value from log2 to linear scale (see
 # resolve_foldchange_scale()).
 unlog_fold_change <- function(x) {
-  sign(x) * 2^(abs(x))
+  result <- sign(x) * 2^(abs(x))
+  result[!is.na(x) & x == 0] <- 1
+  result
+}
+
+# Convert signed linear fold changes to log2 while tolerating legacy zeroes.
+log_fold_change <- function(x) {
+  result <- sign(x) * log2(abs(x))
+  result[!is.na(x) & x == 0] <- 0
+  result
 }
 
 # Read the feature id/p value/q value/fold change columns of a differential
