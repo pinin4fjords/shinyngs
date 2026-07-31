@@ -5,6 +5,10 @@ test_that("ExploratorySummarizedExperiment rounds assays for compact serializati
   expect_equal(SummarizedExperiment::assay(ese, "expression")[1, 1], 1.23)
 })
 
+test_that("assay_digits is appended to the public constructor arguments", {
+  expect_identical(tail(names(formals(ExploratorySummarizedExperiment)), 1), "assay_digits")
+})
+
 test_that("ExploratorySummarizedExperiment can retain full assay precision", {
   inputs <- make_test_ese_inputs()
   ese <- do.call(ExploratorySummarizedExperiment, c(inputs, list(idfield = "gene_id", assay_digits = NULL)))

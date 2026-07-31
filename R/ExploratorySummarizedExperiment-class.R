@@ -80,9 +80,6 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' correspond to 'contrasts' set in the containing SummarizedExperimentList.
 #' @param assay_measures Optional List of measures to display related to each
 #' assay.
-#' @param assay_digits Number of decimal places retained in assays. The default
-#' reduces compressed serialized object size. Use \code{NULL} to preserve full
-#' numeric precision.
 #' @param gene_set_analyses Three-level nested lists of gene set tables keyed first by
 #' assay, then by gene set type and then by contrast.
 #' @param read_reports A named list of matrices with read counts in columns
@@ -93,6 +90,9 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' @param gene_set_analyses_tool Three-level nested lists of a string, nested as \code{gene_set_analyses}.
 #' Each string may be \code{"auto"} (the default), \code{"gsea"} or \code{"roast"}. It defines the format of the
 #' corresponding \code{gene_set_analyses} table.
+#' @param assay_digits Number of decimal places retained in assays. The default
+#' reduces compressed serialized object size. Use \code{NULL} to preserve full
+#' numeric precision.
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
 #' @rawNamespace import(SummarizedExperiment, except = 'shift')
@@ -119,7 +119,7 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' )
 #'
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(),
-                                            assay_measures = list(), assay_digits = 2, gene_set_analyses = list(), dexseq_results = list(), read_reports = list(), gene_set_analyses_tool = list()) {
+                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list(), gene_set_analyses_tool = list(), assay_digits = 2) {
   # Reset NULLs to empty
 
   if (is.null(entrezgenefield)) {
@@ -192,7 +192,7 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
     if (is.null(assay_digits)) aligned_assay else round(aligned_assay, assay_digits)
   }))
 
-  # The same fix for contrast_stats
+  # Align contrast-statistic rows to the combined assay feature set.
 
   if (length(contrast_stats) > 0) {
     contrast_stats <- lapply(contrast_stats, function(stats) {
