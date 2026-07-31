@@ -261,6 +261,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 }
 
 variance_slider_range <- function(value, maximum) {
+  maximum <- max(1, maximum)
   minimum <- min(10, maximum)
   list(min = minimum, max = maximum, value = min(max(value, minimum), maximum))
 }

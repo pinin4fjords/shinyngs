@@ -51,3 +51,10 @@ test_that("variance_slider_range preserves the standard range for larger assays"
     list(min = 10, max = 100, value = 50)
   )
 })
+
+test_that("variance_slider_range remains valid for an empty assay", {
+  expect_equal(
+    variance_slider_range(value = 50, maximum = 0),
+    list(min = 1, max = 1, value = 1)
+  )
+})
