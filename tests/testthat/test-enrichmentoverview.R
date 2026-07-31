@@ -29,9 +29,14 @@ test_that("interactive_enrichment_overview plots one point per supplied result",
   eselist <- make_enrichmentoverview_eselist()
   data <- compile_enrichment_overview(eselist[[1]], "counts", "KEGG", eselist@contrasts)
   built <- plotly::plotly_build(interactive_enrichment_overview(data, top_n = 3, max_fdr = 0.1))
+  trace_colors <- stats::setNames(
+    vapply(built$x$data, function(trace) trace$marker$color, character(1)),
+    vapply(built$x$data, function(trace) trace$name, character(1))
+  )
 
   expect_equal(sum(vapply(built$x$data, function(trace) length(trace$x), integer(1))), 4)
   expect_equal(built$x$layout$legend$itemsizing, "constant")
+  expect_equal(trace_colors, DIRECTION_COLORS[c("Up", "Down")])
 })
 
 test_that("has_cross_contrast_enrichment requires two resolved results", {
@@ -39,6 +44,13 @@ test_that("has_cross_contrast_enrichment requires two resolved results", {
   expect_true(has_cross_contrast_enrichment(eselist))
 
   eselist[[1]]@gene_set_analyses$counts$KEGG[[2]] <- NULL
+  expect_false(has_cross_contrast_enrichment(eselist))
+})
+
+test_that("has_cross_contrast_enrichment requires finite FDR values", {
+  eselist <- make_enrichmentoverview_eselist()
+  eselist[[1]]@gene_set_analyses$counts$KEGG[[2]]$FDR <- NA_real_
+
   expect_false(has_cross_contrast_enrichment(eselist))
 })
 

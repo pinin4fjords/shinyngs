@@ -17,22 +17,33 @@ has_cross_contrast_enrichment <- function(eselist) {
     return(FALSE)
   }
 
-  any(vapply(eselist, function(ese) {
+  for (ese in eselist) {
     if (!has_slot_data(ese, "gene_set_analyses")) {
-      return(FALSE)
+      next
     }
     valid_assays <- intersect(names(assays(ese)), names(ese@gene_set_analyses))
-    any(vapply(valid_assays, function(assay) {
-      any(vapply(names(ese@gene_set_analyses[[assay]]), function(gene_set_type) {
+    for (assay in valid_assays) {
+      for (gene_set_type in names(ese@gene_set_analyses[[assay]])) {
         resolved <- lapply(seq_along(eselist@contrasts), function(contrast_number) {
           resolve_enrichment(ese, assay, gene_set_type, contrast_number, eselist@contrasts[[contrast_number]])
         })
         resolved <- Filter(Negate(is.null), resolved)
+        resolved <- Filter(function(result) {
+          fdr_column <- result$col_map$fdr
+          if (length(fdr_column) != 1 || is.na(fdr_column) || !fdr_column %in% colnames(result$gst)) {
+            return(FALSE)
+          }
+          fdr <- suppressWarnings(as.numeric(result$gst[[fdr_column]]))
+          any(is.finite(fdr))
+        }, resolved)
         methods <- unique(vapply(resolved, function(result) enrichment_tool_label(result$tool), character(1)))
-        length(resolved) >= 2 && length(methods) == 1
-      }, logical(1)))
-    }, logical(1)))
-  }, logical(1)))
+        if (length(resolved) >= 2 && length(methods) == 1) {
+          return(TRUE)
+        }
+      }
+    }
+  }
+  FALSE
 }
 
 #' Input function for the gene set overview module
@@ -284,8 +295,8 @@ interactive_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, pre
 
   direction_levels <- unique(plot_data$direction)
   direction_colors <- stats::setNames(make_color_scale(length(direction_levels)), direction_levels)
-  if ("Up" %in% direction_levels) direction_colors[["Up"]] <- "#D55E00"
-  if ("Down" %in% direction_levels) direction_colors[["Down"]] <- "#0072B2"
+  standard_directions <- intersect(direction_levels, names(DIRECTION_COLORS))
+  direction_colors[standard_directions] <- DIRECTION_COLORS[standard_directions]
   plot_data$significance <- pmin(-log10(pmax(plot_data$fdr, 1e-16)), 16)
   significance_range <- range(plot_data$significance)
   plot_data$marker_size <- if (diff(significance_range) == 0) {
