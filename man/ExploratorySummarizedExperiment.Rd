@@ -16,7 +16,8 @@ ExploratorySummarizedExperiment(
   gene_set_analyses = list(),
   dexseq_results = list(),
   read_reports = list(),
-  gene_set_analyses_tool = list()
+  gene_set_analyses_tool = list(),
+  assay_digits = 2
 )
 }
 \arguments{
@@ -60,6 +61,10 @@ counts per gene type etc}
 \item{gene_set_analyses_tool}{Three-level nested lists of a string, nested as \code{gene_set_analyses}.
 Each string may be \code{"auto"} (the default), \code{"gsea"} or \code{"roast"}. It defines the format of the
 corresponding \code{gene_set_analyses} table.}
+
+\item{assay_digits}{Number of decimal places retained in assays. The default
+reduces compressed serialized object size. Use \code{NULL} to preserve full
+numeric precision.}
 }
 \value{
 output An ExploratoryRangedSummarizedExperient object
