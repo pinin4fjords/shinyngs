@@ -91,6 +91,10 @@
 
 ## New features
 
+* The gene information page gains an interactive contrast profile showing one
+  gene's signed log2 fold change, direction, and q-value status across all
+  defined contrasts.
+
 * `interactive_scatterplot()` gains an opt-in `colorby_menu` dropdown for switching
   the colouring variable within a single self-contained widget, plus
   `xrange`/`yrange` arguments for pinning axis ranges (e.g. a symmetric volcano

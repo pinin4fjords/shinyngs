@@ -199,6 +199,7 @@ reference:
   - foldchangeplotOutput
   - gene
   - geneBarplot
+  - interactive_gene_contrast_profile
   - geneInput
   - geneModelBiotypeColors
   - geneModelGenomeInfo

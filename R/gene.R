@@ -69,6 +69,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("info")),
     uiOutput(ns("title")),
     shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = "500px"), color = shinyngsSpinnerColor()),
+    uiOutput(ns("geneContrastProfile_ui")),
     h4("Contrasts table"),
     simpletableOutput(ns("geneContrastsTable")),
     help = modalInput(ns(gene_modal$id), "help", "help")
@@ -291,6 +292,29 @@ gene <- function(id, eselist) {
 
       contrasts_table[contrasts_table[[prettify_variable_name(id_field)]] %in% rows, , drop = FALSE]
     })
+
+    getGeneContrastProfileTable <- reactive({
+      rows <- getSelectedIdsWithData()
+      contrast_tables <- contrast_reactives$contrastsTables()
+
+      do.call(rbind, lapply(contrast_tables, function(contrast_table) {
+        contrast_table[rows, , drop = FALSE]
+      }))
+    })
+
+    if (has_slot_data(eselist, "contrasts")) {
+      output$geneContrastProfile_ui <- renderUI({
+        shinycssloaders::withSpinner(plotlyOutput(session$ns("geneContrastProfile"), height = "500px"), color = shinyngsSpinnerColor())
+      })
+
+      output$geneContrastProfile <- renderPlotly({
+        rows <- getSelectedIdsWithData()
+        validate(need(length(rows) == 1, "Select one gene to view its contrast profile"))
+
+        interactive_gene_contrast_profile(getGeneContrastProfileTable()) %>%
+          shinyngsPlotlyConfig("gene_contrast_profile", format = session$userData$plotFormat())
+      })
+    }
 
     # Link the contrasts table for display
 

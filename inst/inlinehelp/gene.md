@@ -18,6 +18,10 @@ The contrasts table below the plot can be filtered and configured using the same
 
 Shows the expression value of the selected gene(s) in each sample, optionally coloured by an experimental variable.
 
+##### Contrast profile
+
+Shows the selected gene's signed log2 fold change across every defined contrast. Colour indicates the direction of change. Where q values are available, filled points meet the displayed threshold, open points do not, and crosses have no q value.
+
 ##### Gene info
 
 The 'info' link opens a table of the annotation data held for the selected gene(s), with links out to external resources where configured.
