@@ -197,7 +197,7 @@ hline_thresholds[[paste(opt$p_value_column, "=", opt$p_value_threshold)]] <- -lo
 vline_thresholds[[paste(opt$fold_change_col, "<-", opt$fold_change_threshold)]] <- -log2(opt$fold_change_threshold)
 vline_thresholds[[paste(opt$fold_change_col, ">", opt$fold_change_threshold)]] <- log2(opt$fold_change_threshold)
 
-x <- sign(differential[[opt$fold_change_col]]) * log2(abs(differential[[opt$fold_change_col]]))
+x <- shinyngs:::log_fold_change(differential[[opt$fold_change_col]])
 
 plot_args <- list(
   x = x,
