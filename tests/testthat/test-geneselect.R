@@ -37,3 +37,24 @@ test_that("select_variable_genes errors when neither matrix nor row_variances is
     "a value must be provided for either matrix or row_variances"
   )
 })
+
+test_that("variance_slider_range keeps the default within a small assay", {
+  expect_equal(
+    variance_slider_range(value = 50, maximum = 8),
+    list(min = 8, max = 8, value = 8)
+  )
+})
+
+test_that("variance_slider_range preserves the standard range for larger assays", {
+  expect_equal(
+    variance_slider_range(value = 50, maximum = 100),
+    list(min = 10, max = 100, value = 50)
+  )
+})
+
+test_that("variance_slider_range remains valid for an empty assay", {
+  expect_equal(
+    variance_slider_range(value = 50, maximum = 0),
+    list(min = 1, max = 1, value = 1)
+  )
+})
