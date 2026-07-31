@@ -106,6 +106,9 @@
 
 ## Improvements
 
+* PCA component and loading plots open in 2D, with 3D available from the plot
+  type control.
+
 * `interactive_heatmap()` gains a `show_row_labels` argument for suppressing
   row labels, and now defaults `plot_height` to a height scaled to the number
   of rows: generously when labels are shown (fixing large heatmaps rendering

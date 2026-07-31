@@ -44,7 +44,7 @@ pcaInput <- function(id, eselist) {
   # Output sets of fields in their own containers
 
   fieldSets(ns("fieldset"), list(
-    principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE), groupbyInput(ns("pca"))),
+    principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE, default_3d = FALSE), groupbyInput(ns("pca"))),
     expression = expression_filters, export = list(
       simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"),
       simpletableInput(ns("screeplot"), tabletitle = "Scree")

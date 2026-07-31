@@ -1,5 +1,11 @@
 # runPCA()
 
+test_that("PCA controls default to a 2D plot", {
+  html <- htmltools::renderTags(pcaInput("pca", shinytest2_eselist()))$html
+
+  expect_match(html, 'value="FALSE" checked')
+})
+
 test_that("runPCA does not scale variables by default", {
   mat <- matrix(
     c(
