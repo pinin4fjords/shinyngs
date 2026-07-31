@@ -166,6 +166,19 @@ test_that("genesetanalysistable renders a simpletable datatable of the filtered 
   }))
 })
 
+test_that("gene set links remain HTML after display columns are prettified", {
+  eselist <- make_genesetanalysistable_eselist()
+  eselist@url_roots$gene_set_id <- "?geneset="
+
+  run_genesetanalysistable_server(eselist, expr = quote({
+    display_table <- getDisplayGeneSetAnalysis()
+
+    expect_match(display_table[["Gene set id"]], '^<a href="\\?geneset=SET_A">')
+    expect_equal(attr(display_table, "shinyngs_html_columns"), "Gene set id")
+    expect_false("Gene set id" %in% datatable_escape_columns(display_table))
+  }))
+})
+
 test_that("output$enrichmentMethod reports the resolved enrichment tool", {
   run_genesetanalysistable_server(make_genesetanalysistable_eselist(), expr = quote({
     rendered <- output$enrichmentMethod

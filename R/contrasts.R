@@ -342,6 +342,9 @@ contrastEnumeration <- function(eselist, selectmatrix_reactives) {
 # (not a reactive) since it's pure given its input.
 makeContrastNamesFor <- function(contrasts) {
   lapply(contrasts, function(x) {
+    if (is.null(names(x))) {
+      names(x) <- c("Variable", "Group.1", "Group.2")
+    }
     x <- x[!names(x) %in% "id"]
     contrast_name <- paste(prettify_variable_name(x["Variable"]), paste(x["Group.2"], x["Group.1"], sep = " vs "), sep = ": ")
     extras <- setdiff(names(x), c("Variable", "Group.1", "Group.2"))
