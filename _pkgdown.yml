@@ -191,6 +191,10 @@ reference:
   - experimenttable
   - experimenttableInput
   - experimenttableOutput
+  - enrichmentoverview
+  - enrichmentoverviewInput
+  - enrichmentoverviewOutput
+  - interactive_enrichment_overview
   - fieldSets
   - finiteAxisRange
   - fixedEffectsModelMatrix
