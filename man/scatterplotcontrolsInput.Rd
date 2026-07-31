@@ -4,7 +4,12 @@
 \alias{scatterplotcontrolsInput}
 \title{Input function for scatterplotcontrols module}
 \usage{
-scatterplotcontrolsInput(id, allow_3d = TRUE, make_colors = FALSE)
+scatterplotcontrolsInput(
+  id,
+  allow_3d = TRUE,
+  make_colors = FALSE,
+  default_3d = TRUE
+)
 }
 \arguments{
 \item{id}{Submodule namespace}
@@ -12,6 +17,8 @@ scatterplotcontrolsInput(id, allow_3d = TRUE, make_colors = FALSE)
 \item{allow_3d}{Boolean: allow user to choose 3D plotting?}
 
 \item{make_colors}{Boolean: add controls for coloring?}
+
+\item{default_3d}{Boolean: select 3D when the controls first render?}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using
