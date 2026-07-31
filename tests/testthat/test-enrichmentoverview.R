@@ -7,6 +7,18 @@ test_that("compile_enrichment_overview resolves every available contrast", {
   expect_equal(attr(data, "contrast_levels"), c("Condition: treated vs control", "Batch: b vs a"))
 })
 
+test_that("compile_enrichment_overview labels positional legacy contrasts", {
+  eselist <- make_enrichmentoverview_eselist()
+  eselist@contrasts <- lapply(eselist@contrasts, function(contrast) {
+    unname(unlist(contrast[c("Variable", "Group.1", "Group.2")]))
+  })
+
+  data <- compile_enrichment_overview(eselist[[1]], "counts", "KEGG", eselist@contrasts)
+
+  expect_equal(unique(data$contrast), c("Condition: treated vs control", "Batch: b vs a"))
+  expect_equal(attr(data, "contrast_levels"), c("Condition: treated vs control", "Batch: b vs a"))
+})
+
 test_that("prepare_enrichment_overview retains missing gene-set contrast combinations", {
   eselist <- make_enrichmentoverview_eselist()
   data <- compile_enrichment_overview(eselist[[1]], "counts", "KEGG", eselist@contrasts)

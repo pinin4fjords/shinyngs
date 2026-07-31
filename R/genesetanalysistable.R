@@ -305,8 +305,10 @@ genesetanalysistable <- function(id, eselist) {
 
       # Add links, but use a prettified version of the gene set name that re-flows to take up less space
 
-      gst <- linkMatrix(gst, eselist@url_roots, data.frame(gene_set_id = prettify_gene_set_name(gst$gene_set_id)))
+      display_values <- data.frame(gene_set_id = prettify_gene_set_name(gst$gene_set_id))
       colnames(gst) <- prettify_variable_name(colnames(gst))
+      colnames(display_values) <- prettify_variable_name(colnames(display_values))
+      gst <- linkMatrix(gst, eselist@url_roots, display_values)
 
       gst
     })

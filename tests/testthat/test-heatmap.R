@@ -1,5 +1,26 @@
 # interactive_heatmap()
 
+test_that("PCA heatmap height preserves pending sample-group validation", {
+  eselist <- shinytest2_eselist()
+
+  shiny::testServer(shinyngs:::heatmap, args = list(id = "heatmap", eselist = eselist, type = "pca"), {
+    session$setInputs(
+      `heatmap-experiment` = "counts",
+      `heatmap-assay` = "counts",
+      `heatmap-selectmatrix-geneSelect` = "all",
+      `heatmap-selectmatrix-sampleSelect` = "group",
+      `heatmap-selectmatrix-sampleGroupVar` = "condition",
+      cluster_rows = FALSE,
+      cluster_cols = FALSE
+    )
+    session$flushReact()
+
+    pending <- tryCatch(heatmapOnlyHeight(), error = identity)
+    expect_s3_class(pending, "validation")
+    expect_match(conditionMessage(pending), "Waiting for form to provide sampleGroupVal", fixed = TRUE)
+  })
+})
+
 test_that("interactive_heatmap handles single-row matrices (e.g. one informative sample variable)", {
   # A single-row matrix is the shape anova_pca_metadata() produces for the
   # "PCA vs Experiment" heatmap when only one sample metadata variable is

@@ -445,9 +445,10 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
 
     heatmapOnlyHeight <- reactive({
       plot_annotation <- getPlotAnnotation()
+      display_matrix <- getDisplayMatrix()
 
       heatmap_layout_height(
-        n_rows = nrow(getDisplayMatrix()), row_height_px = rowHeight(), cluster_cols = as.logical(input$cluster_cols),
+        n_rows = nrow(display_matrix), row_height_px = rowHeight(), cluster_cols = as.logical(input$cluster_cols),
         n_annotation_cols = if (is.null(plot_annotation)) 0 else ncol(plot_annotation), heatmap_layout = heatmap_layout
       )
     })
