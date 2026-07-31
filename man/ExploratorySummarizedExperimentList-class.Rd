@@ -4,20 +4,14 @@
 \name{ExploratorySummarizedExperimentList-class}
 \alias{ExploratorySummarizedExperimentList-class}
 \alias{[,ExploratorySummarizedExperimentList,ANY,missing,ANY-method}
-\alias{[,ExploratorySummarizedExperimentList,numeric,missing,ANY-method}
-\alias{[,ExploratorySummarizedExperimentList,logical,missing,ANY-method}
 \title{The ExploratorySummaizedExperimentList class}
 \usage{
 \S4method{[}{ExploratorySummarizedExperimentList,ANY,missing,ANY}(x, i, j, ..., drop = TRUE)
-
-\S4method{[}{ExploratorySummarizedExperimentList,numeric,missing,ANY}(x, i, j, ..., drop = TRUE)
-
-\S4method{[}{ExploratorySummarizedExperimentList,logical,missing,ANY}(x, i, j, ..., drop = TRUE)
 }
 \arguments{
 \item{x}{\code{ExploratorySummarizedExperimentList} object}
 
-\item{i}{boolean index for the ExploratorySummarizedExperimentList list}
+\item{i}{index for the ExploratorySummarizedExperimentList list}
 
 \item{j}{not used}
 
@@ -27,10 +21,6 @@
 }
 \description{
 The ExploratorySummaizedExperimentList class
-
-Extract parts of ExploratorySummarizedExperimentList.
-
-Extract parts of ExploratorySummarizedExperimentList.
 
 Extract parts of ExploratorySummarizedExperimentList.
 }

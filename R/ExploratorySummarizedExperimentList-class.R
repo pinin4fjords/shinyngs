@@ -20,6 +20,43 @@ setClass("ExploratorySummarizedExperimentList", contains = "list", slots = c(
   group_vars = "character", default_groupvar = "character", contrasts = "list", url_roots = "list", gene_sets = "list", gene_set_id_type = "character", ensembl_species = "character"
 ))
 
+setValidity("ExploratorySummarizedExperimentList", function(object) {
+  errors <- character()
+  eses <- object@.Data
+
+  if (length(object@default_groupvar) > 1 || (length(object@default_groupvar) == 1 && !object@default_groupvar %in% object@group_vars)) {
+    errors <- c(errors, "default_groupvar must contain at most one field from group_vars")
+  }
+  if (length(object@ensembl_species) > 1) {
+    errors <- c(errors, "ensembl_species must contain at most one value")
+  }
+
+  if (length(eses) > 0) {
+    valid_entries <- vapply(eses, function(ese) methods::is(ese, "ExploratorySummarizedExperiment"), logical(1))
+    if (!all(valid_entries)) {
+      errors <- c(errors, "all list entries must be ExploratorySummarizedExperiment objects")
+    } else {
+      missing_group_vars <- unique(unlist(lapply(eses, function(ese) {
+        setdiff(object@group_vars, colnames(SummarizedExperiment::colData(ese)))
+      })))
+      if (length(missing_group_vars) > 0) {
+        errors <- c(errors, paste0("group_vars fields are absent from experiment metadata: ", paste(missing_group_vars, collapse = ", ")))
+      }
+    }
+  }
+
+  if (length(errors) == 0) TRUE else errors
+})
+
+subset_eselist <- function(x, i) {
+  data <- x@.Data
+  names(data) <- names(x)
+  initialize(x, data[i],
+    title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar,
+    contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species
+  )
+}
+
 #' Extract parts of ExploratorySummarizedExperimentList.
 #'
 #' @param x \code{ExploratorySummarizedExperimentList} object
@@ -30,42 +67,7 @@ setClass("ExploratorySummarizedExperimentList", contains = "list", slots = c(
 #' @rdname ExploratorySummarizedExperimentList-class
 #' @export
 setMethod("[", c("ExploratorySummarizedExperimentList", "ANY", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-  initialize(x, x@.Data[i],
-    title = x@title, author = x@author, description = x@description, static_pdf = "character", group_vars = x@group_vars, default_groupvar = x@default_groupvar,
-    contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species
-  )
-})
-
-#' Extract parts of ExploratorySummarizedExperimentList.
-#'
-#' @param x \code{ExploratorySummarizedExperimentList} object
-#' @param i numeric index for the ExploratorySummarizedExperimentList list
-#' @param j not used
-#' @param drop not used
-#' @param ... additional arguments not used here
-#' @rdname ExploratorySummarizedExperimentList-class
-#' @export
-setMethod("[", c("ExploratorySummarizedExperimentList", "numeric", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-  initialize(x, x@.Data[i],
-    title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar,
-    contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species
-  )
-})
-
-#' Extract parts of ExploratorySummarizedExperimentList.
-#'
-#' @param x \code{ExploratorySummarizedExperimentList} object
-#' @param i boolean index for the ExploratorySummarizedExperimentList list
-#' @param j not used
-#' @param drop not used
-#' @param ... additional arguments not used here
-#' @rdname ExploratorySummarizedExperimentList-class
-#' @export
-setMethod("[", c("ExploratorySummarizedExperimentList", "logical", "missing", "ANY"), function(x, i, j, ..., drop = TRUE) {
-  initialize(x, x@.Data[i],
-    title = x@title, author = x@author, description = x@description, static_pdf = x@static_pdf, group_vars = x@group_vars, default_groupvar = x@default_groupvar,
-    contrasts = x@contrasts, url_roots = x@url_roots, gene_sets = x@gene_sets, gene_set_id_type = x@gene_set_id_type, ensembl_species = x@ensembl_species
-  )
+  subset_eselist(x, i)
 })
 
 #' ExploratorySummarizedExperimentLists, containers for

@@ -505,7 +505,17 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  as.matrix(matrix_data[, rownames(sample_metadata), drop = FALSE])
+  matrix_data <- matrix_data[, rownames(sample_metadata), drop = FALSE]
+  non_numeric <- colnames(matrix_data)[!vapply(matrix_data, is.numeric, logical(1))]
+  if (length(non_numeric) > 0) {
+    stop(
+      "Matrix file contains non-numeric assay columns: ",
+      paste(non_numeric, collapse = ", "),
+      " (", matrix_file, ")"
+    )
+  }
+
+  as.matrix(matrix_data)
 }
 
 #' Read a metadata file

@@ -179,12 +179,12 @@ test_that("read_enrichment_file parses file correctly", {
   up_file <- tempfile(pattern = "test_shinyngs", fileext = ".csv")
   up_df <- read.csv(textConnection(up_text), check.names = FALSE, row.names = 1)
   write(up_text, up_file)
-  
+
   down_text <- "geneset,p value,FDR\ndummy2,0.04,0.01\n"
   down_file <- tempfile(pattern = "test_shinyngs", fileext = ".csv")
   down_df <- read.csv(textConnection(down_text), check.names = FALSE, row.names = 1)
   write(down_text, down_file)
-  
+
   up_df2 <- up_df
   up_df2$Direction <- "Up"
   down_df2 <- down_df
@@ -759,6 +759,20 @@ test_that("read_matrix errors when sample metadata names are absent from the mat
   expect_error(
     read_matrix(matrix_file, samples),
     "SampleMissing.*absent from the matrix"
+  )
+})
+
+test_that("read_matrix rejects non-numeric assay columns", {
+  matrix_content <- "id\tSample1\tSample2\ngene1\t1\tbad\ngene2\t4\t5\n"
+  matrix_file <- tempfile(fileext = ".tsv")
+  writeLines(matrix_content, matrix_file)
+  on.exit(unlink(matrix_file))
+
+  samples <- data.frame(row.names = c("Sample1", "Sample2"))
+
+  expect_error(
+    read_matrix(matrix_file, samples),
+    "non-numeric assay columns: Sample2"
   )
 })
 
