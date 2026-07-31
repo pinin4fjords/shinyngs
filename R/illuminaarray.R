@@ -185,6 +185,11 @@ illuminaarrayInput <- function(id, eselist) {
     # If there's more than one contrast we can compare differential sets
 
     if (length(eselist@contrasts) > 1) {
+      differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Contrast summary",
+        moduleLayout(differentialsummaryInput(ns("differentialsummary"), eselist), differentialsummaryOutput(ns("differentialsummary"))),
+        icon = icon("chart-bar", verify_fa = FALSE)
+      ))
+
       differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Differential set intersection",
         moduleLayout(upsetInput(ns("upset"), eselist), upsetOutput(ns("upset"), eselist)),
         icon = icon("chart-bar", verify_fa = FALSE)
@@ -272,6 +277,7 @@ illuminaarray <- function(id, eselist, heatmap_layout = heatmap_layout_options()
       genesetanalysistable("genesetanalysis", eselist)
       updateBarcodeGeneset <- genesetbarcodeplot("illuminaarray", eselist)
       if (length(eselist@contrasts) > 1) {
+        differentialsummary("differentialsummary", eselist)
         upset("upset", eselist)
       }
     }

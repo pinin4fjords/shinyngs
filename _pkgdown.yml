@@ -183,6 +183,10 @@ reference:
   - differentialscatterInput
   - differentialscatterLogic
   - differentialscatterOutput
+  - differentialsummary
+  - differentialsummaryInput
+  - differentialsummaryOutput
+  - interactive_differential_summary
   - differentialtable
   - differentialtableInput
   - differentialtableOutput
