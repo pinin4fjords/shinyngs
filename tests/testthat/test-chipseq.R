@@ -109,6 +109,15 @@ test_that("chipseqInput adds the gene set analysis tabs once gene_set_analyses i
   expect_true(grepl("Gene set barcode plots", txt))
 })
 
+test_that("chipseqInput adds the gene set overview only with two resolved contrasts", {
+  eselist <- make_enrichmentoverview_eselist()
+
+  expect_true(grepl("Gene set overview", as.character(chipseqInput("chipseq", eselist))))
+
+  eselist[[1]]@gene_set_analyses$counts$KEGG[[2]] <- NULL
+  expect_false(grepl("Gene set overview", as.character(chipseqInput("chipseq", eselist))))
+})
+
 test_that("chipseqInput adds a Read reports tab only when read_reports is present", {
   without_reports <- as.character(chipseqInput("chipseq", make_chipseq_eselist()))
   with_reports <- as.character(chipseqInput("chipseq", make_chipseq_eselist(read_reports = TRUE)))

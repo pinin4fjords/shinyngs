@@ -95,6 +95,10 @@
   gene's signed log2 fold change, direction, and q-value status across all
   defined contrasts.
 
+* Apps with compatible gene set results for at least two contrasts gain a gene
+  set overview that compares direction and FDR across contrasts while keeping
+  missing result combinations visible.
+
 * `interactive_scatterplot()` gains an opt-in `colorby_menu` dropdown for switching
   the colouring variable within a single self-contained widget, plus
   `xrange`/`yrange` arguments for pinning axis ranges (e.g. a symmetric volcano

@@ -36,8 +36,13 @@ test_that("interactive_gene_contrast_profile preserves zero fold changes", {
 test_that("interactive_gene_contrast_profile encodes q-value status in marker symbols", {
   built <- plotly::plotly_build(interactive_gene_contrast_profile(gene_contrast_profile_table()))
   symbols <- unlist(lapply(built$x$data, function(trace) trace$marker$symbol))
+  colors <- stats::setNames(
+    vapply(built$x$data, function(trace) trace$marker$color, character(1)),
+    vapply(built$x$data, function(trace) trace$name, character(1))
+  )
 
   expect_setequal(symbols, c("circle", "circle-open", "x"))
+  expect_equal(colors[c("Down", "Up")], DIRECTION_COLORS[c("Down", "Up")])
 })
 
 test_that("interactive_gene_contrast_profile works without q values", {

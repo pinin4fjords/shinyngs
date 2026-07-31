@@ -89,6 +89,7 @@ reference:
   - interactive_clustering_dendrogram
   - interactive_count_barplot
   - interactive_densityplot
+  - interactive_enrichment_overview
   - interactive_gene_contrast_profile
   - interactive_illumina_control_probes
   - interactive_pca_metadata_heatmap
@@ -192,6 +193,9 @@ reference:
   - experimenttable
   - experimenttableInput
   - experimenttableOutput
+  - enrichmentoverview
+  - enrichmentoverviewInput
+  - enrichmentoverviewOutput
   - fieldSets
   - finiteAxisRange
   - fixedEffectsModelMatrix
