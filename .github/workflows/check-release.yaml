@@ -185,7 +185,7 @@ jobs:
             --contrast_file $CONTRASTS_FILE \
             --contrast_stats_assay 1 \
             --differential_results ${DIFFERENTIAL_FILE},copied_${DIFFERENTIAL_FILE} \
-            --output_dir $(pwd) &
+            --output_directory $(pwd) &
           pids+=($!)
 
           status=0

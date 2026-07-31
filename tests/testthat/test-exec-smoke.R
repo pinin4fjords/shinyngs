@@ -264,6 +264,58 @@ test_that("differential_plots.R fails clearly when --p_value_column is absent fr
 
 # exec/make_app_from_files.R
 
+test_that("make_app_from_files.R help describes its output and deployment flags", {
+  skip_on_cran()
+
+  result <- run_exec_script("make_app_from_files.R", "--help")
+  output <- paste(result$output, collapse = "\n")
+
+  expect_exec_success(result)
+  expect_match(output, "--output_directory", fixed = TRUE)
+  expect_match(output, "Directory where data.rds and app.R will be written", fixed = TRUE)
+  expect_match(output, "Deploy the generated app to shinyapps.io after building", fixed = TRUE)
+})
+
+test_that("make_app_from_files.R builds an exploratory-only app", {
+  skip_on_cran()
+
+  outdir <- withr::local_tempdir()
+  result <- run_exec_script("make_app_from_files.R", c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--output_directory", outdir
+  ))
+
+  expect_exec_success(result)
+  eselist <- readRDS(file.path(outdir, "data.rds"))
+  expect_length(eselist@contrasts, 0)
+  expect_length(eselist[[1]]@contrast_stats, 0)
+})
+
+test_that("make_app_from_files.R requires contrast and differential inputs together", {
+  skip_on_cran()
+
+  base_args <- c(
+    "--sample_metadata", exec_smoke_fixture("SRP254919.samplesheet.csv"),
+    "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
+    "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
+    "--output_directory", withr::local_tempdir()
+  )
+
+  contrast_only <- run_exec_script("make_app_from_files.R", c(
+    base_args,
+    "--contrast_file", exec_smoke_fixture("SRP254919.contrasts.csv")
+  ))
+  results_only <- run_exec_script("make_app_from_files.R", c(
+    base_args,
+    "--differential_results", exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv")
+  ))
+
+  expect_exec_failure(contrast_only, "--contrast_file and --differential_results must be supplied together")
+  expect_exec_failure(results_only, "--contrast_file and --differential_results must be supplied together")
+})
+
 test_that("make_app_from_files.R runs against fixtures and writes a loadable app bundle", {
   skip_on_cran()
 
@@ -281,7 +333,6 @@ test_that("make_app_from_files.R runs against fixtures and writes a loadable app
     "--feature_metadata", exec_smoke_fixture("SRP254919.gene_meta.tsv"),
     "--assay_files", exec_smoke_fixture("SRP254919.salmon.merged.gene_counts.top1000cov.tsv"),
     "--contrast_file", exec_smoke_fixture("SRP254919.contrasts.csv"),
-    "--contrast_stats_assay", "1",
     "--differential_results", paste(exec_smoke_fixture("SRP254919.salmon.merged.deseq2.results.tsv"), second_differential_file, sep = ","),
     "--output_directory", outdir
   ))
@@ -296,6 +347,7 @@ test_that("make_app_from_files.R runs against fixtures and writes a loadable app
   expect_s4_class(eselist, "ExploratorySummarizedExperimentList")
   expect_length(eselist, 1)
   expect_equal(eselist@ensembl_species, character())
+  expect_true(has_slot_data(eselist[[1]], "contrast_stats"))
 })
 
 test_that("make_app_from_files.R passes --ensembl_species through to the eselist", {
