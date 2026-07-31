@@ -75,6 +75,19 @@ test_that("linkMatrix rejects active URL schemes", {
   })
 })
 
+test_that("linkMatrix escapes URL root attributes", {
+  data <- data.frame(gene_id = "g1")
+  session <- shiny::MockShinySession$new()
+  on.exit(session$close())
+
+  linked <- shiny::withReactiveDomain(session, {
+    linkMatrix(data, list(gene_id = '/gene?source=" onmouseover="alert(1)&id='))
+  })
+
+  expect_match(linked$gene_id, "source=&quot; onmouseover=&quot;alert(1)&amp;id=g1", fixed = TRUE)
+  expect_false(grepl('onmouseover="', linked$gene_id, fixed = TRUE))
+})
+
 # convert_ids()
 
 test_that("convert_ids maps row names to a metadata column", {

@@ -429,10 +429,12 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
         # Use a simple column paste for single-value columns. Different aproach for multi-value columns
 
         make_link <- function(href, display) {
-          as.character(tags$a(
-            href = paste0(url_root, utils::URLencode(as.character(href), reserved = TRUE)),
-            as.character(display)
-          ))
+          href <- paste0(url_root, utils::URLencode(as.character(href), reserved = TRUE))
+          paste0(
+            '<a href="', htmltools::htmlEscape(href, attribute = TRUE), '">',
+            htmltools::htmlEscape(as.character(display)),
+            "</a>"
+          )
         }
 
         if (any(grepl(" ", matrix[[fieldname]]), na.rm = TRUE) && !fieldname %in% "gene_set_id") {
@@ -440,14 +442,10 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
           fvs_for_display <- strsplit(fvs_for_display, " ")
 
           matrix[[fieldname]][notna] <- unlist(lapply(seq_along(fvs_for_href), function(x) {
-            paste(Map(make_link, fvs_for_href[[x]], fvs_for_display[[x]]), collapse = " ")
+            paste(make_link(fvs_for_href[[x]], fvs_for_display[[x]]), collapse = " ")
           }))
         } else {
-          matrix[[fieldname]][notna] <- unname(vapply(
-            Map(make_link, fvs_for_href, fvs_for_display),
-            identity,
-            character(1)
-          ))
+          matrix[[fieldname]][notna] <- make_link(fvs_for_href, fvs_for_display)
         }
         html_columns <- c(html_columns, fieldname)
       }
