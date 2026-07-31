@@ -23,6 +23,8 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   app$set_inputs(`rnaseq-rnaseq` = "pca")
   app$wait_for_idle(timeout = 20000)
 
+  expect_equal(app$get_value(input = "rnaseq-pca-pca-threedee"), "FALSE")
+
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-pca-pca-scatter" %in% outputs)
   expect_true("rnaseq-pca-components-datatable" %in% outputs)
@@ -37,9 +39,12 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   traces <- scatter$x$data
   expect_gt(length(traces), 0)
 
-  point_traces <- Filter(function(tr) length(tr$x) > 0, traces)
+  point_traces <- Filter(function(tr) identical(tr$mode, "markers") && length(tr$text) > 0, traces)
   expect_gt(length(point_traces), 0)
+  sample_labels <- unlist(lapply(point_traces, function(tr) unlist(tr$text, use.names = FALSE)), use.names = FALSE)
   n_points <- sum(vapply(point_traces, function(tr) length(tr$x), integer(1)))
+  expect_setequal(sample_labels, paste0("sample", seq_len(12)))
+  expect_length(sample_labels, 12)
   expect_equal(n_points, 12)
   expect_equal(sum(vapply(point_traces, function(tr) length(tr$y), integer(1))), 12)
 
