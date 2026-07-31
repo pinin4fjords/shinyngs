@@ -5,6 +5,7 @@
 #'
 #' @param id Submodule namespace
 #' @param allow_3d Boolean: allow user to choose 3D plotting?
+#' @param default_3d Boolean: select 3D when the controls first render?
 #' @param make_colors Boolean: add controls for coloring?
 #'
 #' @return output An HTML tag object that can be rendered as HTML using
@@ -13,11 +14,11 @@
 #' @examples
 #' scatterplotcontrolsInput("pca", allow_3d = FALSE) # for a 2D plot
 #'
-scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE) {
+scatterplotcontrolsInput <- function(id, allow_3d = TRUE, default_3d = TRUE, make_colors = FALSE) {
   ns <- NS(id)
 
   if (allow_3d) {
-    inputs <- list(radioButtons(ns("threedee"), "Plot type", c(`3D` = TRUE, `2D` = FALSE), inline = TRUE))
+    inputs <- list(radioButtons(ns("threedee"), "Plot type", c(`3D` = TRUE, `2D` = FALSE), selected = default_3d, inline = TRUE))
   } else {
     inputs <- list(hidden_input(ns("threedee"), FALSE))
   }

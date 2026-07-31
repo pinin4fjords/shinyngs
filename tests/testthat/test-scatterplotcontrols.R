@@ -2,6 +2,18 @@ make_scatterplot_matrix <- function() {
   matrix(1:12, nrow = 4, dimnames = list(paste0("s", 1:4), c("PC1", "PC2", "PC3")))
 }
 
+test_that("scatterplot controls keep 3D as their backwards-compatible default", {
+  html <- htmltools::renderTags(scatterplotcontrolsInput("scatter"))$html
+
+  expect_match(html, 'value="TRUE" checked')
+})
+
+test_that("scatterplot controls can default to 2D", {
+  html <- htmltools::renderTags(scatterplotcontrolsInput("scatter", default_3d = FALSE))$html
+
+  expect_match(html, 'value="FALSE" checked')
+})
+
 test_that("getXAxis/getYAxis/getZAxis return the selected axis columns in 3D mode", {
   m <- make_scatterplot_matrix()
 
