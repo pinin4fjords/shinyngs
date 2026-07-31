@@ -91,6 +91,7 @@ reference:
   - interactive_densityplot
   - interactive_differential_summary
   - interactive_enrichment_overview
+  - interactive_gene_contrast_profile
   - interactive_illumina_control_probes
   - interactive_pca_metadata_heatmap
   - interactive_pca_variance_heatmap

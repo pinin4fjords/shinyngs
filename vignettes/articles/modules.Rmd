@@ -247,17 +247,19 @@ Panels centred on individual genes or gene sets.
 Detailed information for one or more genes selected by label or identifier. It
 combines an **expression bar plot** (expression per sample, optionally coloured
 by an experimental variable) with a **gene info** table of annotation (with
-links out to external resources where configured), a **contrasts table** listing
-that gene's differential results across all defined contrasts, and, where the
-experiment has an associated Ensembl species, a **gene model** view: an
-interactive genome-browser diagram of the gene's exon/transcript structure.
+links out to external resources where configured), a **contrast profile** showing
+fold change and q-value status across comparisons, a **contrasts table** listing
+that gene's differential results, and, where the experiment has an associated
+Ensembl species, a **gene model** view: an interactive genome-browser diagram of
+the gene's exon/transcript structure.
 
 *Inputs:* one or more selected genes; an assay matrix and a "colour by" variable
 for the bar plot; contrasts for the results table; an Ensembl species (plus
 `chromosome_name`/`start_position`/`end_position` feature metadata) for the gene
 model.
-*Backed by:* `interactive_scatterplot` for the expression bar plot; the gene model
-view uses the `igvShiny` (igv.js) browser.
+*Backed by:* `interactive_scatterplot` for the expression bar plot,
+`interactive_gene_contrast_profile` for the contrast profile, and `igvShiny`
+(igv.js) for the gene model.
 
 ![Gene page: expression bar plot, gene info and contrasts table](img/gene-page.png)
 

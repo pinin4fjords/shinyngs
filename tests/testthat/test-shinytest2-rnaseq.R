@@ -92,6 +92,31 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
   expect_equal(length(main_trace$y), 12)
 })
 
+test_that("the Gene info tab renders a selected gene contrast profile", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("rnaseq", "rnaseq-gene-contrast-profile")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$set_inputs(`rnaseq-rnaseq` = "geneinfo")
+  app$wait_for_idle(timeout = 20000)
+  app$set_inputs(`rnaseq-gene-gene_label-label` = "Gene1", wait_ = FALSE)
+  app$wait_for_idle(timeout = 20000)
+
+  widget <- jsonlite::fromJSON(
+    app$get_value(output = "rnaseq-gene-geneContrastProfile"),
+    simplifyVector = FALSE
+  )
+  marker_traces <- Filter(function(trace) identical(trace$mode, "markers") && length(trace$text) > 0, widget$x$data)
+
+  expect_equal(sum(vapply(marker_traces, function(trace) length(trace$x), integer(1))), 1)
+  expect_setequal(
+    unlist(lapply(marker_traces, function(trace) as.character(trace$y)), use.names = FALSE),
+    "Condition: treated vs control"
+  )
+})
+
 # URL bookmarking round-trip is covered separately in
 # test-shinytest2-bookmark.R (its own file, so its 40s timeouts and separate
 # on-disk-app process don't make this file the parallel-worker bottleneck).

@@ -91,6 +91,10 @@
 
 ## New features
 
+* The gene information page gains an interactive contrast profile showing one
+  gene's signed log2 fold change, direction, and q-value status across all
+  defined contrasts.
+
 * The differential set intersection panel gains a directional summary that
   compares up- and down-regulated feature counts across contrasts using its
   existing differential filters.
