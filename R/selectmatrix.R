@@ -238,6 +238,18 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       SummarizedExperiment::assays(ese)[[assay]]
     })
 
+    shouldSummarise <- reactive({
+      if (!allow_summarise ||
+        !has_slot_data(eselist, "group_vars") ||
+        !identical(sampleselect_reactives$getSampleSelect(), "group")) {
+        return(FALSE)
+      }
+
+      summary_type <- sampleselect_reactives$getSummaryType()
+      length(summary_type) == 1 &&
+        summary_type != "none"
+    })
+
     # Generate an expression matrix given the selected experiment, assay, rows and columns
 
     selectMatrix <- reactive({
@@ -249,7 +261,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
         rows <- geneselect_reactives$selectRows()
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
-        if (allow_summarise && sampleselect_reactives$getSampleSelect() == "group" && sampleselect_reactives$getSummaryType() != "none") {
+        if (shouldSummarise()) {
           selected_matrix <- summarize_matrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
         }
 
@@ -277,7 +289,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # summarised if grouping variables were supplied!
 
     isSummarised <- reactive({
-      allow_summarise && has_slot_data(eselist, "group_vars") && sampleselect_reactives$getSummaryType() != "none"
+      shouldSummarise()
     })
 
     # Extract the annotation from the SummarizedExperiment

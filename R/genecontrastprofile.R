@@ -37,8 +37,7 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
   }
 
   fold_change <- suppressWarnings(as.numeric(contrast_table[["Fold change"]]))
-  log2_fold_change <- sign(fold_change) * log2(abs(fold_change))
-  log2_fold_change[!is.na(fold_change) & fold_change == 0] <- 0
+  log2_fold_change <- log_fold_change(fold_change)
   keep <- is.finite(log2_fold_change)
   if (!any(keep)) {
     stop("interactive_gene_contrast_profile(): no finite fold changes to plot")

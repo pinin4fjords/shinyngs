@@ -85,7 +85,10 @@ contrasts:
   yaml_file <- tempfile(fileext = ".yaml")
   writeLines(yaml_content, yaml_file)
 
-  contrasts <- read_contrasts(yaml_file, samples)
+  expect_warning(
+    contrasts <- read_contrasts(yaml_file, samples),
+    "Column time is numeric and may be treated as continuous"
+  )
 
   # Test basic structure
   expect_true(is.data.frame(contrasts))
@@ -134,7 +137,10 @@ contrasts:
   yaml_file <- tempfile(fileext = ".yaml")
   writeLines(yaml_content, yaml_file)
 
-  contrasts <- read_contrasts(yaml_file, samples)
+  expect_warning(
+    contrasts <- read_contrasts(yaml_file, samples),
+    "Column time is numeric and may be treated as continuous"
+  )
 
   # Test basic structure
   expect_true(is.data.frame(contrasts))
@@ -474,6 +480,22 @@ test_that("cond_log2_transform_matrix guesses reverse (unlog) status correctly",
 })
 
 # guess_foldchange_scale()
+
+test_that("signed fold-change conversion handles no-change values", {
+  expect_equal(unlog_fold_change(c(-2, -1, 0, 1, 2)), c(-4, -2, 1, 2, 4))
+  expect_equal(log_fold_change(c(-4, -2, 1, 2, 4)), c(-2, -1, 0, 1, 2))
+})
+
+test_that("signed fold-change conversion preserves special values", {
+  expect_equal(log_fold_change(c(0, NA, Inf, -Inf)), c(0, NA, Inf, -Inf))
+  expect_equal(unlog_fold_change(c(0, NA, Inf, -Inf)), c(1, NA, Inf, -Inf))
+})
+
+test_that("signed fold-change conversion round trips its valid domain", {
+  log2_values <- c(-3.5, -1, 0, 0.5, 4, NA, Inf, -Inf)
+
+  expect_equal(log_fold_change(unlog_fold_change(log2_values)), log2_values)
+})
 
 test_that("guess_foldchange_scale detects log2 values via sub-unity magnitudes", {
   expect_equal(guess_foldchange_scale(c(-3.2, 1.1, 0.4, -0.05, 2.8)), "log2")

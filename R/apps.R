@@ -181,6 +181,7 @@ htmlwidget_preload_deps <- local({
 simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
   inputFunc <- get(paste0(module, "Input"))
   outputFunc <- get(paste0(module, "Output"))
+  module_args <- list(...)
 
   moduletitle <- prettify_variable_name(module)
 
@@ -188,7 +189,13 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     ui <- shinyngsPageNavbar(list(
       id = "pages", title = moduletitle,
       window_title = moduletitle,
-      bslib::nav_panel(prettify_variable_name(module), moduleLayout(inputFunc(module, eselist, ...), outputFunc(module, ...)))
+      bslib::nav_panel(
+        prettify_variable_name(module),
+        moduleLayout(
+          do.call(inputFunc, c(list(module, eselist), module_args)),
+          do.call(outputFunc, c(list(module), module_args))
+        )
+      )
     ))
 
     if (ui_only) {
@@ -197,7 +204,7 @@ simpleApp <- function(eselist, module = NULL, ui_only = FALSE, ...) {
     } else {
       server <- function(input, output, session) {
         configureBookmarking(input, session, nav_input = "pages")
-        get(module)(module, eselist, ...)
+        do.call(get(module), c(list(module, eselist), module_args))
       }
     }
     list(ui = ui, server = server)

@@ -150,12 +150,23 @@ interactive_illumina_control_probes <- function(control_annotation, controls, sa
     colMeans(controls_merged[grep(paste0(qcg, "($|,)"), controls_merged$Reporter_Group_id), colnames(controls)])
   })))
 
-  dplyr::group_by(plotdata, Var2) %>%
-    plot_ly() %>%
-    add_lines(x = ~Var1, y = ~value, color = ~Var2, colors = c(
-      "red", "red", "red", "orange", "orange", "black",
-      "purple", "blue", "green"
-    ), linetype = ~Var2, linetypes = c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")) %>%
+  qc_colors <- c("red", "red", "red", "orange", "orange", "black", "purple", "blue", "green")
+  qc_linetypes <- c("dot", "dash", "solid", "dash", "solid", "solid", "solid", "solid", "solid")
+
+  p <- plot_ly()
+  for (i in seq_along(qc_groups)) {
+    group_name <- names(qc_groups)[i]
+    group_data <- plotdata[as.character(plotdata$Var2) == group_name, ]
+    p <- add_lines(
+      p,
+      x = group_data$Var1,
+      y = group_data$value,
+      name = group_name,
+      line = list(color = qc_colors[i], dash = qc_linetypes[i])
+    )
+  }
+
+  p %>%
     layout(xaxis = list(
       categoryarray = sample_order,
       categoryorder = "array", title = ""

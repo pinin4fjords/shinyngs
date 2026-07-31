@@ -84,8 +84,10 @@ upsetOutput <- function(id, eselist) {
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
     shinycssloaders::withSpinner(plotlyOutput(ns("interactive_upset"), height = "600px"), color = shinyngsSpinnerColor()),
-    h4("Differential set summary"),
+    h4("Differential features across contrasts"),
     uiOutput(ns("differential_parameters")),
+    uiOutput(ns("differential_summary_plot_ui")),
+    h4("Differential set summary"),
     simpletableOutput(ns("upset")),
     help = modalInput(ns(upset_modal$id), "help", "help")
   )
@@ -157,6 +159,26 @@ upset <- function(id, eselist, setlimit = 16) {
     output$differential_parameters <- renderUI({
       query_strings <- contrast_reactives$getQueryStrings()
       HTML(query_strings[1])
+    })
+
+    getDifferentialSummary <- contrast_reactives$makeDifferentialSetSummary
+
+    output$differential_summary_plot_ui <- renderUI({
+      summary <- getDifferentialSummary()
+      height <- min(1000, max(420, nrow(summary) * 38 + 160))
+      shinycssloaders::withSpinner(
+        plotlyOutput(ns("differential_summary"), height = paste0(height, "px")),
+        color = shinyngsSpinnerColor()
+      )
+    })
+
+    getDifferentialSummaryPlot <- reactive({
+      interactive_differential_summary(getDifferentialSummary())
+    }) %>% bindCache(getDifferentialSummary())
+
+    output$differential_summary <- renderPlotly({
+      getDifferentialSummaryPlot() %>%
+        shinyngsPlotlyConfig("differential_summary", format = session$userData$plotFormat())
     })
 
     output$subset_notice <- renderUI({
@@ -335,7 +357,7 @@ upset <- function(id, eselist, setlimit = 16) {
     # only one), which can race a debounced control change against DT's
     # server-side paging (see simpletable()'s `server` argument).
 
-    simpletable("upset", downloadMatrix = contrast_reactives$makeDifferentialSetSummary, displayMatrix = contrast_reactives$makeDifferentialSetSummary, filter = "none", filename = "differential_summary", rownames = FALSE, server = FALSE)
+    simpletable("upset", downloadMatrix = getDifferentialSummary, displayMatrix = getDifferentialSummary, filter = "none", filename = "differential_summary", rownames = FALSE, server = FALSE)
   })
 }
 
@@ -503,16 +525,17 @@ upset_set_size_chart <- function(sets) {
 
 upset_intersect_size_chart <- function(ints, nintersects, bar_numbers = FALSE) {
   intersects <- ints$intersections
+  displayed <- seq_len(min(nintersects, length(intersects)))
 
-  p <- plot_ly(showlegend = FALSE) %>% add_trace(x = seq_len(nintersects), y = unlist(intersects[seq_len(nintersects)]), type = "bar", marker = list(
+  p <- plot_ly(showlegend = FALSE) %>% add_trace(x = displayed, y = unlist(intersects[displayed]), type = "bar", marker = list(
     color = "black",
     hoverinfo = "none"
   ))
 
   if (bar_numbers) {
     p <- p %>% add_trace(
-      type = "scatter", mode = "text", x = seq_len(nintersects), y = unlist(intersects[seq_len(nintersects)]) + (max(intersects) * 0.05),
-      text = unlist(intersects[seq_len(nintersects)]), textfont = list(color = "black")
+      type = "scatter", mode = "text", x = displayed, y = unlist(intersects[displayed]) + (max(intersects) * 0.05),
+      text = unlist(intersects[displayed]), textfont = list(color = "black")
     )
   }
 

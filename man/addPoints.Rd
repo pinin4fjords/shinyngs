@@ -15,7 +15,8 @@ addPoints(
   plot_type = "scatter",
   point_size = 5,
   labels = NULL,
-  showlegend = FALSE
+  showlegend = FALSE,
+  palette = NULL
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ addPoints(
 \item{labels}{Vector of labels to apply (if 'label' is TRUE)}
 
 \item{showlegend}{Boolean: show this set of points in the legend?}
+
+\item{palette}{Colors used for grouped points}
 }
 \value{
 output Plotly plot object
