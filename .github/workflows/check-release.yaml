@@ -7,7 +7,8 @@ on:
 name: R-CMD-check
 
 jobs:
-  R-CMD-check:
+  r_cmd_check_matrix:
+    name: R-CMD-check (${{ matrix.r }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -198,3 +199,13 @@ jobs:
         run: |
           echo "Coverage instrumentation failed or coverage was below the required floor; see the coverage step above."
           exit 1
+
+  R-CMD-check:
+    needs: r_cmd_check_matrix
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every R check
+        env:
+          MATRIX_RESULT: ${{ needs.r_cmd_check_matrix.result }}
+        run: test "$MATRIX_RESULT" = "success"
