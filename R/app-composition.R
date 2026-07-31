@@ -165,6 +165,12 @@ explorerDifferentialMenu <- function(ns, eselist, options) {
       moduleLayout(genesetbarcodeplotInput(ns(options$app_type), eselist), genesetbarcodeplotOutput(ns(options$app_type))),
       icon = icon("barcode")
     ))
+    if (has_cross_contrast_enrichment(eselist)) {
+      menu <- push_to_list(menu, bslib::nav_panel("Gene set overview",
+        moduleLayout(enrichmentoverviewInput(ns("enrichmentoverview"), eselist), enrichmentoverviewOutput(ns("enrichmentoverview"))),
+        icon = icon("chart-line")
+      ))
+    }
   }
 
   if (options$dexseq && explorerHasExperimentData(eselist, "dexseq_results")) {
@@ -266,6 +272,9 @@ explorerStartModules <- function(eselist, options, heatmap_layout) {
     if (explorerHasExperimentData(eselist, "gene_set_analyses")) {
       genesetanalysistable("genesetanalysis", eselist)
       callbacks$geneset <- genesetbarcodeplot(options$app_type, eselist)
+      if (has_cross_contrast_enrichment(eselist)) {
+        enrichmentoverview("enrichmentoverview", eselist)
+      }
     }
     if (length(eselist@contrasts) > 1) {
       upset("upset", eselist)
