@@ -239,10 +239,12 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     })
 
     shouldSummarise <- reactive({
+      summary_type <- sampleselect_reactives$getSummaryType()
       allow_summarise &&
         has_slot_data(eselist, "group_vars") &&
-        sampleselect_reactives$getSampleSelect() == "group" &&
-        sampleselect_reactives$getSummaryType() != "none"
+        identical(sampleselect_reactives$getSampleSelect(), "group") &&
+        length(summary_type) == 1 &&
+        summary_type != "none"
     })
 
     # Generate an expression matrix given the selected experiment, assay, rows and columns
