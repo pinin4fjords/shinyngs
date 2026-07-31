@@ -17,11 +17,9 @@ output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This provides the form elements to control the RNA-seq display
-}
-\details{
-The illuminaarray module is a combination of output from many modules (pca, boxplot
-etc) to form a comprehensive analysis application.
+This provides the form elements to control the Illumina expression array
+display. The illuminaarray module combines output from analysis modules such
+as PCA and boxplots into a comprehensive application.
 }
 \examples{
 illuminaarrayInput("illuminaarray", eselist)
