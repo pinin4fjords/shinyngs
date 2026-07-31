@@ -91,6 +91,10 @@
 
 ## New features
 
+* Apps with compatible gene set results for at least two contrasts gain a gene
+  set overview that compares direction and FDR across contrasts while keeping
+  missing result combinations visible.
+
 * `interactive_scatterplot()` gains an opt-in `colorby_menu` dropdown for switching
   the colouring variable within a single self-contained widget, plus
   `xrange`/`yrange` arguments for pinning axis ranges (e.g. a symmetric volcano
@@ -105,6 +109,9 @@
 * A generic category-counts plot for feature and sample metadata.
 
 ## Improvements
+
+* PCA component and loading plots open in 2D, with 3D available from the plot
+  type control.
 
 * `interactive_heatmap()` gains a `show_row_labels` argument for suppressing
   row labels, and now defaults `plot_height` to a height scaled to the number
@@ -132,6 +139,9 @@
   `heatmap_layout_options()` call into the `app.R` it generates.
 
 ## Bug fixes
+
+* Variance-based row selectors use valid slider bounds for assays with fewer
+  rows than the configured default.
 
 * `interactive_heatmap()` left a disproportionately large gap between the
   column annotation bars (and/or column dendrogram) and the heatmap body -

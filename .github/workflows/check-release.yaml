@@ -7,11 +7,25 @@ on:
 name: R-CMD-check
 
 jobs:
-  R-CMD-check:
+  r_cmd_check_matrix:
+    name: R-CMD-check (${{ matrix.r }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - r: '4.1'
+            run_extras: false
+            use_public_rspm: false
+            bioc_mirror: https://bioconductor.org
+          - r: 'release'
+            run_extras: true
+            use_public_rspm: true
+            bioc_mirror: https://bioconductor.posit.co
     env:
       GITHUB_PAT: ${{ secrets.R_CI }}
       R_KEEP_PKG_SOURCE: yes
+      R_BIOC_MIRROR: ${{ matrix.bioc_mirror }}
       TEST_DATA_BASE: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/mus_musculus/rnaseq_expression"
       FEATURE_META_FILE: "SRP254919.gene_meta.tsv"
       SAMPLE_META_FILE: "SRP254919.samplesheet.csv"
@@ -27,8 +41,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          use-public-rspm: true
-          r-version: '4.4.0'
+          use-public-rspm: ${{ matrix.use_public_rspm }}
+          r-version: ${{ matrix.r }}
 
       - name: Install system libraries required by Rhtslib
         # Per Rhtslib's DESCRIPTION: SystemRequirements: libbz2 & liblzma &
@@ -78,29 +92,28 @@ jobs:
           build_args: 'c("--no-manual", "--no-build-vignettes")'
 
       - name: Report and enforce test coverage
-        # covr instrumentation itself can be flaky, independent of actual
-        # coverage, so that failure mode is only warned about below. This
-        # step doesn't fail the job directly (continue-on-error below) so
-        # that the integration steps that follow still run and report their
-        # own failures in the same CI run; the final step fails the job if
-        # this one's outcome was a genuine coverage-floor failure.
+        # Continue through integration checks after a coverage failure, then
+        # propagate instrumentation or coverage-floor failures at job end.
         id: coverage
+        if: matrix.run_extras
         continue-on-error: true
         run: |
           Rscript -e '
             coverage_floor <- 55
 
-            cov <- tryCatch(
-              covr::package_coverage(quiet = FALSE),
-              error = function(e) {
-                cat("::warning::covr instrumentation failed, skipping coverage report and floor check:", conditionMessage(e), "\n")
-                NULL
-              }
-            )
-
-            if (is.null(cov)) {
-              quit(status = 0)
+            run_coverage <- function(attempt) {
+              tryCatch(
+                covr::package_coverage(quiet = FALSE),
+                error = function(e) {
+                  cat(sprintf("::warning::covr instrumentation attempt %d failed: %s\n", attempt, conditionMessage(e)))
+                  NULL
+                }
+              )
             }
+
+            cov <- run_coverage(1)
+            if (is.null(cov)) cov <- run_coverage(2)
+            if (is.null(cov)) stop("covr instrumentation failed after two attempts")
 
             print(cov)
 
@@ -129,12 +142,14 @@ jobs:
           '
 
       - name: Download test data from nf-core tests data repo
+        if: matrix.run_extras
         run: |
           for filename in $CONTRASTS_FILE $FEATURE_META_FILE $SAMPLE_META_FILE $ASSAY_FILE $DIFFERENTIAL_FILE; do
             wget -O $filename ${TEST_DATA_BASE}/$filename
           done
 
       - name: Run integration scripts (FOM validation, exploratory/differential plots, app build)
+        if: matrix.run_extras
         run: |
           pids=()
 
@@ -179,8 +194,18 @@ jobs:
           done
           exit $status
 
-      - name: Fail the job if coverage was below the floor
-        if: always() && steps.coverage.outcome == 'failure'
+      - name: Fail the job if coverage enforcement failed
+        if: always() && matrix.run_extras && steps.coverage.outcome == 'failure'
         run: |
-          echo "Test coverage was below the required floor; see the 'Report and enforce test coverage' step above for the measured percentage."
+          echo "Coverage instrumentation failed or coverage was below the required floor; see the coverage step above."
           exit 1
+
+  R-CMD-check:
+    needs: r_cmd_check_matrix
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every R check
+        env:
+          MATRIX_RESULT: ${{ needs.r_cmd_check_matrix.result }}
+        run: test "$MATRIX_RESULT" = "success"

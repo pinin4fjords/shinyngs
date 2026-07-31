@@ -129,27 +129,28 @@ sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
       withProgress(message = "Selecting samples", value = 0, {
         validate(need(!is.null(getSampleSelect()), "Waiting for form to provide sampleSelect"))
         ese <- getExperiment()
+        sample_select <- getSampleSelect()
 
-        if (getSampleSelect() == "all") {
+        if (sample_select == "all") {
           return(colnames(ese))
-        } else {
-          validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
-
-          if (has_slot_data(eselist, "group_vars")) {
-            validate(need(!is.null(input$sampleGroupVal), FALSE))
-          }
-
-          if (getSampleSelect() == "name") {
-            return(input$samples)
-          } else {
-            # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
-
-            samplegroups <- as.character(ese[[isolate(input$sampleGroupVar)]])
-            samplegroups[is.na(samplegroups)] <- ""
-
-            return(colnames(ese)[samplegroups %in% input$sampleGroupVal])
-          }
         }
+
+        if (sample_select == "name") {
+          validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
+          return(input$samples)
+        }
+
+        validate(need(sample_select == "group", paste0("Unknown sample selection mode: ", sample_select)))
+        validate(need(has_slot_data(eselist, "group_vars"), "No sample grouping variables are available"))
+        validate(need(!is.null(input$sampleGroupVar), "Waiting for form to provide sampleGroupVar"))
+        validate(need(!is.null(input$sampleGroupVal), "Waiting for form to provide sampleGroupVal"))
+
+        # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
+
+        samplegroups <- as.character(ese[[isolate(input$sampleGroupVar)]])
+        samplegroups[is.na(samplegroups)] <- ""
+
+        colnames(ese)[samplegroups %in% input$sampleGroupVal]
       })
     })
 

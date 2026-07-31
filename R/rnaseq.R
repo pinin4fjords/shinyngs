@@ -158,6 +158,13 @@ rnaseqInput <- function(id, eselist) {
         moduleLayout(genesetbarcodeplotInput(ns("rnaseq"), eselist), genesetbarcodeplotOutput(ns("rnaseq"))),
         icon = icon("barcode")
       ))
+
+      if (has_cross_contrast_enrichment(eselist)) {
+        differential_menu <- push_to_list(differential_menu, bslib::nav_panel("Gene set overview",
+          moduleLayout(enrichmentoverviewInput(ns("enrichmentoverview"), eselist), enrichmentoverviewOutput(ns("enrichmentoverview"))),
+          icon = icon("chart-line")
+        ))
+      }
     }
 
     # If any of the experiments have differential exon usage results
@@ -262,6 +269,9 @@ rnaseq <- function(id, eselist, heatmap_layout = heatmap_layout_options()) {
       maplot("ma", eselist)
       genesetanalysistable("genesetanalysis", eselist)
       updateBarcodeGeneset <- genesetbarcodeplot("rnaseq", eselist)
+      if (has_cross_contrast_enrichment(eselist)) {
+        enrichmentoverview("enrichmentoverview", eselist)
+      }
       if (length(eselist@contrasts) > 1) {
         upset("upset", eselist)
       }

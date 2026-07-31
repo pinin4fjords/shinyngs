@@ -503,16 +503,17 @@ upset_set_size_chart <- function(sets) {
 
 upset_intersect_size_chart <- function(ints, nintersects, bar_numbers = FALSE) {
   intersects <- ints$intersections
+  displayed <- seq_len(min(nintersects, length(intersects)))
 
-  p <- plot_ly(showlegend = FALSE) %>% add_trace(x = seq_len(nintersects), y = unlist(intersects[seq_len(nintersects)]), type = "bar", marker = list(
+  p <- plot_ly(showlegend = FALSE) %>% add_trace(x = displayed, y = unlist(intersects[displayed]), type = "bar", marker = list(
     color = "black",
     hoverinfo = "none"
   ))
 
   if (bar_numbers) {
     p <- p %>% add_trace(
-      type = "scatter", mode = "text", x = seq_len(nintersects), y = unlist(intersects[seq_len(nintersects)]) + (max(intersects) * 0.05),
-      text = unlist(intersects[seq_len(nintersects)]), textfont = list(color = "black")
+      type = "scatter", mode = "text", x = displayed, y = unlist(intersects[displayed]) + (max(intersects) * 0.05),
+      text = unlist(intersects[displayed]), textfont = list(color = "black")
     )
   }
 

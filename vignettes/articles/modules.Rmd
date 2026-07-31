@@ -291,6 +291,17 @@ with gene-level thresholds.
 
 ![Gene set analysis table showing ROAST results with significant genes annotated per set](img/geneset-analyses.png)
 
+### Gene-set overview
+
+A cross-contrast dot plot compares compatible enrichment results for one gene-set
+type. Gene sets are ranked by their smallest FDR, point size represents
+significance, and colour shows the reported direction. Missing gene-set and
+contrast combinations remain blank instead of being dropped.
+
+*Inputs:* precomputed enrichment results for at least two contrasts, one
+gene-set type, a maximum FDR, and the number of sets to display.
+*Backed by:* `interactive_enrichment_overview`.
+
 ## QC / platform-specific
 
 Panels tied to a particular assay platform or analysis method.
