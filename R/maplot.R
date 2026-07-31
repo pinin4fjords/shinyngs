@@ -144,8 +144,7 @@ buildMaTable <- function(contrast_reactives) {
     sct <- contrast_reactives$selectedContrastsTables()
     ct <- sct[[1]][[1]]
 
-    matable <- data.frame(round(log10(rowMeans(ct[, 1:2])), 3), round(sign(ct[["Fold change"]]) *
-      log2(abs(ct[["Fold change"]])), 3), row.names = rownames(ct), check.names = FALSE)
+    matable <- data.frame(round(log10(rowMeans(ct[, 1:2])), 3), round(log_fold_change(ct[["Fold change"]]), 3), row.names = rownames(ct), check.names = FALSE)
     colnames(matable) <- c("log(10) mean expression", paste0("log(2) fold change [source scale: ", contrast_reactives$getFoldChangeScale(), "]"))
 
     matable
