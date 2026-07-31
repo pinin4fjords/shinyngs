@@ -221,7 +221,7 @@ Shiny apps can be created directly from file complements:
         --feature_metadata gene_meta.tsv \
         --contrast_file contrasts.csv \
         --differential_results treatment-saline-drug.deseq2.results.tsv \
-        --output_dir app \
+        --output_directory app \
         --contrast_stats_assay 2 \
         --fold_change_scale log2
 

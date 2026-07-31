@@ -45,12 +45,9 @@ metadata it produces an exploratory-only app; adding a contrast file plus
 differential results wires up the differential views, and adding enrichment
 options wires up gene-set enrichment.
 
-Mandatory arguments: `--title`, `--author`, `--sample_metadata`,
-`--sample_id_col`, `--feature_metadata`, `--feature_id_col`,
-`--diff_feature_id_col`, `--assay_files`, `--assay_entity_name`,
-`--output_directory`, `--contrast_stats_assay`, `--differential_results`.
-(The mandatory list includes the differential/contrast arguments, so provide a
-contrast file and differential results even for a largely exploratory app.)
+Mandatory arguments: `--sample_metadata`, `--feature_metadata`,
+`--assay_files`, and `--output_directory`. To include differential views,
+provide `--contrast_file` and `--differential_results` together.
 
 ### Title and description
 
@@ -93,7 +90,7 @@ contrast file and differential results even for a largely exploratory app.)
 | Flag | Type / default | Description |
 |------|----------------|-------------|
 | `-n`, `--diff_feature_id_col` | character; `"gene_id"` | Differential file column containing feature identifiers. |
-| `-y`, `--contrast_stats_assay` | numeric; `NULL` | Integer indicating which `--assay_files` element the contrast statistics relate to (usually a normalised matrix). Defaults to the last assay. |
+| `-y`, `--contrast_stats_assay` | integer; `NULL` | 1-based index indicating which `--assay_files` element the contrast statistics relate to (usually a normalised matrix). Defaults to the last assay. |
 | `-c`, `--contrast_file` | character; `NULL` | CSV-format contrast file with variable, reference and target in the first 3 columns. |
 | `-d`, `--differential_results` | character; `NULL` | Comma-separated list of CSV/TSV files (fold change and p value at minimum), one per contrast-file row. |
 | `-k`, `--fold_change_column` | character; `"log2FoldChange"` | Column in differential results holding fold changes. |
@@ -159,10 +156,6 @@ Rscript exec/make_app_from_files.R \
   --feature_name_col gene_name \
   --assay_files raw_counts.tsv,normalised_counts.tsv,vst_counts.tsv \
   --assay_names "Raw counts,Normalised,Variance-stabilised" \
-  --contrast_stats_assay 2 \
-  --diff_feature_id_col gene_id \
-  --contrast_file contrasts.csv \
-  --differential_results treatment_vs_control.deseq2.results.tsv \
   --output_directory my_app
 ```
 
