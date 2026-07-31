@@ -43,13 +43,34 @@ test_that("assaydatatable restricts the displayed matrix to the selected samples
       "expression-assay" = "counts",
       "expression-selectmatrix-sampleSelect" = "name",
       "expression-selectmatrix-samples" = c("s1", "s2"),
-      "expression-selectmatrix-sampleGroupVal" = "ctrl",
+      "expression-selectmatrix-summarise-summaryType" = "colMeans",
       "expression-selectmatrix-geneSelect" = "all"
     )
     session$elapse(400)
 
     displayed <- selectmatrix_reactives$selectLabelledMatrix()
     expect_setequal(colnames(displayed), c("Gene id", "s1", "s2"))
+    expect_false(selectmatrix_reactives$isSummarised())
+  })
+})
+
+test_that("assaydatatable reports matrices summarised from sample groups", {
+  eselist <- make_medium_module_eselist()
+
+  shiny::testServer(assaydatatable, args = list(id = "assaydatatable", eselist = eselist), {
+    session$setInputs(
+      "expression-experiment" = "counts",
+      "expression-assay" = "counts",
+      "expression-selectmatrix-sampleSelect" = "group",
+      "expression-selectmatrix-sampleGroupVar" = "condition",
+      "expression-selectmatrix-sampleGroupVal" = c("ctrl", "treated"),
+      "expression-selectmatrix-summarise-summaryType" = "colMeans",
+      "expression-selectmatrix-geneSelect" = "all"
+    )
+    session$elapse(400)
+
+    expect_true(selectmatrix_reactives$isSummarised())
+    expect_equal(colnames(selectmatrix_reactives$selectMatrix()), c("ctrl", "treated"))
   })
 })
 

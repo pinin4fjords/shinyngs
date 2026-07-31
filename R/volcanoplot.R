@@ -162,7 +162,7 @@ buildVolcanoTable <- function(contrast_reactives) {
     ct$`q value`[ct$`q value` == 0] <- min(ct$`q value`[ct$`q value` != 0]) / 10
 
     ct <- ct[, c("Fold change", "q value")]
-    ct[["Fold change"]] <- round(sign(ct[["Fold change"]]) * log2(abs(ct[["Fold change"]])), 3)
+    ct[["Fold change"]] <- round(log_fold_change(ct[["Fold change"]]), 3)
     ct[["q value"]] <- round(-log10(ct[["q value"]]), 3)
 
     cont <- contrast_reactives$getSelectedContrasts()[[1]][[1]]

@@ -18,6 +18,8 @@ COLORBLIND_PALETTE <- c(
   "#595959" # neutral grey
 )
 
+DIRECTION_COLORS <- c(Down = "#0072B2", Up = "#D55E00")
+
 # Picker value selecting the fixed colour-blind-safe palette rather than an
 # RColorBrewer one. The selectInput choice and the make_color_scale branch check
 # must agree on this string, so it is defined once.

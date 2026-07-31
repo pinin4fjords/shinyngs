@@ -1,5 +1,27 @@
 # selectVolcanoLines()
 
+test_that("buildVolcanoTable retains legacy zero fold changes", {
+  contrast_table <- data.frame(
+    reference = c(1, 1),
+    treatment = c(1, 2),
+    `Fold change` = c(0, 2),
+    `q value` = c(0.5, 0.05),
+    check.names = FALSE
+  )
+  contrast_reactives <- list(
+    selectedContrastsTables = function() list(list(contrast_table)),
+    getSelectedContrasts = function() list(list(c("condition", "reference", "treatment"))),
+    getFoldChangeScale = function() "linear"
+  )
+  session <- shiny::MockShinySession$new()
+  on.exit(session$close())
+
+  result <- shiny::withReactiveDomain(session, buildVolcanoTable(contrast_reactives))
+
+  expect_equal(result[[1]], c(0, 1))
+  expect_false(anyNA(result[[1]]))
+})
+
 make_lines <- function(fclim = -2, qvallim = 0.05) {
   data.frame(
     name = c(

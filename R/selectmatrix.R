@@ -238,6 +238,18 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       SummarizedExperiment::assays(ese)[[assay]]
     })
 
+    shouldSummarise <- reactive({
+      if (!allow_summarise ||
+        !has_slot_data(eselist, "group_vars") ||
+        !identical(sampleselect_reactives$getSampleSelect(), "group")) {
+        return(FALSE)
+      }
+
+      summary_type <- sampleselect_reactives$getSummaryType()
+      length(summary_type) == 1 &&
+        summary_type != "none"
+    })
+
     # Generate an expression matrix given the selected experiment, assay, rows and columns
 
     selectMatrix <- reactive({
@@ -249,7 +261,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
         rows <- geneselect_reactives$selectRows()
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
-        if (allow_summarise && sampleselect_reactives$getSampleSelect() == "group" && sampleselect_reactives$getSummaryType() != "none") {
+        if (shouldSummarise()) {
           selected_matrix <- summarize_matrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
         }
 
@@ -277,7 +289,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # summarised if grouping variables were supplied!
 
     isSummarised <- reactive({
-      allow_summarise && has_slot_data(eselist, "group_vars") && sampleselect_reactives$getSummaryType() != "none"
+      shouldSummarise()
     })
 
     # Extract the annotation from the SummarizedExperiment
@@ -412,8 +424,14 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
       url_roots[[prettify_variable_name(fieldname)]] <- url_roots[[fieldname]]
     }
 
+    html_columns <- character()
     for (fieldname in names(url_roots)) {
       if (fieldname %in% colnames(matrix)) {
+        url_root <- url_roots[[fieldname]]
+        if (length(url_root) != 1 || is.na(url_root) || !grepl("^(https?://|[/?#])", url_root, ignore.case = TRUE)) {
+          stop("URL root for '", fieldname, "' must use HTTP, HTTPS, or a relative URL")
+        }
+
         notna <- !is.na(matrix[[fieldname]])
         fvs_for_href <- fvs_for_display <- matrix[[fieldname]][notna]
         if (fieldname %in% colnames(display_values)) {
@@ -422,18 +440,29 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 
         # Use a simple column paste for single-value columns. Different aproach for multi-value columns
 
-        if (any(grepl(" ", matrix[[fieldname]])) && !fieldname %in% "gene_set_id") {
+        make_link <- function(href, display) {
+          href <- paste0(url_root, utils::URLencode(as.character(href), reserved = TRUE))
+          paste0(
+            '<a href="', htmltools::htmlEscape(href, attribute = TRUE), '">',
+            htmltools::htmlEscape(as.character(display)),
+            "</a>"
+          )
+        }
+
+        if (any(grepl(" ", matrix[[fieldname]]), na.rm = TRUE) && !fieldname %in% "gene_set_id") {
           fvs_for_href <- strsplit(fvs_for_href, " ")
           fvs_for_display <- strsplit(fvs_for_display, " ")
 
           matrix[[fieldname]][notna] <- unlist(lapply(seq_along(fvs_for_href), function(x) {
-            paste(paste0("<a href='", url_roots[fieldname], fvs_for_href[[x]], "'>", fvs_for_display[[x]], "</a>"), collapse = " ")
+            paste(make_link(fvs_for_href[[x]], fvs_for_display[[x]]), collapse = " ")
           }))
         } else {
-          matrix[[fieldname]][notna] <- paste0("<a href='", url_roots[fieldname], fvs_for_href, "'>", fvs_for_display, "</a>")
+          matrix[[fieldname]][notna] <- make_link(fvs_for_href, fvs_for_display)
         }
+        html_columns <- c(html_columns, fieldname)
       }
     }
+    attr(matrix, "shinyngs_html_columns") <- unique(html_columns)
     matrix
   })
 }
