@@ -13,6 +13,10 @@ test_that("interactive_differential_summary plots up and down counts around zero
   expect_equal(as.numeric(built$x$data[[2]]$x), c(12, 0))
   expect_true(all(vapply(built$x$data, function(trace) all(trace$textposition == "none"), logical(1))))
   expect_equal(built$x$layout$barmode, "relative")
+  expect_equal(
+    vapply(built$x$data, function(trace) trace$marker$color, character(1)),
+    unname(DIRECTION_COLORS[c("Down", "Up")])
+  )
 })
 
 test_that("direction counts ignore neutral and missing fold changes", {

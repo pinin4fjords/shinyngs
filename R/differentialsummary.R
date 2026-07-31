@@ -53,12 +53,12 @@ interactive_differential_summary <- function(summary_table, title = "Differentia
   plot_ly() %>%
     add_bars(
       x = -down, y = contrast, name = "Down", orientation = "h",
-      marker = list(color = "#0072B2"), text = down_hover,
+      marker = list(color = DIRECTION_COLORS[["Down"]]), text = down_hover,
       textposition = "none", hovertemplate = "%{text}<extra></extra>"
     ) %>%
     add_bars(
       x = up, y = contrast, name = "Up", orientation = "h",
-      marker = list(color = "#D55E00"), text = up_hover,
+      marker = list(color = DIRECTION_COLORS[["Up"]]), text = up_hover,
       textposition = "none", hovertemplate = "%{text}<extra></extra>"
     ) %>%
     layout(
