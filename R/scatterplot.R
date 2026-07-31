@@ -379,12 +379,20 @@ drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_th
     # lets threshold lines reach the rendered plot edges.
     if (plot_type != "scatter3d") {
       if (is.null(xrange) && is.numeric(x)) {
-        xrange <- range(x[is.finite(x)])
-        xrange <- xrange + c(-1, 1) * diff(xrange) * 0.05
+        xrange <- line_endpoints(x)
+        if (anyNA(xrange)) {
+          xrange <- NULL
+        } else {
+          xrange <- xrange + c(-1, 1) * diff(xrange) * 0.05
+        }
       }
       if (is.null(yrange) && is.numeric(y)) {
-        yrange <- range(y[is.finite(y)])
-        yrange <- yrange + c(-1, 1) * diff(yrange) * 0.05
+        yrange <- line_endpoints(y)
+        if (anyNA(yrange)) {
+          yrange <- NULL
+        } else {
+          yrange <- yrange + c(-1, 1) * diff(yrange) * 0.05
+        }
       }
 
       lines <- do.call(rbind, lapply(split(lines, lines$name), function(segment) {

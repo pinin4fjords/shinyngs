@@ -88,6 +88,17 @@ test_that("hline_thresholds span a discrete x-axis without warnings", {
   expect_equal(as.character(hline_trace$x), c("groupA", "groupB"))
 })
 
+test_that("threshold lines tolerate axes without finite values", {
+  expect_no_warning(
+    drawLines(
+      plotly::plot_ly(),
+      x = c(NA_real_, Inf),
+      y = c(1, 2),
+      hline_thresholds = c(threshold = 0)
+    )
+  )
+})
+
 # interactive_scatterplot() colorby_menu
 
 test_that("colorby_menu adds a dropdown and shows only the first option's points initially", {

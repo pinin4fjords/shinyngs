@@ -15,8 +15,10 @@ jobs:
         include:
           - r: '4.1'
             run_extras: false
+            use_public_rspm: false
           - r: 'release'
             run_extras: true
+            use_public_rspm: true
     env:
       GITHUB_PAT: ${{ secrets.R_CI }}
       R_KEEP_PKG_SOURCE: yes
@@ -35,7 +37,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          use-public-rspm: true
+          use-public-rspm: ${{ matrix.use_public_rspm }}
           r-version: ${{ matrix.r }}
 
       - name: Install system libraries required by Rhtslib
