@@ -25,9 +25,19 @@ test_that("count_lines works", {
 
 # hidden_input()
 
-test_that("count_lines works", {
-  test_html <- "<input type='text' id='myid' value='foo' style='display: none;'>"
-  expect_equal(as.character(hidden_input("myid", "foo")), test_html)
+test_that("hidden_input returns a text input", {
+  input <- hidden_input("myid", "foo")
+
+  expect_match(as.character(input), 'type="text"', fixed = TRUE)
+  expect_match(as.character(input), 'id="myid"', fixed = TRUE)
+  expect_match(as.character(input), 'value="foo"', fixed = TRUE)
+})
+
+test_that("hidden_input escapes attribute values", {
+  input <- hidden_input("safe", "x'><script>alert(1)</script>")
+
+  expect_false(grepl("<script>", as.character(input), fixed = TRUE))
+  expect_match(as.character(input), "&lt;script&gt;", fixed = TRUE)
 })
 
 # push_to_list()

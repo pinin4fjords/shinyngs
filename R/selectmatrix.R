@@ -412,8 +412,14 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
       url_roots[[prettify_variable_name(fieldname)]] <- url_roots[[fieldname]]
     }
 
+    html_columns <- character()
     for (fieldname in names(url_roots)) {
       if (fieldname %in% colnames(matrix)) {
+        url_root <- url_roots[[fieldname]]
+        if (length(url_root) != 1 || is.na(url_root) || !grepl("^(https?://|[/?#])", url_root, ignore.case = TRUE)) {
+          stop("URL root for '", fieldname, "' must use HTTP, HTTPS, or a relative URL")
+        }
+
         notna <- !is.na(matrix[[fieldname]])
         fvs_for_href <- fvs_for_display <- matrix[[fieldname]][notna]
         if (fieldname %in% colnames(display_values)) {
@@ -422,18 +428,31 @@ linkMatrix <- function(matrix, url_roots, display_values = data.frame()) {
 
         # Use a simple column paste for single-value columns. Different aproach for multi-value columns
 
-        if (any(grepl(" ", matrix[[fieldname]])) && !fieldname %in% "gene_set_id") {
+        make_link <- function(href, display) {
+          as.character(tags$a(
+            href = paste0(url_root, utils::URLencode(as.character(href), reserved = TRUE)),
+            as.character(display)
+          ))
+        }
+
+        if (any(grepl(" ", matrix[[fieldname]]), na.rm = TRUE) && !fieldname %in% "gene_set_id") {
           fvs_for_href <- strsplit(fvs_for_href, " ")
           fvs_for_display <- strsplit(fvs_for_display, " ")
 
           matrix[[fieldname]][notna] <- unlist(lapply(seq_along(fvs_for_href), function(x) {
-            paste(paste0("<a href='", url_roots[fieldname], fvs_for_href[[x]], "'>", fvs_for_display[[x]], "</a>"), collapse = " ")
+            paste(Map(make_link, fvs_for_href[[x]], fvs_for_display[[x]]), collapse = " ")
           }))
         } else {
-          matrix[[fieldname]][notna] <- paste0("<a href='", url_roots[fieldname], fvs_for_href, "'>", fvs_for_display, "</a>")
+          matrix[[fieldname]][notna] <- unname(vapply(
+            Map(make_link, fvs_for_href, fvs_for_display),
+            identity,
+            character(1)
+          ))
         }
+        html_columns <- c(html_columns, fieldname)
       }
     }
+    attr(matrix, "shinyngs_html_columns") <- unique(html_columns)
     matrix
   })
 }
