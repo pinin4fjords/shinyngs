@@ -1036,6 +1036,16 @@ contrastLabelling <- function(eselist, selectmatrix_reactives, selectFinalFeatur
   list(labelledContrastsTable = labelledContrastsTable, linkedLabelledContrastsTable = linkedLabelledContrastsTable)
 }
 
+count_differential_directions <- function(fold_changes) {
+  directions <- rep(NA_integer_, length(fold_changes))
+  finite <- is.finite(fold_changes)
+  directions[finite] <- sign(fold_changes[finite]) * (abs(fold_changes[finite]) > 1)
+  c(
+    up = sum(directions > 0, na.rm = TRUE),
+    down = sum(directions < 0, na.rm = TRUE)
+  )
+}
+
 #' Summarise the query and its results for the user
 #'
 #' Builds the differential-count summary table, the human-readable query
@@ -1069,8 +1079,9 @@ contrastQuerySummary <- function(output, selectmatrix_reactives, filteredContras
     summaries <- lapply(seq_along(fcts), function(i) {
       summary <- data.frame(cbind(query = queries[i], do.call(rbind, selected_contrasts[[i]])))
       colnames(summary) <- c("Query", "Variable", "group 1", "group 2")
-      summary[[paste0("Differential ", eid, "s (up)")]] <- unlist(lapply(fcts[[i]], function(x) sum(x[, "Fold change"] > 0)))
-      summary[[paste0("Differential ", eid, "s (down)")]] <- unlist(lapply(fcts[[i]], function(x) sum(x[, "Fold change"] < 0)))
+      direction_counts <- lapply(fcts[[i]], function(x) count_differential_directions(x[, "Fold change"]))
+      summary[[paste0("Differential ", eid, "s (up)")]] <- vapply(direction_counts, `[[`, integer(1), "up")
+      summary[[paste0("Differential ", eid, "s (down)")]] <- vapply(direction_counts, `[[`, integer(1), "down")
       summary[[paste0("Differential ", eid, "s (total)")]] <- unlist(lapply(fcts[[i]], nrow))
 
       summary

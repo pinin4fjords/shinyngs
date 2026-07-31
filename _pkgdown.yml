@@ -89,6 +89,7 @@ reference:
   - interactive_clustering_dendrogram
   - interactive_count_barplot
   - interactive_densityplot
+  - interactive_differential_summary
   - interactive_enrichment_overview
   - interactive_illumina_control_probes
   - interactive_pca_metadata_heatmap

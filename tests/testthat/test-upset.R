@@ -158,6 +158,18 @@ test_that("getUpsetPlot adds a text trace when bar_numbers is enabled", {
   }))
 })
 
+test_that("upset reuses its contrast summary for the directional plot", {
+  run_upset_server(make_upset_eselist(), expr = quote({
+    summary <- getDifferentialSummary()
+    up_column <- grep("\\(up\\)$", colnames(summary), value = TRUE)
+    down_column <- grep("\\(down\\)$", colnames(summary), value = TRUE)
+
+    expect_equal(summary[[up_column]], c(5, 7))
+    expect_equal(summary[[down_column]], c(7, 5))
+    expect_false(is.null(output$differential_summary))
+  }))
+})
+
 # interactive_upset() - the same fixture as make_upset_eselist() above, but as
 # plain named sets rather than driven through the Shiny module
 

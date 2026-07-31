@@ -228,11 +228,13 @@ number of contrasts considered and the number of intersections shown. The
 intersection type defaults to exclusive (Venn/Euler-style, so bars sum to the
 total), or can be set to "Complete" so each bar reflects the full pairwise
 intersection (bars then overlap and no longer sum to the total). The plot is
-downloadable.
+downloadable. A directional summary below the intersection plot compares
+up- and down-regulated feature counts across every selected contrast using the
+same filters.
 
 *Inputs:* contrasts with thresholds, and an assay matrix for generating the
 comparisons.
-*Backed by:* `interactive_upset`.
+*Backed by:* `interactive_upset` and `interactive_differential_summary`.
 
 ![UpSet plot showing the exclusive intersections between several contrasts' differential gene sets](img/upset.png)
 

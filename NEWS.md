@@ -91,6 +91,10 @@
 
 ## New features
 
+* The differential set intersection panel gains a directional summary that
+  compares up- and down-regulated feature counts across contrasts using its
+  existing differential filters.
+
 * Apps with compatible gene set results for at least two contrasts gain a gene
   set overview that compares direction and FDR across contrasts while keeping
   missing result combinations visible.

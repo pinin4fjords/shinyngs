@@ -37,6 +37,7 @@ running Shiny session.
 | `interactive_topgene_boxplots()`, `static_topgene_boxplots()` | plotly / ggplot | Faceted boxplots of top differential features |
 | `interactive_cluster_profiles()` | plotly | Feature-wise cluster expression profiles |
 | `interactive_upset()` | plotly | Intersections of feature sets across contrasts |
+| `interactive_differential_summary()` | plotly | Up- and down-regulated feature counts across contrasts |
 | `interactive_enrichment_overview()` | plotly | Gene-set direction and FDR across contrasts |
 | `interactive_barcodeplot()` | plotly | Gene-set enrichment barcode over a ranking |
 | `interactive_barchart()`, `interactive_count_barplot()` | plotly | Bar charts and categorical counts |
