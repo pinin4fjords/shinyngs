@@ -133,6 +133,9 @@
 
 ## Bug fixes
 
+* Variance-based row selectors use valid slider bounds for assays with fewer
+  rows than the configured default.
+
 * `interactive_heatmap()` left a disproportionately large gap between the
   column annotation bars (and/or column dendrogram) and the heatmap body -
   heatmaply's `subplot_margin` renders as double the fraction passed to it,

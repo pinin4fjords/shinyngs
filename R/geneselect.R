@@ -99,6 +99,7 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
     output$geneSelect_ui <- renderUI({
       withProgress(message = "Rendering row selection", value = 0, {
         ns <- session$ns
+        variance_range <- variance_slider_range(var_n, var_max)
 
         gene_select_methods <- c()
         if (provide_none) {
@@ -121,14 +122,10 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
           selected <- default
         }
 
-        obs_max <- max(1, var_max)
-        obs_min <- min(10, obs_max)
-        obs_value <- min(max(var_n, obs_min), obs_max)
-
         gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'variance' "
-        ), sliderInput(ns("obs"), with_help_icon("Show top N most variant rows:", "Rows are ranked by variance across samples; increasing this includes more, less variable rows."), min = obs_min, max = obs_max, value = obs_value)), conditionalPanel(condition = paste0(
+        ), sliderInput(ns("obs"), with_help_icon("Show top N most variant rows:", "Rows are ranked by variance across samples; increasing this includes more, less variable rows."), min = variance_range$min, max = variance_range$max, value = variance_range$value)), conditionalPanel(condition = paste0(
           "input['",
           ns("geneSelect"), "'] == 'metadata_pick' "
         ), labelselectfieldInput(ns("gene_label_pick"))), conditionalPanel(condition = paste0(
@@ -261,6 +258,12 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
 
     geneselect_functions
   })
+}
+
+variance_slider_range <- function(value, maximum) {
+  maximum <- max(1, maximum)
+  minimum <- min(10, maximum)
+  list(min = minimum, max = maximum, value = min(max(value, minimum), maximum))
 }
 
 #' Generate an integer ordering to select the n most variable genes out of a matrix
