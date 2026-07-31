@@ -2,8 +2,7 @@
 % Please edit documentation in R/chipseq.R
 \name{chipseqInput}
 \alias{chipseqInput}
-\title{The input function of the chipseq module. Currently a near-clone of the
-RNA-seq module, with ChIP-seq optimisations planned.}
+\title{The input function of the chipseq module}
 \usage{
 chipseqInput(id, eselist)
 }
@@ -18,11 +17,9 @@ output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This provides the form elements to control the ChIP-seq display
-}
-\details{
-The chipseq module is a combination of output from many modules (pca, boxplot
-etc) to form a comprehensive analysis application.
+This provides the form elements to control the ChIP-seq display. The chipseq
+module combines output from analysis modules such as PCA and boxplots into a
+comprehensive application.
 }
 \examples{
 chipseqInput("chipseq", eselist)
