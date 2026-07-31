@@ -11,6 +11,20 @@ test_that("simpletable renders the display matrix as a datatable", {
   )
 })
 
+test_that("datatable escaping is enabled for ordinary data", {
+  df <- data.frame(gene = "<script>alert(1)</script>")
+
+  expect_true(datatable_escape_columns(df))
+})
+
+test_that("datatable escaping excludes only generated link columns", {
+  df <- data.frame(gene = "safe link", note = "<script>alert(1)</script>")
+  attr(df, "shinyngs_html_columns") <- "gene"
+
+  expect_equal(datatable_escape_columns(df), "note")
+  expect_equal(datatable_escape_columns(df, rownames = TRUE), c(" ", "note"))
+})
+
 test_that("simpletable's download handler writes downloadMatrix, not displayMatrix, to CSV", {
   display_df <- data.frame(gene = c("g1", "g2"), value = c("<b>1</b>", "<b>2</b>"))
   download_df <- data.frame(gene = c("g1", "g2"), value = c(1, 2))
