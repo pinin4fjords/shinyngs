@@ -12,7 +12,8 @@ addTextLabels(
   colorby = NULL,
   labels,
   plot_type,
-  show_labels = TRUE
+  show_labels = TRUE,
+  palette = NULL
 )
 }
 \arguments{
@@ -30,7 +31,9 @@ addTextLabels(
 
 \item{plot_type}{Plot type: 'scatter' or 'scatter3d'}
 
-\item{show_labels}{If false, simpy pass through input plot object}
+\item{show_labels}{If false, simply pass through input plot object}
+
+\item{palette}{Colors used for grouped labels}
 }
 \value{
 output Plotly object
