@@ -319,21 +319,21 @@ eselist_from_config <-
       do.call(ExploratorySummarizedExperiment, ese_list)
     })
 
-    # Parse contrasts if they weren't provided as a list directly
+    comparisons <- list()
+    if (!is.null(config$contrasts)) {
+      if ("comparisons_file" %in% names(config$contrasts)) {
+        config$contrasts$comparisons <-
+          read_contrasts(config$contrasts$comparisons_file,
+            colData(expsumexps[[1]]),
+            convert_to_list = TRUE
+          )
+      }
+      comparisons <- config$contrasts$comparisons
 
-    if ("comparisons_file" %in% names(config$contrasts)) {
-      config$contrasts$comparisons <-
-        read_contrasts(config$contrasts$comparisons_file,
-          colData(expsumexps[[1]]),
-          convert_to_list = TRUE
-        )
-    }
-
-    # Check that number of differential results sets is equal to number of contrasts
-
-    for (ese in expsumexps) {
-      if (ncol(ese@contrast_stats[[1]]$fold_changes) != length(config$contrasts$comparisons)) {
-        stop(paste0("Number of supplied contrasts (", length(config$contrasts$comparisons), ") not equal to the number of sets of differential statistics supplied (", ncol(ese@contrast_stats[[1]]$fold_changes), ")"))
+      for (ese in expsumexps) {
+        if (ncol(ese@contrast_stats[[1]]$fold_changes) != length(comparisons)) {
+          stop(paste0("Number of supplied contrasts (", length(comparisons), ") not equal to the number of sets of differential statistics supplied (", ncol(ese@contrast_stats[[1]]$fold_changes), ")"))
+        }
       }
     }
 
@@ -345,7 +345,7 @@ eselist_from_config <-
       author = config$author,
       group_vars = config$group_vars,
       default_groupvar = config$default_groupvar,
-      contrasts = lapply(config$contrasts$comparisons, function(x) unlist(x))
+      contrasts = lapply(comparisons, function(x) unlist(x))
     )
 
     # Optional things
@@ -505,7 +505,17 @@ read_matrix <- function(matrix_file, sample_metadata, feature_metadata = NULL, s
     }
   }
 
-  as.matrix(matrix_data[, rownames(sample_metadata), drop = FALSE])
+  matrix_data <- matrix_data[, rownames(sample_metadata), drop = FALSE]
+  non_numeric <- colnames(matrix_data)[!vapply(matrix_data, is.numeric, logical(1))]
+  if (length(non_numeric) > 0) {
+    stop(
+      "Matrix file contains non-numeric assay columns: ",
+      paste(non_numeric, collapse = ", "),
+      " (", matrix_file, ")"
+    )
+  }
+
+  as.matrix(matrix_data)
 }
 
 #' Read a metadata file

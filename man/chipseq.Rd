@@ -2,8 +2,7 @@
 % Please edit documentation in R/chipseq.R
 \name{chipseq}
 \alias{chipseq}
-\title{The server function of the chipseq module. Currently a near-clone of the
-RNA-seq module, with ChIP-seq optimisations planned.}
+\title{The server function of the chipseq module}
 \usage{
 chipseq(id, eselist, heatmap_layout = heatmap_layout_options())
 }

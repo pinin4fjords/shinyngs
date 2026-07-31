@@ -19,6 +19,29 @@ setClass("ExploratorySummarizedExperiment", contains = "SummarizedExperiment", s
   assay_measures = "list", gene_set_analyses = "list", dexseq_results = "list", read_reports = "list", gene_set_analyses_tool = "list"
 ))
 
+setValidity("ExploratorySummarizedExperiment", function(object) {
+  errors <- character()
+  annotation_fields <- colnames(SummarizedExperiment::mcols(object))
+
+  validate_annotation_field <- function(field, slot_name, required = FALSE) {
+    if ((required && length(field) != 1) || (!required && length(field) > 1)) {
+      errors <<- c(errors, paste0(slot_name, " must contain ", if (required) "one field" else "at most one field"))
+    } else if (length(field) == 1 && !field %in% annotation_fields) {
+      errors <<- c(errors, paste0(slot_name, " field '", field, "' is absent from the feature annotation"))
+    }
+  }
+
+  validate_annotation_field(object@idfield, "idfield")
+  validate_annotation_field(object@labelfield, "labelfield")
+  validate_annotation_field(object@entrezgenefield, "entrezgenefield")
+
+  if (length(object@assay_measures) > 0 && (is.null(names(object@assay_measures)) || any(!names(object@assay_measures) %in% SummarizedExperiment::assayNames(object)))) {
+    errors <- c(errors, "assay_measures must be named for assays in the object")
+  }
+
+  if (length(errors) == 0) TRUE else errors
+})
+
 setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(from) {
   as(as(from, "SummarizedExperiment"), "ExploratorySummarizedExperiment")
 })
@@ -67,6 +90,9 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' @param gene_set_analyses_tool Three-level nested lists of a string, nested as \code{gene_set_analyses}.
 #' Each string may be \code{"auto"} (the default), \code{"gsea"} or \code{"roast"}. It defines the format of the
 #' corresponding \code{gene_set_analyses} table.
+#' @param assay_digits Number of decimal places retained in assays. The default
+#' reduces compressed serialized object size. Use \code{NULL} to preserve full
+#' numeric precision.
 #'
 #' @return output An ExploratoryRangedSummarizedExperient object
 #' @rawNamespace import(SummarizedExperiment, except = 'shift')
@@ -93,11 +119,43 @@ setAs("RangedSummarizedExperiment", "ExploratorySummarizedExperiment", function(
 #' )
 #'
 ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield, labelfield = character(), entrezgenefield = character(), contrast_stats = list(),
-                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list(), gene_set_analyses_tool = list()) {
+                                            assay_measures = list(), gene_set_analyses = list(), dexseq_results = list(), read_reports = list(), gene_set_analyses_tool = list(), assay_digits = 2) {
   # Reset NULLs to empty
 
   if (is.null(entrezgenefield)) {
     entrezgenefield <- character()
+  }
+
+  if ((!is.list(assays) && !methods::is(assays, "List")) || length(assays) == 0) {
+    stop("assays must be a non-empty list")
+  }
+  if (!is.null(assay_digits) && (!is.numeric(assay_digits) || length(assay_digits) != 1 || is.na(assay_digits) || assay_digits < 0 || assay_digits != as.integer(assay_digits))) {
+    stop("assay_digits must be NULL or one non-negative integer")
+  }
+  if (is.null(rownames(colData)) || anyDuplicated(rownames(colData))) {
+    stop("colData must have unique sample row names")
+  }
+
+  assay_errors <- vapply(seq_along(assays), function(index) {
+    assay <- assays[[index]]
+    assay_name <- if (!is.null(names(assays)) && nzchar(names(assays)[index])) names(assays)[index] else index
+    if (length(dim(assay)) != 2) {
+      return(paste0("assay '", assay_name, "' is not two-dimensional"))
+    }
+    if (!is.numeric(assay)) {
+      return(paste0("assay '", assay_name, "' must contain numeric values"))
+    }
+    if (is.null(rownames(assay)) || anyDuplicated(rownames(assay))) {
+      return(paste0("assay '", assay_name, "' must have unique feature row names"))
+    }
+    if (is.null(colnames(assay)) || anyDuplicated(colnames(assay))) {
+      return(paste0("assay '", assay_name, "' must have unique sample column names"))
+    }
+    ""
+  }, character(1))
+  assay_errors <- assay_errors[nzchar(assay_errors)]
+  if (length(assay_errors) > 0) {
+    stop(paste(assay_errors, collapse = "; "))
   }
 
   # The assays slot of a summarised experiment needs the same dimensions for every matrix
@@ -110,15 +168,31 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
     rbind(x, empty_rows)[all_rows, , drop = FALSE]
   }
 
-  # Subset colData to remove any samples not present in the first assay
+  # The first assay defines which sample metadata rows belong to this object.
 
+  missing_from_first <- setdiff(rownames(colData), colnames(assays[[1]]))
+  if (length(missing_from_first) > 0) {
+    warning("Dropping colData samples absent from the first assay: ", paste(missing_from_first, collapse = ", "))
+  }
   colData <- colData[rownames(colData) %in% colnames(assays[[1]]), , drop = FALSE]
+  if (nrow(colData) == 0) {
+    stop("No colData samples are present in the first assay")
+  }
+  missing_by_assay <- lapply(assays, function(assay) setdiff(rownames(colData), colnames(assay)))
+  if (any(lengths(missing_by_assay) > 0)) {
+    details <- vapply(which(lengths(missing_by_assay) > 0), function(index) {
+      assay_name <- if (!is.null(names(assays)) && nzchar(names(assays)[index])) names(assays)[index] else index
+      paste0("assay '", assay_name, "': ", paste(missing_by_assay[[index]], collapse = ", "))
+    }, character(1))
+    stop("Samples are missing from assays (", paste(details, collapse = "; "), ")")
+  }
 
   assays <- SimpleList(lapply(assays, function(as) {
-    round(add_missing_rows(as)[, rownames(colData), drop = FALSE], 2)
+    aligned_assay <- add_missing_rows(as)[, rownames(colData), drop = FALSE]
+    if (is.null(assay_digits)) aligned_assay else round(aligned_assay, assay_digits)
   }))
 
-  # The same fix for contrast_stats
+  # Align contrast-statistic rows to the combined assay feature set.
 
   if (length(contrast_stats) > 0) {
     contrast_stats <- lapply(contrast_stats, function(stats) {
@@ -130,7 +204,26 @@ ExploratorySummarizedExperiment <- function(assays, colData, annotation, idfield
 
   # Annotations need to be strings
 
-  annotation <- data.frame(lapply(annotation, as.character), check.names = FALSE, row.names = rownames(annotation))[all_rows, ]
+  if (is.null(rownames(annotation)) || anyDuplicated(rownames(annotation))) {
+    stop("annotation must have unique feature row names")
+  }
+  missing_annotation <- setdiff(all_rows, rownames(annotation))
+  if (length(missing_annotation) > 0) {
+    stop("Feature annotation is missing assay rows: ", paste(missing_annotation, collapse = ", "))
+  }
+  annotation <- data.frame(lapply(annotation, as.character), check.names = FALSE, row.names = rownames(annotation))[all_rows, , drop = FALSE]
+  annotation_fields <- colnames(annotation)
+  validate_field <- function(field, field_name, required = FALSE) {
+    if ((required && length(field) != 1) || (!required && length(field) > 1)) {
+      stop(field_name, " must contain ", if (required) "one field" else "at most one field")
+    }
+    if (length(field) == 1 && !field %in% annotation_fields) {
+      stop(field_name, " field '", field, "' is absent from the feature annotation")
+    }
+  }
+  validate_field(idfield, "idfield", required = TRUE)
+  validate_field(labelfield, "labelfield")
+  validate_field(entrezgenefield, "entrezgenefield")
 
   # Ensure consistency between gene_set_analyses with gene_set_analyses_tool
   gene_set_analyses_tool <- check_gene_set_analyses_tool_consistency(gene_set_analyses, gene_set_analyses_tool)

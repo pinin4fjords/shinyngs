@@ -21,3 +21,28 @@ test_that("ExploratorySummarizedExperimentList leaves default_groupvar empty whe
   expect_length(eselist@default_groupvar, 0)
   expect_false(has_slot_data(eselist, "default_groupvar"))
 })
+
+test_that("ExploratorySummarizedExperimentList subsetting preserves metadata slots", {
+  inputs <- make_test_ese_inputs()
+  ese <- do.call(ExploratorySummarizedExperiment, c(inputs, list(idfield = "gene_id")))
+  eselist <- ExploratorySummarizedExperimentList(
+    eses = list(first = ese, second = ese),
+    static_pdf = "study.pdf",
+    group_vars = "group",
+    default_groupvar = "group"
+  )
+
+  expect_equal(eselist["first"]@static_pdf, "study.pdf")
+  expect_equal(eselist[1]@static_pdf, "study.pdf")
+  expect_equal(eselist[c(TRUE, FALSE)]@static_pdf, "study.pdf")
+})
+
+test_that("ExploratorySummarizedExperimentList validates grouping fields", {
+  inputs <- make_test_ese_inputs()
+  ese <- do.call(ExploratorySummarizedExperiment, c(inputs, list(idfield = "gene_id")))
+
+  expect_error(
+    ExploratorySummarizedExperimentList(eses = list(ese), group_vars = "missing", default_groupvar = "missing"),
+    "group_vars fields are absent"
+  )
+})

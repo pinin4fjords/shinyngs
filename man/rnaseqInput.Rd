@@ -17,11 +17,9 @@ output An HTML tag object that can be rendered as HTML using
   as.character()
 }
 \description{
-This provides the form elements to control the RNA-seq display
-}
-\details{
-The rnaseq module is a combination of output from many modules (pca, boxplot
-etc) to form a comprehensive analysis application.
+This provides the form elements to control the RNA-seq display. The rnaseq
+module combines output from analysis modules such as PCA and boxplots into a
+comprehensive application.
 }
 \examples{
 rnaseqInput("rnaseq", eselist)

@@ -93,7 +93,7 @@ option_list <- c(
       c("-w", "--assay_names"),
       type = "character",
       default = NULL,
-      help = "Comma-separated list of names of same length as --assay-files."
+      help = "Comma-separated list of names of same length as --assay_files."
     ),
     make_option(
       c("-x", "--assay_entity_name"),
@@ -126,7 +126,7 @@ option_list <- c(
     ),
     make_option(
       c("-y", "--contrast_stats_assay"),
-      type = "numeric",
+      type = "integer",
       default = NULL,
       help = "Integer indicating which element of --assay_files should be associated in displays with contrast statistics. Usually a normalised matrix useful for relating stats to assay values."
     ),
@@ -269,7 +269,7 @@ option_list <- c(
       c("-o", "--output_directory"),
       type = "character",
       default = NULL,
-      help = "Serialized R object which can be used to generate a shiny app."
+      help = "Directory where data.rds and app.R will be written."
     )
   ),
   # shinyapps.io deployment -----------------------------------------------------
@@ -278,19 +278,19 @@ option_list <- c(
       c("-l", "--deploy_app"),
       action = "store_true",
       default = FALSE,
-      help = "Set this option if fold changes should be unlogged."
+      help = "Deploy the generated app to shinyapps.io after building."
     ),
     make_option(
       c("-b", "--shinyapps_account"),
       type = "character",
       default = NULL,
-      help = "Account name for shinyapp deploment."
+      help = "Account name for shinyapps.io deployment."
     ),
     make_option(
       c("-v", "--shinyapps_name"),
       type = "character",
       default = NULL,
-      help = "App name for shinyapp deploment."
+      help = "App name for shinyapps.io deployment."
     )
   )
 )
@@ -312,30 +312,32 @@ build_app_bundle <- function(opt) {
       prettify_names = TRUE
     )
 
-  # Contrasts
-
-  contrast_stats_files <- strsplit(opt$differential_results, ",")
-  contrast_stats_assay <- opt$contrast_stats_assay
-
-  # Pick last assay by default to relate the stats to
-
-  if (is.null(contrast_stats_assay)) {
-    contrast_stats_assay <- length(assay_files)
-  }
-  names(contrast_stats_files) <- names(assay_files)[contrast_stats_assay]
-
   contrast_stats <- list()
-  contrast_stats[[opt$assay_entity_name]] <- lapply(contrast_stats_files, function(x) {
-    list(
-      "files" = x,
-      "type" = "uncompiled",
-      "feature_id_column" = opt$diff_feature_id_col,
-      "fc_column" = opt$fold_change_column,
-      "pval_column" = opt$pval_column,
-      "qval_column" = opt$qval_column,
-      "fold_change_scale" = opt$fold_change_scale
-    )
-  })
+  contrast_stats_assay <- NULL
+  if (!is.null(opt$differential_results)) {
+    contrast_stats_files <- strsplit(opt$differential_results, ",")
+    contrast_stats_assay <- opt$contrast_stats_assay
+
+    if (is.null(contrast_stats_assay)) {
+      contrast_stats_assay <- length(assay_files)
+    }
+    if (length(contrast_stats_assay) != 1 || is.na(contrast_stats_assay) || contrast_stats_assay < 1 || contrast_stats_assay > length(assay_files)) {
+      stop("--contrast_stats_assay must be a 1-based index into --assay_files")
+    }
+    names(contrast_stats_files) <- names(assay_files)[contrast_stats_assay]
+
+    contrast_stats[[opt$assay_entity_name]] <- lapply(contrast_stats_files, function(x) {
+      list(
+        "files" = x,
+        "type" = "uncompiled",
+        "feature_id_column" = opt$diff_feature_id_col,
+        "fc_column" = opt$fold_change_column,
+        "pval_column" = opt$pval_column,
+        "qval_column" = opt$qval_column,
+        "fold_change_scale" = opt$fold_change_scale
+      )
+    })
+  }
 
   # Enrichment results:
   # To show enrichment results we need:
@@ -465,7 +467,7 @@ build_app_bundle <- function(opt) {
     "experiments" = experiments
   )
 
-  if (!is.null(opt$contrast_file)) {
+  if (!is.null(opt$differential_results)) {
     shiny_config$contrasts <- list(
       "comparisons_file" = opt$contrast_file,
       "stats" = contrast_stats
@@ -560,37 +562,45 @@ deploy_to_shinyapps <- function(opt) {
 
 validate_mandatory_args <- function(opt) {
   mandatory <- c(
-    "title",
-    "author",
     "sample_metadata",
-    "sample_id_col",
     "feature_metadata",
-    "feature_id_col",
-    "diff_feature_id_col",
     "assay_files",
-    "assay_entity_name",
-    "output_directory",
-    "contrast_stats_assay",
-    "differential_results"
+    "output_directory"
   )
 
-  invisible(shinyngs::check_list_is_subset(mandatory, names(opt), "mandatory arguments", "provided options"))
+  missing <- mandatory[vapply(mandatory, function(name) is.null(opt[[name]]) || length(opt[[name]]) == 0, logical(1))]
+  if (length(missing) > 0) {
+    stop("Missing mandatory arguments: ", paste(missing, collapse = ", "))
+  }
+  invisible(TRUE)
+}
+
+validate_differential_args <- function(opt) {
+  has_contrast <- !is.null(opt$contrast_file)
+  has_results <- !is.null(opt$differential_results)
+
+  if (xor(has_contrast, has_results)) {
+    stop("--contrast_file and --differential_results must be supplied together")
+  }
+  if (!has_results && !is.null(opt$contrast_stats_assay)) {
+    stop("--contrast_stats_assay requires --contrast_file and --differential_results")
+  }
+  invisible(TRUE)
 }
 
 validate_deploy_args <- function(opt) {
-  shinyngs::check_list_is_subset(
-    c("shinyapps_account", "shinyapps_name"),
-    names(opt),
-    "mandatory arguments for shinyapps deployment",
-    "provided options"
-  )
+  required_options <- c("shinyapps_account", "shinyapps_name")
+  missing_options <- required_options[vapply(required_options, function(name) is.null(opt[[name]]) || !nzchar(opt[[name]]), logical(1))]
+  if (length(missing_options) > 0) {
+    stop("Missing mandatory arguments for shinyapps deployment: ", paste(missing_options, collapse = ", "))
+  }
 
-  invisible(shinyngs::check_list_is_subset(
-    c("SHINYAPPS_SECRET", "SHINYAPPS_TOKEN"),
-    names(Sys.getenv()),
-    "environment variables for shinyapps deployment",
-    "environment"
-  ))
+  required_environment <- c("SHINYAPPS_SECRET", "SHINYAPPS_TOKEN")
+  missing_environment <- required_environment[!nzchar(Sys.getenv(required_environment))]
+  if (length(missing_environment) > 0) {
+    stop("Missing environment variables for shinyapps deployment: ", paste(missing_environment, collapse = ", "))
+  }
+  invisible(TRUE)
 }
 
 ################################################
@@ -603,6 +613,7 @@ opt <- parse_args(opt_parser)
 opt$fold_change_scale <- shinyngs::resolve_deprecated_unlog_foldchanges(opt$fold_change_scale, opt$unlog_foldchanges)
 
 validate_mandatory_args(opt)
+validate_differential_args(opt)
 
 if (opt$deploy_app) {
   validate_deploy_args(opt)
