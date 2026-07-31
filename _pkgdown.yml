@@ -89,6 +89,7 @@ reference:
   - interactive_clustering_dendrogram
   - interactive_count_barplot
   - interactive_densityplot
+  - interactive_gene_contrast_profile
   - interactive_illumina_control_probes
   - interactive_pca_metadata_heatmap
   - interactive_pca_variance_heatmap
@@ -199,7 +200,6 @@ reference:
   - foldchangeplotOutput
   - gene
   - geneBarplot
-  - interactive_gene_contrast_profile
   - geneInput
   - geneModelBiotypeColors
   - geneModelGenomeInfo

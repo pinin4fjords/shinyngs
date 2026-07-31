@@ -5,8 +5,9 @@
 #' scale. When q values are present, filled markers meet \code{q_threshold},
 #' open markers do not, and crosses have no q value.
 #'
-#' @param contrast_table Data frame containing \code{Variable},
-#'   \code{Condition 1}, \code{Condition 2}, and \code{Fold change} columns.
+#' @param contrast_table Data frame containing a \code{Fold change} column
+#'   and either a \code{Contrast} column or \code{Variable},
+#'   \code{Condition 1}, and \code{Condition 2} columns.
 #' @param q_threshold Numeric q-value threshold used to distinguish marker
 #'   symbols.
 #' @param title Plot title.
@@ -24,17 +25,20 @@
 #'   check.names = FALSE
 #' ))
 interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05, title = "Contrast profile") {
-  required_columns <- c("Variable", "Condition 1", "Condition 2", "Fold change")
-  missing_columns <- setdiff(required_columns, colnames(contrast_table))
-  if (length(missing_columns) > 0) {
-    stop("interactive_gene_contrast_profile(): missing required column(s): ", paste(missing_columns, collapse = ", "))
+  if (!"Fold change" %in% colnames(contrast_table)) {
+    stop("interactive_gene_contrast_profile(): missing required column: Fold change")
+  }
+  contrast_columns <- c("Variable", "Condition 1", "Condition 2")
+  if (!"Contrast" %in% colnames(contrast_table) && !all(contrast_columns %in% colnames(contrast_table))) {
+    stop("interactive_gene_contrast_profile(): supply Contrast or Variable, Condition 1, and Condition 2 columns")
   }
   if (!is.numeric(q_threshold) || length(q_threshold) != 1 || is.na(q_threshold) || q_threshold < 0 || q_threshold > 1) {
     stop("interactive_gene_contrast_profile(): 'q_threshold' must be one number between 0 and 1")
   }
 
   fold_change <- suppressWarnings(as.numeric(contrast_table[["Fold change"]]))
-  log2_fold_change <- ifelse(fold_change == 0, 0, sign(fold_change) * log2(abs(fold_change)))
+  log2_fold_change <- sign(fold_change) * log2(abs(fold_change))
+  log2_fold_change[!is.na(fold_change) & fold_change == 0] <- 0
   keep <- is.finite(log2_fold_change)
   if (!any(keep)) {
     stop("interactive_gene_contrast_profile(): no finite fold changes to plot")
@@ -42,20 +46,24 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
 
   profile <- contrast_table[keep, , drop = FALSE]
   profile$log2_fold_change <- log2_fold_change[keep]
-  profile$contrast <- paste0(
-    prettify_variable_name(as.character(profile$Variable)), ": ",
-    profile[["Condition 2"]], " vs ", profile[["Condition 1"]]
-  )
+  profile$contrast <- if ("Contrast" %in% colnames(profile)) {
+    as.character(profile$Contrast)
+  } else {
+    paste0(
+      prettify_variable_name(as.character(profile$Variable)), ": ",
+      profile[["Condition 2"]], " vs ", profile[["Condition 1"]]
+    )
+  }
   profile$direction <- ifelse(profile$log2_fold_change > 0, "Up", ifelse(profile$log2_fold_change < 0, "Down", "No change"))
 
   has_q_values <- "q value" %in% colnames(profile)
   if (has_q_values) {
     q_values <- suppressWarnings(as.numeric(profile[["q value"]]))
-    profile$significance <- ifelse(is.na(q_values), "q value unavailable", ifelse(q_values <= q_threshold, paste0("q ≤ ", q_threshold), paste0("q > ", q_threshold)))
-    profile$marker_symbol <- ifelse(is.na(q_values), "x", ifelse(q_values <= q_threshold, "circle", "circle-open"))
+    profile$significance <- ifelse(!is.finite(q_values), "q value unavailable", ifelse(q_values <= q_threshold, paste0("q ≤ ", q_threshold), paste0("q > ", q_threshold)))
+    profile$marker_symbol <- ifelse(!is.finite(q_values), "x", ifelse(q_values <= q_threshold, "circle", "circle-open"))
   } else {
     profile$significance <- "q value unavailable"
-    profile$marker_symbol <- "circle"
+    profile$marker_symbol <- "x"
   }
 
   hover <- paste0(
@@ -71,7 +79,7 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
   }
   hover <- paste0(hover, "<br>", profile$significance)
 
-  direction_colors <- c(Down = "#0072B2", `No change` = "#595959", Up = "#D55E00")
+  direction_colors <- c(Down = DIRECTION_COLORS[["Down"]], `No change` = "#595959", Up = DIRECTION_COLORS[["Up"]])
   p <- plot_ly()
   for (direction in names(direction_colors)) {
     rows <- profile$direction == direction
@@ -89,7 +97,7 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
   subtitle <- if (has_q_values) {
     paste0("<br><sup>Filled: q ≤ ", q_threshold, " · Open: q > ", q_threshold, " · ×: q unavailable</sup>")
   } else {
-    ""
+    "<br><sup>×: q unavailable</sup>"
   }
 
   layout(

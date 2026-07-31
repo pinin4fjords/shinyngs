@@ -11,8 +11,9 @@ interactive_gene_contrast_profile(
 )
 }
 \arguments{
-\item{contrast_table}{Data frame containing \code{Variable},
-\code{Condition 1}, \code{Condition 2}, and \code{Fold change} columns.}
+\item{contrast_table}{Data frame containing a \code{Fold change} column
+and either a \code{Contrast} column or \code{Variable},
+\code{Condition 1}, and \code{Condition 2} columns.}
 
 \item{q_threshold}{Numeric q-value threshold used to distinguish marker
 symbols.}

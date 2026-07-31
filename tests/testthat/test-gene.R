@@ -142,7 +142,10 @@ test_that("gene renders a simpletable of the selected gene's contrast data", {
 
 test_that("gene renders the selected gene's contrast profile", {
   run_gene_server(shinytest2_eselist(), expr = quote({
-    expect_true(all(c("Variable", "Condition 1", "Condition 2", "Fold change") %in% colnames(getGeneContrastProfileTable())))
+    profile_table <- getGeneContrastProfileTable()
+
+    expect_true(all(c("Variable", "Condition 1", "Condition 2", "Fold change", "Contrast") %in% colnames(profile_table)))
+    expect_equal(profile_table$Contrast, "Condition: treated vs control")
     expect_false(is.null(output$geneContrastProfile))
   }))
 })

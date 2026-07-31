@@ -25,6 +25,14 @@ test_that("interactive_gene_contrast_profile plots every finite contrast", {
   expect_length(built$x$layout$shapes, 1)
 })
 
+test_that("interactive_gene_contrast_profile preserves zero fold changes", {
+  table <- gene_contrast_profile_table()[1, ]
+  table[["Fold change"]] <- 0
+  built <- plotly::plotly_build(interactive_gene_contrast_profile(table))
+
+  expect_equal(as.numeric(built$x$data[[1]]$x), 0)
+})
+
 test_that("interactive_gene_contrast_profile encodes q-value status in marker symbols", {
   built <- plotly::plotly_build(interactive_gene_contrast_profile(gene_contrast_profile_table()))
   symbols <- unlist(lapply(built$x$data, function(trace) trace$marker$symbol))
@@ -33,12 +41,30 @@ test_that("interactive_gene_contrast_profile encodes q-value status in marker sy
 })
 
 test_that("interactive_gene_contrast_profile works without q values", {
-  expect_s3_class(interactive_gene_contrast_profile(gene_contrast_profile_table(include_q = FALSE)), "plotly")
+  built <- plotly::plotly_build(interactive_gene_contrast_profile(gene_contrast_profile_table(include_q = FALSE)))
+  symbols <- unlist(lapply(built$x$data, function(trace) trace$marker$symbol))
+
+  expect_true(all(symbols == "x"))
+})
+
+test_that("interactive_gene_contrast_profile uses canonical contrast names", {
+  table <- gene_contrast_profile_table()[1:2, ]
+  table[["Condition 2"]] <- "treated"
+  table$Contrast <- c(
+    "Condition: treated vs control (batch:a)",
+    "Condition: treated vs control (batch:b)"
+  )
+  built <- plotly::plotly_build(interactive_gene_contrast_profile(table))
+
+  expect_setequal(
+    unlist(lapply(built$x$data, function(trace) as.character(trace$y))),
+    table$Contrast
+  )
 })
 
 test_that("interactive_gene_contrast_profile reports missing required columns", {
   expect_error(
-    interactive_gene_contrast_profile(data.frame(`Fold change` = 2, check.names = FALSE)),
-    "missing required column"
+    interactive_gene_contrast_profile(data.frame(value = 2)),
+    "missing required column: Fold change"
   )
 })

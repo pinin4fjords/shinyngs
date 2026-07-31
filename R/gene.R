@@ -296,10 +296,14 @@ gene <- function(id, eselist) {
     getGeneContrastProfileTable <- reactive({
       rows <- getSelectedIdsWithData()
       contrast_tables <- contrast_reactives$contrastsTables()
+      contrast_names <- unlist(contrast_reactives$getSelectedContrastNames(), use.names = FALSE)
+      validate(need(length(contrast_tables) == length(contrast_names), "Waiting for contrast names"))
 
-      do.call(rbind, lapply(contrast_tables, function(contrast_table) {
-        contrast_table[rows, , drop = FALSE]
-      }))
+      do.call(rbind, Map(function(contrast_table, contrast_name) {
+        profile_table <- contrast_table[rows, , drop = FALSE]
+        profile_table$Contrast <- contrast_name
+        profile_table
+      }, contrast_tables, contrast_names))
     })
 
     if (has_slot_data(eselist, "contrasts")) {
