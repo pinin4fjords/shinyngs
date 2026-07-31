@@ -105,3 +105,30 @@ test_that("single_valid_matrix is FALSE for multiple experiments", {
 
   expect_false(single_valid_matrix(eselist))
 })
+
+test_that("selectmatrix supports callers that disable summarisation", {
+  eselist <- make_medium_module_eselist(n_genes = 12)
+
+  shiny::testServer(
+    selectmatrix,
+    args = list(
+      id = "selectmatrix",
+      eselist = eselist,
+      var_n = 10,
+      provide_all_genes = TRUE,
+      allow_summarise = FALSE
+    ),
+    {
+      session$setInputs(
+        experiment = "counts",
+        assay = "counts",
+        "selectmatrix-sampleSelect" = "all",
+        "selectmatrix-geneSelect" = "all"
+      )
+      session$elapse(400)
+
+      expect_false(isSummarised())
+      expect_equal(dim(selectMatrix()), c(12L, 4L))
+    }
+  )
+})
