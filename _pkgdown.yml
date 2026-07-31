@@ -89,6 +89,7 @@ reference:
   - interactive_clustering_dendrogram
   - interactive_count_barplot
   - interactive_densityplot
+  - interactive_differential_summary
   - interactive_illumina_control_probes
   - interactive_pca_metadata_heatmap
   - interactive_pca_variance_heatmap
@@ -183,10 +184,6 @@ reference:
   - differentialscatterInput
   - differentialscatterLogic
   - differentialscatterOutput
-  - differentialsummary
-  - differentialsummaryInput
-  - differentialsummaryOutput
-  - interactive_differential_summary
   - differentialtable
   - differentialtableInput
   - differentialtableOutput

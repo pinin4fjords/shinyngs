@@ -117,7 +117,7 @@ test_that("chipseqInput adds a Read reports tab only when read_reports is presen
   expect_true(grepl("Read reports", with_reports))
 })
 
-test_that("chipseqInput only adds multi-contrast summaries with more than one contrast", {
+test_that("chipseqInput only adds Differential set intersection with more than one contrast", {
   eselist_one <- make_chipseq_eselist(contrasts = TRUE)
   eselist_two <- make_chipseq_eselist(contrasts = TRUE)
   eselist_two@contrasts <- list(
@@ -126,9 +126,7 @@ test_that("chipseqInput only adds multi-contrast summaries with more than one co
   )
 
   expect_false(grepl("Differential set intersection", as.character(chipseqInput("chipseq", eselist_one))))
-  expect_false(grepl("Contrast summary", as.character(chipseqInput("chipseq", eselist_one))))
   expect_true(grepl("Differential set intersection", as.character(chipseqInput("chipseq", eselist_two))))
-  expect_true(grepl("Contrast summary", as.character(chipseqInput("chipseq", eselist_two))))
 })
 
 test_that("chipseq boots without error for a minimal eselist (no contrasts, no optional slots)", {

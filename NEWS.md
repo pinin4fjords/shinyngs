@@ -91,9 +91,9 @@
 
 ## New features
 
-* RNA-seq, ChIP-seq, and Illumina array apps with multiple contrasts gain a
-  contrast summary that compares up- and down-regulated feature counts using
-  one consistent set of differential filters.
+* The differential set intersection panel gains a directional summary that
+  compares up- and down-regulated feature counts across contrasts using its
+  existing differential filters.
 
 * `interactive_scatterplot()` gains an opt-in `colorby_menu` dropdown for switching
   the colouring variable within a single self-contained widget, plus

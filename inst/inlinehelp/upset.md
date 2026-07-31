@@ -25,6 +25,10 @@ You may select any available matrix to use for generating comparisons, including
 
 The choice of contrast will most tightly dictate the appearance of the plot. Choose the sample groups to compare, and the threshold on fold change (and p/q value where applicable) to apply.
 
+#### Differential features across contrasts
+
+The directional summary applies the selected filters to every contrast. Bars extending left count down-regulated features and bars extending right count up-regulated features. Contrasts with no matching features remain visible. Hover over a bar for its exact count. The table contains the same values and can be downloaded.
+
 #### Export
 
 The plot is available for download via the provided button.

@@ -79,7 +79,7 @@ modalServer <- function(id, title, content = NULL) {
 # are added, renamed or removed.
 help_modal_ids <- c(
   "assaydatatable", "boxplot", "clustering", "clusteringheatmap", "dendro",
-  "dexseqplot", "dexseqtable", "differentialsummary", "differentialtable", "experimenttable",
+  "dexseqplot", "dexseqtable", "differentialtable", "experimenttable",
   "expressionheatmap", "foldchangeplot", "gene", "genesetanalysistable",
   "genesetbarcodeplot", "illuminaarrayqc", "maplot", "pca", "pcavsexperiment",
   "readreports", "rowmetatable", "shinyngs_credits", "topgeneboxplot", "upset", "volcanoplot"
