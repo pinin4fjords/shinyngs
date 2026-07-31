@@ -37,7 +37,7 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   traces <- scatter$x$data
   expect_gt(length(traces), 0)
 
-  point_traces <- Filter(function(tr) length(tr$x) > 0, traces)
+  point_traces <- Filter(function(tr) identical(tr$mode, "markers") && length(tr$x) > 0, traces)
   expect_gt(length(point_traces), 0)
   n_points <- sum(vapply(point_traces, function(tr) length(tr$x), integer(1)))
   expect_equal(n_points, 12)

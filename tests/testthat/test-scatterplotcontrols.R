@@ -14,6 +14,12 @@ test_that("scatterplot controls can default to 2D", {
   expect_match(html, 'value="FALSE" checked')
 })
 
+test_that("the existing positional make_colors argument remains compatible", {
+  html <- htmltools::renderTags(scatterplotcontrolsInput("scatter", TRUE, TRUE))$html
+
+  expect_match(html, "scatter-scatterplot-palette_name")
+})
+
 test_that("getXAxis/getYAxis/getZAxis return the selected axis columns in 3D mode", {
   m <- make_scatterplot_matrix()
 
