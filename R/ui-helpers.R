@@ -17,9 +17,9 @@ SHINYNGS_ACCENT <- "#2780e3"
 #' hidden_input("myid", "iamavalue")
 #'
 hidden_input <- function(id, values) {
-  HTML(paste0(unlist(lapply(values, function(value) paste0("<input type='text' id='", id, "' value='", value, "' style='display: none;'>")))))
-
-  # HTML(paste0('<input type='text' id='', id, '' value='', value, '' style='display: none;'>'))
+  tagList(lapply(values, function(value) {
+    tags$input(type = "text", id = id, value = value, style = "display: none;")
+  }))
 }
 
 #' Simple list push

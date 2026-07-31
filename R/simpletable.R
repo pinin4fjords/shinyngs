@@ -110,16 +110,16 @@ simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 1
       options$dom <- paste0("f", options$dom)
     }
 
-    output$datatable <- DT::renderDataTable(
-      {
-        displayMatrix()
-      },
-      options = options,
-      filter = filter,
-      rownames = rownames,
-      escape = FALSE,
-      server = server
-    )
+    output$datatable <- DT::renderDataTable({
+      table_data <- displayMatrix()
+      DT::datatable(
+        table_data,
+        options = options,
+        filter = filter,
+        rownames = rownames,
+        escape = datatable_escape_columns(table_data, rownames)
+      )
+    }, server = server)
 
     output$downloadTable <- downloadHandler(filename = function() {
       if (is.reactive(filename)) {
@@ -130,4 +130,17 @@ simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 1
       write.csv(downloadMatrix(), file = file, row.names = rownames)
     })
   })
+}
+
+datatable_escape_columns <- function(data, rownames = FALSE) {
+  html_columns <- attr(data, "shinyngs_html_columns", exact = TRUE)
+  if (is.null(html_columns)) {
+    return(TRUE)
+  }
+
+  columns <- colnames(data)
+  if (isTRUE(rownames)) {
+    columns <- c(" ", columns)
+  }
+  setdiff(columns, html_columns)
 }

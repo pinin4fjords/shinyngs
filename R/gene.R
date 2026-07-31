@@ -263,21 +263,27 @@ gene <- function(id, eselist) {
 
     # Make a table of the annotation data
 
-    output$geneInfoTable <- DT::renderDataTable(
-      {
+    output$geneInfoTable <- DT::renderDataTable({
         rows <- gene_label_reactives$getSelectedIds()
         ese <- selectmatrix_reactives$getExperiment()
 
         validate(need(all(rows %in% rownames(ese)), FALSE))
 
-        gene_info <- data.frame(SummarizedExperiment::mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = id_to_label(rows, ese, sep = " /<br/ >"))
-        gene_info <- t(linkMatrix(gene_info, eselist@url_roots))
+        gene_info <- data.frame(SummarizedExperiment::mcols(ese[rows, , drop = FALSE]), check.names = FALSE, row.names = id_to_label(rows, ese))
+        gene_info <- linkMatrix(gene_info, eselist@url_roots)
+        link_columns <- attr(gene_info, "shinyngs_html_columns", exact = TRUE)
+        text_columns <- setdiff(colnames(gene_info), link_columns)
+        gene_info[text_columns] <- lapply(gene_info[text_columns], htmltools::htmlEscape)
+        gene_info <- as.data.frame(t(gene_info), check.names = FALSE)
         rownames(gene_info) <- prettify_variable_name(rownames(gene_info))
-        gene_info
-      },
-      options = list(rownames = TRUE, pageLength = 20, dom = "t"),
-      escape = FALSE
-    )
+        attr(gene_info, "shinyngs_html_columns") <- colnames(gene_info)
+
+        DT::datatable(
+          gene_info,
+          options = list(rownames = TRUE, pageLength = 20, dom = "t"),
+          escape = datatable_escape_columns(gene_info, rownames = TRUE)
+        )
+      })
 
     # Make the gene info table update (probably invisibly) even when hidden, so there's not a delay in rendering when the link to the modal is clicked.
 
