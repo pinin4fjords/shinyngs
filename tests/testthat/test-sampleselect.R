@@ -44,7 +44,7 @@ test_that("selectSamples returns exactly the samples picked by name", {
     sampleselect,
     args = list(id = "sampleselect", eselist = eselist, getExperiment = function() eselist[["counts"]]),
     {
-      session$setInputs(sampleSelect = "name", samples = c("s1", "s3"), sampleGroupVal = "ctrl")
+      session$setInputs(sampleSelect = "name", samples = c("s1", "s3"))
       expect_equal(selectSamples(), c("s1", "s3"))
     }
   )
