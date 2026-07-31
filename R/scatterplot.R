@@ -242,10 +242,16 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
 #' @param point_size Main point size
 #' @param labels Vector of labels to apply (if 'label' is TRUE)
 #' @param showlegend Boolean: show this set of points in the legend?
+#' @param palette Colors used for grouped points
 #'
 #' @return output Plotly plot object
 
-addPoints <- function(p, x, y, z = NULL, colorby = NULL, name = NULL, label = FALSE, plot_type = "scatter", point_size = 5, labels = NULL, showlegend = FALSE) {
+addPoints <- function(p, x, y, z = NULL, colorby = NULL, name = NULL, label = FALSE, plot_type = "scatter", point_size = 5, labels = NULL, showlegend = FALSE,
+                      palette = NULL) {
+  if (length(x) == 0) {
+    return(p)
+  }
+
   plotargs <- list(
     p,
     x = x,
@@ -268,6 +274,7 @@ addPoints <- function(p, x, y, z = NULL, colorby = NULL, name = NULL, label = FA
 
   if (!is.null(colorby)) {
     plotargs$color <- colorby
+    plotargs$colors <- palette
   }
 
   do.call(plotly::add_trace, plotargs)
@@ -281,13 +288,14 @@ addPoints <- function(p, x, y, z = NULL, colorby = NULL, name = NULL, label = FA
 #' @param z Optional vector of numeric z values
 #' @param colorby String vector or factor specifying value groups
 #' @param labels Vector of labels to apply
-#' @param show_labels If false, simpy pass through input plot object
+#' @param show_labels If false, simply pass through input plot object
 #' @param plot_type Plot type: 'scatter' or 'scatter3d'
+#' @param palette Colors used for grouped labels
 #'
 #' @return output Plotly object
 
-addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_labels = TRUE) {
-  if (show_labels) {
+addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_labels = TRUE, palette = NULL) {
+  if (show_labels && length(x) > 0) {
     labelargs <- list(
       p,
       x = x,
@@ -302,6 +310,7 @@ addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_la
 
     if (!is.null(colorby)) {
       labelargs$color <- colorby
+      labelargs$colors <- palette
     }
 
     p <- do.call(add_trace, labelargs)
@@ -331,6 +340,22 @@ addTextLabels <- function(p, x, y, z, colorby = NULL, labels, plot_type, show_la
 
 drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_thresholds = list(), plot_type = "scatter",
                        xrange = NULL, yrange = NULL) {
+  line_endpoints <- function(values) {
+    values <- values[!is.na(values)]
+    if (is.numeric(values)) {
+      values <- values[is.finite(values)]
+      if (length(values) > 0) {
+        return(range(values))
+      }
+    } else {
+      values <- unique(as.character(values))
+      if (length(values) > 0) {
+        return(values[c(1, length(values))])
+      }
+    }
+    c(NA, NA)
+  }
+
   line_coords <- list()
   if (!is.null(lines)) {
     line_coords[["specified"]] <- lines
@@ -338,32 +363,20 @@ drawLines <- function(p, x, y, lines = NULL, hline_thresholds = list(), vline_th
 
   if (length(hline_thresholds) > 0) {
     line_coords$h <- do.call(rbind, lapply(names(hline_thresholds), function(hl) {
-      data.frame(x = c(min(x[is.finite(x)]), max(x[is.finite(x)])), y = c(rep(hline_thresholds[[hl]], 2)), name = hl)
+      data.frame(x = line_endpoints(x), y = rep(hline_thresholds[[hl]], 2), name = hl)
     }))
   }
   if (length(vline_thresholds) > 0) {
     line_coords$v <- do.call(rbind, lapply(names(vline_thresholds), function(vl) {
-      data.frame(x = rep(vline_thresholds[[vl]], 2), y = c(min(y[is.finite(y)]), max(y[is.finite(y)])), name = vl)
+      data.frame(x = rep(vline_thresholds[[vl]], 2), y = line_endpoints(y), name = vl)
     }))
   }
 
   if (length(line_coords) > 0) {
     lines <- do.call(rbind, line_coords)
 
-    # Horizontal/vertical threshold lines are conventionally meant to span
-    # the whole plot, but their endpoints are only ever known in terms of the
-    # point data range. Plotly's own axis autorange then pads beyond that
-    # range, leaving a visible gap between the line ends and the plot edges.
-    # Extending the lines to a slightly padded data range, and pinning the
-    # axis range to match, closes that gap so the lines reach the edges.
-    # A caller-supplied xrange/yrange is used as-is instead, e.g. so a
-    # volcano plot's threshold lines can span a symmetric fold-change range
-    # rather than the plotted points' raw (and possibly asymmetric) extent.
-    #
-    # x/y are only padded when numeric: a discrete axis (e.g. the MAD/outlier
-    # plot's sample groups) has no meaningful range to pad, so the line
-    # endpoints computed above (from is.finite(), which is FALSE throughout
-    # for non-numeric data) are left as-is rather than forced onto a range.
+    # Plotly pads numeric axes during autoranging. A matching explicit range
+    # lets threshold lines reach the rendered plot edges.
     if (plot_type != "scatter3d") {
       if (is.null(xrange) && is.numeric(x)) {
         xrange <- range(x[is.finite(x)])
@@ -576,16 +589,10 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
     }
   }
 
-  plotargs <- list(
-    type = plot_type,
-    mode = "markers",
-    colors = palette
-  )
-
   # Nudge to be used with text labels
   nudge_y <- (max(y) - min(y)) / 50
 
-  do.call(plot_ly, plotargs) %>%
+  plot_ly() %>%
     addPoints(
       x = x[!labelled],
       y = y[!labelled],
@@ -606,7 +613,8 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
       point_size = point_size,
       labels = labels[labelled],
       colorby = colorby[labelled],
-      showlegend = showlegend
+      showlegend = showlegend,
+      palette = palette
     ) %>%
     addTextLabels(
       x = x[labelled],
@@ -615,7 +623,8 @@ addColoredPoints <- function(x, y, z = NULL, colorby = NULL, plot_type = "scatte
       plot_type = plot_type,
       labels = labels[labelled],
       colorby = colorby[labelled],
-      show_labels = show_labels
+      show_labels = show_labels,
+      palette = palette
     )
 }
 

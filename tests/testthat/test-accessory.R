@@ -75,7 +75,10 @@ contrasts:
   yaml_file <- tempfile(fileext = ".yaml")
   writeLines(yaml_content, yaml_file)
 
-  contrasts <- read_contrasts(yaml_file, samples)
+  expect_warning(
+    contrasts <- read_contrasts(yaml_file, samples),
+    "Column time is numeric and may be treated as continuous"
+  )
 
   # Test basic structure
   expect_true(is.data.frame(contrasts))
@@ -124,7 +127,10 @@ contrasts:
   yaml_file <- tempfile(fileext = ".yaml")
   writeLines(yaml_content, yaml_file)
 
-  contrasts <- read_contrasts(yaml_file, samples)
+  expect_warning(
+    contrasts <- read_contrasts(yaml_file, samples),
+    "Column time is numeric and may be treated as continuous"
+  )
 
   # Test basic structure
   expect_true(is.data.frame(contrasts))

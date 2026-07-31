@@ -73,11 +73,7 @@ test_that("xrange/yrange override the auto-computed axis range and the extent of
   expect_equal(sort(hline_trace$x), c(-10, 10))
 })
 
-test_that("hline_thresholds don't error against a discrete x-axis (e.g. the MAD/outlier plot's sample groups)", {
-  # The threshold line's endpoints are derived from the (discrete) x range,
-  # which isn't a meaningful concept here, so unlike the numeric-axis case
-  # above this doesn't assert the line itself renders - only that a discrete
-  # x-axis no longer crashes drawLines()'s numeric range/padding logic.
+test_that("hline_thresholds span a discrete x-axis without warnings", {
   x <- c("groupA", "groupA", "groupB", "groupB")
   y <- c(-6, -1, 2, 7)
 
@@ -87,7 +83,9 @@ test_that("hline_thresholds don't error against a discrete x-axis (e.g. the MAD/
     hline_thresholds = c("Outlier threshold" = -5)
   )
 
-  expect_no_error(plotly::plotly_build(p))
+  expect_no_warning(built <- plotly::plotly_build(p))
+  hline_trace <- Filter(function(tr) identical(tr$name, "Outlier threshold"), built$x$data)[[1]]
+  expect_equal(as.character(hline_trace$x), c("groupA", "groupB"))
 })
 
 # interactive_scatterplot() colorby_menu

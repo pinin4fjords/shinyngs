@@ -63,11 +63,11 @@ run_exec_script <- function(script, args) {
   withr::local_envvar(list(R_LIBS = r_libs))
 
   rscript_bin <- file.path(R.home("bin"), "Rscript")
-  output <- system2(
+  output <- suppressWarnings(system2(
     rscript_bin,
     shQuote(c(script_path, args)),
     stdout = TRUE, stderr = TRUE
-  )
+  ))
   status <- attr(output, "status")
 
   list(status = if (is.null(status)) 0L else status, output = output)
