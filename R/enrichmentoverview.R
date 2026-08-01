@@ -202,7 +202,7 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     getEnrichmentOverviewTable <- reactive({
-      overview <- getPreparedEnrichmentOverview()
+      overview <- enrichment_overview_plot_rows(getPreparedEnrichmentOverview())
       data.frame(
         `Gene set` = overview$gene_set_id,
         Contrast = overview$contrast,
@@ -325,15 +325,20 @@ prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, selecte
   selected_ids <- head(rank_summary$gene_set_id[ranked_rows], as.integer(top_n))
 
   grid <- expand.grid(
-    gene_set_id = selected_ids, contrast = contrast_levels,
+    contrast = contrast_levels, gene_set_id = selected_ids,
     KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE
   )
+  grid <- grid[c("gene_set_id", "contrast")]
   grid$.order <- seq_len(nrow(grid))
   overview <- merge(grid, data, by = c("gene_set_id", "contrast"), all.x = TRUE, sort = FALSE)
   overview <- overview[order(overview$.order), c(required_columns), drop = FALSE]
   attr(overview, "contrast_levels") <- contrast_levels
   attr(overview, "gene_set_levels") <- selected_ids
   overview
+}
+
+enrichment_overview_plot_rows <- function(data) {
+  data[is.finite(data$fdr) & !is.na(data$direction), , drop = FALSE]
 }
 
 #' Plot gene set enrichment across contrasts
@@ -368,7 +373,7 @@ interactive_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, pre
   if (!prepared) {
     data <- prepare_enrichment_overview(data, top_n = top_n, max_fdr = max_fdr)
   }
-  plot_data <- data[is.finite(data$fdr) & !is.na(data$direction), , drop = FALSE]
+  plot_data <- enrichment_overview_plot_rows(data)
   if (nrow(plot_data) == 0) {
     stop("interactive_enrichment_overview(): no finite enrichment results to plot")
   }

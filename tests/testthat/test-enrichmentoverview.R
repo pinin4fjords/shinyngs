@@ -27,6 +27,31 @@ test_that("prepare_enrichment_overview retains missing gene-set contrast combina
   expect_equal(nrow(overview), 6)
   expect_equal(sum(is.na(overview$fdr)), 2)
   expect_equal(attr(overview, "gene_set_levels"), c("SET_A", "SET_C", "SET_B"))
+  expect_equal(
+    paste(overview$gene_set_id, overview$contrast),
+    c(
+      "SET_A Condition: treated vs control", "SET_A Batch: b vs a",
+      "SET_C Condition: treated vs control", "SET_C Batch: b vs a",
+      "SET_B Condition: treated vs control", "SET_B Batch: b vs a"
+    )
+  )
+})
+
+test_that("enrichment overview table rows match plotted points", {
+  eselist <- make_enrichmentoverview_eselist()
+  data <- compile_enrichment_overview(eselist[[1]], "counts", "KEGG", eselist@contrasts)
+  overview <- prepare_enrichment_overview(data, top_n = 3, max_fdr = 0.1)
+  table_rows <- enrichment_overview_plot_rows(overview)
+
+  expect_equal(
+    paste(table_rows$gene_set_id, table_rows$contrast),
+    c(
+      "SET_A Condition: treated vs control", "SET_A Batch: b vs a",
+      "SET_C Batch: b vs a", "SET_B Condition: treated vs control"
+    )
+  )
+  expect_true(all(is.finite(table_rows$fdr)))
+  expect_false(anyNA(table_rows$direction))
 })
 
 test_that("prepare_enrichment_overview uses p value to break equal-FDR ties", {
@@ -151,6 +176,7 @@ test_that("enrichmentoverview renders its plot and backing table", {
     session$elapse(400)
 
     expect_equal(nrow(getPreparedEnrichmentOverview()), 6)
+    expect_equal(nrow(getEnrichmentOverviewTable()), 4)
     expect_false(is.null(output$plot))
     expect_false(is.null(output[["table-datatable"]]))
   })
