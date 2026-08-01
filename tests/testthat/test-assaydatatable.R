@@ -74,7 +74,7 @@ test_that("assaydatatable reports matrices summarised from sample groups", {
   })
 })
 
-test_that("assaydatatable's output title names the selected assay", {
+test_that("assaydatatable's title names the selected assay", {
   eselist <- make_medium_module_eselist(extra_assay = TRUE)
 
   shiny::testServer(assaydatatable, args = list(id = "assaydatatable", eselist = eselist), {
@@ -86,7 +86,14 @@ test_that("assaydatatable's output title names the selected assay", {
     )
     session$elapse(400)
 
-    rendered <- output$assaydatatable
-    expect_match(rendered[[1]], "Assay data: norm")
+    expect_equal(output$assaydatatable_title, "Assay data: norm")
   })
+})
+
+test_that("assaydatatable output binds the table and spinner in the initial UI", {
+  html <- as.character(assaydatatableOutput("assaydatatable"))
+
+  expect_match(html, 'id="assaydatatable-assaydatatable-datatable"', fixed = TRUE)
+  expect_match(html, 'id="assaydatatable-assaydatatable_title"', fixed = TRUE)
+  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
 })

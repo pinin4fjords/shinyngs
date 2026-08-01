@@ -274,21 +274,13 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
         validate(need(length(rows) > 0, "No matching rows in selected matrix"))
         assay_matrix <- getAssayMatrix()
         samples <- sampleselect_reactives$selectSamples()
-        rows <- geneselect_reactives$selectRows()
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
         if (shouldSummarise()) {
           selected_matrix <- summarize_matrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
         }
 
-        # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
-
-        if (nrow(selected_matrix) == 1) {
-          selected_matrix[1, ] <- apply(selected_matrix, 2, round, rounding)
-          selected_matrix
-        } else {
-          apply(selected_matrix, 2, round, rounding)
-        }
+        round(as.matrix(selected_matrix), rounding)
       })
     })
 

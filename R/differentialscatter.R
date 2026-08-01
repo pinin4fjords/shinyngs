@@ -77,7 +77,11 @@ differentialscatterOutput <- function(id, scatter_id, title, modal) {
   moduleMain(
     title,
     scatterplotOutput(ns(scatter_id)),
-    htmlOutput(ns(paste0(scatter_id, "table"))),
+    simpletableOutput(
+      ns(paste0(scatter_id, "table")),
+      tabletitle = textOutput(ns(paste0(scatter_id, "table_title")), inline = TRUE),
+      spinner = TRUE
+    ),
     help = modalInput(ns(modal$id), "help", "help")
   )
 }
@@ -129,8 +133,8 @@ differentialscatterLogic <- function(input, output, session, eselist, scatter_id
 
   table_id <- paste0(scatter_id, "table")
 
-  output[[table_id]] <- renderUI({
-    simpletableOutput(ns(table_id), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": "), spinner = TRUE)
+  output[[paste0(table_id, "_title")]] <- renderText({
+    paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": ")
   })
 
   # Build the annotated table of values to use in the plot

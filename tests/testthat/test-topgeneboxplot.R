@@ -26,6 +26,27 @@ test_that("the absolute fold change option ranks by magnitude regardless of sign
   expect_equal(fc[ranked], c(-10, 8, 3, -1))
 })
 
+test_that("top gene boxplots use their first ranking option while the input initialises", {
+  shiny::testServer(topgeneboxplot, args = list(id = "topgeneboxplot", eselist = shinytest2_eselist()), {
+    session$setInputs(
+      "expression-experiment" = "counts",
+      "expression-assay" = "counts",
+      "expression-selectmatrix-sampleSelect" = "all",
+      "expression-selectmatrix-geneSelect" = "all",
+      "contrasts-filterRows" = FALSE,
+      "contrasts-contrasts-summaryType" = "colMeans",
+      "contrasts-contrasts0" = "1",
+      "contrasts-combine_operator" = "intersect",
+      rank_by = NULL,
+      n_genes = 12,
+      beeswarm = TRUE
+    )
+    session$elapse(400)
+
+    expect_equal(getRankOption()$key, "qvalue_asc")
+  })
+})
+
 # interactive_topgene_boxplots()
 
 test_that("interactive_topgene_boxplots shows an all-zero group as a flat line at zero, not a missing box", {

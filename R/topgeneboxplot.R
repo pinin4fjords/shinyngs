@@ -188,10 +188,15 @@ topgeneboxplot <- function(id, eselist) {
     # present in the contrast table (p values in particular aren't always
     # supplied alongside q values)
 
-    output$rank_by_ui <- renderUI({
+    getRankOptions <- reactive({
       ct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
       options <- topgeneRankOptions(colnames(ct))
       validate(need(length(options) > 0, "No ranking metric (q value, p value or fold change) is available for this contrast"))
+      options
+    })
+
+    output$rank_by_ui <- renderUI({
+      options <- getRankOptions()
 
       choices <- stats::setNames(
         vapply(options, function(opt) opt$key, character(1)),
@@ -201,12 +206,10 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     getRankOption <- reactive({
+      options <- getRankOptions()
       key <- input$rank_by
-      validate(need(!is.null(key), "Waiting for a ranking option"))
-
-      opt <- Find(function(o) identical(o$key, key), topgene_rank_options)
-      validate(need(!is.null(opt), "Unknown ranking option"))
-      opt
+      selected <- Find(function(option) identical(option$key, key), options)
+      if (is.null(selected)) options[[1]] else selected
     })
 
     # Rank the genes passing the contrast's significance filters by the chosen option (capping to the requested number happens in getTopGeneIds() below)

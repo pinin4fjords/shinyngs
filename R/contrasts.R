@@ -238,7 +238,10 @@ contrastEnumeration <- function(eselist, selectmatrix_reactives) {
 
       summaries
     }
-  })
+  }) %>% bindCache(
+    getSummaryType(), selectmatrix_reactives$getAssayMatrix(),
+    SummarizedExperiment::colData(selectmatrix_reactives$getExperiment()), getAllContrasts()
+  )
 
   # Get all the contrasts the user specified in their StructuredExperiment- if any
 
@@ -742,16 +745,10 @@ contrastTableBuilder <- function(selectmatrix_reactives, getSummaries, getAllCon
   # of the ExploratorySummarizedExperiment. Make a summary table for every contrast. This data can then be re-used when processing filter sets.
 
   contrastsTables <- reactive({
-    matrix <- selectmatrix_reactives$selectMatrix()
-
     ese <- selectmatrix_reactives$getExperiment()
     summaries <- getSummaries()
     contrasts <- getAllContrasts()
     assay <- selectmatrix_reactives$getAssay()
-
-    # There can be a mismatch between the conrasts and summaries as we adjust the input matrix. Wait for updates to finish before making the table.
-
-    # validate(need(all(unlist(lapply(selected_contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))), 'Matching summaries and contrasts'))
 
     withProgress(message = "Calculating contrast tables", value = 0, {
       contrast_tables <- lapply(names(contrasts), function(c) {
@@ -788,7 +785,9 @@ contrastTableBuilder <- function(selectmatrix_reactives, getSummaries, getAllCon
 
     names(contrast_tables) <- getAllContrastsNumbers()
     contrast_tables
-  })
+  }) %>% bindCache(
+    selectmatrix_reactives$getExperiment(), getSummaries(), getAllContrasts(), selectmatrix_reactives$getAssay()
+  )
 
   ########################################################################### Subsetting using the rows in the input matrix. This does NOT involve the filters from this module, but simply subsets the base data to the rows pertinent
   ########################################################################### to the input matrix.
