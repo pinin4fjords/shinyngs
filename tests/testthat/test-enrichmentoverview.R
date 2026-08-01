@@ -4,7 +4,12 @@ test_that("compile_enrichment_overview resolves every available contrast", {
 
   expect_equal(nrow(data), 4)
   expect_equal(unique(data$method), "ROAST (rotation gene set test)")
+  expect_equal(unique(data$contrast_number), 1:2)
   expect_equal(attr(data, "contrast_levels"), c("Condition: treated vs control", "Batch: b vs a"))
+  expect_equal(
+    attr(data, "contrast_numbers"),
+    c(`Condition: treated vs control` = 1L, `Batch: b vs a` = 2L)
+  )
 })
 
 test_that("compile_enrichment_overview labels positional legacy contrasts", {
@@ -93,6 +98,16 @@ test_that("prepare_enrichment_overview filters and ranks selected contrasts", {
   expect_setequal(unique(overview$contrast), c("contrast 2", "contrast 3"))
 })
 
+test_that("prepare_enrichment_overview selects duplicate labels by contrast number", {
+  eselist <- make_enrichmentoverview_eselist()
+  eselist@contrasts[[2]][c("Variable", "Group.1", "Group.2")] <- eselist@contrasts[[1]][c("Variable", "Group.1", "Group.2")]
+  data <- compile_enrichment_overview(eselist[[1]], "counts", "KEGG", eselist@contrasts)
+
+  overview <- prepare_enrichment_overview(data, selected_contrasts = 2L)
+
+  expect_equal(unique(overview$contrast_number), 2L)
+})
+
 test_that("prepare_enrichment_overview supports each ranking option", {
   data <- data.frame(
     gene_set_id = c("SET_C", "SET_C", "SET_A", "SET_A", "SET_B", "SET_B"),
@@ -168,7 +183,7 @@ test_that("enrichmentoverview renders its plot and backing table", {
       `expression-selectmatrix-sampleSelect` = "all",
       `expression-selectmatrix-geneSelect` = "all",
       gene_set_type = "KEGG",
-      selected_contrasts = c("Condition: treated vs control", "Batch: b vs a"),
+      selected_contrasts = c("1", "2"),
       rank_by = "minimum_fdr",
       top_n = 20,
       max_fdr = 0.1
@@ -192,12 +207,29 @@ test_that("enrichmentoverview requires at least two selected contrasts", {
       `expression-selectmatrix-sampleSelect` = "all",
       `expression-selectmatrix-geneSelect` = "all",
       gene_set_type = "KEGG",
-      selected_contrasts = "Condition: treated vs control",
+      selected_contrasts = "1",
       rank_by = "minimum_fdr",
       top_n = 20,
       max_fdr = 0.1
     )
 
     expect_error(getPreparedEnrichmentOverview(), "Select at least two contrasts")
+  })
+})
+
+test_that("enrichmentoverview uses displayed defaults while dynamic controls initialise", {
+  eselist <- make_enrichmentoverview_eselist()
+  shiny::testServer(enrichmentoverview, args = list(id = "overview", eselist = eselist), {
+    session$userData$plotFormat <- function() "png"
+    session$setInputs(
+      `expression-selectmatrix-sampleSelect` = "all",
+      `expression-selectmatrix-geneSelect` = "all",
+      rank_by = "minimum_fdr",
+      top_n = 20,
+      max_fdr = 0.1
+    )
+
+    expect_equal(getGeneSetType(), "KEGG")
+    expect_equal(nrow(getPreparedEnrichmentOverview()), 6)
   })
 })

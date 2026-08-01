@@ -8,6 +8,6 @@ Choose the experiment, matrix, gene set type and at least two contrasts. All con
 
 #### Plot and table
 
-Each point is one supplied gene set result. Point size represents -log10(FDR), capped at 16 so an FDR of zero cannot dominate the scale. Colour represents the reported direction. A blank position means that no result was supplied for that gene set and contrast. The table below contains the plotted values, including blank combinations, and can be downloaded.
+Each point is one supplied gene set result. Point size represents -log10(FDR), capped at 16 so an FDR of zero cannot dominate the scale. Colour represents the reported direction. A blank position means that no result was supplied for that gene set and contrast. The table below contains the finite results represented by points and can be downloaded.
 
 The overview is available only when at least two contrasts have results for the same gene set type and enrichment method.

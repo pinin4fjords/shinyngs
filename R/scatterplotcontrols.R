@@ -52,13 +52,14 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE, d
 #' be generated instead of a select, useful for scatter plots that don't need
 #' the user to select axes (default: NA)
 #' @param makeColors Boolean: use controls for coloring?
+#' @param default_3d Boolean: use 3D until the matching browser input is ready?
 #'
 #' @return output A list of reactives for accessing input values
 #'
 #' @examples
 #' scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix, x = 1, y = 2) # To have fixed axes rather than user-selected
 #'
-scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeColors = NULL) {
+scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeColors = NULL, default_3d = TRUE) {
   moduleServer(id, function(input, output, session) {
     output$plotColumns <- renderUI({
       withProgress(message = "Making scatter plot controls", value = 0, {
@@ -91,37 +92,37 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
     # Provide accessor methods for inputs
 
     getXAxis <- reactive({
-      validate(need(input$xAxis, FALSE))
-      as.numeric(input$xAxis)
+      value <- input$xAxis
+      if (is.null(value)) value <- if (is.na(x)) 1 else x
+      as.numeric(value)
     })
 
     getYAxis <- reactive({
-      validate(need(input$yAxis, FALSE))
-      as.numeric(input$yAxis)
+      value <- input$yAxis
+      if (is.null(value)) value <- if (is.na(y)) 2 else y
+      as.numeric(value)
     })
 
     getZAxis <- reactive({
       if (getThreedee()) {
-        validate(need(input$zAxis, FALSE))
-        as.numeric(input$zAxis)
+        value <- input$zAxis
+        if (is.null(value)) value <- if (is.na(z)) 3 else z
+        as.numeric(value)
       } else {
         NULL
       }
     })
 
     getThreedee <- reactive({
-      validate(need(input$threedee, FALSE))
-      as.logical(input$threedee)
+      if (is.null(input$threedee)) default_3d else as.logical(input$threedee)
     })
 
     getShowLabels <- reactive({
-      validate(need(input$threedee, "Waiting for showLabels"))
-      as.logical(input$showLabels)
+      if (is.null(input$showLabels)) FALSE else as.logical(input$showLabels)
     })
 
     getPointSize <- reactive({
-      validate(need(input$threedee, "Waiting for pointsize"))
-      input$pointSize
+      if (is.null(input$pointSize)) 5 else input$pointSize
     }) %>% debounce(300)
 
     reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)

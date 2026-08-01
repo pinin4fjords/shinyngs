@@ -79,8 +79,7 @@ colormakerInput <- function(id) {
 colormaker <- function(id, getNumberCategories) {
   moduleServer(id, function(input, output, session) {
     getPaletteName <- reactive({
-      validate(need(!is.null(input$palette_name), "Waiting for palette"))
-      input$palette_name
+      if (is.null(input$palette_name)) COLORBLIND_PALETTE_NAME else input$palette_name
     })
 
     reactive({

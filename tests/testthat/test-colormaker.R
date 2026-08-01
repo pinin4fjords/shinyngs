@@ -47,3 +47,9 @@ test_that("make_color_scale uses an RColorBrewer palette's own low-n colours bel
   expect_equal(sort(cols), sort(RColorBrewer::brewer.pal(3, "Set1")[1:2]))
   expect_false("#FF7F00" %in% cols) # the muddled orange colorRampPalette() used to produce here
 })
+
+test_that("colormaker uses the default palette while its input is initialising", {
+  shiny::testServer(colormaker, args = list(id = "colors", getNumberCategories = reactive(2)), {
+    expect_equal(session$getReturned()(), COLORBLIND_PALETTE[1:2])
+  })
+})

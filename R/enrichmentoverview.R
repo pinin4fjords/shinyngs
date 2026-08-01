@@ -125,36 +125,43 @@ enrichmentoverview <- function(id, eselist) {
       select_genes = FALSE, select_meta = FALSE
     )
 
-    output$geneSetType_ui <- renderUI({
+    getGeneSetTypes <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
       assay <- selectmatrix_reactives$getAssay()
-      gene_set_types <- names(ese@gene_set_analyses[[assay]])
-      selectInput(session$ns("gene_set_type"), "Gene set type", gene_set_types)
+      names(ese@gene_set_analyses[[assay]])
+    })
+
+    getGeneSetType <- reactive({
+      gene_set_types <- getGeneSetTypes()
+      validate(need(length(gene_set_types) > 0, "No gene set analyses are available"))
+      selected <- input$gene_set_type
+      if (length(selected) != 1 || !selected %in% gene_set_types) gene_set_types[1] else selected
+    })
+
+    output$geneSetType_ui <- renderUI({
+      gene_set_types <- getGeneSetTypes()
+      selectInput(session$ns("gene_set_type"), "Gene set type", gene_set_types, selected = getGeneSetType())
     })
 
     getEnrichmentOverviewData <- reactive({
-      validate(need(input$gene_set_type, "Waiting for gene set type"))
       compile_enrichment_overview(
         selectmatrix_reactives$getExperiment(), selectmatrix_reactives$getAssay(),
-        input$gene_set_type, eselist@contrasts
+        getGeneSetType(), eselist@contrasts
       )
     })
 
     getAvailableContrasts <- reactive({
       data <- getEnrichmentOverviewData()
-      contrast_levels <- attr(data, "contrast_levels")
-      resolved <- unique(data$contrast[is.finite(data$fdr)])
-      contrast_levels[contrast_levels %in% resolved]
+      contrast_numbers <- attr(data, "contrast_numbers")
+      resolved <- unique(data$contrast_number[is.finite(data$fdr)])
+      contrast_numbers[contrast_numbers %in% resolved]
     })
 
     output$contrasts_ui <- renderUI({
-      available <- getAvailableContrasts()
-      selected <- intersect(isolate(input$selected_contrasts), available)
-      if (length(selected) < 2) selected <- available
-      selectInput(
-        session$ns("selected_contrasts"), "Contrasts",
-        choices = available, selected = selected,
-        multiple = TRUE, selectize = TRUE
+      makeContrastControl(
+        session$ns("selected_contrasts"), eselist@contrasts,
+        contrast_numbers = getAvailableContrasts(),
+        multiple = TRUE, select_all = TRUE
       )
     })
 
@@ -167,7 +174,12 @@ enrichmentoverview <- function(id, eselist) {
       data <- getEnrichmentOverviewData()
       methods <- unique(stats::na.omit(data$method))
       validate(need(length(methods) <= 1, "Cross-contrast overview requires one enrichment method for the selected gene set type"))
-      selected_contrasts <- intersect(getAvailableContrasts(), input$selected_contrasts)
+      available_contrasts <- unname(getAvailableContrasts())
+      selected_contrasts <- if (is.null(input$selected_contrasts)) {
+        available_contrasts
+      } else {
+        intersect(available_contrasts, suppressWarnings(as.integer(input$selected_contrasts)))
+      }
       validate(need(length(selected_contrasts) >= 2, "Select at least two contrasts"))
 
       prepare_enrichment_overview(
@@ -217,7 +229,7 @@ enrichmentoverview <- function(id, eselist) {
     simpletable(
       "table", downloadMatrix = getEnrichmentOverviewTable,
       displayMatrix = getEnrichmentOverviewTable,
-      filename = "gene_set_overview", rownames = FALSE, server = FALSE,
+      filename = "gene_set_overview", rownames = FALSE,
       initial_order = list()
     )
   })
@@ -233,6 +245,7 @@ compile_enrichment_overview <- function(ese, assay, gene_set_type, contrasts) {
     data.frame(
       gene_set_id = rownames(enrichment$gst),
       contrast = contrast_labels[contrast_number],
+      contrast_number = contrast_number,
       pvalue = suppressWarnings(as.numeric(enrichment$gst[[enrichment$col_map$pvalue]])),
       fdr = suppressWarnings(as.numeric(enrichment$gst[[enrichment$col_map$fdr]])),
       direction = as.character(enrichment$gst[[enrichment$col_map$direction]]),
@@ -243,7 +256,7 @@ compile_enrichment_overview <- function(ese, assay, gene_set_type, contrasts) {
   rows <- Filter(Negate(is.null), rows)
   if (length(rows) == 0) {
     result <- data.frame(
-      gene_set_id = character(), contrast = character(), pvalue = numeric(),
+      gene_set_id = character(), contrast = character(), contrast_number = integer(), pvalue = numeric(),
       fdr = numeric(), direction = character(), method = character()
     )
   } else {
@@ -251,6 +264,7 @@ compile_enrichment_overview <- function(ese, assay, gene_set_type, contrasts) {
     rownames(result) <- NULL
   }
   attr(result, "contrast_levels") <- contrast_labels
+  attr(result, "contrast_numbers") <- stats::setNames(seq_along(contrast_labels), contrast_labels)
   result
 }
 
@@ -274,12 +288,34 @@ prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, selecte
   if (is.null(contrast_levels)) {
     contrast_levels <- unique(data$contrast)
   }
+  has_contrast_numbers <- "contrast_number" %in% colnames(data)
+  contrast_numbers <- attr(data, "contrast_numbers")
+  if (has_contrast_numbers && is.null(contrast_numbers)) {
+    contrast_numbers <- stats::setNames(
+      vapply(contrast_levels, function(label) data$contrast_number[match(label, data$contrast)], integer(1)),
+      contrast_levels
+    )
+  }
   if (!is.null(selected_contrasts)) {
-    if (!is.character(selected_contrasts) || length(selected_contrasts) < 1 || any(!selected_contrasts %in% contrast_levels)) {
-      stop("prepare_enrichment_overview(): 'selected_contrasts' must contain available contrasts")
+    if (has_contrast_numbers) {
+      selected_numbers <- if (is.character(selected_contrasts) && all(selected_contrasts %in% names(contrast_numbers))) {
+        unname(contrast_numbers[selected_contrasts])
+      } else {
+        suppressWarnings(as.integer(selected_contrasts))
+      }
+      if (length(selected_numbers) < 1 || anyNA(selected_numbers) || any(!selected_numbers %in% contrast_numbers)) {
+        stop("prepare_enrichment_overview(): 'selected_contrasts' must contain available contrasts")
+      }
+      contrast_numbers <- contrast_numbers[contrast_numbers %in% unique(selected_numbers)]
+      contrast_levels <- names(contrast_numbers)
+      data <- data[data$contrast_number %in% contrast_numbers, , drop = FALSE]
+    } else {
+      if (!is.character(selected_contrasts) || length(selected_contrasts) < 1 || any(!selected_contrasts %in% contrast_levels)) {
+        stop("prepare_enrichment_overview(): 'selected_contrasts' must contain available contrasts")
+      }
+      contrast_levels <- contrast_levels[contrast_levels %in% unique(selected_contrasts)]
+      data <- data[data$contrast %in% contrast_levels, , drop = FALSE]
     }
-    contrast_levels <- contrast_levels[contrast_levels %in% unique(selected_contrasts)]
-    data <- data[data$contrast %in% contrast_levels, , drop = FALSE]
   }
 
   methods <- unique(stats::na.omit(data$method))
@@ -292,14 +328,17 @@ prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, selecte
   }
 
   eligible_ids <- unique(data$gene_set_id[eligible])
+  rows_by_gene_set <- split(seq_len(nrow(data)), data$gene_set_id)
+  contrast_identity <- if (has_contrast_numbers) data$contrast_number else data$contrast
   rank_summary <- do.call(rbind, lapply(eligible_ids, function(gene_set_id) {
-    rows <- data[data$gene_set_id == gene_set_id, , drop = FALSE]
+    row_indices <- rows_by_gene_set[[gene_set_id]]
+    rows <- data[row_indices, , drop = FALSE]
     finite_pvalues <- rows$pvalue[is.finite(rows$pvalue)]
     data.frame(
       gene_set_id = gene_set_id,
       minimum_fdr = min(rows$fdr[is.finite(rows$fdr)]),
       minimum_pvalue = if (length(finite_pvalues) > 0) min(finite_pvalues) else Inf,
-      significant_contrasts = length(unique(rows$contrast[is.finite(rows$fdr) & rows$fdr <= max_fdr])),
+      significant_contrasts = length(unique(contrast_identity[row_indices][is.finite(rows$fdr) & rows$fdr <= max_fdr])),
       stringsAsFactors = FALSE
     )
   }))
@@ -324,15 +363,31 @@ prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, selecte
   )
   selected_ids <- head(rank_summary$gene_set_id[ranked_rows], as.integer(top_n))
 
-  grid <- expand.grid(
-    contrast = contrast_levels, gene_set_id = selected_ids,
-    KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE
-  )
-  grid <- grid[c("gene_set_id", "contrast")]
+  if (has_contrast_numbers) {
+    grid <- expand.grid(
+      contrast_number = unname(contrast_numbers), gene_set_id = selected_ids,
+      KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE
+    )
+    grid$contrast <- names(contrast_numbers)[match(grid$contrast_number, contrast_numbers)]
+    grid <- grid[c("gene_set_id", "contrast", "contrast_number")]
+    merge_columns <- c("gene_set_id", "contrast", "contrast_number")
+    result_columns <- c(required_columns, "contrast_number")
+  } else {
+    grid <- expand.grid(
+      contrast = contrast_levels, gene_set_id = selected_ids,
+      KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE
+    )
+    grid <- grid[c("gene_set_id", "contrast")]
+    merge_columns <- c("gene_set_id", "contrast")
+    result_columns <- required_columns
+  }
   grid$.order <- seq_len(nrow(grid))
-  overview <- merge(grid, data, by = c("gene_set_id", "contrast"), all.x = TRUE, sort = FALSE)
-  overview <- overview[order(overview$.order), c(required_columns), drop = FALSE]
+  overview <- merge(grid, data, by = merge_columns, all.x = TRUE, sort = FALSE)
+  overview <- overview[order(overview$.order), result_columns, drop = FALSE]
   attr(overview, "contrast_levels") <- contrast_levels
+  if (has_contrast_numbers) {
+    attr(overview, "contrast_numbers") <- contrast_numbers
+  }
   attr(overview, "gene_set_levels") <- selected_ids
   overview
 }

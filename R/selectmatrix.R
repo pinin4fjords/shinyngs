@@ -34,11 +34,8 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 
   # Restrict to valid experiments
 
-  if (require_contrast_stats) {
-    eselist <- eselist[which(unlist(lapply(eselist, function(ese) {
-      has_slot_data(ese, "contrast_stats")
-    })))]
-  }
+  valid_experiment_ids <- selectmatrix_valid_experiment_ids(eselist, require_contrast_stats)
+  eselist <- eselist[valid_experiment_ids]
   inputs <- list(selectInput(ns("experiment"), "Experiment", names(eselist)), uiOutput(ns("assay_ui")), uiOutput(ns("samples")), uiOutput(ns("rows")), uiOutput(ns("meta")))
 
   # Replace experiment with a hidden input if we've got just the one
@@ -48,6 +45,15 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
   }
 
   return(inputs)
+}
+
+selectmatrix_valid_experiment_ids <- function(eselist, require_contrast_stats = FALSE) {
+  experiment_ids <- names(eselist)
+  if (require_contrast_stats) {
+    has_stats <- vapply(eselist, has_slot_data, logical(1), slot_name = "contrast_stats")
+    experiment_ids <- experiment_ids[has_stats]
+  }
+  experiment_ids
 }
 
 #' The server function of the selectmatrix module
@@ -102,12 +108,17 @@ selectmatrixInput <- function(id, eselist, require_contrast_stats = FALSE) {
 #'
 selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
   moduleServer(id, function(input, output, session) {
+    valid_experiment_ids <- selectmatrix_valid_experiment_ids(eselist, require_contrast_stats)
+
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
-    sampleselect_reactives <- sampleselect("selectmatrix", eselist = eselist, getExperiment, allow_summarise = allow_summarise)
+    sampleselect_reactives <- sampleselect(
+      "selectmatrix", eselist = eselist, getExperiment,
+      select_samples = select_samples, allow_summarise = allow_summarise
+    )
     geneselect_reactives <- geneselect("selectmatrix",
       eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = sampleselect_reactives$selectSamples,
-      getAssay = getAssay, provide_all = provide_all_genes, default = default_gene_select
+      getAssay = getAssay, provide_all = provide_all_genes || !select_genes, default = default_gene_select
     )
 
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
@@ -185,8 +196,10 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Name of the experment is useful sometimes
 
     getExperimentId <- reactive({
-      validate(need(input$experiment, "Waiting for experiment selection"))
-      input$experiment
+      validate(need(length(valid_experiment_ids) > 0, "No valid experiments are available"))
+      selected <- input$experiment
+      if (length(selected) != 1 || !selected %in% valid_experiment_ids) selected <- valid_experiment_ids[1]
+      selected
     })
 
     getExperimentName <- reactive({
@@ -208,8 +221,11 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Allow calling modules to retrieve the current assay
 
     getAssay <- reactive({
-      validate(need(!is.null(input$assay), "Waiting for form to provide assay"))
-      input$assay
+      selected <- input$assay
+      available <- validAssays()
+      validate(need(length(available) > 0, "No valid assay matrices are available"))
+      if (length(selected) != 1 || !selected %in% available) selected <- available[1]
+      selected
     })
 
     # Retrieve the assay measure to display with plots etc (where defined by the user)

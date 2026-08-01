@@ -110,11 +110,14 @@ sample, for example an unusually low mean, can point to sample-quality problems.
 Box plots become unmanageable beyond about 20 samples, so line plots are the
 default for larger sample counts. Whiskers extend to 1.5x the interquartile
 range by default; points beyond them are treated as outliers, and mousing over
-an outlier in the line plots reveals its identity.
+an outlier in the line plots reveals its identity. A summary table beneath the
+plot reports the plotted scale's non-missing count, quartiles, mean, range, IQR,
+and outlier count for every sample.
 
 *Inputs:* an assay matrix; comparing raw versus normalised matrices can be
 informative.
-*Backed by:* `interactive_boxplot`, `interactive_densityplot`, and `interactive_quartiles`.
+*Backed by:* `interactive_boxplot`, `interactive_densityplot`,
+`interactive_quartiles`, and `distribution_summary`.
 
 ![Value distributions per sample, as box plots coloured by group](img/distribution.png)
 
@@ -228,15 +231,24 @@ number of contrasts considered and the number of intersections shown. The
 intersection type defaults to exclusive (Venn/Euler-style, so bars sum to the
 total), or can be set to "Complete" so each bar reflects the full pairwise
 intersection (bars then overlap and no longer sum to the total). The plot is
-downloadable. A directional summary below the intersection plot compares
-up- and down-regulated feature counts across every selected contrast using the
-same filters.
+downloadable.
 
 *Inputs:* contrasts with thresholds, and an assay matrix for generating the
 comparisons.
-*Backed by:* `interactive_upset` and `interactive_differential_summary`.
+*Backed by:* `interactive_upset`.
 
 ![UpSet plot showing the exclusive intersections between several contrasts' differential gene sets](img/upset.png)
+
+### Differential summary
+
+Compares up- and down-regulated feature counts across selected contrasts using
+the same matrix, row selection, and statistical-threshold controls as the other
+differential panels. The directional bar plot is backed by a table containing
+the exact counts for display and export.
+
+*Inputs:* two or more contrasts with thresholds, and an assay matrix for
+generating the comparisons.
+*Backed by:* `interactive_differential_summary`.
 
 ## Gene-level
 
@@ -247,18 +259,19 @@ Panels centred on individual genes or gene sets.
 Detailed information for one or more genes selected by label or identifier. It
 combines an **expression bar plot** (expression per sample, optionally coloured
 by an experimental variable) with a **gene info** table of annotation (with
-links out to external resources where configured), a **contrast profile** showing
-fold change and q-value status across comparisons, a **contrasts table** listing
-that gene's differential results, and, where the experiment has an associated
-Ensembl species, a **gene model** view: an interactive genome-browser diagram of
-the gene's exon/transcript structure.
+links out to external resources where configured), a **differential effects**
+table listing the selected genes' results, and, where one gene has at least
+three finite effects, a plot of signed log2 fold change ordered by absolute
+effect. Where the experiment has an associated Ensembl species, a **gene model**
+view provides an interactive genome-browser diagram of the gene's
+exon/transcript structure.
 
 *Inputs:* one or more selected genes; an assay matrix and a "colour by" variable
-for the bar plot; contrasts for the results table; an Ensembl species (plus
+for the bar plot; contrasts for the differential-effects table; an Ensembl species (plus
 `chromosome_name`/`start_position`/`end_position` feature metadata) for the gene
 model.
 *Backed by:* `interactive_scatterplot` for the expression bar plot,
-`interactive_gene_contrast_profile` for the contrast profile, and `igvShiny`
+`interactive_gene_contrast_profile` for the differential-effects plot, and `igvShiny`
 (igv.js) for the gene model.
 
 ![Gene page: expression bar plot, gene info and contrasts table](img/gene-page.png)
@@ -298,12 +311,14 @@ with gene-level thresholds.
 ### Gene-set overview
 
 A cross-contrast dot plot compares compatible enrichment results for one gene-set
-type. Gene sets are ranked by their smallest FDR, point size represents
+type. Controls choose the included contrasts and rank gene sets by lowest FDR,
+lowest p-value, number of significant contrasts, or name. Point size represents
 significance, and colour shows the reported direction. Missing gene-set and
 contrast combinations remain blank instead of being dropped.
 
-*Inputs:* precomputed enrichment results for at least two contrasts, one
-gene-set type, a maximum FDR, and the number of sets to display.
+*Inputs:* precomputed enrichment results for at least two contrasts, selected
+contrasts, one gene-set type, a ranking method, a maximum FDR, and the number of
+sets to display.
 *Backed by:* `interactive_enrichment_overview`.
 
 ## QC / platform-specific

@@ -63,6 +63,49 @@ test_that("selectSamples returns the samples belonging to the selected group val
   )
 })
 
+test_that("selectSamples uses every group while the group-value input is initialising", {
+  eselist <- make_sampleselect_eselist()
+
+  shiny::testServer(
+    sampleselect,
+    args = list(id = "sampleselect", eselist = eselist, getExperiment = function() eselist[["counts"]]),
+    {
+      session$setInputs(sampleSelect = "group", sampleGroupVar = "condition")
+      expect_equal(selectSamples(), paste0("s", 1:8))
+    }
+  )
+})
+
+test_that("selectSamples uses the displayed group default while its inputs initialise", {
+  eselist <- make_sampleselect_eselist()
+
+  shiny::testServer(
+    sampleselect,
+    args = list(id = "sampleselect", eselist = eselist, getExperiment = function() eselist[["counts"]]),
+    {
+      expect_equal(getSampleSelect(), "group")
+      expect_equal(getSampleGroupVar(), "condition")
+      expect_equal(selectSamples(), paste0("s", 1:8))
+    }
+  )
+})
+
+test_that("selectSamples selects every sample when its controls are disabled", {
+  eselist <- make_sampleselect_eselist()
+
+  shiny::testServer(
+    sampleselect,
+    args = list(
+      id = "sampleselect", eselist = eselist,
+      getExperiment = function() eselist[["counts"]], select_samples = FALSE
+    ),
+    {
+      expect_equal(getSampleSelect(), "all")
+      expect_equal(selectSamples(), paste0("s", 1:8))
+    }
+  )
+})
+
 test_that("selectSamples treats NA group values as an empty-string group", {
   eselist <- make_sampleselect_eselist()
   SummarizedExperiment::colData(eselist[["counts"]])$condition[1] <- NA

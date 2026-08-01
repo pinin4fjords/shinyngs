@@ -180,6 +180,32 @@ test_that("gene offers a differential effects plot for at least three contrasts"
   )
 })
 
+test_that("gene omits the differential effects plot for multiple selected genes", {
+  eselist <- shinytest2_eselist()
+  contrast_stats <- eselist[[1]]@contrast_stats$counts
+  contrast_stats <- lapply(contrast_stats, function(values) {
+    result <- values[, rep(1, 3), drop = FALSE]
+    colnames(result) <- as.character(1:3)
+    result
+  })
+  eselist[[1]]@contrast_stats$counts <- contrast_stats
+  eselist@contrasts <- rep(eselist@contrasts, 3)
+
+  run_gene_server(
+    eselist,
+    extra_inputs = list(
+      "gene_label-label" = "Gene1",
+      "gene_label-ids" = c("gene1", "gene2"),
+      "gene-contrasts0" = c("1", "2", "3")
+    ),
+    expr = quote({
+      effects_ui <- paste(as.character(output$differentialEffects_ui), collapse = "")
+      expect_match(effects_ui, ">Table<")
+      expect_false(grepl(">Plot<", effects_ui))
+    })
+  )
+})
+
 test_that("output$geneInfoTable renders the annotation row for the selected gene", {
   run_gene_server(shinytest2_eselist(), expr = quote({
     rendered <- output$geneInfoTable

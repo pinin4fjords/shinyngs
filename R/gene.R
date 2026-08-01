@@ -318,15 +318,21 @@ gene <- function(id, eselist) {
 
     if (has_slot_data(eselist, "contrasts")) {
       output$differentialEffects_ui <- renderUI({
-        profile_table <- getGeneContrastProfileTable()
-        fold_changes <- suppressWarnings(as.numeric(profile_table[["Fold change"]]))
-        finite_effects <- sum(is.finite(log_fold_change(fold_changes)))
         tabs <- list(tabPanel(
           "Table",
           simpletableOutput(session$ns("geneContrastsTable"))
         ))
 
-        if (finite_effects >= 3) {
+        rows <- getSelectedIdsWithData()
+        if (length(rows) == 1) {
+          profile_table <- getGeneContrastProfileTable()
+          fold_changes <- suppressWarnings(as.numeric(profile_table[["Fold change"]]))
+          finite_effects <- sum(is.finite(log_fold_change(fold_changes)))
+        } else {
+          finite_effects <- 0
+        }
+
+        if (finite_effects >= 3L) {
           height <- min(850, max(320, finite_effects * 42 + 170))
           tabs <- push_to_list(tabs, tabPanel(
             "Plot",

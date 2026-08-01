@@ -22,6 +22,14 @@ test_that("getGroupby returns the selected grouping variable", {
   })
 })
 
+test_that("getGroupby uses the configured default while its input is initialising", {
+  eselist <- make_groupby_eselist()
+
+  shiny::testServer(groupby, args = list(id = "grp", eselist = eselist), {
+    expect_equal(getGroupby(), "condition")
+  })
+})
+
 test_that("getGroupby returns NULL when group_vars is empty (hidden 'NULL' field)", {
   mat <- matrix(1:4, nrow = 2, dimnames = list(c("g1", "g2"), c("s1", "s2")))
   ese <- ExploratorySummarizedExperiment(

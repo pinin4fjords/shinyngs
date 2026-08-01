@@ -1,6 +1,6 @@
 # interactive_heatmap()
 
-test_that("PCA heatmap height preserves pending sample-group validation", {
+test_that("PCA heatmap height is available while sample-group controls initialise", {
   eselist <- shinytest2_eselist()
 
   shiny::testServer(shinyngs:::heatmap, args = list(id = "heatmap", eselist = eselist, type = "pca"), {
@@ -15,9 +15,7 @@ test_that("PCA heatmap height preserves pending sample-group validation", {
     )
     session$flushReact()
 
-    pending <- tryCatch(heatmapOnlyHeight(), error = identity)
-    expect_s3_class(pending, "validation")
-    expect_match(conditionMessage(pending), "Waiting for form to provide sampleGroupVal", fixed = TRUE)
+    expect_true(is.finite(heatmapOnlyHeight()))
   })
 })
 

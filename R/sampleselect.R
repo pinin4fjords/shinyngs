@@ -77,6 +77,8 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @param getExperiment Reactive expression that returns a
 #'   \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 #'   result of a user selection
+#' @param select_samples Match the UI's sample-selection setting. When false,
+#'   all samples are selected.
 #' @param allow_summarise Boolean, show controls for matrix summarisation?
 #'
 #' @return output A list of reactive functions for interrogating the selected
@@ -87,7 +89,7 @@ sampleselectInput <- function(id, eselist, getExperiment, select_samples = TRUE)
 #' @examples
 #' selectSamples <- sampleselect("selectmatrix", getExperiment)
 #'
-sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
+sampleselect <- function(id, eselist, getExperiment, select_samples = TRUE, allow_summarise = TRUE) {
   moduleServer(id, function(input, output, session) {
     if (allow_summarise) {
       getSummaryType <- summarisematrix("summarise")
@@ -114,20 +116,25 @@ sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
     # Output a reactive so that other modules know whether we've selected by sample or group
 
     getSampleSelect <- reactive({
-      input$sampleSelect
+      if (!is.null(input$sampleSelect)) {
+        return(input$sampleSelect)
+      }
+      if (!select_samples) {
+        return("all")
+      }
+      if (has_slot_data(eselist, "group_vars")) "group" else "name"
     })
 
     # Return summary type
 
     getSampleGroupVar <- reactive({
-      input$sampleGroupVar
+      if (is.null(input$sampleGroupVar)) defaultGroupvar(eselist) else input$sampleGroupVar
     })
 
     # Reactive expression for selecting the specified columns
 
     selectSamples <- reactive({
       withProgress(message = "Selecting samples", value = 0, {
-        validate(need(!is.null(getSampleSelect()), "Waiting for form to provide sampleSelect"))
         ese <- getExperiment()
         sample_select <- getSampleSelect()
 
@@ -136,21 +143,25 @@ sampleselect <- function(id, eselist, getExperiment, allow_summarise = TRUE) {
         }
 
         if (sample_select == "name") {
-          validate(need(!is.null(input$samples), "Waiting for form to provide samples"))
+          if (is.null(input$samples)) return(colnames(ese))
           return(input$samples)
         }
 
         validate(need(sample_select == "group", paste0("Unknown sample selection mode: ", sample_select)))
         validate(need(has_slot_data(eselist, "group_vars"), "No sample grouping variables are available"))
-        validate(need(!is.null(input$sampleGroupVar), "Waiting for form to provide sampleGroupVar"))
-        validate(need(!is.null(input$sampleGroupVal), "Waiting for form to provide sampleGroupVal"))
+        sample_group_var <- getSampleGroupVar()
+        validate(need(sample_group_var %in% colnames(SummarizedExperiment::colData(ese)), "Select a valid sample grouping variable"))
 
         # Any NA in the colData will become string '' via the inputs, so make sure we consider that when matching
 
-        samplegroups <- as.character(ese[[isolate(input$sampleGroupVar)]])
+        samplegroups <- as.character(ese[[sample_group_var]])
         samplegroups[is.na(samplegroups)] <- ""
+        selected_groups <- input$sampleGroupVal
+        if (is.null(selected_groups)) {
+          selected_groups <- unique(samplegroups)
+        }
 
-        colnames(ese)[samplegroups %in% input$sampleGroupVal]
+        colnames(ese)[samplegroups %in% selected_groups]
       })
     })
 

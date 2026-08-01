@@ -90,7 +90,7 @@ test_that("chipseqInput includes the Differential menu's core tabs once contrast
   expect_true(grepl("Fold change plots", txt))
   expect_true(grepl("MA plots", txt))
   expect_false(grepl("Volcano plots", txt))
-  expect_false(grepl("Gene set analyses", txt))
+  expect_false(grepl("Gene sets", txt))
 })
 
 test_that("chipseqInput adds Volcano plots and Top gene boxplots once contrast_stats is present", {

@@ -70,6 +70,25 @@ test_that("getShowLabels and getPointSize reflect their inputs", {
   )
 })
 
+test_that("scatterplot controls expose their displayed defaults while initialising", {
+  m <- make_scatterplot_matrix()
+
+  shiny::testServer(
+    scatterplotcontrols,
+    args = list(id = "scatter", getDatamatrix = reactive(m)),
+    {
+      session$elapse(400)
+
+      expect_equal(getXAxis(), 1)
+      expect_equal(getYAxis(), 2)
+      expect_equal(getZAxis(), 3)
+      expect_true(getThreedee())
+      expect_false(getShowLabels())
+      expect_equal(getPointSize(), 5)
+    }
+  )
+})
+
 test_that("supplying makeColors adds a getScatterPalette reactive to the returned list", {
   m <- make_scatterplot_matrix()
 

@@ -10,7 +10,8 @@ scatterplotcontrols(
   x = NA,
   y = NA,
   z = NA,
-  makeColors = NULL
+  makeColors = NULL,
+  default_3d = TRUE
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ be generated instead of a select, useful for scatter plots that don't need
 the user to select axes (default: NA)}
 
 \item{makeColors}{Boolean: use controls for coloring?}
+
+\item{default_3d}{Boolean: use 3D until the matching browser input is ready?}
 }
 \value{
 output A list of reactives for accessing input values

@@ -58,3 +58,22 @@ test_that("variance_slider_range remains valid for an empty assay", {
     list(min = 1, max = 1, value = 1)
   )
 })
+
+test_that("geneselect uses the displayed default while its input initialises", {
+  eselist <- make_medium_module_eselist()
+  ese <- eselist[[1]]
+
+  shiny::testServer(
+    geneselect,
+    args = list(
+      id = "genes",
+      eselist = eselist,
+      getExperiment = shiny::reactive(ese),
+      selectSamples = shiny::reactive(colnames(ese)),
+      getAssay = shiny::reactive("counts")
+    ),
+    {
+      expect_equal(getGeneSelect(), "all")
+    }
+  )
+})
