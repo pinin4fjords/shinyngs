@@ -299,6 +299,24 @@ shinyngsSpinnerColor <- function() {
   SHINYNGS_ACCENT
 }
 
+#' Wrap an output in the shared shinyngs loading indicator
+#'
+#' The current output remains visible during recalculation and CSS delays the
+#' indicator briefly, preventing fast reactive invalidations from flashing.
+#'
+#' @param output An output element to wrap
+#'
+#' @return The wrapped output element
+#'
+#' @keywords internal
+#'
+shinyngsSpinner <- function(output) {
+  htmltools::tagAppendAttributes(
+    shinycssloaders::withSpinner(output, color = shinyngsSpinnerColor(), hide.ui = FALSE),
+    class = "shinyngs-stable-spinner"
+  )
+}
+
 #' Apply shinyngs' shared plotly toolbar configuration
 #'
 #' Gives every interactive plot the same modebar: the plotly logo is dropped,

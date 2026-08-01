@@ -185,6 +185,7 @@ test_that("selectmatrix uses its first displayed experiment and assay while inpu
     {
       expect_equal(getExperimentId(), "counts")
       expect_equal(getAssay(), "counts")
+      expect_equal(getMetafields(), "gene_name")
     }
   )
 })

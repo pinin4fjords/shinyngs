@@ -74,7 +74,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("model")),
     uiOutput(ns("info")),
     uiOutput(ns("title")),
-    shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = "500px"), color = shinyngsSpinnerColor()),
+    shinyngsSpinner(plotlyOutput(ns("barPlot"), height = "500px")),
     differential_effects,
     help = modalInput(ns(gene_modal$id), "help", "help")
   )
@@ -119,7 +119,7 @@ gene <- function(id, eselist) {
 
     modalServer(gene_info_modal_id,
       title = function() paste(selectmatrix_reactives$getExperimentName(), "information for", paste(gene_label_reactives$getSelectedLabels(), sep = ", ")),
-      content = DT::dataTableOutput(session$ns("geneInfoTable"))
+      content = shinyngsSpinner(DT::dataTableOutput(session$ns("geneInfoTable")))
     )
 
     igvshiny_available <- requireNamespace("igvShiny", quietly = TRUE)
@@ -341,10 +341,7 @@ gene <- function(id, eselist) {
           height <- min(850, max(320, finite_effects * 42 + 170))
           tabs <- push_to_list(tabs, tabPanel(
             "Plot",
-            shinycssloaders::withSpinner(
-              plotlyOutput(session$ns("geneContrastProfile"), height = paste0(height, "px")),
-              color = shinyngsSpinnerColor()
-            )
+            shinyngsSpinner(plotlyOutput(session$ns("geneContrastProfile"), height = paste0(height, "px")))
           ))
         }
 

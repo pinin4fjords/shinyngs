@@ -19,6 +19,55 @@ test_that("fold_change handles a mix of increases, decreases and no change", {
   expect_equal(fold_change(vec1, vec2), c(1, 2, -2))
 })
 
+test_that("contrast filter sets have complete server-side initial values", {
+  contrast_numbers <- c("first" = "1", "second" = "2")
+
+  values <- initialContrastFilterSetValues(
+    contrast_numbers,
+    multiple = TRUE,
+    select_all_contrasts = FALSE,
+    filter_rows = TRUE,
+    default_foldchange = 2,
+    default_pval = 0.05,
+    default_qval = 0.1,
+    pvals_available = TRUE,
+    qvals_available = TRUE
+  )
+
+  expect_equal(values, list(
+    contrasts = "1",
+    fold_change = 2,
+    fold_change_card = ">= or <= -",
+    p_value = 0.05,
+    p_value_card = "<=",
+    q_value = 0.1,
+    q_value_card = "<="
+  ))
+})
+
+test_that("contrast filter set initial values match selection and restore state", {
+  contrast_numbers <- c("first" = "1", "second" = "2")
+
+  values <- initialContrastFilterSetValues(
+    contrast_numbers,
+    multiple = TRUE,
+    select_all_contrasts = TRUE,
+    filter_rows = TRUE,
+    default_foldchange = 2,
+    default_pval = 0.05,
+    default_qval = 0.1,
+    pvals_available = FALSE,
+    qvals_available = FALSE,
+    restored = list(contrasts = "2", fold_change = 3)
+  )
+
+  expect_equal(values, list(
+    contrasts = "2",
+    fold_change = 3,
+    fold_change_card = ">= or <= -"
+  ))
+})
+
 test_that("base contrast tables do not force the selected expression subset", {
   selected_matrix_calls <- 0L
   ese <- make_medium_module_eselist()[[1]]

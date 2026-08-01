@@ -109,6 +109,15 @@ selectmatrix_valid_experiment_ids <- function(eselist, require_contrast_stats = 
 selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
   moduleServer(id, function(input, output, session) {
     valid_experiment_ids <- selectmatrix_valid_experiment_ids(eselist, require_contrast_stats)
+    metafields_experiment_id <- valid_experiment_ids[1]
+    initial_metafields <- character()
+    if (length(valid_experiment_ids) > 0) {
+      initial_experiment <- eselist[[valid_experiment_ids[1]]]
+      if (has_slot_data(initial_experiment, "labelfield")) {
+        initial_metafields <- initial_experiment@labelfield
+      }
+    }
+    metafields_value <- reactiveVal(initial_metafields)
 
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
@@ -158,10 +167,6 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       }
     })
 
-    getMetafields <- reactive({
-      input$metafields
-    })
-
     # Render sample selection controls
 
     output$samples <- renderUI({
@@ -205,6 +210,24 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     getExperimentName <- reactive({
       eid <- getExperimentId()
       prettify_variable_name(eid)
+    })
+
+    observeEvent(getExperimentId(), {
+      experiment_id <- getExperimentId()
+      if (!identical(experiment_id, metafields_experiment_id)) {
+        ese <- getExperiment()
+        metafields <- if (has_slot_data(ese, "labelfield")) ese@labelfield else character()
+        metafields_experiment_id <<- experiment_id
+        metafields_value(metafields)
+      }
+    }, ignoreNULL = FALSE)
+
+    observeEvent(input$metafields, {
+      metafields_value(input$metafields)
+    }, ignoreNULL = TRUE)
+
+    getMetafields <- reactive({
+      metafields_value()
     })
 
     # Get the row labels where available

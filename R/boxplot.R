@@ -151,7 +151,7 @@ boxplot <- function(id, eselist) {
       } else {
         "quartilesPlotly"
       }
-      shinycssloaders::withSpinner(plotlyOutput(ns(plotOutputId), height = "600px"), color = shinyngsSpinnerColor())
+      shinyngsSpinner(plotlyOutput(ns(plotOutputId), height = "600px"))
     })
 
     output$quartilesPlotly <- renderPlotly({

@@ -44,7 +44,7 @@ pcaInput <- function(id, eselist) {
   # Output sets of fields in their own containers
 
   fieldSets(ns("fieldset"), list(
-    principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE, default_3d = FALSE), groupbyInput(ns("pca"))),
+    principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE, default_3d = TRUE), groupbyInput(ns("pca"))),
     expression = expression_filters, export = list(
       simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"),
       simpletableInput(ns("screeplot"), tabletitle = "Scree")
@@ -87,7 +87,7 @@ pcaOutput <- function(id) {
       tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"), spinner = TRUE)),
       tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings", spinner = TRUE))),
       tabPanel("Scree plot", list(
-        shinycssloaders::withSpinner(plotlyOutput(ns("screeplot"), height = "600px"), color = shinyngsSpinnerColor()),
+        shinyngsSpinner(plotlyOutput(ns("screeplot"), height = "600px")),
         simpletableOutput(ns("screeplot"), tabletitle = "Scree", spinner = TRUE)
       ))
     ),

@@ -1,3 +1,11 @@
+# barplotOutput()
+
+test_that("barplotOutput uses the stable loading treatment", {
+  html <- as.character(barplotOutput("barplot"))
+
+  expect_match(html, "shinyngs-stable-spinner", fixed = TRUE)
+})
+
 # interactive_barchart()
 
 test_that("interactive_barchart draws one bar trace per row, with columns along x", {

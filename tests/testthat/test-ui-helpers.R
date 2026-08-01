@@ -74,6 +74,16 @@ test_that("shinyngsSpinnerColor returns the brand accent hex colour", {
   expect_match(shinyngsSpinnerColor(), "^#[0-9a-f]{6}$")
 })
 
+# shinyngsSpinner()
+
+test_that("shinyngsSpinner applies the stable shared loading treatment", {
+  html <- as.character(shinyngsSpinner(tags$div(id = "result")))
+
+  expect_match(html, "shinyngs-stable-spinner", fixed = TRUE)
+  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
+  expect_false(grepl("shiny-spinner-hideui", html, fixed = TRUE))
+})
+
 # shinyngsPlotlyConfig()
 
 test_that("shinyngsPlotlyConfig drops the plotly logo and the noisier selection buttons", {

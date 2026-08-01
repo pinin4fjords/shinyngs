@@ -34,7 +34,7 @@ categorycountplotOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    shinycssloaders::withSpinner(plotlyOutput(ns("plot"), height = "500px"), color = shinyngsSpinnerColor()),
+    shinyngsSpinner(plotlyOutput(ns("plot"), height = "500px")),
     simpletableOutput(ns("table"), tabletitle = "Counts", spinner = TRUE)
   )
 }

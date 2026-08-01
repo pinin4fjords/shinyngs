@@ -12,7 +12,7 @@ test_that("assaydatatable displays the selected assay's matrix, labelled by gene
 
     displayed <- selectmatrix_reactives$selectLabelledMatrix()
     expect_setequal(rownames(displayed), paste0("gene", 1:8))
-    expect_setequal(colnames(displayed), c("Gene id", "s1", "s2", "s3", "s4"))
+    expect_setequal(colnames(displayed), c("Gene id", "Gene name", "s1", "s2", "s3", "s4"))
   })
 })
 
@@ -49,7 +49,7 @@ test_that("assaydatatable restricts the displayed matrix to the selected samples
     session$elapse(400)
 
     displayed <- selectmatrix_reactives$selectLabelledMatrix()
-    expect_setequal(colnames(displayed), c("Gene id", "s1", "s2"))
+    expect_setequal(colnames(displayed), c("Gene id", "Gene name", "s1", "s2"))
     expect_false(selectmatrix_reactives$isSummarised())
   })
 })

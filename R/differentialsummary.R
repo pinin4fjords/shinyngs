@@ -65,10 +65,7 @@ differentialsummary <- function(id, eselist) {
     output$plot_ui <- renderUI({
       summary <- getDifferentialSummary()
       height <- min(1000, max(420, nrow(summary) * 38 + 160))
-      shinycssloaders::withSpinner(
-        plotlyOutput(session$ns("plot"), height = paste0(height, "px")),
-        color = shinyngsSpinnerColor()
-      )
+      shinyngsSpinner(plotlyOutput(session$ns("plot"), height = paste0(height, "px")))
     })
 
     getDifferentialSummaryPlot <- reactive({

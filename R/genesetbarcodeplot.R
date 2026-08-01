@@ -100,7 +100,7 @@ genesetbarcodeplotOutput <- function(id) {
 
   moduleMain(
     "Gene set barcode plot",
-    shinycssloaders::withSpinner(plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), color = shinyngsSpinnerColor()),
+    shinyngsSpinner(plotlyOutput(ns("genesetbarcodeplot"), height = "460px")),
     h4("Gene set differential expression"),
     simpletableOutput(ns("genesetbarcodeplot")),
     help = modalInput(ns(genesetbarcodeplot_modal$id), "help", "help")

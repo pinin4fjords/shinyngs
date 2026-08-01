@@ -4,16 +4,14 @@
 \alias{simpletableOutput}
 \title{The output function of the simpletable module}
 \usage{
-simpletableOutput(id, tabletitle = NULL, spinner = FALSE)
+simpletableOutput(id, tabletitle = NULL, spinner = TRUE)
 }
 \arguments{
 \item{id}{Module namespace}
 
 \item{tabletitle}{(optional) Title to display with the table}
 
-\item{spinner}{Show a loading spinner while the table is (re)computed.
-Intended for tables backed by expensive reactives (e.g. differential
-expression); left off by default for small, near-instant tables.}
+\item{spinner}{Show a loading spinner while the table is (re)computed}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using

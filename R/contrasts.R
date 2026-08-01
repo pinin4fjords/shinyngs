@@ -387,6 +387,36 @@ contrastNaming <- function(getAllContrasts) {
   list(makeContrastNames = makeContrastNames, makeSafeContrastNames = makeSafeContrastNames)
 }
 
+initialContrastFilterSetValues <- function(contrast_numbers, multiple, select_all_contrasts, filter_rows,
+                                           default_foldchange, default_pval, default_qval,
+                                           pvals_available, qvals_available, restored = NULL) {
+  selected_contrasts <- unname(contrast_numbers[1])
+  if (multiple && select_all_contrasts) {
+    selected_contrasts <- unname(contrast_numbers)
+  }
+
+  values <- list(contrasts = selected_contrasts)
+  if (filter_rows) {
+    values$fold_change <- default_foldchange
+    values$fold_change_card <- ">= or <= -"
+    if (pvals_available) {
+      values$p_value <- default_pval
+      values$p_value_card <- "<="
+    }
+    if (qvals_available) {
+      values$q_value <- default_qval
+      values$q_value_card <- "<="
+    }
+  }
+
+  if (!is.null(restored)) {
+    for (field in names(restored)) {
+      values[[field]] <- restored[[field]]
+    }
+  }
+  values
+}
+
 #' The dynamic contrast filter-set engine
 #'
 #' Owns everything about the progressively-addable filter sets: inserting and
@@ -445,6 +475,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # establishes a dependency that reruns when a field observer updates it.
 
   filterset_values <- reactiveVal(list())
+  combination_operator <- reactiveVal("intersect")
 
   # insert_more is a bare counter the insert observer depends on, so restored
   # filter sets beyond the first can be re-inserted one at a time.
@@ -527,6 +558,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     }))
     contrasts <- contrasts[valid_contrasts]
     contrast_numbers <- contrast_numbers[valid_contrasts]
+    filter_rows <- getFilterRows()
 
     # btn keeps track of how many filter sets have been added
 
@@ -536,7 +568,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 
     insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers,
       multiple = multiple, show_controls = show_controls, default_foldchange = default_foldchange, default_pval = default_pval, default_qval = default_qval,
-      filter_rows = getFilterRows(), index = btn, select_all_contrasts = select_all_contrasts
+      filter_rows = filter_rows, index = btn, select_all_contrasts = select_all_contrasts
     ))
 
     # Record the ID of the added filter set
@@ -544,6 +576,18 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     engine_state$inserted <- c(engine_state$inserted, paste0("contrast", btn))
 
     filterId <- paste0("filter", btn)
+
+    restored <- NULL
+    if (!is.null(engine_state$restored_filtersets) && btn < length(engine_state$restored_filtersets)) {
+      restored <- engine_state$restored_filtersets[[btn + 1]]
+    }
+    current <- filterset_values()
+    current[[filterId]] <- initialContrastFilterSetValues(
+      contrast_numbers, multiple, select_all_contrasts, filter_rows,
+      default_foldchange, default_pval, default_qval,
+      pvalsAvailable(), qvalsAvailable(), restored
+    )
+    filterset_values(current)
 
     engine_state$filter_observers[[filterId]] <- lapply(c("contrasts", "fold_change", "q_value", "p_value", "fold_change_card", "q_value_card", "p_value_card"), function(field) {
       filter_field_id <- paste0(field, btn)
@@ -617,6 +661,13 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     }
   })
 
+  observeEvent(input$combine_operator, {
+    operator <- input$combine_operator
+    if (operator %in% c("intersect", "union")) {
+      combination_operator(operator)
+    }
+  }, ignoreNULL = TRUE)
+
   ########################################################################### Accessors for form values
 
   # Get the indices of the currently selected contrasts for each filter set by querying filterset_values.
@@ -683,8 +734,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get method for combining filters
 
   getFilterSetCombinationOperator <- reactive({
-    validate(need(input$combine_operator, FALSE))
-    input$combine_operator
+    combination_operator()
   })
 
   ########################################################################### Bookmarking of the dynamically-built filter sets

@@ -23,7 +23,7 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   app$set_inputs(`rnaseq-rnaseq` = "pca")
   app$wait_for_idle(timeout = 20000)
 
-  expect_equal(app$get_value(input = "rnaseq-pca-pca-threedee"), "FALSE")
+  expect_equal(app$get_value(input = "rnaseq-pca-pca-threedee"), "TRUE")
 
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-pca-pca-scatter" %in% outputs)

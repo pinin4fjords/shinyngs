@@ -98,6 +98,16 @@ h3{
   padding-right: 2.25rem;
 }
 
+/* Rapid reactive invalidations should not flash a loading indicator between
+   completed output frames. Longer calculations reveal the indicator once. */
+.shinyngs-stable-spinner .load-container:not(.shiny-spinner-hidden){
+  opacity: 0;
+  animation: shinyngs-reveal-spinner 0s linear .5s forwards;
+}
+@keyframes shinyngs-reveal-spinner{
+  to { opacity: 1; }
+}
+
 /* DataTables ships fixed light-theme text/border/stripe colours that do not
    follow Bootstrap's data-bs-theme, so tables render dark-on-dark (unreadable)
    in dark mode. Map them onto theme variables. Selectors are scoped under
