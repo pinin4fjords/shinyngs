@@ -55,7 +55,10 @@ boxplotInput <- function(id, eselist) {
     naked_fields[[1]] <- distribution_plot_filters
   }
 
-  field_sets <- c(field_sets, list(expression = expression_filters))
+  field_sets <- c(field_sets, list(
+    expression = expression_filters,
+    export = simpletableInput(ns("summary"), "Distribution summary")
+  ))
 
   list(naked_fields, fieldSets(ns("fieldset"), field_sets))
 }
@@ -93,6 +96,8 @@ boxplotOutput <- function(id) {
   moduleMain(
     "Value distributions",
     uiOutput(ns("quartilesPlot")),
+    h4("Distribution summary"),
+    simpletableOutput(ns("summary")),
     help = modalInput(ns(boxplot_modal$id), "help", "help")
   )
 }
@@ -171,18 +176,53 @@ boxplot <- function(id, eselist) {
     # leading trace, so a restyled trace index maps directly onto a group.
     hiddenGroups <- legendHiddenGroups(plot_source, getLevels, groupby_reactives$getGroupby, trace_offset = 0L)
 
+    getBoxplotStatistics <- reactive({
+      validate(need(!is.null(input$whiskerDistance), "Waiting for whisker distance"))
+      selected_matrix <- selectmatrix_reactives$selectMatrix()
+      ese <- selectmatrix_reactives$getExperiment()
+      boxplot_matrix_statistics(
+        selected_matrix,
+        labels = stats::setNames(id_to_label(rownames(selected_matrix), ese), rownames(selected_matrix)),
+        whisker_distance = input$whiskerDistance,
+        rmzeros = TRUE
+      )
+    })
+
+    getLineStatistics <- reactive({
+      validate(need(!is.null(input$whiskerDistance), "Waiting for whisker distance"))
+      boxplot_matrix_statistics(
+        selectmatrix_reactives$selectMatrix(),
+        whisker_distance = input$whiskerDistance,
+        rmzeros = FALSE
+      )
+    })
+
     output$sampleBoxplot <- renderPlotly({
       withProgress(message = "Making sample boxplot", value = 0, {
-        selected_matrix <- selectmatrix_reactives$selectMatrix()
-        ese <- selectmatrix_reactives$getExperiment()
-        interactive_boxplot(selected_matrix, selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
-          expressiontype = selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance,
-          palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source,
-          labels = stats::setNames(id_to_label(rownames(selected_matrix), ese), rownames(selected_matrix))
+        interactive_boxplot_from_statistics(list(" " = getBoxplotStatistics()), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
+          expressiontype = selectmatrix_reactives$getAssayMeasure(),
+          palette = groupby_reactives$getPalette(), hidden_groups = hiddenGroups(), source = plot_source
         ) %>%
           shinyngsPlotlyConfig("boxplot", format = session$userData$plotFormat())
       })
     })
+
+    getDistributionSummary <- reactive({
+      statistics <- if (identical(input$plotType, "lines")) getLineStatistics() else getBoxplotStatistics()
+      distribution_summary_from_statistics(
+        statistics,
+        selectmatrix_reactives$selectColData(),
+        groupby_reactives$getGroupby()
+      )
+    })
+
+    simpletable(
+      "summary",
+      downloadMatrix = getDistributionSummary,
+      displayMatrix = getDistributionSummary,
+      filename = "distribution_summary", rownames = FALSE,
+      server = FALSE, initial_order = list()
+    )
   })
 }
 
@@ -309,6 +349,96 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
   )
 }
 
+boxplot_matrix_statistics <- function(matrix, labels = NULL, whisker_distance = 1.5,
+                                      should_transform = NULL, rmzeros = TRUE) {
+  matrix <- as.matrix(matrix)
+  transformed <- cond_log2_transform_matrix(
+    matrix,
+    should_transform = should_transform,
+    rmzeros = rmzeros
+  )
+  row_labels <- if (is.null(labels)) {
+    rownames(transformed)
+  } else {
+    resolved <- unname(labels[rownames(transformed)])
+    resolved[is.na(resolved)] <- rownames(transformed)[is.na(resolved)]
+    resolved
+  }
+
+  statistics <- lapply(colnames(transformed), function(sample) {
+    values <- transformed[, sample]
+    finite <- values[is.finite(values)]
+    summary <- box_summary(values, row_labels, whisker_distance)
+    c(summary, list(
+      non_missing = length(finite),
+      minimum = if (length(finite)) min(finite) else NA_real_,
+      mean = if (length(finite)) mean(finite) else NA_real_,
+      maximum = if (length(finite)) max(finite) else NA_real_
+    ))
+  })
+  names(statistics) <- colnames(transformed)
+  statistics
+}
+
+distribution_sample_layout <- function(samples, experiment = NULL, groupby = NULL) {
+  groups <- NULL
+  if (!is.null(groupby) && !is.null(experiment) && groupby %in% colnames(experiment)) {
+    groups <- na_replace(
+      as.character(experiment[[groupby]][match(samples, rownames(experiment))]),
+      "N/A"
+    )
+    sample_order <- order(factor(groups, levels = groupLevels(experiment, groupby)))
+    samples <- samples[sample_order]
+    groups <- groups[sample_order]
+  }
+  list(samples = samples, groups = groups)
+}
+
+distribution_summary_from_statistics <- function(statistics, experiment = NULL, groupby = NULL) {
+  layout <- distribution_sample_layout(names(statistics), experiment, groupby)
+
+  summaries <- lapply(layout$samples, function(sample) {
+    stats <- statistics[[sample]]
+    data.frame(
+      Sample = sample,
+      `Non-missing` = stats$non_missing,
+      Minimum = stats$minimum,
+      Q1 = stats$q1,
+      Median = stats$median,
+      Mean = stats$mean,
+      Q3 = stats$q3,
+      Maximum = stats$maximum,
+      IQR = stats$q3 - stats$q1,
+      Outliers = length(stats$outlier_values),
+      check.names = FALSE, stringsAsFactors = FALSE
+    )
+  })
+  summary <- do.call(rbind, summaries)
+  rownames(summary) <- NULL
+
+  if (!is.null(layout$groups)) {
+    summary <- cbind(
+      summary["Sample"],
+      stats::setNames(data.frame(layout$groups, stringsAsFactors = FALSE), prettify_variable_name(groupby)),
+      summary[setdiff(colnames(summary), "Sample")]
+    )
+  }
+
+  numeric_columns <- vapply(summary, is.numeric, logical(1))
+  summary[numeric_columns] <- lapply(summary[numeric_columns], function(values) signif(values, 5))
+  summary
+}
+
+distribution_summary <- function(matrix, experiment = NULL, groupby = NULL,
+                                 whisker_distance = 1.5, rmzeros = TRUE) {
+  statistics <- boxplot_matrix_statistics(
+    matrix,
+    whisker_distance = whisker_distance,
+    rmzeros = rmzeros
+  )
+  distribution_summary_from_statistics(statistics, experiment, groupby)
+}
+
 #' Make an interactive boxplot with coloring by experimental variable
 #'
 #' Draws a \code{plotly} box plot of the value distribution in each sample.
@@ -360,18 +490,40 @@ interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palett
     plotmatrices <- list(" " = plotmatrices)
   }
 
-  # Order samples so members of the same group sit together, preserving
-  # first-seen order of both samples and groups (mirrors ggplotify()).
+  statistics <- lapply(plotmatrices, function(matrix) {
+    boxplot_matrix_statistics(
+      matrix,
+      labels = labels,
+      whisker_distance = whisker_distance,
+      should_transform = should_transform,
+      rmzeros = TRUE
+    )
+  })
+
+  interactive_boxplot_from_statistics(
+    statistics, experiment, colorby,
+    palette = palette, expressiontype = expressiontype,
+    palette_name = palette_name, annotate_samples = annotate_samples,
+    max_outliers = max_outliers, hidden_groups = hidden_groups, source = source
+  )
+}
+
+interactive_boxplot_from_statistics <- function(statistics, experiment, colorby = NULL,
+                                                palette = NULL, expressiontype = "expression",
+                                                palette_name = COLORBLIND_PALETTE_NAME,
+                                                annotate_samples = FALSE, max_outliers = 500,
+                                                hidden_groups = character(0), source = NULL) {
 
   if (!is.null(colorby)) {
-    groups <- na_replace(as.character(experiment[[colorby]]), "N/A")
+    sample_layout <- distribution_sample_layout(names(statistics[[1]]), experiment, colorby)
+    samples <- sample_layout$samples
+    groups <- sample_layout$groups
+    group_levels <- groupLevels(experiment, colorby)
   } else {
-    groups <- rep(" ", nrow(experiment))
+    samples <- names(statistics[[1]])
+    groups <- rep(" ", length(samples))
+    group_levels <- " "
   }
-  group_levels <- unique(groups)
-  sample_order <- order(factor(groups, levels = group_levels))
-  samples <- rownames(experiment)[sample_order]
-  groups <- groups[sample_order]
 
   palette <- resolvePalette(palette, group_levels, palette_name)
 
@@ -386,25 +538,13 @@ interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palett
 
   # Legend-click events are only routed for a single (non-subplotted) panel,
   # which is what the Shiny module produces.
-  event_source <- if (length(plotmatrices) == 1) source else NULL
+  event_source <- if (length(statistics) == 1) source else NULL
 
-  facet_names <- prettify_variable_name(names(plotmatrices))
+  facet_names <- prettify_variable_name(names(statistics))
   yaxis_title <- expressionAxisLabel(expressiontype)
 
-  facet_plots <- lapply(seq_along(plotmatrices), function(i) {
-    m <- cond_log2_transform_matrix(as.matrix(plotmatrices[[i]]), should_transform = should_transform, rmzeros = TRUE)
-    m <- m[, samples, drop = FALSE]
-
-    row_labels <- if (is.null(labels)) {
-      rownames(m)
-    } else {
-      resolved <- unname(labels[rownames(m)])
-      resolved[is.na(resolved)] <- rownames(m)[is.na(resolved)]
-      resolved
-    }
-
-    stats <- lapply(samples, function(s) box_summary(m[, s], row_labels, whisker_distance))
-    names(stats) <- samples
+  facet_plots <- lapply(seq_along(statistics), function(i) {
+    stats <- statistics[[i]][samples]
 
     p <- if (is.null(event_source)) plot_ly() else plot_ly(source = event_source)
 
@@ -454,9 +594,9 @@ interactive_boxplot <- function(plotmatrices, experiment, colorby = NULL, palett
       )
     }
 
-    xaxis <- list(title = if (length(plotmatrices) > 1) facet_names[i] else NULL)
-    if (length(plotmatrices) > 1) {
-      xaxis$showticklabels <- i == length(plotmatrices)
+    xaxis <- list(title = if (length(statistics) > 1) facet_names[i] else NULL)
+    if (length(statistics) > 1) {
+      xaxis$showticklabels <- i == length(statistics)
     }
     if (length(visible_samples) > 0) {
       xaxis$categoryorder <- "array"

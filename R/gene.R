@@ -62,6 +62,12 @@ geneInput <- function(id, eselist) {
 #'
 geneOutput <- function(id, eselist) {
   ns <- NS(id)
+  differential_effects <- if (has_slot_data(eselist, "contrasts")) {
+    tagList(
+      h3(class = "shinyngs-section-title", "Differential effects"),
+      uiOutput(ns("differentialEffects_ui"))
+    )
+  }
 
   moduleMain(
     NULL,
@@ -69,9 +75,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("info")),
     uiOutput(ns("title")),
     shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = "500px"), color = shinyngsSpinnerColor()),
-    uiOutput(ns("geneContrastProfile_ui")),
-    h4("Contrasts table"),
-    simpletableOutput(ns("geneContrastsTable")),
+    differential_effects,
     help = modalInput(ns(gene_modal$id), "help", "help")
   )
 }
@@ -187,6 +191,11 @@ gene <- function(id, eselist) {
         groupby <- groupby_reactives$getGroupby()
         assaymeasure <- selectmatrix_reactives$getAssayMeasure()
         palette <- groupby_reactives$getPalette()
+
+        if (!is.null(groupby)) {
+          palette <- resolvePalette(palette, groupLevels(coldata, groupby))
+          coldata <- geneBarplotColData(barplot_expression, coldata, groupby, selectmatrix_reactives$isSummarised())
+        }
 
         p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette) %>%
           shinyngsPlotlyConfig("gene_expression", format = session$userData$plotFormat())
@@ -313,8 +322,33 @@ gene <- function(id, eselist) {
     })
 
     if (has_slot_data(eselist, "contrasts")) {
-      output$geneContrastProfile_ui <- renderUI({
-        shinycssloaders::withSpinner(plotlyOutput(session$ns("geneContrastProfile"), height = "500px"), color = shinyngsSpinnerColor())
+      output$differentialEffects_ui <- renderUI({
+        tabs <- list(tabPanel(
+          "Table",
+          simpletableOutput(session$ns("geneContrastsTable"))
+        ))
+
+        rows <- getSelectedIdsWithData()
+        if (length(rows) == 1) {
+          profile_table <- getGeneContrastProfileTable()
+          fold_changes <- suppressWarnings(as.numeric(profile_table[["Fold change"]]))
+          finite_effects <- sum(is.finite(log_fold_change(fold_changes)))
+        } else {
+          finite_effects <- 0
+        }
+
+        if (finite_effects >= 3L) {
+          height <- min(850, max(320, finite_effects * 42 + 170))
+          tabs <- push_to_list(tabs, tabPanel(
+            "Plot",
+            shinycssloaders::withSpinner(
+              plotlyOutput(session$ns("geneContrastProfile"), height = paste0(height, "px")),
+              color = shinyngsSpinnerColor()
+            )
+          ))
+        }
+
+        do.call(tabsetPanel, c(list(id = session$ns("differentialEffectsTabs")), tabs))
       })
 
       output$geneContrastProfile <- renderPlotly({
@@ -322,7 +356,7 @@ gene <- function(id, eselist) {
         validate(need(length(rows) == 1, "Select one gene to view its contrast profile"))
 
         interactive_gene_contrast_profile(getGeneContrastProfileTable()) %>%
-          shinyngsPlotlyConfig("gene_contrast_profile", format = session$userData$plotFormat())
+          shinyngsPlotlyConfig("gene_differential_effects", format = session$userData$plotFormat())
       })
     }
 
@@ -341,6 +375,31 @@ gene <- function(id, eselist) {
 
     gene_label_reactives$updateLabelField
   })
+}
+
+#' Match averaged gene-expression columns to their colour groups
+#'
+#' @param expression Matrix of expression values
+#' @param experiment Sample annotation data frame
+#' @param colorby Column in \code{experiment} used for colouring
+#' @param summarised Whether the expression columns contain group summaries
+#'
+#' @return A data frame whose rows match the expression columns
+#'
+#' @noRd
+geneBarplotColData <- function(expression, experiment, colorby, summarised = FALSE) {
+  if (!summarised || is.null(colorby)) {
+    return(experiment)
+  }
+
+  group_levels <- groupLevels(experiment, colorby)
+  if (!all(colnames(expression) %in% group_levels)) {
+    return(experiment)
+  }
+
+  averaged_experiment <- data.frame(row.names = colnames(expression), check.names = FALSE)
+  averaged_experiment[[colorby]] <- colnames(expression)
+  averaged_experiment
 }
 
 #' Main function for drawing the bar plot with plotly

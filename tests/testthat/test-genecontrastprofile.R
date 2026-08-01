@@ -16,13 +16,22 @@ gene_contrast_profile_table <- function(include_q = TRUE) {
 test_that("interactive_gene_contrast_profile plots every finite contrast", {
   built <- plotly::plotly_build(interactive_gene_contrast_profile(gene_contrast_profile_table()))
 
-  expect_equal(sort(unlist(lapply(built$x$data, function(trace) as.numeric(trace$x)))), c(-1, 0, 2))
-  expect_equal(sort(unlist(lapply(built$x$data, function(trace) as.character(trace$y)))), sort(c(
+  expect_equal(sort(as.numeric(built$x$data[[1]]$x)), c(-1, 0, 2))
+  expect_equal(sort(as.character(built$x$data[[1]]$y)), sort(c(
     "Condition: treated_a vs control",
     "Condition: treated_b vs control",
     "Condition: treated_c vs control"
   )))
+  expect_equal(
+    rev(built$x$layout$yaxis$categoryarray),
+    c(
+      "Condition: treated_a vs control",
+      "Condition: treated_b vs control",
+      "Condition: treated_c vs control"
+    )
+  )
   expect_length(built$x$layout$shapes, 1)
+  expect_false(built$x$data[[1]]$showlegend)
 })
 
 test_that("interactive_gene_contrast_profile preserves zero fold changes", {
@@ -35,19 +44,15 @@ test_that("interactive_gene_contrast_profile preserves zero fold changes", {
 
 test_that("interactive_gene_contrast_profile encodes q-value status in marker symbols", {
   built <- plotly::plotly_build(interactive_gene_contrast_profile(gene_contrast_profile_table()))
-  symbols <- unlist(lapply(built$x$data, function(trace) trace$marker$symbol))
-  colors <- stats::setNames(
-    vapply(built$x$data, function(trace) trace$marker$color, character(1)),
-    vapply(built$x$data, function(trace) trace$name, character(1))
-  )
+  symbols <- built$x$data[[1]]$marker$symbol
 
   expect_setequal(symbols, c("circle", "circle-open", "x"))
-  expect_equal(colors[c("Down", "Up")], DIRECTION_COLORS[c("Down", "Up")])
+  expect_equal(built$x$data[[1]]$marker$color, SHINYNGS_ACCENT)
 })
 
 test_that("interactive_gene_contrast_profile works without q values", {
   built <- plotly::plotly_build(interactive_gene_contrast_profile(gene_contrast_profile_table(include_q = FALSE)))
-  symbols <- unlist(lapply(built$x$data, function(trace) trace$marker$symbol))
+  symbols <- built$x$data[[1]]$marker$symbol
 
   expect_true(all(symbols == "x"))
 })
@@ -62,7 +67,7 @@ test_that("interactive_gene_contrast_profile uses canonical contrast names", {
   built <- plotly::plotly_build(interactive_gene_contrast_profile(table))
 
   expect_setequal(
-    unlist(lapply(built$x$data, function(trace) as.character(trace$y))),
+    as.character(built$x$data[[1]]$y),
     table$Contrast
   )
 })

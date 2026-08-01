@@ -25,3 +25,26 @@ test_that("direction counts ignore neutral and missing fold changes", {
     c(up = 1, down = 1)
   )
 })
+
+test_that("differentialsummary renders the directional counts and backing table", {
+  eselist <- make_upset_eselist()
+  shiny::testServer(differentialsummary, args = list(id = "summary", eselist = eselist), {
+    session$userData$plotFormat <- function() "png"
+    session$setInputs(
+      `differentialsummary-experiment` = "counts",
+      `differentialsummary-assay` = "counts",
+      `differentialsummary-selectmatrix-geneSelect` = "all",
+      `differentialsummary-selectmatrix-sampleSelect` = "all",
+      `differentialsummary-filterRows` = FALSE,
+      `differentialsummary-contrasts-summaryType` = "colMeans",
+      `differentialsummary-contrasts0` = c("1", "2")
+    )
+    session$elapse(400)
+
+    summary <- getDifferentialSummary()
+    expect_equal(summary[[grep("\\(up\\)$", colnames(summary), value = TRUE)]], c(5, 7))
+    expect_equal(summary[[grep("\\(down\\)$", colnames(summary), value = TRUE)]], c(7, 5))
+    expect_false(is.null(output$plot))
+    expect_false(is.null(output[["table-datatable"]]))
+  })
+})

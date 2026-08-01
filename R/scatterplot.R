@@ -138,7 +138,10 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
 
       # Provide the reactives from the scatterplotcontrols module in place of the (unsupplied) arguments of the same name
 
-      scatterplotcontrols_reactives <- scatterplotcontrols("scatter", getDatamatrix, x = x, y = y, z = z, makeColors = getNumberColors)
+      scatterplotcontrols_reactives <- scatterplotcontrols(
+        "scatter", getDatamatrix, x = x, y = y, z = z,
+        makeColors = getNumberColors, default_3d = allow_3d
+      )
       getThreedee <- scatterplotcontrols_reactives$getThreedee
       getXAxis <- scatterplotcontrols_reactives$getXAxis
       getYAxis <- scatterplotcontrols_reactives$getYAxis

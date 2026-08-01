@@ -13,7 +13,8 @@ simpletable(
   rownames = FALSE,
   show_controls = TRUE,
   filter = "none",
-  server = TRUE
+  server = TRUE,
+  initial_order = NULL
 )
 }
 \arguments{
@@ -45,6 +46,10 @@ next (e.g. column headers derived from a recalculated statistic) - DT's
 server-side mode matches an in-flight page/sort/search request to fresh
 data by column name, so a name change between the request and the
 response raises "the column name ... is not found in data".}
+
+\item{initial_order}{Initial DataTables column ordering. Leave as \code{NULL}
+for the DataTables default, or use \code{list()} to preserve the supplied row
+order while retaining interactive column sorting.}
 }
 \description{
 This function is called directly, using the same id as its UI counterpart,

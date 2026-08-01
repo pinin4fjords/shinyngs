@@ -108,6 +108,13 @@ test_that("getEnrichmentInfo resolves the KEGG enrichment table for the selected
   }))
 })
 
+test_that("gene set analysis uses the first type while its selector is initialising", {
+  run_genesetanalysistable_server(make_genesetanalysistable_eselist(), expr = quote({
+    session$setInputs(`genesetanalysistable-geneSetTypes` = NULL)
+    expect_equal(getEnrichmentInfo()$tool, "roast")
+  }))
+})
+
 test_that("getGeneSetAnalysis filters gene sets by p value and FDR and annotates significant genes", {
   run_genesetanalysistable_server(make_genesetanalysistable_eselist(), expr = quote({
     gst <- getGeneSetAnalysis()

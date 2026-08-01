@@ -95,6 +95,14 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       names(mcols(ese))[!unlist(lapply(mcols(ese), is.numeric))]
     })
 
+    getDefaultMetaField <- reactive({
+      ese <- getExperiment()
+      if (length(ese@labelfield) > 0) {
+        return(ese@labelfield)
+      }
+      if (has_slot_data(ese, "idfield")) ese@idfield else "id"
+    })
+
     output$metaFields <- renderUI({
       ns <- session$ns
 
@@ -102,30 +110,16 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
 
       if (field_selection) {
         metaFields <- getMetaFields()
-        selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettify_variable_name(metaFields)), selected = ese@labelfield)
+        selectInput(ns("metaField"), label = "Metadata field", choices = structure(metaFields, names = prettify_variable_name(metaFields)), selected = getDefaultMetaField())
       } else {
-        # 'id' means use the row IDs
-
-        mf <- "id"
-        if (length(ese@labelfield) == 0) {
-          # If the idfield slot has been set, use its value instead of 'id'
-
-          if (has_slot_data(ese, "idfield")) {
-            mf <- ese@idfield
-          }
-        } else {
-          mf <- ese@labelfield
-        }
-        hidden_input(ns("metaField"), values = mf)
+        hidden_input(ns("metaField"), values = getDefaultMetaField())
       }
     })
 
     # Fetch the meta field from the input
 
     getSelectedMetaField <- reactive({
-      validate(need(input$metaField, FALSE))
-      mf <- input$metaField
-      mf
+      if (is.null(input$metaField)) getDefaultMetaField() else input$metaField
     })
 
     ### META-FIELD VALUE SELECTION
@@ -159,12 +153,34 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       }
     })
 
+    getDefaultLabel <- reactive({
+      labels <- getValidLabels()
+      if (length(labels) == 0 || is.null(getNonEmptyRows)) {
+        return(labels[1])
+      }
+
+      ese <- getExperiment()
+      ids <- intersect(getNonEmptyRows(), rownames(ese))
+      mf <- getSelectedMetaField()
+      current_labels <- if (mf == "id" || mf == ese@idfield) {
+        ids
+      } else {
+        as.character(mcols(ese)[[mf]][match(ids, rownames(ese))])
+      }
+      current_labels <- current_labels[!is.na(current_labels) & nzchar(current_labels)]
+      candidates <- labels[labels %in% current_labels]
+      if (length(candidates) > 0) candidates[1] else labels[1]
+    })
+
     # Server-side function for populating the selectize input. Client-side takes too long with the likely size of the list
 
     observeEvent(input$metaField, {
       if (!list_input) {
         selected <- restored_label
         restored_label <<- NULL
+        if (is.null(selected)) {
+          selected <- getDefaultLabel()
+        }
         updateSelectizeInput(session, "label", choices = getValidLabels(), selected = selected, server = TRUE)
       }
     })
@@ -226,7 +242,10 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       # If the user has been allowed to select IDs, fetch the value of the input field. Othewise return all IDs associated with the selected label
 
       if (id_selection) {
-        validate(need(length(input$ids) > 0, "Waiting for ID list"))
+        if (is.null(input$ids)) {
+          return(getAssociatedIds())
+        }
+        validate(need(length(input$ids) > 0, "Select at least one associated ID"))
         input$ids
       } else {
         getAssociatedIds()

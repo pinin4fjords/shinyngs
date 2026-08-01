@@ -84,11 +84,6 @@ upsetOutput <- function(id, eselist) {
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
     shinycssloaders::withSpinner(plotlyOutput(ns("interactive_upset"), height = "600px"), color = shinyngsSpinnerColor()),
-    h4("Differential features across contrasts"),
-    uiOutput(ns("differential_parameters")),
-    uiOutput(ns("differential_summary_plot_ui")),
-    h4("Differential set summary"),
-    simpletableOutput(ns("upset")),
     help = modalInput(ns(upset_modal$id), "help", "help")
   )
 }
@@ -156,31 +151,6 @@ upset <- function(id, eselist, setlimit = 16) {
       sliderInput(ns("minorder"), label = "Minimum number of sets in an intersection", min = 1, max = max_order, step = 1, value = startsize)
     })
 
-    output$differential_parameters <- renderUI({
-      query_strings <- contrast_reactives$getQueryStrings()
-      HTML(query_strings[1])
-    })
-
-    getDifferentialSummary <- contrast_reactives$makeDifferentialSetSummary
-
-    output$differential_summary_plot_ui <- renderUI({
-      summary <- getDifferentialSummary()
-      height <- min(1000, max(420, nrow(summary) * 38 + 160))
-      shinycssloaders::withSpinner(
-        plotlyOutput(ns("differential_summary"), height = paste0(height, "px")),
-        color = shinyngsSpinnerColor()
-      )
-    })
-
-    getDifferentialSummaryPlot <- reactive({
-      interactive_differential_summary(getDifferentialSummary())
-    }) %>% bindCache(getDifferentialSummary())
-
-    output$differential_summary <- renderPlotly({
-      getDifferentialSummaryPlot() %>%
-        shinyngsPlotlyConfig("differential_summary", format = session$userData$plotFormat())
-    })
-
     output$subset_notice <- renderUI({
       valid_sets <- getValidSets()
       max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
@@ -202,55 +172,45 @@ upset <- function(id, eselist, setlimit = 16) {
     # Accessor for the nsets parameter
 
     getNsets <- reactive({
-      validate(need(!is.null(input$nsets), "Waiting for nsets"))
-      input$nsets
+      if (is.null(input$nsets)) getMaxSets() else input$nsets
     }) %>% debounce(300)
 
     # Accessor for the minorder parameter
 
     getMinOrder <- reactive({
-      validate(need(!is.null(input$minorder), "Waiting for minorder"))
-      input$minorder
+      if (is.null(input$minorder)) {
+        if (getIntersectionAssignmentType() == "upset") 1 else 2
+      } else {
+        input$minorder
+      }
     })
 
     # Accessor for the nintersections parameter
 
     getNintersections <- reactive({
-      validate(need(!is.null(input$nintersects), "Waiting for nintersects"))
-      input$nintersects
-    })
-
-    # Accessor for the groupby parameter
-
-    getGroupby <- reactive({
-      validate(need(!is.null(input$group_by), "Waiting for group_by"))
-      input$group_by
+      if (is.null(input$nintersects)) 20 else input$nintersects
     })
 
     getShowEmptyIntersections <- reactive({
-      validate(need(!is.null(input$show_empty_intersections), "Waiting for empty intersections option"))
-      input$show_empty_intersections
+      if (is.null(input$show_empty_intersections)) TRUE else input$show_empty_intersections
     })
 
     # Accessor for the intersection assignment type
 
     getIntersectionAssignmentType <- reactive({
-      validate(need(!is.null(input$intersection_assignment_type), "Waiting for group_by"))
-      input$intersection_assignment_type
+      if (is.null(input$intersection_assignment_type)) "upset" else input$intersection_assignment_type
     })
 
     # Set sorting
 
     getSetSort <- reactive({
-      validate(need(!is.null(input$set_sort), "Waiting for set_sort"))
-      input$set_sort
+      if (is.null(input$set_sort)) TRUE else input$set_sort
     })
 
     # Bar numbers
 
     getBarNumbers <- reactive({
-      validate(need(!is.null(input$bar_numbers), "Waiting for bar numbers"))
-      input$bar_numbers
+      if (is.null(input$bar_numbers)) FALSE else input$bar_numbers
     })
 
     ############################################################################# The business end- derive sets and pass for intersection
@@ -350,14 +310,6 @@ upset <- function(id, eselist, setlimit = 16) {
       gsub("_", " ", names(selected_sets))
     })
 
-    # Provide the differential set summary for download
-
-    # server = FALSE: the number of columns here changes depending on how many
-    # filter sets are selected (the "Query" column is dropped when there's
-    # only one), which can race a debounced control change against DT's
-    # server-side paging (see simpletable()'s `server` argument).
-
-    simpletable("upset", downloadMatrix = getDifferentialSummary, displayMatrix = getDifferentialSummary, filter = "none", filename = "differential_summary", rownames = FALSE, server = FALSE)
   })
 }
 

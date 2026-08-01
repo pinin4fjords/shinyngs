@@ -121,12 +121,13 @@ test_that("illuminaarrayInput adds the DEU table and plot tabs once dexseq_resul
   expect_true(grepl("Differential exon usage plot", txt))
 })
 
-test_that("illuminaarrayInput adds the gene set analysis tabs once gene_set_analyses is present", {
+test_that("illuminaarrayInput adds the Gene sets menu once analyses are present", {
   ui <- illuminaarrayInput("illuminaarray", make_illuminaarray_eselist(contrasts = TRUE, gene_set_analyses = TRUE))
-  txt <- as.character(ui)
+  txt <- paste(as.character(ui), collapse = "")
 
-  expect_true(grepl("Gene set analyses", txt))
-  expect_true(grepl("Gene set barcode plots", txt))
+  expect_true(grepl("Gene sets", txt))
+  expect_true(grepl("Results", txt))
+  expect_true(grepl("Barcode plots", txt))
 })
 
 test_that("illuminaarray boots without error for a minimal eselist", {

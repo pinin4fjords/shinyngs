@@ -31,6 +31,28 @@ test_that("geneBarplot draws without color grouping when colorby is NULL", {
   expect_equal(length(built$x$data), 1)
 })
 
+test_that("geneBarplot retains group colors after averaging samples", {
+  expression <- matrix(c(20, 30), nrow = 1, dimnames = list("Gene1", c("A", "B")))
+  experiment <- data.frame(
+    condition = c("B", "A", "B"),
+    row.names = paste0("s", 1:3)
+  )
+  palette <- resolvePalette(c("#111111", "#222222"), groupLevels(experiment, "condition"))
+  averaged_experiment <- geneBarplotColData(expression, experiment, "condition", summarised = TRUE)
+
+  p <- geneBarplot(expression, averaged_experiment, colorby = "condition", palette = palette)
+  built <- plotly::plotly_build(p)
+  bar_traces <- Filter(function(t) identical(t$type, "bar"), built$x$data)
+  trace_colors <- stats::setNames(
+    vapply(bar_traces, function(trace) trace$marker$color, character(1)),
+    vapply(bar_traces, function(trace) trace$name, character(1))
+  )
+
+  expect_setequal(names(trace_colors), c("A", "B"))
+  expect_equal(trace_colors[["B"]], "rgba(17,17,17,1)")
+  expect_equal(trace_colors[["A"]], "rgba(34,34,34,1)")
+})
+
 test_that("geneModelBiotypeColors returns a fixed biotype-to-color mapping with a default fallback", {
   colors <- geneModelBiotypeColors()
 
@@ -111,6 +133,27 @@ test_that("output$barPlot renders a bar chart for the selected gene", {
   }))
 })
 
+test_that("output$barPlot keeps group traces when samples are averaged", {
+  run_gene_server(
+    shinytest2_eselist(),
+    extra_inputs = list(
+      "gene-selectmatrix-sampleSelect" = "group",
+      "gene-selectmatrix-sampleGroupVar" = "condition",
+      "gene-selectmatrix-sampleGroupVal" = c("control", "treated"),
+      "gene-selectmatrix-summarise-summaryType" = "colMeans"
+    ),
+    expr = quote({
+      parsed <- jsonlite::fromJSON(output$barPlot, simplifyVector = FALSE)
+      bar_traces <- Filter(function(trace) identical(trace$type, "bar"), parsed$x$data)
+      trace_names <- vapply(bar_traces, function(trace) trace$name, character(1))
+      trace_colors <- vapply(bar_traces, function(trace) trace$marker$color, character(1))
+
+      expect_setequal(trace_names, c("control", "treated"))
+      expect_length(unique(trace_colors), 2)
+    })
+  )
+})
+
 test_that("output$model only offers a gene model link when ensembl_species is set", {
   run_gene_server(shinytest2_eselist(), expr = quote({
     expect_null(output$model)
@@ -146,8 +189,64 @@ test_that("gene renders the selected gene's contrast profile", {
 
     expect_true(all(c("Variable", "Condition 1", "Condition 2", "Fold change", "Contrast") %in% colnames(profile_table)))
     expect_equal(profile_table$Contrast, "Condition: treated vs control")
+    effects_ui <- paste(as.character(output$differentialEffects_ui), collapse = "")
+    expect_match(effects_ui, "Table")
+    expect_false(grepl(">Plot<", effects_ui))
     expect_false(is.null(output$geneContrastProfile))
   }))
+})
+
+test_that("gene offers a differential effects plot for at least three contrasts", {
+  eselist <- shinytest2_eselist()
+  contrast_stats <- eselist[[1]]@contrast_stats$counts
+  contrast_stats <- lapply(contrast_stats, function(values) {
+    result <- values[, rep(1, 3), drop = FALSE]
+    colnames(result) <- as.character(1:3)
+    result
+  })
+  eselist[[1]]@contrast_stats$counts <- contrast_stats
+  eselist@contrasts <- list(
+    list(id = "c1", Variable = "condition", Group.1 = "control", Group.2 = "treated"),
+    list(id = "c2", Variable = "batch", Group.1 = "batch1", Group.2 = "batch2"),
+    list(id = "c3", Variable = "condition", Group.1 = "treated", Group.2 = "control")
+  )
+
+  run_gene_server(
+    eselist,
+    extra_inputs = list("gene-contrasts0" = c("1", "2", "3")),
+    expr = quote({
+      effects_ui <- paste(as.character(output$differentialEffects_ui), collapse = "")
+      expect_match(effects_ui, ">Table<")
+      expect_match(effects_ui, ">Plot<")
+      expect_match(effects_ui, "height:320px")
+    })
+  )
+})
+
+test_that("gene omits the differential effects plot for multiple selected genes", {
+  eselist <- shinytest2_eselist()
+  contrast_stats <- eselist[[1]]@contrast_stats$counts
+  contrast_stats <- lapply(contrast_stats, function(values) {
+    result <- values[, rep(1, 3), drop = FALSE]
+    colnames(result) <- as.character(1:3)
+    result
+  })
+  eselist[[1]]@contrast_stats$counts <- contrast_stats
+  eselist@contrasts <- rep(eselist@contrasts, 3)
+
+  run_gene_server(
+    eselist,
+    extra_inputs = list(
+      "gene_label-label" = "Gene1",
+      "gene_label-ids" = c("gene1", "gene2"),
+      "gene-contrasts0" = c("1", "2", "3")
+    ),
+    expr = quote({
+      effects_ui <- paste(as.character(output$differentialEffects_ui), collapse = "")
+      expect_match(effects_ui, ">Table<")
+      expect_false(grepl(">Plot<", effects_ui))
+    })
+  )
 })
 
 test_that("output$geneInfoTable renders the annotation row for the selected gene", {

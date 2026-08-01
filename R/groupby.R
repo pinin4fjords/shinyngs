@@ -100,11 +100,18 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
     # Return a reactive that retrieves the field value
 
     getGroupby <- reactive({
-      validate(need(input$groupby, "waiting for form to provide groupby"))
-      if (input$groupby[1] == "NULL") {
+      selected <- input$groupby
+      if (is.null(selected)) {
+        if (!has_slot_data(eselist, "group_vars")) {
+          return(NULL)
+        }
+        selected <- getDefaultGroupby()
+      }
+      validate(need(length(selected) > 0, "Select at least one grouping variable"))
+      if (selected[1] == "NULL") {
         NULL
       } else {
-        input$groupby
+        selected
       }
     })
 

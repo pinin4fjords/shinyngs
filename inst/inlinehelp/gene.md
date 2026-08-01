@@ -10,7 +10,7 @@ Use the gene field to search for and select one or more genes by label or identi
 
 ##### Table options
 
-The contrasts table below the plot can be filtered and configured using the same p value, q value and fold change controls used elsewhere in the app.
+Choose how group averages are calculated in the differential-effects table.
 
 #### Plots and tables
 
@@ -18,9 +18,9 @@ The contrasts table below the plot can be filtered and configured using the same
 
 Shows the expression value of the selected gene(s) in each sample, optionally coloured by an experimental variable.
 
-##### Contrast profile
+##### Differential effects
 
-Shows the selected gene's signed log2 fold change across every defined contrast. Colour indicates the direction of change. Where q values are available, filled points meet the displayed threshold, open points do not, and crosses have no q value.
+The Table tab lists differential results across every defined contrast. When at least three finite effects are available, the Plot tab shows signed log2 fold changes ordered by absolute effect. Position relative to zero indicates direction. Filled points meet the displayed q-value threshold, open points do not, and crosses have no q value.
 
 ##### Gene info
 
@@ -29,10 +29,6 @@ The 'info' link opens a table of the annotation data held for the selected gene(
 ##### Gene model
 
 Where the experiment has an associated Ensembl species, a 'Gene model' link is shown, opening a diagram of the gene and its transcripts fetched from Ensembl.
-
-##### Contrasts table
-
-Lists differential expression results for the selected gene(s) across all defined contrasts, letting you see at a glance how a gene of interest behaves across your comparisons.
 
 #### References
 

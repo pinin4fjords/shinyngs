@@ -1,50 +1,3 @@
-# Fixture: 12 genes, two contrasts (grpA: ctrl vs treatA, grpB: ctrl vs
-# treatB) with hand-picked fold-change signs so that, once split into
-# up/down sets, the four resulting sets and their pairwise overlaps are
-# exactly known:
-#
-#              grpA down (7)   grpA up (5)
-# grpB down (5)      3              2
-# grpB up   (7)      4              3
-#
-# i.e. set sizes {7, 5, 5, 7} and non-empty pairwise intersections
-# {3, 4, 2, 3}; every other combination (same-contrast up/down, and any
-# 3- or 4-way combination) is empty by construction.
-
-make_upset_eselist <- function() {
-  n_genes <- 12
-  gene_ids <- paste0("gene", seq_len(n_genes))
-
-  set.seed(1)
-  counts <- matrix(rpois(n_genes * 4, lambda = 50) + 1, nrow = n_genes)
-  rownames(counts) <- gene_ids
-  colnames(counts) <- paste0("s", 1:4)
-
-  coldata <- S4Vectors::DataFrame(
-    row.names = colnames(counts),
-    grpA = c("ctrl", "ctrl", "treatA", "treatA"),
-    grpB = c("ctrl", "ctrl", "treatB", "treatB")
-  )
-  annotation <- data.frame(gene_id = gene_ids, row.names = gene_ids)
-
-  # (+,+) x3, (+,-) x2, (-,+) x4, (-,-) x3
-  fc1 <- c(3, 3, 3, 2, 2, -2, -2, -2, -2, -3, -3, -3)
-  fc2 <- c(4, 4, 4, -4, -4, 5, 5, 5, 5, -5, -5, -5)
-  fold_changes <- matrix(c(fc1, fc2), nrow = n_genes, dimnames = list(gene_ids, c("1", "2")))
-
-  ese <- ExploratorySummarizedExperiment(
-    assays = S4Vectors::SimpleList(counts = counts), colData = coldata, annotation = annotation,
-    idfield = "gene_id", contrast_stats = list(counts = list(fold_changes = fold_changes))
-  )
-
-  eselist <- ExploratorySummarizedExperimentList(eses = list(counts = ese), group_vars = c("grpA", "grpB"), default_groupvar = "grpA")
-  eselist@contrasts <- list(
-    list(id = "c1", Variable = "grpA", Group.1 = "ctrl", Group.2 = "treatA"),
-    list(id = "c2", Variable = "grpB", Group.1 = "ctrl", Group.2 = "treatB")
-  )
-  eselist
-}
-
 # Drives the upset module up to the point where its reactives are ready to
 # read. selectmatrix/contrasts inputs are only rendered client-side (via
 # uiOutput()/insertUI()), so testServer needs every one of them set
@@ -95,6 +48,16 @@ test_that("getValidSets splits each contrast by direction into disjoint, non-emp
 test_that("getMaxSets caps at the number of valid sets found", {
   run_upset_server(make_upset_eselist(), expr = quote({
     expect_equal(getMaxSets(), 4)
+  }))
+})
+
+test_that("dynamic UpSet controls use their displayed defaults while initialising", {
+  run_upset_server(make_upset_eselist(), expr = quote({
+    session$setInputs(nsets = NULL, minorder = NULL)
+    session$elapse(400)
+
+    expect_equal(getNsets(), getMaxSets())
+    expect_equal(getMinOrder(), 2)
   }))
 })
 
@@ -155,18 +118,6 @@ test_that("getUpsetPlot adds a text trace when bar_numbers is enabled", {
   run_upset_server(make_upset_eselist(), extra_inputs = list(bar_numbers = TRUE), expr = quote({
     built <- plotly::plotly_build(getUpsetPlot())
     expect_true(any(vapply(built$x$data, function(t) identical(t$mode, "text"), logical(1))))
-  }))
-})
-
-test_that("upset reuses its contrast summary for the directional plot", {
-  run_upset_server(make_upset_eselist(), expr = quote({
-    summary <- getDifferentialSummary()
-    up_column <- grep("\\(up\\)$", colnames(summary), value = TRUE)
-    down_column <- grep("\\(down\\)$", colnames(summary), value = TRUE)
-
-    expect_equal(summary[[up_column]], c(5, 7))
-    expect_equal(summary[[down_column]], c(7, 5))
-    expect_false(is.null(output$differential_summary))
   }))
 })
 

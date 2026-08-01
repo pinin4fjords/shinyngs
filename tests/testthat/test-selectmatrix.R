@@ -175,3 +175,29 @@ test_that("selectmatrix supports callers that disable summarisation", {
     }
   )
 })
+
+test_that("selectmatrix uses its first displayed experiment and assay while inputs initialise", {
+  eselist <- make_medium_module_eselist(n_genes = 12)
+
+  shiny::testServer(
+    selectmatrix,
+    args = list(id = "selectmatrix", eselist = eselist),
+    {
+      expect_equal(getExperimentId(), "counts")
+      expect_equal(getAssay(), "counts")
+    }
+  )
+})
+
+test_that("selectmatrix selects all rows when gene controls are disabled", {
+  eselist <- make_medium_module_eselist(n_genes = 12)
+
+  shiny::testServer(
+    selectmatrix,
+    args = list(id = "selectmatrix", eselist = eselist, select_genes = FALSE),
+    {
+      session$setInputs("selectmatrix-sampleSelect" = "all")
+      expect_equal(nrow(selectMatrix()), 12L)
+    }
+  )
+})

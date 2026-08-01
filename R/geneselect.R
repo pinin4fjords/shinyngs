@@ -94,33 +94,41 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       }
     })
 
+    getGeneSelectMethods <- reactive({
+      gene_select_methods <- character(0)
+      if (provide_none) {
+        gene_select_methods <- c(none = "none")
+      }
+      if (provide_all) {
+        gene_select_methods <- c(gene_select_methods, all = "all")
+      }
+      gene_select_methods <- c(
+        gene_select_methods,
+        variance = "variance",
+        `pick from valid metadata` = "metadata_pick",
+        `supply list of metadata values` = "metadata_list"
+      )
+      if (useGenesets()) {
+        gene_select_methods <- c(gene_select_methods, `gene set` = "gene set")
+      }
+      gene_select_methods
+    })
+
+    getDefaultGeneSelect <- reactive({
+      methods <- unname(getGeneSelectMethods())
+      selected <- if (is.null(default)) methods[1] else default
+      validate(need(length(selected) == 1 && selected %in% methods, "No valid gene selection method is available"))
+      selected
+    })
+
     # Render the geneSelect UI element
 
     output$geneSelect_ui <- renderUI({
       withProgress(message = "Rendering row selection", value = 0, {
         ns <- session$ns
         variance_range <- variance_slider_range(var_n, var_max)
-
-        gene_select_methods <- c()
-        if (provide_none) {
-          gene_select_methods <- c(none = "none")
-        }
-        if (provide_all) {
-          gene_select_methods <- c(gene_select_methods, c(all = "all"))
-        }
-
-        gene_select_methods <- c(gene_select_methods, c(variance = "variance", `pick from valid metadata` = "metadata_pick", `supply list of metadata values` = "metadata_list"))
-
-
-        if (useGenesets()) {
-          gene_select_methods <- c(gene_select_methods, "gene set")
-        }
-
-        if (is.null(default)) {
-          selected <- gene_select_methods[1]
-        } else {
-          selected <- default
-        }
+        gene_select_methods <- getGeneSelectMethods()
+        selected <- getDefaultGeneSelect()
 
         gene_select <- list(h5("Select genes/ rows"), selectInput(ns("geneSelect"), "Select genes by", gene_select_methods, selected = selected), conditionalPanel(condition = paste0(
           "input['",
@@ -173,8 +181,9 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
     })
 
     getGeneSelect <- reactive({
-      validate(need(!is.null(input$geneSelect), "Waiting for geneSelect"))
-      input$geneSelect
+      selected <- input$geneSelect
+      methods <- unname(getGeneSelectMethods())
+      if (length(selected) != 1 || !selected %in% methods) getDefaultGeneSelect() else selected
     })
 
     # Debounce the "top N most variant rows" slider so dragging it doesn't

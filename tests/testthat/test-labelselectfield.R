@@ -31,6 +31,19 @@ test_that("the default (unfiltered) metaField hidden input uses the experiment's
   )
 })
 
+test_that("the selected meta field is available while its input is initialising", {
+  ese <- make_labelselectfield_ese()
+  eselist <- ExploratorySummarizedExperimentList(list(counts = ese))
+
+  shiny::testServer(
+    labelselectfield,
+    args = list(id = "lsf", eselist = eselist, getExperiment = reactive(ese)),
+    {
+      expect_equal(getSelectedMetaField(), "gene_name")
+    }
+  )
+})
+
 test_that("the metaField falls back to idfield when the experiment has no labelfield set", {
   ese <- make_labelselectfield_ese(with_labelfield = FALSE)
   eselist <- ExploratorySummarizedExperimentList(list(counts = ese))
@@ -160,6 +173,20 @@ test_that("getSelectedIds is restricted to the user's picked ids when id_selecti
   )
 })
 
+test_that("getSelectedIds uses all associated ids while its checkbox input is initialising", {
+  ese <- make_labelselectfield_ese()
+  eselist <- ExploratorySummarizedExperimentList(list(counts = ese))
+
+  shiny::testServer(
+    labelselectfield,
+    args = list(id = "lsf", eselist = eselist, getExperiment = reactive(ese), field_selection = TRUE, id_selection = TRUE),
+    {
+      session$setInputs(metaField = "biotype", label = "lncRNA")
+      expect_setequal(getSelectedIds(), c("gene4", "gene5", "gene6"))
+    }
+  )
+})
+
 test_that("getValidLabels draws from every experiment when labels_from_all_experiments is TRUE", {
   ese_a <- make_labelselectfield_ese()
   ese_b <- make_labelselectfield_ese()
@@ -190,6 +217,23 @@ test_that("getValidLabels is restricted to the current experiment when labels_fr
     {
       session$setInputs(metaField = "gene_name", label = "Gene1")
       expect_equal(getValidLabels(), paste0("Gene", 1:6))
+    }
+  )
+})
+
+test_that("the default label has data in the current assay", {
+  ese <- make_labelselectfield_ese()
+  eselist <- ExploratorySummarizedExperimentList(list(counts = ese))
+
+  shiny::testServer(
+    labelselectfield,
+    args = list(
+      id = "lsf", eselist = eselist, getExperiment = reactive(ese),
+      labels_from_all_experiments = TRUE,
+      getNonEmptyRows = reactive(paste0("gene", 2:6))
+    ),
+    {
+      expect_equal(getDefaultLabel(), "Gene2")
     }
   )
 })

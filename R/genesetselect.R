@@ -94,8 +94,8 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       if (!filter_by_type) {
         names(getGeneSetsForLabelfield())
       } else {
-        validate(need(input$geneSetTypes, "Waiting for gene set type"))
-        input$geneSetTypes
+        selected <- input$geneSetTypes
+        if (is.null(selected)) names(getGeneSetsForLabelfield())[1] else selected
       }
     })
 

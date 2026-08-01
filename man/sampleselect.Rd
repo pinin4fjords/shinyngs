@@ -4,7 +4,13 @@
 \alias{sampleselect}
 \title{The server function of the sampleselect module}
 \usage{
-sampleselect(id, eselist, getExperiment, allow_summarise = TRUE)
+sampleselect(
+  id,
+  eselist,
+  getExperiment,
+  select_samples = TRUE,
+  allow_summarise = TRUE
+)
 }
 \arguments{
 \item{id}{Module namespace}
@@ -15,6 +21,9 @@ ExploratorySummarizedExperiment objects}
 \item{getExperiment}{Reactive expression that returns a
 \code{ExploratorySummarizedExperiment} with assays and metadata. Usually a
 result of a user selection}
+
+\item{select_samples}{Match the UI's sample-selection setting. When false,
+all samples are selected.}
 
 \item{allow_summarise}{Boolean, show controls for matrix summarisation?}
 }
