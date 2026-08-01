@@ -154,25 +154,6 @@ explorerDifferentialMenu <- function(ns, eselist, options) {
     ))
   }
 
-  if (explorerHasExperimentData(eselist, "gene_set_analyses")) {
-    menu <- push_to_list(menu, bslib::nav_panel("Gene set analyses",
-      value = "geneset_analyses",
-      moduleLayout(genesetanalysistableInput(ns("genesetanalysis"), eselist), genesetanalysistableOutput(ns("genesetanalysis"))),
-      icon = icon("tasks", verify_fa = FALSE)
-    ))
-    menu <- push_to_list(menu, bslib::nav_panel("Gene set barcode plots",
-      value = "genesetbarcode",
-      moduleLayout(genesetbarcodeplotInput(ns(options$app_type), eselist), genesetbarcodeplotOutput(ns(options$app_type))),
-      icon = icon("barcode")
-    ))
-    if (has_cross_contrast_enrichment(eselist)) {
-      menu <- push_to_list(menu, bslib::nav_panel("Gene set overview",
-        moduleLayout(enrichmentoverviewInput(ns("enrichmentoverview"), eselist), enrichmentoverviewOutput(ns("enrichmentoverview"))),
-        icon = icon("chart-line")
-      ))
-    }
-  }
-
   if (options$dexseq && explorerHasExperimentData(eselist, "dexseq_results")) {
     dexseq_output <- if (options$dexseq_output_eselist) {
       dexseqplotOutput(ns("deuplot"), eselist)
@@ -189,6 +170,10 @@ explorerDifferentialMenu <- function(ns, eselist, options) {
   }
 
   if (length(eselist@contrasts) > 1) {
+    menu <- push_to_list(menu, bslib::nav_panel("Differential summary",
+      moduleLayout(differentialsummaryInput(ns("differentialsummary"), eselist), differentialsummaryOutput(ns("differentialsummary"))),
+      icon = icon("chart-bar", verify_fa = FALSE)
+    ))
     menu <- push_to_list(menu, bslib::nav_panel("Differential set intersection",
       moduleLayout(upsetInput(ns("upset"), eselist), upsetOutput(ns("upset"), eselist)),
       icon = icon("chart-bar", verify_fa = FALSE)
@@ -196,6 +181,32 @@ explorerDifferentialMenu <- function(ns, eselist, options) {
   }
 
   menu$icon <- icon("chart-line")
+  do.call(bslib::nav_menu, menu)
+}
+
+explorerGeneSetMenu <- function(ns, eselist, options) {
+  menu <- list(
+    "Gene sets",
+    bslib::nav_panel("Results",
+      value = "geneset_analyses",
+      moduleLayout(genesetanalysistableInput(ns("genesetanalysis"), eselist), genesetanalysistableOutput(ns("genesetanalysis"))),
+      icon = icon("tasks", verify_fa = FALSE)
+    ),
+    bslib::nav_panel("Barcode plots",
+      value = "genesetbarcode",
+      moduleLayout(genesetbarcodeplotInput(ns(options$app_type), eselist), genesetbarcodeplotOutput(ns(options$app_type))),
+      icon = icon("barcode")
+    )
+  )
+
+  if (has_cross_contrast_enrichment(eselist)) {
+    menu <- push_to_list(menu, bslib::nav_panel("Across-contrast overview",
+      moduleLayout(enrichmentoverviewInput(ns("enrichmentoverview"), eselist), enrichmentoverviewOutput(ns("enrichmentoverview"))),
+      icon = icon("chart-line")
+    ))
+  }
+
+  menu$icon <- icon("layer-group")
   do.call(bslib::nav_menu, menu)
 }
 
@@ -215,6 +226,9 @@ explorerAppInput <- function(id, eselist, app_type) {
 
   if (has_slot_data(eselist, "contrasts")) {
     menus <- push_to_list(menus, explorerDifferentialMenu(ns, eselist, options))
+    if (explorerHasExperimentData(eselist, "gene_set_analyses")) {
+      menus <- push_to_list(menus, explorerGeneSetMenu(ns, eselist, options))
+    }
   }
 
   menus <- push_to_list(menus, bslib::nav_panel("Gene info",
@@ -277,6 +291,7 @@ explorerStartModules <- function(eselist, options, heatmap_layout) {
       }
     }
     if (length(eselist@contrasts) > 1) {
+      differentialsummary("differentialsummary", eselist)
       upset("upset", eselist)
     }
   }

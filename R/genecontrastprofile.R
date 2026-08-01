@@ -24,7 +24,7 @@
 #'   `q value` = c(0.01, 0.2),
 #'   check.names = FALSE
 #' ))
-interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05, title = "Contrast profile") {
+interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05, title = "Fold change by contrast") {
   if (!"Fold change" %in% colnames(contrast_table)) {
     stop("interactive_gene_contrast_profile(): missing required column: Fold change")
   }
@@ -44,6 +44,7 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
   }
 
   profile <- contrast_table[keep, , drop = FALSE]
+  profile$fold_change <- fold_change[keep]
   profile$log2_fold_change <- log2_fold_change[keep]
   profile$contrast <- if ("Contrast" %in% colnames(profile)) {
     as.character(profile$Contrast)
@@ -53,12 +54,12 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
       profile[["Condition 2"]], " vs ", profile[["Condition 1"]]
     )
   }
-  profile$direction <- ifelse(profile$log2_fold_change > 0, "Up", ifelse(profile$log2_fold_change < 0, "Down", "No change"))
+  profile <- profile[order(-abs(profile$log2_fold_change), profile$contrast, method = "radix"), , drop = FALSE]
 
   has_q_values <- "q value" %in% colnames(profile)
   if (has_q_values) {
     q_values <- suppressWarnings(as.numeric(profile[["q value"]]))
-    profile$significance <- ifelse(!is.finite(q_values), "q value unavailable", ifelse(q_values <= q_threshold, paste0("q ≤ ", q_threshold), paste0("q > ", q_threshold)))
+    profile$significance <- ifelse(!is.finite(q_values), "q value unavailable", ifelse(q_values <= q_threshold, paste0("q \u2264 ", q_threshold), paste0("q > ", q_threshold)))
     profile$marker_symbol <- ifelse(!is.finite(q_values), "x", ifelse(q_values <= q_threshold, "circle", "circle-open"))
   } else {
     profile$significance <- "q value unavailable"
@@ -67,7 +68,7 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
 
   hover <- paste0(
     "<b>", htmltools::htmlEscape(profile$contrast), "</b>",
-    "<br>Fold change: ", signif(fold_change[keep], 4),
+    "<br>Fold change: ", signif(profile$fold_change, 4),
     "<br>log2 fold change: ", signif(profile$log2_fold_change, 4)
   )
   if ("p value" %in% colnames(profile)) {
@@ -78,34 +79,30 @@ interactive_gene_contrast_profile <- function(contrast_table, q_threshold = 0.05
   }
   hover <- paste0(hover, "<br>", profile$significance)
 
-  direction_colors <- c(Down = DIRECTION_COLORS[["Down"]], `No change` = "#595959", Up = DIRECTION_COLORS[["Up"]])
-  p <- plot_ly()
-  for (direction in names(direction_colors)) {
-    rows <- profile$direction == direction
-    if (!any(rows)) {
-      next
-    }
-    p <- add_markers(
-      p,
-      x = profile$log2_fold_change[rows], y = profile$contrast[rows],
-      name = direction, text = hover[rows], hovertemplate = "%{text}<extra></extra>",
-      marker = list(color = direction_colors[[direction]], size = 12, symbol = profile$marker_symbol[rows], line = list(width = 2, color = direction_colors[[direction]]))
+  p <- plot_ly() %>%
+    add_markers(
+      x = profile$log2_fold_change, y = profile$contrast,
+      text = hover, hovertemplate = "%{text}<extra></extra>",
+      marker = list(
+        color = SHINYNGS_ACCENT, size = 12,
+        symbol = profile$marker_symbol,
+        line = list(width = 2, color = SHINYNGS_ACCENT)
+      ),
+      showlegend = FALSE
     )
-  }
 
   subtitle <- if (has_q_values) {
-    paste0("<br><sup>Filled: q ≤ ", q_threshold, " · Open: q > ", q_threshold, " · ×: q unavailable</sup>")
+    paste0("<br><sup>Ordered by absolute effect \u00b7 Filled: q \u2264 ", q_threshold, " \u00b7 Open: q > ", q_threshold, " \u00b7 \u00d7: q unavailable</sup>")
   } else {
-    "<br><sup>×: q unavailable</sup>"
+    "<br><sup>Ordered by absolute effect \u00b7 \u00d7: q unavailable</sup>"
   }
 
   layout(
     p,
     title = paste0(htmltools::htmlEscape(title), subtitle),
     xaxis = list(title = "log2 fold change", zeroline = FALSE),
-    yaxis = list(title = "", automargin = TRUE, categoryorder = "array", categoryarray = rev(unique(profile$contrast))),
+    yaxis = list(title = "", automargin = TRUE, categoryorder = "array", categoryarray = rev(profile$contrast)),
     shapes = list(list(type = "line", x0 = 0, x1 = 0, y0 = 0, y1 = 1, yref = "paper", line = list(color = "#8A8F98", width = 1, dash = "dot"))),
-    legend = list(orientation = "h", x = 0, y = -0.18),
-    margin = list(l = 40, r = 20, b = 90, t = 80)
+    margin = list(l = 40, r = 20, b = 60, t = 80)
   )
 }

@@ -55,7 +55,10 @@ boxplotInput <- function(id, eselist) {
     naked_fields[[1]] <- distribution_plot_filters
   }
 
-  field_sets <- c(field_sets, list(expression = expression_filters))
+  field_sets <- c(field_sets, list(
+    expression = expression_filters,
+    export = simpletableInput(ns("summary"), "Distribution summary")
+  ))
 
   list(naked_fields, fieldSets(ns("fieldset"), field_sets))
 }
@@ -93,6 +96,8 @@ boxplotOutput <- function(id) {
   moduleMain(
     "Value distributions",
     uiOutput(ns("quartilesPlot")),
+    h4("Distribution summary"),
+    simpletableOutput(ns("summary")),
     help = modalInput(ns(boxplot_modal$id), "help", "help")
   )
 }
@@ -183,6 +188,25 @@ boxplot <- function(id, eselist) {
           shinyngsPlotlyConfig("boxplot", format = session$userData$plotFormat())
       })
     })
+
+    getDistributionSummary <- reactive({
+      validate(need(!is.null(input$whiskerDistance), "Waiting for whisker distance"))
+      distribution_summary(
+        selectmatrix_reactives$selectMatrix(),
+        selectmatrix_reactives$selectColData(),
+        groupby_reactives$getGroupby(),
+        whisker_distance = input$whiskerDistance,
+        rmzeros = !identical(input$plotType, "lines")
+      )
+    })
+
+    simpletable(
+      "summary",
+      downloadMatrix = getDistributionSummary,
+      displayMatrix = getDistributionSummary,
+      filename = "distribution_summary", rownames = FALSE,
+      server = FALSE, initial_order = list()
+    )
   })
 }
 
@@ -307,6 +331,57 @@ box_summary <- function(values, labels, whisker_distance = 1.5) {
     outlier_values = values[!within],
     outlier_labels = labels[!within]
   )
+}
+
+distribution_summary <- function(matrix, experiment = NULL, groupby = NULL,
+                                 whisker_distance = 1.5, rmzeros = TRUE) {
+  matrix <- as.matrix(matrix)
+  transformed <- cond_log2_transform_matrix(matrix, rmzeros = rmzeros)
+  samples <- colnames(transformed)
+
+  groups <- NULL
+  if (!is.null(groupby) && !is.null(experiment) && groupby %in% colnames(experiment)) {
+    groups <- na_replace(
+      as.character(experiment[[groupby]][match(samples, rownames(experiment))]),
+      "N/A"
+    )
+    sample_order <- order(factor(groups, levels = unique(groups)))
+    samples <- samples[sample_order]
+    groups <- groups[sample_order]
+  }
+
+  summaries <- lapply(samples, function(sample) {
+    values <- transformed[, sample]
+    finite <- values[is.finite(values)]
+    stats <- box_summary(values, rownames(transformed), whisker_distance)
+    data.frame(
+      Sample = sample,
+      `Non-missing` = length(finite),
+      Minimum = if (length(finite)) min(finite) else NA_real_,
+      Q1 = stats$q1,
+      Median = stats$median,
+      Mean = if (length(finite)) mean(finite) else NA_real_,
+      Q3 = stats$q3,
+      Maximum = if (length(finite)) max(finite) else NA_real_,
+      IQR = stats$q3 - stats$q1,
+      Outliers = length(stats$outlier_values),
+      check.names = FALSE, stringsAsFactors = FALSE
+    )
+  })
+  summary <- do.call(rbind, summaries)
+  rownames(summary) <- NULL
+
+  if (!is.null(groups)) {
+    summary <- cbind(
+      summary["Sample"],
+      stats::setNames(data.frame(groups, stringsAsFactors = FALSE), prettify_variable_name(groupby)),
+      summary[setdiff(colnames(summary), "Sample")]
+    )
+  }
+
+  numeric_columns <- vapply(summary, is.numeric, logical(1))
+  summary[numeric_columns] <- lapply(summary[numeric_columns], function(values) signif(values, 5))
+  summary
 }
 
 #' Make an interactive boxplot with coloring by experimental variable

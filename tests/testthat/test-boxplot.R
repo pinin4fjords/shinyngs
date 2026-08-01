@@ -35,6 +35,34 @@ test_that("box_summary respects whisker_distance", {
   expect_gt(length(tight$outlier_values), length(loose$outlier_values))
 })
 
+test_that("distribution_summary reports plot-matched statistics in grouped sample order", {
+  mat <- cbind(
+    s1 = c(0, 1, 2, 4, 8, 64),
+    s2 = c(1, 2, 4, 8, 16, 32),
+    s3 = c(2, 4, 8, 16, 32, 64)
+  )
+  rownames(mat) <- paste0("g", seq_len(nrow(mat)))
+  experiment <- data.frame(group = c("B", "A", "B"), row.names = colnames(mat))
+
+  summary <- distribution_summary(mat, experiment, groupby = "group")
+
+  expect_equal(summary$Sample, c("s1", "s3", "s2"))
+  expect_equal(summary$Group, c("B", "B", "A"))
+  expect_equal(summary$`Non-missing`, c(5, 6, 6))
+  expect_equal(summary$Median[summary$Sample == "s1"], 2)
+  expect_equal(summary$Maximum[summary$Sample == "s1"], 6)
+  expect_true(all(c("Q1", "Mean", "Q3", "IQR", "Outliers") %in% colnames(summary)))
+})
+
+test_that("distribution_summary updates outlier counts with whisker distance", {
+  mat <- matrix(c(1:10, 100), ncol = 1, dimnames = list(paste0("g", 1:11), "sample"))
+
+  tight <- distribution_summary(mat, whisker_distance = 0.5, rmzeros = FALSE)
+  loose <- distribution_summary(mat, whisker_distance = 3, rmzeros = FALSE)
+
+  expect_gt(tight$Outliers, loose$Outliers)
+})
+
 # interactive_boxplot()
 
 test_that("interactive_boxplot draws precomputed boxes without shipping raw data", {

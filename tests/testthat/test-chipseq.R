@@ -101,21 +101,32 @@ test_that("chipseqInput adds Volcano plots and Top gene boxplots once contrast_s
   expect_true(grepl("Top gene boxplots", txt))
 })
 
-test_that("chipseqInput adds the gene set analysis tabs once gene_set_analyses is present", {
+test_that("chipseqInput adds a separate Gene sets menu once analyses are present", {
   ui <- chipseqInput("chipseq", make_chipseq_eselist(contrasts = TRUE, gene_set_analyses = TRUE))
   txt <- as.character(ui)
 
-  expect_true(grepl("Gene set analyses", txt))
-  expect_true(grepl("Gene set barcode plots", txt))
+  expect_true(grepl("Gene sets", txt))
+  expect_true(grepl("Results", txt))
+  expect_true(grepl("Barcode plots", txt))
+  differential_html <- paste(
+    as.character(explorerDifferentialMenu(
+      NS("chipseq"),
+      make_chipseq_eselist(contrasts = TRUE, gene_set_analyses = TRUE),
+      explorerAppOptions("chipseq")
+    )),
+    collapse = ""
+  )
+  expect_false(grepl('data-value="geneset_analyses"', differential_html, fixed = TRUE))
+  expect_false(grepl('data-value="genesetbarcode"', differential_html, fixed = TRUE))
 })
 
 test_that("chipseqInput adds the gene set overview only with two resolved contrasts", {
   eselist <- make_enrichmentoverview_eselist()
 
-  expect_true(grepl("Gene set overview", as.character(chipseqInput("chipseq", eselist))))
+  expect_true(grepl("Across-contrast overview", as.character(chipseqInput("chipseq", eselist))))
 
   eselist[[1]]@gene_set_analyses$counts$KEGG[[2]] <- NULL
-  expect_false(grepl("Gene set overview", as.character(chipseqInput("chipseq", eselist))))
+  expect_false(grepl("Across-contrast overview", as.character(chipseqInput("chipseq", eselist))))
 })
 
 test_that("chipseqInput adds a Read reports tab only when read_reports is present", {
@@ -136,6 +147,8 @@ test_that("chipseqInput only adds Differential set intersection with more than o
 
   expect_false(grepl("Differential set intersection", as.character(chipseqInput("chipseq", eselist_one))))
   expect_true(grepl("Differential set intersection", as.character(chipseqInput("chipseq", eselist_two))))
+  expect_false(grepl("Differential summary", as.character(chipseqInput("chipseq", eselist_one))))
+  expect_true(grepl("Differential summary", as.character(chipseqInput("chipseq", eselist_two))))
 })
 
 test_that("chipseq boots without error for a minimal eselist (no contrasts, no optional slots)", {

@@ -92,7 +92,7 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
   expect_equal(length(main_trace$y), 12)
 })
 
-test_that("the Gene info tab renders a selected gene contrast profile", {
+test_that("the Gene info tab defaults single-contrast differential effects to the table", {
   skip_on_cran()
 
   app <- shinytest2_app_driver("rnaseq", "rnaseq-gene-contrast-profile")
@@ -104,17 +104,13 @@ test_that("the Gene info tab renders a selected gene contrast profile", {
   app$set_inputs(`rnaseq-gene-gene_label-label` = "Gene1", wait_ = FALSE)
   app$wait_for_idle(timeout = 20000)
 
-  widget <- jsonlite::fromJSON(
-    app$get_value(output = "rnaseq-gene-geneContrastProfile"),
-    simplifyVector = FALSE
-  )
-  marker_traces <- Filter(function(trace) identical(trace$mode, "markers") && length(trace$text) > 0, widget$x$data)
+  tab_labels <- unlist(app$get_js(
+    "Array.from(document.querySelectorAll('#rnaseq-gene-differentialEffects_ui .nav-link')).map(e => e.textContent.trim())"
+  ))
 
-  expect_equal(sum(vapply(marker_traces, function(trace) length(trace$x), integer(1))), 1)
-  expect_setequal(
-    unlist(lapply(marker_traces, function(trace) as.character(trace$y)), use.names = FALSE),
-    "Condition: treated vs control"
-  )
+  expect_equal(tab_labels, "Table")
+  expect_true(app$get_js("!!document.querySelector('#rnaseq-gene-geneContrastsTable-datatable table')"))
+  expect_false(app$get_js("!!document.querySelector('#rnaseq-gene-geneContrastProfile')"))
 })
 
 # URL bookmarking round-trip is covered separately in

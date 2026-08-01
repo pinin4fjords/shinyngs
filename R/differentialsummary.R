@@ -1,3 +1,95 @@
+differentialsummary_modal <- list(id = "differentialsummary", title = "Differential summary")
+
+#' Input function for the differential summary module
+#'
+#' @param id Module namespace.
+#' @param eselist ExploratorySummarizedExperimentList object.
+#'
+#' @return Controls for expression data, contrast filtering, and table export.
+#' @keywords shiny
+differentialsummaryInput <- function(id, eselist) {
+  ns <- NS(id)
+  fieldSets(ns("fieldset"), list(
+    expression = selectmatrixInput(ns("differentialsummary"), eselist),
+    contrasts = contrastsInput(ns("differentialsummary")),
+    export = simpletableInput(ns("table"), "Differential summary")
+  ))
+}
+
+#' Output function for the differential summary module
+#'
+#' @param id Module namespace.
+#'
+#' @return Differential count plot and its backing table.
+#' @keywords shiny
+differentialsummaryOutput <- function(id) {
+  ns <- NS(id)
+  moduleMain(
+    "Differential summary",
+    uiOutput(ns("parameters")),
+    uiOutput(ns("plot_ui")),
+    h4("Summary data"),
+    simpletableOutput(ns("table")),
+    help = modalInput(ns(differentialsummary_modal$id), "help", "help")
+  )
+}
+
+#' Server function for the differential summary module
+#'
+#' @param id Module namespace.
+#' @param eselist ExploratorySummarizedExperimentList object.
+#'
+#' @keywords shiny
+differentialsummary <- function(id, eselist) {
+  moduleServer(id, function(input, output, session) {
+    modalServer(differentialsummary_modal$id, differentialsummary_modal$title)
+
+    selectmatrix_reactives <- selectmatrix(
+      "differentialsummary", eselist,
+      var_n = 1000, select_samples = FALSE, select_genes = TRUE,
+      provide_all_genes = TRUE, select_meta = FALSE
+    )
+    contrast_reactives <- contrasts(
+      "differentialsummary", eselist = eselist,
+      selectmatrix_reactives = selectmatrix_reactives,
+      multiple = TRUE, select_all_contrasts = TRUE
+    )
+
+    getDifferentialSummary <- contrast_reactives$makeDifferentialSetSummary
+
+    output$parameters <- renderUI({
+      query_strings <- contrast_reactives$getQueryStrings()
+      helpText(HTML(query_strings[1]))
+    })
+
+    output$plot_ui <- renderUI({
+      summary <- getDifferentialSummary()
+      height <- min(1000, max(420, nrow(summary) * 38 + 160))
+      shinycssloaders::withSpinner(
+        plotlyOutput(session$ns("plot"), height = paste0(height, "px")),
+        color = shinyngsSpinnerColor()
+      )
+    })
+
+    getDifferentialSummaryPlot <- reactive({
+      interactive_differential_summary(getDifferentialSummary())
+    }) %>% bindCache(getDifferentialSummary())
+
+    output$plot <- renderPlotly({
+      getDifferentialSummaryPlot() %>%
+        shinyngsPlotlyConfig("differential_summary", format = session$userData$plotFormat())
+    })
+
+    simpletable(
+      "table",
+      downloadMatrix = getDifferentialSummary,
+      displayMatrix = getDifferentialSummary,
+      filter = "none", filename = "differential_summary",
+      rownames = FALSE, server = FALSE
+    )
+  })
+}
+
 #' Plot differential feature counts across contrasts
 #'
 #' Draws up-regulated counts to the right and down-regulated counts to the
@@ -64,7 +156,7 @@ interactive_differential_summary <- function(summary_table, title = "Differentia
     layout(
       title = htmltools::htmlEscape(title), barmode = "relative",
       xaxis = list(
-        title = "Differential features (down ← | → up)",
+        title = "Differential features (down \u2190 | \u2192 up)",
         tickvals = tick_values,
         ticktext = format(abs(tick_values), big.mark = ",", scientific = FALSE, trim = TRUE),
         zeroline = TRUE, zerolinecolor = "#595959"

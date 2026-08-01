@@ -62,6 +62,12 @@ geneInput <- function(id, eselist) {
 #'
 geneOutput <- function(id, eselist) {
   ns <- NS(id)
+  differential_effects <- if (has_slot_data(eselist, "contrasts")) {
+    tagList(
+      h3(class = "shinyngs-section-title", "Differential effects"),
+      uiOutput(ns("differentialEffects_ui"))
+    )
+  }
 
   moduleMain(
     NULL,
@@ -69,9 +75,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("info")),
     uiOutput(ns("title")),
     shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = "500px"), color = shinyngsSpinnerColor()),
-    uiOutput(ns("geneContrastProfile_ui")),
-    h4("Contrasts table"),
-    simpletableOutput(ns("geneContrastsTable")),
+    differential_effects,
     help = modalInput(ns(gene_modal$id), "help", "help")
   )
 }
@@ -313,8 +317,27 @@ gene <- function(id, eselist) {
     })
 
     if (has_slot_data(eselist, "contrasts")) {
-      output$geneContrastProfile_ui <- renderUI({
-        shinycssloaders::withSpinner(plotlyOutput(session$ns("geneContrastProfile"), height = "500px"), color = shinyngsSpinnerColor())
+      output$differentialEffects_ui <- renderUI({
+        profile_table <- getGeneContrastProfileTable()
+        fold_changes <- suppressWarnings(as.numeric(profile_table[["Fold change"]]))
+        finite_effects <- sum(is.finite(log_fold_change(fold_changes)))
+        tabs <- list(tabPanel(
+          "Table",
+          simpletableOutput(session$ns("geneContrastsTable"))
+        ))
+
+        if (finite_effects >= 3) {
+          height <- min(850, max(320, finite_effects * 42 + 170))
+          tabs <- push_to_list(tabs, tabPanel(
+            "Plot",
+            shinycssloaders::withSpinner(
+              plotlyOutput(session$ns("geneContrastProfile"), height = paste0(height, "px")),
+              color = shinyngsSpinnerColor()
+            )
+          ))
+        }
+
+        do.call(tabsetPanel, c(list(id = session$ns("differentialEffectsTabs")), tabs))
       })
 
       output$geneContrastProfile <- renderPlotly({
@@ -322,7 +345,7 @@ gene <- function(id, eselist) {
         validate(need(length(rows) == 1, "Select one gene to view its contrast profile"))
 
         interactive_gene_contrast_profile(getGeneContrastProfileTable()) %>%
-          shinyngsPlotlyConfig("gene_contrast_profile", format = session$userData$plotFormat())
+          shinyngsPlotlyConfig("gene_differential_effects", format = session$userData$plotFormat())
       })
     }
 

@@ -146,8 +146,38 @@ test_that("gene renders the selected gene's contrast profile", {
 
     expect_true(all(c("Variable", "Condition 1", "Condition 2", "Fold change", "Contrast") %in% colnames(profile_table)))
     expect_equal(profile_table$Contrast, "Condition: treated vs control")
+    effects_ui <- paste(as.character(output$differentialEffects_ui), collapse = "")
+    expect_match(effects_ui, "Table")
+    expect_false(grepl(">Plot<", effects_ui))
     expect_false(is.null(output$geneContrastProfile))
   }))
+})
+
+test_that("gene offers a differential effects plot for at least three contrasts", {
+  eselist <- shinytest2_eselist()
+  contrast_stats <- eselist[[1]]@contrast_stats$counts
+  contrast_stats <- lapply(contrast_stats, function(values) {
+    result <- values[, rep(1, 3), drop = FALSE]
+    colnames(result) <- as.character(1:3)
+    result
+  })
+  eselist[[1]]@contrast_stats$counts <- contrast_stats
+  eselist@contrasts <- list(
+    list(id = "c1", Variable = "condition", Group.1 = "control", Group.2 = "treated"),
+    list(id = "c2", Variable = "batch", Group.1 = "batch1", Group.2 = "batch2"),
+    list(id = "c3", Variable = "condition", Group.1 = "treated", Group.2 = "control")
+  )
+
+  run_gene_server(
+    eselist,
+    extra_inputs = list("gene-contrasts0" = c("1", "2", "3")),
+    expr = quote({
+      effects_ui <- paste(as.character(output$differentialEffects_ui), collapse = "")
+      expect_match(effects_ui, ">Table<")
+      expect_match(effects_ui, ">Plot<")
+      expect_match(effects_ui, "height:320px")
+    })
+  )
 })
 
 test_that("output$geneInfoTable renders the annotation row for the selected gene", {

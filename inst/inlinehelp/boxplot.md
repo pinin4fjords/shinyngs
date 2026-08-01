@@ -6,6 +6,8 @@ Plotting controls are provided to adjust the graphical parameters. An important 
 
 Whiskers extend out to 1.5 times the interquartile range by default, and this parameter can be adjusted. Points beyond the whiskers are considered outliers, and in the Plotly-based line plots, mousing-over outliers will reveal their identity.
 
+The distribution summary table reports the same transformed values used by the selected plot. It includes the number of non-missing values, quartiles, mean, range, IQR, and outlier count for each sample.
+
 The expression controls allow you to select which of the matrices used in the analysis is plotted. For example it can be informative to compare raw and normalised values (where available).
 
 #### References

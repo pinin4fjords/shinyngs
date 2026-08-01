@@ -7,7 +7,7 @@
 interactive_gene_contrast_profile(
   contrast_table,
   q_threshold = 0.05,
-  title = "Contrast profile"
+  title = "Fold change by contrast"
 )
 }
 \arguments{
