@@ -192,6 +192,11 @@ gene <- function(id, eselist) {
         assaymeasure <- selectmatrix_reactives$getAssayMeasure()
         palette <- groupby_reactives$getPalette()
 
+        if (!is.null(groupby)) {
+          palette <- resolvePalette(palette, groupLevels(coldata, groupby))
+          coldata <- geneBarplotColData(barplot_expression, coldata, groupby, selectmatrix_reactives$isSummarised())
+        }
+
         p <- geneBarplot(barplot_expression, coldata, groupby, assaymeasure, palette = palette) %>%
           shinyngsPlotlyConfig("gene_expression", format = session$userData$plotFormat())
       })
@@ -370,6 +375,31 @@ gene <- function(id, eselist) {
 
     gene_label_reactives$updateLabelField
   })
+}
+
+#' Match averaged gene-expression columns to their colour groups
+#'
+#' @param expression Matrix of expression values
+#' @param experiment Sample annotation data frame
+#' @param colorby Column in \code{experiment} used for colouring
+#' @param summarised Whether the expression columns contain group summaries
+#'
+#' @return A data frame whose rows match the expression columns
+#'
+#' @noRd
+geneBarplotColData <- function(expression, experiment, colorby, summarised = FALSE) {
+  if (!summarised || is.null(colorby)) {
+    return(experiment)
+  }
+
+  group_levels <- groupLevels(experiment, colorby)
+  if (!all(colnames(expression) %in% group_levels)) {
+    return(experiment)
+  }
+
+  averaged_experiment <- data.frame(row.names = colnames(expression), check.names = FALSE)
+  averaged_experiment[[colorby]] <- colnames(expression)
+  averaged_experiment
 }
 
 #' Main function for drawing the bar plot with plotly
