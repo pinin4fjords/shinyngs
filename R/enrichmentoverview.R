@@ -1,5 +1,12 @@
 enrichmentoverview_modal <- list(id = "enrichmentoverview", title = "Gene set overview")
 
+enrichment_overview_rank_choices <- c(
+  "Lowest FDR" = "minimum_fdr",
+  "Lowest p value" = "minimum_pvalue",
+  "Most contrasts passing FDR" = "significant_contrasts",
+  "Gene set name" = "gene_set_name"
+)
+
 enrichment_analysis_eselist <- function(eselist) {
   eselist <- eselist[vapply(eselist, function(ese) {
     has_slot_data(ese, "gene_set_analyses") &&
@@ -61,6 +68,12 @@ enrichmentoverviewInput <- function(id, eselist) {
   field_sets <- list(
     overview = list(
       uiOutput(ns("geneSetType_ui")),
+      uiOutput(ns("contrasts_ui")),
+      selectInput(
+        ns("rank_by"), "Rank gene sets by",
+        choices = enrichment_overview_rank_choices,
+        selected = enrichment_overview_rank_choices[[1]]
+      ),
       sliderInput(ns("top_n"), "Number of gene sets", min = 5, max = 50, value = 20, step = 1),
       numericInput(ns("max_fdr"), "Maximum FDR", value = 0.1, min = 0, max = 1, step = 0.01)
     )
@@ -127,18 +140,43 @@ enrichmentoverview <- function(id, eselist) {
       )
     })
 
+    getAvailableContrasts <- reactive({
+      data <- getEnrichmentOverviewData()
+      contrast_levels <- attr(data, "contrast_levels")
+      resolved <- unique(data$contrast[is.finite(data$fdr)])
+      contrast_levels[contrast_levels %in% resolved]
+    })
+
+    output$contrasts_ui <- renderUI({
+      available <- getAvailableContrasts()
+      selected <- intersect(isolate(input$selected_contrasts), available)
+      if (length(selected) < 2) selected <- available
+      selectInput(
+        session$ns("selected_contrasts"), "Contrasts",
+        choices = available, selected = selected,
+        multiple = TRUE, selectize = TRUE
+      )
+    })
+
     getPreparedEnrichmentOverview <- reactive({
       validate(
         need(input$top_n, "Waiting for number of gene sets"),
-        need(!is.null(input$max_fdr) && input$max_fdr >= 0 && input$max_fdr <= 1, "Maximum FDR must be between 0 and 1")
+        need(!is.null(input$max_fdr) && input$max_fdr >= 0 && input$max_fdr <= 1, "Maximum FDR must be between 0 and 1"),
+        need(input$rank_by %in% enrichment_overview_rank_choices, "Waiting for a ranking option")
       )
       data <- getEnrichmentOverviewData()
       methods <- unique(stats::na.omit(data$method))
       validate(need(length(methods) <= 1, "Cross-contrast overview requires one enrichment method for the selected gene set type"))
-      resolved_contrasts <- unique(data$contrast[is.finite(data$fdr)])
-      validate(need(length(resolved_contrasts) >= 2, "At least two contrasts with enrichment results are required"))
+      selected_contrasts <- intersect(getAvailableContrasts(), input$selected_contrasts)
+      validate(need(length(selected_contrasts) >= 2, "Select at least two contrasts"))
 
-      prepare_enrichment_overview(data, top_n = input$top_n, max_fdr = input$max_fdr)
+      prepare_enrichment_overview(
+        data,
+        top_n = input$top_n,
+        max_fdr = input$max_fdr,
+        selected_contrasts = selected_contrasts,
+        rank_by = input$rank_by
+      )
     })
 
     output$enrichmentMethod <- renderUI({
@@ -179,7 +217,8 @@ enrichmentoverview <- function(id, eselist) {
     simpletable(
       "table", downloadMatrix = getEnrichmentOverviewTable,
       displayMatrix = getEnrichmentOverviewTable,
-      filename = "gene_set_overview", rownames = FALSE, server = FALSE
+      filename = "gene_set_overview", rownames = FALSE, server = FALSE,
+      initial_order = list()
     )
   })
 }
@@ -215,7 +254,8 @@ compile_enrichment_overview <- function(ese, assay, gene_set_type, contrasts) {
   result
 }
 
-prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1) {
+prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1, selected_contrasts = NULL,
+                                        rank_by = enrichment_overview_rank_choices[[1]]) {
   required_columns <- c("gene_set_id", "contrast", "pvalue", "fdr", "direction", "method")
   if (!all(required_columns %in% colnames(data))) {
     stop("prepare_enrichment_overview(): data is missing required columns")
@@ -225,6 +265,21 @@ prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1) {
   }
   if (!is.numeric(max_fdr) || length(max_fdr) != 1 || is.na(max_fdr) || max_fdr < 0 || max_fdr > 1) {
     stop("prepare_enrichment_overview(): 'max_fdr' must be one number between 0 and 1")
+  }
+  if (!is.character(rank_by) || length(rank_by) != 1 || !rank_by %in% enrichment_overview_rank_choices) {
+    stop("prepare_enrichment_overview(): unknown ranking option")
+  }
+
+  contrast_levels <- attr(data, "contrast_levels")
+  if (is.null(contrast_levels)) {
+    contrast_levels <- unique(data$contrast)
+  }
+  if (!is.null(selected_contrasts)) {
+    if (!is.character(selected_contrasts) || length(selected_contrasts) < 1 || any(!selected_contrasts %in% contrast_levels)) {
+      stop("prepare_enrichment_overview(): 'selected_contrasts' must contain available contrasts")
+    }
+    contrast_levels <- contrast_levels[contrast_levels %in% unique(selected_contrasts)]
+    data <- data[data$contrast %in% contrast_levels, , drop = FALSE]
   }
 
   methods <- unique(stats::na.omit(data$method))
@@ -236,13 +291,38 @@ prepare_enrichment_overview <- function(data, top_n = 20, max_fdr = 0.1) {
     stop("prepare_enrichment_overview(): no gene sets meet the maximum FDR")
   }
 
-  minimum_fdr <- tapply(data$fdr[eligible], data$gene_set_id[eligible], min)
-  ranked_ids <- names(sort(minimum_fdr, method = "radix"))
-  selected_ids <- head(ranked_ids, as.integer(top_n))
-  contrast_levels <- attr(data, "contrast_levels")
-  if (is.null(contrast_levels)) {
-    contrast_levels <- unique(data$contrast)
-  }
+  eligible_ids <- unique(data$gene_set_id[eligible])
+  rank_summary <- do.call(rbind, lapply(eligible_ids, function(gene_set_id) {
+    rows <- data[data$gene_set_id == gene_set_id, , drop = FALSE]
+    finite_pvalues <- rows$pvalue[is.finite(rows$pvalue)]
+    data.frame(
+      gene_set_id = gene_set_id,
+      minimum_fdr = min(rows$fdr[is.finite(rows$fdr)]),
+      minimum_pvalue = if (length(finite_pvalues) > 0) min(finite_pvalues) else Inf,
+      significant_contrasts = length(unique(rows$contrast[is.finite(rows$fdr) & rows$fdr <= max_fdr])),
+      stringsAsFactors = FALSE
+    )
+  }))
+
+  ranked_rows <- switch(rank_by,
+    minimum_fdr = order(
+      rank_summary$minimum_fdr, rank_summary$minimum_pvalue,
+      -rank_summary$significant_contrasts, tolower(rank_summary$gene_set_id),
+      rank_summary$gene_set_id, method = "radix"
+    ),
+    minimum_pvalue = order(
+      rank_summary$minimum_pvalue, rank_summary$minimum_fdr,
+      -rank_summary$significant_contrasts, tolower(rank_summary$gene_set_id),
+      rank_summary$gene_set_id, method = "radix"
+    ),
+    significant_contrasts = order(
+      -rank_summary$significant_contrasts, rank_summary$minimum_fdr,
+      rank_summary$minimum_pvalue, tolower(rank_summary$gene_set_id),
+      rank_summary$gene_set_id, method = "radix"
+    ),
+    gene_set_name = order(tolower(rank_summary$gene_set_id), rank_summary$gene_set_id, method = "radix")
+  )
+  selected_ids <- head(rank_summary$gene_set_id[ranked_rows], as.integer(top_n))
 
   grid <- expand.grid(
     gene_set_id = selected_ids, contrast = contrast_levels,

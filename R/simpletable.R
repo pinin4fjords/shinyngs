@@ -92,13 +92,17 @@ simpletableOutput <- function(id, tabletitle = NULL, spinner = FALSE) {
 #' server-side mode matches an in-flight page/sort/search request to fresh
 #' data by column name, so a name change between the request and the
 #' response raises "the column name ... is not found in data".
+#' @param initial_order Initial DataTables column ordering. Leave as \code{NULL}
+#' for the DataTables default, or use \code{list()} to preserve the supplied row
+#' order while retaining interactive column sorting.
 #'
 #' @keywords shiny
 #'
 #' @examples
 #' simpletable("simpletable", my_data_frame)
 #'
-simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none", server = TRUE) {
+simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none", server = TRUE,
+                        initial_order = NULL) {
   moduleServer(id, function(input, output, session) {
     if (is.null(downloadMatrix)) {
       downloadMatrix <- displayMatrix
@@ -108,6 +112,9 @@ simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 1
 
     if (show_controls) {
       options$dom <- paste0("f", options$dom)
+    }
+    if (!is.null(initial_order)) {
+      options$order <- initial_order
     }
 
     output$datatable <- DT::renderDataTable({
