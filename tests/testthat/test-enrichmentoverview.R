@@ -233,3 +233,37 @@ test_that("enrichmentoverview uses displayed defaults while dynamic controls ini
     expect_equal(nrow(getPreparedEnrichmentOverview()), 6)
   })
 })
+
+test_that("enrichmentoverview initialises its dynamic controls in the app", {
+  skip_on_cran()
+  skip_if_not_installed("shinytest2")
+  skip_if(
+    is.na(tryCatch(chromote::find_chrome(), error = function(e) NA)),
+    "No Chrome/Chromium binary found for headless testing"
+  )
+
+  app_definition <- prepare_app("rnaseq", make_enrichmentoverview_eselist())
+  app <- shinytest2::AppDriver$new(
+    shiny::shinyApp(ui = app_definition$ui, server = app_definition$server),
+    name = "rnaseq-enrichmentoverview", height = 900, width = 1400,
+    seed = 42, load_timeout = 60000
+  )
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$run_js("document.querySelector('.navbar a[data-value=\"Across-contrast overview\"]').click()")
+  app$wait_for_js(
+    "!!document.getElementById('rnaseq-enrichmentoverview-gene_set_type') &&
+      !!document.getElementById('rnaseq-enrichmentoverview-selected_contrasts') &&
+      !!document.querySelector('#rnaseq-enrichmentoverview-table-datatable table') &&
+      !!document.querySelector('#rnaseq-enrichmentoverview-plot .plotly')",
+    timeout = 20000
+  )
+  app$wait_for_idle(timeout = 20000)
+
+  expect_equal(app$get_value(input = "rnaseq-enrichmentoverview-gene_set_type"), "KEGG")
+  expect_setequal(
+    app$get_value(input = "rnaseq-enrichmentoverview-selected_contrasts"),
+    c("1", "2")
+  )
+})

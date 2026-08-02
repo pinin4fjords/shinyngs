@@ -124,6 +124,9 @@ enrichmentoverview <- function(id, eselist) {
       var_n = 50, select_assays = TRUE, select_samples = FALSE,
       select_genes = FALSE, select_meta = FALSE
     )
+    control_state <- new.env(parent = emptyenv())
+    control_state$context <- NULL
+    control_state$gene_set_type <- NULL
 
     overviewControlContext <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
@@ -136,12 +139,20 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     observeEvent(overviewControlContext(), {
-      freezeReactiveInputs(input, "gene_set_type", "selected_contrasts")
-    }, ignoreInit = TRUE, priority = 1000)
+      context <- overviewControlContext()
+      if (!is.null(control_state$context) && !identical(context, control_state$context)) {
+        freezeReactiveInputs(input, "gene_set_type", "selected_contrasts")
+      }
+      control_state$context <- context
+    }, priority = 1000)
 
     observeEvent(input$gene_set_type, {
-      freezeReactiveInputs(input, "selected_contrasts")
-    }, ignoreInit = TRUE, priority = 1000)
+      gene_set_type <- input$gene_set_type
+      if (!is.null(control_state$gene_set_type) && !identical(gene_set_type, control_state$gene_set_type)) {
+        freezeReactiveInputs(input, "selected_contrasts")
+      }
+      control_state$gene_set_type <- gene_set_type
+    }, ignoreNULL = TRUE, priority = 1000)
 
     inputsReady <- reactive({
       req(selectmatrix_reactives$inputsReady())
