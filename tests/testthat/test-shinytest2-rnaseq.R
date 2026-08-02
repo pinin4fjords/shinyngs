@@ -327,6 +327,33 @@ test_that("the Gene info tab defaults single-contrast differential effects to th
   expect_false(app$get_js("!!document.querySelector('#rnaseq-gene-geneContrastProfile')"))
 })
 
+test_that("the enrichment overview initialises its dynamic controls", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver(
+    "rnaseq", "rnaseq-enrichmentoverview",
+    eselist = make_enrichmentoverview_eselist()
+  )
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$set_inputs(`rnaseq-rnaseq` = "Across-contrast overview", wait_ = FALSE)
+  app$wait_for_js(
+    "!!document.getElementById('rnaseq-enrichmentoverview-gene_set_type') &&
+      !!document.getElementById('rnaseq-enrichmentoverview-selected_contrasts') &&
+      !!document.querySelector('#rnaseq-enrichmentoverview-table-datatable table') &&
+      !!document.querySelector('#rnaseq-enrichmentoverview-plot .plotly')",
+    timeout = 20000
+  )
+  app$wait_for_idle(timeout = 20000)
+
+  expect_equal(app$get_value(input = "rnaseq-enrichmentoverview-gene_set_type"), "KEGG")
+  expect_setequal(
+    app$get_value(input = "rnaseq-enrichmentoverview-selected_contrasts"),
+    c("1", "2")
+  )
+})
+
 # URL bookmarking round-trip is covered separately in
 # test-shinytest2-bookmark.R (its own file, so its 40s timeouts and separate
 # on-disk-app process don't make this file the parallel-worker bottleneck).

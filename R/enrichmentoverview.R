@@ -129,12 +129,9 @@ enrichmentoverview <- function(id, eselist) {
     control_state$gene_set_type <- NULL
 
     overviewControlContext <- reactive({
-      ese <- selectmatrix_reactives$getExperiment()
-      assay <- selectmatrix_reactives$getAssay()
       list(
         experiment = selectmatrix_reactives$getExperimentId(),
-        assay = assay,
-        gene_set_types = names(ese@gene_set_analyses[[assay]])
+        assay = selectmatrix_reactives$getAssay()
       )
     })
 
