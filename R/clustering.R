@@ -118,6 +118,18 @@ clustering <- function(id, eselist) {
 
     getPalette <- colormaker("clustering", getNumberCategories = getClusterNumber)
 
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        inputsInitialised(
+          input$cluster_number, input$cluster_display,
+          input$average_type, input$limits,
+          input[["clustering-palette_name"]]
+        )
+      )
+      TRUE
+    })
+
     ############################################################################# Form accessors
 
     # The number of clusters
@@ -234,6 +246,7 @@ clustering <- function(id, eselist) {
     )
 
     output$geneClusteringPlot <- renderPlotly({
+      req(inputsReady())
       getClusterPlot() %>% shinyngsPlotlyConfig("clustering", format = session$userData$plotFormat())
     })
 
@@ -261,7 +274,7 @@ clustering <- function(id, eselist) {
 
     # Render the table and provide for download, using the simpletable module.
 
-    simpletable("geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix", rownames = FALSE)
+    simpletable("geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix", rownames = FALSE, ready = inputsReady)
   })
 }
 

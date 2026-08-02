@@ -97,6 +97,6 @@ differentialtable <- function(id, eselist) {
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("differentialtable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    simpletable("differentialtable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "differential", rownames = FALSE, ready = contrast_reactives$inputsReady)
   })
 }

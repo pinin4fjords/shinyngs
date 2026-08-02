@@ -165,6 +165,15 @@ genesetbarcodeplot <- function(id, eselist) {
 
     genesetselect_reactives <- genesetselect("genesetbarcodeplot", eselist, selectmatrix_reactives$getExperiment, multiple = FALSE)
 
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        contrast_reactives$inputsReady(),
+        genesetselect_reactives$inputsReady()
+      )
+      TRUE
+    })
+
     # Every gene set stays selectable here, whether or not it has a GSEA/ROAST
     # result for the current assay/contrast: the plot itself only needs fold
     # changes and set membership, and barcodeplotTitle() already degrades
@@ -231,6 +240,7 @@ genesetbarcodeplot <- function(id, eselist) {
     # Render the barcode plot
 
     output$genesetbarcodeplot <- renderPlotly({
+      req(inputsReady())
       set_genes <- genesetselect_reactives$getPathwayGenes()
 
       interactive_barcodeplot(
@@ -262,7 +272,7 @@ genesetbarcodeplot <- function(id, eselist) {
 
     # Provide the gene set genes in a table of contrst data
 
-    simpletable("genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, pageLength = 10)
+    simpletable("genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, pageLength = 10, ready = inputsReady)
 
     # Catch the gene set from the URL
 

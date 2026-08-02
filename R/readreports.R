@@ -119,6 +119,11 @@ readreports <- function(id, eselist) {
       input$reportType
     })
 
+    inputsReady <- reactive({
+      req(selectmatrix_reactives$inputsReady())
+      inputsInitialised(input$reportType)
+    })
+
     # Choose a default bar mode based on the report type. For read attrition when the counts at each analysis stage are a subset of those at the previous, it
     # makes sense to use overlapped bars.
 
@@ -154,7 +159,7 @@ readreports <- function(id, eselist) {
 
     barplot("barplot", getPlotmatrix = getPlotmatrix, getYLabel = reactive({
       "Reads"
-    }))
-    simpletable("readrep", displayMatrix = getReportTable, filename = "read_report", rownames = TRUE)
+    }), ready = inputsReady)
+    simpletable("readrep", displayMatrix = getReportTable, filename = "read_report", rownames = TRUE, ready = inputsReady)
   })
 }

@@ -83,6 +83,7 @@ illuminaarrayqc <- function(id, eselist) {
     selectmatrix_reactives <- selectmatrix("illuminaarrayqc", eselist[names(eselist) == "control"], select_genes = FALSE, select_samples = FALSE, select_assay = FALSE)
 
     output$qcplot <- renderPlotly({
+      req(selectmatrix_reactives$inputsReady())
       experiment <- selectmatrix_reactives$selectColData()
       control_annotation <- selectmatrix_reactives$getAnnotation()
       controls <- selectmatrix_reactives$selectMatrix()
@@ -93,7 +94,7 @@ illuminaarrayqc <- function(id, eselist) {
 
     # Render the table and provide for download, using the simpletable module.
 
-    simpletable("qctable", downloadMatrix = selectmatrix_reactives$selectLabelledMatrix, displayMatrix = selectmatrix_reactives$selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE)
+    simpletable("qctable", downloadMatrix = selectmatrix_reactives$selectLabelledMatrix, displayMatrix = selectmatrix_reactives$selectLabelledLinkedMatrix, filename = "illumina_array_qc", rownames = FALSE, ready = selectmatrix_reactives$inputsReady)
   })
 }
 

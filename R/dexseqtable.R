@@ -152,7 +152,13 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
 
     # Just use the contrasts module to select a comparison
 
-    contrast_reactives <- contrasts("deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives)
+    contrast_reactives <- contrasts("deuContrast", eselist = eselist, multiple = FALSE, selectmatrix_reactives = selectmatrix_reactives, summarise = FALSE)
+
+    contrastInputsReady <- contrast_reactives$inputsReady
+    inputsReady <- reactive({
+      req(contrastInputsReady())
+      !allow_filtering || inputsInitialised(input$deuMostSigExon)
+    })
 
     makeDEUTables <- reactive({
       validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage tables."))
@@ -264,10 +270,11 @@ dexseqtable <- function(id, eselist, allow_filtering = TRUE, getDEUGeneID = NULL
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, show_controls = show_controls, pageLength = page_length)
+    simpletable("dexseqtable", displayMatrix = makeDisplayDEUTable, downloadMatrix = makeDEUTable, filename = "deutable", rownames = FALSE, show_controls = show_controls, pageLength = page_length, ready = inputsReady)
 
     # Return reactives for the matrix and controls so the same filters can be used in the 'dexseqplot' module
 
+    contrast_reactives$inputsReady <- inputsReady
     c(contrast_reactives, list(
       getExperiment = selectmatrix_reactives$getExperiment, getSelectedContrastNumbers = contrast_reactives$getSelectedContrastNumbers,
       getSelectedContrasts = contrast_reactives$getSelectedContrasts

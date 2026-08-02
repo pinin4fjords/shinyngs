@@ -27,7 +27,9 @@ scatterplot(
   z = NA,
   getLines = reactive({
      NULL
- })
+ }),
+  inputsReady = reactive(TRUE),
+  make_colors = NULL
 )
 }
 \arguments{
@@ -94,6 +96,12 @@ select, useful for scatter plots that don't need the user to select axes
 \item{getLines}{Reactive returning a data frame defining lines to be drawn.
 Three columns required: name, x and y, with two rows for every value of
 name. These two rows represent the start and end of a line.}
+
+\item{inputsReady}{Reactive indicating that the plot data inputs are fully
+initialised.}
+
+\item{make_colors}{Whether internally generated controls need a palette.
+Defaults to whether a color variable was supplied without a palette.}
 }
 \description{
 This module uses \href{https://plot.ly/}{Plotly} to create scatter plots

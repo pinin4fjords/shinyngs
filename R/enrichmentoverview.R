@@ -125,6 +125,17 @@ enrichmentoverview <- function(id, eselist) {
       select_genes = FALSE, select_meta = FALSE
     )
 
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        inputsInitialised(
+          input$gene_set_type, input$selected_contrasts,
+          input$rank_by, input$top_n, input$max_fdr
+        )
+      )
+      TRUE
+    })
+
     getGeneSetTypes <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
       assay <- selectmatrix_reactives$getAssay()
@@ -139,6 +150,7 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     output$geneSetType_ui <- renderUI({
+      req(selectmatrix_reactives$inputsReady())
       gene_set_types <- getGeneSetTypes()
       selectInput(session$ns("gene_set_type"), "Gene set type", gene_set_types, selected = getGeneSetType())
     })
@@ -158,6 +170,7 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     output$contrasts_ui <- renderUI({
+      req(selectmatrix_reactives$inputsReady(), inputsInitialised(input$gene_set_type))
       makeContrastControl(
         session$ns("selected_contrasts"), eselist@contrasts,
         contrast_numbers = getAvailableContrasts(),
@@ -192,11 +205,13 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     output$enrichmentMethod <- renderUI({
+      req(inputsReady())
       methods <- unique(stats::na.omit(getEnrichmentOverviewData()$method))
       if (length(methods) == 1) helpText(paste0("Method: ", methods)) else NULL
     })
 
     output$plot_ui <- renderUI({
+      req(inputsReady())
       height <- min(1100, max(460, length(unique(getPreparedEnrichmentOverview()$gene_set_id)) * 34 + 190))
       plotlyOutput(session$ns("plot"), height = paste0(height, "px"))
     })
@@ -206,6 +221,7 @@ enrichmentoverview <- function(id, eselist) {
     }) %>% bindCache(getPreparedEnrichmentOverview())
 
     output$plot <- renderPlotly({
+      req(inputsReady())
       getEnrichmentOverviewPlot() %>%
         shinyngsPlotlyConfig("gene_set_overview", format = session$userData$plotFormat())
     })
@@ -227,7 +243,7 @@ enrichmentoverview <- function(id, eselist) {
       "table", downloadMatrix = getEnrichmentOverviewTable,
       displayMatrix = getEnrichmentOverviewTable,
       filename = "gene_set_overview", rownames = FALSE,
-      initial_order = list()
+      initial_order = list(), ready = inputsReady
     )
   })
 }

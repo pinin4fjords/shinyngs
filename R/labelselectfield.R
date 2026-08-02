@@ -292,6 +292,18 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       updateSelectizeInput(session, "label", selected = query[[url_field]], choices = getValidLabels(), server = TRUE)
     })
 
-    list(getSelectedLabels = getSelectedLabels, getValidLabels = getValidLabels, getSelectedIds = getSelectedIds, updateLabelField = updateLabelField)
+    inputsReady <- reactive({
+      required <- list(input$metaField, input$label)
+      if (id_selection) {
+        required <- c(required, list(input$ids))
+      }
+      do.call(inputsInitialised, required)
+    })
+
+    list(
+      getSelectedLabels = getSelectedLabels, getValidLabels = getValidLabels,
+      getSelectedIds = getSelectedIds, updateLabelField = updateLabelField,
+      inputsReady = inputsReady
+    )
   })
 }

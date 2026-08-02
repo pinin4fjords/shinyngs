@@ -41,11 +41,13 @@ barplotOutput <- function(id, height = 400) {
 #' @param getPlotmatrix Reactive supplying a matrix to plot
 #' @param getYLabel Reactive supplying the Y axis label
 #' @param barmode Bar mode: 'stack', 'group' or 'overlay'
+#' @param ready Reactive that returns TRUE when the plot data and controls are
+#'   fully initialised.
 
-barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack") {
+barplot <- function(id, getPlotmatrix, getYLabel, barmode = "stack", ready = reactive(TRUE)) {
   moduleServer(id, function(input, output, session) {
     output$barPlot <- renderPlotly({
-      validate(need(input$barMode, "Waiting for bar mode"))
+      req(ready(), inputsInitialised(input$barMode))
 
       interactive_barchart(getPlotmatrix(), barmode = input$barMode, ylab = getYLabel()) %>%
         shinyngsPlotlyConfig("barplot", format = session$userData$plotFormat())

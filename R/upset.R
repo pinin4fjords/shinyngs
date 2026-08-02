@@ -129,14 +129,34 @@ upset <- function(id, eselist, setlimit = 16) {
 
     contrast_reactives <- contrasts("upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE)
 
+    baseInputsReady <- reactive({
+      req(
+        contrast_reactives$inputsReady(),
+        inputsInitialised(
+          input$nintersects, input$separate_by_direction,
+          input$set_sort, input$bar_numbers,
+          input$show_empty_intersections,
+          input$intersection_assignment_type
+        )
+      )
+      TRUE
+    })
+
+    inputsReady <- reactive({
+      req(baseInputsReady(), inputsInitialised(input$nsets, input$minorder))
+      TRUE
+    })
+
     ############################################################################# Render dynamic fields
 
     output$nsets_ui <- renderUI({
+      req(baseInputsReady())
       max_sets <- getMaxSets()
       sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
     })
 
     output$minorder_ui <- renderUI({
+      req(baseInputsReady(), inputsInitialised(input$nsets))
       assignment_type <- getIntersectionAssignmentType()
       max_order <- getMaxIntersectionOrder()
 
@@ -152,6 +172,7 @@ upset <- function(id, eselist, setlimit = 16) {
     })
 
     output$subset_notice <- renderUI({
+      req(baseInputsReady())
       valid_sets <- getValidSets()
       max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
 
@@ -172,7 +193,8 @@ upset <- function(id, eselist, setlimit = 16) {
     # Accessor for the nsets parameter
 
     getNsets <- reactive({
-      if (is.null(input$nsets)) getMaxSets() else input$nsets
+      req(inputsInitialised(input$nsets))
+      input$nsets
     }) %>% debounce(300)
 
     # Accessor for the minorder parameter
@@ -293,6 +315,7 @@ upset <- function(id, eselist, setlimit = 16) {
     )
 
     output$interactive_upset <- renderPlotly({
+      req(inputsReady())
       getUpsetPlot() %>% shinyngsPlotlyConfig("upset", format = session$userData$plotFormat())
     })
 

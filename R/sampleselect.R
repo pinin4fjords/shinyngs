@@ -165,7 +165,27 @@ sampleselect <- function(id, eselist, getExperiment, select_samples = TRUE, allo
       })
     })
 
-    reactives <- list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSampleSelect = getSampleSelect)
+    inputsReady <- reactive({
+      if (!inputsInitialised(input$sampleSelect)) {
+        return(FALSE)
+      }
+      if (input$sampleSelect == "name") {
+        return(inputsInitialised(input$samples))
+      }
+      if (input$sampleSelect == "group") {
+        required <- list(input$sampleGroupVar, input$sampleGroupVal)
+        if (allow_summarise) {
+          required <- c(required, list(input[["summarise-summaryType"]]))
+        }
+        return(do.call(inputsInitialised, required))
+      }
+      TRUE
+    })
+
+    reactives <- list(
+      selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar,
+      getSampleSelect = getSampleSelect, inputsReady = inputsReady
+    )
 
     if (allow_summarise) {
       reactives[["getSummaryType"]] <- getSummaryType

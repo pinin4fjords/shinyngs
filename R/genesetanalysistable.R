@@ -190,6 +190,16 @@ genesetanalysistable <- function(id, eselist) {
 
     genesetselect_reactives <- genesetselect("genesetanalysistable", eselist, selectmatrix_reactives$getExperiment, filter_by_type = TRUE, require_select = FALSE)
 
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        contrast_reactives$inputsReady(),
+        genesetselect_reactives$inputsReady(),
+        inputsInitialised(input$pval, input$fdr)
+      )
+      TRUE
+    })
+
     # Resolve the enrichment table, column mapping and tool once per selection,
     # shared between the table itself, the method label above it, and the
     # gene set choices offered below.
@@ -321,7 +331,7 @@ genesetanalysistable <- function(id, eselist) {
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE)
+    simpletable("genesetanalysistable", downloadMatrix = getGeneSetAnalysis, displayMatrix = getDisplayGeneSetAnalysis, filename = makeFileName, rownames = FALSE, ready = inputsReady)
   })
 }
 

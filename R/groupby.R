@@ -40,6 +40,7 @@ groupbyInput <- function(id, color = TRUE) {
 #'   derived from the \code{\link{selectmatrix}} module.
 #' @param isDynamic Reactive expression providing a boolean. A FALSE value
 #'   causes the groupby option to be placed in a hidden field.
+#' @param color Require and return palette controls?
 #'
 #' @return output A list of reactive functions which will be used by other
 #' modules.
@@ -51,9 +52,13 @@ groupbyInput <- function(id, color = TRUE) {
 #'
 groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, selectColData = NULL, isDynamic = reactive({
                       TRUE
-                    })) {
+                    }), color = TRUE) {
   moduleServer(id, function(input, output, session) {
-    getPalette <- colormaker("groupby", getNumberCategories = getNumberCategories)
+    if (color) {
+      getPalette <- colormaker("groupby", getNumberCategories = getNumberCategories)
+    } else {
+      getPalette <- reactive(NULL)
+    }
 
     # Choose a default grouping variable, either the one specified or the first
 
@@ -126,6 +131,17 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
       }
     })
 
-    list(getGroupby = getGroupby, getNumberCategories = getNumberCategories, getPalette = getPalette)
+    inputsReady <- reactive({
+      required <- list(input$groupby)
+      if (color) {
+        required <- c(required, list(input[["groupby-palette_name"]]))
+      }
+      do.call(inputsInitialised, required)
+    })
+
+    list(
+      getGroupby = getGroupby, getNumberCategories = getNumberCategories,
+      getPalette = getPalette, inputsReady = inputsReady
+    )
   })
 }

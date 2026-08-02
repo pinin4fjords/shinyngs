@@ -70,7 +70,7 @@ test_that("getShowLabels and getPointSize reflect their inputs", {
   )
 })
 
-test_that("scatterplot controls expose their displayed defaults while initialising", {
+test_that("scatterplot controls expose non-debounced defaults while initialising", {
   m <- make_scatterplot_matrix()
 
   shiny::testServer(
@@ -84,7 +84,8 @@ test_that("scatterplot controls expose their displayed defaults while initialisi
       expect_equal(getZAxis(), 3)
       expect_true(getThreedee())
       expect_false(getShowLabels())
-      expect_equal(getPointSize(), 5)
+      expect_false(inputsReady())
+      expect_error(getPointSize(), class = "shiny.silent.error")
     }
   )
 })

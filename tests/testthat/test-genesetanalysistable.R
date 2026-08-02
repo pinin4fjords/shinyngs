@@ -83,6 +83,7 @@ run_genesetanalysistable_server <- function(eselist, extra_inputs = list(), expr
       "genesetanalysistable-filterRows" = FALSE,
       "genesetanalysistable-contrasts-summaryType" = "colMeans",
       "genesetanalysistable-contrasts0" = "1",
+      "genesetanalysistable-combine_operator" = "intersect",
       "genesetanalysistable-geneSetTypes" = "KEGG",
       "genesetanalysistable-geneSets" = "1-1",
       "genesetanalysistable-overlapType" = "union",

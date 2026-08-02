@@ -74,6 +74,11 @@ test_that("shinyngsSpinnerColor returns the brand accent hex colour", {
   expect_match(shinyngsSpinnerColor(), "^#[0-9a-f]{6}$")
 })
 
+test_that("inputsInitialised distinguishes missing inputs from valid false and empty values", {
+  expect_false(inputsInitialised(NULL, FALSE, character()))
+  expect_true(inputsInitialised(FALSE, 0, "", character()))
+})
+
 # shinyngsPageLoader()
 
 test_that("shinyngsPageLoader is visible and accessible in the initial HTML", {

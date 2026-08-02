@@ -106,6 +106,8 @@ contrastsOutput <- function(id) {
 #' @param multiple Allow selection of multiple contrasts?
 #' @param select_all_contrasts Select all contrasts by default?
 #' @param show_controls Show the controls for contrast selection?
+#' @param summarise Match the corresponding \code{contrastsInput()} setting.
+#'   When `TRUE`, wait for the summary-type input before producing contrast data.
 #' @param default_foldchange default value for the fold change filter
 #' @param default_pval Default value for the p value field
 #' @param default_qval Default value for the q value field
@@ -115,7 +117,7 @@ contrastsOutput <- function(id) {
 #' @examples
 #' contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
 #'
-contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1) {
+contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, summarise = TRUE, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -145,6 +147,17 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       qvalsAvailable = enumeration$qvalsAvailable
     )
 
+    inputsReady <- reactive({
+      req(filter_set$inputsReady())
+      if (!is.null(selectmatrix_reactives$inputsReady)) {
+        req(selectmatrix_reactives$inputsReady())
+      }
+      if (summarise) {
+        req(inputsInitialised(input[["contrasts-summaryType"]]))
+      }
+      TRUE
+    })
+
     selection <- contrastSelection(
       getSelectedContrastNumbers = filter_set$getSelectedContrastNumbers,
       getAllContrasts = enumeration$getAllContrasts,
@@ -167,7 +180,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       pvalsAvailable = enumeration$pvalsAvailable,
       qvalsAvailable = enumeration$qvalsAvailable,
       getFilterRows = filter_set$getFilterRows,
-      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator
+      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator,
+      inputsReady = filter_set$inputsReady
     )
 
     labelling <- contrastLabelling(
@@ -184,7 +198,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       getFilterSetValues = filter_set$getFilterSetValues,
       selectFilterFinalFeatures = filtering$selectFilterFinalFeatures,
       selectFinalFeatures = filtering$selectFinalFeatures,
-      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator
+      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator,
+      inputsReady = inputsReady
     )
 
     list(
@@ -193,6 +208,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       getAllContrasts = enumeration$getAllContrasts, getSelectedContrasts = selection$getSelectedContrasts, getSelectedContrastNumbers = filter_set$getSelectedContrastNumbers,
       getSelectedContrastNames = selection$getSelectedContrastNames, getSafeSelectedContrastNames = selection$getSafeSelectedContrastNames,
       getContrastSamples = enumeration$getContrastSamples, getSelectedContrastSamples = selection$getSelectedContrastSamples,
+      inputsReady = inputsReady,
       contrastsTables = tables$contrastsTables, filteredContrastsTables = filtering$filteredContrastsTables, labelledContrastsTable = labelling$labelledContrastsTable,
       linkedLabelledContrastsTable = labelling$linkedLabelledContrastsTable,
       makeDifferentialSetSummary = query_summary$makeDifferentialSetSummary, getQueryStrings = query_summary$getQueryStrings, selectedContrastsTables = filtering$selectedContrastsTables
@@ -759,6 +775,38 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     if (length(operator) != 1 || !operator %in% c("intersect", "union")) "intersect" else operator
   })
 
+  inputsReady <- reactive({
+    if (!inputsInitialised(input$filterRows, input$combine_operator) || length(engine_state$inserted) == 0) {
+      return(FALSE)
+    }
+
+    for (index in seq_along(engine_state$inserted) - 1L) {
+      required <- list(input[[paste0("contrasts", index)]])
+      if (isTRUE(input$filterRows)) {
+        required <- c(required, list(
+          input[[paste0("fold_change", index)]],
+          input[[paste0("fold_change_card", index)]]
+        ))
+        if (pvalsAvailable()) {
+          required <- c(required, list(
+            input[[paste0("p_value", index)]],
+            input[[paste0("p_value_card", index)]]
+          ))
+        }
+        if (qvalsAvailable()) {
+          required <- c(required, list(
+            input[[paste0("q_value", index)]],
+            input[[paste0("q_value_card", index)]]
+          ))
+        }
+      }
+      if (!do.call(inputsInitialised, required)) {
+        return(FALSE)
+      }
+    }
+    TRUE
+  })
+
   ########################################################################### Bookmarking of the dynamically-built filter sets
 
   # The filter-set inputs are inserted at runtime, so a bookmark URL cannot
@@ -810,7 +858,8 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard,
     getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
     getFilterSetCombinationOperator = getFilterSetCombinationOperator,
-    getFilterSetValues = filterset_values
+    getFilterSetValues = filterset_values,
+    inputsReady = inputsReady
   )
 }
 
@@ -986,10 +1035,11 @@ contrastSelection <- function(getSelectedContrastNumbers, getAllContrasts, getCo
 #' @noRd
 contrastFiltering <- function(selectmatrix_reactives, getSelectedContrastNumbers, contrastsTablesToMatchMatrix, singleContrast,
                                getFoldChange, getFoldChangeCard, getPval, getPvalCard, getQval, getQvalCard,
-                               pvalsAvailable, qvalsAvailable, getFilterRows, getFilterSetCombinationOperator) {
+                               pvalsAvailable, qvalsAvailable, getFilterRows, getFilterSetCombinationOperator, inputsReady) {
   # Filter contrasts tables down to the contrasts of interest
 
   selectedContrastsTables <- reactive({
+    req(inputsReady())
     selected_contrasts <- getSelectedContrastNumbers()
     contrast_tables <- contrastsTablesToMatchMatrix()
 
@@ -1153,12 +1203,14 @@ count_differential_directions <- function(fold_changes) {
 #'   \code{contrastFilterSetEngine}
 #' @param getFilterSetCombinationOperator Reactive from
 #'   \code{contrastFilterSetEngine}
+#' @param inputsReady Reactive indicating that all controls used by the query
+#'   have reached the server.
 #'
 #' @return A list of reactives: \code{makeDifferentialSetSummary},
 #'   \code{getQueryStrings}
 #' @noRd
 contrastQuerySummary <- function(output, selectmatrix_reactives, filteredContrastsTables, getSelectedContrasts, makeContrastNames,
-                                  getFilterSetValues, selectFilterFinalFeatures, selectFinalFeatures, getFilterSetCombinationOperator) {
+                                  getFilterSetValues, selectFilterFinalFeatures, selectFinalFeatures, getFilterSetCombinationOperator, inputsReady) {
   # A summary table of differential expression
 
   makeDifferentialSetSummary <- reactive({
@@ -1232,6 +1284,7 @@ contrastQuerySummary <- function(output, selectmatrix_reactives, filteredContras
   ########################################################################### Tell the user something about the query and its results
 
   output$summary <- renderUI({
+    req(inputsReady())
     query_summary <- makeQuerySummary()
     comb_op <- getFilterSetCombinationOperator()
     operator <- ifelse(comb_op == "intersect", "AND", "OR")

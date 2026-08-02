@@ -74,6 +74,7 @@ test_that("geneselect uses the displayed default while its input initialises", {
     ),
     {
       expect_equal(getGeneSelect(), "all")
+      expect_false(inputsReady())
     }
   )
 })

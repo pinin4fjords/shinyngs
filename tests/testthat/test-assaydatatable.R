@@ -5,6 +5,7 @@ test_that("assaydatatable displays the selected assay's matrix, labelled by gene
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all"
     )
@@ -23,6 +24,7 @@ test_that("assaydatatable switches matrices when a different assay is selected",
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "norm",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all"
     )
@@ -41,6 +43,7 @@ test_that("assaydatatable restricts the displayed matrix to the selected samples
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "name",
       "expression-selectmatrix-samples" = c("s1", "s2"),
       "expression-selectmatrix-summarise-summaryType" = "colMeans",
@@ -61,6 +64,7 @@ test_that("assaydatatable reports matrices summarised from sample groups", {
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "group",
       "expression-selectmatrix-sampleGroupVar" = "condition",
       "expression-selectmatrix-sampleGroupVal" = c("ctrl", "treated"),

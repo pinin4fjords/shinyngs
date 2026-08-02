@@ -8,6 +8,7 @@ run_differentialtable_server <- function(eselist, extra_inputs = list(), expr) {
     list(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = if (has_slot_data(eselist[[1]], "labelfield")) eselist[[1]]@labelfield else character(),
       "expression-selectmatrix-obs" = 60,
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all",

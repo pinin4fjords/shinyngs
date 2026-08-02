@@ -159,9 +159,20 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       input$geneSets
     })
 
+    inputsReady <- reactive({
+      required <- list(input$overlapType)
+      if (filter_by_type) {
+        required <- c(required, list(input$geneSetTypes))
+      }
+      if (require_select) {
+        required <- c(required, list(input$geneSets))
+      }
+      do.call(inputsInitialised, required)
+    })
+
     # Return list of reactive expressions
 
-    list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getGenesetNames = reactive({
+    list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, inputsReady = inputsReady, getGenesetNames = reactive({
       gene_sets <- getGeneSets()
       input_gene_sets <- getInputGeneSets()
 

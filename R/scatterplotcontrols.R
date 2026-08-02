@@ -64,8 +64,6 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
     output$plotColumns <- renderUI({
       withProgress(message = "Making scatter plot controls", value = 0, {
         ns <- session$ns
-        datamatrix <- getDatamatrix()
-        vars <- structure(seq_len(ncol(datamatrix)), names = colnames(datamatrix))
 
         # Work out how many axes we need
 
@@ -74,12 +72,18 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
           axes$z <- z
         }
 
+        dynamic_axes <- vapply(axes, is.na, logical(1))
+        if (any(dynamic_axes)) {
+          datamatrix <- getDatamatrix()
+          vars <- structure(seq_len(ncol(datamatrix)), names = colnames(datamatrix))
+        }
+
         # Make a select for each axis
 
         axis_filters <- lapply(seq_along(axes), function(n) {
           ax <- names(axes)[n]
 
-          if (is.na(axes[n])) {
+          if (dynamic_axes[n]) {
             selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = n)
           } else {
             hidden_input(ns(paste0(ax, "Axis")), axes[n])
@@ -122,10 +126,26 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
     })
 
     getPointSize <- reactive({
-      if (is.null(input$pointSize)) 5 else input$pointSize
+      req(inputsInitialised(input$pointSize))
+      input$pointSize
     }) %>% debounce(300)
 
-    reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)
+    inputsReady <- reactive({
+      required <- list(input$threedee, input$xAxis, input$yAxis, input$showLabels, input$pointSize)
+      if (inputsInitialised(input$threedee) && isTRUE(as.logical(input$threedee))) {
+        required <- c(required, list(input$zAxis))
+      }
+      if (!is.null(makeColors)) {
+        required <- c(required, list(input[["scatterplot-palette_name"]]))
+      }
+      do.call(inputsInitialised, required)
+    })
+
+    reactives <- list(
+      getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis,
+      getThreedee = getThreedee, getShowLabels = getShowLabels,
+      getPointSize = getPointSize, inputsReady = inputsReady
+    )
 
     # If specified, make a palette for the specified number of colors
 

@@ -103,6 +103,10 @@ scatterplotOutput <- function(id) {
 #' @param getLines Reactive returning a data frame defining lines to be drawn.
 #' Three columns required: name, x and y, with two rows for every value of
 #' name. These two rows represent the start and end of a line.
+#' @param inputsReady Reactive indicating that the plot data inputs are fully
+#'   initialised.
+#' @param make_colors Whether internally generated controls need a palette.
+#'   Defaults to whether a color variable was supplied without a palette.
 
 scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, getYAxis = NULL, getZAxis = NULL, getShowLabels = NULL, getPointSize = NULL, getPalette = NULL, getColorby = NULL, getTitle = reactive({
                           ""
@@ -110,7 +114,7 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
                           rownames(getDatamatrix())
                         }), allow_3d = TRUE, x = NA, y = NA, z = NA, getLines = reactive({
                           NULL
-                        })) {
+                        }), inputsReady = reactive(TRUE), make_colors = NULL) {
   moduleServer(id, function(input, output, session) {
     # If inputs are not provided, render controls to provide them
 
@@ -118,9 +122,14 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
 
     # If no colors are provided, make our own if necessary. This will cause the 'getPalette' reactive to be passed back from scatterplotcontrols.
 
+    needs_colors <- if (is.null(make_colors)) {
+      is.null(getPalette) && !is.null(getColorby)
+    } else {
+      isTRUE(make_colors)
+    }
+
     getNumberColors <- reactive({
-      make_colors <- is.null(getPalette) && !is.null(getColorby)
-      if (make_colors) {
+      if (needs_colors) {
         cb <- getColorby()
         nlevels(cb)
       } else {
@@ -132,15 +141,15 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
 
     if (is.null(getThreedee)) {
       output$controls <- renderUI({
-        make_colors <- !is.null(getNumberColors())
-        controls <- list(scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d, make_colors = make_colors))
+        controls <- list(scatterplotcontrolsInput(ns("scatter"), allow_3d = allow_3d, make_colors = needs_colors))
       })
 
       # Provide the reactives from the scatterplotcontrols module in place of the (unsupplied) arguments of the same name
 
       scatterplotcontrols_reactives <- scatterplotcontrols(
         "scatter", getDatamatrix, x = x, y = y, z = z,
-        makeColors = getNumberColors, default_3d = allow_3d
+        makeColors = if (needs_colors) getNumberColors else NULL,
+        default_3d = allow_3d
       )
       getThreedee <- scatterplotcontrols_reactives$getThreedee
       getXAxis <- scatterplotcontrols_reactives$getXAxis
@@ -149,6 +158,9 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
       getShowLabels <- scatterplotcontrols_reactives$getShowLabels
       getPointSize <- scatterplotcontrols_reactives$getPointSize
       getScatterPalette <- scatterplotcontrols_reactives$getScatterPalette
+      controlsReady <- scatterplotcontrols_reactives$inputsReady
+    } else {
+      controlsReady <- reactive(TRUE)
     }
 
     # Axis data accessors
@@ -203,6 +215,7 @@ scatterplot <- function(id, getDatamatrix, getThreedee = NULL, getXAxis = NULL, 
     # Chain the various steps together.
 
     output$scatter <- renderPlotly({
+      req(inputsReady(), controlsReady())
       withProgress(message = "Drawing scatter plot", value = 0, {
         if (!is.null(getColorby)) {
           cb <- getColorby()

@@ -122,7 +122,8 @@ assaydatatable <- function(id, eselist) {
 
     simpletable("assaydatatable",
       downloadMatrix = selectmatrix_reactives$selectLabelledMatrix, displayMatrix = selectmatrix_reactives$selectLabelledLinkedMatrix,
-      filename = selectmatrix_reactives$getAssay(), rownames = FALSE
+      filename = selectmatrix_reactives$getAssay(), rownames = FALSE,
+      ready = selectmatrix_reactives$inputsReady
     )
   })
 }

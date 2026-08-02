@@ -97,6 +97,15 @@ dendro <- function(id, eselist) {
     selectmatrix_reactives <- selectmatrix("dendro", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance")
     groupby_reactives <- groupby("dendro", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        groupby_reactives$inputsReady(),
+        inputsInitialised(input$corMethod, input$clusterMethod)
+      )
+      TRUE
+    })
+
     plot_source <- session$ns("sampleDendroPlot")
 
     getLevels <- reactive({
@@ -121,6 +130,7 @@ dendro <- function(id, eselist) {
     )
 
     output$sampleDendroPlot <- renderPlotly({
+      req(inputsReady())
       withProgress(message = "Making sample dendrogram", value = 0, {
         getDendroPlot() %>% shinyngsPlotlyConfig("dendrogram", format = session$userData$plotFormat())
       })

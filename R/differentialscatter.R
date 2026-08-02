@@ -164,13 +164,26 @@ differentialscatterLogic <- function(input, output, session, eselist, scatter_id
     scatterTable()$colorby
   })
 
+  inputsReady <- reactive({
+    req(
+      selectmatrix_reactives$inputsReady(),
+      contrast_reactives$inputsReady(),
+      geneselect_reactives$inputsReady()
+    )
+    TRUE
+  })
+
   # Pass the matrix to the scatterplot module for display
 
-  scatterplot(scatter_id, getDatamatrix = scatterTable, getTitle = getTitle, allow_3d = FALSE, getLabels = scatterLabels, x = 1, y = 2, getColorby = getColorby, getLines = plotLines)
+  scatterplot(scatter_id,
+    getDatamatrix = scatterTable, getTitle = getTitle, allow_3d = FALSE,
+    getLabels = scatterLabels, x = 1, y = 2, getColorby = getColorby,
+    getLines = plotLines, inputsReady = inputsReady, make_colors = TRUE
+  )
 
   # Display the data as a table alongside
 
-  simpletable(table_id, downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = filename, rownames = FALSE, pageLength = 10)
+  simpletable(table_id, downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = filename, rownames = FALSE, pageLength = 10, ready = inputsReady)
 }
 
 #' Annotate a differential-scatter table with colorby and label columns

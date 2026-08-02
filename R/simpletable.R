@@ -93,6 +93,8 @@ simpletableOutput <- function(id, tabletitle = NULL, spinner = FALSE) {
 #' @param initial_order Initial DataTables column ordering. Leave as \code{NULL}
 #' for the DataTables default, or use \code{list()} to preserve the supplied row
 #' order while retaining interactive column sorting.
+#' @param ready Reactive that returns true when every input needed for the
+#' displayed table has reached the server.
 #'
 #' @keywords shiny
 #'
@@ -100,7 +102,7 @@ simpletableOutput <- function(id, tabletitle = NULL, spinner = FALSE) {
 #' simpletable("simpletable", my_data_frame)
 #'
 simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 15, filename, rownames = FALSE, show_controls = TRUE, filter = "none", server = TRUE,
-                        initial_order = NULL) {
+                        initial_order = NULL, ready = reactive(TRUE)) {
   moduleServer(id, function(input, output, session) {
     if (is.null(downloadMatrix)) {
       downloadMatrix <- displayMatrix
@@ -116,6 +118,7 @@ simpletable <- function(id, downloadMatrix = NULL, displayMatrix, pageLength = 1
     }
 
     output$datatable <- DT::renderDataTable({
+      req(ready())
       table_data <- displayMatrix()
       DT::datatable(
         table_data,

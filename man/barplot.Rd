@@ -4,7 +4,13 @@
 \alias{barplot}
 \title{Server function of the \code{barplot} module}
 \usage{
-barplot(id, getPlotmatrix, getYLabel, barmode = "stack")
+barplot(
+  id,
+  getPlotmatrix,
+  getYLabel,
+  barmode = "stack",
+  ready = reactive(TRUE)
+)
 }
 \arguments{
 \item{id}{Module namespace}
@@ -14,6 +20,9 @@ barplot(id, getPlotmatrix, getYLabel, barmode = "stack")
 \item{getYLabel}{Reactive supplying the Y axis label}
 
 \item{barmode}{Bar mode: 'stack', 'group' or 'overlay'}
+
+\item{ready}{Reactive that returns TRUE when the plot data and controls are
+fully initialised.}
 }
 \description{
 Display grouped, stacked or overlaid bars for a matrix

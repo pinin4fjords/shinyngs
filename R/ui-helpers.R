@@ -328,6 +328,10 @@ shinyngsSpinnerColor <- function() {
   SHINYNGS_ACCENT
 }
 
+inputsInitialised <- function(...) {
+  all(!vapply(list(...), is.null, logical(1)))
+}
+
 #' Apply shinyngs' shared plotly toolbar configuration
 #'
 #' Gives every interactive plot the same modebar: the plotly logo is dropped,

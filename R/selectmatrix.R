@@ -279,6 +279,20 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       SummarizedExperiment::assays(ese)[[assay]]
     })
 
+    inputsReady <- reactive({
+      experiment <- input$experiment
+      assay <- input$assay
+      if (!inputsInitialised(experiment, assay) ||
+          length(experiment) != 1 || !experiment %in% valid_experiment_ids ||
+          length(assay) != 1 || !assay %in% validAssays()) {
+        return(FALSE)
+      }
+      if (!sampleselect_reactives$inputsReady() || !geneselect_reactives$inputsReady()) {
+        return(FALSE)
+      }
+      !select_meta || inputsInitialised(input$metafields)
+    })
+
     shouldSummarise <- reactive({
       if (!allow_summarise ||
         !has_slot_data(eselist, "group_vars") ||
@@ -294,6 +308,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Generate an expression matrix given the selected experiment, assay, rows and columns
 
     selectMatrix <- reactive({
+      req(inputsReady())
       withProgress(message = "Getting expression data subset", value = 0, {
         rows <- selectRows()
         validate(need(length(rows) > 0, "No matching rows in selected matrix"))
@@ -385,6 +400,7 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     list(
       getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix,
       selectRows = selectRows, selectSamples = selectSamples,
+      inputsReady = inputsReady,
       matrixTitle = geneselect_reactives$title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
       getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField,
       getExperimentName = getExperimentName, getNonEmptyRows = geneselect_reactives$getNonEmptyRows, getMetafields = getMetafields

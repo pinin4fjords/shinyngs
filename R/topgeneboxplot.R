@@ -184,6 +184,17 @@ topgeneboxplot <- function(id, eselist) {
     contrast_reactives <- contrasts("contrasts", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE)
     getPalette <- colormaker("palette", getNumberCategories = reactive(2))
 
+    inputsReady <- reactive({
+      req(
+        contrast_reactives$inputsReady(),
+        inputsInitialised(
+          input$rank_by, input$n_genes, input$beeswarm,
+          input[["palette-palette_name"]]
+        )
+      )
+      TRUE
+    })
+
     # Offer only the ranking options whose underlying column is actually
     # present in the contrast table (p values in particular aren't always
     # supplied alongside q values)
@@ -196,6 +207,7 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     output$rank_by_ui <- renderUI({
+      req(contrast_reactives$inputsReady())
       options <- getRankOptions()
 
       choices <- stats::setNames(
@@ -286,10 +298,12 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     output$plot_ui <- renderUI({
+      req(inputsReady())
       plotlyOutput(session$ns("topgeneBoxplot"), height = plotHeight())
     })
 
     output$topgeneBoxplot <- renderPlotly({
+      req(inputsReady())
       withProgress(message = "Making top gene boxplots", value = 0, {
         rows <- getTopGeneIds()
         sample_groups <- getContrastSampleGroups()

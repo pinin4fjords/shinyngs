@@ -130,7 +130,9 @@ experimenttable <- function(id, eselist) {
       experiment
     })
 
-    simpletable("experimenttable", displayMatrix = getExperiment, filename = "experiment", rownames = TRUE)
+    inputsReady <- reactive(inputsInitialised(input$experiment))
+
+    simpletable("experimenttable", displayMatrix = getExperiment, filename = "experiment", rownames = TRUE, ready = inputsReady)
 
     categorycountplot("categorycount", getAnnotation = getRawExperiment, filename = "experiment_categorycounts")
   })
