@@ -329,6 +329,7 @@ test_that("the Gene info tab defaults single-contrast differential effects to th
 
 test_that("the enrichment overview initialises its dynamic controls", {
   skip_on_cran()
+  skip_if(getRversion() < numeric_version("4.2"), "Browser regression requires R 4.2 or later")
 
   app <- shinytest2_app_driver(
     "rnaseq", "rnaseq-enrichmentoverview",
