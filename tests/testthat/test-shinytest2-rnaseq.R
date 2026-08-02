@@ -53,6 +53,86 @@ test_that("the page loader spans one navigation cycle", {
   expect_false(app$get_js("window.__shinyngsVisibleProgressSeen"))
 })
 
+test_that("top-level panels deliver each expensive output once", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("rnaseq", "rnaseq-panel-render-counts")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$run_js("(function(){
+    window.__shinyngsPanelOutputCounts = {};
+    window.__shinyngsPanelLoaderTransitions = [];
+    $(document).off('.shinyngsPanelRenderCounts');
+    $(document).on('shiny:value.shinyngsPanelRenderCounts', function(event){
+      var output = event.target;
+      if (!output || !output.id) return;
+      var classes = output.className || '';
+      if (!/plotly|datatables|shiny-plot-output|shiny-image-output|html-widget-output/.test(classes)) return;
+      var counts = window.__shinyngsPanelOutputCounts;
+      counts[output.id] = (counts[output.id] || 0) + 1;
+    });
+    var loader = document.getElementById('shinyngs-page-loader');
+    var loaderVisible = !loader.classList.contains('shinyngs-page-loader--hidden');
+    new MutationObserver(function(){
+      var next = !loader.classList.contains('shinyngs-page-loader--hidden');
+      if (next !== loaderVisible) {
+        window.__shinyngsPanelLoaderTransitions.push(next ? 'show' : 'hide');
+        loaderVisible = next;
+      }
+    }).observe(loader, {attributes: true, attributeFilter: ['class']});
+  })();")
+
+  targets <- unlist(app$get_js(
+    "Array.from(document.querySelectorAll('.navbar a[data-value]'))
+      .filter(function(link){
+        return link.dataset.value && link.dataset.value !== 'Home' &&
+          !link.matches('[data-bs-toggle=\"dropdown\"], [data-toggle=\"dropdown\"]');
+      })
+      .map(function(link){ return link.dataset.value; })"
+  ))
+
+  anomalies <- character()
+  loader_anomalies <- character()
+  rendered_outputs <- character()
+  for (target in targets) {
+    app$run_js("Array.from(document.querySelectorAll('.navbar a[data-value]'))
+      .find(function(link){ return link.dataset.value === 'Home'; }).click();")
+    app$wait_for_idle(timeout = 20000)
+    app$wait_for_js(
+      "document.getElementById('shinyngs-page-loader').classList.contains('shinyngs-page-loader--hidden')",
+      timeout = 20000
+    )
+    app$run_js("window.__shinyngsPanelOutputCounts = {};
+      window.__shinyngsPanelLoaderTransitions = [];")
+    app$run_js(sprintf(
+      "(function(){
+        var target = %s;
+        Array.from(document.querySelectorAll('.navbar a[data-value]'))
+          .find(function(link){ return link.dataset.value === target; }).click();
+      })();",
+      jsonlite::toJSON(target, auto_unbox = TRUE)
+    ))
+    app$wait_for_idle(timeout = 20000)
+    Sys.sleep(1)
+
+    counts <- unlist(app$get_js("window.__shinyngsPanelOutputCounts"))
+    rendered_outputs <- union(rendered_outputs, names(counts))
+    if (any(counts != 1)) {
+      duplicated <- names(counts)[counts != 1]
+      anomalies <- c(anomalies, paste(target, duplicated, counts[duplicated], sep = ": "))
+    }
+    loader_transitions <- unlist(app$get_js("window.__shinyngsPanelLoaderTransitions"))
+    if (!identical(loader_transitions, c("show", "hide"))) {
+      loader_anomalies <- c(loader_anomalies, paste(target, paste(loader_transitions, collapse = ", "), sep = ": "))
+    }
+  }
+
+  expect_equal(anomalies, character())
+  expect_equal(loader_anomalies, character())
+  expect_gte(length(rendered_outputs), 10)
+})
+
 # pca module (exercises selectmatrix internally)
 
 test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
@@ -96,6 +176,98 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
     simplifyVector = FALSE
   )
   expect_equal(length(components$x$data[[1]]), 12)
+})
+
+test_that("PCA dynamic controls deliver one final render without restarting the page loader", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("rnaseq", "rnaseq-pca-single-render")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$set_inputs(`rnaseq-rnaseq` = "pca")
+  app$wait_for_idle(timeout = 20000)
+  app$wait_for_js(
+    "document.getElementById('shinyngs-page-loader').classList.contains('shinyngs-page-loader--hidden')",
+    timeout = 20000
+  )
+  app$run_js("(function(){
+    var outputName = 'rnaseq-pca-pca-scatter';
+    var loader = document.getElementById('shinyngs-page-loader');
+    window.__shinyngsRenderCount = 0;
+    window.__shinyngsRenderErrors = [];
+    window.__shinyngsInteractionLoaderTransitions = [];
+    window.__resetShinyngsRenderTrace = function(){
+      window.__shinyngsRenderCount = 0;
+      window.__shinyngsRenderErrors = [];
+    };
+    $(document).off('.shinyngsSingleRender');
+    $(document).on('shiny:value.shinyngsSingleRender', function(event){
+      if (event.name === outputName) window.__shinyngsRenderCount += 1;
+    });
+    $(document).on('shiny:error.shinyngsSingleRender', function(event){
+      var message = event.error && event.error.message;
+      if (message) window.__shinyngsRenderErrors.push(event.name + ': ' + message);
+    });
+    var loaderVisible = !loader.classList.contains('shinyngs-page-loader--hidden');
+    new MutationObserver(function(){
+      var next = !loader.classList.contains('shinyngs-page-loader--hidden');
+      if (next !== loaderVisible) {
+        window.__shinyngsInteractionLoaderTransitions.push(next ? 'show' : 'hide');
+        loaderVisible = next;
+      }
+    }).observe(loader, {attributes: true, attributeFilter: ['class']});
+  })();")
+
+  app$run_js("(function(){
+    window.__resetShinyngsRenderTrace();
+    var slider = document.getElementById('rnaseq-pca-pca-pointSize');
+    slider.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+    Shiny.setInputValue('rnaseq-pca-pca-pointSize', 8, {priority: 'event'});
+  })();")
+  app$wait_for_js("window.__shinyngsRenderCount >= 1", timeout = 20000)
+  app$wait_for_idle(timeout = 20000)
+  Sys.sleep(1)
+
+  expect_equal(app$get_js("window.__shinyngsRenderCount"), 1)
+  expect_length(unlist(app$get_js("window.__shinyngsRenderErrors")), 0)
+  expect_length(unlist(app$get_js("window.__shinyngsInteractionLoaderTransitions")), 0)
+
+  app$set_inputs(`rnaseq-pca-pca-zAxis` = "4")
+  app$set_inputs(`rnaseq-pca-pca-threedee` = "FALSE")
+  app$wait_for_idle(timeout = 20000)
+  app$run_js("window.__resetShinyngsRenderTrace();")
+  app$set_inputs(`rnaseq-pca-pca-threedee` = "TRUE", wait_ = FALSE)
+  app$wait_for_js("window.__shinyngsRenderCount >= 1", timeout = 20000)
+  app$wait_for_idle(timeout = 20000)
+  Sys.sleep(1)
+
+  expect_equal(app$get_js("window.__shinyngsRenderCount"), 1)
+  expect_length(unlist(app$get_js("window.__shinyngsRenderErrors")), 0)
+  expect_equal(app$get_value(input = "rnaseq-pca-pca-zAxis"), "3")
+
+  app$run_js("window.__resetShinyngsRenderTrace();")
+  app$set_inputs(`rnaseq-pca-pca-selectmatrix-sampleGroupVar` = "batch", wait_ = FALSE)
+  app$wait_for_js("window.__shinyngsRenderCount >= 1", timeout = 20000)
+  app$wait_for_idle(timeout = 20000)
+  Sys.sleep(1)
+
+  expect_equal(app$get_js("window.__shinyngsRenderCount"), 1)
+  expect_length(unlist(app$get_js("window.__shinyngsRenderErrors")), 0)
+  expect_setequal(
+    app$get_value(input = "rnaseq-pca-pca-selectmatrix-sampleGroupVal"),
+    c("batch1", "batch2")
+  )
+
+  app$run_js("(function(){
+    window.__shinyngsInteractionLoaderTransitions = [];
+    var activeNestedTab = Array.from(document.querySelectorAll('.nav-tabs a.active')).find(function(tab){
+      return !tab.closest('.navbar');
+    });
+    activeNestedTab.click();
+  })();")
+  Sys.sleep(1)
+  expect_length(unlist(app$get_js("window.__shinyngsInteractionLoaderTransitions")), 0)
 })
 
 # heatmap module

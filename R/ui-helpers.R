@@ -332,6 +332,14 @@ inputsInitialised <- function(...) {
   all(!vapply(list(...), is.null, logical(1)))
 }
 
+freezeReactiveInputs <- function(input, ...) {
+  input_ids <- unlist(list(...), use.names = FALSE)
+  for (input_id in input_ids) {
+    freezeReactiveValue(input, input_id)
+  }
+  invisible(NULL)
+}
+
 #' Apply shinyngs' shared plotly toolbar configuration
 #'
 #' Gives every interactive plot the same modebar: the plotly logo is dropped,

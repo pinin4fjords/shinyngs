@@ -136,6 +136,7 @@ pca <- function(id, eselist) {
     # Make a common set of controls to be used for components and loadings plots
 
     scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix)
+    nLoadingsValue <- reactive(input$n_loadings) %>% debounce(300)
 
     pcaInputsReady <- reactive({
       req(
@@ -147,7 +148,7 @@ pca <- function(id, eselist) {
     })
 
     loadingInputsReady <- reactive({
-      req(pcaInputsReady(), inputsInitialised(input$n_loadings))
+      req(pcaInputsReady(), inputsInitialised(nLoadingsValue()))
       TRUE
     })
 
@@ -237,9 +238,10 @@ pca <- function(id, eselist) {
     # loadings on every tick.
 
     getNLoadings <- reactive({
-      req(inputsInitialised(input$n_loadings))
-      input$n_loadings
-    }) %>% debounce(300)
+      value <- nLoadingsValue()
+      req(inputsInitialised(value))
+      value
+    })
 
     # Fetch the loadings
 

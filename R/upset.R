@@ -142,8 +142,10 @@ upset <- function(id, eselist, setlimit = 16) {
       TRUE
     })
 
+    nsetsValue <- reactive(input$nsets) %>% debounce(300)
+
     inputsReady <- reactive({
-      req(baseInputsReady(), inputsInitialised(input$nsets, input$minorder))
+      req(baseInputsReady(), inputsInitialised(nsetsValue(), input$minorder))
       TRUE
     })
 
@@ -156,7 +158,7 @@ upset <- function(id, eselist, setlimit = 16) {
     })
 
     output$minorder_ui <- renderUI({
-      req(baseInputsReady(), inputsInitialised(input$nsets))
+      req(baseInputsReady(), inputsInitialised(nsetsValue()))
       assignment_type <- getIntersectionAssignmentType()
       max_order <- getMaxIntersectionOrder()
 
@@ -193,9 +195,10 @@ upset <- function(id, eselist, setlimit = 16) {
     # Accessor for the nsets parameter
 
     getNsets <- reactive({
-      req(inputsInitialised(input$nsets))
-      input$nsets
-    }) %>% debounce(300)
+      value <- nsetsValue()
+      req(inputsInitialised(value))
+      value
+    })
 
     # Accessor for the minorder parameter
 
@@ -277,6 +280,29 @@ upset <- function(id, eselist, setlimit = 16) {
       valid_sets <- getValidSets()
       ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
     })
+
+    dynamic_controls <- new.env(parent = emptyenv())
+    dynamic_controls$max_sets <- NULL
+    dynamic_controls$minorder_context <- NULL
+
+    observeEvent(getMaxSets(), {
+      max_sets <- getMaxSets()
+      if (!is.null(dynamic_controls$max_sets) && !identical(max_sets, dynamic_controls$max_sets)) {
+        freezeReactiveInputs(input, "nsets", "minorder")
+      }
+      dynamic_controls$max_sets <- max_sets
+    }, priority = 1000)
+
+    observeEvent(list(getNsets(), getIntersectionAssignmentType()), {
+      context <- list(
+        nsets = getNsets(),
+        assignment_type = getIntersectionAssignmentType()
+      )
+      if (!is.null(dynamic_controls$minorder_context) && !identical(context, dynamic_controls$minorder_context)) {
+        freezeReactiveInputs(input, "minorder")
+      }
+      dynamic_controls$minorder_context <- context
+    }, priority = 1000)
 
     # Get the sets we're going to use based on nsets
 

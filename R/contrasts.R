@@ -434,6 +434,16 @@ initialContrastFilterSetValues <- function(contrast_numbers, multiple, select_al
   values
 }
 
+destroyContrastFilterObservers <- function(observer_sets, filter_ids = names(observer_sets)) {
+  for (filter_id in intersect(filter_ids, names(observer_sets))) {
+    for (observer in observer_sets[[filter_id]]) {
+      observer$destroy()
+    }
+    observer_sets[[filter_id]] <- NULL
+  }
+  observer_sets
+}
+
 #' The dynamic contrast filter-set engine
 #'
 #' Owns everything about the progressively-addable filter sets: inserting and
@@ -489,12 +499,22 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   engine_state$filter_context <- NULL
   engine_state$insert_clicks <- 0
   engine_state$restore_requests <- 0
+  engine_state$known_filter_ids <- character()
+
+  destroyFilterObservers <- function(filter_ids = names(engine_state$filter_observers)) {
+    engine_state$filter_observers <- destroyContrastFilterObservers(
+      engine_state$filter_observers,
+      filter_ids
+    )
+    invisible(NULL)
+  }
 
   # Stores the current values of each filter set, keyed by filter set id. A
   # reactiveVal so that reading it inside a reactive (e.g. getFoldChange())
   # establishes a dependency that reruns when a field observer updates it.
 
   filterset_values <- reactiveVal(list())
+  filter_generation <- reactiveVal(0L)
   # insert_more is a bare counter the insert observer depends on, so restored
   # filter sets beyond the first can be re-inserted one at a time.
 
@@ -511,6 +531,14 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # state after insertUI(), so restored values are replayed once they are bound.
 
   applyRestoredFilterSet <- function(index, vals) {
+    freezeReactiveInputs(
+      input,
+      paste0("contrasts", index),
+      paste0(c(
+        "fold_change", "q_value", "p_value",
+        "fold_change_card", "q_value_card", "p_value_card"
+      ), index)
+    )
     if (!is.null(vals$contrasts)) {
       updateSelectInput(session, paste0("contrasts", index), selected = vals$contrasts)
     }
@@ -590,6 +618,19 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
       pvalsAvailable(), qvalsAvailable(), restored
     )
 
+    filter_input_ids <- c(
+      paste0("contrasts", btn),
+      paste0(c(
+        "fold_change", "q_value", "p_value",
+        "fold_change_card", "q_value_card", "p_value_card"
+      ), btn)
+    )
+    filterId <- paste0("filter", btn)
+    if (filterId %in% engine_state$known_filter_ids) {
+      freezeReactiveInputs(input, filter_input_ids)
+    }
+    engine_state$known_filter_ids <- union(engine_state$known_filter_ids, filterId)
+
     insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers,
       multiple = multiple, show_controls = show_controls, default_foldchange = default_foldchange, default_pval = default_pval, default_qval = default_qval,
       filter_rows = filter_rows, index = btn, select_all_contrasts = select_all_contrasts, initial_values = initial_values
@@ -598,8 +639,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     # Record the ID of the added filter set
 
     engine_state$inserted <- c(engine_state$inserted, paste0("contrast", btn))
-
-    filterId <- paste0("filter", btn)
+    filter_generation(filter_generation() + 1L)
 
     current <- filterset_values()
     current[[filterId]] <- initial_values
@@ -644,11 +684,15 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 
   removeFilterSet <- function() {
     if (length(engine_state$inserted) > 1) {
-      removeUI(selector = paste0("#", engine_state$inserted[length(engine_state$inserted)]))
+      removed_id <- engine_state$inserted[length(engine_state$inserted)]
+      filter_id <- sub("^contrast", "filter", removed_id)
+      destroyFilterObservers(filter_id)
+      removeUI(selector = paste0("#", removed_id))
       engine_state$inserted <- engine_state$inserted[-length(engine_state$inserted)]
+      filter_generation(filter_generation() + 1L)
 
       current <- filterset_values()
-      current[[length(current)]] <- NULL
+      current[[filter_id]] <- NULL
       filterset_values(current)
     }
   }
@@ -659,9 +703,11 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 
   resetFilterSets <- function() {
     if (length(engine_state$inserted) > 0) {
+      destroyFilterObservers()
       filterset_values(list())
       removeUI(selector = ".shinyngs-contrast", multiple = TRUE, immediate = TRUE)
       engine_state$inserted <- c()
+      filter_generation(filter_generation() + 1L)
     }
   }
 
@@ -693,9 +739,22 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 
   # The combine_operator field is only necessary with more than one filter set
 
+  combine_control <- reactiveVal(NULL)
+  observe({
+    show_control <- length(getSelectedContrastNumbers()) > 1
+    previous <- isolate(combine_control())
+    if (!identical(show_control, previous)) {
+      if (!is.null(previous)) {
+        freezeReactiveInputs(input, "combine_operator")
+      }
+      combine_control(show_control)
+    }
+  }, priority = 1000)
+
   output$combine_operator_ui <- renderUI({
-    scn <- getSelectedContrastNumbers()
-    if (length(scn) > 1) {
+    show_control <- combine_control()
+    req(!is.null(show_control))
+    if (show_control) {
       inline_field(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")),
         label = "Combine using", 6,
         tooltip = "'Intersect' requires rows to satisfy every selected contrast filter; 'union' includes rows matching any one of them."
@@ -776,6 +835,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   })
 
   inputsReady <- reactive({
+    filter_generation()
     if (!inputsInitialised(input$filterRows, input$combine_operator) || length(engine_state$inserted) == 0) {
       return(FALSE)
     }

@@ -125,14 +125,37 @@ enrichmentoverview <- function(id, eselist) {
       select_genes = FALSE, select_meta = FALSE
     )
 
-    inputsReady <- reactive({
-      req(
-        selectmatrix_reactives$inputsReady(),
-        inputsInitialised(
-          input$gene_set_type, input$selected_contrasts,
-          input$rank_by, input$top_n, input$max_fdr
-        )
+    overviewControlContext <- reactive({
+      ese <- selectmatrix_reactives$getExperiment()
+      assay <- selectmatrix_reactives$getAssay()
+      list(
+        experiment = selectmatrix_reactives$getExperimentId(),
+        assay = assay,
+        gene_set_types = names(ese@gene_set_analyses[[assay]])
       )
+    })
+
+    observeEvent(overviewControlContext(), {
+      freezeReactiveInputs(input, "gene_set_type", "selected_contrasts")
+    }, ignoreInit = TRUE, priority = 1000)
+
+    observeEvent(input$gene_set_type, {
+      freezeReactiveInputs(input, "selected_contrasts")
+    }, ignoreInit = TRUE, priority = 1000)
+
+    inputsReady <- reactive({
+      req(selectmatrix_reactives$inputsReady())
+      if (!inputsInitialised(
+        input$gene_set_type, input$selected_contrasts,
+        input$rank_by, input$top_n, input$max_fdr
+      ) || length(input$gene_set_type) != 1 || !input$gene_set_type %in% getGeneSetTypes()) {
+        return(FALSE)
+      }
+      available_contrasts <- unname(getAvailableContrasts())
+      selected_contrasts <- suppressWarnings(as.integer(input$selected_contrasts))
+      if (anyNA(selected_contrasts) || !all(selected_contrasts %in% available_contrasts)) {
+        return(FALSE)
+      }
       TRUE
     })
 

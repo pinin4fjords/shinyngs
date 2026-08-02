@@ -68,6 +68,29 @@ test_that("contrast filter set initial values match selection and restore state"
   ))
 })
 
+test_that("destroyContrastFilterObservers destroys only the requested observer sets", {
+  destroyed <- character()
+  make_observer <- function(id) {
+    list(destroy = function() destroyed <<- c(destroyed, id))
+  }
+  observer_sets <- list(
+    filter0 = list(make_observer("filter0-a"), make_observer("filter0-b")),
+    filter1 = list(make_observer("filter1"))
+  )
+
+  remaining <- destroyContrastFilterObservers(observer_sets, "filter0")
+
+  expect_setequal(destroyed, c("filter0-a", "filter0-b"))
+  expect_null(remaining$filter0)
+  expect_length(remaining$filter1, 1)
+
+  remaining <- destroyContrastFilterObservers(remaining, "filter0")
+  remaining <- destroyContrastFilterObservers(remaining)
+
+  expect_setequal(destroyed, c("filter0-a", "filter0-b", "filter1"))
+  expect_length(remaining, 0)
+})
+
 test_that("base contrast tables do not force the selected expression subset", {
   selected_matrix_calls <- 0L
   selected_rows_calls <- 0L

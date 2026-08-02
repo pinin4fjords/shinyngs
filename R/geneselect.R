@@ -121,6 +121,22 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       selected
     })
 
+    geneSelectUiContext <- reactive({
+      list(
+        methods = getGeneSelectMethods(),
+        variance_range = variance_slider_range(var_n, var_max)
+      )
+    })
+
+    observeEvent(geneSelectUiContext(), {
+      freezeReactiveInputs(input, c(
+        "geneSelect", "obs",
+        "gene_label_pick-metaField", "gene_label_pick-label", "gene_label_pick-ids",
+        "gene_label_list-metaField", "gene_label_list-label", "gene_label_list-ids",
+        "geneset-geneSetTypes", "geneset-geneSets", "geneset-overlapType"
+      ))
+    }, ignoreInit = TRUE, priority = 1000)
+
     # Render the geneSelect UI element
 
     output$geneSelect_ui <- renderUI({
@@ -189,17 +205,21 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
     # Debounce the "top N most variant rows" slider so dragging it doesn't
     # trigger a row/expression matrix recompute on every tick.
 
+    obsValue <- reactive(input$obs) %>% debounce(300)
+
     getObs <- reactive({
-      req(inputsInitialised(input$obs))
-      input$obs
-    }) %>% debounce(300)
+      value <- obsValue()
+      req(inputsInitialised(value))
+      value
+    })
 
     inputsReady <- reactive({
-      if (!inputsInitialised(input$geneSelect)) {
+      methods <- unname(getGeneSelectMethods())
+      if (!inputsInitialised(input$geneSelect) || length(input$geneSelect) != 1 || !input$geneSelect %in% methods) {
         return(FALSE)
       }
       if (input$geneSelect == "variance") {
-        return(inputsInitialised(input$obs))
+        return(inputsInitialised(obsValue()))
       }
       if (input$geneSelect == "metadata_pick") {
         return(lsf_picked_methods$inputsReady())

@@ -54,6 +54,23 @@ test_that("getZAxis is NULL in 2D mode even if a zAxis input exists", {
   )
 })
 
+test_that("scatterplot controls fall back to 2D when only two axes are available", {
+  m <- make_scatterplot_matrix()[, 1:2, drop = FALSE]
+
+  shiny::testServer(
+    scatterplotcontrols,
+    args = list(id = "scatter", getDatamatrix = reactive(m)),
+    {
+      session$setInputs(threedee = "TRUE", xAxis = 1, yAxis = 2, zAxis = 1, showLabels = FALSE, pointSize = 5)
+      session$elapse(400)
+
+      expect_false(getThreedee())
+      expect_null(getZAxis())
+      expect_true(inputsReady())
+    }
+  )
+})
+
 test_that("getShowLabels and getPointSize reflect their inputs", {
   m <- make_scatterplot_matrix()
 

@@ -109,6 +109,8 @@ selectmatrix_valid_experiment_ids <- function(eselist, require_contrast_stats = 
 selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
   moduleServer(id, function(input, output, session) {
     valid_experiment_ids <- selectmatrix_valid_experiment_ids(eselist, require_contrast_stats)
+    input_generation <- new.env(parent = emptyenv())
+    input_generation$experiment_id <- valid_experiment_ids[1]
     metafields_experiment_id <- valid_experiment_ids[1]
     initial_metafields <- character()
     if (length(valid_experiment_ids) > 0) {
@@ -135,6 +137,25 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
 
     ns <- session$ns
+
+    observeEvent(input$experiment, {
+      experiment_id <- getExperimentId()
+      if (!identical(experiment_id, input_generation$experiment_id)) {
+        freezeReactiveInputs(input, c(
+          "assay", "metafields",
+          "selectmatrix-sampleSelect", "selectmatrix-samples",
+          "selectmatrix-sampleGroupVar", "selectmatrix-sampleGroupVal",
+          "selectmatrix-summarise-summaryType",
+          "selectmatrix-geneSelect", "selectmatrix-obs",
+          "selectmatrix-gene_label_pick-metaField", "selectmatrix-gene_label_pick-label",
+          "selectmatrix-gene_label_pick-ids", "selectmatrix-gene_label_list-metaField",
+          "selectmatrix-gene_label_list-label", "selectmatrix-gene_label_list-ids",
+          "selectmatrix-geneset-geneSetTypes", "selectmatrix-geneset-geneSets",
+          "selectmatrix-geneset-overlapType"
+        ))
+      }
+      input_generation$experiment_id <- experiment_id
+    }, ignoreNULL = TRUE, priority = 1000)
 
     output$assay_ui <- renderUI({
       withProgress(message = "Rendering assay drop-down", value = 0, {

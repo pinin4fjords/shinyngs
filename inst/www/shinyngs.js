@@ -154,11 +154,9 @@
   });
 
   var PAGE_LOAD_QUIET_MS = 650;
-  var PAGE_LOAD_INTERACTION_WINDOW_MS = 2000;
   var pageLoadActive = true;
   var pageLoadConnected = false;
   var pageLoadLastActivityAt = Date.now();
-  var pageLoadLastUserActionAt = 0;
   var pageLoadTimer = null;
 
   function pageLoader() {
@@ -234,28 +232,9 @@
     });
   }
 
-  function isPageTabControl(el) {
-    if (!el || !el.matches) return false;
-    if (el.matches('[data-bs-toggle="dropdown"], [data-toggle="dropdown"]')) return false;
-    return el.matches(
-      '[role="tab"], [data-bs-toggle="tab"], [data-toggle="tab"], .shinyngs-jump a'
-    );
-  }
-
-  document.addEventListener("click", function (event) {
-    if (!event.target.closest) return;
-    var control = event.target.closest(
-      '[role="tab"], [data-bs-toggle="tab"], [data-toggle="tab"], .shinyngs-jump a'
-    );
-    if (isPageTabControl(control)) beginPageLoad();
-  }, true);
-
-  function recordPageInteraction(event) {
-    if (event.target.closest && event.target.closest(".tab-content")) pageLoadLastUserActionAt = Date.now();
-  }
-
-  document.addEventListener("pointerdown", recordPageInteraction, true);
-  document.addEventListener("keydown", recordPageInteraction, true);
+  $(document).on("show.bs.tab.shinyngsPageLoad", ".navbar a[data-value]", function () {
+    beginPageLoad();
+  });
 
   $(document).on("shiny:connected", function () {
     pageLoadConnected = true;
@@ -263,10 +242,6 @@
   });
 
   $(document).on("shiny:busy", function () {
-    if (!pageLoadActive && Date.now() - pageLoadLastUserActionAt < PAGE_LOAD_INTERACTION_WINDOW_MS) {
-      beginPageLoad();
-      return;
-    }
     notePageLoadActivity();
   });
 

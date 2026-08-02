@@ -72,6 +72,11 @@ labelselectfieldInput <- function(id, max_items = 1, id_selection = FALSE) {
 #'
 labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_experiments = FALSE, url_field = "label", max_items = 1, field_selection = FALSE, id_selection = FALSE, getNonEmptyRows = NULL, list_input = FALSE) {
   moduleServer(id, function(input, output, session) {
+    input_generation <- new.env(parent = emptyenv())
+    input_generation$experiments <- NULL
+    input_generation$meta_field <- NULL
+    input_generation$label <- NULL
+
     # This module will normally be initialised with a reactive that returns the currently selected experiment, whose metadata will be used for gene symbols
     # etc.  But if that reactive is not present, we can use values from ALL experiments. In the latter case the field will be more static, in the former it
     # will depend on the value of any experiment-selecting field.
@@ -103,6 +108,40 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       if (has_slot_data(ese, "idfield")) ese@idfield else "id"
     })
 
+    experimentInputContext <- reactive({
+      lapply(getExperiments(), function(ese) {
+        list(
+          rows = rownames(ese),
+          id_field = if (has_slot_data(ese, "idfield")) ese@idfield else "id",
+          label_field = ese@labelfield
+        )
+      })
+    })
+
+    observeEvent(experimentInputContext(), {
+      context <- experimentInputContext()
+      if (!is.null(input_generation$experiments) && !identical(context, input_generation$experiments)) {
+        freezeReactiveInputs(input, "metaField", "label", "ids")
+      }
+      input_generation$experiments <- context
+    }, priority = 1000)
+
+    observeEvent(input$metaField, {
+      meta_field <- input$metaField
+      if (!is.null(input_generation$meta_field) && !identical(meta_field, input_generation$meta_field)) {
+        freezeReactiveInputs(input, "label", "ids")
+      }
+      input_generation$meta_field <- meta_field
+    }, ignoreNULL = TRUE, priority = 1000)
+
+    observeEvent(input$label, {
+      label <- input$label
+      if (!is.null(input_generation$label) && !identical(label, input_generation$label)) {
+        freezeReactiveInputs(input, "ids")
+      }
+      input_generation$label <- label
+    }, ignoreNULL = TRUE, priority = 1000)
+
     output$metaFields <- renderUI({
       ns <- session$ns
 
@@ -119,7 +158,9 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
     # Fetch the meta field from the input
 
     getSelectedMetaField <- reactive({
-      if (is.null(input$metaField)) getDefaultMetaField() else input$metaField
+      valid_fields <- if (field_selection) getMetaFields() else getDefaultMetaField()
+      selected <- input$metaField
+      if (length(selected) != 1 || !selected %in% valid_fields) getDefaultMetaField() else selected
     })
 
     ### META-FIELD VALUE SELECTION
@@ -133,7 +174,11 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
       if (list_input) {
         tags$textarea(id = ns("label"), rows = 3, cols = 20, "Paste list here, one per line")
       } else {
-        selectizeInput(ns("label"), prettify_variable_name(mf), choices = NULL, options = list(
+        selected <- restored_label
+        if (is.null(selected)) {
+          selected <- getDefaultLabel()
+        }
+        selectizeInput(ns("label"), prettify_variable_name(mf), choices = selected, selected = selected, options = list(
           placeholder = "Type a value or scroll", maxItems = max_items,
           addPrecedence = TRUE
         ))
@@ -289,15 +334,28 @@ labelselectfield <- function(id, eselist, getExperiment = NULL, labels_from_all_
 
     updateLabelField <- reactive({
       query <- parseQueryString(session$clientData$url_search)
-      updateSelectizeInput(session, "label", selected = query[[url_field]], choices = getValidLabels(), server = TRUE)
+      selected <- query[[url_field]]
+      if (!is.null(selected) && !identical(selected, isolate(input$label))) {
+        freezeReactiveInputs(input, "label", "ids")
+      }
+      updateSelectizeInput(session, "label", selected = selected, choices = getValidLabels(), server = TRUE)
     })
 
     inputsReady <- reactive({
-      required <- list(input$metaField, input$label)
-      if (id_selection) {
-        required <- c(required, list(input$ids))
+      valid_fields <- if (field_selection) getMetaFields() else getDefaultMetaField()
+      if (!inputsInitialised(input$metaField, input$label) ||
+          length(input$metaField) != 1 || !input$metaField %in% valid_fields) {
+        return(FALSE)
       }
-      do.call(inputsInitialised, required)
+      if (!list_input && !all(input$label %in% getValidLabels())) {
+        return(FALSE)
+      }
+      if (id_selection) {
+        if (!inputsInitialised(input$ids) || !all(input$ids %in% getAssociatedIds())) {
+          return(FALSE)
+        }
+      }
+      TRUE
     })
 
     list(

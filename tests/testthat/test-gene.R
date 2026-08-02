@@ -225,6 +225,7 @@ test_that("gene offers a differential effects plot for at least three contrasts"
 
 test_that("gene omits the differential effects plot for multiple selected genes", {
   eselist <- shinytest2_eselist()
+  S4Vectors::mcols(eselist[[1]])$gene_name[2] <- "Gene1"
   contrast_stats <- eselist[[1]]@contrast_stats$counts
   contrast_stats <- lapply(contrast_stats, function(values) {
     result <- values[, rep(1, 3), drop = FALSE]

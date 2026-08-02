@@ -74,6 +74,17 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
       }
     })
 
+    groupbyUiContext <- reactive({
+      list(
+        dynamic = isDynamic(),
+        default = if (has_slot_data(eselist, "group_vars")) getDefaultGroupby() else "NULL"
+      )
+    })
+
+    observeEvent(groupbyUiContext(), {
+      freezeReactiveInputs(input, "groupby")
+    }, ignoreInit = TRUE, priority = 1000)
+
     # Render function for the field
 
     output$groupby_fields <- renderUI({
@@ -136,7 +147,13 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
       if (color) {
         required <- c(required, list(input[["groupby-palette_name"]]))
       }
-      do.call(inputsInitialised, required)
+      if (!do.call(inputsInitialised, required)) {
+        return(FALSE)
+      }
+      if (!has_slot_data(eselist, "group_vars")) {
+        return(identical(input$groupby, "NULL"))
+      }
+      all(input$groupby %in% eselist@group_vars)
     })
 
     list(

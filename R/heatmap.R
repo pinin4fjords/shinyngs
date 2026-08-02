@@ -278,10 +278,12 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
     # rerun the ANOVA on every tick. Only the pca type has this slider.
 
     if (type == "pca") {
+      nComponentsValue <- reactive(input$n_components) %>% debounce(300)
       getNComponents <- reactive({
-        req(inputsInitialised(input$n_components))
-        input$n_components
-      }) %>% debounce(300)
+        value <- nComponentsValue()
+        req(inputsInitialised(value))
+        value
+      })
     }
 
     inputsReady <- reactive({
@@ -291,7 +293,7 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
         inputsInitialised(input$cluster_rows, input$cluster_cols, input$scale)
       )
       if (type == "pca") {
-        req(inputsInitialised(input$n_components))
+        req(inputsInitialised(nComponentsValue()))
       }
       TRUE
     })
