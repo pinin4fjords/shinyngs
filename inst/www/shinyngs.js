@@ -237,7 +237,6 @@
   function isPageTabControl(el) {
     if (!el || !el.matches) return false;
     if (el.matches('[data-bs-toggle="dropdown"], [data-toggle="dropdown"]')) return false;
-    if (el.matches('.active, [aria-selected="true"]')) return false;
     return el.matches(
       '[role="tab"], [data-bs-toggle="tab"], [data-toggle="tab"], .shinyngs-jump a'
     );
