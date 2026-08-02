@@ -11,18 +11,16 @@ test_that("simpletable renders the display matrix as a datatable", {
   )
 })
 
-test_that("simpletable uses the stable loading treatment by default", {
+test_that("simpletable leaves loading feedback to the page by default", {
   html <- as.character(simpletableOutput("table"))
 
-  expect_match(html, "shinyngs-stable-spinner", fixed = TRUE)
-  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
-  expect_false(grepl("shiny-spinner-hideui", html, fixed = TRUE))
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })
 
-test_that("simpletable can opt out of the loading treatment", {
-  html <- as.character(simpletableOutput("table", spinner = FALSE))
+test_that("simpletable retains its explicit output-spinner option", {
+  html <- as.character(simpletableOutput("table", spinner = TRUE))
 
-  expect_false(grepl("shinyngs-stable-spinner", html, fixed = TRUE))
+  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
 })
 
 test_that("datatable escaping is enabled for ordinary data", {

@@ -152,4 +152,141 @@
     setPlotFormatButtonState(btn, next);
     if (window.Shiny) Shiny.setInputValue("shinyngs_plot_format", next, { priority: "event" });
   });
+
+  var PAGE_LOAD_QUIET_MS = 650;
+  var PAGE_LOAD_INTERACTION_WINDOW_MS = 2000;
+  var pageLoadActive = true;
+  var pageLoadConnected = false;
+  var pageLoadLastActivityAt = Date.now();
+  var pageLoadLastUserActionAt = 0;
+  var pageLoadTimer = null;
+
+  function pageLoader() {
+    return document.getElementById("shinyngs-page-loader");
+  }
+
+  function elementIsVisible(el) {
+    if (!el || !el.isConnected) return false;
+    var style = getComputedStyle(el);
+    return style.display !== "none" && style.visibility !== "hidden" && el.getClientRects().length > 0;
+  }
+
+  function pageHasActiveWork() {
+    if (!pageLoadConnected || document.documentElement.classList.contains("shiny-busy")) return true;
+    if (document.querySelector(".shiny-progress-notification")) return true;
+    return Array.prototype.some.call(document.querySelectorAll(".recalculating"), elementIsVisible);
+  }
+
+  function showPageLoader() {
+    var loader = pageLoader();
+    if (!loader) return;
+    loader.classList.remove("shinyngs-page-loader--hidden");
+    loader.removeAttribute("aria-hidden");
+  }
+
+  function hidePageLoader() {
+    var loader = pageLoader();
+    if (loader) {
+      loader.classList.add("shinyngs-page-loader--hidden");
+      loader.setAttribute("aria-hidden", "true");
+    }
+    pageLoadActive = false;
+    pageLoadTimer = null;
+  }
+
+  function schedulePageLoadCheck(delay) {
+    if (!pageLoadActive) return;
+    clearTimeout(pageLoadTimer);
+    pageLoadTimer = setTimeout(checkPageLoadComplete, delay === undefined ? PAGE_LOAD_QUIET_MS : delay);
+  }
+
+  function notePageLoadActivity() {
+    if (!pageLoadActive) return;
+    pageLoadLastActivityAt = Date.now();
+    schedulePageLoadCheck();
+  }
+
+  function beginPageLoad() {
+    pageLoadActive = true;
+    pageLoadLastActivityAt = Date.now();
+    showPageLoader();
+    schedulePageLoadCheck();
+  }
+
+  function checkPageLoadComplete() {
+    if (!pageLoadActive) return;
+    if (pageHasActiveWork()) {
+      notePageLoadActivity();
+      return;
+    }
+    var quietFor = Date.now() - pageLoadLastActivityAt;
+    if (quietFor < PAGE_LOAD_QUIET_MS) {
+      schedulePageLoadCheck(PAGE_LOAD_QUIET_MS - quietFor);
+      return;
+    }
+    hidePageLoader();
+  }
+
+  function classifyProgressNotifications() {
+    document.querySelectorAll(".shiny-progress-notification").forEach(function (progress) {
+      var notification = progress.closest(".shiny-notification");
+      if (notification) notification.classList.add("shinyngs-progress-notification");
+    });
+  }
+
+  function isPageTabControl(el) {
+    if (!el || !el.matches) return false;
+    if (el.matches('[data-bs-toggle="dropdown"], [data-toggle="dropdown"]')) return false;
+    if (el.matches('.active, [aria-selected="true"]')) return false;
+    return el.matches(
+      '[role="tab"], [data-bs-toggle="tab"], [data-toggle="tab"], .shinyngs-jump a'
+    );
+  }
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest) return;
+    var control = event.target.closest(
+      '[role="tab"], [data-bs-toggle="tab"], [data-toggle="tab"], .shinyngs-jump a'
+    );
+    if (isPageTabControl(control)) beginPageLoad();
+  }, true);
+
+  function recordPageInteraction(event) {
+    if (event.target.closest && event.target.closest(".tab-content")) pageLoadLastUserActionAt = Date.now();
+  }
+
+  document.addEventListener("pointerdown", recordPageInteraction, true);
+  document.addEventListener("keydown", recordPageInteraction, true);
+
+  $(document).on("shiny:connected", function () {
+    pageLoadConnected = true;
+    notePageLoadActivity();
+  });
+
+  $(document).on("shiny:busy", function () {
+    if (!pageLoadActive && Date.now() - pageLoadLastUserActionAt < PAGE_LOAD_INTERACTION_WINDOW_MS) {
+      beginPageLoad();
+      return;
+    }
+    notePageLoadActivity();
+  });
+
+  $(document).on("shiny:idle shiny:recalculating shiny:value", function () {
+    notePageLoadActivity();
+  });
+
+  $(function () {
+    classifyProgressNotifications();
+    new MutationObserver(function (mutations) {
+      var notificationChanged = mutations.some(function (mutation) {
+        var target = mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
+        return target && target.closest && target.closest("#shiny-notification-panel");
+      });
+      if (notificationChanged) {
+        classifyProgressNotifications();
+        notePageLoadActivity();
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+    schedulePageLoadCheck();
+  });
 })();

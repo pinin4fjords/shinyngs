@@ -90,10 +90,10 @@ test_that("assaydatatable's title names the selected assay", {
   })
 })
 
-test_that("assaydatatable output binds the table and spinner in the initial UI", {
+test_that("assaydatatable output binds the table in the initial UI", {
   html <- as.character(assaydatatableOutput("assaydatatable"))
 
   expect_match(html, 'id="assaydatatable-assaydatatable-datatable"', fixed = TRUE)
   expect_match(html, 'id="assaydatatable-assaydatatable_title"', fixed = TRUE)
-  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })

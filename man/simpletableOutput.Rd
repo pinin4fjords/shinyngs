@@ -4,7 +4,7 @@
 \alias{simpletableOutput}
 \title{The output function of the simpletable module}
 \usage{
-simpletableOutput(id, tabletitle = NULL, spinner = TRUE)
+simpletableOutput(id, tabletitle = NULL, spinner = FALSE)
 }
 \arguments{
 \item{id}{Module namespace}

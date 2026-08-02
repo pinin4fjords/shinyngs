@@ -212,7 +212,7 @@ heatmapOutput <- function(id, type = "") {
   ns <- NS(id)
   spec <- heatmap_modal_specs[[type]]
   help <- if (is.null(spec)) NULL else modalInput(ns(spec$id), "help", "help")
-  pvalues_table <- if (type == "pca") simpletableOutput(ns("pvalues"), tabletitle = PCA_HEATMAP_PVALUES_TABLE_TITLE, spinner = TRUE) else NULL
+  pvalues_table <- if (type == "pca") simpletableOutput(ns("pvalues"), tabletitle = PCA_HEATMAP_PVALUES_TABLE_TITLE) else NULL
 
   moduleMain(NULL, uiOutput(ns("heatmap_ui")), pvalues_table, help = help)
 }
@@ -291,7 +291,7 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
 
     output$heatmap_ui <- renderUI({
       withProgress(message = "Preparing heatmap container", value = 0, {
-        list(h3(makeTitle()), shinyngsSpinner(plotly::plotlyOutput(ns("interactive_heatmap"), height = plotHeight())))
+        list(h3(makeTitle()), plotly::plotlyOutput(ns("interactive_heatmap"), height = plotHeight()))
       })
     })
 

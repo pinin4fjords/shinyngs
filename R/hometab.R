@@ -106,7 +106,7 @@ homeTab <- function(ns, eselist, platform = "RNA-seq") {
     class = "shinyngs-home",
     h2(class = "shinyngs-study-title", eselist@title),
     h3(class = "shinyngs-study-author", eselist@author),
-    div(class = "shinyngs-overview", shinyngsSpinner(summarytilesOutput(ns("summarytiles")))),
+    div(class = "shinyngs-overview", summarytilesOutput(ns("summarytiles"))),
     div(
       class = "shinyngs-desc",
       h2(class = "shinyngs-eyebrow", "About this study"),

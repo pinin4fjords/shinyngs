@@ -98,14 +98,46 @@ h3{
   padding-right: 2.25rem;
 }
 
-/* Rapid reactive invalidations should not flash a loading indicator between
-   completed output frames. Longer calculations reveal the indicator once. */
-.shinyngs-stable-spinner .load-container:not(.shiny-spinner-hidden){
-  opacity: 0;
-  animation: shinyngs-reveal-spinner 0s linear .5s forwards;
+/* One overlay represents the complete navigation cycle. It is visible in the
+   initial HTML and hidden only after the client observes a stable idle state. */
+.shinyngs-page-loader{
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--bs-body-bg-rgb), .86);
+  backdrop-filter: blur(1px);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .15s ease, visibility 0s linear 0s;
 }
-@keyframes shinyngs-reveal-spinner{
-  to { opacity: 1; }
+.shinyngs-page-loader--hidden{
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease, visibility 0s linear .15s;
+}
+.shinyngs-page-loader__spinner{
+  width: 3.25rem;
+  height: 3.25rem;
+  border: .35rem solid rgba(var(--bs-primary-rgb), .2);
+  border-top-color: var(--bs-primary);
+  border-radius: 50%;
+  animation: shinyngs-page-loader-spin .8s linear infinite;
+}
+@keyframes shinyngs-page-loader-spin{
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce){
+  .shinyngs-page-loader__spinner{ animation-duration: 1.6s; }
+}
+
+/* Progress notifications describe work already represented by the page
+   loader. Other Shiny notifications remain available to the user. */
+#shiny-notification-panel .shiny-notification:has(.shiny-progress-notification),
+#shiny-notification-panel .shinyngs-progress-notification{
+  display: none !important;
 }
 
 /* DataTables ships fixed light-theme text/border/stripe colours that do not

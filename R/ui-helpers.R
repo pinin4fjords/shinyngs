@@ -76,7 +76,14 @@ shinyngsPageNavbar <- function(navbar_menus) {
     tags$link(rel = "icon", type = "image/svg+xml", href = "shinyngs-www/favicon.svg"),
     tags$link(rel = "alternate icon", href = "shinyngs-www/favicon.ico")
   )
-  navbar_menus$header <- tagList(no_flash, favicon, includeCSS(cssfile), includeScript(jsfile), shinyjs::useShinyjs())
+  navbar_menus$header <- tagList(
+    no_flash,
+    favicon,
+    includeCSS(cssfile),
+    includeScript(jsfile),
+    shinyjs::useShinyjs(),
+    shinyngsPageLoader()
+  )
   navbar_menus <- c(navbar_menus, list(
     bslib::nav_spacer(),
     bslib::nav_item(actionButton(
@@ -283,6 +290,28 @@ moduleMain <- function(title, ..., help = NULL) {
   )
 }
 
+#' Create the app-wide page loading indicator
+#'
+#' The indicator is visible in the initial HTML so it covers work that starts
+#' before the Shiny connection is ready. Its client-side state is managed by
+#' \code{shinyngs.js}.
+#'
+#' @return A fixed loading overlay
+#'
+#' @keywords internal
+#'
+shinyngsPageLoader <- function() {
+  tags$div(
+    id = "shinyngs-page-loader",
+    class = "shinyngs-page-loader",
+    role = "status",
+    `aria-live` = "polite",
+    `aria-label` = "Loading page",
+    tags$div(class = "shinyngs-page-loader__spinner", `aria-hidden` = "true"),
+    tags$span(class = "visually-hidden", "Loading page")
+  )
+}
+
 #' Accent colour for loading spinners
 #'
 #' \code{shinycssloaders::withSpinner()} bakes its colour into a literal CSS
@@ -297,24 +326,6 @@ moduleMain <- function(title, ..., help = NULL) {
 #'
 shinyngsSpinnerColor <- function() {
   SHINYNGS_ACCENT
-}
-
-#' Wrap an output in the shared shinyngs loading indicator
-#'
-#' The current output remains visible during recalculation and CSS delays the
-#' indicator briefly, preventing fast reactive invalidations from flashing.
-#'
-#' @param output An output element to wrap
-#'
-#' @return The wrapped output element
-#'
-#' @keywords internal
-#'
-shinyngsSpinner <- function(output) {
-  htmltools::tagAppendAttributes(
-    shinycssloaders::withSpinner(output, color = shinyngsSpinnerColor(), hide.ui = FALSE),
-    class = "shinyngs-stable-spinner"
-  )
 }
 
 #' Apply shinyngs' shared plotly toolbar configuration

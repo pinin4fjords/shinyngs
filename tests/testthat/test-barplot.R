@@ -1,9 +1,7 @@
-# barplotOutput()
-
-test_that("barplotOutput uses the stable loading treatment", {
+test_that("barplotOutput leaves loading feedback to the page", {
   html <- as.character(barplotOutput("barplot"))
 
-  expect_match(html, "shinyngs-stable-spinner", fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })
 
 # interactive_barchart()

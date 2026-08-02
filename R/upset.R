@@ -83,7 +83,7 @@ upsetOutput <- function(id, eselist) {
   moduleMain(
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
-    shinyngsSpinner(plotlyOutput(ns("interactive_upset"), height = "600px")),
+    plotlyOutput(ns("interactive_upset"), height = "600px"),
     help = modalInput(ns(upset_modal$id), "help", "help")
   )
 }

@@ -84,11 +84,11 @@ pcaOutput <- function(id) {
   moduleMain(
     "Principal components analysis",
     tabsetPanel(
-      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"), spinner = TRUE)),
-      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings", spinner = TRUE))),
+      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
+      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings"))),
       tabPanel("Scree plot", list(
-        shinyngsSpinner(plotlyOutput(ns("screeplot"), height = "600px")),
-        simpletableOutput(ns("screeplot"), tabletitle = "Scree", spinner = TRUE)
+        plotlyOutput(ns("screeplot"), height = "600px"),
+        simpletableOutput(ns("screeplot"), tabletitle = "Scree")
       ))
     ),
     help = modalInput(ns(pca_modal$id), "help", "help")

@@ -79,9 +79,9 @@ clusteringOutput <- function(id) {
   moduleMain(
     NULL,
     uiOutput(ns("geneClusteringTitle")),
-    shinyngsSpinner(plotlyOutput(ns("geneClusteringPlot"), height = "600px")),
+    plotlyOutput(ns("geneClusteringPlot"), height = "600px"),
     h4("Table of values by cluster"),
-    simpletableOutput(ns("geneClusteringTable"), spinner = TRUE),
+    simpletableOutput(ns("geneClusteringTable")),
     help = modalInput(ns(clustering_modal$id), "help", "help")
   )
 }

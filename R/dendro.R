@@ -64,7 +64,7 @@ dendroOutput <- function(id) {
   ns <- NS(id)
   moduleMain(
     "Sample clustering dendrogram",
-    shinyngsSpinner(plotlyOutput(ns("sampleDendroPlot"), height = "480px")),
+    plotlyOutput(ns("sampleDendroPlot"), height = "480px"),
     help = modalInput(ns(dendro_modal$id), "help", "help")
   )
 }

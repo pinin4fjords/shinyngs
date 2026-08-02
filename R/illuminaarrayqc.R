@@ -53,7 +53,7 @@ illuminaarrayqcOutput <- function(id) {
 
   moduleMain(
     "Illumina microarray QC plot",
-    shinyngsSpinner(plotlyOutput(ns("qcplot"), height = "600px")),
+    plotlyOutput(ns("qcplot"), height = "600px"),
     h4("Table of data"),
     simpletableOutput(ns("qctable")),
     help = modalInput(ns(illuminaarrayqc_modal$id), "help", "help")

@@ -48,7 +48,7 @@ simpletableInput <- function(id, tabletitle = "", description = NULL) {
 #' @examples
 #' simpletableOutput("simpletable", "my title")
 #'
-simpletableOutput <- function(id, tabletitle = NULL, spinner = TRUE) {
+simpletableOutput <- function(id, tabletitle = NULL, spinner = FALSE) {
   ns <- NS(id)
 
   outputs <- list()
@@ -58,7 +58,7 @@ simpletableOutput <- function(id, tabletitle = NULL, spinner = TRUE) {
 
   datatable <- DT::dataTableOutput(ns("datatable"))
   if (spinner) {
-    datatable <- shinyngsSpinner(datatable)
+    datatable <- shinycssloaders::withSpinner(datatable, color = shinyngsSpinnerColor())
   }
   outputs <- push_to_list(outputs, datatable)
 

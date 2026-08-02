@@ -72,8 +72,7 @@ assaydatatableOutput <- function(id) {
     NULL,
     simpletableOutput(
       ns("assaydatatable"),
-      tabletitle = textOutput(ns("assaydatatable_title"), inline = TRUE),
-      spinner = TRUE
+      tabletitle = textOutput(ns("assaydatatable_title"), inline = TRUE)
     ),
     help = modalInput(ns(assaydatatable_modal$id), "help", "help")
   )

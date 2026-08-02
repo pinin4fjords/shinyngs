@@ -112,7 +112,7 @@ genesetanalysistableOutput <- function(id) {
   moduleMain(
     "Gene set analysis",
     uiOutput(ns("enrichmentMethod")),
-    simpletableOutput(ns("genesetanalysistable"), spinner = TRUE),
+    simpletableOutput(ns("genesetanalysistable")),
     help = modalInput(ns(genesetanalysistable_modal$id), "help", "help")
   )
 }

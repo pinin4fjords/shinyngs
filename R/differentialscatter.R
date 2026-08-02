@@ -79,8 +79,7 @@ differentialscatterOutput <- function(id, scatter_id, title, modal) {
     scatterplotOutput(ns(scatter_id)),
     simpletableOutput(
       ns(paste0(scatter_id, "table")),
-      tabletitle = textOutput(ns(paste0(scatter_id, "table_title")), inline = TRUE),
-      spinner = TRUE
+      tabletitle = textOutput(ns(paste0(scatter_id, "table_title")), inline = TRUE)
     ),
     help = modalInput(ns(modal$id), "help", "help")
   )

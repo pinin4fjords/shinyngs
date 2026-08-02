@@ -98,7 +98,7 @@ dexseqtableOutput <- function(id) {
 
   moduleMain(
     "Differential exon usage",
-    simpletableOutput(ns("dexseqtable"), spinner = TRUE),
+    simpletableOutput(ns("dexseqtable")),
     help = modalInput(ns(dexseqtable_modal$id), "help", "help")
   )
 }

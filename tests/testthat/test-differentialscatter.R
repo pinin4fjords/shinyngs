@@ -1,6 +1,6 @@
 # annotateDifferentialTable()
 
-test_that("differential scatter output binds its table and spinner in the initial UI", {
+test_that("differential scatter output binds its table in the initial UI", {
   html <- as.character(differentialscatterOutput(
     "ma", scatter_id = "ma", title = "MA plot",
     modal = list(id = "maplot", title = "MA plots")
@@ -8,7 +8,7 @@ test_that("differential scatter output binds its table and spinner in the initia
 
   expect_match(html, 'id="ma-matable-datatable"', fixed = TRUE)
   expect_match(html, 'id="ma-matable_title"', fixed = TRUE)
-  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })
 
 test_that("annotateDifferentialTable marks matched, highlighted and hidden rows and labels only the visible ones", {

@@ -118,12 +118,12 @@ test_that("differentialtable's title tracks the selected assay", {
   }))
 })
 
-test_that("differentialtable output binds the table and spinner in the initial UI", {
+test_that("differentialtable output binds the table in the initial UI", {
   html <- as.character(differentialtableOutput("differential"))
 
   expect_match(html, 'id="differential-differentialtable-datatable"', fixed = TRUE)
   expect_match(html, 'id="differential-differentialtable_title"', fixed = TRUE)
-  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })
 
 test_that("differentialtable renders a simpletable datatable of the differential expression results", {

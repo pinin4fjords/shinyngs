@@ -198,7 +198,7 @@ enrichmentoverview <- function(id, eselist) {
 
     output$plot_ui <- renderUI({
       height <- min(1100, max(460, length(unique(getPreparedEnrichmentOverview()$gene_set_id)) * 34 + 190))
-      shinyngsSpinner(plotlyOutput(session$ns("plot"), height = paste0(height, "px")))
+      plotlyOutput(session$ns("plot"), height = paste0(height, "px"))
     })
 
     getEnrichmentOverviewPlot <- reactive({

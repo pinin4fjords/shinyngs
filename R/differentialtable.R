@@ -50,8 +50,7 @@ differentialtableOutput <- function(id) {
     NULL,
     simpletableOutput(
       ns("differentialtable"),
-      tabletitle = textOutput(ns("differentialtable_title"), inline = TRUE),
-      spinner = TRUE
+      tabletitle = textOutput(ns("differentialtable_title"), inline = TRUE)
     ),
     contrastsOutput(ns("differential")),
     help = modalInput(ns(differentialtable_modal$id), "help", "help")

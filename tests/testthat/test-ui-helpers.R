@@ -74,14 +74,15 @@ test_that("shinyngsSpinnerColor returns the brand accent hex colour", {
   expect_match(shinyngsSpinnerColor(), "^#[0-9a-f]{6}$")
 })
 
-# shinyngsSpinner()
+# shinyngsPageLoader()
 
-test_that("shinyngsSpinner applies the stable shared loading treatment", {
-  html <- as.character(shinyngsSpinner(tags$div(id = "result")))
+test_that("shinyngsPageLoader is visible and accessible in the initial HTML", {
+  html <- as.character(shinyngsPageLoader())
 
-  expect_match(html, "shinyngs-stable-spinner", fixed = TRUE)
-  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
-  expect_false(grepl("shiny-spinner-hideui", html, fixed = TRUE))
+  expect_match(html, 'id="shinyngs-page-loader"', fixed = TRUE)
+  expect_match(html, 'role="status"', fixed = TRUE)
+  expect_match(html, 'aria-label="Loading page"', fixed = TRUE)
+  expect_false(grepl("shinyngs-page-loader--hidden", html, fixed = TRUE))
 })
 
 # shinyngsPlotlyConfig()

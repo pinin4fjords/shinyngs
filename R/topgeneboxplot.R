@@ -286,7 +286,7 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     output$plot_ui <- renderUI({
-      shinyngsSpinner(plotlyOutput(session$ns("topgeneBoxplot"), height = plotHeight()))
+      plotlyOutput(session$ns("topgeneBoxplot"), height = plotHeight())
     })
 
     output$topgeneBoxplot <- renderPlotly({

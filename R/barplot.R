@@ -30,7 +30,7 @@ barplotInput <- function(id, default_mode = "stack", allow_select = TRUE) {
 barplotOutput <- function(id, height = 400) {
   ns <- NS(id)
 
-  list(shinyngsSpinner(plotlyOutput(ns("barPlot"), height = height)))
+  list(plotlyOutput(ns("barPlot"), height = height))
 }
 
 #' Server function of the \code{barplot} module
