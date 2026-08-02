@@ -276,16 +276,39 @@
 
   $(function () {
     classifyProgressNotifications();
-    new MutationObserver(function (mutations) {
-      var notificationChanged = mutations.some(function (mutation) {
-        var target = mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
-        return target && target.closest && target.closest("#shiny-notification-panel");
-      });
-      if (notificationChanged) {
+    var progressPanelObserver = null;
+    var observedProgressPanel = null;
+
+    function observeProgressPanel() {
+      var panel = document.getElementById("shiny-notification-panel");
+      if (panel === observedProgressPanel) return;
+      if (progressPanelObserver) progressPanelObserver.disconnect();
+      observedProgressPanel = panel;
+      progressPanelObserver = null;
+      if (panel) {
         classifyProgressNotifications();
-        notePageLoadActivity();
+        progressPanelObserver = new MutationObserver(function () {
+          classifyProgressNotifications();
+          notePageLoadActivity();
+        });
+        progressPanelObserver.observe(panel, { childList: true, subtree: true });
       }
-    }).observe(document.body, { childList: true, subtree: true });
+      notePageLoadActivity();
+    }
+
+    observeProgressPanel();
+    new MutationObserver(function (mutations) {
+      var panelChanged = mutations.some(function (mutation) {
+        return Array.prototype.some.call(mutation.addedNodes, function (node) {
+          return node.nodeType === 1 && node.id === "shiny-notification-panel";
+        }) || Array.prototype.some.call(mutation.removedNodes, function (node) {
+          return node === observedProgressPanel;
+        });
+      });
+      if (panelChanged) {
+        observeProgressPanel();
+      }
+    }).observe(document.body, { childList: true });
     schedulePageLoadCheck();
   });
 })();

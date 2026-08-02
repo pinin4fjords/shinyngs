@@ -11,6 +11,48 @@ test_that("the rnaseq app boots and shows its home tab", {
   expect_match(app$get_text("h3.shinyngs-eyebrow"), "Jump to analysis")
 })
 
+test_that("the page loader spans one navigation cycle", {
+  skip_on_cran()
+
+  app <- shinytest2_app_driver("rnaseq", "rnaseq-page-loader")
+  withr::defer(app$stop())
+
+  app$wait_for_idle(timeout = 20000)
+  app$wait_for_js(
+    "document.getElementById('shinyngs-page-loader').classList.contains('shinyngs-page-loader--hidden')",
+    timeout = 20000
+  )
+  app$run_js("(function(){
+    var loader = document.getElementById('shinyngs-page-loader');
+    window.__shinyngsLoaderTransitions = [];
+    window.__shinyngsVisibleProgressSeen = false;
+    var loaderVisible = !loader.classList.contains('shinyngs-page-loader--hidden');
+    new MutationObserver(function(){
+      var next = !loader.classList.contains('shinyngs-page-loader--hidden');
+      if (next !== loaderVisible) {
+        window.__shinyngsLoaderTransitions.push(next ? 'show' : 'hide');
+        loaderVisible = next;
+      }
+    }).observe(loader, {attributes: true, attributeFilter: ['class']});
+    new MutationObserver(function(){
+      var notifications = Array.from(document.querySelectorAll('.shiny-progress-notification'));
+      if (notifications.some(function(progress){
+        var notification = progress.closest('.shiny-notification');
+        return notification && getComputedStyle(notification).display !== 'none';
+      })) window.__shinyngsVisibleProgressSeen = true;
+    }).observe(document.body, {childList: true, subtree: true});
+    document.querySelector('.navbar a[data-value=\"Annotation\"]').click();
+  })();")
+  app$wait_for_js(
+    "!!document.querySelector('#rnaseq-rowmetatable-rowmetatable-datatable table') && document.getElementById('shinyngs-page-loader').classList.contains('shinyngs-page-loader--hidden')",
+    timeout = 20000
+  )
+
+  Sys.sleep(1)
+  expect_equal(unlist(app$get_js("window.__shinyngsLoaderTransitions")), c("show", "hide"))
+  expect_false(app$get_js("window.__shinyngsVisibleProgressSeen"))
+})
+
 # pca module (exercises selectmatrix internally)
 
 test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {

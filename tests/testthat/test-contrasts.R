@@ -70,6 +70,7 @@ test_that("contrast filter set initial values match selection and restore state"
 
 test_that("base contrast tables do not force the selected expression subset", {
   selected_matrix_calls <- 0L
+  selected_rows_calls <- 0L
   ese <- make_medium_module_eselist()[[1]]
   summaries <- list(condition = cbind(ctrl = seq_len(nrow(ese)), treated = seq_len(nrow(ese)) + 1))
   rownames(summaries$condition) <- rownames(ese)
@@ -80,6 +81,11 @@ test_that("base contrast tables do not force the selected expression subset", {
       selected_matrix_calls <<- selected_matrix_calls + 1L
       matrix(0, nrow = 1, dimnames = list(rownames(ese)[1], "s1"))
     },
+    selectRows = function() {
+      selected_rows_calls <<- selected_rows_calls + 1L
+      rownames(ese)[1]
+    },
+    getExperimentId = function() "counts",
     getExperiment = function() ese,
     getAssay = function() "counts"
   )
@@ -87,6 +93,7 @@ test_that("base contrast tables do not force the selected expression subset", {
   shiny::testServer(function(input, output, session) {
     tables <- contrastTableBuilder(
       selectmatrix_reactives,
+      getSummaryType = function() "mean",
       getSummaries = function() summaries,
       getAllContrasts = function() contrast,
       getAllContrastsNumbers = function() c("condition: treated vs ctrl" = "1"),
@@ -96,8 +103,10 @@ test_that("base contrast tables do not force the selected expression subset", {
     )
   }, {
     expect_equal(nrow(shiny::isolate(tables$contrastsTables()[[1]])), nrow(ese))
+    expect_equal(nrow(shiny::isolate(tables$contrastsTablesToMatchMatrix()[[1]])), 1L)
   })
   expect_equal(selected_matrix_calls, 0L)
+  expect_equal(selected_rows_calls, 1L)
 })
 
 # contrastSelection()$getSelectedContrastSamples()

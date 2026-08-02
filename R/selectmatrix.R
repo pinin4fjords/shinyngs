@@ -125,10 +125,12 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       "selectmatrix", eselist = eselist, getExperiment,
       select_samples = select_samples, allow_summarise = allow_summarise
     )
+    selectSamples <- sampleselect_reactives$selectSamples
     geneselect_reactives <- geneselect("selectmatrix",
-      eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = sampleselect_reactives$selectSamples,
+      eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples,
       getAssay = getAssay, provide_all = provide_all_genes || !select_genes, default = default_gene_select
     )
+    selectRows <- geneselect_reactives$selectRows
 
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
 
@@ -293,10 +295,10 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     selectMatrix <- reactive({
       withProgress(message = "Getting expression data subset", value = 0, {
-        rows <- geneselect_reactives$selectRows()
+        rows <- selectRows()
         validate(need(length(rows) > 0, "No matching rows in selected matrix"))
         assay_matrix <- getAssayMatrix()
-        samples <- sampleselect_reactives$selectSamples()
+        samples <- selectSamples()
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
         if (shouldSummarise()) {
@@ -310,9 +312,9 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Extract experimental variables given selection parameters
 
     selectColData <- reactive({
-      validate(need(length(sampleselect_reactives$selectSamples()) > 0, "Waiting for sample selection"))
+      validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
       withProgress(message = "Extracting experiment metadata", value = 0, {
-        droplevels(data.frame(colData(getExperiment())[sampleselect_reactives$selectSamples(), , drop = FALSE], check.names = FALSE))
+        droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE], check.names = FALSE))
       })
     })
 
@@ -382,8 +384,9 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     list(
       getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix,
+      selectRows = selectRows, selectSamples = selectSamples,
       matrixTitle = geneselect_reactives$title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
-      getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId,
+      getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField,
       getExperimentName = getExperimentName, getNonEmptyRows = geneselect_reactives$getNonEmptyRows, getMetafields = getMetafields
     )
   })

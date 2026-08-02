@@ -10,7 +10,8 @@ makeContrastControl(
   contrast_numbers,
   multiple = FALSE,
   show_controls = TRUE,
-  select_all = FALSE
+  select_all = FALSE,
+  selected = NULL
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ makeContrastControl(
 hidden.}
 
 \item{select_all}{Select all contrasts by default?}
+
+\item{selected}{Optional selected contrast values}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using
