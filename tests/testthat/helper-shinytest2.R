@@ -68,13 +68,16 @@ shinytest2_eselist <- local({
 # Launch a shinytest2::AppDriver for a prepare_app() type, skipping the test if
 # no headless Chrome is available.
 
-shinytest2_app_driver <- function(type, name, eselist = shinytest2_eselist(), ...) {
+shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
   testthat::skip_if_not_installed("shinytest2")
   testthat::skip_if(
     is.na(tryCatch(chromote::find_chrome(), error = function(e) NA)),
     "No Chrome/Chromium binary found for headless testing"
   )
 
+  if (is.null(eselist)) {
+    eselist <- shinytest2_eselist()
+  }
   app <- prepare_app(type, eselist)
   shinytest2::AppDriver$new(
     shiny::shinyApp(ui = app$ui, server = app$server),

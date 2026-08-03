@@ -18,17 +18,14 @@ jobs:
             run_extras: false
             use_public_rspm: false
             bioc_mirror: https://bioconductor.org
-            testthat_cpus: 1
           - r: 'release'
             run_extras: true
             use_public_rspm: true
             bioc_mirror: https://bioconductor.posit.co
-            testthat_cpus: 2
     env:
       GITHUB_PAT: ${{ secrets.R_CI }}
       R_KEEP_PKG_SOURCE: yes
       R_BIOC_MIRROR: ${{ matrix.bioc_mirror }}
-      TESTTHAT_CPUS: ${{ matrix.testthat_cpus }}
       TEST_DATA_BASE: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/mus_musculus/rnaseq_expression"
       FEATURE_META_FILE: "SRP254919.gene_meta.tsv"
       SAMPLE_META_FILE: "SRP254919.samplesheet.csv"
