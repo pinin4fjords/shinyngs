@@ -61,11 +61,57 @@ scatterplotcontrolsInput <- function(id, allow_3d = TRUE, make_colors = FALSE, d
 #'
 scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeColors = NULL, default_3d = TRUE) {
   moduleServer(id, function(input, output, session) {
+    axisChoices <- reactive({
+      datamatrix <- getDatamatrix()
+      validate(need(ncol(datamatrix) >= 2, "A scatter plot requires at least two columns"))
+      labels <- colnames(datamatrix)
+      if (is.null(labels)) {
+        labels <- seq_len(ncol(datamatrix))
+      }
+      structure(seq_len(ncol(datamatrix)), names = labels)
+    })
+
+    supports3d <- reactive({
+      length(axisChoices()) >= 3
+    })
+
+    requestedThreedee <- reactive({
+      if (is.null(input$threedee)) default_3d else isTRUE(as.logical(input$threedee))
+    })
+
+    getThreedee <- reactive({
+      requestedThreedee() && supports3d()
+    })
+
+    last3dSupport <- reactiveVal(NULL)
+    observeEvent(supports3d(), {
+      supported <- supports3d()
+      previous <- isolate(last3dSupport())
+      if (identical(supported, previous)) {
+        return()
+      }
+      last3dSupport(supported)
+      if (is.null(previous) && supported) {
+        return()
+      }
+
+      if (!is.null(previous)) {
+        freezeReactiveInputs(input, "threedee", "xAxis", "yAxis", "zAxis")
+      }
+      choices <- if (supported) c(`3D` = TRUE, `2D` = FALSE) else c(`2D` = FALSE)
+      updateRadioButtons(
+        session, "threedee", choices = choices,
+        selected = if (supported) default_3d else FALSE, inline = TRUE
+      )
+    }, ignoreNULL = FALSE, priority = 1100)
+
+    observeEvent(list(getThreedee(), axisChoices()), {
+      freezeReactiveInputs(input, "xAxis", "yAxis", "zAxis")
+    }, ignoreInit = TRUE, priority = 1000)
+
     output$plotColumns <- renderUI({
       withProgress(message = "Making scatter plot controls", value = 0, {
         ns <- session$ns
-        datamatrix <- getDatamatrix()
-        vars <- structure(seq_len(ncol(datamatrix)), names = colnames(datamatrix))
 
         # Work out how many axes we need
 
@@ -74,15 +120,20 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
           axes$z <- z
         }
 
+        dynamic_axes <- vapply(axes, is.na, logical(1))
+        if (any(dynamic_axes)) {
+          vars <- axisChoices()
+        }
+
         # Make a select for each axis
 
         axis_filters <- lapply(seq_along(axes), function(n) {
           ax <- names(axes)[n]
 
-          if (is.na(axes[n])) {
-            selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = n)
+          if (dynamic_axes[n]) {
+            selectInput(ns(paste0(ax, "Axis")), paste(ax, "axis"), vars, selected = min(n, length(vars)))
           } else {
-            hidden_input(ns(paste0(ax, "Axis")), axes[n])
+            hidden_input(ns(paste0(ax, "Axis")), axes[[n]])
           }
         })
       })
@@ -91,41 +142,63 @@ scatterplotcontrols <- function(id, getDatamatrix, x = NA, y = NA, z = NA, makeC
 
     # Provide accessor methods for inputs
 
+    getAxis <- function(input_value, configured_value, default_value) {
+      value <- input_value
+      if (is.null(value)) {
+        value <- if (is.na(configured_value)) default_value else configured_value
+      }
+      value <- suppressWarnings(as.numeric(value))
+      available <- unname(axisChoices())
+      if (length(value) != 1 || !value %in% available) {
+        value <- min(default_value, length(available))
+      }
+      value
+    }
+
     getXAxis <- reactive({
-      value <- input$xAxis
-      if (is.null(value)) value <- if (is.na(x)) 1 else x
-      as.numeric(value)
+      getAxis(input$xAxis, x, 1)
     })
 
     getYAxis <- reactive({
-      value <- input$yAxis
-      if (is.null(value)) value <- if (is.na(y)) 2 else y
-      as.numeric(value)
+      getAxis(input$yAxis, y, 2)
     })
 
     getZAxis <- reactive({
       if (getThreedee()) {
-        value <- input$zAxis
-        if (is.null(value)) value <- if (is.na(z)) 3 else z
-        as.numeric(value)
+        getAxis(input$zAxis, z, 3)
       } else {
         NULL
       }
-    })
-
-    getThreedee <- reactive({
-      if (is.null(input$threedee)) default_3d else as.logical(input$threedee)
     })
 
     getShowLabels <- reactive({
       if (is.null(input$showLabels)) FALSE else as.logical(input$showLabels)
     })
 
-    getPointSize <- reactive({
-      if (is.null(input$pointSize)) 5 else input$pointSize
-    }) %>% debounce(300)
+    pointSizeValue <- reactive(input$pointSize) %>% debounce(300)
 
-    reactives <- list(getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis, getThreedee = getThreedee, getShowLabels = getShowLabels, getPointSize = getPointSize)
+    getPointSize <- reactive({
+      value <- pointSizeValue()
+      req(inputsInitialised(value))
+      value
+    })
+
+    inputsReady <- reactive({
+      required <- list(input$threedee, input$xAxis, input$yAxis, input$showLabels, pointSizeValue())
+      if (getThreedee()) {
+        required <- c(required, list(input$zAxis))
+      }
+      if (!is.null(makeColors)) {
+        required <- c(required, list(input[["scatterplot-palette_name"]]))
+      }
+      do.call(inputsInitialised, required)
+    })
+
+    reactives <- list(
+      getXAxis = getXAxis, getYAxis = getYAxis, getZAxis = getZAxis,
+      getThreedee = getThreedee, getShowLabels = getShowLabels,
+      getPointSize = getPointSize, inputsReady = inputsReady
+    )
 
     # If specified, make a palette for the specified number of colors
 

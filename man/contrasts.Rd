@@ -11,6 +11,7 @@ contrasts(
   multiple = FALSE,
   select_all_contrasts = FALSE,
   show_controls = TRUE,
+  summarise = TRUE,
   default_foldchange = 2,
   default_pval = 0.05,
   default_qval = 0.1
@@ -31,6 +32,9 @@ gain access to the data provided by those reaactive.}
 \item{select_all_contrasts}{Select all contrasts by default?}
 
 \item{show_controls}{Show the controls for contrast selection?}
+
+\item{summarise}{Match the corresponding \code{contrastsInput()} setting.
+When `TRUE`, wait for the summary-type input before producing contrast data.}
 
 \item{default_foldchange}{default value for the fold change filter}
 

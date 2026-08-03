@@ -80,7 +80,7 @@ dexseqplotOutput <- function(id, eselist) {
 
   moduleMain(
     "Gene-wise differential exon usage",
-    shinycssloaders::withSpinner(plotOutput(ns("deuPlot"), height = 620), color = shinyngsSpinnerColor()),
+    plotOutput(ns("deuPlot"), height = 620),
     dexseqtableOutput(ns("deuPlotTable")),
     help = modalInput(ns(dexseqplot_modal$id), "help", "help")
   )
@@ -123,6 +123,19 @@ dexseqplot <- function(id, eselist) {
 
     genesymbol_reactives <- labelselectfield("genesymbol", eselist = eselist, getExperiment = dexseqtable_reactives$getExperiment, labels_from_all_experiments = TRUE, url_field = "deu_gene")
 
+    inputsReady <- reactive({
+      req(
+        dexseqtable_reactives$inputsReady(),
+        genesymbol_reactives$inputsReady(),
+        inputsInitialised(
+          input$deuQvalPlotMax, input$deuExpression,
+          input$deuSplicing, input$deuNorcounts,
+          input$deuDisplayTranscripts
+        )
+      )
+      TRUE
+    })
+
     # Fetch the DEXSeqResults object for the currently selected contrast,
     # guarding against a selected contrast number with no corresponding entry
     # in the experiment's dexseq_results slot
@@ -160,6 +173,7 @@ dexseqplot <- function(id, eselist) {
 
     output$deuPlot <- renderPlot(
       {
+        req(inputsReady())
         validate(need(requireNamespace("DEXSeq", quietly = TRUE), "The DEXSeq package must be installed to view differential exon usage plots."))
 
         ese <- dexseqtable_reactives$getExperiment()

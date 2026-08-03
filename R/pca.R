@@ -1,8 +1,5 @@
 pca_modal <- list(id = "pca", title = "Principal components analysis")
 
-# Default for the "Number of loadings to examine" slider, shared between the
-# UI default and the server-side fallback used before the debounced reactive
-# has a value from the client.
 PCA_DEFAULT_N_LOADINGS <- 10
 
 #' The input function of the pca module
@@ -44,7 +41,7 @@ pcaInput <- function(id, eselist) {
   # Output sets of fields in their own containers
 
   fieldSets(ns("fieldset"), list(
-    principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE, default_3d = FALSE), groupbyInput(ns("pca"))),
+    principal_component_analysis = pca_filters, scatter_plot = list(scatterplotcontrolsInput(ns("pca"), allow_3d = TRUE, default_3d = TRUE), groupbyInput(ns("pca"))),
     expression = expression_filters, export = list(
       simpletableInput(ns("components"), tabletitle = "Components"), simpletableInput(ns("loading"), tabletitle = "Loading"),
       simpletableInput(ns("screeplot"), tabletitle = "Scree")
@@ -84,11 +81,11 @@ pcaOutput <- function(id) {
   moduleMain(
     "Principal components analysis",
     tabsetPanel(
-      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"), spinner = TRUE)),
-      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings", spinner = TRUE))),
+      tabPanel("Components plot", scatterplotOutput(ns("pca")), simpletableOutput(ns("components"))),
+      tabPanel("Loadings plot", list(scatterplotOutput(ns("loading")), simpletableOutput(ns("loading"), tabletitle = "Loadings"))),
       tabPanel("Scree plot", list(
-        shinycssloaders::withSpinner(plotlyOutput(ns("screeplot"), height = "600px"), color = shinyngsSpinnerColor()),
-        simpletableOutput(ns("screeplot"), tabletitle = "Scree", spinner = TRUE)
+        plotlyOutput(ns("screeplot"), height = "600px"),
+        simpletableOutput(ns("screeplot"), tabletitle = "Scree")
       ))
     ),
     help = modalInput(ns(pca_modal$id), "help", "help")
@@ -139,18 +136,35 @@ pca <- function(id, eselist) {
     # Make a common set of controls to be used for components and loadings plots
 
     scatterplotcontrols_reactives <- scatterplotcontrols("pca", pcaMatrix)
+    nLoadingsValue <- reactive(input$n_loadings) %>% debounce(300)
+
+    pcaInputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        groupby_reactives$inputsReady(),
+        scatterplotcontrols_reactives$inputsReady()
+      )
+      TRUE
+    })
+
+    loadingInputsReady <- reactive({
+      req(pcaInputsReady(), inputsInitialised(nLoadingsValue()))
+      TRUE
+    })
 
     # Create a PCA plot using the controls supplied by scatterplotcontrols module and unpacked above for both PCA and loading
 
     scatterplot("pca",
       getDatamatrix = pcaMatrix, getThreedee = scatterplotcontrols_reactives$getThreedee, getXAxis = scatterplotcontrols_reactives$getXAxis,
       getYAxis = scatterplotcontrols_reactives$getYAxis, getZAxis = scatterplotcontrols_reactives$getZAxis, getShowLabels = scatterplotcontrols_reactives$getShowLabels,
-      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getComponentsTitle, getColorby = getPcaColorby, getPalette = groupby_reactives$getPalette
+      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getComponentsTitle, getColorby = getPcaColorby, getPalette = groupby_reactives$getPalette,
+      inputsReady = pcaInputsReady
     )
     scatterplot("loading",
       getDatamatrix = loadingMatrix, getThreedee = scatterplotcontrols_reactives$getThreedee, getXAxis = scatterplotcontrols_reactives$getXAxis,
       getYAxis = scatterplotcontrols_reactives$getYAxis, getZAxis = scatterplotcontrols_reactives$getZAxis, getShowLabels = scatterplotcontrols_reactives$getShowLabels,
-      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels
+      getPointSize = scatterplotcontrols_reactives$getPointSize, getTitle = getLoadingTitle, getLabels = getLoadLabels,
+      inputsReady = loadingInputsReady
     )
 
     # Simple title functions
@@ -221,18 +235,18 @@ pca <- function(id, eselist) {
     })
 
     # Debounce the loadings-count slider so dragging it doesn't refetch the
-    # loadings on every tick. Fall back to the slider's default while
-    # input$n_loadings hasn't reached the server yet - a debounced reactive's
-    # first value is primed synchronously, before the client has necessarily
-    # sent its initial slider value, and seq_len() below errors on NULL.
+    # loadings on every tick.
 
     getNLoadings <- reactive({
-      if (is.null(input$n_loadings)) PCA_DEFAULT_N_LOADINGS else input$n_loadings
-    }) %>% debounce(300)
+      value <- nLoadingsValue()
+      req(inputsInitialised(value))
+      value
+    })
 
     # Fetch the loadings
 
     getLoadings <- reactive({
+      req(loadingInputsReady())
       withProgress(message = "Fetching loadings", value = 0, {
         rot <- pca()$rotation
         fraction_explained <- calculatePCAFractionExplained()
@@ -289,11 +303,12 @@ pca <- function(id, eselist) {
     # a debounced control change and fetch a page against headers that no
     # longer match (see simpletable()'s `server` argument).
 
-    simpletable("components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE, server = FALSE)
+    simpletable("components", downloadMatrix = pcaDisplayMatrix, displayMatrix = pcaDisplayMatrix, filename = "components", rownames = TRUE, server = FALSE, ready = selectmatrix_reactives$inputsReady)
 
-    simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE, server = FALSE)
+    simpletable("loading", downloadMatrix = makeDownloadLoadingTable, displayMatrix = makeDisplayLoadingTable, filename = "pcaloading", rownames = FALSE, server = FALSE, ready = loadingInputsReady)
 
     output$screeplot <- renderPlotly({
+      req(selectmatrix_reactives$inputsReady())
       interactive_screeplot(calculatePCAFractionExplained(), cumulative = TRUE, title = getScreeTitle()) %>%
         shinyngsPlotlyConfig("screeplot", format = session$userData$plotFormat())
     })
@@ -311,7 +326,7 @@ pca <- function(id, eselist) {
       )
     })
 
-    simpletable("screeplot", downloadMatrix = screeplotTable, displayMatrix = screeplotTable, filename = "screeplot", rownames = TRUE)
+    simpletable("screeplot", downloadMatrix = screeplotTable, displayMatrix = screeplotTable, filename = "screeplot", rownames = TRUE, ready = selectmatrix_reactives$inputsReady)
   })
 }
 

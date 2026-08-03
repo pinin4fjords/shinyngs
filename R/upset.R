@@ -83,7 +83,7 @@ upsetOutput <- function(id, eselist) {
   moduleMain(
     "Intersection of differential sets",
     uiOutput(ns("subset_notice")),
-    shinycssloaders::withSpinner(plotlyOutput(ns("interactive_upset"), height = "600px"), color = shinyngsSpinnerColor()),
+    plotlyOutput(ns("interactive_upset"), height = "600px"),
     help = modalInput(ns(upset_modal$id), "help", "help")
   )
 }
@@ -129,14 +129,36 @@ upset <- function(id, eselist, setlimit = 16) {
 
     contrast_reactives <- contrasts("upset", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE, select_all_contrasts = TRUE)
 
+    baseInputsReady <- reactive({
+      req(
+        contrast_reactives$inputsReady(),
+        inputsInitialised(
+          input$nintersects, input$separate_by_direction,
+          input$set_sort, input$bar_numbers,
+          input$show_empty_intersections,
+          input$intersection_assignment_type
+        )
+      )
+      TRUE
+    })
+
+    nsetsValue <- reactive(input$nsets) %>% debounce(300)
+
+    inputsReady <- reactive({
+      req(baseInputsReady(), inputsInitialised(nsetsValue(), input$minorder))
+      TRUE
+    })
+
     ############################################################################# Render dynamic fields
 
     output$nsets_ui <- renderUI({
+      req(baseInputsReady())
       max_sets <- getMaxSets()
       sliderInput(ns("nsets"), label = "Number of sets", min = 2, max = max_sets, step = 1, value = max_sets)
     })
 
     output$minorder_ui <- renderUI({
+      req(baseInputsReady(), inputsInitialised(nsetsValue()))
       assignment_type <- getIntersectionAssignmentType()
       max_order <- getMaxIntersectionOrder()
 
@@ -152,6 +174,7 @@ upset <- function(id, eselist, setlimit = 16) {
     })
 
     output$subset_notice <- renderUI({
+      req(baseInputsReady())
       valid_sets <- getValidSets()
       max_sets <- ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
 
@@ -172,8 +195,10 @@ upset <- function(id, eselist, setlimit = 16) {
     # Accessor for the nsets parameter
 
     getNsets <- reactive({
-      if (is.null(input$nsets)) getMaxSets() else input$nsets
-    }) %>% debounce(300)
+      value <- nsetsValue()
+      req(inputsInitialised(value))
+      value
+    })
 
     # Accessor for the minorder parameter
 
@@ -256,6 +281,29 @@ upset <- function(id, eselist, setlimit = 16) {
       ifelse(length(valid_sets) > setlimit, setlimit, length(valid_sets))
     })
 
+    dynamic_controls <- new.env(parent = emptyenv())
+    dynamic_controls$max_sets <- NULL
+    dynamic_controls$minorder_context <- NULL
+
+    observeEvent(getMaxSets(), {
+      max_sets <- getMaxSets()
+      if (!is.null(dynamic_controls$max_sets) && !identical(max_sets, dynamic_controls$max_sets)) {
+        freezeReactiveInputs(input, "nsets", "minorder")
+      }
+      dynamic_controls$max_sets <- max_sets
+    }, priority = 1000)
+
+    observeEvent(list(getNsets(), getIntersectionAssignmentType()), {
+      context <- list(
+        nsets = getNsets(),
+        assignment_type = getIntersectionAssignmentType()
+      )
+      if (!is.null(dynamic_controls$minorder_context) && !identical(context, dynamic_controls$minorder_context)) {
+        freezeReactiveInputs(input, "minorder")
+      }
+      dynamic_controls$minorder_context <- context
+    }, priority = 1000)
+
     # Get the sets we're going to use based on nsets
 
     getSets <- reactive({
@@ -293,6 +341,7 @@ upset <- function(id, eselist, setlimit = 16) {
     )
 
     output$interactive_upset <- renderPlotly({
+      req(inputsReady())
       getUpsetPlot() %>% shinyngsPlotlyConfig("upset", format = session$userData$plotFormat())
     })
 

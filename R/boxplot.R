@@ -140,9 +140,19 @@ boxplot <- function(id, eselist) {
     selectmatrix_reactives <- selectmatrix("sampleBoxplot", eselist, select_genes = FALSE)
     groupby_reactives <- groupby("boxplot", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
 
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        groupby_reactives$inputsReady(),
+        inputsInitialised(input$plotType, input$whiskerDistance)
+      )
+      TRUE
+    })
+
     # Render the plot
 
     output$quartilesPlot <- renderUI({
+      req(inputsReady())
       ns <- session$ns
       plotOutputId <- if (input$plotType == "boxes") {
         "sampleBoxplot"
@@ -151,10 +161,11 @@ boxplot <- function(id, eselist) {
       } else {
         "quartilesPlotly"
       }
-      shinycssloaders::withSpinner(plotlyOutput(ns(plotOutputId), height = "600px"), color = shinyngsSpinnerColor())
+      plotlyOutput(ns(plotOutputId), height = "600px")
     })
 
     output$quartilesPlotly <- renderPlotly({
+      req(inputsReady())
       selected_matrix <- selectmatrix_reactives$selectMatrix()
       ese <- selectmatrix_reactives$getExperiment()
       interactive_quartiles(selected_matrix, id_to_label(rownames(selected_matrix), ese), selectmatrix_reactives$getAssayMeasure(), whisker_distance = input$whiskerDistance) %>%
@@ -162,6 +173,7 @@ boxplot <- function(id, eselist) {
     })
 
     output$densityPlotly <- renderPlotly({
+      req(inputsReady())
       interactive_densityplot(selectmatrix_reactives$selectMatrix(), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(), expressiontype = selectmatrix_reactives$getAssayMeasure(), palette = groupby_reactives$getPalette()) %>%
         shinyngsPlotlyConfig("density", format = session$userData$plotFormat())
     })
@@ -198,6 +210,7 @@ boxplot <- function(id, eselist) {
     })
 
     output$sampleBoxplot <- renderPlotly({
+      req(inputsReady())
       withProgress(message = "Making sample boxplot", value = 0, {
         interactive_boxplot_from_statistics(list(" " = getBoxplotStatistics()), selectmatrix_reactives$selectColData(), groupby_reactives$getGroupby(),
           expressiontype = selectmatrix_reactives$getAssayMeasure(),
@@ -221,7 +234,7 @@ boxplot <- function(id, eselist) {
       downloadMatrix = getDistributionSummary,
       displayMatrix = getDistributionSummary,
       filename = "distribution_summary", rownames = FALSE,
-      server = FALSE, initial_order = list()
+      server = FALSE, initial_order = list(), ready = inputsReady
     )
   })
 }

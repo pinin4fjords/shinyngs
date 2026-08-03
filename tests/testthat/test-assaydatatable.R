@@ -5,6 +5,7 @@ test_that("assaydatatable displays the selected assay's matrix, labelled by gene
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all"
     )
@@ -12,7 +13,7 @@ test_that("assaydatatable displays the selected assay's matrix, labelled by gene
 
     displayed <- selectmatrix_reactives$selectLabelledMatrix()
     expect_setequal(rownames(displayed), paste0("gene", 1:8))
-    expect_setequal(colnames(displayed), c("Gene id", "s1", "s2", "s3", "s4"))
+    expect_setequal(colnames(displayed), c("Gene id", "Gene name", "s1", "s2", "s3", "s4"))
   })
 })
 
@@ -23,6 +24,7 @@ test_that("assaydatatable switches matrices when a different assay is selected",
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "norm",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all"
     )
@@ -41,6 +43,7 @@ test_that("assaydatatable restricts the displayed matrix to the selected samples
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "name",
       "expression-selectmatrix-samples" = c("s1", "s2"),
       "expression-selectmatrix-summarise-summaryType" = "colMeans",
@@ -49,7 +52,7 @@ test_that("assaydatatable restricts the displayed matrix to the selected samples
     session$elapse(400)
 
     displayed <- selectmatrix_reactives$selectLabelledMatrix()
-    expect_setequal(colnames(displayed), c("Gene id", "s1", "s2"))
+    expect_setequal(colnames(displayed), c("Gene id", "Gene name", "s1", "s2"))
     expect_false(selectmatrix_reactives$isSummarised())
   })
 })
@@ -61,6 +64,7 @@ test_that("assaydatatable reports matrices summarised from sample groups", {
     session$setInputs(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "group",
       "expression-selectmatrix-sampleGroupVar" = "condition",
       "expression-selectmatrix-sampleGroupVal" = c("ctrl", "treated"),
@@ -74,7 +78,7 @@ test_that("assaydatatable reports matrices summarised from sample groups", {
   })
 })
 
-test_that("assaydatatable's output title names the selected assay", {
+test_that("assaydatatable's title names the selected assay", {
   eselist <- make_medium_module_eselist(extra_assay = TRUE)
 
   shiny::testServer(assaydatatable, args = list(id = "assaydatatable", eselist = eselist), {
@@ -86,7 +90,14 @@ test_that("assaydatatable's output title names the selected assay", {
     )
     session$elapse(400)
 
-    rendered <- output$assaydatatable
-    expect_match(rendered[[1]], "Assay data: norm")
+    expect_equal(output$assaydatatable_title, "Assay data: norm")
   })
+})
+
+test_that("assaydatatable output binds the table in the initial UI", {
+  html <- as.character(assaydatatableOutput("assaydatatable"))
+
+  expect_match(html, 'id="assaydatatable-assaydatatable-datatable"', fixed = TRUE)
+  expect_match(html, 'id="assaydatatable-assaydatatable_title"', fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })

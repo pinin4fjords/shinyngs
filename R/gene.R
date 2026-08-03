@@ -74,7 +74,7 @@ geneOutput <- function(id, eselist) {
     uiOutput(ns("model")),
     uiOutput(ns("info")),
     uiOutput(ns("title")),
-    shinycssloaders::withSpinner(plotlyOutput(ns("barPlot"), height = "500px"), color = shinyngsSpinnerColor()),
+    plotlyOutput(ns("barPlot"), height = "500px"),
     differential_effects,
     help = modalInput(ns(gene_modal$id), "help", "help")
   )
@@ -110,6 +110,21 @@ gene <- function(id, eselist) {
     )
     contrast_reactives <- contrasts("gene", eselist = eselist, multiple = TRUE, show_controls = FALSE, selectmatrix_reactives = selectmatrix_reactives, select_all_contrasts = TRUE)
     groupby_reactives <- groupby("gene", eselist = eselist, group_label = "Color by", selectColData = selectmatrix_reactives$selectColData)
+
+    geneInputsReady <- reactive({
+      req(selectmatrix_reactives$inputsReady(), gene_label_reactives$inputsReady())
+      TRUE
+    })
+
+    barplotInputsReady <- reactive({
+      req(geneInputsReady(), groupby_reactives$inputsReady())
+      TRUE
+    })
+
+    contrastInputsReady <- reactive({
+      req(geneInputsReady(), contrast_reactives$inputsReady())
+      TRUE
+    })
 
     # Help modals are shown from the reactive info/model links, with titles
     # that track the currently selected experiment and gene
@@ -177,6 +192,7 @@ gene <- function(id, eselist) {
     # Render the bar plot with plotly
 
     output$barPlot <- renderPlotly({
+      req(barplotInputsReady())
       withProgress(message = "Making bar plot", value = 0, {
         ese <- selectmatrix_reactives$getExperiment()
         rows <- getSelectedIdsWithData()
@@ -273,6 +289,7 @@ gene <- function(id, eselist) {
     # Make a table of the annotation data
 
     output$geneInfoTable <- DT::renderDataTable({
+        req(geneInputsReady())
         rows <- gene_label_reactives$getSelectedIds()
         ese <- selectmatrix_reactives$getExperiment()
 
@@ -323,6 +340,7 @@ gene <- function(id, eselist) {
 
     if (has_slot_data(eselist, "contrasts")) {
       output$differentialEffects_ui <- renderUI({
+        req(contrastInputsReady())
         tabs <- list(tabPanel(
           "Table",
           simpletableOutput(session$ns("geneContrastsTable"))
@@ -341,10 +359,7 @@ gene <- function(id, eselist) {
           height <- min(850, max(320, finite_effects * 42 + 170))
           tabs <- push_to_list(tabs, tabPanel(
             "Plot",
-            shinycssloaders::withSpinner(
-              plotlyOutput(session$ns("geneContrastProfile"), height = paste0(height, "px")),
-              color = shinyngsSpinnerColor()
-            )
+            plotlyOutput(session$ns("geneContrastProfile"), height = paste0(height, "px"))
           ))
         }
 
@@ -352,6 +367,7 @@ gene <- function(id, eselist) {
       })
 
       output$geneContrastProfile <- renderPlotly({
+        req(contrastInputsReady())
         rows <- getSelectedIdsWithData()
         validate(need(length(rows) == 1, "Select one gene to view its contrast profile"))
 
@@ -369,7 +385,7 @@ gene <- function(id, eselist) {
 
     # Render the contrasts table- when a valid label is supplied
 
-    simpletable("geneContrastsTable", downloadMatrix = getGeneContrastsTable, displayMatrix = getLinkedGeneContrastsTable, filename = "gene_contrasts", rownames = FALSE)
+    simpletable("geneContrastsTable", downloadMatrix = getGeneContrastsTable, displayMatrix = getLinkedGeneContrastsTable, filename = "gene_contrasts", rownames = FALSE, ready = contrastInputsReady)
 
     # Return the reactive for updating the gene input field. Will be used for updating the field when linking to this panel
 

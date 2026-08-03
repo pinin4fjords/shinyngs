@@ -86,10 +86,12 @@ run_dexseqplot_server <- function(eselist, extra_inputs = list(), expr) {
     list(
       "deuPlotTable-expression-experiment" = "counts",
       "deuPlotTable-expression-assay" = "counts",
+      "deuPlotTable-expression-metafields" = "gene_name",
       "deuPlotTable-expression-selectmatrix-sampleSelect" = "all",
       "deuPlotTable-expression-selectmatrix-geneSelect" = "all",
       "deuPlotTable-deuContrast-filterRows" = FALSE,
       "deuPlotTable-deuContrast-contrasts0" = "1",
+      "deuPlotTable-deuContrast-combine_operator" = "intersect",
       "genesymbol-metaField" = "gene_name",
       "genesymbol-label" = "Gene1",
       "deuQvalPlotMax" = 0.1,

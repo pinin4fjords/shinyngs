@@ -83,9 +83,6 @@ heatmapInput <- function(id, eselist, type = "expression") {
   filters
 }
 
-# Default for the "Number of principal components to test" slider on the pca
-# heatmap, shared between the UI default and the server-side fallback used
-# before the debounced reactive has a value from the client.
 PCA_HEATMAP_DEFAULT_N_COMPONENTS <- 10
 
 # Rendered height, in pixels, of the scree plot row stacked above the pca
@@ -212,7 +209,7 @@ heatmapOutput <- function(id, type = "") {
   ns <- NS(id)
   spec <- heatmap_modal_specs[[type]]
   help <- if (is.null(spec)) NULL else modalInput(ns(spec$id), "help", "help")
-  pvalues_table <- if (type == "pca") simpletableOutput(ns("pvalues"), tabletitle = PCA_HEATMAP_PVALUES_TABLE_TITLE, spinner = TRUE) else NULL
+  pvalues_table <- if (type == "pca") simpletableOutput(ns("pvalues"), tabletitle = PCA_HEATMAP_PVALUES_TABLE_TITLE) else NULL
 
   moduleMain(NULL, uiOutput(ns("heatmap_ui")), pvalues_table, help = help)
 }
@@ -264,7 +261,10 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
 
     # Make the groupby UI element
 
-    groupby_reactives <- groupby("heatmap", eselist = eselist, group_label = "Annotate with variables:", multiple = TRUE)
+    groupby_reactives <- groupby("heatmap",
+      eselist = eselist, group_label = "Annotate with variables:",
+      multiple = TRUE, color = FALSE
+    )
 
     # Call the selectmatrix module and hold on to the reactives it sends back
 
@@ -275,23 +275,35 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
     }
 
     # Debounce the pca heatmap's PC-count slider so dragging it doesn't
-    # rerun the ANOVA on every tick. Fall back to the slider's default while
-    # input$n_components hasn't reached the server yet - a debounced
-    # reactive's first value is primed synchronously, before the client has
-    # necessarily sent its initial slider value. Only the pca type has this
-    # slider, so it's the only type that needs the reactive.
+    # rerun the ANOVA on every tick. Only the pca type has this slider.
 
     if (type == "pca") {
+      nComponentsValue <- reactive(input$n_components) %>% debounce(300)
       getNComponents <- reactive({
-        if (is.null(input$n_components)) PCA_HEATMAP_DEFAULT_N_COMPONENTS else input$n_components
-      }) %>% debounce(300)
+        value <- nComponentsValue()
+        req(inputsInitialised(value))
+        value
+      })
     }
+
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        groupby_reactives$inputsReady(),
+        inputsInitialised(input$cluster_rows, input$cluster_cols, input$scale)
+      )
+      if (type == "pca") {
+        req(inputsInitialised(nComponentsValue()))
+      }
+      TRUE
+    })
 
     # Render the heatmap container
 
     output$heatmap_ui <- renderUI({
+      req(inputsReady())
       withProgress(message = "Preparing heatmap container", value = 0, {
-        list(h3(makeTitle()), shinycssloaders::withSpinner(plotly::plotlyOutput(ns("interactive_heatmap"), height = plotHeight()), color = shinyngsSpinnerColor()))
+        list(h3(makeTitle()), plotly::plotlyOutput(ns("interactive_heatmap"), height = plotHeight()))
       })
     })
 
@@ -527,6 +539,7 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
     }
 
     output$interactive_heatmap <- plotly::renderPlotly({
+      req(inputsReady())
       withProgress(message = "Building interactive heatmap", value = 0, {
         getHeatmapPlot() %>% shinyngsPlotlyConfig("heatmap", format = session$userData$plotFormat())
       })
@@ -538,7 +551,7 @@ heatmap <- function(id, eselist, type = "expression", heatmap_layout = heatmap_l
     # simpletable()'s `server` argument).
 
     if (type == "pca") {
-      simpletable("pvalues", displayMatrix = getPCAPvaluesTable, filename = "pca_variable_association_pvalues", rownames = TRUE, server = FALSE)
+      simpletable("pvalues", displayMatrix = getPCAPvaluesTable, filename = "pca_variable_association_pvalues", rownames = TRUE, server = FALSE, ready = inputsReady)
     }
   })
 }

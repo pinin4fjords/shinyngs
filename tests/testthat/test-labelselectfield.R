@@ -251,3 +251,22 @@ test_that("updateLabelField runs without error and does not alter the currently 
     }
   )
 })
+
+test_that("repeating the current label does not invalidate its associated IDs", {
+  ese <- make_labelselectfield_ese()
+  eselist <- ExploratorySummarizedExperimentList(list(counts = ese))
+
+  shiny::testServer(
+    labelselectfield,
+    args = list(id = "lsf", eselist = eselist, getExperiment = reactive(ese), id_selection = TRUE),
+    {
+      session$setInputs(metaField = "gene_name", label = "Gene1", ids = "gene1")
+      expect_true(inputsReady())
+
+      session$setInputs(label = "Gene1")
+
+      expect_true(inputsReady())
+      expect_equal(getSelectedIds(), "gene1")
+    }
+  )
+})

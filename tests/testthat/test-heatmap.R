@@ -1,19 +1,23 @@
 # interactive_heatmap()
 
-test_that("PCA heatmap height is available while sample-group controls initialise", {
+test_that("PCA heatmap height is available after its controls initialise", {
   eselist <- shinytest2_eselist()
 
   shiny::testServer(shinyngs:::heatmap, args = list(id = "heatmap", eselist = eselist, type = "pca"), {
     session$setInputs(
       `heatmap-experiment` = "counts",
       `heatmap-assay` = "counts",
-      `heatmap-selectmatrix-geneSelect` = "all",
-      `heatmap-selectmatrix-sampleSelect` = "group",
-      `heatmap-selectmatrix-sampleGroupVar` = "condition",
+      `heatmap-metafields` = "gene_name",
+      `heatmap-selectmatrix-geneSelect` = "variance",
+      `heatmap-selectmatrix-obs` = 60,
+      `heatmap-selectmatrix-sampleSelect` = "all",
+      `heatmap-groupby` = "condition",
       cluster_rows = FALSE,
-      cluster_cols = FALSE
+      cluster_cols = FALSE,
+      scale = "none",
+      n_components = 10
     )
-    session$flushReact()
+    session$elapse(400)
 
     expect_true(is.finite(heatmapOnlyHeight()))
   })

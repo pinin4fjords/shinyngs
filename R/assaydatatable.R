@@ -70,7 +70,10 @@ assaydatatableOutput <- function(id) {
 
   moduleMain(
     NULL,
-    htmlOutput(ns("assaydatatable")),
+    simpletableOutput(
+      ns("assaydatatable"),
+      tabletitle = textOutput(ns("assaydatatable_title"), inline = TRUE)
+    ),
     help = modalInput(ns(assaydatatable_modal$id), "help", "help")
   )
 }
@@ -111,17 +114,16 @@ assaydatatable <- function(id, eselist) {
 
     # Render the output area - and provide an input-dependent title
 
-    output$assaydatatable <- renderUI({
-      ns <- session$ns
-
-      simpletableOutput(ns("assaydatatable"), tabletitle = paste("Assay data", selectmatrix_reactives$getAssay(), sep = ": "), spinner = TRUE)
+    output$assaydatatable_title <- renderText({
+      paste("Assay data", selectmatrix_reactives$getAssay(), sep = ": ")
     })
 
     # Pass the matrix to the simpletable module for display
 
     simpletable("assaydatatable",
       downloadMatrix = selectmatrix_reactives$selectLabelledMatrix, displayMatrix = selectmatrix_reactives$selectLabelledLinkedMatrix,
-      filename = selectmatrix_reactives$getAssay(), rownames = FALSE
+      filename = selectmatrix_reactives$getAssay(), rownames = FALSE,
+      ready = selectmatrix_reactives$inputsReady
     )
   })
 }

@@ -1,9 +1,8 @@
 # URL bookmarking round-trip
 #
 # Runs from an on-disk app.R (see shinytest2_bookmark_app_driver) so bookmarking
-# is enabled at session construction, as in real use. Restored values are read
-# from the DOM: updateNumericInput() etc. set the control's value on restore but
-# the client input registry only reflects it once the input reports.
+# is enabled at session construction, as in real use. Restored dynamic controls
+# are read from the DOM after they bind to the client.
 #
 # Split into its own file (rather than living alongside the other rnaseq
 # AppDriver tests) since its 40s timeouts and separate on-disk-app process

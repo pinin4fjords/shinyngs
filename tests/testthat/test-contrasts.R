@@ -19,6 +19,119 @@ test_that("fold_change handles a mix of increases, decreases and no change", {
   expect_equal(fold_change(vec1, vec2), c(1, 2, -2))
 })
 
+test_that("contrast filter sets have complete server-side initial values", {
+  contrast_numbers <- c("first" = "1", "second" = "2")
+
+  values <- initialContrastFilterSetValues(
+    contrast_numbers,
+    multiple = TRUE,
+    select_all_contrasts = FALSE,
+    filter_rows = TRUE,
+    default_foldchange = 2,
+    default_pval = 0.05,
+    default_qval = 0.1,
+    pvals_available = TRUE,
+    qvals_available = TRUE
+  )
+
+  expect_equal(values, list(
+    contrasts = "1",
+    fold_change = 2,
+    fold_change_card = ">= or <= -",
+    p_value = 0.05,
+    p_value_card = "<=",
+    q_value = 0.1,
+    q_value_card = "<="
+  ))
+})
+
+test_that("contrast filter set initial values match selection and restore state", {
+  contrast_numbers <- c("first" = "1", "second" = "2")
+
+  values <- initialContrastFilterSetValues(
+    contrast_numbers,
+    multiple = TRUE,
+    select_all_contrasts = TRUE,
+    filter_rows = TRUE,
+    default_foldchange = 2,
+    default_pval = 0.05,
+    default_qval = 0.1,
+    pvals_available = FALSE,
+    qvals_available = FALSE,
+    restored = list(contrasts = "2", fold_change = 3)
+  )
+
+  expect_equal(values, list(
+    contrasts = "2",
+    fold_change = 3,
+    fold_change_card = ">= or <= -"
+  ))
+})
+
+test_that("destroyContrastFilterObservers destroys only the requested observer sets", {
+  destroyed <- character()
+  make_observer <- function(id) {
+    list(destroy = function() destroyed <<- c(destroyed, id))
+  }
+  observer_sets <- list(
+    filter0 = list(make_observer("filter0-a"), make_observer("filter0-b")),
+    filter1 = list(make_observer("filter1"))
+  )
+
+  remaining <- destroyContrastFilterObservers(observer_sets, "filter0")
+
+  expect_setequal(destroyed, c("filter0-a", "filter0-b"))
+  expect_null(remaining$filter0)
+  expect_length(remaining$filter1, 1)
+
+  remaining <- destroyContrastFilterObservers(remaining, "filter0")
+  remaining <- destroyContrastFilterObservers(remaining)
+
+  expect_setequal(destroyed, c("filter0-a", "filter0-b", "filter1"))
+  expect_length(remaining, 0)
+})
+
+test_that("base contrast tables do not force the selected expression subset", {
+  selected_matrix_calls <- 0L
+  selected_rows_calls <- 0L
+  ese <- make_medium_module_eselist()[[1]]
+  summaries <- list(condition = cbind(ctrl = seq_len(nrow(ese)), treated = seq_len(nrow(ese)) + 1))
+  rownames(summaries$condition) <- rownames(ese)
+  contrast <- list("1" = list(Variable = "condition", Group.1 = "ctrl", Group.2 = "treated"))
+
+  selectmatrix_reactives <- list(
+    selectMatrix = function() {
+      selected_matrix_calls <<- selected_matrix_calls + 1L
+      matrix(0, nrow = 1, dimnames = list(rownames(ese)[1], "s1"))
+    },
+    selectRows = function() {
+      selected_rows_calls <<- selected_rows_calls + 1L
+      rownames(ese)[1]
+    },
+    getExperimentId = function() "counts",
+    getExperiment = function() ese,
+    getAssay = function() "counts"
+  )
+
+  shiny::testServer(function(input, output, session) {
+    tables <- contrastTableBuilder(
+      selectmatrix_reactives,
+      getSummaryType = function() "mean",
+      getSummaries = function() summaries,
+      getAllContrasts = function() contrast,
+      getAllContrastsNumbers = function() c("condition: treated vs ctrl" = "1"),
+      fcsAvailable = function() FALSE,
+      pvalsAvailable = function() FALSE,
+      qvalsAvailable = function() FALSE
+    )
+  }, {
+    expect_equal(nrow(shiny::isolate(tables$contrastsTables()[[1]])), nrow(ese))
+    expect_equal(nrow(shiny::isolate(tables$contrastsTablesToMatchMatrix()[[1]])), 1L)
+  })
+  expect_equal(selected_matrix_calls, 0L)
+  expect_equal(selected_rows_calls, 1L)
+})
+
 # contrastSelection()$getSelectedContrastSamples()
 
 test_that("getSelectedContrastSamples resolves samples for the selected contrast(s), nested per filter set", {

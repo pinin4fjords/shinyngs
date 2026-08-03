@@ -106,6 +106,8 @@ contrastsOutput <- function(id) {
 #' @param multiple Allow selection of multiple contrasts?
 #' @param select_all_contrasts Select all contrasts by default?
 #' @param show_controls Show the controls for contrast selection?
+#' @param summarise Match the corresponding \code{contrastsInput()} setting.
+#'   When `TRUE`, wait for the summary-type input before producing contrast data.
 #' @param default_foldchange default value for the fold change filter
 #' @param default_pval Default value for the p value field
 #' @param default_qval Default value for the q value field
@@ -115,7 +117,7 @@ contrastsOutput <- function(id) {
 #' @examples
 #' contrasts("differential", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = TRUE)
 #'
-contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1) {
+contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = FALSE, select_all_contrasts = FALSE, show_controls = TRUE, summarise = TRUE, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -136,6 +138,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
 
     tables <- contrastTableBuilder(
       selectmatrix_reactives,
+      getSummaryType = enumeration$getSummaryType,
       getSummaries = enumeration$getSummaries,
       getAllContrasts = enumeration$getAllContrasts,
       getAllContrastsNumbers = enumeration$getAllContrastsNumbers,
@@ -143,6 +146,17 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       pvalsAvailable = enumeration$pvalsAvailable,
       qvalsAvailable = enumeration$qvalsAvailable
     )
+
+    inputsReady <- reactive({
+      req(filter_set$inputsReady())
+      if (!is.null(selectmatrix_reactives$inputsReady)) {
+        req(selectmatrix_reactives$inputsReady())
+      }
+      if (summarise) {
+        req(inputsInitialised(input[["contrasts-summaryType"]]))
+      }
+      TRUE
+    })
 
     selection <- contrastSelection(
       getSelectedContrastNumbers = filter_set$getSelectedContrastNumbers,
@@ -166,7 +180,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       pvalsAvailable = enumeration$pvalsAvailable,
       qvalsAvailable = enumeration$qvalsAvailable,
       getFilterRows = filter_set$getFilterRows,
-      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator
+      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator,
+      inputsReady = filter_set$inputsReady
     )
 
     labelling <- contrastLabelling(
@@ -183,7 +198,8 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       getFilterSetValues = filter_set$getFilterSetValues,
       selectFilterFinalFeatures = filtering$selectFilterFinalFeatures,
       selectFinalFeatures = filtering$selectFinalFeatures,
-      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator
+      getFilterSetCombinationOperator = filter_set$getFilterSetCombinationOperator,
+      inputsReady = inputsReady
     )
 
     list(
@@ -192,6 +208,7 @@ contrasts <- function(id, eselist, selectmatrix_reactives = list(), multiple = F
       getAllContrasts = enumeration$getAllContrasts, getSelectedContrasts = selection$getSelectedContrasts, getSelectedContrastNumbers = filter_set$getSelectedContrastNumbers,
       getSelectedContrastNames = selection$getSelectedContrastNames, getSafeSelectedContrastNames = selection$getSafeSelectedContrastNames,
       getContrastSamples = enumeration$getContrastSamples, getSelectedContrastSamples = selection$getSelectedContrastSamples,
+      inputsReady = inputsReady,
       contrastsTables = tables$contrastsTables, filteredContrastsTables = filtering$filteredContrastsTables, labelledContrastsTable = labelling$labelledContrastsTable,
       linkedLabelledContrastsTable = labelling$linkedLabelledContrastsTable,
       makeDifferentialSetSummary = query_summary$makeDifferentialSetSummary, getQueryStrings = query_summary$getQueryStrings, selectedContrastsTables = filtering$selectedContrastsTables
@@ -238,7 +255,10 @@ contrastEnumeration <- function(eselist, selectmatrix_reactives) {
 
       summaries
     }
-  })
+  }) %>% bindCache(
+    getSummaryType(), selectmatrix_reactives$getExperimentId(),
+    selectmatrix_reactives$getAssay(), getAllContrasts()
+  )
 
   # Get all the contrasts the user specified in their StructuredExperiment- if any
 
@@ -329,7 +349,7 @@ contrastEnumeration <- function(eselist, selectmatrix_reactives) {
   })
 
   list(
-    getSummaries = getSummaries, getAllContrasts = getAllContrasts, getAllContrastsNumbers = getAllContrastsNumbers,
+    getSummaryType = getSummaryType, getSummaries = getSummaries, getAllContrasts = getAllContrasts, getAllContrastsNumbers = getAllContrastsNumbers,
     getContrastSamples = getContrastSamples, fcsAvailable = fcsAvailable, getFoldChangeScale = getFoldChangeScale,
     pvalsAvailable = pvalsAvailable, qvalsAvailable = qvalsAvailable
   )
@@ -384,6 +404,46 @@ contrastNaming <- function(getAllContrasts) {
   list(makeContrastNames = makeContrastNames, makeSafeContrastNames = makeSafeContrastNames)
 }
 
+initialContrastFilterSetValues <- function(contrast_numbers, multiple, select_all_contrasts, filter_rows,
+                                           default_foldchange, default_pval, default_qval,
+                                           pvals_available, qvals_available, restored = NULL) {
+  selected_contrasts <- unname(contrast_numbers[1])
+  if (multiple && select_all_contrasts) {
+    selected_contrasts <- unname(contrast_numbers)
+  }
+
+  values <- list(contrasts = selected_contrasts)
+  if (filter_rows) {
+    values$fold_change <- default_foldchange
+    values$fold_change_card <- ">= or <= -"
+    if (pvals_available) {
+      values$p_value <- default_pval
+      values$p_value_card <- "<="
+    }
+    if (qvals_available) {
+      values$q_value <- default_qval
+      values$q_value_card <- "<="
+    }
+  }
+
+  if (!is.null(restored)) {
+    for (field in intersect(names(restored), names(values))) {
+      values[[field]] <- restored[[field]]
+    }
+  }
+  values
+}
+
+destroyContrastFilterObservers <- function(observer_sets, filter_ids = names(observer_sets)) {
+  for (filter_id in intersect(filter_ids, names(observer_sets))) {
+    for (observer in observer_sets[[filter_id]]) {
+      observer$destroy()
+    }
+    observer_sets[[filter_id]] <- NULL
+  }
+  observer_sets
+}
+
 #' The dynamic contrast filter-set engine
 #'
 #' Owns everything about the progressively-addable filter sets: inserting and
@@ -392,7 +452,7 @@ contrastNaming <- function(getAllContrasts) {
 #' mutated by per-field observers), rebuilding on assay change, and
 #' bookmarking/restoring that state. Each of those concerns is a named helper
 #' (\code{insertFilterSet}, \code{removeFilterSet},
-#' \code{resetFilterSetsOnAssayChange}, and the bookmark
+#' \code{resetFilterSets}, and the bookmark
 #' snapshot/restore/clear helpers); the small amount of non-reactive
 #' bookkeeping they share (\code{inserted}, \code{filter_observers},
 #' \code{restored_filtersets}) lives in the \code{engine_state} environment
@@ -436,13 +496,25 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   engine_state$inserted <- c()
   engine_state$filter_observers <- list()
   engine_state$restored_filtersets <- NULL
+  engine_state$filter_context <- NULL
+  engine_state$insert_clicks <- 0
+  engine_state$restore_requests <- 0
+  engine_state$known_filter_ids <- character()
+
+  destroyFilterObservers <- function(filter_ids = names(engine_state$filter_observers)) {
+    engine_state$filter_observers <- destroyContrastFilterObservers(
+      engine_state$filter_observers,
+      filter_ids
+    )
+    invisible(NULL)
+  }
 
   # Stores the current values of each filter set, keyed by filter set id. A
   # reactiveVal so that reading it inside a reactive (e.g. getFoldChange())
   # establishes a dependency that reruns when a field observer updates it.
 
   filterset_values <- reactiveVal(list())
-
+  filter_generation <- reactiveVal(0L)
   # insert_more is a bare counter the insert observer depends on, so restored
   # filter sets beyond the first can be re-inserted one at a time.
 
@@ -455,11 +527,18 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     as.logical(input$filterRows)
   })
 
-  # Seed a freshly-inserted filter set's fields from bookmarked values. The
-  # per-field observers created alongside the set then propagate these into
-  # filterset_values, re-establishing the normal dependency chain.
+  # Dynamic inputs can be overwritten when Shiny applies its bookmarked input
+  # state after insertUI(), so restored values are replayed once they are bound.
 
   applyRestoredFilterSet <- function(index, vals) {
+    freezeReactiveInputs(
+      input,
+      paste0("contrasts", index),
+      paste0(c(
+        "fold_change", "q_value", "p_value",
+        "fold_change_card", "q_value_card", "p_value_card"
+      ), index)
+    )
     if (!is.null(vals$contrasts)) {
       updateSelectInput(session, paste0("contrasts", index), selected = vals$contrasts)
     }
@@ -486,11 +565,8 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     filterset_values(current)
   }
 
-  # Re-seed a just-(re)created filter set from bookmarked values while a
-  # restore is pending. The assay-change reset rebuilds the sets whenever
-  # selectMatrix() changes as inputs restore, so applying once would be
-  # wiped; re-applying here survives that churn until onRestored clears the
-  # pending state.
+  # Replay the current filter set and insert any additional sets captured in a
+  # bookmark while the restore lifecycle is active.
 
   replayPendingRestore <- function(btn) {
     if (is.null(engine_state$restored_filtersets)) {
@@ -524,6 +600,7 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     }))
     contrasts <- contrasts[valid_contrasts]
     contrast_numbers <- contrast_numbers[valid_contrasts]
+    filter_rows <- getFilterRows()
 
     # btn keeps track of how many filter sets have been added
 
@@ -531,16 +608,42 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 
     # Call makeContrastFilterSet() to generate a set of filters, and add to the UI with insertUI()
 
+    restored <- NULL
+    if (!is.null(engine_state$restored_filtersets) && btn < length(engine_state$restored_filtersets)) {
+      restored <- engine_state$restored_filtersets[[btn + 1]]
+    }
+    initial_values <- initialContrastFilterSetValues(
+      contrast_numbers, multiple, select_all_contrasts, filter_rows,
+      default_foldchange, default_pval, default_qval,
+      pvalsAvailable(), qvalsAvailable(), restored
+    )
+
+    filter_input_ids <- c(
+      paste0("contrasts", btn),
+      paste0(c(
+        "fold_change", "q_value", "p_value",
+        "fold_change_card", "q_value_card", "p_value_card"
+      ), btn)
+    )
+    filterId <- paste0("filter", btn)
+    if (filterId %in% engine_state$known_filter_ids) {
+      freezeReactiveInputs(input, filter_input_ids)
+    }
+    engine_state$known_filter_ids <- union(engine_state$known_filter_ids, filterId)
+
     insertUI(selector = paste0("#", ns("contrasts-placeholder")), where = "beforeEnd", ui = makeContrastFilterSet(ns, ese, assay, contrasts, contrast_numbers,
       multiple = multiple, show_controls = show_controls, default_foldchange = default_foldchange, default_pval = default_pval, default_qval = default_qval,
-      filter_rows = getFilterRows(), index = btn, select_all_contrasts = select_all_contrasts
+      filter_rows = filter_rows, index = btn, select_all_contrasts = select_all_contrasts, initial_values = initial_values
     ))
 
     # Record the ID of the added filter set
 
     engine_state$inserted <- c(engine_state$inserted, paste0("contrast", btn))
+    filter_generation(filter_generation() + 1L)
 
-    filterId <- paste0("filter", btn)
+    current <- filterset_values()
+    current[[filterId]] <- initial_values
+    filterset_values(current)
 
     engine_state$filter_observers[[filterId]] <- lapply(c("contrasts", "fold_change", "q_value", "p_value", "fold_change_card", "q_value_card", "p_value_card"), function(field) {
       filter_field_id <- paste0(field, btn)
@@ -560,51 +663,98 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     replayPendingRestore(btn)
   }
 
-  observeEvent(
-    {
-      selectmatrix_reactives$selectMatrix()
-      input$insertBtn
-      insert_more()
-    },
-    insertFilterSet(),
-    ignoreNULL = FALSE,
-    priority = 1
-  )
+  filterSetContext <- reactive({
+    list(
+      experiment = selectmatrix_reactives$getExperimentId(),
+      assay = selectmatrix_reactives$getAssay(),
+      samples = selectmatrix_reactives$selectSamples()
+    )
+  })
+
+  filterSetEvent <- reactive({
+    list(
+      context = filterSetContext(),
+      insert_clicks = if (is.null(input$insertBtn)) 0 else input$insertBtn,
+      restore_requests = insert_more()
+    )
+  })
 
   # Remove the most-recently-inserted filter set, both its UI element and its
   # stored values in filterset_values, when the 'remove' button is clicked.
 
   removeFilterSet <- function() {
     if (length(engine_state$inserted) > 1) {
-      removeUI(selector = paste0("#", engine_state$inserted[length(engine_state$inserted)]))
+      removed_id <- engine_state$inserted[length(engine_state$inserted)]
+      filter_id <- sub("^contrast", "filter", removed_id)
+      destroyFilterObservers(filter_id)
+      removeUI(selector = paste0("#", removed_id))
       engine_state$inserted <- engine_state$inserted[-length(engine_state$inserted)]
+      filter_generation(filter_generation() + 1L)
 
       current <- filterset_values()
-      current[[length(current)]] <- NULL
+      current[[filter_id]] <- NULL
       filterset_values(current)
     }
   }
 
   observeEvent(input$removeBtn, removeFilterSet())
 
-  # When a new assay is selected, or the input matrix is otherwise changed,
-  # tear down all filter sets so they get rebuilt from scratch.
+  # Rebuild filter sets when their experiment, assay, or sample context changes.
 
-  resetFilterSetsOnAssayChange <- function() {
+  resetFilterSets <- function() {
     if (length(engine_state$inserted) > 0) {
+      destroyFilterObservers()
       filterset_values(list())
       removeUI(selector = ".shinyngs-contrast", multiple = TRUE, immediate = TRUE)
       engine_state$inserted <- c()
+      filter_generation(filter_generation() + 1L)
     }
   }
 
-  observeEvent(selectmatrix_reactives$selectMatrix(), resetFilterSetsOnAssayChange(), priority = 2)
+  # Input binding can invalidate the context without changing its value. Only
+  # genuine context or counter changes should rebuild or add filter sets.
+
+  observeEvent(
+    filterSetEvent(),
+    {
+      event <- filterSetEvent()
+      context_changed <- !identical(event$context, engine_state$filter_context)
+      insert_requested <- event$insert_clicks > engine_state$insert_clicks
+      restore_requested <- event$restore_requests > engine_state$restore_requests
+
+      engine_state$filter_context <- event$context
+      engine_state$insert_clicks <- event$insert_clicks
+      engine_state$restore_requests <- event$restore_requests
+
+      if (context_changed) {
+        resetFilterSets()
+      }
+      if (context_changed || insert_requested || restore_requested) {
+        insertFilterSet()
+      }
+    },
+    ignoreNULL = FALSE,
+    priority = 1
+  )
 
   # The combine_operator field is only necessary with more than one filter set
 
+  combine_control <- reactiveVal(NULL)
+  observe({
+    show_control <- length(getSelectedContrastNumbers()) > 1
+    previous <- isolate(combine_control())
+    if (!identical(show_control, previous)) {
+      if (!is.null(previous)) {
+        freezeReactiveInputs(input, "combine_operator")
+      }
+      combine_control(show_control)
+    }
+  }, priority = 1000)
+
   output$combine_operator_ui <- renderUI({
-    scn <- getSelectedContrastNumbers()
-    if (length(scn) > 1) {
+    show_control <- combine_control()
+    req(!is.null(show_control))
+    if (show_control) {
       inline_field(selectInput(ns("combine_operator"), NULL, c(and = "intersect", or = "union")),
         label = "Combine using", 6,
         tooltip = "'Intersect' requires rows to satisfy every selected contrast filter; 'union' includes rows matching any one of them."
@@ -680,8 +830,41 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
   # Get method for combining filters
 
   getFilterSetCombinationOperator <- reactive({
-    validate(need(input$combine_operator, FALSE))
-    input$combine_operator
+    operator <- input$combine_operator
+    if (length(operator) != 1 || !operator %in% c("intersect", "union")) "intersect" else operator
+  })
+
+  inputsReady <- reactive({
+    filter_generation()
+    if (!inputsInitialised(input$filterRows, input$combine_operator) || length(engine_state$inserted) == 0) {
+      return(FALSE)
+    }
+
+    for (index in seq_along(engine_state$inserted) - 1L) {
+      required <- list(input[[paste0("contrasts", index)]])
+      if (isTRUE(input$filterRows)) {
+        required <- c(required, list(
+          input[[paste0("fold_change", index)]],
+          input[[paste0("fold_change_card", index)]]
+        ))
+        if (pvalsAvailable()) {
+          required <- c(required, list(
+            input[[paste0("p_value", index)]],
+            input[[paste0("p_value_card", index)]]
+          ))
+        }
+        if (qvalsAvailable()) {
+          required <- c(required, list(
+            input[[paste0("q_value", index)]],
+            input[[paste0("q_value_card", index)]]
+          ))
+        }
+      }
+      if (!do.call(inputsInitialised, required)) {
+        return(FALSE)
+      }
+    }
+    TRUE
   })
 
   ########################################################################### Bookmarking of the dynamically-built filter sets
@@ -702,24 +885,41 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
     }
   }
 
-  # Close the restore window once the restore flush has settled, so later
-  # user-driven filter sets start from defaults rather than the bookmarked
-  # values.
+  # insertUI() must reach the browser before update*Input() can reliably target
+  # restored controls. Reapply after the dynamic sets exist, then close the
+  # restore window on the following flush.
 
-  clearPendingRestore <- function() {
-    engine_state$restored_filtersets <- NULL
+  finishPendingRestore <- function() {
+    restored <- engine_state$restored_filtersets
+    if (is.null(restored)) {
+      return(invisible())
+    }
+    if (length(engine_state$inserted) < length(restored)) {
+      session$onFlushed(finishPendingRestore, once = TRUE)
+      return(invisible())
+    }
+
+    for (index in seq_along(restored)) {
+      applyRestoredFilterSet(index - 1, restored[[index]])
+    }
+    session$onFlushed(function() {
+      engine_state$restored_filtersets <- NULL
+    }, once = TRUE)
   }
 
   onBookmark(snapshotFilterSetsForBookmark)
   onRestore(restorePendingFilterSets)
-  onRestored(function(bookmark_state) clearPendingRestore())
+  onRestored(function(bookmark_state) {
+    session$onFlushed(finishPendingRestore, once = TRUE)
+  })
 
   list(
     getFilterRows = getFilterRows, getSelectedContrastNumbers = getSelectedContrastNumbers,
     getFoldChange = getFoldChange, getFoldChangeCard = getFoldChangeCard,
     getQval = getQval, getQvalCard = getQvalCard, getPval = getPval, getPvalCard = getPvalCard,
     getFilterSetCombinationOperator = getFilterSetCombinationOperator,
-    getFilterSetValues = filterset_values
+    getFilterSetValues = filterset_values,
+    inputsReady = inputsReady
   )
 }
 
@@ -731,27 +931,21 @@ contrastFilterSetEngine <- function(ns, input, output, session, selectmatrix_rea
 #' currently selected input matrix.
 #'
 #' @param selectmatrix_reactives Reactives from the \code{selectmatrix} module
-#' @param getSummaries,getAllContrasts,getAllContrastsNumbers,fcsAvailable,pvalsAvailable,qvalsAvailable
+#' @param getSummaryType,getSummaries,getAllContrasts,getAllContrastsNumbers,fcsAvailable,pvalsAvailable,qvalsAvailable
 #'   Reactives from \code{contrastEnumeration}
 #'
 #' @return A list of reactives: \code{contrastsTables},
 #'   \code{contrastsTablesToMatchMatrix}
 #' @noRd
-contrastTableBuilder <- function(selectmatrix_reactives, getSummaries, getAllContrasts, getAllContrastsNumbers, fcsAvailable, pvalsAvailable, qvalsAvailable) {
+contrastTableBuilder <- function(selectmatrix_reactives, getSummaryType, getSummaries, getAllContrasts, getAllContrastsNumbers, fcsAvailable, pvalsAvailable, qvalsAvailable) {
   # Main function for returning the table of contrast information. Means, fold changes calculated on the fly, p/q values must be supplied in a 'contrast_stats' slot
   # of the ExploratorySummarizedExperiment. Make a summary table for every contrast. This data can then be re-used when processing filter sets.
 
   contrastsTables <- reactive({
-    matrix <- selectmatrix_reactives$selectMatrix()
-
     ese <- selectmatrix_reactives$getExperiment()
     summaries <- getSummaries()
     contrasts <- getAllContrasts()
     assay <- selectmatrix_reactives$getAssay()
-
-    # There can be a mismatch between the conrasts and summaries as we adjust the input matrix. Wait for updates to finish before making the table.
-
-    # validate(need(all(unlist(lapply(selected_contrasts, function(x) all(x[-1] %in% colnames(summaries[[x[1]]]))))), 'Matching summaries and contrasts'))
 
     withProgress(message = "Calculating contrast tables", value = 0, {
       contrast_tables <- lapply(names(contrasts), function(c) {
@@ -788,7 +982,10 @@ contrastTableBuilder <- function(selectmatrix_reactives, getSummaries, getAllCon
 
     names(contrast_tables) <- getAllContrastsNumbers()
     contrast_tables
-  })
+  }) %>% bindCache(
+    selectmatrix_reactives$getExperimentId(), selectmatrix_reactives$getAssay(),
+    getSummaryType(), getAllContrasts()
+  )
 
   ########################################################################### Subsetting using the rows in the input matrix. This does NOT involve the filters from this module, but simply subsets the base data to the rows pertinent
   ########################################################################### to the input matrix.
@@ -797,10 +994,10 @@ contrastTableBuilder <- function(selectmatrix_reactives, getSummaries, getAllCon
 
   contrastsTablesToMatchMatrix <- reactive({
     contrast_tables <- contrastsTables()
-    matrix <- selectmatrix_reactives$selectMatrix()
+    rows <- selectmatrix_reactives$selectRows()
 
     lapply(contrast_tables, function(ct) {
-      ct[rownames(matrix), ]
+      ct[rows, , drop = FALSE]
     })
   })
 
@@ -898,10 +1095,11 @@ contrastSelection <- function(getSelectedContrastNumbers, getAllContrasts, getCo
 #' @noRd
 contrastFiltering <- function(selectmatrix_reactives, getSelectedContrastNumbers, contrastsTablesToMatchMatrix, singleContrast,
                                getFoldChange, getFoldChangeCard, getPval, getPvalCard, getQval, getQvalCard,
-                               pvalsAvailable, qvalsAvailable, getFilterRows, getFilterSetCombinationOperator) {
+                               pvalsAvailable, qvalsAvailable, getFilterRows, getFilterSetCombinationOperator, inputsReady) {
   # Filter contrasts tables down to the contrasts of interest
 
   selectedContrastsTables <- reactive({
+    req(inputsReady())
     selected_contrasts <- getSelectedContrastNumbers()
     contrast_tables <- contrastsTablesToMatchMatrix()
 
@@ -1065,12 +1263,14 @@ count_differential_directions <- function(fold_changes) {
 #'   \code{contrastFilterSetEngine}
 #' @param getFilterSetCombinationOperator Reactive from
 #'   \code{contrastFilterSetEngine}
+#' @param inputsReady Reactive indicating that all controls used by the query
+#'   have reached the server.
 #'
 #' @return A list of reactives: \code{makeDifferentialSetSummary},
 #'   \code{getQueryStrings}
 #' @noRd
 contrastQuerySummary <- function(output, selectmatrix_reactives, filteredContrastsTables, getSelectedContrasts, makeContrastNames,
-                                  getFilterSetValues, selectFilterFinalFeatures, selectFinalFeatures, getFilterSetCombinationOperator) {
+                                  getFilterSetValues, selectFilterFinalFeatures, selectFinalFeatures, getFilterSetCombinationOperator, inputsReady) {
   # A summary table of differential expression
 
   makeDifferentialSetSummary <- reactive({
@@ -1144,6 +1344,7 @@ contrastQuerySummary <- function(output, selectmatrix_reactives, filteredContras
   ########################################################################### Tell the user something about the query and its results
 
   output$summary <- renderUI({
+    req(inputsReady())
     query_summary <- makeQuerySummary()
     comb_op <- getFilterSetCombinationOperator()
     operator <- ifelse(comb_op == "intersect", "AND", "OR")
@@ -1224,23 +1425,33 @@ fold_change <- function(vec1, vec2) {
 #' field set.
 #' @param filter_rows Use fold change and p value etc to filter values?
 #' @param select_all_contrasts Select all contrasts by default?
+#' @param initial_values Optional named list of initial field values
 #'
 #' @return output An HTML tag object that can be rendered as HTML using
 #' as.character()
 
 makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, multiple, show_controls, default_foldchange = 2, default_pval = 0.05, default_qval = 0.1,
-                                  index = "", filter_rows = TRUE, select_all_contrasts = FALSE) {
+                                  index = "", filter_rows = TRUE, select_all_contrasts = FALSE, initial_values = NULL) {
+  if (is.null(initial_values)) {
+    initial_values <- initialContrastFilterSetValues(
+      contrast_numbers, multiple, select_all_contrasts, filter_rows,
+      default_foldchange, default_pval, default_qval,
+      "pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals),
+      "qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)
+    )
+  }
+
   contrast_field_set <- list(makeContrastControl(ns(paste0("contrasts", index)), contrasts, contrast_numbers,
     multiple = multiple, show_controls = show_controls,
-    select_all = select_all_contrasts
+    select_all = select_all_contrasts, selected = initial_values$contrasts
   ))
 
   if (filter_rows) {
     # p value field
 
-    if ("pvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$pvals)) {
+    if (!is.null(initial_values$p_value)) {
       pval_field <- cardinalNumericField(ns(paste0("p_value", index)), ns(paste0("p_value_card", index)),
-        value = default_pval, label = "p value", min = 0,
+        value = initial_values$p_value, cardinality = initial_values$p_value_card, label = "p value", min = 0,
         max = 1, step = 0.01,
         tooltip = "Only include results with an unadjusted p value meeting this threshold and cardinality."
       )
@@ -1252,9 +1463,9 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
 
     # q value field
 
-    if ("qvals" %in% names(ese@contrast_stats[[assay]]) && !is.null(ese@contrast_stats[[assay]]$qvals)) {
+    if (!is.null(initial_values$q_value)) {
       qval_field <- cardinalNumericField(ns(paste0("q_value", index)), ns(paste0("q_value_card", index)),
-        value = default_qval, label = "q value", min = 0,
+        value = initial_values$q_value, cardinality = initial_values$q_value_card, label = "q value", min = 0,
         max = 1, step = 0.01,
         tooltip = "Only include results with a multiple-testing-adjusted q value (FDR) meeting this threshold and cardinality."
       )
@@ -1265,8 +1476,8 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
     contrast_field_set <- c(contrast_field_set, list(qval_field))
 
     fold_change_field <- cardinalNumericField(ns(paste0("fold_change", index)), ns(paste0("fold_change_card", index)),
-      value = default_foldchange, label = "fold change",
-      cardinality = ">= or <= -", step = 0.5,
+      value = initial_values$fold_change, label = "fold change",
+      cardinality = initial_values$fold_change_card, step = 0.5,
       tooltip = "Only include results with a fold change meeting this threshold; '>= or <= -' matches changes of this magnitude in either direction."
     )
     contrast_field_set <- c(contrast_field_set, list(fold_change_field))
@@ -1285,20 +1496,23 @@ makeContrastFilterSet <- function(ns, ese, assay, contrasts, contrast_numbers, m
 #' @param show_controls Show controls? Setting to false will cause them to be
 #' hidden.
 #' @param select_all Select all contrasts by default?
+#' @param selected Optional selected contrast values
 #'
 #' @return output An HTML tag object that can be rendered as HTML using
 #' as.character()
 
-makeContrastControl <- function(id, contrasts, contrast_numbers, multiple = FALSE, show_controls = TRUE, select_all = FALSE) {
+makeContrastControl <- function(id, contrasts, contrast_numbers, multiple = FALSE, show_controls = TRUE, select_all = FALSE, selected = NULL) {
   if (!is.null(contrast_numbers)) {
     if (multiple) {
-      selected <- contrast_numbers
-      if (!select_all) {
-        selected <- contrast_numbers[1]
+      if (is.null(selected)) {
+        selected <- contrast_numbers
+        if (!select_all) {
+          selected <- contrast_numbers[1]
+        }
       }
       cont_control <- selectInput(id, "Contrast(s):", choices = contrast_numbers, selected = selected, selectize = TRUE, multiple = TRUE)
     } else {
-      cont_control <- selectInput(id, "Contrast(s):", contrast_numbers)
+      cont_control <- selectInput(id, "Contrast(s):", contrast_numbers, selected = selected)
     }
 
     if (!show_controls) {

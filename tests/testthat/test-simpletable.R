@@ -11,6 +11,42 @@ test_that("simpletable renders the display matrix as a datatable", {
   )
 })
 
+test_that("simpletable does not evaluate its display matrix before inputs are ready", {
+  df <- data.frame(gene = c("g1", "g2"), value = c(1, 2))
+  ready <- reactiveVal(FALSE)
+  calls <- 0L
+  display_matrix <- reactive({
+    calls <<- calls + 1L
+    df
+  })
+
+  shiny::testServer(
+    simpletable,
+    args = list(id = "tbl", displayMatrix = display_matrix, filename = "mytable", ready = ready),
+    {
+      session$flushReact()
+      expect_equal(calls, 0L)
+
+      ready(TRUE)
+      session$flushReact()
+      expect_false(is.null(output$datatable))
+      expect_equal(calls, 1L)
+    }
+  )
+})
+
+test_that("simpletable leaves loading feedback to the page by default", {
+  html <- as.character(simpletableOutput("table"))
+
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
+})
+
+test_that("simpletable retains its explicit output-spinner option", {
+  html <- as.character(simpletableOutput("table", spinner = TRUE))
+
+  expect_match(html, "shiny-spinner-output-container", fixed = TRUE)
+})
+
 test_that("datatable escaping is enabled for ordinary data", {
   df <- data.frame(gene = "<script>alert(1)</script>")
 

@@ -74,6 +74,22 @@ test_that("shinyngsSpinnerColor returns the brand accent hex colour", {
   expect_match(shinyngsSpinnerColor(), "^#[0-9a-f]{6}$")
 })
 
+test_that("inputsInitialised distinguishes missing inputs from valid false and empty values", {
+  expect_false(inputsInitialised(NULL, FALSE, character()))
+  expect_true(inputsInitialised(FALSE, 0, "", character()))
+})
+
+# shinyngsPageLoader()
+
+test_that("shinyngsPageLoader is visible and accessible in the initial HTML", {
+  html <- as.character(shinyngsPageLoader())
+
+  expect_match(html, 'id="shinyngs-page-loader"', fixed = TRUE)
+  expect_match(html, 'role="status"', fixed = TRUE)
+  expect_match(html, 'aria-label="Loading page"', fixed = TRUE)
+  expect_false(grepl("shinyngs-page-loader--hidden", html, fixed = TRUE))
+})
+
 # shinyngsPlotlyConfig()
 
 test_that("shinyngsPlotlyConfig drops the plotly logo and the noisier selection buttons", {

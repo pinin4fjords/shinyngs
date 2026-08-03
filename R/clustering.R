@@ -79,9 +79,9 @@ clusteringOutput <- function(id) {
   moduleMain(
     NULL,
     uiOutput(ns("geneClusteringTitle")),
-    shinycssloaders::withSpinner(plotlyOutput(ns("geneClusteringPlot"), height = "600px"), color = shinyngsSpinnerColor()),
+    plotlyOutput(ns("geneClusteringPlot"), height = "600px"),
     h4("Table of values by cluster"),
-    simpletableOutput(ns("geneClusteringTable"), spinner = TRUE),
+    simpletableOutput(ns("geneClusteringTable")),
     help = modalInput(ns(clustering_modal$id), "help", "help")
   )
 }
@@ -117,6 +117,18 @@ clustering <- function(id, eselist) {
     selectmatrix_reactives <- selectmatrix("clustering", eselist, select_genes = TRUE, var_n = 1000, provide_all_genes = TRUE, default_gene_select = "variance")
 
     getPalette <- colormaker("clustering", getNumberCategories = getClusterNumber)
+
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        inputsInitialised(
+          input$cluster_number, input$cluster_display,
+          input$average_type, input$limits,
+          input[["clustering-palette_name"]]
+        )
+      )
+      TRUE
+    })
 
     ############################################################################# Form accessors
 
@@ -234,6 +246,7 @@ clustering <- function(id, eselist) {
     )
 
     output$geneClusteringPlot <- renderPlotly({
+      req(inputsReady())
       getClusterPlot() %>% shinyngsPlotlyConfig("clustering", format = session$userData$plotFormat())
     })
 
@@ -261,7 +274,7 @@ clustering <- function(id, eselist) {
 
     # Render the table and provide for download, using the simpletable module.
 
-    simpletable("geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix", rownames = FALSE)
+    simpletable("geneClusteringTable", downloadMatrix = makeMatrixWithClusters, displayMatrix = makeLinkedMatrixWithClusters, filter = "top", filename = "clustered_matrix", rownames = FALSE, ready = inputsReady)
   })
 }
 

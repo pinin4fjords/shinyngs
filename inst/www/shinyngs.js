@@ -152,4 +152,138 @@
     setPlotFormatButtonState(btn, next);
     if (window.Shiny) Shiny.setInputValue("shinyngs_plot_format", next, { priority: "event" });
   });
+
+  var PAGE_LOAD_QUIET_MS = 650;
+  var pageLoadActive = true;
+  var pageLoadConnected = false;
+  var pageLoadLastActivityAt = Date.now();
+  var pageLoadTimer = null;
+
+  function pageLoader() {
+    return document.getElementById("shinyngs-page-loader");
+  }
+
+  function elementIsVisible(el) {
+    if (!el || !el.isConnected) return false;
+    var style = getComputedStyle(el);
+    return style.display !== "none" && style.visibility !== "hidden" && el.getClientRects().length > 0;
+  }
+
+  function pageHasActiveWork() {
+    if (!pageLoadConnected || document.documentElement.classList.contains("shiny-busy")) return true;
+    if (document.querySelector(".shiny-progress-notification")) return true;
+    return Array.prototype.some.call(document.querySelectorAll(".recalculating"), elementIsVisible);
+  }
+
+  function showPageLoader() {
+    var loader = pageLoader();
+    if (!loader) return;
+    loader.classList.remove("shinyngs-page-loader--hidden");
+    loader.removeAttribute("aria-hidden");
+  }
+
+  function hidePageLoader() {
+    var loader = pageLoader();
+    if (loader) {
+      loader.classList.add("shinyngs-page-loader--hidden");
+      loader.setAttribute("aria-hidden", "true");
+    }
+    pageLoadActive = false;
+    pageLoadTimer = null;
+  }
+
+  function schedulePageLoadCheck(delay) {
+    if (!pageLoadActive) return;
+    clearTimeout(pageLoadTimer);
+    pageLoadTimer = setTimeout(checkPageLoadComplete, delay === undefined ? PAGE_LOAD_QUIET_MS : delay);
+  }
+
+  function notePageLoadActivity() {
+    if (!pageLoadActive) return;
+    pageLoadLastActivityAt = Date.now();
+    schedulePageLoadCheck();
+  }
+
+  function beginPageLoad() {
+    pageLoadActive = true;
+    pageLoadLastActivityAt = Date.now();
+    showPageLoader();
+    schedulePageLoadCheck();
+  }
+
+  function checkPageLoadComplete() {
+    if (!pageLoadActive) return;
+    if (pageHasActiveWork()) {
+      notePageLoadActivity();
+      return;
+    }
+    var quietFor = Date.now() - pageLoadLastActivityAt;
+    if (quietFor < PAGE_LOAD_QUIET_MS) {
+      schedulePageLoadCheck(PAGE_LOAD_QUIET_MS - quietFor);
+      return;
+    }
+    hidePageLoader();
+  }
+
+  function classifyProgressNotifications() {
+    document.querySelectorAll(".shiny-progress-notification").forEach(function (progress) {
+      var notification = progress.closest(".shiny-notification");
+      if (notification) notification.classList.add("shinyngs-progress-notification");
+    });
+  }
+
+  $(document).on("show.bs.tab.shinyngsPageLoad", ".navbar a[data-value]", function () {
+    beginPageLoad();
+  });
+
+  $(document).on("shiny:connected", function () {
+    pageLoadConnected = true;
+    notePageLoadActivity();
+  });
+
+  $(document).on("shiny:busy", function () {
+    notePageLoadActivity();
+  });
+
+  $(document).on("shiny:idle shiny:recalculating shiny:value", function () {
+    notePageLoadActivity();
+  });
+
+  $(function () {
+    classifyProgressNotifications();
+    var progressPanelObserver = null;
+    var observedProgressPanel = null;
+
+    function observeProgressPanel() {
+      var panel = document.getElementById("shiny-notification-panel");
+      if (panel === observedProgressPanel) return;
+      if (progressPanelObserver) progressPanelObserver.disconnect();
+      observedProgressPanel = panel;
+      progressPanelObserver = null;
+      if (panel) {
+        classifyProgressNotifications();
+        progressPanelObserver = new MutationObserver(function () {
+          classifyProgressNotifications();
+          notePageLoadActivity();
+        });
+        progressPanelObserver.observe(panel, { childList: true, subtree: true });
+      }
+      notePageLoadActivity();
+    }
+
+    observeProgressPanel();
+    new MutationObserver(function (mutations) {
+      var panelChanged = mutations.some(function (mutation) {
+        return Array.prototype.some.call(mutation.addedNodes, function (node) {
+          return node.nodeType === 1 && node.id === "shiny-notification-panel";
+        }) || Array.prototype.some.call(mutation.removedNodes, function (node) {
+          return node === observedProgressPanel;
+        });
+      });
+      if (panelChanged) {
+        observeProgressPanel();
+      }
+    }).observe(document.body, { childList: true });
+    schedulePageLoadCheck();
+  });
 })();

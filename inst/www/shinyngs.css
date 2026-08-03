@@ -98,6 +98,68 @@ h3{
   padding-right: 2.25rem;
 }
 
+/* One overlay represents the complete navigation cycle. It is visible in the
+   initial HTML and hidden only after the client observes a stable idle state. */
+.shinyngs-page-loader{
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--bs-body-bg-rgb), .86);
+  backdrop-filter: blur(1px);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .15s ease, visibility 0s linear 0s;
+}
+.shinyngs-page-loader--hidden{
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s ease, visibility 0s linear .15s;
+}
+.shinyngs-page-loader__spinner{
+  position: relative;
+  width: .7rem;
+  height: 2.8rem;
+  color: var(--bs-primary);
+  background: var(--bs-primary);
+  animation: shinyngs-page-loader-lines 1s infinite ease-in-out -.16s;
+}
+.shinyngs-page-loader__spinner::before,
+.shinyngs-page-loader__spinner::after{
+  position: absolute;
+  top: 0;
+  width: .7rem;
+  height: 2.8rem;
+  content: "";
+  background: var(--bs-primary);
+  animation: shinyngs-page-loader-lines 1s infinite ease-in-out;
+}
+.shinyngs-page-loader__spinner::before{
+  left: -1.1rem;
+  animation-delay: -.32s;
+}
+.shinyngs-page-loader__spinner::after{
+  left: 1.1rem;
+}
+@keyframes shinyngs-page-loader-lines{
+  0%, 80%, 100% { box-shadow: 0 0, 0 0; }
+  40% { box-shadow: 0 -1.4rem, 0 1.4rem; }
+}
+@media (prefers-reduced-motion: reduce){
+  .shinyngs-page-loader__spinner,
+  .shinyngs-page-loader__spinner::before,
+  .shinyngs-page-loader__spinner::after{ animation-duration: 1.8s; }
+}
+
+/* Progress notifications describe work already represented by the page
+   loader. Other Shiny notifications remain available to the user. */
+#shiny-notification-panel .shiny-notification:has(.shiny-progress-notification),
+#shiny-notification-panel .shinyngs-progress-notification{
+  display: none !important;
+}
+
 /* DataTables ships fixed light-theme text/border/stripe colours that do not
    follow Bootstrap's data-bs-theme, so tables render dark-on-dark (unreadable)
    in dark mode. Map them onto theme variables. Selectors are scoped under

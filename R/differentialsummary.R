@@ -58,17 +58,16 @@ differentialsummary <- function(id, eselist) {
     getDifferentialSummary <- contrast_reactives$makeDifferentialSetSummary
 
     output$parameters <- renderUI({
+      req(contrast_reactives$inputsReady())
       query_strings <- contrast_reactives$getQueryStrings()
       helpText(HTML(query_strings[1]))
     })
 
     output$plot_ui <- renderUI({
+      req(contrast_reactives$inputsReady())
       summary <- getDifferentialSummary()
       height <- min(1000, max(420, nrow(summary) * 38 + 160))
-      shinycssloaders::withSpinner(
-        plotlyOutput(session$ns("plot"), height = paste0(height, "px")),
-        color = shinyngsSpinnerColor()
-      )
+      plotlyOutput(session$ns("plot"), height = paste0(height, "px"))
     })
 
     getDifferentialSummaryPlot <- reactive({
@@ -76,6 +75,7 @@ differentialsummary <- function(id, eselist) {
     }) %>% bindCache(getDifferentialSummary())
 
     output$plot <- renderPlotly({
+      req(contrast_reactives$inputsReady())
       getDifferentialSummaryPlot() %>%
         shinyngsPlotlyConfig("differential_summary", format = session$userData$plotFormat())
     })
@@ -85,7 +85,8 @@ differentialsummary <- function(id, eselist) {
       downloadMatrix = getDifferentialSummary,
       displayMatrix = getDifferentialSummary,
       filter = "none", filename = "differential_summary",
-      rownames = FALSE, server = FALSE
+      rownames = FALSE, server = FALSE,
+      ready = contrast_reactives$inputsReady
     )
   })
 }

@@ -100,7 +100,7 @@ genesetbarcodeplotOutput <- function(id) {
 
   moduleMain(
     "Gene set barcode plot",
-    shinycssloaders::withSpinner(plotlyOutput(ns("genesetbarcodeplot"), height = "460px"), color = shinyngsSpinnerColor()),
+    plotlyOutput(ns("genesetbarcodeplot"), height = "460px"),
     h4("Gene set differential expression"),
     simpletableOutput(ns("genesetbarcodeplot")),
     help = modalInput(ns(genesetbarcodeplot_modal$id), "help", "help")
@@ -164,6 +164,15 @@ genesetbarcodeplot <- function(id, eselist) {
     # Parse the gene sets for ease of use
 
     genesetselect_reactives <- genesetselect("genesetbarcodeplot", eselist, selectmatrix_reactives$getExperiment, multiple = FALSE)
+
+    inputsReady <- reactive({
+      req(
+        selectmatrix_reactives$inputsReady(),
+        contrast_reactives$inputsReady(),
+        genesetselect_reactives$inputsReady()
+      )
+      TRUE
+    })
 
     # Every gene set stays selectable here, whether or not it has a GSEA/ROAST
     # result for the current assay/contrast: the plot itself only needs fold
@@ -231,6 +240,7 @@ genesetbarcodeplot <- function(id, eselist) {
     # Render the barcode plot
 
     output$genesetbarcodeplot <- renderPlotly({
+      req(inputsReady())
       set_genes <- genesetselect_reactives$getPathwayGenes()
 
       interactive_barcodeplot(
@@ -262,7 +272,7 @@ genesetbarcodeplot <- function(id, eselist) {
 
     # Provide the gene set genes in a table of contrst data
 
-    simpletable("genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, pageLength = 10)
+    simpletable("genesetbarcodeplot", downloadMatrix = gsbpContrastsTable, displayMatrix = gsbpLinkedContrastsTable, filename = "gene_set_contrast", rownames = FALSE, pageLength = 10, ready = inputsReady)
 
     # Catch the gene set from the URL
 

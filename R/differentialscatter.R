@@ -77,7 +77,10 @@ differentialscatterOutput <- function(id, scatter_id, title, modal) {
   moduleMain(
     title,
     scatterplotOutput(ns(scatter_id)),
-    htmlOutput(ns(paste0(scatter_id, "table"))),
+    simpletableOutput(
+      ns(paste0(scatter_id, "table")),
+      tabletitle = textOutput(ns(paste0(scatter_id, "table_title")), inline = TRUE)
+    ),
     help = modalInput(ns(modal$id), "help", "help")
   )
 }
@@ -129,8 +132,8 @@ differentialscatterLogic <- function(input, output, session, eselist, scatter_id
 
   table_id <- paste0(scatter_id, "table")
 
-  output[[table_id]] <- renderUI({
-    simpletableOutput(ns(table_id), tabletitle = paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": "), spinner = TRUE)
+  output[[paste0(table_id, "_title")]] <- renderText({
+    paste("Plot data for contrast", contrast_reactives$getSelectedContrastNames()[[1]][[1]], sep = ": ")
   })
 
   # Build the annotated table of values to use in the plot
@@ -161,13 +164,26 @@ differentialscatterLogic <- function(input, output, session, eselist, scatter_id
     scatterTable()$colorby
   })
 
+  inputsReady <- reactive({
+    req(
+      selectmatrix_reactives$inputsReady(),
+      contrast_reactives$inputsReady(),
+      geneselect_reactives$inputsReady()
+    )
+    TRUE
+  })
+
   # Pass the matrix to the scatterplot module for display
 
-  scatterplot(scatter_id, getDatamatrix = scatterTable, getTitle = getTitle, allow_3d = FALSE, getLabels = scatterLabels, x = 1, y = 2, getColorby = getColorby, getLines = plotLines)
+  scatterplot(scatter_id,
+    getDatamatrix = scatterTable, getTitle = getTitle, allow_3d = FALSE,
+    getLabels = scatterLabels, x = 1, y = 2, getColorby = getColorby,
+    getLines = plotLines, inputsReady = inputsReady, make_colors = TRUE
+  )
 
   # Display the data as a table alongside
 
-  simpletable(table_id, downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = filename, rownames = FALSE, pageLength = 10)
+  simpletable(table_id, downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = filename, rownames = FALSE, pageLength = 10, ready = inputsReady)
 }
 
 #' Annotate a differential-scatter table with colorby and label columns

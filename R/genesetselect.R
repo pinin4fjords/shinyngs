@@ -60,6 +60,9 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
 
     restored_geneset <- new.env(parent = emptyenv())
     restored_geneset$value <- NULL
+    control_state <- new.env(parent = emptyenv())
+    control_state$gene_set_types <- NULL
+    control_state$choices <- NULL
 
     onRestore(function(state) {
       val <- bookmarkedInputValue(state, session, "geneSets")
@@ -78,13 +81,25 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       gene_sets
     })
 
+    observeEvent(input$geneSetTypes, {
+      selected <- input$geneSetTypes
+      if (!is.null(control_state$gene_set_types) && !identical(selected, control_state$gene_set_types)) {
+        freezeReactiveInputs(input, "geneSets")
+      }
+      control_state$gene_set_types <- selected
+    }, ignoreNULL = TRUE, priority = 1000)
+
     # Allow user to select the type of gene set
 
     output$geneSetTypes_ui <- renderUI({
       if (filter_by_type) {
         gene_set_types <- names(getGeneSetsForLabelfield())
+        selected <- isolate(input$geneSetTypes)
+        if (length(selected) != 1 || !selected %in% gene_set_types) {
+          selected <- gene_set_types[1]
+        }
         ns <- session$ns
-        selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = gene_set_types[1])
+        selectInput(ns("geneSetTypes"), "Gene set type", gene_set_types, selected = selected)
       }
     })
 
@@ -94,8 +109,9 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       if (!filter_by_type) {
         names(getGeneSetsForLabelfield())
       } else {
+        available <- names(getGeneSetsForLabelfield())
         selected <- input$geneSetTypes
-        if (is.null(selected)) names(getGeneSetsForLabelfield())[1] else selected
+        if (length(selected) != 1 || !selected %in% available) available[1] else selected
       }
     })
 
@@ -133,8 +149,19 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       restored_geneset$value <- NULL
 
       choices <- restrict_geneset_choices(getGeneSetNames(), getGeneSetCodesByIDs(), available_ids)
+      choices_changed <- !identical(choices, control_state$choices)
+      selection_changed <- !is.null(selected) && !identical(selected, isolate(input$geneSets))
 
+      if (!choices_changed && !selection_changed) {
+        return(invisible(NULL))
+      }
+
+      if (!is.null(control_state$choices) || selection_changed) {
+        freezeReactiveInputs(input, "geneSets")
+      }
+      control_state$choices <- choices
       updateSelectizeInput(session, "geneSets", choices = choices, selected = selected, server = TRUE)
+      invisible(NULL)
     }
 
     # Get gene sets with the proper label field keying
@@ -159,9 +186,29 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       input$geneSets
     })
 
+    inputsReady <- reactive({
+      if (!inputsInitialised(input$overlapType) || !input$overlapType %in% c("union", "intersect")) {
+        return(FALSE)
+      }
+      if (filter_by_type) {
+        available_types <- names(getGeneSetsForLabelfield())
+        if (!inputsInitialised(input$geneSetTypes) ||
+            length(input$geneSetTypes) != 1 || !input$geneSetTypes %in% available_types) {
+          return(FALSE)
+        }
+      }
+      if (require_select) {
+        available_codes <- unname(getGeneSetCodesByIDs())
+        if (!inputsInitialised(input$geneSets) || !all(input$geneSets %in% available_codes)) {
+          return(FALSE)
+        }
+      }
+      TRUE
+    })
+
     # Return list of reactive expressions
 
-    list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, getGenesetNames = reactive({
+    list(getGeneSetTypes = getGeneSetTypes, getGeneSets = getGeneSets, updateGeneSetsList = updateGeneSetsList, inputsReady = inputsReady, getGenesetNames = reactive({
       gene_sets <- getGeneSets()
       input_gene_sets <- getInputGeneSets()
 
@@ -206,6 +253,7 @@ genesetselect <- function(id, eselist, getExperiment, multiple = TRUE, filter_by
       validate(need(query$geneset %in% names(geneset_codes), "Invalid gene set ID entered"))
 
       geneset_code <- getGeneSetCodesByIDs()[query$geneset]
+      freezeReactiveInputs(input, "geneSets")
       updateSelectizeInput(session, "geneSets", selected = geneset_code, choices = getGeneSetNames(), server = TRUE)
     }))
   })

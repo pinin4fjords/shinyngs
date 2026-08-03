@@ -109,6 +109,17 @@ selectmatrix_valid_experiment_ids <- function(eselist, require_contrast_stats = 
 selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays = TRUE, select_samples = TRUE, select_genes = TRUE, provide_all_genes = FALSE, default_gene_select = NULL, require_contrast_stats = FALSE, rounding = 2, select_meta = TRUE, allow_summarise = TRUE) {
   moduleServer(id, function(input, output, session) {
     valid_experiment_ids <- selectmatrix_valid_experiment_ids(eselist, require_contrast_stats)
+    input_generation <- new.env(parent = emptyenv())
+    input_generation$experiment_id <- valid_experiment_ids[1]
+    metafields_experiment_id <- valid_experiment_ids[1]
+    initial_metafields <- character()
+    if (length(valid_experiment_ids) > 0) {
+      initial_experiment <- eselist[[valid_experiment_ids[1]]]
+      if (has_slot_data(initial_experiment, "labelfield")) {
+        initial_metafields <- initial_experiment@labelfield
+      }
+    }
+    metafields_value <- reactiveVal(initial_metafields)
 
     # Use the sampleselect and geneselect modules to generate reactive expressions that can be used to derive an expression matrix
 
@@ -116,14 +127,35 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       "selectmatrix", eselist = eselist, getExperiment,
       select_samples = select_samples, allow_summarise = allow_summarise
     )
+    selectSamples <- sampleselect_reactives$selectSamples
     geneselect_reactives <- geneselect("selectmatrix",
-      eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = sampleselect_reactives$selectSamples,
+      eselist = eselist, getExperiment, var_n = var_n, var_max = varMax(), selectSamples = selectSamples,
       getAssay = getAssay, provide_all = provide_all_genes || !select_genes, default = default_gene_select
     )
+    selectRows <- geneselect_reactives$selectRows
 
     # Render controls for selecting the experiment (where a user has supplied multiple SummarizedExpression objects in a list) and assay within each
 
     ns <- session$ns
+
+    observeEvent(input$experiment, {
+      experiment_id <- getExperimentId()
+      if (!identical(experiment_id, input_generation$experiment_id)) {
+        freezeReactiveInputs(input, c(
+          "assay", "metafields",
+          "selectmatrix-sampleSelect", "selectmatrix-samples",
+          "selectmatrix-sampleGroupVar", "selectmatrix-sampleGroupVal",
+          "selectmatrix-summarise-summaryType",
+          "selectmatrix-geneSelect", "selectmatrix-obs",
+          "selectmatrix-gene_label_pick-metaField", "selectmatrix-gene_label_pick-label",
+          "selectmatrix-gene_label_pick-ids", "selectmatrix-gene_label_list-metaField",
+          "selectmatrix-gene_label_list-label", "selectmatrix-gene_label_list-ids",
+          "selectmatrix-geneset-geneSetTypes", "selectmatrix-geneset-geneSets",
+          "selectmatrix-geneset-overlapType"
+        ))
+      }
+      input_generation$experiment_id <- experiment_id
+    }, ignoreNULL = TRUE, priority = 1000)
 
     output$assay_ui <- renderUI({
       withProgress(message = "Rendering assay drop-down", value = 0, {
@@ -156,10 +188,6 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       } else if (has_slot_data(ese, "labelfield")) {
         hidden_input(id = ns("metafields"), values = ese@labelfield)
       }
-    })
-
-    getMetafields <- reactive({
-      input$metafields
     })
 
     # Render sample selection controls
@@ -205,6 +233,24 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     getExperimentName <- reactive({
       eid <- getExperimentId()
       prettify_variable_name(eid)
+    })
+
+    observeEvent(getExperimentId(), {
+      experiment_id <- getExperimentId()
+      if (!identical(experiment_id, metafields_experiment_id)) {
+        ese <- getExperiment()
+        metafields <- if (has_slot_data(ese, "labelfield")) ese@labelfield else character()
+        metafields_experiment_id <<- experiment_id
+        metafields_value(metafields)
+      }
+    }, ignoreNULL = FALSE)
+
+    observeEvent(input$metafields, {
+      metafields_value(input$metafields)
+    }, ignoreNULL = TRUE)
+
+    getMetafields <- reactive({
+      metafields_value()
     })
 
     # Get the row labels where available
@@ -254,6 +300,20 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
       SummarizedExperiment::assays(ese)[[assay]]
     })
 
+    inputsReady <- reactive({
+      experiment <- input$experiment
+      assay <- input$assay
+      if (!inputsInitialised(experiment, assay) ||
+          length(experiment) != 1 || !experiment %in% valid_experiment_ids ||
+          length(assay) != 1 || !assay %in% validAssays()) {
+        return(FALSE)
+      }
+      if (!sampleselect_reactives$inputsReady() || !geneselect_reactives$inputsReady()) {
+        return(FALSE)
+      }
+      !select_meta || inputsInitialised(input$metafields)
+    })
+
     shouldSummarise <- reactive({
       if (!allow_summarise ||
         !has_slot_data(eselist, "group_vars") ||
@@ -269,35 +329,28 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
     # Generate an expression matrix given the selected experiment, assay, rows and columns
 
     selectMatrix <- reactive({
+      req(inputsReady())
       withProgress(message = "Getting expression data subset", value = 0, {
-        rows <- geneselect_reactives$selectRows()
+        rows <- selectRows()
         validate(need(length(rows) > 0, "No matching rows in selected matrix"))
         assay_matrix <- getAssayMatrix()
-        samples <- sampleselect_reactives$selectSamples()
-        rows <- geneselect_reactives$selectRows()
+        samples <- selectSamples()
 
         selected_matrix <- assay_matrix[rows, samples, drop = FALSE]
         if (shouldSummarise()) {
           selected_matrix <- summarize_matrix(selected_matrix, selectColData()[[sampleselect_reactives$getSampleGroupVar()]], sampleselect_reactives$getSummaryType())
         }
 
-        # This just to deal with annoying dimension-dropping beviour of apply() on a single-row matrix
-
-        if (nrow(selected_matrix) == 1) {
-          selected_matrix[1, ] <- apply(selected_matrix, 2, round, rounding)
-          selected_matrix
-        } else {
-          apply(selected_matrix, 2, round, rounding)
-        }
+        round(as.matrix(selected_matrix), rounding)
       })
     })
 
     # Extract experimental variables given selection parameters
 
     selectColData <- reactive({
-      validate(need(length(sampleselect_reactives$selectSamples()) > 0, "Waiting for sample selection"))
+      validate(need(length(selectSamples()) > 0, "Waiting for sample selection"))
       withProgress(message = "Extracting experiment metadata", value = 0, {
-        droplevels(data.frame(colData(getExperiment())[sampleselect_reactives$selectSamples(), , drop = FALSE], check.names = FALSE))
+        droplevels(data.frame(colData(getExperiment())[selectSamples(), , drop = FALSE], check.names = FALSE))
       })
     })
 
@@ -367,8 +420,10 @@ selectmatrix <- function(id, eselist, var_n = 50, var_max = NULL, select_assays 
 
     list(
       getExperimentId = getExperimentId, getExperiment = getExperiment, getAssayMeasure = getAssayMeasure, selectMatrix = selectMatrix, selectLabelledMatrix = selectLabelledMatrix,
+      selectRows = selectRows, selectSamples = selectSamples,
+      inputsReady = inputsReady,
       matrixTitle = geneselect_reactives$title, selectColData = selectColData, isSummarised = isSummarised, getAssay = getAssay, getAssayMatrix = getAssayMatrix, selectLabelledLinkedMatrix = selectLabelledLinkedMatrix,
-      getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField, getExperimentId = getExperimentId,
+      getRowLabels = getRowLabels, getAnnotation = getAnnotation, getIdField = getIdField, getLabelField = getLabelField,
       getExperimentName = getExperimentName, getNonEmptyRows = geneselect_reactives$getNonEmptyRows, getMetafields = getMetafields
     )
   })

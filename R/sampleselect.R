@@ -95,6 +95,34 @@ sampleselect <- function(id, eselist, getExperiment, select_samples = TRUE, allo
       getSummaryType <- summarisematrix("summarise")
     }
 
+    availableSampleGroupVars <- reactive({
+      ese <- getExperiment()
+      if (!has_slot_data(eselist, "group_vars")) {
+        return(character())
+      }
+      intersect(eselist@group_vars, colnames(SummarizedExperiment::colData(ese)))
+    })
+
+    sampleDataContext <- reactive({
+      ese <- getExperiment()
+      group_vars <- availableSampleGroupVars()
+      list(
+        samples = colnames(ese),
+        groups = lapply(group_vars, function(group_var) as.character(ese[[group_var]]))
+      )
+    })
+
+    observeEvent(sampleDataContext(), {
+      freezeReactiveInputs(input, c(
+        "sampleSelect", "samples", "sampleGroupVar", "sampleGroupVal",
+        "summarise-summaryType"
+      ))
+    }, ignoreInit = TRUE, priority = 1000)
+
+    observeEvent(list(input$sampleSelect, input$sampleGroupVar), {
+      freezeReactiveInputs(input, "sampleGroupVal", "summarise-summaryType")
+    }, ignoreInit = TRUE, priority = 1000)
+
     # Render the sampleGroupVal() element based on sampleGroupVar
 
     output$groupSamples <- renderUI({
@@ -128,7 +156,13 @@ sampleselect <- function(id, eselist, getExperiment, select_samples = TRUE, allo
     # Return summary type
 
     getSampleGroupVar <- reactive({
-      if (is.null(input$sampleGroupVar)) defaultGroupvar(eselist) else input$sampleGroupVar
+      group_vars <- availableSampleGroupVars()
+      selected <- input$sampleGroupVar
+      if (length(selected) != 1 || !selected %in% group_vars) {
+        default <- defaultGroupvar(eselist)
+        selected <- if (default %in% group_vars) default else group_vars[1]
+      }
+      selected
     })
 
     # Reactive expression for selecting the specified columns
@@ -165,7 +199,33 @@ sampleselect <- function(id, eselist, getExperiment, select_samples = TRUE, allo
       })
     })
 
-    reactives <- list(selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar, getSampleSelect = getSampleSelect)
+    inputsReady <- reactive({
+      if (!inputsInitialised(input$sampleSelect)) {
+        return(FALSE)
+      }
+      if (input$sampleSelect == "name") {
+        return(inputsInitialised(input$samples) && all(input$samples %in% colnames(getExperiment())))
+      }
+      if (input$sampleSelect == "group") {
+        required <- list(input$sampleGroupVar, input$sampleGroupVal)
+        if (allow_summarise) {
+          required <- c(required, list(input[["summarise-summaryType"]]))
+        }
+        if (!do.call(inputsInitialised, required) || !input$sampleGroupVar %in% availableSampleGroupVars()) {
+          return(FALSE)
+        }
+        ese <- getExperiment()
+        group_values <- as.character(unique(ese[[input$sampleGroupVar]]))
+        group_values[is.na(group_values)] <- ""
+        return(all(input$sampleGroupVal %in% group_values))
+      }
+      identical(input$sampleSelect, "all")
+    })
+
+    reactives <- list(
+      selectSamples = selectSamples, getSampleGroupVar = getSampleGroupVar,
+      getSampleSelect = getSampleSelect, inputsReady = inputsReady
+    )
 
     if (allow_summarise) {
       reactives[["getSummaryType"]] <- getSummaryType

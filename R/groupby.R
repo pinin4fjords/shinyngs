@@ -40,6 +40,7 @@ groupbyInput <- function(id, color = TRUE) {
 #'   derived from the \code{\link{selectmatrix}} module.
 #' @param isDynamic Reactive expression providing a boolean. A FALSE value
 #'   causes the groupby option to be placed in a hidden field.
+#' @param color Require and return palette controls?
 #'
 #' @return output A list of reactive functions which will be used by other
 #' modules.
@@ -51,9 +52,13 @@ groupbyInput <- function(id, color = TRUE) {
 #'
 groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, selectColData = NULL, isDynamic = reactive({
                       TRUE
-                    })) {
+                    }), color = TRUE) {
   moduleServer(id, function(input, output, session) {
-    getPalette <- colormaker("groupby", getNumberCategories = getNumberCategories)
+    if (color) {
+      getPalette <- colormaker("groupby", getNumberCategories = getNumberCategories)
+    } else {
+      getPalette <- reactive(NULL)
+    }
 
     # Choose a default grouping variable, either the one specified or the first
 
@@ -68,6 +73,17 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
         }
       }
     })
+
+    groupbyUiContext <- reactive({
+      list(
+        dynamic = isDynamic(),
+        default = if (has_slot_data(eselist, "group_vars")) getDefaultGroupby() else "NULL"
+      )
+    })
+
+    observeEvent(groupbyUiContext(), {
+      freezeReactiveInputs(input, "groupby")
+    }, ignoreInit = TRUE, priority = 1000)
 
     # Render function for the field
 
@@ -126,6 +142,23 @@ groupby <- function(id, eselist, group_label = "Group by", multiple = FALSE, sel
       }
     })
 
-    list(getGroupby = getGroupby, getNumberCategories = getNumberCategories, getPalette = getPalette)
+    inputsReady <- reactive({
+      required <- list(input$groupby)
+      if (color) {
+        required <- c(required, list(input[["groupby-palette_name"]]))
+      }
+      if (!do.call(inputsInitialised, required)) {
+        return(FALSE)
+      }
+      if (!has_slot_data(eselist, "group_vars")) {
+        return(identical(input$groupby, "NULL"))
+      }
+      all(input$groupby %in% eselist@group_vars)
+    })
+
+    list(
+      getGroupby = getGroupby, getNumberCategories = getNumberCategories,
+      getPalette = getPalette, inputsReady = inputsReady
+    )
   })
 }

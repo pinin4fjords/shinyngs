@@ -121,6 +121,22 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
       selected
     })
 
+    geneSelectUiContext <- reactive({
+      list(
+        methods = getGeneSelectMethods(),
+        variance_range = variance_slider_range(var_n, var_max)
+      )
+    })
+
+    observeEvent(geneSelectUiContext(), {
+      freezeReactiveInputs(input, c(
+        "geneSelect", "obs",
+        "gene_label_pick-metaField", "gene_label_pick-label", "gene_label_pick-ids",
+        "gene_label_list-metaField", "gene_label_list-label", "gene_label_list-ids",
+        "geneset-geneSetTypes", "geneset-geneSets", "geneset-overlapType"
+      ))
+    }, ignoreInit = TRUE, priority = 1000)
+
     # Render the geneSelect UI element
 
     output$geneSelect_ui <- renderUI({
@@ -187,19 +203,39 @@ geneselect <- function(id, eselist, getExperiment, var_n = 50, var_max = 500, se
     })
 
     # Debounce the "top N most variant rows" slider so dragging it doesn't
-    # trigger a row/expression matrix recompute on every tick. Fall back to
-    # var_n while input$obs hasn't reached the server yet - a debounced
-    # reactive's first value is primed synchronously, before the client has
-    # necessarily sent its initial slider value, and downstream consumers
-    # treat NULL here as "no limit" rather than "not ready yet".
+    # trigger a row/expression matrix recompute on every tick.
+
+    obsValue <- reactive(input$obs) %>% debounce(300)
 
     getObs <- reactive({
-      if (is.null(input$obs)) var_n else input$obs
-    }) %>% debounce(300)
+      value <- obsValue()
+      req(inputsInitialised(value))
+      value
+    })
+
+    inputsReady <- reactive({
+      methods <- unname(getGeneSelectMethods())
+      if (!inputsInitialised(input$geneSelect) || length(input$geneSelect) != 1 || !input$geneSelect %in% methods) {
+        return(FALSE)
+      }
+      if (input$geneSelect == "variance") {
+        return(inputsInitialised(obsValue()))
+      }
+      if (input$geneSelect == "metadata_pick") {
+        return(lsf_picked_methods$inputsReady())
+      }
+      if (input$geneSelect == "metadata_list") {
+        return(lsf_listed_methods$inputsReady())
+      }
+      if (input$geneSelect == "gene set") {
+        return(genesetselect_reactives$inputsReady())
+      }
+      TRUE
+    })
 
     # Make all the reactive expressions that will be needed by calling modules.
 
-    geneselect_functions <- list(getNonEmptyRows = getNonEmptyRows)
+    geneselect_functions <- list(getNonEmptyRows = getNonEmptyRows, inputsReady = inputsReady)
 
     # Main output. Derive the expression matrix according to row-based criteria
 

@@ -165,6 +165,7 @@ test_that("selectmatrix supports callers that disable summarisation", {
       session$setInputs(
         experiment = "counts",
         assay = "counts",
+        metafields = "gene_name",
         "selectmatrix-sampleSelect" = "all",
         "selectmatrix-geneSelect" = "all"
       )
@@ -176,7 +177,7 @@ test_that("selectmatrix supports callers that disable summarisation", {
   )
 })
 
-test_that("selectmatrix uses its first displayed experiment and assay while inputs initialise", {
+test_that("selectmatrix exposes defaults but waits for displayed inputs to initialise", {
   eselist <- make_medium_module_eselist(n_genes = 12)
 
   shiny::testServer(
@@ -185,6 +186,8 @@ test_that("selectmatrix uses its first displayed experiment and assay while inpu
     {
       expect_equal(getExperimentId(), "counts")
       expect_equal(getAssay(), "counts")
+      expect_equal(getMetafields(), "gene_name")
+      expect_false(inputsReady())
     }
   )
 })
@@ -196,7 +199,13 @@ test_that("selectmatrix selects all rows when gene controls are disabled", {
     selectmatrix,
     args = list(id = "selectmatrix", eselist = eselist, select_genes = FALSE),
     {
-      session$setInputs("selectmatrix-sampleSelect" = "all")
+      session$setInputs(
+        experiment = "counts",
+        assay = "counts",
+        metafields = "gene_name",
+        "selectmatrix-sampleSelect" = "all",
+        "selectmatrix-geneSelect" = "all"
+      )
       expect_equal(nrow(selectMatrix()), 12L)
     }
   )

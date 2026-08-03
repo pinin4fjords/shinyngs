@@ -98,10 +98,12 @@ run_dexseqtable_server <- function(eselist, extra_inputs = list(), args = list()
     list(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = "gene_name",
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all",
       "deuContrast-filterRows" = TRUE,
       "deuContrast-contrasts0" = "1",
+      "deuContrast-combine_operator" = "intersect",
       "deuContrast-fold_change_card0" = ">= or <= -",
       "deuContrast-fold_change0" = 0,
       "deuContrast-p_value_card0" = "<=",

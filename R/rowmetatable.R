@@ -96,7 +96,7 @@ rowmetatable <- function(id, eselist) {
       linkMatrix(meta, eselist@url_roots)
     })
 
-    simpletable("rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10)
+    simpletable("rowmetatable", displayMatrix = getLinkedRowMeta, downloadMatrix = getRowMeta, filename = "rowmeta", rownames = TRUE, pageLength = 10, ready = selectmatrix_reactives$inputsReady)
 
     categorycountplot("categorycount", getAnnotation = getRowMeta, filename = "rowmeta_categorycounts")
   })

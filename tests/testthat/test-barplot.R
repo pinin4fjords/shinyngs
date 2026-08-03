@@ -1,3 +1,9 @@
+test_that("barplotOutput leaves loading feedback to the page", {
+  html <- as.character(barplotOutput("barplot"))
+
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
+})
+
 # interactive_barchart()
 
 test_that("interactive_barchart draws one bar trace per row, with columns along x", {

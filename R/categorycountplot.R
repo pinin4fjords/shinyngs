@@ -34,8 +34,8 @@ categorycountplotOutput <- function(id) {
   ns <- NS(id)
 
   list(
-    shinycssloaders::withSpinner(plotlyOutput(ns("plot"), height = "500px"), color = shinyngsSpinnerColor()),
-    simpletableOutput(ns("table"), tabletitle = "Counts", spinner = TRUE)
+    plotlyOutput(ns("plot"), height = "500px"),
+    simpletableOutput(ns("table"), tabletitle = "Counts")
   )
 }
 
@@ -110,6 +110,13 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
       if (is.null(input$barmode)) "group" else input$barmode
     })
 
+    inputsReady <- reactive({
+      if (!inputsInitialised(input$category, input$fill)) {
+        return(FALSE)
+      }
+      identical(input$fill, "none") || inputsInitialised(input$barmode)
+    })
+
     # The tally itself only depends on category/fill, not on barmode - shared so the table and plot (and a barmode-only change) don't each
     # re-tally the annotation data frame independently
 
@@ -135,12 +142,13 @@ categorycountplot <- function(id, getAnnotation, filename = "categorycounts") {
     })
 
     output$plot <- renderPlotly({
+      req(inputsReady())
       title <- paste("Counts by", prettify_variable_name(input$category))
 
       interactive_barchart(getCountMatrix(), barmode = getBarmode(), ylab = "Count", title = title) %>%
         shinyngsPlotlyConfig(filename, format = session$userData$plotFormat())
     })
 
-    simpletable("table", displayMatrix = countTable, filename = filename, rownames = FALSE)
+    simpletable("table", displayMatrix = countTable, filename = filename, rownames = FALSE, ready = inputsReady)
   })
 }

@@ -13,6 +13,7 @@ run_upset_server <- function(eselist, extra_inputs = list(), expr) {
       "upset-filterRows" = FALSE,
       "upset-contrasts-summaryType" = "colMeans",
       "upset-contrasts0" = c("1", "2"),
+      "upset-combine_operator" = "intersect",
       nsets = 4,
       minorder = 1,
       nintersects = 20,
@@ -51,12 +52,12 @@ test_that("getMaxSets caps at the number of valid sets found", {
   }))
 })
 
-test_that("dynamic UpSet controls use their displayed defaults while initialising", {
+test_that("dynamic UpSet controls wait for their browser values", {
   run_upset_server(make_upset_eselist(), expr = quote({
     session$setInputs(nsets = NULL, minorder = NULL)
     session$elapse(400)
 
-    expect_equal(getNsets(), getMaxSets())
+    expect_error(getNsets(), class = "shiny.silent.error")
     expect_equal(getMinOrder(), 2)
   }))
 })

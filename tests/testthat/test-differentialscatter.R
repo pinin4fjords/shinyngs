@@ -1,5 +1,16 @@
 # annotateDifferentialTable()
 
+test_that("differential scatter output binds its table in the initial UI", {
+  html <- as.character(differentialscatterOutput(
+    "ma", scatter_id = "ma", title = "MA plot",
+    modal = list(id = "maplot", title = "MA plots")
+  ))
+
+  expect_match(html, 'id="ma-matable-datatable"', fixed = TRUE)
+  expect_match(html, 'id="ma-matable_title"', fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
+})
+
 test_that("annotateDifferentialTable marks matched, highlighted and hidden rows and labels only the visible ones", {
   mat <- matrix(1:6, nrow = 3, ncol = 2, dimnames = list(c("g1", "g2", "g3"), c("s1", "s2")))
   ese <- ExploratorySummarizedExperiment(

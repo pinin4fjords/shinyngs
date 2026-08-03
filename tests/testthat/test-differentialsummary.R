@@ -37,7 +37,8 @@ test_that("differentialsummary renders the directional counts and backing table"
       `differentialsummary-selectmatrix-sampleSelect` = "all",
       `differentialsummary-filterRows` = FALSE,
       `differentialsummary-contrasts-summaryType` = "colMeans",
-      `differentialsummary-contrasts0` = c("1", "2")
+      `differentialsummary-contrasts0` = c("1", "2"),
+      `differentialsummary-combine_operator` = "intersect"
     )
     session$elapse(400)
 

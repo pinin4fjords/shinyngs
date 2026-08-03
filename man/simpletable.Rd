@@ -14,7 +14,8 @@ simpletable(
   show_controls = TRUE,
   filter = "none",
   server = TRUE,
-  initial_order = NULL
+  initial_order = NULL,
+  ready = reactive(TRUE)
 )
 }
 \arguments{
@@ -50,6 +51,9 @@ response raises "the column name ... is not found in data".}
 \item{initial_order}{Initial DataTables column ordering. Leave as \code{NULL}
 for the DataTables default, or use \code{list()} to preserve the supplied row
 order while retaining interactive column sorting.}
+
+\item{ready}{Reactive that returns true when every input needed for the
+displayed table has reached the server.}
 }
 \description{
 This function is called directly, using the same id as its UI counterpart,

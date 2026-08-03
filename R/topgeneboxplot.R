@@ -184,14 +184,49 @@ topgeneboxplot <- function(id, eselist) {
     contrast_reactives <- contrasts("contrasts", eselist = eselist, selectmatrix_reactives = selectmatrix_reactives, multiple = FALSE)
     getPalette <- colormaker("palette", getNumberCategories = reactive(2))
 
+    inputsReady <- reactive({
+      req(contrast_reactives$inputsReady())
+      if (!inputsInitialised(
+        input$rank_by, input$n_genes, input$beeswarm,
+        input[["palette-palette_name"]]
+      )) {
+        return(FALSE)
+      }
+      rank_keys <- vapply(getRankOptions(), function(option) option$key, character(1))
+      if (length(input$rank_by) != 1 || !input$rank_by %in% rank_keys) {
+        return(FALSE)
+      }
+      TRUE
+    })
+
     # Offer only the ranking options whose underlying column is actually
     # present in the contrast table (p values in particular aren't always
     # supplied alongside q values)
 
-    output$rank_by_ui <- renderUI({
+    rank_options <- reactiveVal(NULL)
+    observe({
       ct <- contrast_reactives$filteredContrastsTables()[[1]][[1]]
       options <- topgeneRankOptions(colnames(ct))
+      option_keys <- vapply(options, function(option) option$key, character(1))
+      previous <- isolate(rank_options())
+      previous_keys <- if (is.null(previous)) NULL else vapply(previous, function(option) option$key, character(1))
+      if (!identical(option_keys, previous_keys)) {
+        if (!is.null(previous)) {
+          freezeReactiveInputs(input, "rank_by")
+        }
+        rank_options(options)
+      }
+    }, priority = 1000)
+
+    getRankOptions <- reactive({
+      options <- rank_options()
+      req(!is.null(options))
       validate(need(length(options) > 0, "No ranking metric (q value, p value or fold change) is available for this contrast"))
+      options
+    })
+
+    output$rank_by_ui <- renderUI({
+      options <- getRankOptions()
 
       choices <- stats::setNames(
         vapply(options, function(opt) opt$key, character(1)),
@@ -201,12 +236,10 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     getRankOption <- reactive({
+      options <- getRankOptions()
       key <- input$rank_by
-      validate(need(!is.null(key), "Waiting for a ranking option"))
-
-      opt <- Find(function(o) identical(o$key, key), topgene_rank_options)
-      validate(need(!is.null(opt), "Unknown ranking option"))
-      opt
+      selected <- Find(function(option) identical(option$key, key), options)
+      if (is.null(selected)) options[[1]] else selected
     })
 
     # Rank the genes passing the contrast's significance filters by the chosen option (capping to the requested number happens in getTopGeneIds() below)
@@ -283,10 +316,12 @@ topgeneboxplot <- function(id, eselist) {
     })
 
     output$plot_ui <- renderUI({
-      shinycssloaders::withSpinner(plotlyOutput(session$ns("topgeneBoxplot"), height = plotHeight()), color = shinyngsSpinnerColor())
+      req(inputsReady())
+      plotlyOutput(session$ns("topgeneBoxplot"), height = plotHeight())
     })
 
     output$topgeneBoxplot <- renderPlotly({
+      req(inputsReady())
       withProgress(message = "Making top gene boxplots", value = 0, {
         rows <- getTopGeneIds()
         sample_groups <- getContrastSampleGroups()

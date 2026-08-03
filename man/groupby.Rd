@@ -12,7 +12,8 @@ groupby(
   selectColData = NULL,
   isDynamic = reactive({
      TRUE
- })
+ }),
+  color = TRUE
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ derived from the \code{\link{selectmatrix}} module.}
 
 \item{isDynamic}{Reactive expression providing a boolean. A FALSE value
 causes the groupby option to be placed in a hidden field.}
+
+\item{color}{Require and return palette controls?}
 }
 \value{
 output A list of reactive functions which will be used by other

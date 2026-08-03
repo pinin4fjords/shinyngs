@@ -48,7 +48,10 @@ differentialtableOutput <- function(id) {
 
   moduleMain(
     NULL,
-    htmlOutput(ns("differentialtable")),
+    simpletableOutput(
+      ns("differentialtable"),
+      tabletitle = textOutput(ns("differentialtable_title"), inline = TRUE)
+    ),
     contrastsOutput(ns("differential")),
     help = modalInput(ns(differentialtable_modal$id), "help", "help")
   )
@@ -88,14 +91,12 @@ differentialtable <- function(id, eselist) {
 
     # Render the output area - and provide an input-dependent title
 
-    output$differentialtable <- renderUI({
-      ns <- session$ns
-
-      simpletableOutput(ns("differentialtable"), tabletitle = paste("Differential expression in assay", selectmatrix_reactives$getAssay(), sep = ": "), spinner = TRUE)
+    output$differentialtable_title <- renderText({
+      paste("Differential expression in assay", selectmatrix_reactives$getAssay(), sep = ": ")
     })
 
     # Pass the matrix to the simpletable module for display
 
-    simpletable("differentialtable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "differential", rownames = FALSE)
+    simpletable("differentialtable", downloadMatrix = contrast_reactives$labelledContrastsTable, displayMatrix = contrast_reactives$linkedLabelledContrastsTable, filename = "differential", rownames = FALSE, ready = contrast_reactives$inputsReady)
   })
 }

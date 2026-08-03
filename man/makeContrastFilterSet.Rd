@@ -18,7 +18,8 @@ makeContrastFilterSet(
   default_qval = 0.1,
   index = "",
   filter_rows = TRUE,
-  select_all_contrasts = FALSE
+  select_all_contrasts = FALSE,
+  initial_values = NULL
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ field set.}
 \item{filter_rows}{Use fold change and p value etc to filter values?}
 
 \item{select_all_contrasts}{Select all contrasts by default?}
+
+\item{initial_values}{Optional named list of initial field values}
 }
 \value{
 output An HTML tag object that can be rendered as HTML using

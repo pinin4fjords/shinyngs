@@ -124,6 +124,48 @@ enrichmentoverview <- function(id, eselist) {
       var_n = 50, select_assays = TRUE, select_samples = FALSE,
       select_genes = FALSE, select_meta = FALSE
     )
+    control_state <- new.env(parent = emptyenv())
+    control_state$context <- NULL
+    control_state$gene_set_type <- NULL
+
+    overviewControlContext <- reactive({
+      list(
+        experiment = selectmatrix_reactives$getExperimentId(),
+        assay = selectmatrix_reactives$getAssay()
+      )
+    })
+
+    observeEvent(overviewControlContext(), {
+      context <- overviewControlContext()
+      if (!is.null(control_state$context) && !identical(context, control_state$context)) {
+        freezeReactiveInputs(input, "gene_set_type", "selected_contrasts")
+      }
+      control_state$context <- context
+    }, priority = 1000)
+
+    observeEvent(input$gene_set_type, {
+      gene_set_type <- input$gene_set_type
+      if (!is.null(control_state$gene_set_type) && !identical(gene_set_type, control_state$gene_set_type)) {
+        freezeReactiveInputs(input, "selected_contrasts")
+      }
+      control_state$gene_set_type <- gene_set_type
+    }, ignoreNULL = TRUE, priority = 1000)
+
+    inputsReady <- reactive({
+      req(selectmatrix_reactives$inputsReady())
+      if (!inputsInitialised(
+        input$gene_set_type, input$selected_contrasts,
+        input$rank_by, input$top_n, input$max_fdr
+      ) || length(input$gene_set_type) != 1 || !input$gene_set_type %in% getGeneSetTypes()) {
+        return(FALSE)
+      }
+      available_contrasts <- unname(getAvailableContrasts())
+      selected_contrasts <- suppressWarnings(as.integer(input$selected_contrasts))
+      if (anyNA(selected_contrasts) || !all(selected_contrasts %in% available_contrasts)) {
+        return(FALSE)
+      }
+      TRUE
+    })
 
     getGeneSetTypes <- reactive({
       ese <- selectmatrix_reactives$getExperiment()
@@ -139,6 +181,7 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     output$geneSetType_ui <- renderUI({
+      req(selectmatrix_reactives$inputsReady())
       gene_set_types <- getGeneSetTypes()
       selectInput(session$ns("gene_set_type"), "Gene set type", gene_set_types, selected = getGeneSetType())
     })
@@ -158,6 +201,7 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     output$contrasts_ui <- renderUI({
+      req(selectmatrix_reactives$inputsReady(), inputsInitialised(input$gene_set_type))
       makeContrastControl(
         session$ns("selected_contrasts"), eselist@contrasts,
         contrast_numbers = getAvailableContrasts(),
@@ -192,16 +236,15 @@ enrichmentoverview <- function(id, eselist) {
     })
 
     output$enrichmentMethod <- renderUI({
+      req(inputsReady())
       methods <- unique(stats::na.omit(getEnrichmentOverviewData()$method))
       if (length(methods) == 1) helpText(paste0("Method: ", methods)) else NULL
     })
 
     output$plot_ui <- renderUI({
+      req(inputsReady())
       height <- min(1100, max(460, length(unique(getPreparedEnrichmentOverview()$gene_set_id)) * 34 + 190))
-      shinycssloaders::withSpinner(
-        plotlyOutput(session$ns("plot"), height = paste0(height, "px")),
-        color = shinyngsSpinnerColor()
-      )
+      plotlyOutput(session$ns("plot"), height = paste0(height, "px"))
     })
 
     getEnrichmentOverviewPlot <- reactive({
@@ -209,6 +252,7 @@ enrichmentoverview <- function(id, eselist) {
     }) %>% bindCache(getPreparedEnrichmentOverview())
 
     output$plot <- renderPlotly({
+      req(inputsReady())
       getEnrichmentOverviewPlot() %>%
         shinyngsPlotlyConfig("gene_set_overview", format = session$userData$plotFormat())
     })
@@ -230,7 +274,7 @@ enrichmentoverview <- function(id, eselist) {
       "table", downloadMatrix = getEnrichmentOverviewTable,
       displayMatrix = getEnrichmentOverviewTable,
       filename = "gene_set_overview", rownames = FALSE,
-      initial_order = list()
+      initial_order = list(), ready = inputsReady
     )
   })
 }

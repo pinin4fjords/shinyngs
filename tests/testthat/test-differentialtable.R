@@ -8,6 +8,7 @@ run_differentialtable_server <- function(eselist, extra_inputs = list(), expr) {
     list(
       "expression-experiment" = "counts",
       "expression-assay" = "counts",
+      "expression-metafields" = if (has_slot_data(eselist[[1]], "labelfield")) eselist[[1]]@labelfield else character(),
       "expression-selectmatrix-obs" = 60,
       "expression-selectmatrix-sampleSelect" = "all",
       "expression-selectmatrix-geneSelect" = "all",
@@ -110,13 +111,20 @@ test_that("differentialtable returns an empty table when filters exclude every r
   )
 })
 
-test_that("differentialtable's rendered UI title tracks the selected assay", {
+test_that("differentialtable's title tracks the selected assay", {
   eselist <- shinytest2_eselist()
 
   run_differentialtable_server(eselist, expr = quote({
-    rendered <- output$differentialtable
-    expect_match(rendered[[1]], "Differential expression in assay: counts")
+    expect_equal(output$differentialtable_title, "Differential expression in assay: counts")
   }))
+})
+
+test_that("differentialtable output binds the table in the initial UI", {
+  html <- as.character(differentialtableOutput("differential"))
+
+  expect_match(html, 'id="differential-differentialtable-datatable"', fixed = TRUE)
+  expect_match(html, 'id="differential-differentialtable_title"', fixed = TRUE)
+  expect_false(grepl("shiny-spinner-output-container", html, fixed = TRUE))
 })
 
 test_that("differentialtable renders a simpletable datatable of the differential expression results", {
