@@ -12,6 +12,7 @@ test_that("the standalone heatmap app renders an interactive heatmap", {
 
   app$wait_for_idle(timeout = 20000)
 
+  shinytest2_wait_for_outputs(app, c("heatmap-interactive_heatmap", "heatmap-heatmap-selectmatrix-geneSelect_ui"))
   outputs <- names(app$get_values()$output)
   expect_true("heatmap-interactive_heatmap" %in% outputs)
   expect_true("heatmap-heatmap-selectmatrix-geneSelect_ui" %in% outputs)

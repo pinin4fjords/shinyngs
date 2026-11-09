@@ -75,6 +75,8 @@ shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
     "No Chrome/Chromium binary found for headless testing"
   )
 
+  shinytest2_start_chromote()
+
   if (is.null(eselist)) {
     eselist <- shinytest2_eselist()
   }
@@ -86,35 +88,83 @@ shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
     wait = FALSE,
     ...
   )
-  DIAG_wait_for_idle(driver, name)
-  driver
+  shinytest2_wait_for_app(driver, timeout = 60000)
 }
 
-DIAG_wait_for_idle <- function(driver, name) {
-  js <- "new Promise((resolve, reject) => {
-    let idleId = null;
-    const timeoutId = setTimeout(() => reject('timeout'), 60000);
-    const done = () => { clearTimeout(timeoutId); resolve('idle'); };
-    $(document).on('shiny:busy', () => clearTimeout(idleId));
-    $(document).on('shiny:idle', () => { idleId = setTimeout(done, 200); });
-    if (window.shinytest2.busy !== true) idleId = setTimeout(done, 200);
-  })"
-  ret <- driver$get_chromote_session()$Runtime$evaluate(
-    js, awaitPromise = TRUE, returnByValue = TRUE, timeout_ = 120
+# shinytest2_start_chromote()
+#
+# chromote allows 10s both for Chrome to open its debugging port and for each
+# DevTools command, which a contended CI runner can exceed while launching
+# Chrome or navigating to an app. A Chrome that still fails to start skips the
+# test, as AppDriver$new() itself does.
+
+shinytest2_start_chromote <- function(timeout = 60) {
+  options(chromote.timeout = timeout)
+  chromote_object <- tryCatch(
+    chromote::default_chromote_object(),
+    error = function(e) testthat::skip(paste("Chrome could not be started:", conditionMessage(e)))
   )
-  if (identical(ret$result$subtype, "error") || length(ret$exceptionDetails) > 0) {
-    message("DIAG[", name, "] idle wait failed")
-    message("DIAG result: ", paste(utils::capture.output(str(ret$result)), collapse = "\n"))
-    message("DIAG exceptionDetails: ", paste(utils::capture.output(str(ret$exceptionDetails)), collapse = "\n"))
-    probe <- driver$get_chromote_session()$Runtime$evaluate(
-      "JSON.stringify({href: location.href, readyState: document.readyState, jq: typeof window.jQuery, dollar: typeof window.$, dollarIsJq: window.$ === window.jQuery, st2: typeof window.shinytest2, shiny: typeof window.Shiny, connected: !!(window.Shiny && Shiny.shinyapp && Shiny.shinyapp.isConnected && Shiny.shinyapp.isConnected())})",
-      returnByValue = TRUE
+  chromote_object$default_timeout <- timeout
+  invisible(chromote_object)
+}
+
+# shinytest2_wait_for_app()
+#
+# AppDriver$new() injects its tracer into whichever document is current when
+# Page.navigate returns. On a loaded CI runner that document can be replaced
+# before the app has loaded; shinytest2 (<= 0.5.1) swallows the resulting
+# destroyed-context error from its readiness wait, then caches that document's
+# session URL, so later idle waits hit the missing tracer and value reads hit
+# a closed session (rstudio/shinytest2#294). Drivers are therefore created with
+# wait = FALSE and readiness is confirmed against the live document,
+# re-injecting the tracer if it was lost and re-reading the session state.
+
+shinytest2_wait_for_app <- function(app, timeout) {
+  session <- app$get_chromote_session()
+  evaluate <- function(js) {
+    tryCatch(
+      session$Runtime$evaluate(js, returnByValue = TRUE)$result$value,
+      error = function(e) NULL
     )
-    message("DIAG probe: ", probe$result$value)
-    message("DIAG logs:\n", paste(utils::capture.output(print(driver$get_logs())), collapse = "\n"))
-    stop("DIAG idle wait failed for ", name)
   }
-  invisible(driver)
+
+  deadline <- Sys.time() + timeout / 1000
+  while (!isTRUE(evaluate(
+    "document.readyState === 'complete' && !!window.Shiny && !!Shiny.shinyapp && Shiny.shinyapp.isConnected()"
+  ))) {
+    if (Sys.time() > deadline) {
+      stop("Shiny app did not load and connect within ", timeout, "ms")
+    }
+    Sys.sleep(0.1)
+  }
+
+  if (!isTRUE(evaluate("typeof window.shinytest2 === 'object'"))) {
+    tracer <- system.file("internal", "js", "shiny-tracer.js", package = "shinytest2")
+    session$Runtime$evaluate(paste(readLines(tracer), collapse = "\n"))
+  }
+
+  app$wait_for_js("window.shinytest2.ready === true", timeout = timeout)
+
+  private <- app$.__enclos_env__$private
+  private$shiny_test_url <- evaluate("Shiny.shinyapp.getTestSnapshotBaseUrl({fullUrl: true})")
+  worker_id <- evaluate("Shiny.shinyapp.config.workerId")
+  private$shiny_worker_id <- if (is.null(worker_id) || identical(worker_id, "")) NA_character_ else worker_id
+
+  app$wait_for_idle(duration = 200, timeout = timeout)
+  app
+}
+
+# shinytest2_wait_for_outputs()
+#
+# Shiny can report idle in the gap between the client binding a module's
+# dynamically rendered inputs and the server rendering the outputs gated on
+# them, so tests wait for the outputs they assert on rather than for idle.
+
+shinytest2_wait_for_outputs <- function(app, outputs, timeout = 20000) {
+  for (output in outputs) {
+    app$wait_for_value(output = output, timeout = timeout)
+  }
+  invisible(app)
 }
 
 # shinytest2_bookmark_app_driver()
@@ -135,6 +185,8 @@ shinytest2_bookmark_app_driver <- function(type, name, ...) {
     "No Chrome/Chromium binary found for headless testing"
   )
 
+  shinytest2_start_chromote()
+
   dir <- withr::local_tempdir(.local_envir = parent.frame())
   saveRDS(shinytest2_eselist(), file.path(dir, "eselist.rds"))
   writeLines(
@@ -147,10 +199,12 @@ shinytest2_bookmark_app_driver <- function(type, name, ...) {
     file.path(dir, "app.R")
   )
 
-  shinytest2::AppDriver$new(
+  driver <- shinytest2::AppDriver$new(
     dir,
     name = name,
     height = 900, width = 1400, seed = 42, load_timeout = 90000,
+    wait = FALSE,
     ...
   )
+  shinytest2_wait_for_app(driver, timeout = 90000)
 }

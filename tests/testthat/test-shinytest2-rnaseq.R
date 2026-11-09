@@ -147,6 +147,7 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
 
   expect_equal(app$get_value(input = "rnaseq-pca-pca-threedee"), "TRUE")
 
+  shinytest2_wait_for_outputs(app, c("rnaseq-pca-pca-scatter", "rnaseq-pca-components-datatable", "rnaseq-pca-pca-selectmatrix-geneSelect_ui"))
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-pca-pca-scatter" %in% outputs)
   expect_true("rnaseq-pca-components-datatable" %in% outputs)
@@ -282,6 +283,7 @@ test_that("the Clustering Heatmap tab renders an interactive heatmap", {
   app$set_inputs(`rnaseq-rnaseq` = "Clustering Heatmap")
   app$wait_for_idle(timeout = 20000)
 
+  shinytest2_wait_for_outputs(app, c("rnaseq-heatmap-clustering-interactive_heatmap", "rnaseq-heatmap-clustering-heatmap-selectmatrix-geneSelect_ui"))
   outputs <- names(app$get_values()$output)
   expect_true("rnaseq-heatmap-clustering-interactive_heatmap" %in% outputs)
   expect_true("rnaseq-heatmap-clustering-heatmap-selectmatrix-geneSelect_ui" %in% outputs)
