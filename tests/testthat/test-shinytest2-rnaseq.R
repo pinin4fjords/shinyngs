@@ -145,7 +145,7 @@ test_that("the PCA tab renders a scatterplot and its selectmatrix controls", {
   app$set_inputs(`rnaseq-rnaseq` = "pca")
   app$wait_for_idle(timeout = 20000)
 
-  expect_equal(app$get_value(input = "rnaseq-pca-pca-threedee"), "TRUE")
+  expect_equal(app$wait_for_value(input = "rnaseq-pca-pca-threedee"), "TRUE")
 
   shinytest2_wait_for_outputs(app, c("rnaseq-pca-pca-scatter", "rnaseq-pca-components-datatable", "rnaseq-pca-pca-selectmatrix-geneSelect_ui"))
   outputs <- names(app$get_values()$output)
@@ -318,6 +318,10 @@ test_that("the Gene info tab defaults single-contrast differential effects to th
   app$set_inputs(`rnaseq-rnaseq` = "geneinfo")
   app$wait_for_idle(timeout = 20000)
   app$set_inputs(`rnaseq-gene-gene_label-label` = "Gene1", wait_ = FALSE)
+  app$wait_for_js(
+    "!!document.querySelector('#rnaseq-gene-geneContrastsTable-datatable table')",
+    timeout = 20000
+  )
   app$wait_for_idle(timeout = 20000)
 
   tab_labels <- unlist(app$get_js(
@@ -349,9 +353,9 @@ test_that("the enrichment overview initialises its dynamic controls", {
   )
   app$wait_for_idle(timeout = 20000)
 
-  expect_equal(app$get_value(input = "rnaseq-enrichmentoverview-gene_set_type"), "KEGG")
+  expect_equal(app$wait_for_value(input = "rnaseq-enrichmentoverview-gene_set_type"), "KEGG")
   expect_setequal(
-    app$get_value(input = "rnaseq-enrichmentoverview-selected_contrasts"),
+    app$wait_for_value(input = "rnaseq-enrichmentoverview-selected_contrasts"),
     c("1", "2")
   )
 })

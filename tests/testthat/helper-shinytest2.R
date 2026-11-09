@@ -81,14 +81,44 @@ shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
     eselist <- shinytest2_eselist()
   }
   app <- prepare_app(type, eselist)
-  driver <- shinytest2::AppDriver$new(
+  shinytest2_new_driver(
     shiny::shinyApp(ui = app$ui, server = app$server),
-    name = name,
-    height = 900, width = 1400, seed = 42, load_timeout = 60000,
-    wait = FALSE,
-    ...
+    name = name, timeout = 60000, ...
   )
-  shinytest2_wait_for_app(driver, timeout = 60000)
+}
+
+# shinytest2_new_driver()
+#
+# AppDriver$new() injects its tracer into whichever document is current when
+# Page.navigate returns. On a loaded CI runner that document can be replaced
+# before the app has loaded (rstudio/shinytest2#294, shinytest2 <= 0.5.1). If
+# the replacement lands before AppDriver's own readiness wait starts, that wait
+# times out against the tracer-less document; the aborted driver's app and
+# browser are still live, so it is taken over and repaired rather than
+# rebuilt, since a fresh tab can hit the same replacement. If the replacement
+# lands during the wait, shinytest2 swallows the destroyed-context error and
+# reports success. Both cases are repaired by shinytest2_wait_for_app(), which
+# also runs the name checks AppDriver would otherwise run before dynamically
+# rendered UI exists.
+
+shinytest2_new_driver <- function(app_dir, name, timeout, ...) {
+  driver <- tryCatch(
+    shinytest2::AppDriver$new(
+      app_dir,
+      name = name,
+      height = 900, width = 1400, seed = 42, load_timeout = timeout,
+      wait = FALSE, check_names = FALSE,
+      ...
+    ),
+    error = function(e) {
+      if (!inherits(e$app, "AppDriver") || !grepl("did not become stable", conditionMessage(e), fixed = TRUE)) {
+        stop(e)
+      }
+      e$app$.__enclos_env__$private$state <- "running"
+      e$app
+    }
+  )
+  shinytest2_wait_for_app(driver, timeout = timeout)
 }
 
 # shinytest2_start_chromote()
@@ -110,16 +140,36 @@ shinytest2_start_chromote <- function(timeout = 60) {
 
 # shinytest2_wait_for_app()
 #
-# AppDriver$new() injects its tracer into whichever document is current when
-# Page.navigate returns. On a loaded CI runner that document can be replaced
-# before the app has loaded; shinytest2 (<= 0.5.1) swallows the resulting
-# destroyed-context error from its readiness wait, then caches that document's
-# session URL, so later idle waits hit the missing tracer and value reads hit
-# a closed session (rstudio/shinytest2#294). Drivers are therefore created with
-# wait = FALSE and readiness is confirmed against the live document,
-# re-injecting the tracer if it was lost and re-reading the session state.
+# Confirms readiness against the live document. When the document AppDriver
+# injected into was replaced, the tracer is missing and AppDriver has cached
+# the dead document's session URL, so the tracer is re-injected and the session
+# state re-read. A late-injected tracer only learns busy/idle from subsequent
+# events, so its busy flag is seeded from the class Shiny sets while busy. The
+# document can also be replaced during these waits, and shinytest2's waits can
+# report success when that happens, so the whole sequence is repeated until the
+# session it settled on is still the live one.
 
 shinytest2_wait_for_app <- function(app, timeout) {
+  deadline <- Sys.time() + timeout / 1000
+  repeat {
+    settled <- tryCatch(
+      shinytest2_attach_live_document(app, deadline),
+      error = function(e) {
+        if (Sys.time() > deadline) stop(e)
+        FALSE
+      }
+    )
+    if (isTRUE(settled)) break
+    if (Sys.time() > deadline) {
+      stop("Shiny app did not settle on a live session within ", timeout, "ms")
+    }
+    Sys.sleep(0.2)
+  }
+  app$expect_unique_names()
+  app
+}
+
+shinytest2_attach_live_document <- function(app, deadline) {
   session <- app$get_chromote_session()
   evaluate <- function(js) {
     tryCatch(
@@ -127,31 +177,38 @@ shinytest2_wait_for_app <- function(app, timeout) {
       error = function(e) NULL
     )
   }
+  remaining_ms <- function() max(1000, as.numeric(deadline - Sys.time(), units = "secs") * 1000)
+  session_id_js <- "window.Shiny && Shiny.shinyapp && Shiny.shinyapp.config && Shiny.shinyapp.config.sessionId"
 
-  deadline <- Sys.time() + timeout / 1000
   while (!isTRUE(evaluate(
     "document.readyState === 'complete' && !!window.Shiny && !!Shiny.shinyapp && Shiny.shinyapp.isConnected()"
   ))) {
-    if (Sys.time() > deadline) {
-      stop("Shiny app did not load and connect within ", timeout, "ms")
-    }
+    if (Sys.time() > deadline) stop("Shiny app did not load and connect in time")
     Sys.sleep(0.1)
   }
+  session_id <- evaluate(session_id_js)
 
   if (!isTRUE(evaluate("typeof window.shinytest2 === 'object'"))) {
     tracer <- system.file("internal", "js", "shiny-tracer.js", package = "shinytest2")
     session$Runtime$evaluate(paste(readLines(tracer), collapse = "\n"))
+    session$Runtime$evaluate(
+      "window.shinytest2.busy = document.documentElement.classList.contains('shiny-busy');"
+    )
   }
 
-  app$wait_for_js("window.shinytest2.ready === true", timeout = timeout)
+  app$wait_for_js("window.shinytest2.ready === true", timeout = remaining_ms())
 
   private <- app$.__enclos_env__$private
   private$shiny_test_url <- evaluate("Shiny.shinyapp.getTestSnapshotBaseUrl({fullUrl: true})")
   worker_id <- evaluate("Shiny.shinyapp.config.workerId")
   private$shiny_worker_id <- if (is.null(worker_id) || identical(worker_id, "")) NA_character_ else worker_id
 
-  app$wait_for_idle(duration = 200, timeout = timeout)
-  app
+  app$wait_for_idle(duration = 200, timeout = remaining_ms())
+
+  is.character(session_id) &&
+    is.character(private$shiny_test_url) &&
+    isTRUE(evaluate("typeof window.shinytest2 === 'object' && window.shinytest2.ready === true")) &&
+    identical(evaluate(session_id_js), session_id)
 }
 
 # shinytest2_wait_for_outputs()
@@ -199,12 +256,5 @@ shinytest2_bookmark_app_driver <- function(type, name, ...) {
     file.path(dir, "app.R")
   )
 
-  driver <- shinytest2::AppDriver$new(
-    dir,
-    name = name,
-    height = 900, width = 1400, seed = 42, load_timeout = 90000,
-    wait = FALSE,
-    ...
-  )
-  shinytest2_wait_for_app(driver, timeout = 90000)
+  shinytest2_new_driver(dir, name = name, timeout = 90000, ...)
 }
