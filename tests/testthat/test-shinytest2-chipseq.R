@@ -25,6 +25,7 @@ test_that("the chipseq app's PCA tab renders a scatterplot", {
   app$set_inputs(`chipseq-chipseq` = "pca")
   app$wait_for_idle(timeout = 20000)
 
+  shinytest2_wait_for_outputs(app, "chipseq-pca-pca-scatter")
   outputs <- names(app$get_values()$output)
   expect_true("chipseq-pca-pca-scatter" %in% outputs)
 })

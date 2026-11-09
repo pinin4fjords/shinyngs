@@ -25,6 +25,7 @@ test_that("the illuminaarray app's PCA tab renders a scatterplot", {
   app$set_inputs(`illuminaarray-illuminaarray` = "pca")
   app$wait_for_idle(timeout = 20000)
 
+  shinytest2_wait_for_outputs(app, "illuminaarray-pca-pca-scatter")
   outputs <- names(app$get_values()$output)
   expect_true("illuminaarray-pca-pca-scatter" %in% outputs)
 })

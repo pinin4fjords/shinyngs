@@ -69,22 +69,152 @@ shinytest2_eselist <- local({
 # no headless Chrome is available.
 
 shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
+  shinytest2_require_chrome()
+
+  if (is.null(eselist)) {
+    eselist <- shinytest2_eselist()
+  }
+  app <- prepare_app(type, eselist)
+  shinytest2_new_driver(
+    shiny::shinyApp(ui = app$ui, server = app$server),
+    name = name, timeout = 60000, ...
+  )
+}
+
+# shinytest2_require_chrome()
+#
+# chromote allows 10s both for Chrome to open its debugging port and for each
+# DevTools command, which a contended CI runner can exceed while launching
+# Chrome or navigating to an app. A Chrome that still fails to start skips the
+# test, as AppDriver$new() itself does.
+
+shinytest2_require_chrome <- function() {
   testthat::skip_if_not_installed("shinytest2")
   testthat::skip_if(
     is.na(tryCatch(chromote::find_chrome(), error = function(e) NA)),
     "No Chrome/Chromium binary found for headless testing"
   )
 
-  if (is.null(eselist)) {
-    eselist <- shinytest2_eselist()
-  }
-  app <- prepare_app(type, eselist)
-  shinytest2::AppDriver$new(
-    shiny::shinyApp(ui = app$ui, server = app$server),
-    name = name,
-    height = 900, width = 1400, seed = 42, load_timeout = 60000,
-    ...
+  timeout_s <- 60
+  options(chromote.timeout = timeout_s)
+  chromote_object <- tryCatch(
+    chromote::default_chromote_object(),
+    error = function(e) testthat::skip(paste("Chrome could not be started:", conditionMessage(e)))
   )
+  chromote_object$default_timeout <- timeout_s
+}
+
+# shinytest2_new_driver()
+#
+# If AppDriver's own readiness wait fails, its app and browser are still live,
+# so the driver is taken over and repaired rather than rebuilt (a fresh tab can
+# hit the same document replacement). Name checks wait until the app has
+# settled, since AppDriver runs them before dynamically rendered UI exists.
+
+shinytest2_new_driver <- function(app_dir, name, timeout, ...) {
+  driver <- tryCatch(
+    shinytest2::AppDriver$new(
+      app_dir,
+      name = name,
+      height = 900, width = 1400, seed = 42, load_timeout = timeout,
+      wait = FALSE, check_names = FALSE,
+      ...
+    ),
+    error = function(e) {
+      if (!inherits(e$app, "AppDriver") || !grepl("did not become stable", conditionMessage(e), fixed = TRUE)) {
+        stop(e)
+      }
+      e$app$.__enclos_env__$private$state <- "running"
+      e$app
+    }
+  )
+  tryCatch(shinytest2_wait_for_app(driver, timeout = timeout), error = function(e) {
+    driver$stop()
+    stop(e)
+  })
+}
+
+# shinytest2_wait_for_app()
+#
+# AppDriver$new() injects its tracer into whichever document is current when
+# Page.navigate returns. On a loaded CI runner that document can be replaced,
+# and shinytest2 (<= 0.5.1) swallows the resulting destroyed-context error so
+# its waits report success, leaving the tracer missing and the dead document's
+# session URL cached (rstudio/shinytest2#294). This re-injects the tracer and
+# re-reads the session state from the live document, repeating until the
+# session it settled on is still live. A late-injected tracer only learns
+# busy/idle from later events, so its busy flag is seeded from the class Shiny
+# sets while busy.
+
+shinytest2_wait_for_app <- function(app, timeout) {
+  deadline <- Sys.time() + timeout / 1000
+  repeat {
+    settled <- tryCatch(
+      shinytest2_attach_live_document(app, deadline),
+      error = function(e) {
+        if (Sys.time() > deadline) stop(e)
+        FALSE
+      }
+    )
+    if (isTRUE(settled)) break
+    if (Sys.time() > deadline) {
+      stop("Shiny app did not settle on a live session within ", timeout, "ms")
+    }
+    Sys.sleep(0.2)
+  }
+  app$expect_unique_names()
+  app
+}
+
+shinytest2_attach_live_document <- function(app, deadline) {
+  session <- app$get_chromote_session()
+  remaining_s <- function() max(1, as.numeric(deadline - Sys.time(), units = "secs"))
+  run <- function(js) session$Runtime$evaluate(js, returnByValue = TRUE, timeout_ = remaining_s())
+  evaluate <- function(js) tryCatch(run(js)$result$value, error = function(e) NULL)
+
+  session_id_js <- "window.Shiny && Shiny.shinyapp && Shiny.shinyapp.config && Shiny.shinyapp.config.sessionId"
+  tracer_ready_js <- "typeof window.shinytest2 === 'object' && window.shinytest2.ready === true"
+
+  while (!isTRUE(evaluate(
+    "document.readyState === 'complete' && !!window.Shiny && !!Shiny.shinyapp && Shiny.shinyapp.isConnected()"
+  ))) {
+    if (Sys.time() > deadline) stop("Shiny app did not load and connect in time")
+    Sys.sleep(0.1)
+  }
+  session_id <- evaluate(session_id_js)
+
+  if (!isTRUE(evaluate("typeof window.shinytest2 === 'object'"))) {
+    tracer <- system.file("internal", "js", "shiny-tracer.js", package = "shinytest2")
+    run(paste(readLines(tracer), collapse = "\n"))
+    run("window.shinytest2.busy = document.documentElement.classList.contains('shiny-busy');")
+  }
+
+  app$wait_for_js(tracer_ready_js, timeout = remaining_s() * 1000)
+
+  private <- app$.__enclos_env__$private
+  private$shiny_test_url <- evaluate("Shiny.shinyapp.getTestSnapshotBaseUrl({fullUrl: true})")
+  worker_id <- evaluate("Shiny.shinyapp.config.workerId")
+  private$shiny_worker_id <- if (is.null(worker_id) || identical(worker_id, "")) NA_character_ else worker_id
+
+  app$wait_for_idle(duration = 200, timeout = remaining_s() * 1000)
+
+  is.character(session_id) &&
+    is.character(private$shiny_test_url) &&
+    isTRUE(evaluate(tracer_ready_js)) &&
+    identical(evaluate(session_id_js), session_id)
+}
+
+# shinytest2_wait_for_outputs()
+#
+# Shiny can report idle in the gap between the client binding a module's
+# dynamically rendered inputs and the server rendering the outputs gated on
+# them, so an idle wait alone does not guarantee those outputs exist.
+
+shinytest2_wait_for_outputs <- function(app, outputs, timeout = 20000) {
+  for (output in outputs) {
+    app$wait_for_value(output = output, timeout = timeout)
+  }
+  invisible(app)
 }
 
 # shinytest2_bookmark_app_driver()
@@ -98,12 +228,8 @@ shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
 # use. Requires shinyngs to be installed (it is under R CMD check).
 
 shinytest2_bookmark_app_driver <- function(type, name, ...) {
-  testthat::skip_if_not_installed("shinytest2")
   testthat::skip_if_not_installed("shinyngs")
-  testthat::skip_if(
-    is.na(tryCatch(chromote::find_chrome(), error = function(e) NA)),
-    "No Chrome/Chromium binary found for headless testing"
-  )
+  shinytest2_require_chrome()
 
   dir <- withr::local_tempdir(.local_envir = parent.frame())
   saveRDS(shinytest2_eselist(), file.path(dir, "eselist.rds"))
@@ -117,10 +243,5 @@ shinytest2_bookmark_app_driver <- function(type, name, ...) {
     file.path(dir, "app.R")
   )
 
-  shinytest2::AppDriver$new(
-    dir,
-    name = name,
-    height = 900, width = 1400, seed = 42, load_timeout = 90000,
-    ...
-  )
+  shinytest2_new_driver(dir, name = name, timeout = 90000, ...)
 }
