@@ -68,7 +68,7 @@ if [ -n "${R_LIB_OVERRIDE:-}" ]; then
   lib_expr=".libPaths(c(\"${R_LIB_OVERRIDE}\", .libPaths())); "
 fi
 
-r_expr="${lib_expr}suppressMessages({library(shinyngs); library(shinyBS); library(shinyjs); library(markdown)}); ${load_expr}; app <- prepareApp(\"${MODULE}\", esel); shiny::runApp(shiny::shinyApp(app\$ui, app\$server), host = \"127.0.0.1\", port = ${PORT}, launch.browser = FALSE)"
+r_expr="${lib_expr}suppressMessages({library(shinyngs); library(shinyBS); library(shinyjs); library(markdown)}); ${load_expr}; app <- prepare_app(\"${MODULE}\", esel); shiny::runApp(shiny::shinyApp(app\$ui, app\$server), host = \"127.0.0.1\", port = ${PORT}, launch.browser = FALSE)"
 
 echo "==> Launching module '$MODULE' on port $PORT (log: $LOG)${R_LIB_OVERRIDE:+, shinyngs from $R_LIB_OVERRIDE}"
 (Rscript -e "$r_expr" >"$LOG" 2>&1 &)
