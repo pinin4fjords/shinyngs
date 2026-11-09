@@ -19,11 +19,6 @@ jobs:
             use_public_rspm: false
             bioc_mirror: https://bioconductor.org
             seriation_ref: 'seriation@1.5.8'
-          - r: 'release'
-            run_extras: true
-            use_public_rspm: true
-            bioc_mirror: https://bioconductor.posit.co
-            seriation_ref: 'any::seriation'
     env:
       GITHUB_PAT: ${{ secrets.R_CI }}
       R_KEEP_PKG_SOURCE: yes

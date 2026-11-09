@@ -79,12 +79,42 @@ shinytest2_app_driver <- function(type, name, eselist = NULL, ...) {
     eselist <- shinytest2_eselist()
   }
   app <- prepare_app(type, eselist)
-  shinytest2::AppDriver$new(
+  driver <- shinytest2::AppDriver$new(
     shiny::shinyApp(ui = app$ui, server = app$server),
     name = name,
     height = 900, width = 1400, seed = 42, load_timeout = 60000,
+    wait = FALSE,
     ...
   )
+  DIAG_wait_for_idle(driver, name)
+  driver
+}
+
+DIAG_wait_for_idle <- function(driver, name) {
+  js <- "new Promise((resolve, reject) => {
+    let idleId = null;
+    const timeoutId = setTimeout(() => reject('timeout'), 60000);
+    const done = () => { clearTimeout(timeoutId); resolve('idle'); };
+    $(document).on('shiny:busy', () => clearTimeout(idleId));
+    $(document).on('shiny:idle', () => { idleId = setTimeout(done, 200); });
+    if (window.shinytest2.busy !== true) idleId = setTimeout(done, 200);
+  })"
+  ret <- driver$get_chromote_session()$Runtime$evaluate(
+    js, awaitPromise = TRUE, returnByValue = TRUE, timeout_ = 120
+  )
+  if (identical(ret$result$subtype, "error") || length(ret$exceptionDetails) > 0) {
+    message("DIAG[", name, "] idle wait failed")
+    message("DIAG result: ", paste(utils::capture.output(str(ret$result)), collapse = "\n"))
+    message("DIAG exceptionDetails: ", paste(utils::capture.output(str(ret$exceptionDetails)), collapse = "\n"))
+    probe <- driver$get_chromote_session()$Runtime$evaluate(
+      "JSON.stringify({href: location.href, readyState: document.readyState, jq: typeof window.jQuery, dollar: typeof window.$, dollarIsJq: window.$ === window.jQuery, st2: typeof window.shinytest2, shiny: typeof window.Shiny, connected: !!(window.Shiny && Shiny.shinyapp && Shiny.shinyapp.isConnected && Shiny.shinyapp.isConnected())})",
+      returnByValue = TRUE
+    )
+    message("DIAG probe: ", probe$result$value)
+    message("DIAG logs:\n", paste(utils::capture.output(print(driver$get_logs())), collapse = "\n"))
+    stop("DIAG idle wait failed for ", name)
+  }
+  invisible(driver)
 }
 
 # shinytest2_bookmark_app_driver()
