@@ -18,8 +18,6 @@ jobs:
             run_extras: false
             use_public_rspm: false
             bioc_mirror: https://bioconductor.org
-            # seriation >= 1.6.0 requires R >= 4.3, which would make heatmaply
-            # uninstallable on R 4.1.
             seriation_ref: 'seriation@1.5.8'
           - r: 'release'
             run_extras: true
