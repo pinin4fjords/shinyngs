@@ -284,7 +284,7 @@ test_that("static_boxplot gives a sample with no positive values no box", {
 
 # static_densityplot()
 
-test_that("static_densityplot draws one density area per colorby level", {
+test_that("static_densityplot draws one density line colour per colorby level", {
   set.seed(1)
   mat <- matrix(rpois(80, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), paste0("s", 1:4)))
   experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 2))
@@ -293,7 +293,7 @@ test_that("static_densityplot draws one density area per colorby level", {
 
   expect_s3_class(p, "ggplot")
   built <- ggplot2::ggplot_build(p)
-  expect_equal(length(unique(built$data[[1]]$fill)), 2)
+  expect_equal(length(unique(built$data[[1]]$colour)), 2)
 })
 
 test_that("static_densityplot facets when given multiple matrices", {
@@ -306,7 +306,7 @@ test_that("static_densityplot facets when given multiple matrices", {
   expect_true("FacetWrap" %in% class(p$facet))
 })
 
-test_that("static_densityplot overlays sample densities rather than stacking them", {
+test_that("static_densityplot draws each sample's own density rather than stacking them", {
   set.seed(3)
   mat <- matrix(rlnorm(200 * 8, meanlog = 3), nrow = 200, dimnames = list(paste0("g", 1:200), paste0("s", 1:8)))
   experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 4))
@@ -314,15 +314,12 @@ test_that("static_densityplot overlays sample densities rather than stacking the
   p <- static_densityplot(mat, experiment, colorby = "condition")
   layer <- ggplot2::ggplot_build(p)$data[[1]]
 
-  # Each sample keeps its own 100-point curve. Interpolating every curve onto
-  # the union of all samples' x positions would make this grow with the square
-  # of the sample count.
+  # Interpolating every curve onto the union of all samples' x positions
+  # would make this grow with the square of the sample count
   expect_equal(nrow(layer), 100 * ncol(mat))
+  expect_equal(length(unique(layer$group)), ncol(mat))
 
-  # Curves are drawn from zero, so no area is taller than the tallest
-  # single-sample density
-  expect_true(all(layer$ymin == 0))
-  expect_equal(max(layer$ymax), max(p$data$density))
+  expect_equal(sort(layer$y), sort(p$data$density))
 })
 
 # interactive_densityplot()

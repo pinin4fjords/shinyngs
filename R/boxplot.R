@@ -730,8 +730,7 @@ interactive_boxplot_from_statistics <- function(statistics, experiment, colorby 
 
 #' Make a static density plot with ggplot2
 #'
-#' Draws one density curve per sample, overlaid on a common baseline in the
-#' same way as \code{\link{interactive_densityplot}}.
+#' Draws one density line per sample, coloured by group.
 #'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
@@ -764,19 +763,15 @@ static_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)
 
-  # geom_area() defaults to stat = "align" and position = "stack": every
-  # sample's curve is interpolated onto the union of all samples' x positions
-  # and the curves are then stacked. That both grows with the square of the
-  # sample count and plots cumulative rather than per-sample densities, so
-  # draw each curve as supplied, from zero.
+  # Lines rather than filled areas: with many samples, overlapping fills hide
+  # all but the last-drawn group and mask individual outlying samples.
 
   p <- ggplot(data = plotdata) +
-    geom_area(aes(x = value, y = density, fill = colorby, color = colorby, group = name), alpha = 0.4, stat = "identity", position = "identity") +
-    scale_fill_manual(name = prettify_variable_name(colorby), values = palette) +
+    geom_line(aes(x = value, y = density, color = colorby, group = name), alpha = 0.8, linewidth = 1.1) +
     scale_color_manual(name = prettify_variable_name(colorby), values = palette) +
     ylab("Density") +
     xlab(expressionAxisLabel(expressiontype)) +
-    guides(fill = guide_legend(title = prettify_variable_name(colorby))) +
+    guides(color = guide_legend(override.aes = list(alpha = 1))) +
     theme(legend.position = "bottom")
 
   if (is.list(plotmatrices) && length(plotmatrices) > 1) {
