@@ -159,8 +159,9 @@
   handing it to ggplot2, which for a full expression matrix cost gigabytes
   and scaled with the size of the matrix. It now draws from the same
   per-sample statistics as `interactive_boxplot()`; the boxes, whiskers and
-  outliers drawn are unchanged. Its `annotate_samples` argument, previously
-  ignored, now takes effect.
+  outliers drawn are unchanged. Its `annotate_samples` argument, and
+  `whisker_distance` when `colorby` is not set, were previously ignored and
+  now take effect.
 * Variance-based row selectors use valid slider bounds for assays with fewer
   rows than the configured default.
 

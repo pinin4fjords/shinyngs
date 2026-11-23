@@ -263,8 +263,8 @@ boxplotTheme <- function(base_size) {
 #' statistics (quartiles, whiskers, outliers) are computed once per sample and
 #' handed to \code{\link[ggplot2]{geom_boxplot}} as precomputed values, so the
 #' plot object and the memory needed to draw it scale with the number of
-#' samples rather than with the size of the matrix. Only values greater than
-#' zero contribute to the boxes.
+#' samples and outlier points rather than with the size of the matrix. Only
+#' values greater than zero contribute to the boxes.
 #'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
@@ -300,8 +300,6 @@ static_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
     plotmatrices <- list(" " = plotmatrices)
   }
 
-  # Group samples by the coloring variable while maintaining ordering as much as possible
-
   if (!is.null(colorby)) {
     sample_layout <- distribution_sample_layout(rownames(experiment), experiment, colorby)
     samples <- sample_layout$samples
@@ -319,10 +317,9 @@ static_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   }
   facet_levels <- prettify_variable_name(names(plotmatrices))
 
-  # Reduce each matrix to per-sample box statistics rather than reshaping it to
-  # one row per value: a long table of a full expression matrix (and the copies
-  # ggplot2 makes of it while computing the same statistics) runs to gigabytes
-  # for a few hundred samples.
+  # Summarise per sample before plotting: a one-row-per-value table of a full
+  # expression matrix, and ggplot2's copies of it, runs to gigabytes for a few
+  # hundred samples.
 
   statistics <- lapply(plotmatrices, function(matrix) {
     matrix <- as.matrix(matrix)[, samples, drop = FALSE]
@@ -366,10 +363,10 @@ static_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = N
   outliers$type <- factor(outliers$type, levels = unique(facet_levels))
   boxes$colorby <- factor(boxes$colorby, levels = group_levels)
 
-  # width and the outlier point styling match what geom_boxplot() draws when
-  # it computes the statistics itself
-
   box_aes <- aes(ymin = ymin, lower = lower, middle = middle, upper = upper, ymax = ymax)
+
+  # width = 0.75 and the outlier point styling reproduce what geom_boxplot()
+  # draws when it computes the statistics itself
 
   if (!is.null(colorby)) {
     palette <- resolvePalette(palette, group_levels, palette_name)

@@ -52,8 +52,8 @@ A simple function using \code{ggplot2} to make a sample boxplot. Box
 statistics (quartiles, whiskers, outliers) are computed once per sample and
 handed to \code{\link[ggplot2]{geom_boxplot}} as precomputed values, so the
 plot object and the memory needed to draw it scale with the number of
-samples rather than with the size of the matrix. Only values greater than
-zero contribute to the boxes.
+samples and outlier points rather than with the size of the matrix. Only
+values greater than zero contribute to the boxes.
 }
 \examples{
 require(airway)
