@@ -19,6 +19,16 @@ exec_smoke_libpath <- local({
   function() {
     if (is.null(lib)) {
       pkg_root <- dirname(system.file("DESCRIPTION", package = "shinyngs"))
+
+      # Under covr the package was just installed, instrumented, into covr's own
+      # library. Subprocesses must load it from there: their trace files point
+      # at the library they loaded from, and covr reads them after this
+      # session's tempdir() has been deleted.
+      if (identical(Sys.getenv("R_COVR"), "true")) {
+        lib <<- dirname(pkg_root)
+        return(lib)
+      }
+
       new_lib <- file.path(tempdir(), "shinyngs-exec-smoke-lib")
       dir.create(new_lib, showWarnings = FALSE, recursive = TRUE)
 

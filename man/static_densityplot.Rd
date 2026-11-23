@@ -43,7 +43,7 @@ If NULL, a conditional transformation based on threshold is applied.}
 output A \code{ggplot} output
 }
 \description{
-Make a static density plot with ggplot2
+Draws one density line per sample, coloured by group.
 }
 \examples{
 mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,

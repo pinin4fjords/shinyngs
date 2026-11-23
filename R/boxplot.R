@@ -259,7 +259,12 @@ boxplotTheme <- function(base_size) {
 
 #' Make a boxplot with coloring by experimental variable
 #'
-#' A simple function using \code{ggplot2} to make a sample boxplot
+#' A simple function using \code{ggplot2} to make a sample boxplot. Box
+#' statistics (quartiles, whiskers, outliers) are computed once per sample and
+#' handed to \code{\link[ggplot2]{geom_boxplot}} as precomputed values, so the
+#' plot object and the memory needed to draw it scale with the number of
+#' samples and outlier points rather than with the size of the matrix. Only
+#' values greater than zero contribute to the boxes.
 #'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
@@ -267,9 +272,9 @@ boxplotTheme <- function(base_size) {
 #' @param palette Palette of colors, one for each unique value derived from
 #' \code{colorby}.
 #' @param expressiontype Expression type for use in y axis label
-#' @param whisker_distance Passed to \code{\link[ggplot2]{geom_boxplot}} as
-#' \code{coef}, controlling the length of the whiskers. See documentation of
-#' that function for more info (default: 1.5).
+#' @param whisker_distance IQR multiplier for the whiskers, and the boundary
+#' beyond which points are drawn as outliers (see \code{coef} in
+#' \code{\link[ggplot2]{geom_boxplot}}, default: 1.5).
 #' @param base_size Passed to ggplot's \code{theme()}
 #' @param palette_name Valid R color palette name
 #' @param annotate_samples Add a suffix to sample labels reflecting their group?
@@ -290,22 +295,94 @@ boxplotTheme <- function(base_size) {
 #' static_boxplot(assays(airway)[[1]], data.frame(colData(airway)), colorby = "dex")
 #'
 static_boxplot <- function(plotmatrices, experiment, colorby = NULL, palette = NULL, expressiontype = "expression", whisker_distance = 1.5, base_size = 11, palette_name = COLORBLIND_PALETTE_NAME, annotate_samples = FALSE, should_transform = NULL) {
-  plotdata <- ggplotify(plotmatrices, experiment, colorby, annotate_samples, should_transform = should_transform)
+  faceted <- is.list(plotmatrices) && length(plotmatrices) > 1
+  if (!is.list(plotmatrices)) {
+    plotmatrices <- list(" " = plotmatrices)
+  }
 
   if (!is.null(colorby)) {
+    sample_layout <- distribution_sample_layout(rownames(experiment), experiment, colorby)
+    samples <- sample_layout$samples
+    groups <- sample_layout$groups
     group_levels <- groupLevels(experiment, colorby)
+  } else {
+    samples <- rownames(experiment)
+    groups <- rep(" ", length(samples))
+    group_levels <- " "
+  }
+
+  axis_labels <- samples
+  if (annotate_samples && !is.null(colorby)) {
+    axis_labels <- paste0(samples, " (", groups, ")")
+  }
+  facet_levels <- prettify_variable_name(names(plotmatrices))
+
+  # Summarise per sample before plotting: a one-row-per-value table of a full
+  # expression matrix, and ggplot2's copies of it, runs to gigabytes for a few
+  # hundred samples.
+
+  statistics <- lapply(plotmatrices, function(matrix) {
+    matrix <- as.matrix(matrix)[, samples, drop = FALSE]
+    matrix[which(matrix <= 0)] <- NA
+    boxplot_matrix_statistics(matrix, whisker_distance = whisker_distance, should_transform = should_transform, rmzeros = TRUE)
+  })
+
+  boxes <- do.call(rbind, lapply(seq_along(statistics), function(i) {
+    stats <- statistics[[i]][samples]
+    data.frame(
+      name = axis_labels, colorby = groups, type = facet_levels[i],
+      ymin = vapply(stats, function(x) x$lowerfence, numeric(1)),
+      lower = vapply(stats, function(x) x$q1, numeric(1)),
+      middle = vapply(stats, function(x) x$median, numeric(1)),
+      upper = vapply(stats, function(x) x$q3, numeric(1)),
+      ymax = vapply(stats, function(x) x$upperfence, numeric(1)),
+      stringsAsFactors = FALSE
+    )
+  }))
+
+  outliers <- do.call(rbind, lapply(seq_along(statistics), function(i) {
+    stats <- statistics[[i]][samples]
+    n_outliers <- vapply(stats, function(x) length(x$outlier_values), integer(1))
+    data.frame(
+      name = rep(axis_labels, n_outliers), type = rep(facet_levels[i], sum(n_outliers)),
+      value = as.numeric(unlist(lapply(stats, function(x) x$outlier_values), use.names = FALSE)),
+      stringsAsFactors = FALSE
+    )
+  }))
+
+  # Samples with no values to summarise get no box
+
+  boxes <- boxes[!is.na(boxes$middle), , drop = FALSE]
+
+  # Make sure name is a factor to stop ggplot re-ordering the axis, and that
+  # multiple matrices are plotted in the order received
+
+  boxes$name <- factor(boxes$name, levels = axis_labels)
+  outliers$name <- factor(outliers$name, levels = axis_labels)
+  boxes$type <- factor(boxes$type, levels = unique(facet_levels))
+  outliers$type <- factor(outliers$type, levels = unique(facet_levels))
+  boxes$colorby <- factor(boxes$colorby, levels = group_levels)
+
+  box_aes <- aes(ymin = ymin, lower = lower, middle = middle, upper = upper, ymax = ymax)
+
+  # width = 0.75 and the outlier point styling reproduce what geom_boxplot()
+  # draws when it computes the statistics itself
+
+  if (!is.null(colorby)) {
     palette <- resolvePalette(palette, group_levels, palette_name)
 
-    p <- ggplot(plotdata, aes(name, value, fill = colorby)) +
-      geom_boxplot(coef = whisker_distance) +
+    p <- ggplot(boxes, aes(x = name, fill = colorby)) +
+      geom_boxplot(box_aes, stat = "identity", width = 0.75) +
       scale_fill_manual(name = prettify_variable_name(colorby), values = palette) +
       guides(fill = guide_legend(nrow = ceiling(length(group_levels) / 2)))
   } else {
-    p <- ggplot(plotdata, aes(name, value)) +
-      geom_boxplot()
+    p <- ggplot(boxes, aes(x = name)) +
+      geom_boxplot(box_aes, stat = "identity", width = 0.75)
   }
 
-  if (is.list(plotmatrices) && length(plotmatrices) > 1) {
+  p <- p + geom_point(data = outliers, aes(x = name, y = value), inherit.aes = FALSE, colour = "grey20", shape = 19, size = 1.5)
+
+  if (faceted) {
     n_col <- ifelse(sum(unlist(lapply(plotmatrices, ncol))) < 20, length(plotmatrices), 1)
     p <- p + facet_wrap(~type, ncol = n_col)
   }
@@ -650,6 +727,8 @@ interactive_boxplot_from_statistics <- function(statistics, experiment, colorby 
 
 #' Make a static density plot with ggplot2
 #'
+#' Draws one density line per sample, coloured by group.
+#'
 #' @param plotmatrices Expression/ other data matrix, or named list thereof
 #' @param experiment Annotation for the columns of plotmatrix
 #' @param colorby Column name in \code{experiment} specifying how lines should be colored
@@ -681,13 +760,15 @@ static_densityplot <- function(plotmatrices, experiment, colorby = NULL, palette
   plotdata <- ggplotify(plotmatrices, experiment, colorby, value_type = "density", annotate_samples = annotate_samples, should_transform = should_transform)
   palette <- resolvePalette(palette, levels(plotdata$colorby), palette_name)
 
+  # Lines rather than filled areas: with many samples, overlapping fills hide
+  # all but the last-drawn group and mask individual outlying samples.
+
   p <- ggplot(data = plotdata) +
-    geom_area(aes(x = value, y = density, fill = colorby, color = colorby, group = name), alpha = 0.4) +
-    scale_fill_manual(name = prettify_variable_name(colorby), values = palette) +
+    geom_line(aes(x = value, y = density, color = colorby, group = name), alpha = 0.8, linewidth = 1.1) +
     scale_color_manual(name = prettify_variable_name(colorby), values = palette) +
     ylab("Density") +
     xlab(expressionAxisLabel(expressiontype)) +
-    guides(fill = guide_legend(title = prettify_variable_name(colorby))) +
+    guides(color = guide_legend(override.aes = list(alpha = 1))) +
     theme(legend.position = "bottom")
 
   if (is.list(plotmatrices) && length(plotmatrices) > 1) {

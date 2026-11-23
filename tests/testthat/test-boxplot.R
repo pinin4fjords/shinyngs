@@ -206,9 +206,85 @@ test_that("interactive_boxplot labels every facet's x-axis, not just the bottom 
   expect_equal(unname(showticklabels), c(FALSE, TRUE))
 })
 
+# static_boxplot()
+
+test_that("static_boxplot draws one precomputed box per sample", {
+  set.seed(1)
+  mat <- matrix(rpois(2000 * 6, lambda = 50) + 1, nrow = 2000)
+  colnames(mat) <- paste0("s", 1:6)
+  rownames(mat) <- paste0("gene", 1:2000)
+  experiment <- data.frame(row.names = colnames(mat), group = rep(c("A", "B"), each = 3))
+
+  p <- static_boxplot(mat, experiment, colorby = "group")
+  expect_s3_class(p, "ggplot")
+
+  # The plot carries one row per sample rather than one per matrix value, so
+  # its size is independent of the number of rows in the matrix
+  expect_equal(nrow(p$data), ncol(mat))
+  expect_equal(nrow(ggplot2::ggplot_build(p)$data[[1]]), ncol(mat))
+})
+
+test_that("static_boxplot matches the boxes ggplot2 computes from the raw values", {
+  set.seed(2)
+  mat <- matrix(rlnorm(500 * 4, meanlog = 4), nrow = 500)
+  mat[sample(length(mat), 200)] <- 0
+  colnames(mat) <- paste0("s", 1:4)
+  rownames(mat) <- paste0("gene", 1:500)
+  experiment <- data.frame(row.names = colnames(mat), group = c("B", "A", "B", "A"))
+
+  built <- ggplot2::ggplot_build(static_boxplot(mat, experiment, colorby = "group", should_transform = TRUE))
+
+  # Reference: a long table of the positive values, logged, with samples
+  # ordered by group in first-seen order, left to geom_boxplot() to summarise
+  long <- data.frame(
+    name = factor(rep(colnames(mat), each = nrow(mat)), levels = c("s1", "s3", "s2", "s4")),
+    value = as.numeric(mat)
+  )
+  long <- long[long$value > 0, ]
+  long$value <- log2(long$value)
+  reference <- ggplot2::ggplot_build(
+    ggplot2::ggplot(long, ggplot2::aes(name, value)) +
+      ggplot2::geom_boxplot()
+  )$data[[1]]
+
+  for (statistic in c("ymin", "lower", "middle", "upper", "ymax", "xmin", "xmax")) {
+    expect_equal(built$data[[1]][[statistic]], reference[[statistic]], ignore_attr = TRUE)
+  }
+  expect_equal(sort(built$data[[2]]$y), sort(unlist(reference$outliers)))
+})
+
+test_that("static_boxplot handles no grouping, sample annotation and multiple matrices", {
+  set.seed(3)
+  mat <- matrix(rpois(500 * 4, lambda = 50) + 1, nrow = 500)
+  colnames(mat) <- paste0("s", 1:4)
+  rownames(mat) <- paste0("gene", 1:500)
+  experiment <- data.frame(row.names = colnames(mat), group = c("B", "A", "B", "A"))
+
+  expect_s3_class(static_boxplot(mat, experiment), "ggplot")
+
+  annotated <- static_boxplot(mat, experiment, colorby = "group", annotate_samples = TRUE)
+  expect_equal(levels(annotated$data$name), c("s1 (B)", "s3 (B)", "s2 (A)", "s4 (A)"))
+
+  faceted <- static_boxplot(list(Raw = mat, Filtered = mat[1:250, ]), experiment, colorby = "group")
+  expect_true("FacetWrap" %in% class(faceted$facet))
+  expect_equal(nrow(faceted$data), 2 * ncol(mat))
+  expect_equal(levels(faceted$data$type), c("Raw", "Filtered"))
+})
+
+test_that("static_boxplot gives a sample with no positive values no box", {
+  mat <- cbind(s1 = c(1, 2, 4, 8, 16), s2 = rep(0, 5), s3 = c(2, 4, 8, 16, 32))
+  rownames(mat) <- paste0("gene", 1:5)
+  experiment <- data.frame(row.names = colnames(mat), group = c("A", "A", "B"))
+
+  p <- static_boxplot(mat, experiment, colorby = "group", should_transform = TRUE)
+
+  expect_equal(as.character(p$data$name), c("s1", "s3"))
+  expect_no_warning(ggplot2::ggplot_build(p))
+})
+
 # static_densityplot()
 
-test_that("static_densityplot draws one density area per colorby level", {
+test_that("static_densityplot draws one density line colour per colorby level", {
   set.seed(1)
   mat <- matrix(rpois(80, lambda = 30) + 1, nrow = 20, dimnames = list(paste0("g", 1:20), paste0("s", 1:4)))
   experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 2))
@@ -217,7 +293,7 @@ test_that("static_densityplot draws one density area per colorby level", {
 
   expect_s3_class(p, "ggplot")
   built <- ggplot2::ggplot_build(p)
-  expect_equal(length(unique(built$data[[1]]$fill)), 2)
+  expect_equal(length(unique(built$data[[1]]$colour)), 2)
 })
 
 test_that("static_densityplot facets when given multiple matrices", {
@@ -228,6 +304,22 @@ test_that("static_densityplot facets when given multiple matrices", {
   p <- static_densityplot(list(Raw = mat1, Filtered = mat2), experiment)
 
   expect_true("FacetWrap" %in% class(p$facet))
+})
+
+test_that("static_densityplot draws each sample's own density rather than stacking them", {
+  set.seed(3)
+  mat <- matrix(rlnorm(200 * 8, meanlog = 3), nrow = 200, dimnames = list(paste0("g", 1:200), paste0("s", 1:8)))
+  experiment <- data.frame(row.names = colnames(mat), condition = rep(c("control", "treated"), each = 4))
+
+  p <- static_densityplot(mat, experiment, colorby = "condition")
+  layer <- ggplot2::ggplot_build(p)$data[[1]]
+
+  # Interpolating every curve onto the union of all samples' x positions
+  # would make this grow with the square of the sample count
+  expect_equal(nrow(layer), 100 * ncol(mat))
+  expect_equal(length(unique(layer$group)), ncol(mat))
+
+  expect_equal(sort(layer$y), sort(p$data$density))
 })
 
 # interactive_densityplot()
