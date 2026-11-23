@@ -43,7 +43,8 @@ If NULL, a conditional transformation based on threshold is applied.}
 output A \code{ggplot} output
 }
 \description{
-Make a static density plot with ggplot2
+Draws one density curve per sample, overlaid on a common baseline in the
+same way as \code{\link{interactive_densityplot}}.
 }
 \examples{
 mat <- matrix(rnorm(24, mean = 10), nrow = 6, ncol = 4,

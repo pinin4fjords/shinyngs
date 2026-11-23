@@ -148,6 +148,19 @@
 
 ## Bug fixes
 
+* `static_densityplot()` needed memory that grew with the square of the
+  sample count (several gigabytes for 150 samples, so `exploratory_plots.R`
+  was killed on studies of a few hundred) and drew stacked rather than
+  per-sample densities. `geom_area()`'s default `stat = "align"` and
+  `position = "stack"` interpolated every sample's curve onto the union of
+  all samples' x positions and then stacked them. Curves are now overlaid
+  from zero, as in `interactive_densityplot()`.
+* `static_boxplot()` reshaped each matrix to one row per value before
+  handing it to ggplot2, which for a full expression matrix cost gigabytes
+  and scaled with the size of the matrix. It now draws from the same
+  per-sample statistics as `interactive_boxplot()`; the boxes, whiskers and
+  outliers drawn are unchanged. Its `annotate_samples` argument, previously
+  ignored, now takes effect.
 * Variance-based row selectors use valid slider bounds for assays with fewer
   rows than the configured default.
 
