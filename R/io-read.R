@@ -250,6 +250,16 @@ eselist_from_config <-
       }
       assays <- assays[assay_order]
 
+      # Matrices routinely carry features the annotation does not describe,
+      # for example genes absent from the GTF the annotation was made from.
+
+      annotation <- pad_feature_annotation(
+        annotation,
+        feature_ids = Reduce(union, lapply(assays, rownames)),
+        id_field = exp$annotation$id,
+        label_field = exp$annotation$label
+      )
+
       # Add contrast_stats where available.
 
       contrast_stats <- list()
@@ -435,6 +445,48 @@ read_gmt <- function(file) {
   names(gene_sets) <- set_names
 
   gene_sets
+}
+
+#' Add rows to a feature annotation for features it does not describe
+#'
+#' \code{\link{ExploratorySummarizedExperiment}} needs an annotation row for
+#' every assay feature. Files supplied by users often fall short of that, so
+#' when building from files the missing features are added, identified by
+#' their ID alone, rather than treated as an error.
+#'
+#' @param annotation Data frame of feature annotation with feature IDs as row
+#'   names
+#' @param feature_ids Character vector of feature IDs that need a row
+#' @param id_field Name of the annotation column holding the feature ID
+#' @param label_field Name of the annotation column holding the feature label,
+#'   if any
+#'
+#' @return The annotation, with a row added for each feature it lacked. The ID
+#'   and label columns of added rows hold the feature ID; all other columns
+#'   are \code{NA}.
+#' @keywords internal
+#' @noRd
+
+pad_feature_annotation <- function(annotation, feature_ids, id_field = NULL, label_field = NULL) {
+  missing_ids <- setdiff(feature_ids, rownames(annotation))
+  if (length(missing_ids) == 0) {
+    return(annotation)
+  }
+
+  warning(
+    length(missing_ids), " of ", length(feature_ids), " assay features have no feature annotation",
+    " and will be identified by feature ID only (first few: ",
+    paste(utils::head(missing_ids, 5), collapse = ", "), ")",
+    call. = FALSE
+  )
+
+  padding <- annotation[rep(NA_integer_, length(missing_ids)), , drop = FALSE]
+  rownames(padding) <- missing_ids
+  for (field in intersect(c(id_field, label_field), colnames(annotation))) {
+    padding[[field]] <- methods::as(missing_ids, class(annotation[[field]])[1])
+  }
+
+  rbind(annotation, padding)
 }
 
 #' Read an expression matrix file and match to specified samples and features
