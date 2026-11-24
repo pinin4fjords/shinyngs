@@ -148,6 +148,15 @@
 
 ## Bug fixes
 
+* `eselist_from_config()`, and with it `make_app_from_files.R`, stopped with
+  "Feature annotation is missing assay rows" whenever a matrix held features
+  the annotation did not describe, for example genes absent from the GTF the
+  annotation was derived from. This is common in real studies and built
+  without complaint before `ExploratorySummarizedExperiment()` began
+  validating its inputs. Building from files now adds a row for each such
+  feature, identified by its ID in the ID and label columns, and warns with
+  the number affected. `ExploratorySummarizedExperiment()` itself is
+  unchanged and still requires a complete annotation.
 * `static_densityplot()` needed memory that grew with the square of the
   sample count (several gigabytes for 150 samples, so `exploratory_plots.R`
   was killed on studies of a few hundred) and drew stacked rather than
